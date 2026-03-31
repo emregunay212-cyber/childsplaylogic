@@ -598,6 +598,16 @@ const Multiplayer = (() => {
           yourRole: currentRole
         };
         emit('GAME_OVER', payload);
+
+        // Oyun bitti - lobiyi 5 sn sonra sil (iki taraf da GAME_OVER alsın)
+        setTimeout(() => {
+          if (currentLobbyId) {
+            db.ref('lobbies/' + currentLobbyId).remove().catch(() => {});
+            stopListening();
+            currentLobbyId = null;
+            currentRole = null;
+          }
+        }, 5000);
       }
 
       prevState = lobby.state;

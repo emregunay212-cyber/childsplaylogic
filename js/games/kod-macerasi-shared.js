@@ -170,7 +170,10 @@ const KodMacerasiCore = (() => {
 
     // Grid render
     function renderGrid(container, puzzle, robotPos, robotColor) {
-        const { size, obstacles, collectibles, target } = puzzle;
+        const size = puzzle.size;
+        const obstacles = puzzle.obstacles || [];
+        const collectibles = puzzle.collectibles || [];
+        const target = puzzle.target;
         const wrap = document.createElement('div');
         wrap.className = 'kod-grid-wrap';
 
@@ -306,7 +309,10 @@ const KodMacerasiCore = (() => {
 
     // Sekans çalıştırma (saf fonksiyon) - basit 4 yönlü hareket
     function executeSequence(puzzle, sequence, startPos) {
-        const { size, obstacles, collectibles, target } = puzzle;
+        const size = puzzle.size;
+        const obstacles = puzzle.obstacles || [];
+        const collectibles = puzzle.collectibles || [];
+        const target = puzzle.target;
         let x = startPos.x;
         let y = startPos.y;
         let collected = [];
