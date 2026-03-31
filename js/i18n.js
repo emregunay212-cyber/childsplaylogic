@@ -21,6 +21,7 @@ const TR = {
         'kod-macerasi': 'Kod Macerası',
         'satranc': 'Satranç',
         'penalti': 'Penaltı',
+        'penalti-mp': 'Penaltı Online',
         'tuval': 'Tuval',
     },
 
@@ -103,6 +104,7 @@ const TR = {
         'kod-macerasi': 'Robotu yıldıza götür!',
         'satranc': 'Bilgisayarı mat et!',
         'penalti': 'Kaleye şut çek!',
+        'penalti-mp': 'Rakibine penaltı at!',
         'tuval': 'Hayal et ve boya!',
     },
 

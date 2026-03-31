@@ -173,6 +173,7 @@ const App = (() => {
             { id: 'harf-tahmin', emoji: '🔡', color: 'var(--harf-tahmin-color)', game: HarfTahmin },
             { id: 'kod-macerasi', emoji: '🤖', color: 'var(--kodmacerasi-color)', game: KodMacerasiMP },
             { id: 'satranc', emoji: '♟️', color: 'var(--satranc-color)', game: SatrancMP },
+            { id: 'penalti-mp', emoji: '⚽', color: 'var(--penalti-color)', game: PenaltiMP },
         ];
         mpGames.forEach(({ id, emoji, color, game }) => {
             const card = document.createElement('div');

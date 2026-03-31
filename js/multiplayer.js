@@ -59,6 +59,8 @@ const Multiplayer = (() => {
       case 'SUBMIT_SEQUENCE': return submitSequence(payload.sequence);
       case 'SUBMIT_MOVE': return submitMove(payload.move);
       case 'CHESS_MOVE': return chessMove(payload);
+      case 'PENALTY_SHOOT': return penaltyShoot(payload.zone);
+      case 'PENALTY_KEEPER': return penaltyKeeper(payload.zone);
       case 'LEAVE_LOBBY': return leaveLobby();
       default: console.warn('Unknown message type:', type);
     }
@@ -145,6 +147,19 @@ const Multiplayer = (() => {
         rounds,
         createdAt: firebase.database.ServerValue.TIMESTAMP
       };
+    } else if (gameType === 'penalti-mp') {
+      lobbyData = {
+        id: lobbyId, gameType,
+        hostId: playerId, hostName: playerName, guestId: null, guestName: null,
+        state: 'WAITING',
+        currentRound: 1, currentShooter: 'host',
+        hostScore: 0, guestScore: 0,
+        hostShots: [], guestShots: [],
+        pendingShot: null, pendingKeeper: null,
+        isSuddenDeath: false,
+        winner: null,
+        createdAt: firebase.database.ServerValue.TIMESTAMP
+      };
     } else if (gameType === 'satranc') {
       const hostColor = opts.hostColor || (Math.random() < 0.5 ? 'white' : 'black');
       lobbyData = {
@@ -210,7 +225,15 @@ const Multiplayer = (() => {
     currentLobbyId = lobbyId;
     currentRole = 'guest';
 
-    if (lobby.gameType === 'satranc') {
+    if (lobby.gameType === 'penalti-mp') {
+      await ref.update({ guestId: playerId, guestName: playerName, state: 'PLAYING' });
+      listenToLobby(lobbyId);
+      emit('PLAYER_JOINED', { opponentName: lobby.hostName, role: 'guest' });
+      emit('GAME_START', {
+        yourRole: 'guest', opponentName: lobby.hostName,
+        gameType: 'penalti-mp'
+      });
+    } else if (lobby.gameType === 'satranc') {
       await ref.update({ guestId: playerId, guestName: playerName, state: 'PLAYING' });
       listenToLobby(lobbyId);
       emit('PLAYER_JOINED', { opponentName: lobby.hostName, role: 'guest' });
@@ -262,7 +285,9 @@ const Multiplayer = (() => {
 
     if (!found) {
       // Yeni lobi oluştur
-      const defaults = gameType === 'kod-macerasi'
+      const defaults = gameType === 'penalti-mp'
+        ? { gameType }
+        : gameType === 'kod-macerasi'
         ? { gameType, gridSize: 6 }
         : gameType === 'satranc'
         ? { gameType, hostColor: Math.random() < 0.5 ? 'white' : 'black' }
@@ -428,6 +453,122 @@ const Multiplayer = (() => {
     await ref.update(updates);
   }
 
+  // ── Penaltı MP ──
+
+  async function penaltyShoot(zone) {
+    if (!currentLobbyId) return;
+    const ref = db.ref('lobbies/' + currentLobbyId);
+    const snap = await ref.once('value');
+    const lobby = snap.val();
+    if (!lobby || lobby.state !== 'PLAYING') return;
+    if (lobby.currentShooter !== currentRole) {
+      return emit('ERROR', { code: 'NOT_SHOOTER', message: 'Bu turda atan sen değilsin' });
+    }
+    await ref.update({ pendingShot: { zone, player: currentRole } });
+    // Eğer kaleci de seçtiyse sonuç hesapla
+    await resolvePenalty(ref);
+  }
+
+  async function penaltyKeeper(zone) {
+    if (!currentLobbyId) return;
+    const ref = db.ref('lobbies/' + currentLobbyId);
+    const snap = await ref.once('value');
+    const lobby = snap.val();
+    if (!lobby || lobby.state !== 'PLAYING') return;
+    if (lobby.currentShooter === currentRole) {
+      return emit('ERROR', { code: 'NOT_KEEPER', message: 'Bu turda kaleci sen değilsin' });
+    }
+    await ref.update({ pendingKeeper: { zone, player: currentRole } });
+    // Eğer atan da seçtiyse sonuç hesapla
+    await resolvePenalty(ref);
+  }
+
+  async function resolvePenalty(ref) {
+    const snap = await ref.once('value');
+    const lobby = snap.val();
+    if (!lobby || !lobby.pendingShot || !lobby.pendingKeeper) return;
+
+    const shotZone = lobby.pendingShot.zone;
+    const keeperZone = lobby.pendingKeeper.zone;
+    const isGoal = shotZone !== keeperZone;
+    const shooter = lobby.currentShooter;
+
+    const hostShots = lobby.hostShots || [];
+    const guestShots = lobby.guestShots || [];
+    let hostScore = lobby.hostScore || 0;
+    let guestScore = lobby.guestScore || 0;
+
+    const shotRecord = { zone: shotZone, keeperZone, goal: isGoal };
+
+    if (shooter === 'host') {
+      hostShots.push(shotRecord);
+      if (isGoal) hostScore++;
+    } else {
+      guestShots.push(shotRecord);
+      if (isGoal) guestScore++;
+    }
+
+    // Sonraki atış kimin?
+    const nextShooter = shooter === 'host' ? 'guest' : 'host';
+    // Mevcut round: host attıysa aynı round, guest attıysa sonraki round
+    const nextRound = shooter === 'guest' ? (lobby.currentRound || 1) + 1 : (lobby.currentRound || 1);
+    const isSuddenDeath = lobby.isSuddenDeath || false;
+
+    const updates = {
+      hostShots, guestShots, hostScore, guestScore,
+      pendingShot: null, pendingKeeper: null,
+      currentShooter: nextShooter,
+      currentRound: nextRound,
+      // Sonuç bilgisi (client animasyon için)
+      lastResult: { shotZone, keeperZone, goal: isGoal, shooter, round: lobby.currentRound, isSuddenDeath }
+    };
+
+    // Oyun bitti mi kontrol et
+    const totalNormal = 5;
+    const hostDone = hostShots.length;
+    const guestDone = guestShots.length;
+
+    if (!isSuddenDeath) {
+      // Normal 5 atış - her iki taraf da 5 atış yaptıysa
+      if (hostDone >= totalNormal && guestDone >= totalNormal) {
+        if (hostScore !== guestScore) {
+          updates.state = 'FINISHED';
+          updates.winner = hostScore > guestScore ? 'host' : 'guest';
+        } else {
+          // Eşitlik → sudden death
+          updates.isSuddenDeath = true;
+        }
+      } else {
+        // Erken sonuç: geri kalan atışlarla yetişilemeyecekse
+        const hostRemaining = totalNormal - hostDone;
+        const guestRemaining = totalNormal - guestDone;
+        // Host tüm kalan atışları atsa bile guest'e yetişemezse
+        if (hostDone >= 1 && guestDone >= 1) {
+          if (hostScore + hostRemaining < guestScore && guestRemaining === 0) {
+            updates.state = 'FINISHED';
+            updates.winner = 'guest';
+          } else if (guestScore + guestRemaining < hostScore && hostRemaining === 0) {
+            updates.state = 'FINISHED';
+            updates.winner = 'host';
+          }
+        }
+      }
+    } else {
+      // Sudden death: her ikisi de attıktan sonra (çift sayıda toplam atış)
+      if (hostDone === guestDone && hostDone > totalNormal) {
+        // Bu turda biri attı diğeri kaçırdıysa (son atışlara bak)
+        const lastHost = hostShots[hostShots.length - 1];
+        const lastGuest = guestShots[guestShots.length - 1];
+        if (lastHost.goal !== lastGuest.goal) {
+          updates.state = 'FINISHED';
+          updates.winner = lastHost.goal ? 'host' : 'guest';
+        }
+      }
+    }
+
+    await ref.update(updates);
+  }
+
   // ── Kod Macerası ──
 
   async function submitSequence(sequence) {
@@ -567,7 +708,12 @@ const Multiplayer = (() => {
       if (currentRole === 'host' && lobby.guestId && prevState === 'WAITING' && lobby.state !== 'WAITING') {
         emit('PLAYER_JOINED', { opponentName: lobby.guestName, role: 'host' });
 
-        if (lobby.gameType === 'satranc') {
+        if (lobby.gameType === 'penalti-mp') {
+          emit('GAME_START', {
+            yourRole: 'host', opponentName: lobby.guestName,
+            gameType: 'penalti-mp'
+          });
+        } else if (lobby.gameType === 'satranc') {
           emit('GAME_START', {
             yourRole: 'host', opponentName: lobby.guestName,
             fen: lobby.fen, hostColor: lobby.hostColor,
@@ -728,6 +874,30 @@ const Multiplayer = (() => {
             }
             prevLastMove = r;
           }
+        }
+      }
+
+      // Penaltı MP: atış sonucu
+      if (lobby.gameType === 'penalti-mp' && lobby.lastResult) {
+        const lr = lobby.lastResult;
+        const prevLR = prevLastMove; // reuse prevLastMove for penalty tracking
+        const lrKey = `${lr.shooter}-${lr.round}-${lr.shotZone}-${lr.keeperZone}`;
+        if (lrKey !== prevLR) {
+          emit('PENALTY_RESULT', {
+            round: lr.round,
+            shooter: lr.shooter,
+            shotZone: lr.shotZone,
+            keeperZone: lr.keeperZone,
+            goal: lr.goal,
+            hostScore: lobby.hostScore || 0,
+            guestScore: lobby.guestScore || 0,
+            hostShots: lobby.hostShots || [],
+            guestShots: lobby.guestShots || [],
+            currentShooter: lobby.currentShooter,
+            currentRound: lobby.currentRound,
+            isSuddenDeath: lobby.isSuddenDeath || false,
+          });
+          prevLastMove = lrKey;
         }
       }
 

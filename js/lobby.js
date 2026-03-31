@@ -84,10 +84,15 @@ const Lobby = (() => {
 
   // ── Create Lobby ──
   function renderCreateForm() {
-    const isKod = currentGameType === 'kod-macerasi' || currentGameType === 'satranc';
+    const isKod = currentGameType === 'kod-macerasi' || currentGameType === 'satranc' || currentGameType === 'penalti-mp';
     const isSatranc = currentGameType === 'satranc';
+    const isPenalti = currentGameType === 'penalti-mp';
 
-    const settingsHTML = isSatranc ? `
+    const settingsHTML = isPenalti ? `
+        <div class="lobby-setting">
+          <p style="text-align:center;color:#888;font-size:0.9rem;">⚽ 5'er penaltı atışı + seri penaltı</p>
+        </div>
+    ` : isSatranc ? `
         <div class="lobby-setting">
           <label>Renk Seçimi:</label>
           <div class="pill-selector" data-name="hostColor">
@@ -136,7 +141,10 @@ const Lobby = (() => {
     });
 
     container.querySelector('.lobby-submit-btn').onclick = () => {
-      if (isSatranc) {
+      if (isPenalti) {
+        Multiplayer.on('LOBBY_CREATED', (data) => renderWaitingRoom(data.lobbyId));
+        Multiplayer.send('CREATE_LOBBY', { gameType: currentGameType });
+      } else if (isSatranc) {
         let hostColor = container.querySelector('[data-name="hostColor"] .active')?.dataset.value || 'white';
         if (hostColor === 'random') hostColor = Math.random() < 0.5 ? 'white' : 'black';
         Multiplayer.on('LOBBY_CREATED', (data) => renderWaitingRoom(data.lobbyId));
@@ -174,7 +182,7 @@ const Lobby = (() => {
       </div>`;
 
     Multiplayer.on('PLAYER_JOINED', (data) => {
-      if (currentGameType === 'kod-macerasi' || currentGameType === 'satranc') {
+      if (currentGameType === 'kod-macerasi' || currentGameType === 'satranc' || currentGameType === 'penalti-mp') {
         // Kod macerasi: kelime girisi yok, GAME_START bekle
         Multiplayer.on('GAME_START', (gameData) => {
           Multiplayer.off('GAME_START');
@@ -223,10 +231,10 @@ const Lobby = (() => {
       listContainer.innerHTML = data.lobbies.map(l => `
         <div class="lobby-list-card">
           <div class="lobby-list-info">
-            <span class="lobby-list-icon">${l.gameType === 'kod-macerasi' ? '🤖' : l.gameType === 'kelime-tahmin' ? '🔤' : '🔡'}</span>
+            <span class="lobby-list-icon">${l.gameType === 'penalti-mp' ? '⚽' : l.gameType === 'kod-macerasi' ? '🤖' : l.gameType === 'kelime-tahmin' ? '🔤' : l.gameType === 'satranc' ? '♟️' : '🔡'}</span>
             <div>
               <strong>${l.hostName}</strong>
-              <span class="lobby-list-detail">${l.gameType === 'kod-macerasi' ? l.gridSize+'x'+l.gridSize+' grid' : l.wordLength+' harf · '+l.maxTurns+' tur'}</span>
+              <span class="lobby-list-detail">${l.gameType === 'penalti-mp' ? '5 atış' : l.gameType === 'kod-macerasi' ? l.gridSize+'x'+l.gridSize+' grid' : l.gameType === 'satranc' ? 'Satranç' : l.wordLength+' harf · '+l.maxTurns+' tur'}</span>
             </div>
           </div>
           <button class="lobby-join-btn" data-id="${l.id}">${TR.mp.join}</button>
@@ -238,7 +246,7 @@ const Lobby = (() => {
           Multiplayer.on('PLAYER_JOINED', (data) => {
             joinedData = data;
           });
-          if (currentGameType === 'kod-macerasi' || currentGameType === 'satranc') {
+          if (currentGameType === 'kod-macerasi' || currentGameType === 'satranc' || currentGameType === 'penalti-mp') {
             Multiplayer.on('GAME_START', (gameData) => {
               Multiplayer.offAll();
               if (onGameStart) onGameStart(gameData);
