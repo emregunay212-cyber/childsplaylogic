@@ -503,3 +503,35 @@
     from { opacity: 0; }
     to { opacity: 1; }
 }
+
+/* Ceza mesajı */
+.kod-penalty-msg {
+    text-align: center;
+    padding: 0.5rem;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+    color: white;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border-radius: 12px;
+    margin: 0.3rem auto;
+    max-width: 280px;
+    animation: shakeIn 0.4s ease;
+    box-shadow: 0 4px 12px rgba(238, 90, 36, 0.3);
+}
+.kod-penalty-timer {
+    display: inline-block;
+    background: rgba(255,255,255,0.3);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    text-align: center;
+    margin-left: 6px;
+    font-size: 0.85rem;
+}
+@keyframes shakeIn {
+    0% { transform: translateX(-20px); opacity: 0; }
+    30% { transform: translateX(10px); }
+    60% { transform: translateX(-5px); }
+    100% { transform: translateX(0); opacity: 1; }
+}

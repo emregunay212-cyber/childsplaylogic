@@ -221,22 +221,65 @@ const KodMacerasiMP = (() => {
         `;
     }
 
-    function onMove(type) {
-        if (myFinished || gameOver) return;
+    let penaltyActive = false;
 
-        // Lokal önizleme: hemen hareket et
+    function onMove(type) {
+        if (myFinished || gameOver || penaltyActive) return;
+
         const MOVES = { UP: {dx:0,dy:-1}, DOWN: {dx:0,dy:1}, LEFT: {dx:-1,dy:0}, RIGHT: {dx:1,dy:0} };
         const m = MOVES[type];
         const nx = myRobotPos.x + m.dx;
         const ny = myRobotPos.y + m.dy;
 
-        const obstacles = myPuzzle.obstacles || [];
-        if (nx < 0 || nx >= myPuzzle.size || ny < 0 || ny >= myPuzzle.size ||
-            obstacles.some(o => o.x === nx && o.y === ny)) {
+        // Sınır dışı - engel gibi davran
+        if (nx < 0 || nx >= myPuzzle.size || ny < 0 || ny >= myPuzzle.size) {
             AudioManager.play('error');
-            return; // geçersiz hamle
+            return;
         }
 
+        const obstacles = myPuzzle.obstacles || [];
+
+        // Engele çarptı → başa at + 2sn ceza
+        if (obstacles.some(o => o.x === nx && o.y === ny)) {
+            AudioManager.play('error');
+            penaltyActive = true;
+
+            // Robot'u engel hücresine kısa süre göster (crash efekti)
+            myRobotPos = { x: nx, y: ny };
+            renderMyGrid();
+            const robotEl = container.querySelector('#my-grid-container .kod-robot');
+            if (robotEl) robotEl.classList.add('crashed');
+
+            // Butonları devre dışı bırak
+            container.querySelectorAll('.kod-block-btn').forEach(b => b.classList.add('disabled'));
+
+            // Ceza mesajı göster
+            const penalty = document.createElement('div');
+            penalty.className = 'kod-penalty-msg';
+            penalty.innerHTML = '💥 Engel! Başa dönüyorsun... <span class="kod-penalty-timer">2</span>';
+            container.querySelector('.kod-mp-left')?.appendChild(penalty);
+
+            // Geri sayım
+            setTimeout(() => {
+                const timer = penalty.querySelector('.kod-penalty-timer');
+                if (timer) timer.textContent = '1';
+            }, 1000);
+
+            // 2sn sonra başa at
+            setTimeout(() => {
+                myRobotPos = { x: myPuzzle.start.x, y: myPuzzle.start.y };
+                penaltyActive = false;
+                penalty.remove();
+                renderMyGrid();
+                container.querySelectorAll('.kod-block-btn').forEach(b => b.classList.remove('disabled'));
+                // Firebase'e başa dönüşü gönder
+                Multiplayer.send('SUBMIT_MOVE', { move: 'RESET' });
+            }, 2000);
+
+            return;
+        }
+
+        // Normal hareket
         myRobotPos = { x: nx, y: ny };
         AudioManager.play('tap');
         renderMyGrid();
@@ -250,7 +293,6 @@ const KodMacerasiMP = (() => {
                 const rect = gridEl.getBoundingClientRect();
                 Particles.sparkle(rect.left + rect.width / 2, rect.top + rect.height / 2, 8);
             }
-            // Butonları devre dışı bırak
             container.querySelectorAll('.kod-block-btn').forEach(b => b.classList.add('disabled'));
         }
 

@@ -429,6 +429,14 @@ const Multiplayer = (() => {
 
     if (round[finField]) return; // zaten bitirdim
 
+    // RESET: engele çarpma sonrası başa dönüş
+    if (move === 'RESET') {
+      const updates = {};
+      updates[`rounds/${r}/${posField}`] = { x: myPuzzle.start.x, y: myPuzzle.start.y };
+      await ref.update(updates);
+      return;
+    }
+
     const MOVES_MAP = { UP: {dx:0,dy:-1}, DOWN: {dx:0,dy:1}, LEFT: {dx:-1,dy:0}, RIGHT: {dx:1,dy:0} };
     const m = MOVES_MAP[move];
     if (!m) return;
@@ -437,12 +445,12 @@ const Multiplayer = (() => {
     const nx = pos.x + m.dx;
     const ny = pos.y + m.dy;
 
-    // Sınır ve engel kontrolü
+    // Sınır kontrolü
+    if (nx < 0 || nx >= myPuzzle.size || ny < 0 || ny >= myPuzzle.size) return;
+
+    // Engel kontrolü - client tarafında ceza uygulanıyor, server sadece pozisyonu günceller
     const obstacles = myPuzzle.obstacles || [];
-    if (nx < 0 || nx >= myPuzzle.size || ny < 0 || ny >= myPuzzle.size ||
-        obstacles.some(o => o.x === nx && o.y === ny)) {
-      return; // geçersiz hamle, bir şey yapma
-    }
+    if (obstacles.some(o => o.x === nx && o.y === ny)) return;
 
     const updates = {};
     updates[`rounds/${r}/${posField}`] = { x: nx, y: ny };
