@@ -132,10 +132,20 @@ const Satranc = (() => {
                 // Taş
                 const piece = state.board[br][bc];
                 if (piece) {
-                    const pieceEl = document.createElement('span');
-                    pieceEl.className = 'chess-piece';
-                    pieceEl.textContent = ChessEngine.getSymbol(piece);
-                    cell.appendChild(pieceEl);
+                    const svgUrl = ChessEngine.getPieceSVG(piece);
+                    if (svgUrl) {
+                        const img = document.createElement('img');
+                        img.className = 'chess-piece';
+                        img.src = svgUrl;
+                        img.alt = piece;
+                        img.draggable = false;
+                        cell.appendChild(img);
+                    } else {
+                        const span = document.createElement('span');
+                        span.className = 'chess-piece';
+                        span.textContent = ChessEngine.getSymbol(piece);
+                        cell.appendChild(span);
+                    }
                 }
 
                 // Koordinatlar

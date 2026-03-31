@@ -6,10 +6,26 @@
 
 const ChessEngine = (() => {
 
-    // Taş sembolleri
+    // Taş sembolleri (fallback)
     const PIECES = {
         K: '♔', Q: '♕', R: '♖', B: '♗', N: '♘', P: '♙',
         k: '♚', q: '♛', r: '♜', b: '♝', n: '♞', p: '♟'
+    };
+
+    // SVG taş URL'leri (Wikimedia Commons standart satranç taşları)
+    const PIECE_SVGS = {
+        K: 'https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg',
+        Q: 'https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg',
+        R: 'https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg',
+        B: 'https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg',
+        N: 'https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg',
+        P: 'https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg',
+        k: 'https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg',
+        q: 'https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg',
+        r: 'https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg',
+        b: 'https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg',
+        n: 'https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg',
+        p: 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg',
     };
 
     const PIECE_VALUES = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
@@ -456,6 +472,10 @@ const ChessEngine = (() => {
         return PIECES[piece] || '';
     }
 
+    function getPieceSVG(piece) {
+        return PIECE_SVGS[piece] || null;
+    }
+
     return {
         START_FEN, PIECES, PIECE_VALUES,
         fenToBoard, boardToFen,
@@ -463,6 +483,7 @@ const ChessEngine = (() => {
         makeMove, isCheck, isCheckmate, isStalemate, isDraw,
         evaluate, getBestMove,
         squareToAlg, algToSquare, getSymbol,
-        findKing, isSquareAttacked, isWhite, isBlack, isOwnPiece
+        findKing, isSquareAttacked, isWhite, isBlack, isOwnPiece,
+        getPieceSVG, PIECE_SVGS
     };
 })();

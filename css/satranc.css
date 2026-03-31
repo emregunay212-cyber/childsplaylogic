@@ -6,8 +6,7 @@
 .chess-board {
     display: grid;
     grid-template-columns: repeat(8, 1fr);
-    width: clamp(280px, 85vw, 440px);
-    height: clamp(280px, 85vw, 440px);
+    width: clamp(280px, 80vw, 420px);
     margin: 0.3rem auto;
     border: 3px solid #5D4037;
     border-radius: 6px;
@@ -15,7 +14,7 @@
     overflow: hidden;
 }
 
-/* Hücreler */
+/* Hücreler - sabit kare */
 .chess-cell {
     position: relative;
     display: flex;
@@ -23,6 +22,7 @@
     justify-content: center;
     cursor: pointer;
     transition: background 0.15s;
+    aspect-ratio: 1;
 }
 .chess-cell.light { background: #F0D9B5; }
 .chess-cell.dark { background: #B58863; }
@@ -63,15 +63,17 @@
 
 /* Taşlar */
 .chess-piece {
-    font-size: clamp(1.8rem, 8vw, 3rem);
-    line-height: 1;
+    width: 85%;
+    height: 85%;
     user-select: none;
     pointer-events: none;
-    filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.3));
+    filter: drop-shadow(1px 2px 2px rgba(0,0,0,0.35));
     transition: transform 0.15s;
+    object-fit: contain;
 }
 .chess-cell.selected .chess-piece {
-    transform: scale(1.15);
+    transform: scale(1.12);
+    filter: drop-shadow(1px 2px 4px rgba(0,0,0,0.5));
 }
 
 /* Koordinatlar */
