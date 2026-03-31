@@ -326,25 +326,48 @@
 .kod-mp-section-label.my-label { color: #FF9800; background: #FFF3E0; }
 .kod-mp-section-label.op-label { color: #2196F3; background: #E3F2FD; }
 
+/* Yan yana düzen */
+.kod-mp-row {
+    display: flex;
+    gap: 0.4rem;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 0 0.3rem;
+}
+.kod-mp-left {
+    flex: 1;
+    min-width: 0;
+    max-width: 65%;
+}
+.kod-mp-right {
+    flex: 0 0 auto;
+    width: 35%;
+    max-width: 180px;
+}
+.kod-mp-left .kod-palette {
+    margin: 0.2rem auto;
+    padding: 0.3rem;
+    gap: 6px;
+}
+.kod-mp-left .kod-block-btn {
+    width: 42px;
+    height: 42px;
+}
+
 /* Rakip mini grid */
 .kod-mp-mini-grid-wrap {
-    transform: scale(0.38);
-    transform-origin: top center;
-    height: 120px;
-    overflow: hidden;
-    opacity: 0.8;
+    transform: scale(0.5);
+    transform-origin: top left;
     pointer-events: none;
 }
 .kod-mp-mini-grid-wrap .kod-cell {
-    font-size: 0.7rem;
+    font-size: 0.6rem;
 }
-.kod-mp-op-section {
-    margin-top: 0.2rem;
-    padding: 0.2rem;
+.kod-mp-right {
     background: rgba(33, 150, 243, 0.05);
     border-radius: var(--radius-md);
     border: 2px dashed #BBDEFB;
-    max-height: 160px;
+    padding: 0.2rem;
     overflow: hidden;
 }
 

@@ -110,28 +110,33 @@ const KodMacerasiMP = (() => {
         container.appendChild(scorebar);
         renderScorebar();
 
-        // Benim haritam (büyük)
-        const mySection = document.createElement('div');
-        mySection.className = 'kod-mp-my-section';
+        // Yan yana düzen: sol=benim grid+butonlar, sag=rakip grid
+        const row = document.createElement('div');
+        row.className = 'kod-mp-row';
+
+        // SOL: Benim haritam + butonlar
+        const leftCol = document.createElement('div');
+        leftCol.className = 'kod-mp-left';
+
         const myLabel = document.createElement('div');
         myLabel.className = 'kod-mp-section-label my-label';
-        myLabel.textContent = '🟠 Senin Haritanız';
-        mySection.appendChild(myLabel);
+        myLabel.textContent = '🟠 Sen';
+        if (myFinished) myLabel.textContent += ' ✅';
+        leftCol.appendChild(myLabel);
 
         const myGridContainer = document.createElement('div');
         myGridContainer.id = 'my-grid-container';
-        mySection.appendChild(myGridContainer);
+        leftCol.appendChild(myGridContainer);
         renderMyGrid(myGridContainer);
-        container.appendChild(mySection);
 
-        // Blok paleti
+        // Butonlar
         const palette = document.createElement('div');
         palette.className = 'kod-palette';
         ['UP', 'DOWN', 'LEFT', 'RIGHT'].forEach(type => {
             const btn = document.createElement('button');
             btn.className = 'kod-block-btn';
             btn.style.background = KodMacerasiCore.BLOCKS[type].color;
-            btn.innerHTML = KodMacerasiCore.getBlockSVG(type, 32);
+            btn.innerHTML = KodMacerasiCore.getBlockSVG(type, 28);
             if (myFinished || gameOver) btn.classList.add('disabled');
             btn.addEventListener('click', () => {
                 if (myFinished || gameOver) return;
@@ -139,23 +144,27 @@ const KodMacerasiMP = (() => {
             });
             palette.appendChild(btn);
         });
-        container.appendChild(palette);
+        leftCol.appendChild(palette);
+        row.appendChild(leftCol);
 
-        // Rakip haritası (küçük)
-        const opSection = document.createElement('div');
-        opSection.className = 'kod-mp-op-section';
+        // SAĞ: Rakip haritası
+        const rightCol = document.createElement('div');
+        rightCol.className = 'kod-mp-right';
+
         const opLabel = document.createElement('div');
         opLabel.className = 'kod-mp-section-label op-label';
         opLabel.textContent = `🔵 ${gameData.opponentName}`;
         if (opFinished) opLabel.textContent += ' ✅';
-        opSection.appendChild(opLabel);
+        rightCol.appendChild(opLabel);
 
         const opGridContainer = document.createElement('div');
         opGridContainer.id = 'op-grid-container';
         opGridContainer.className = 'kod-mp-mini-grid-wrap';
-        opSection.appendChild(opGridContainer);
+        rightCol.appendChild(opGridContainer);
         renderOpGrid(opGridContainer);
-        container.appendChild(opSection);
+        row.appendChild(rightCol);
+
+        container.appendChild(row);
     }
 
     function renderMyGrid(container) {
