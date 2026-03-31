@@ -139,6 +139,84 @@
     .complete-stars .star { width: 40px; height: 40px; }
 }
 
+/* ── Yeni Oyunlar Mobil Uyumluluk ── */
+
+/* Kod Macerası MP: mobilde yan yana yerine üst-alt stack */
+@media (max-width: 550px) {
+    .kod-mp-row {
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+    .kod-mp-left, .kod-mp-right {
+        width: 100%;
+        max-width: 100%;
+    }
+    .kod-mp-left .kod-block-btn { width: 38px; height: 38px; }
+    .kod-mp-left .kod-palette { gap: 5px; }
+    .kod-mp-row .kod-cell {
+        width: clamp(28px, 12vw, 48px);
+        height: clamp(28px, 12vw, 48px);
+        font-size: 0.9rem;
+    }
+}
+
+/* Satranç: küçük ekranlar */
+@media (max-width: 400px) {
+    .chess-board { width: clamp(260px, 92vw, 360px); }
+    .chess-undo-btn { font-size: 0.75rem; padding: 5px 14px; }
+    .chess-piece { width: 80%; height: 80%; }
+}
+
+/* Penaltı: mobil */
+@media (max-width: 480px) {
+    .pen-topbar { padding: 0.3rem 0.5rem; }
+    .pen-shot-info { font-size: 0.85rem; padding: 4px 10px; }
+    .pen-score-info { font-size: 0.9rem; padding: 4px 12px; }
+}
+
+/* Tuval: küçük ekranlar */
+@media (max-width: 400px) {
+    .tuval-swatch { width: 26px; height: 26px; border-radius: 6px; }
+    .tuval-palette { gap: 4px; }
+    .tuval-tool-btn { font-size: 0.7rem; padding: 6px 10px; }
+    .tuval-lv-btn { padding: 4px 12px; font-size: 0.75rem; }
+    .tuval-10 { width: 92vw; height: 92vw; }
+    .tuval-15 { width: 94vw; height: 94vw; }
+    .tuval-20 { width: 96vw; height: 96vw; }
+}
+
+/* Boyama galeri: küçük ekranlar */
+@media (max-width: 380px) {
+    .boyama-gallery { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .boyama-gallery-emoji { font-size: 1.6rem; }
+    .boyama-gallery-name { font-size: 0.65rem; }
+    .boyama-gallery-card { padding: 8px 4px; }
+}
+
+/* Genel mobil: game area overflow korunma */
+@media (max-width: 480px) {
+    .game-area { overflow-x: hidden; }
+    .game-instruction { font-size: 0.85rem; padding: 0.3rem 0.5rem; }
+    .kod-gameover-card { padding: 1.5rem 1rem; }
+    .kod-gameover-title { font-size: 1.4rem; }
+    .kod-gameover-pts { font-size: 1.6rem; }
+    .kod-round-card { padding: 1.5rem; }
+    .kod-round-card h2 { font-size: 1.2rem; }
+    .kod-round-score { font-size: 1.8rem; }
+}
+
+/* Çok küçük ekran (iPhone SE 320px) */
+@media (max-width: 340px) {
+    .hub-grid { gap: 6px; padding: 0.5rem; }
+    .game-card { padding: 0.6rem 0.4rem; }
+    .card-icon { width: 50px; height: 50px; }
+    .card-title { font-size: 0.75rem; }
+    .chess-board { width: 95vw; }
+    .kod-block-btn { width: 36px; height: 36px; }
+    .kod-cell { font-size: 0.7rem; }
+    .penalti-scene { border-radius: 8px; }
+}
+
 /* Safe area (notch desteği) */
 @supports (padding-top: env(safe-area-inset-top)) {
     .top-bar {

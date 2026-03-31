@@ -56,7 +56,7 @@
     justify-content: center;
     gap: 6px;
     padding: 0.4rem;
-    max-width: 420px;
+    max-width: min(420px, 95vw);
     margin: 0.3rem auto;
 }
 
