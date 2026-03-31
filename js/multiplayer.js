@@ -503,7 +503,7 @@ const Multiplayer = (() => {
         }
 
         // Oyun başladı (iki kelime girilince)
-        if (prevState === 'WORD_SETUP' && lobby.state === 'PLAYING') {
+        if ((prevState === 'WORD_SETUP' || prevState === null) && lobby.state === 'PLAYING') {
           const opName = currentRole === 'host' ? lobby.guestName : lobby.hostName;
           emit('GAME_START', {
             yourRole: currentRole,

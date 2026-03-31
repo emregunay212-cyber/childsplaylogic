@@ -162,7 +162,8 @@ const Lobby = (() => {
       if (currentGameType === 'kod-macerasi') {
         // Kod macerasi: kelime girisi yok, GAME_START bekle
         Multiplayer.on('GAME_START', (gameData) => {
-          Multiplayer.offAll();
+          Multiplayer.off('GAME_START');
+          Multiplayer.off('PLAYER_JOINED');
           if (onGameStart) onGameStart(gameData);
         });
       } else {
@@ -173,7 +174,8 @@ const Lobby = (() => {
     // Also listen for GAME_START directly (for joiner in kod-macerasi)
     if (currentGameType === 'kod-macerasi') {
       Multiplayer.on('GAME_START', (gameData) => {
-        Multiplayer.offAll();
+        Multiplayer.off('GAME_START');
+        Multiplayer.off('PLAYER_JOINED');
         if (onGameStart) onGameStart(gameData);
       });
     }

@@ -6,7 +6,7 @@
    ============================================ */
 
 const KodMacerasiMP = (() => {
-    const id = 'kod-macerasi-mp';
+    const id = 'kod-macerasi';
     const isMultiplayer = true;
 
     let container = null;
@@ -21,7 +21,11 @@ const KodMacerasiMP = (() => {
         container = gameArea;
         gameData = data;
         puzzle = data.puzzle;
-        robotPos = data.robotPos || data.puzzle.start;
+        if (!puzzle) {
+            container.innerHTML = '<div class="game-instruction" style="color:red;">Bulmaca yüklenemedi. Lütfen tekrar deneyin.</div>';
+            return;
+        }
+        robotPos = data.robotPos || { x: puzzle.start.x, y: puzzle.start.y };
         isMyTurn = data.currentTurn === data.yourRole;
         moveHistory = [];
         gameOver = false;
