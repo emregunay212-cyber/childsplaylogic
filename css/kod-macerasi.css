@@ -22,11 +22,13 @@
 .kod-grid.grid-3x3 { grid-template-columns: repeat(3, 1fr); }
 .kod-grid.grid-4x4 { grid-template-columns: repeat(4, 1fr); }
 .kod-grid.grid-5x5 { grid-template-columns: repeat(5, 1fr); }
+.kod-grid.grid-6x6 { grid-template-columns: repeat(6, 1fr); }
+.kod-grid.grid-7x7 { grid-template-columns: repeat(7, 1fr); }
 
 /* Grid Cells */
 .kod-cell {
-    width: clamp(52px, 15vw, 76px);
-    height: clamp(52px, 15vw, 76px);
+    width: clamp(36px, 12vw, 76px);
+    height: clamp(36px, 12vw, 76px);
     background: #E8F5E9;
     border-radius: 8px;
     display: flex;
@@ -290,6 +292,15 @@
 }
 
 /* MP specific styles */
+.kod-mp-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    padding: 0.4rem;
+    font-size: 1rem;
+}
+
 .kod-mp-status {
     text-align: center;
     padding: 0.5rem;
@@ -298,16 +309,57 @@
     border-radius: var(--radius-md);
     margin: 0.3rem auto;
     max-width: 300px;
+    transition: all 0.3s;
 }
 
 .kod-mp-status.your-turn {
     background: #E8F5E9;
     color: #2E7D32;
+    animation: pulse 1.5s ease-in-out infinite;
 }
 
 .kod-mp-status.opponent-turn {
     background: #FFF3E0;
     color: #E65100;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+}
+
+/* Hamle geçmişi */
+.kod-move-history {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 0.4rem;
+    margin: 0.3rem auto;
+    max-width: 400px;
+}
+
+.kod-history-label {
+    font-size: 0.75rem;
+    color: #999;
+    font-weight: 600;
+}
+
+.kod-history-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    border: 2px solid;
+}
+
+.kod-history-chip.blocked {
+    opacity: 0.4;
+    text-decoration: line-through;
 }
 
 .kod-mp-opponent-bar {

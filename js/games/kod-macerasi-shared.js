@@ -449,60 +449,88 @@ const KodMacerasiCore = (() => {
         return PUZZLES[level]?.indexOf(puzzle) ?? -1;
     }
 
-    // Rastgele bulmaca üretimi (MP için)
+    // Basit bulmaca üretimi (tek oyunculu MP eski)
     function generatePuzzle(gridSize, difficulty) {
-        const size = gridSize;
-        const numObstacles = Math.max(1, Math.floor(difficulty * 1.5));
-        const grid = Array.from({ length: size }, () => Array(size).fill(0));
-
-        // Başlangıç ve hedef
-        const corners = [
-            { x: 0, y: size - 1 },
-            { x: size - 1, y: 0 },
-            { x: 0, y: 0 },
-            { x: size - 1, y: size - 1 },
-        ];
-        const start = corners[0];
-        const target = corners[1];
-        // Artık yön yok, sadece 4 yöne doğrudan hareket
-
-        // Rastgele engeller (başlangıç ve hedef olmayan yerler)
-        const obstacles = [];
-        let attempts = 0;
-        while (obstacles.length < numObstacles && attempts < 50) {
-            const ox = Math.floor(Math.random() * size);
-            const oy = Math.floor(Math.random() * size);
-            if ((ox === start.x && oy === start.y) || (ox === target.x && oy === target.y)) {
-                attempts++;
-                continue;
-            }
-            if (obstacles.some(o => o.x === ox && o.y === oy)) {
-                attempts++;
-                continue;
-            }
-            obstacles.push({ x: ox, y: oy });
-            grid[oy][ox] = 1;
-            attempts++;
-        }
-
-        // BFS ile optimal yol uzunluğu bul
-        const optimal = bfsOptimal(size, obstacles, start, target);
-
-        return {
-            size,
-            grid,
-            start: { x: start.x, y: start.y },
-            target,
-            collectibles: [],
-            obstacles,
-            optimal: optimal || (size * 2 - 2),
-        };
+        return generateComplexPuzzle(gridSize);
     }
 
-    // BFS ile en kısa yol (dönüş dahil)
-    function bfsOptimal(size, obstacles, start, target) {
-        // Manhattan mesafesi (artık dönüş yok)
-        return Math.abs(target.x - start.x) + Math.abs(target.y - start.y);
+    // BFS en kısa yol bulma
+    function bfs(size, obstacleSet, start, target) {
+        const key = (x, y) => x + ',' + y;
+        const queue = [{ x: start.x, y: start.y, dist: 0 }];
+        const visited = new Set([key(start.x, start.y)]);
+        const dirs = [{ dx: 0, dy: -1 }, { dx: 0, dy: 1 }, { dx: -1, dy: 0 }, { dx: 1, dy: 0 }];
+
+        while (queue.length > 0) {
+            const curr = queue.shift();
+            if (curr.x === target.x && curr.y === target.y) return curr.dist;
+            for (const d of dirs) {
+                const nx = curr.x + d.dx, ny = curr.y + d.dy;
+                if (nx < 0 || nx >= size || ny < 0 || ny >= size) continue;
+                if (obstacleSet.has(key(nx, ny))) continue;
+                if (visited.has(key(nx, ny))) continue;
+                visited.add(key(nx, ny));
+                queue.push({ x: nx, y: ny, dist: curr.dist + 1 });
+            }
+        }
+        return -1; // ulaşılamaz
+    }
+
+    // Karmaşık bulmaca üretimi (MP için, en az minPath adım)
+    function generateComplexPuzzle(gridSize) {
+        const size = gridSize;
+        const minPath = Math.max(8, size + 4); // en az 8 adim yol
+        const key = (x, y) => x + ',' + y;
+
+        let bestPuzzle = null;
+        let bestDist = 0;
+
+        for (let attempt = 0; attempt < 50; attempt++) {
+            const grid = Array.from({ length: size }, () => Array(size).fill(0));
+            const start = { x: 0, y: size - 1 };
+            const target = { x: size - 1, y: 0 };
+            const obstacles = [];
+            const obstacleSet = new Set();
+
+            // Rastgele engeller: %20-30 oran
+            const numObs = Math.floor(size * size * (0.2 + Math.random() * 0.1));
+            let obsAttempts = 0;
+            while (obstacles.length < numObs && obsAttempts < 200) {
+                const ox = Math.floor(Math.random() * size);
+                const oy = Math.floor(Math.random() * size);
+                const k = key(ox, oy);
+                if ((ox === start.x && oy === start.y) || (ox === target.x && oy === target.y)) { obsAttempts++; continue; }
+                if (obstacleSet.has(k)) { obsAttempts++; continue; }
+
+                // Geçici ekle ve yol var mı kontrol et
+                obstacleSet.add(k);
+                const dist = bfs(size, obstacleSet, start, target);
+                if (dist < 0) {
+                    obstacleSet.delete(k); // yol kapanır, geri al
+                } else {
+                    obstacles.push({ x: ox, y: oy });
+                    grid[oy][ox] = 1;
+                }
+                obsAttempts++;
+            }
+
+            const dist = bfs(size, obstacleSet, start, target);
+            if (dist >= minPath && dist > bestDist) {
+                bestDist = dist;
+                bestPuzzle = { size, grid, start, target, collectibles: [], obstacles, optimal: dist };
+            }
+        }
+
+        // Fallback: en iyi bulunan veya engelsiz
+        if (!bestPuzzle) {
+            bestPuzzle = {
+                size, grid: Array.from({ length: size }, () => Array(size).fill(0)),
+                start: { x: 0, y: size - 1 }, target: { x: size - 1, y: 0 },
+                collectibles: [], obstacles: [], optimal: (size - 1) * 2
+            };
+        }
+
+        return bestPuzzle;
     }
 
     return {
@@ -519,5 +547,7 @@ const KodMacerasiCore = (() => {
         getPuzzle,
         getPuzzleIndex,
         generatePuzzle,
+        generateComplexPuzzle,
+        bfs,
     };
 })();

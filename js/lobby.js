@@ -90,13 +90,7 @@ const Lobby = (() => {
         <div class="lobby-setting">
           <label>${TR.kodMacerasi.gridSize}</label>
           <div class="pill-selector" data-name="gridSize">
-            ${[3,4,5].map(n => `<button class="pill ${n===4?'active':''}" data-value="${n}">${n}x${n}</button>`).join('')}
-          </div>
-        </div>
-        <div class="lobby-setting">
-          <label>${TR.mp.turnCount}</label>
-          <div class="pill-selector" data-name="totalRounds">
-            ${[1,3,5].map(n => `<button class="pill ${n===3?'active':''}" data-value="${n}">${n}</button>`).join('')}
+            ${[5,6,7].map(n => `<button class="pill ${n===7?'active':''}" data-value="${n}">${n}x${n}</button>`).join('')}
           </div>
         </div>
     ` : `
@@ -134,9 +128,8 @@ const Lobby = (() => {
     container.querySelector('.lobby-submit-btn').onclick = () => {
       if (isKod) {
         const gridSize = parseInt(container.querySelector('[data-name="gridSize"] .active').dataset.value);
-        const totalRounds = parseInt(container.querySelector('[data-name="totalRounds"] .active').dataset.value);
         Multiplayer.on('LOBBY_CREATED', (data) => renderWaitingRoom(data.lobbyId));
-        Multiplayer.send('CREATE_LOBBY', { gameType: currentGameType, gridSize, totalRounds });
+        Multiplayer.send('CREATE_LOBBY', { gameType: currentGameType, gridSize });
       } else {
         const wordLength = parseInt(container.querySelector('[data-name="wordLength"] .active').dataset.value);
         const maxTurns = parseInt(container.querySelector('[data-name="maxTurns"] .active').dataset.value);
@@ -216,7 +209,7 @@ const Lobby = (() => {
             <span class="lobby-list-icon">${l.gameType === 'kod-macerasi' ? '🤖' : l.gameType === 'kelime-tahmin' ? '🔤' : '🔡'}</span>
             <div>
               <strong>${l.hostName}</strong>
-              <span class="lobby-list-detail">${l.gameType === 'kod-macerasi' ? l.gridSize+'x'+l.gridSize+' · '+l.totalRounds+' tur' : l.wordLength+' harf · '+l.maxTurns+' tur'}</span>
+              <span class="lobby-list-detail">${l.gameType === 'kod-macerasi' ? l.gridSize+'x'+l.gridSize+' grid' : l.wordLength+' harf · '+l.maxTurns+' tur'}</span>
             </div>
           </div>
           <button class="lobby-join-btn" data-id="${l.id}">${TR.mp.join}</button>
