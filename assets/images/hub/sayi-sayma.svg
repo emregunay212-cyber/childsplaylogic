@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6EDCD0"/>
+      <stop offset="100%" stop-color="#4ECDC4"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+  <!-- Number blocks -->
+  <rect x="14" y="30" width="30" height="30" rx="8" fill="white" opacity="0.95"/>
+  <text x="29" y="52" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="22" fill="#4ECDC4">1</text>
+  <rect x="49" y="30" width="30" height="30" rx="8" fill="white" opacity="0.95"/>
+  <text x="64" y="52" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="22" fill="#E74C3C">2</text>
+  <rect x="84" y="30" width="30" height="30" rx="8" fill="white" opacity="0.95"/>
+  <text x="99" y="52" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="22" fill="#F39C12">3</text>
+  <!-- Counting objects (apples) -->
+  <text x="29" y="88" text-anchor="middle" font-size="22">🍎</text>
+  <text x="56" y="88" text-anchor="middle" font-size="22">🍎</text>
+  <text x="83" y="88" text-anchor="middle" font-size="22">🍎</text>
+  <text x="42" y="108" text-anchor="middle" font-size="22">🍎</text>
+  <text x="72" y="108" text-anchor="middle" font-size="22">🍎</text>
+</svg>

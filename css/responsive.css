@@ -1,0 +1,150 @@
+/* ============================================
+   OYUN BAHÇESİ - Responsive Tasarım
+   ============================================ */
+
+/* Büyük tablet / Desktop */
+@media (min-width: 1024px) {
+    .hub-grid {
+        grid-template-columns: repeat(4, 1fr);
+        max-width: 960px;
+        gap: var(--space-xl);
+        padding: var(--space-2xl) var(--space-xl);
+    }
+
+    .card-icon {
+        width: 100px;
+        height: 100px;
+        font-size: 3.5rem;
+    }
+
+    .memory-grid.grid-2x2 { grid-template-columns: repeat(2, 120px); }
+    .memory-grid.grid-3x4 { grid-template-columns: repeat(4, 110px); }
+    .memory-grid.grid-4x4 { grid-template-columns: repeat(4, 110px); }
+}
+
+/* Tablet dikey */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .hub-grid {
+        grid-template-columns: repeat(3, 1fr);
+        max-width: 720px;
+        gap: var(--space-lg);
+    }
+
+    .memory-grid.grid-2x2 { grid-template-columns: repeat(2, 110px); }
+    .memory-grid.grid-3x4 { grid-template-columns: repeat(4, 100px); }
+    .memory-grid.grid-4x4 { grid-template-columns: repeat(4, 95px); }
+}
+
+/* Büyük telefon */
+@media (min-width: 480px) and (max-width: 767px) {
+    .hub-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-md);
+        padding: var(--space-lg) var(--space-md);
+    }
+
+    .card-icon {
+        width: 72px;
+        height: 72px;
+        font-size: 2.5rem;
+    }
+
+    .card-title { font-size: 0.9rem; }
+
+    .sun { width: 60px; height: 60px; }
+
+    .memory-grid.grid-2x2 { grid-template-columns: repeat(2, 100px); }
+    .memory-grid.grid-3x4 { grid-template-columns: repeat(4, 80px); }
+    .memory-grid.grid-4x4 { grid-template-columns: repeat(4, 75px); }
+
+    .game-instruction { font-size: 1rem; }
+
+    .letter-display { font-size: 4rem; }
+}
+
+/* Küçük telefon */
+@media (max-width: 479px) {
+    .hub-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-sm);
+        padding: var(--space-md) var(--space-sm);
+    }
+
+    .game-card {
+        padding: var(--space-md) var(--space-sm) var(--space-sm);
+        border-radius: var(--radius-md);
+    }
+
+    .card-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
+        border-radius: var(--radius-sm);
+    }
+
+    .card-title { font-size: 0.85rem; }
+    .card-stars svg { width: 18px; height: 18px; }
+
+    .top-title { font-size: 1.1rem; }
+    .star-counter { padding: 4px 8px; font-size: 0.85rem; }
+
+    .sun { width: 50px; height: 50px; top: 5%; right: 5%; }
+
+    .memory-grid.grid-2x2 { grid-template-columns: repeat(2, 80px); }
+    .memory-grid.grid-3x4 { grid-template-columns: repeat(4, 65px); }
+    .memory-grid.grid-4x4 { grid-template-columns: repeat(4, 60px); }
+
+    .game-instruction {
+        font-size: 0.9rem;
+        padding: var(--space-xs) var(--space-md);
+    }
+
+    .letter-display { font-size: 3.5rem; }
+
+    .color-swatch { width: 40px; height: 40px; }
+
+    .number-btn { width: 52px; height: 52px; font-size: 1.3rem; }
+
+    .complete-card { padding: var(--space-lg); }
+    .complete-stars .star { width: 45px; height: 45px; }
+    .complete-btn { font-size: 0.95rem; padding: 10px 20px; min-width: 110px; }
+
+    .sorting-slot { min-width: 60px; min-height: 60px; font-size: 1.5rem; }
+}
+
+/* Landscape küçük cihaz */
+@media (max-height: 500px) and (orientation: landscape) {
+    .hub { padding-top: 50px; }
+    .top-bar { height: 50px; }
+    .game-toolbar { height: 46px; }
+    .game-area { top: 46px; padding: var(--space-sm); }
+
+    .hub-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--space-sm);
+        padding: var(--space-md);
+    }
+
+    .card-icon { width: 50px; height: 50px; font-size: 1.8rem; }
+    .card-title { font-size: 0.8rem; }
+    .game-card { padding: var(--space-sm); }
+
+    .game-instruction { margin-bottom: var(--space-sm); font-size: 0.9rem; }
+    .letter-display { font-size: 3rem; }
+    .color-target { width: 60px; height: 60px; }
+
+    .complete-card { padding: var(--space-md) var(--space-lg); }
+    .complete-title { font-size: 1.5rem; margin-bottom: var(--space-sm); }
+    .complete-stars { margin-bottom: var(--space-md); }
+    .complete-stars .star { width: 40px; height: 40px; }
+}
+
+/* Safe area (notch desteği) */
+@supports (padding-top: env(safe-area-inset-top)) {
+    .top-bar {
+        padding-top: env(safe-area-inset-top);
+        height: calc(60px + env(safe-area-inset-top));
+    }
+    .hub { padding-top: calc(60px + env(safe-area-inset-top)); }
+    .game-area { bottom: env(safe-area-inset-bottom); }
+}

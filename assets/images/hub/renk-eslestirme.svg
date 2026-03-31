@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FF8A80"/>
+      <stop offset="100%" stop-color="#FF6B6B"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+  <!-- Paint palette -->
+  <ellipse cx="64" cy="68" rx="38" ry="34" fill="white" opacity="0.95"/>
+  <!-- Thumb hole -->
+  <ellipse cx="50" cy="82" rx="8" ry="7" fill="#FF6B6B"/>
+  <!-- Color dots -->
+  <circle cx="42" cy="54" r="9" fill="#FF4757"/>
+  <circle cx="64" cy="48" r="9" fill="#3498DB"/>
+  <circle cx="84" cy="54" r="9" fill="#2ECC71"/>
+  <circle cx="78" cy="74" r="9" fill="#F1C40F"/>
+  <circle cx="56" cy="72" r="7" fill="#9B59B6"/>
+  <!-- Brush -->
+  <rect x="82" y="20" width="8" height="30" rx="3" fill="#8B6914" transform="rotate(30 86 35)"/>
+  <rect x="80" y="14" width="12" height="14" rx="4" fill="#E74C3C" transform="rotate(30 86 21)"/>
+</svg>

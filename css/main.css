@@ -1,0 +1,433 @@
+/* ============================================
+   OYUN BAHÇESİ - Ana Stil Dosyası
+   ============================================ */
+
+/* Reset */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* Oyun Kartı Renkleri */
+    --renk-color: #FF6B6B;
+    --sayi-color: #4ECDC4;
+    --harf-color: #45B7D1;
+    --sekil-color: #F7B731;
+    --hafiza-color: #A55EEA;
+    --boyama-color: #FF78C4;
+    --siralama-color: #26DE81;
+    --kelime-color: #FF6348;
+    --harf-tahmin-color: #7C5CE0;
+
+    /* UI Renkleri */
+    --bg-sky-top: #87CEEB;
+    --bg-sky-bottom: #C9E8F7;
+    --bg-grass: #7EC850;
+    --bg-grass-dark: #5DAA3A;
+    --bg-hill-1: #8ED45E;
+    --bg-hill-2: #6BBF3B;
+    --text-dark: #2D3436;
+    --text-light: #FFFFFF;
+    --text-warm: #5D4037;
+    --star-gold: #FFD700;
+    --star-empty: #D5D5D5;
+
+    /* Feedback */
+    --success: #2ECC71;
+    --success-light: #A8F0C8;
+    --error: #E74C3C;
+    --error-light: #FADBD8;
+    --neutral: #3498DB;
+
+    /* Gölgeler */
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.1);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.15);
+    --shadow-card: 0 6px 20px rgba(0,0,0,0.12);
+    --shadow-card-hover: 0 10px 30px rgba(0,0,0,0.18);
+
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 40px;
+    --space-2xl: 64px;
+
+    /* Dokunmatik hedef minimum */
+    --touch-min: 48px;
+
+    /* Border Radius */
+    --radius-sm: 12px;
+    --radius-md: 20px;
+    --radius-lg: 32px;
+    --radius-xl: 40px;
+    --radius-round: 50%;
+
+    /* Geçişler */
+    --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Nunito', 'Segoe UI', sans-serif;
+    background: var(--bg-sky-top);
+    color: var(--text-dark);
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+    touch-action: manipulation;
+}
+
+/* Tipografi */
+h1, h2, h3, .display-font {
+    font-family: 'Fredoka', 'Nunito', sans-serif;
+}
+
+button {
+    font-family: 'Fredoka', 'Nunito', sans-serif;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+/* Utility Classes */
+.hidden { display: none !important; }
+
+/* ============================================
+   SPLASH SCREEN
+   ============================================ */
+.splash-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #87CEEB 0%, #C9E8F7 50%, #8ED45E 50%, #7EC850 100%);
+    overflow: hidden;
+}
+
+.splash-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    animation: fadeInUp 0.8s var(--ease-spring) both;
+}
+
+.splash-sun {
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, #FFE066 40%, #FFD700 70%, transparent 71%);
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    animation: sunPulse 3s ease-in-out infinite;
+    box-shadow: 0 0 60px rgba(255, 215, 0, 0.4);
+}
+
+.splash-title {
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    font-weight: 700;
+    color: var(--text-light);
+    text-shadow:
+        3px 3px 0 #E67E22,
+        6px 6px 0 rgba(0,0,0,0.1);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+}
+
+.splash-subtitle {
+    font-family: 'Fredoka', sans-serif;
+    font-size: clamp(1.1rem, 3vw, 1.6rem);
+    color: rgba(255,255,255,0.9);
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.1);
+    margin-bottom: 32px;
+    font-weight: 500;
+}
+
+.splash-btn {
+    font-size: clamp(1.2rem, 3vw, 1.6rem);
+    font-weight: 700;
+    padding: 16px 48px;
+    background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+    color: white;
+    border: 4px solid rgba(255,255,255,0.4);
+    border-radius: var(--radius-xl);
+    box-shadow:
+        0 6px 0 #D94848,
+        0 8px 20px rgba(0,0,0,0.2);
+    transition: all 0.15s ease;
+    animation: bounceIn 0.6s var(--ease-spring) both 0.4s;
+}
+
+.splash-btn:active {
+    transform: translateY(4px);
+    box-shadow:
+        0 2px 0 #D94848,
+        0 4px 10px rgba(0,0,0,0.2);
+}
+
+.splash-clouds {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.cloud {
+    position: absolute;
+    background: white;
+    border-radius: 100px;
+    opacity: 0.9;
+}
+
+.cloud::before, .cloud::after {
+    content: '';
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+}
+
+.cloud-1 {
+    width: 120px; height: 40px;
+    top: 10%; left: -120px;
+    animation: cloudFloat 18s linear infinite;
+}
+.cloud-1::before { width: 50px; height: 50px; top: -25px; left: 20px; }
+.cloud-1::after { width: 70px; height: 60px; top: -30px; left: 50px; }
+
+.cloud-2 {
+    width: 150px; height: 45px;
+    top: 20%; left: -150px;
+    animation: cloudFloat 24s linear infinite 6s;
+}
+.cloud-2::before { width: 60px; height: 55px; top: -28px; left: 25px; }
+.cloud-2::after { width: 80px; height: 65px; top: -32px; left: 60px; }
+
+.cloud-3 {
+    width: 100px; height: 35px;
+    top: 8%; left: -100px;
+    animation: cloudFloat 20s linear infinite 12s;
+}
+.cloud-3::before { width: 45px; height: 45px; top: -22px; left: 15px; }
+.cloud-3::after { width: 55px; height: 50px; top: -25px; left: 40px; }
+
+.cloud-4 {
+    width: 130px; height: 38px;
+    top: 15%; left: -130px;
+    animation: cloudFloat 22s linear infinite 3s;
+}
+.cloud-4::before { width: 55px; height: 50px; top: -25px; left: 22px; }
+.cloud-4::after { width: 65px; height: 55px; top: -28px; left: 55px; }
+
+.splash-ground {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30%;
+    background: linear-gradient(180deg, #8ED45E, #7EC850);
+    z-index: 0;
+}
+
+/* ============================================
+   TOP BAR
+   ============================================ */
+.top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space-md);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.top-btn {
+    width: var(--touch-min);
+    height: var(--touch-min);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    color: var(--text-warm);
+    border-radius: var(--radius-sm);
+    transition: all 0.2s var(--ease-smooth);
+}
+
+.top-btn svg {
+    width: 26px;
+    height: 26px;
+}
+
+.top-btn:active {
+    transform: scale(0.9);
+    background: rgba(0,0,0,0.05);
+}
+
+.home-btn { margin-right: var(--space-sm); }
+
+.top-title {
+    flex: 1;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-warm);
+    text-align: center;
+}
+
+.top-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.star-counter {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, #FFF8E1, #FFF3C4);
+    padding: 6px 12px;
+    border-radius: 20px;
+    margin-right: var(--space-sm);
+    box-shadow: var(--shadow-sm);
+}
+
+.star-icon {
+    width: 20px;
+    height: 20px;
+    fill: var(--star-gold);
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
+}
+
+.star-counter span {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: #B8860B;
+}
+
+.sound-btn .sound-off,
+.sound-btn.muted .sound-on {
+    display: none;
+}
+.sound-btn.muted .sound-off {
+    display: block;
+}
+
+/* ============================================
+   APP CONTAINER
+   ============================================ */
+.app {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+/* ============================================
+   SEVIYE TAMAMLAMA
+   ============================================ */
+.level-complete {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+}
+
+.complete-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl) var(--space-2xl);
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+    animation: bounceIn 0.5s var(--ease-spring) both;
+    max-width: 90vw;
+}
+
+.complete-title {
+    font-size: clamp(2rem, 6vw, 3rem);
+    font-weight: 700;
+    color: var(--success);
+    margin-bottom: var(--space-lg);
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.05);
+}
+
+.complete-stars {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+}
+
+.complete-stars .star {
+    width: 60px;
+    height: 60px;
+    fill: var(--star-empty);
+    transition: all 0.4s var(--ease-spring);
+}
+
+.complete-stars .star.earned {
+    fill: var(--star-gold);
+    filter: drop-shadow(0 2px 8px rgba(255, 215, 0, 0.5));
+    animation: starEarned 0.6s var(--ease-spring) both;
+}
+
+.complete-stars .star.earned:nth-child(2) { animation-delay: 0.2s; }
+.complete-stars .star.earned:nth-child(3) { animation-delay: 0.4s; }
+
+.complete-buttons {
+    display: flex;
+    gap: var(--space-md);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.complete-btn {
+    font-size: 1.1rem;
+    font-weight: 700;
+    padding: 12px 28px;
+    border-radius: var(--radius-md);
+    color: white;
+    transition: all 0.2s var(--ease-smooth);
+    min-width: 140px;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.15);
+}
+
+.complete-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.15);
+}
+
+.replay-btn { background: linear-gradient(135deg, #45B7D1, #3A9BBF); }
+.next-btn { background: linear-gradient(135deg, #2ECC71, #27AE60); }
+.hub-btn { background: linear-gradient(135deg, #F7B731, #E5A825); }
+
+/* ============================================
+   PARTICLES CANVAS
+   ============================================ */
+.particles-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 600;
+    pointer-events: none;
+    width: 100%;
+    height: 100%;
+}

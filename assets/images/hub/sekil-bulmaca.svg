@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFCA42"/>
+      <stop offset="100%" stop-color="#F7B731"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+  <!-- Puzzle pieces -->
+  <!-- Blue circle -->
+  <circle cx="40" cy="44" r="18" fill="#3498DB" opacity="0.95"/>
+  <circle cx="40" cy="44" r="12" fill="white" opacity="0.2"/>
+  <!-- Red triangle -->
+  <polygon points="90,28 106,62 74,62" fill="#E74C3C" opacity="0.95"/>
+  <!-- Green square -->
+  <rect x="22" y="72" width="34" height="34" rx="6" fill="#2ECC71" opacity="0.95"/>
+  <!-- Purple star -->
+  <polygon points="90,74 95,88 110,88 98,96 102,110 90,101 78,110 82,96 70,88 85,88" fill="#9B59B6" opacity="0.95"/>
+</svg>

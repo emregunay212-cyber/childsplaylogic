@@ -1,0 +1,18 @@
+{
+    "name": "Oyun Bahçesi - Eğitici Çocuk Oyunları",
+    "short_name": "Oyun Bahçesi",
+    "description": "Anaokulu seviyesinde eğlenceli ve eğitici oyunlar",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "orientation": "any",
+    "background_color": "#87CEEB",
+    "theme_color": "#4AABE0",
+    "lang": "tr",
+    "icons": [
+        {
+            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2387CEEB' width='100' height='100' rx='20'/><text x='50' y='65' text-anchor='middle' font-size='50'>🎮</text></svg>",
+            "sizes": "any",
+            "type": "image/svg+xml"
+        }
+    ]
+}

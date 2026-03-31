@@ -1,0 +1,201 @@
+/* ============================================
+   OYUN BAHÇESİ - Hub / Oyun Seçim Ekranı
+   ============================================ */
+
+.hub {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding-top: 60px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Arka Plan Katmanları */
+.hub-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.sky {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, #87CEEB 0%, #B8DFEF 40%, #C9E8F7 70%);
+}
+
+.sun {
+    position: absolute;
+    top: 8%;
+    right: 10%;
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, #FFE066 30%, #FFD700 60%, transparent 70%);
+    border-radius: 50%;
+    box-shadow: 0 0 60px rgba(255, 215, 0, 0.35), 0 0 120px rgba(255, 215, 0, 0.15);
+    animation: sunPulse 4s ease-in-out infinite;
+}
+
+.hills {
+    position: absolute;
+    bottom: 0;
+    left: -5%;
+    right: -5%;
+    height: 35%;
+    background:
+        radial-gradient(ellipse 60% 100% at 15% 100%, #8ED45E 0%, transparent 70%),
+        radial-gradient(ellipse 50% 100% at 50% 100%, #7EC850 0%, transparent 65%),
+        radial-gradient(ellipse 55% 100% at 85% 100%, #6BBF3B 0%, transparent 70%);
+}
+
+.grass {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 8%;
+    background: linear-gradient(180deg, #7EC850 0%, #6BBF3B 100%);
+}
+
+/* Hub Grid */
+.hub-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--space-lg);
+    padding: var(--space-xl) var(--space-lg) var(--space-2xl);
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Oyun Kartı */
+.game-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-lg) var(--space-md) var(--space-md);
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+    transition: all 0.3s var(--ease-bounce);
+    animation: cardEnter 0.5s var(--ease-spring) both;
+    border: 3px solid transparent;
+    overflow: hidden;
+}
+
+.game-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.game-card:nth-child(1) { animation-delay: 0.05s; }
+.game-card:nth-child(2) { animation-delay: 0.1s; }
+.game-card:nth-child(3) { animation-delay: 0.15s; }
+.game-card:nth-child(4) { animation-delay: 0.2s; }
+.game-card:nth-child(5) { animation-delay: 0.25s; }
+.game-card:nth-child(6) { animation-delay: 0.3s; }
+.game-card:nth-child(7) { animation-delay: 0.35s; }
+
+.game-card:hover, .game-card:focus-visible {
+    transform: scale(1.05) translateY(-4px);
+    box-shadow: var(--shadow-card-hover);
+}
+
+.game-card:active {
+    transform: scale(0.97);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Kart ikonu */
+.card-icon {
+    width: 90px;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-md);
+    font-size: 3rem;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.3s var(--ease-bounce);
+    overflow: hidden;
+}
+.card-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+}
+
+.game-card:hover .card-icon {
+    transform: scale(1.08) rotate(-3deg);
+}
+
+/* Kart başlığı */
+.card-title {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-warm);
+    text-align: center;
+    margin-bottom: var(--space-sm);
+    line-height: 1.2;
+}
+
+/* Kart yıldızları */
+.card-stars {
+    display: flex;
+    gap: 4px;
+}
+
+.card-stars svg {
+    width: 22px;
+    height: 22px;
+    transition: all 0.3s var(--ease-spring);
+}
+
+.card-stars svg.earned {
+    fill: var(--star-gold);
+    filter: drop-shadow(0 1px 3px rgba(255, 215, 0, 0.4));
+}
+
+.card-stars svg.empty {
+    fill: var(--star-empty);
+}
+
+/* Oyun renk temaları - üst kenarlık */
+.game-card[data-game="hafiza-kartlari"]::before { background: var(--hafiza-color); }
+.game-card[data-game="renk-eslestirme"]::before { background: var(--renk-color); }
+.game-card[data-game="sayi-sayma"]::before { background: var(--sayi-color); }
+.game-card[data-game="harf-tanima"]::before { background: var(--harf-color); }
+.game-card[data-game="sekil-bulmaca"]::before { background: var(--sekil-color); }
+.game-card[data-game="boyama"]::before { background: var(--boyama-color); }
+.game-card[data-game="siralama"]::before { background: var(--siralama-color); }
+
+/* Card icon - SVG handles its own background */
+.game-card .card-icon {
+    background: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Dekoratif elementler */
+.hub .butterfly {
+    position: fixed;
+    bottom: 15%;
+    right: 10%;
+    font-size: 1.5rem;
+    z-index: 2;
+    animation: float 3s ease-in-out infinite, sway 2s ease-in-out infinite;
+    pointer-events: none;
+}

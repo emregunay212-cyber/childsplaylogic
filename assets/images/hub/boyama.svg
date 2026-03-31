@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FF94D4"/>
+      <stop offset="100%" stop-color="#FF78C4"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+  <!-- Canvas/paper -->
+  <rect x="20" y="24" width="60" height="76" rx="6" fill="white" opacity="0.95"/>
+  <!-- Drawn flower on canvas -->
+  <circle cx="44" cy="52" r="8" fill="#FFD700" opacity="0.8"/>
+  <circle cx="36" cy="44" r="5" fill="#FF6B6B"/>
+  <circle cx="52" cy="44" r="5" fill="#FF6B6B"/>
+  <circle cx="36" cy="60" r="5" fill="#FF6B6B"/>
+  <circle cx="52" cy="60" r="5" fill="#FF6B6B"/>
+  <rect x="42" y="60" width="4" height="24" rx="2" fill="#2ECC71"/>
+  <!-- Crayon -->
+  <rect x="82" y="30" width="14" height="50" rx="4" fill="#E74C3C"/>
+  <polygon points="82,80 96,80 89,98" fill="#FFD5CC"/>
+  <rect x="82" y="26" width="14" height="10" rx="3" fill="#C0392B"/>
+  <!-- Color swatches -->
+  <circle cx="86" cy="110" r="6" fill="#3498DB"/>
+  <circle cx="100" cy="110" r="6" fill="#2ECC71"/>
+  <circle cx="114" cy="110" r="6" fill="#F1C40F"/>
+</svg>
