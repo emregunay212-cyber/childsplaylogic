@@ -55,7 +55,17 @@ const App = (() => {
     // Flat registry for backward compatibility
     const gameRegistry = gameCategories.flatMap(cat => cat.games);
 
+    // Multiplayer games list
+    const mpGamesList = [
+        { id: 'kelime-tahmin', game: KelimeTahmin },
+        { id: 'harf-tahmin', game: HarfTahmin },
+        { id: 'kod-macerasi', game: KodMacerasiMP },
+        { id: 'satranc', game: SatrancMP },
+        { id: 'penalti-mp', game: PenaltiMP },
+    ];
+
     let currentView = 'splash';
+    let activeCategory = 'all';
 
     function init() {
         // Parçacık sistemi başlat
@@ -139,18 +149,103 @@ const App = (() => {
 
     function showHub() {
         currentView = 'hub';
+        activeCategory = 'all';
         const app = document.getElementById('app');
         app.classList.remove('hidden');
 
         document.getElementById('hub').classList.remove('hidden');
+        document.getElementById('hub-nav').classList.remove('hidden');
         document.getElementById('game-container').classList.add('hidden');
         document.getElementById('top-bar').classList.remove('hidden');
 
-        // Yıldız sayacı güncelle
         updateStarCounter();
-
-        // Hub grid render
+        renderCategoryNav();
+        renderPopularGames();
         renderHubGrid();
+    }
+
+    function renderCategoryNav() {
+        const nav = document.getElementById('hub-nav-scroll');
+        const cats = [
+            { id: 'all', emoji: '🏠', label: 'Tümü' },
+            ...gameCategories.map((c, i) => ({ id: 'cat-' + i, emoji: c.title.split(' ')[0], label: c.title.replace(/^[^\s]+\s/, '') })),
+            { id: 'mp', emoji: '🌐', label: 'Online' },
+        ];
+
+        nav.innerHTML = cats.map(c =>
+            `<button class="hub-nav-chip ${c.id === activeCategory ? 'active' : ''}" data-cat="${c.id}">
+                <span class="chip-emoji">${c.emoji}</span>
+                <span class="chip-label">${c.label}</span>
+            </button>`
+        ).join('');
+
+        nav.querySelectorAll('.hub-nav-chip').forEach(chip => {
+            chip.onclick = () => {
+                activeCategory = chip.dataset.cat;
+                AudioManager.play('tap');
+                // Update active
+                nav.querySelectorAll('.hub-nav-chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                renderHubGrid();
+                // Show/hide popular section
+                const pop = document.getElementById('hub-popular');
+                if (pop) pop.style.display = activeCategory === 'all' ? '' : 'none';
+            };
+        });
+    }
+
+    function getPopularGames() {
+        // Get all games with their star counts, pick top 5
+        const allGames = gameRegistry.map(({ game }) => ({
+            game,
+            stars: Progress.getGameTotalStars(game.id),
+            maxStars: (game.levels?.length || 3) * 3,
+        }));
+        // Sort by stars desc, then by maxStars for tiebreaker
+        allGames.sort((a, b) => b.stars - a.stars || b.maxStars - a.maxStars);
+        return allGames.slice(0, 5);
+    }
+
+    function renderPopularGames() {
+        const container = document.getElementById('hub-popular');
+        if (!container) return;
+        const popular = getPopularGames();
+
+        // If no one has played yet, show a welcome instead
+        const hasPlayed = popular.some(p => p.stars > 0);
+
+        if (!hasPlayed) {
+            container.innerHTML = `
+                <div class="popular-section">
+                    <div class="popular-header"><span>🌟</span> Hadi Başlayalım!</div>
+                    <p class="popular-empty">Aşağıdan bir oyun seçerek maceraya başla!</p>
+                </div>`;
+            return;
+        }
+
+        container.innerHTML = `
+            <div class="popular-section">
+                <div class="popular-header"><span>🔥</span> En Çok Oynanan</div>
+                <div class="popular-scroll">
+                    ${popular.filter(p => p.stars > 0).map(({ game, stars, maxStars }) => `
+                        <div class="popular-card" data-game="${game.id}" role="button" tabindex="0">
+                            <div class="popular-icon"><img src="assets/images/hub/${game.id}.svg" alt="${TR.games[game.id]}" draggable="false"></div>
+                            <div class="popular-info">
+                                <div class="popular-name">${TR.games[game.id]}</div>
+                                <div class="popular-stars">⭐ ${stars}/${maxStars}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>`;
+
+        container.querySelectorAll('.popular-card').forEach(card => {
+            const gameId = card.dataset.game;
+            const entry = gameRegistry.find(g => g.game.id === gameId);
+            if (entry) {
+                card.onclick = () => { AudioManager.play('tap'); startGame(entry.game); };
+            }
+        });
     }
 
     function renderHubGrid() {
@@ -185,54 +280,60 @@ const App = (() => {
             return card;
         }
 
-        // ── Kategorili Tek Oyunculu Oyunlar ──
-        gameCategories.forEach(category => {
-            const header = document.createElement('div');
-            header.className = 'hub-category-header';
-            header.innerHTML = `<h3 style="--cat-color: ${category.color}">${category.title}</h3>`;
-            grid.appendChild(header);
-
-            category.games.forEach(({ game }) => {
-                grid.appendChild(createGameCard(game));
-            });
-        });
-
-        // ── Çok Oyunculu Bölüm ──
-        const mpHeader = document.createElement('div');
-        mpHeader.className = 'hub-category-header mp-section-header';
-        mpHeader.innerHTML = `<h3 style="--cat-color: #5B4A8A">🌐 ${TR.multiplayerTitle}</h3>`;
-        grid.appendChild(mpHeader);
-
-        const mpGames = [
-            { id: 'kelime-tahmin', game: KelimeTahmin },
-            { id: 'harf-tahmin', game: HarfTahmin },
-            { id: 'kod-macerasi', game: KodMacerasiMP },
-            { id: 'satranc', game: SatrancMP },
-            { id: 'penalti-mp', game: PenaltiMP },
-        ];
-        mpGames.forEach(({ id, game }) => {
+        function createMPCard(id, game) {
             const card = document.createElement('div');
             card.className = 'game-card';
             card.dataset.game = id;
             card.setAttribute('role', 'button');
             card.setAttribute('tabindex', '0');
             card.setAttribute('aria-label', TR.games[id]);
-
             card.innerHTML = `
                 <div class="mp-badge">2 Oyuncu</div>
                 <div class="card-icon"><img src="assets/images/hub/${id}.svg" alt="${TR.games[id]}" draggable="false"></div>
                 <div class="card-title">${TR.games[id]}</div>
                 <div class="card-stars"><span style="font-size:0.7rem;color:#888">🎮 Online</span></div>
             `;
-
             card.addEventListener('click', () => { AudioManager.play('tap'); startMultiplayerGame(game); });
-            grid.appendChild(card);
-        });
+            return card;
+        }
+
+        const showAll = activeCategory === 'all';
+        const showMP = activeCategory === 'mp';
+        const catIdx = activeCategory.startsWith('cat-') ? parseInt(activeCategory.split('-')[1]) : -1;
+
+        // ── Kategorili Tek Oyunculu Oyunlar ──
+        if (!showMP) {
+            gameCategories.forEach((category, idx) => {
+                if (!showAll && catIdx !== idx) return;
+
+                const header = document.createElement('div');
+                header.className = 'hub-category-header';
+                header.innerHTML = `<h3 style="--cat-color: ${category.color}">${category.title}</h3>`;
+                grid.appendChild(header);
+
+                category.games.forEach(({ game }) => {
+                    grid.appendChild(createGameCard(game));
+                });
+            });
+        }
+
+        // ── Çok Oyunculu Bölüm ──
+        if (showAll || showMP) {
+            const mpHeader = document.createElement('div');
+            mpHeader.className = 'hub-category-header mp-section-header';
+            mpHeader.innerHTML = `<h3 style="--cat-color: #5B4A8A">🌐 ${TR.multiplayerTitle}</h3>`;
+            grid.appendChild(mpHeader);
+
+            mpGamesList.forEach(({ id, game }) => {
+                grid.appendChild(createMPCard(id, game));
+            });
+        }
     }
 
     function startMultiplayerGame(game) {
         currentView = 'game';
         document.getElementById('hub').classList.add('hidden');
+        document.getElementById('hub-nav').classList.add('hidden');
         document.getElementById('game-container').classList.remove('hidden');
         document.getElementById('top-bar').classList.add('hidden');
 
@@ -250,6 +351,7 @@ const App = (() => {
         currentView = 'game';
 
         document.getElementById('hub').classList.add('hidden');
+        document.getElementById('hub-nav').classList.add('hidden');
         document.getElementById('game-container').classList.remove('hidden');
         document.getElementById('top-bar').classList.add('hidden');
 
