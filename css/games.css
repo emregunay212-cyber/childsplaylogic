@@ -359,6 +359,38 @@
     box-shadow: 0 0 0 3px rgba(0,0,0,0.2);
 }
 
+/* Boyama Galeri */
+.boyama-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    padding: 0.5rem;
+    max-width: 480px;
+    margin: 0 auto;
+}
+.boyama-gallery-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 8px;
+    background: white;
+    border: 3px solid #E0E0E0;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+}
+.boyama-gallery-card:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.boyama-gallery-card.completed { border-color: var(--success); background: #F0FFF0; }
+.boyama-gallery-emoji { font-size: 2rem; }
+.boyama-gallery-name { font-size: 0.75rem; font-weight: 700; color: #555; }
+.boyama-gallery-check { position: absolute; top: 4px; right: 4px; font-size: 0.8rem; }
+.boyama-back-btn {
+    background: none; border: none; color: var(--primary); font-weight: 700;
+    font-size: 0.85rem; cursor: pointer; padding: 0.3rem 0.8rem;
+}
+
 /* Sürükle Bırak Öğeleri */
 .draggable-item {
     cursor: grab;

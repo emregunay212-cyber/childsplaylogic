@@ -6,8 +6,15 @@ const HafizaKartlari = (() => {
     const id = 'hafiza-kartlari';
     const levels = [
         { grid: [2, 2], pairs: 2 },
+        { grid: [2, 3], pairs: 3 },
+        { grid: [2, 4], pairs: 4 },
         { grid: [3, 4], pairs: 6 },
         { grid: [4, 4], pairs: 8 },
+        { grid: [4, 5], pairs: 10 },
+        { grid: [4, 6], pairs: 12 },
+        { grid: [5, 6], pairs: 15 },
+        { grid: [6, 6], pairs: 18 },
+        { grid: [6, 7], pairs: 21 },
     ];
 
     let container = null;
@@ -46,7 +53,7 @@ const HafizaKartlari = (() => {
         grid.className = 'memory-grid';
         const [rows, cols] = config.grid;
         grid.classList.add(`grid-${rows}x${cols}`);
-        const cardSize = cols <= 2 ? '120px' : (cols <= 3 ? '100px' : '90px');
+        const cardSize = cols <= 2 ? '120px' : cols <= 3 ? '100px' : cols <= 4 ? '80px' : cols <= 5 ? '68px' : cols <= 6 ? '58px' : '50px';
         grid.style.gridTemplateColumns = `repeat(${cols}, ${cardSize})`;
         grid.style.justifyContent = 'center';
 

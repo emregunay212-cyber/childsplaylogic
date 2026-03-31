@@ -1,0 +1,105 @@
+/* Tuval (Pixel Boyama) Stilleri */
+
+.tuval-lvbar {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 0.3rem;
+}
+.tuval-lv-btn {
+    padding: 6px 16px;
+    border: 2px solid #E0E0E0;
+    border-radius: 20px;
+    background: white;
+    font-weight: 700;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.tuval-lv-btn.active {
+    background: var(--tuval-color, #E91E63);
+    color: white;
+    border-color: var(--tuval-color, #E91E63);
+}
+.tuval-lv-btn:hover { transform: scale(1.05); }
+
+.tuval-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 0.3rem;
+}
+
+.tuval-grid {
+    display: grid;
+    border: 2px solid #999;
+    background: #999;
+    gap: 1px;
+    touch-action: none;
+    user-select: none;
+}
+.tuval-10 { width: clamp(260px, 80vw, 360px); height: clamp(260px, 80vw, 360px); }
+.tuval-15 { width: clamp(280px, 85vw, 400px); height: clamp(280px, 85vw, 400px); }
+.tuval-20 { width: clamp(300px, 88vw, 420px); height: clamp(300px, 88vw, 420px); }
+
+.tuval-cell {
+    background: white;
+    cursor: crosshair;
+    transition: background 0.05s;
+}
+.tuval-cell:hover {
+    filter: brightness(0.95);
+}
+
+.tuval-palette {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    padding: 0.4rem;
+    max-width: 420px;
+    margin: 0.3rem auto;
+}
+
+.tuval-swatch {
+    width: 32px;
+    height: 32px;
+    border: 3px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.tuval-swatch:hover { transform: scale(1.15); }
+.tuval-swatch.active {
+    border-color: #333;
+    transform: scale(1.2);
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.2);
+}
+
+.tuval-tools {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 0.3rem;
+}
+
+.tuval-tool-btn {
+    padding: 8px 16px;
+    border: 2px solid #E0E0E0;
+    border-radius: 12px;
+    background: white;
+    font-weight: 700;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.tuval-tool-btn.active {
+    background: #FFF3E0;
+    border-color: #FF9800;
+    color: #E65100;
+}
+.tuval-tool-btn.danger:hover {
+    background: #FFEBEE;
+    border-color: #F44336;
+    color: #C62828;
+}

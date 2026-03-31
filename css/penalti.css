@@ -1,0 +1,106 @@
+/* Penaltı Oyunu Stilleri */
+
+.penalti-score {
+    text-align: center;
+    font-size: 1.1rem;
+    padding: 0.3rem;
+    color: #333;
+}
+
+.penalti-goal {
+    position: relative;
+    max-width: 320px;
+    margin: 0.5rem auto;
+}
+
+.penalti-frame {
+    border: 6px solid #E0E0E0;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    background: linear-gradient(180deg, #E8F5E9 0%, #C8E6C9 100%);
+    padding: 6px;
+}
+
+.penalti-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+}
+
+.penalti-zone {
+    aspect-ratio: 1.2;
+    border: 2px dashed rgba(0,0,0,0.15);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.5);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    transition: all 0.2s;
+    position: relative;
+}
+.penalti-zone:hover {
+    background: rgba(255,255,255,0.9);
+    transform: scale(1.05);
+    border-color: #4CAF50;
+}
+.penalti-zone:active { transform: scale(0.95); }
+.penalti-zone:disabled { cursor: default; opacity: 0.6; }
+
+.penalti-zone.goal-scored {
+    background: rgba(76, 175, 80, 0.3) !important;
+    border-color: #4CAF50 !important;
+}
+.penalti-zone.saved {
+    background: rgba(244, 67, 54, 0.2) !important;
+    border-color: #F44336 !important;
+}
+.penalti-zone.keeper-dive {
+    animation: keeperPop 0.3s ease;
+}
+
+.penalti-arrow { pointer-events: none; }
+.penalti-keeper { font-size: 2rem; animation: keeperPop 0.3s ease; }
+
+@keyframes keeperPop {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+.penalti-ball {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-top: 1rem;
+    transition: all 0.4s ease-out;
+}
+
+.penalti-result {
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: 800;
+    padding: 0.5rem;
+    border-radius: 12px;
+    margin: 0.5rem auto;
+    max-width: 250px;
+    animation: popIn 0.3s ease;
+}
+.penalti-result.goal { background: #E8F5E9; color: #2E7D32; }
+.penalti-result.miss { background: #FFEBEE; color: #C62828; }
+
+.penalti-history {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 0.5rem;
+    font-size: 1.3rem;
+}
+.penalti-dot { opacity: 0.4; }
+.penalti-dot.goal { opacity: 1; }
+.penalti-dot.miss { opacity: 1; }
+
+@keyframes popIn {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+}

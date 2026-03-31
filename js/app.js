@@ -14,6 +14,8 @@ const App = (() => {
         { game: Siralama, emoji: '📊', color: 'var(--siralama-color)' },
         { game: KodMacerasi, emoji: '🤖', color: 'var(--kodmacerasi-color)' },
         { game: Satranc, emoji: '♟️', color: 'var(--satranc-color)' },
+        { game: Penalti, emoji: '⚽', color: 'var(--penalti-color)' },
+        { game: Tuval, emoji: '🖼️', color: 'var(--tuval-color)' },
     ];
 
     let currentView = 'splash';

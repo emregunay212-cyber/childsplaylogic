@@ -20,6 +20,8 @@ const TR = {
         'harf-tahmin': 'Harf Tahmin',
         'kod-macerasi': 'Kod Macerası',
         'satranc': 'Satranç',
+        'penalti': 'Penaltı',
+        'tuval': 'Tuval',
     },
 
     // Multiplayer strings
@@ -100,6 +102,8 @@ const TR = {
         'siralama': 'Nesneleri küçükten büyüğe sırala!',
         'kod-macerasi': 'Robotu yıldıza götür!',
         'satranc': 'Bilgisayarı mat et!',
+        'penalti': 'Kaleye şut çek!',
+        'tuval': 'Hayal et ve boya!',
     },
 
     // Kod Macerasi stringleri
