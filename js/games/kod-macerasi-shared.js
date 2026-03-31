@@ -105,7 +105,7 @@ const KodMacerasiCore = (() => {
                 grid: [[0,0,0,0],[0,1,0,0],[0,0,0,0],[0,0,1,0]],
                 start: { x: 0, y: 3 },
                 target: { x: 3, y: 0 },
-                collectibles: [{ x: 1, y: 0 }],
+                collectibles: [],
                 obstacles: [{ x: 1, y: 1 }, { x: 2, y: 3 }],
                 optimal: 5
             },
@@ -114,7 +114,7 @@ const KodMacerasiCore = (() => {
                 grid: [[0,0,0,0],[0,0,1,0],[0,0,0,0],[0,1,0,0]],
                 start: { x: 0, y: 3 },
                 target: { x: 3, y: 0 },
-                collectibles: [{ x: 3, y: 3 }],
+                collectibles: [],
                 obstacles: [{ x: 2, y: 1 }, { x: 1, y: 3 }],
                 optimal: 5
             },
@@ -123,7 +123,7 @@ const KodMacerasiCore = (() => {
                 grid: [[0,0,0,0],[0,0,0,0],[0,1,0,0],[0,0,0,0]],
                 start: { x: 0, y: 3 },
                 target: { x: 3, y: 1 },
-                collectibles: [{ x: 0, y: 0 }],
+                collectibles: [],
                 obstacles: [{ x: 1, y: 2 }],
                 optimal: 4
             },
@@ -132,7 +132,7 @@ const KodMacerasiCore = (() => {
                 grid: [[0,0,0,0],[1,0,0,0],[0,0,1,0],[0,0,0,0]],
                 start: { x: 1, y: 3 },
                 target: { x: 1, y: 0 },
-                collectibles: [{ x: 3, y: 2 }],
+                collectibles: [],
                 obstacles: [{ x: 0, y: 1 }, { x: 2, y: 2 }],
                 optimal: 4
             },
@@ -143,7 +143,7 @@ const KodMacerasiCore = (() => {
                 grid: [[0,0,0,0,0],[0,1,0,1,0],[0,0,0,0,0],[0,1,0,0,0],[0,0,0,1,0]],
                 start: { x: 0, y: 4 },
                 target: { x: 4, y: 0 },
-                collectibles: [{ x: 2, y: 2 }, { x: 4, y: 4 }],
+                collectibles: [],
                 obstacles: [{ x: 1, y: 1 }, { x: 3, y: 1 }, { x: 1, y: 3 }, { x: 3, y: 4 }],
                 optimal: 6
             },
@@ -152,18 +152,18 @@ const KodMacerasiCore = (() => {
                 grid: [[0,0,0,0,0],[0,0,1,0,0],[0,0,0,0,0],[0,0,1,0,0],[0,0,0,0,0]],
                 start: { x: 0, y: 4 },
                 target: { x: 4, y: 0 },
-                collectibles: [{ x: 4, y: 4 }, { x: 0, y: 0 }],
+                collectibles: [],
                 obstacles: [{ x: 2, y: 1 }, { x: 2, y: 3 }],
                 optimal: 6
             },
             {
                 size: 5,
                 grid: [[0,0,0,0,0],[0,1,0,0,0],[0,0,0,1,0],[0,0,0,0,0],[0,0,1,0,0]],
-                start: { x: 2, y: 4 },
-                target: { x: 2, y: 0 },
-                collectibles: [{ x: 0, y: 2 }, { x: 4, y: 2 }],
+                start: { x: 0, y: 4 },
+                target: { x: 4, y: 0 },
+                collectibles: [],
                 obstacles: [{ x: 1, y: 1 }, { x: 3, y: 2 }, { x: 2, y: 4 }],
-                optimal: 5
+                optimal: 6
             },
         ],
     };
