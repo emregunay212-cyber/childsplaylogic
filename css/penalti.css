@@ -1,106 +1,73 @@
-/* Penaltı Oyunu Stilleri */
+/* Penaltı Oyunu - Gerçekçi SVG Sahne */
 
-.penalti-score {
-    text-align: center;
-    font-size: 1.1rem;
-    padding: 0.3rem;
-    color: #333;
-}
-
-.penalti-goal {
-    position: relative;
-    max-width: 320px;
-    margin: 0.5rem auto;
-}
-
-.penalti-frame {
-    border: 6px solid #E0E0E0;
-    border-bottom: none;
-    border-radius: 8px 8px 0 0;
-    background: linear-gradient(180deg, #E8F5E9 0%, #C8E6C9 100%);
-    padding: 6px;
-}
-
-.penalti-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 4px;
-}
-
-.penalti-zone {
-    aspect-ratio: 1.2;
-    border: 2px dashed rgba(0,0,0,0.15);
-    border-radius: 8px;
-    background: rgba(255,255,255,0.5);
-    cursor: pointer;
+.pen-topbar {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    transition: all 0.2s;
-    position: relative;
+    padding: 0.3rem 1rem;
+    max-width: 420px;
+    margin: 0 auto;
 }
-.penalti-zone:hover {
-    background: rgba(255,255,255,0.9);
-    transform: scale(1.05);
-    border-color: #4CAF50;
+.pen-shot-info {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #555;
+    background: rgba(255,255,255,0.8);
+    padding: 4px 12px;
+    border-radius: 20px;
 }
-.penalti-zone:active { transform: scale(0.95); }
-.penalti-zone:disabled { cursor: default; opacity: 0.6; }
-
-.penalti-zone.goal-scored {
-    background: rgba(76, 175, 80, 0.3) !important;
-    border-color: #4CAF50 !important;
-}
-.penalti-zone.saved {
-    background: rgba(244, 67, 54, 0.2) !important;
-    border-color: #F44336 !important;
-}
-.penalti-zone.keeper-dive {
-    animation: keeperPop 0.3s ease;
-}
-
-.penalti-arrow { pointer-events: none; }
-.penalti-keeper { font-size: 2rem; animation: keeperPop 0.3s ease; }
-
-@keyframes keeperPop {
-    0% { transform: scale(0); }
-    50% { transform: scale(1.3); }
-    100% { transform: scale(1); }
-}
-
-.penalti-ball {
-    text-align: center;
-    font-size: 2.5rem;
-    margin-top: 1rem;
-    transition: all 0.4s ease-out;
-}
-
-.penalti-result {
-    text-align: center;
-    font-size: 1.3rem;
+.pen-score-info {
     font-weight: 800;
-    padding: 0.5rem;
-    border-radius: 12px;
-    margin: 0.5rem auto;
-    max-width: 250px;
-    animation: popIn 0.3s ease;
+    font-size: 1rem;
+    color: #2E7D32;
+    background: #E8F5E9;
+    padding: 4px 14px;
+    border-radius: 20px;
 }
-.penalti-result.goal { background: #E8F5E9; color: #2E7D32; }
-.penalti-result.miss { background: #FFEBEE; color: #C62828; }
 
-.penalti-history {
+.pen-scene-wrap {
+    max-width: 440px;
+    margin: 0.3rem auto;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.penalti-scene {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.penalti-scene .pen-target {
+    cursor: pointer;
+    transition: fill 0.15s;
+}
+.penalti-scene .pen-target:hover {
+    fill: rgba(255,255,255,0.25) !important;
+}
+
+.penalti-scene #pen-ball,
+.penalti-scene #pen-keeper {
+    transition: transform 0.4s cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+.pen-history {
     display: flex;
     justify-content: center;
     gap: 12px;
-    padding: 0.5rem;
-    font-size: 1.3rem;
+    padding: 0.4rem;
+    font-size: 1.2rem;
 }
-.penalti-dot { opacity: 0.4; }
-.penalti-dot.goal { opacity: 1; }
-.penalti-dot.miss { opacity: 1; }
+.pen-dot {
+    transition: transform 0.3s;
+}
+.pen-dot.current {
+    animation: dotBounce 1s ease-in-out infinite;
+}
+.pen-dot.goal { filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2)); }
 
-@keyframes popIn {
-    0% { transform: scale(0); }
-    100% { transform: scale(1); }
+@keyframes dotBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
 }

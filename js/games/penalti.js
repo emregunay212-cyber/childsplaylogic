@@ -1,119 +1,183 @@
 /* ============================================
    OYUN: Penaltı - Kaleye Şut Çek!
-   9 seviye, her seviyede kaleci daha iyi
+   SVG sahne: yeşil çim, kale, kaleci kedi, top
    ============================================ */
 
 const Penalti = (() => {
     const id = 'penalti';
     const levels = [
-        { saveChance: 0.10, name: 'Çok Kolay' },
-        { saveChance: 0.15, name: 'Kolay' },
-        { saveChance: 0.20, name: 'Kolay+' },
-        { saveChance: 0.30, name: 'Orta' },
-        { saveChance: 0.40, name: 'Orta+' },
-        { saveChance: 0.50, name: 'Zor' },
-        { saveChance: 0.60, name: 'Zor+' },
-        { saveChance: 0.70, name: 'Çok Zor' },
-        { saveChance: 0.80, name: 'Usta' },
+        { saveChance: 0.10 }, { saveChance: 0.15 }, { saveChance: 0.20 },
+        { saveChance: 0.30 }, { saveChance: 0.40 }, { saveChance: 0.50 },
+        { saveChance: 0.60 }, { saveChance: 0.70 }, { saveChance: 0.80 },
     ];
 
     const TOTAL_SHOTS = 5;
+    // 3x3 kale bölgeleri (sol/orta/sağ × üst/orta/alt)
     const ZONES = [
-        { name: 'Sol Üst', x: 0, y: 0, emoji: '↖' },
-        { name: 'Orta Üst', x: 1, y: 0, emoji: '⬆' },
-        { name: 'Sağ Üst', x: 2, y: 0, emoji: '↗' },
-        { name: 'Sol Orta', x: 0, y: 1, emoji: '⬅' },
-        { name: 'Orta', x: 1, y: 1, emoji: '⏺' },
-        { name: 'Sağ Orta', x: 2, y: 1, emoji: '➡' },
-        { name: 'Sol Alt', x: 0, y: 2, emoji: '↙' },
-        { name: 'Orta Alt', x: 1, y: 2, emoji: '⬇' },
-        { name: 'Sağ Alt', x: 2, y: 2, emoji: '↘' },
+        { label: 'Sol Üst',   tx: 70,  ty: 65 },
+        { label: 'Orta Üst',  tx: 200, ty: 55 },
+        { label: 'Sağ Üst',   tx: 330, ty: 65 },
+        { label: 'Sol Orta',  tx: 80,  ty: 120 },
+        { label: 'Orta',      tx: 200, ty: 115 },
+        { label: 'Sağ Orta',  tx: 320, ty: 120 },
+        { label: 'Sol Alt',   tx: 90,  ty: 170 },
+        { label: 'Orta Alt',  tx: 200, ty: 170 },
+        { label: 'Sağ Alt',   tx: 310, ty: 170 },
     ];
 
-    let container = null;
-    let callbacks = null;
-    let saveChance = 0.1;
-    let shotsTaken = 0;
-    let goals = 0;
-    let isAnimating = false;
+    let container, callbacks, saveChance, shotsTaken, goals, isAnimating, currentLevel;
+    let shotResults = []; // [{goal: true/false}]
 
     function init(gameArea, level, cbs) {
         container = gameArea;
         callbacks = cbs;
-        const config = levels[level - 1];
-        saveChance = config.saveChance;
+        currentLevel = level;
+        saveChance = levels[level - 1].saveChance;
         shotsTaken = 0;
         goals = 0;
         isAnimating = false;
-
+        shotResults = [];
         GameEngine.setTotal(TOTAL_SHOTS);
         render();
+    }
+
+    // ── SVG Sahne ──
+    function buildScene() {
+        return `
+        <svg viewBox="0 0 400 300" class="penalti-scene" xmlns="http://www.w3.org/2000/svg">
+            <!-- Gökyüzü -->
+            <defs>
+                <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#87CEEB"/>
+                    <stop offset="100%" stop-color="#B8E6FF"/>
+                </linearGradient>
+                <linearGradient id="grassGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#4CAF50"/>
+                    <stop offset="100%" stop-color="#388E3C"/>
+                </linearGradient>
+            </defs>
+            <rect width="400" height="300" fill="url(#skyGrad)"/>
+
+            <!-- Bulutlar -->
+            <ellipse cx="80" cy="40" rx="40" ry="15" fill="white" opacity="0.7"/>
+            <ellipse cx="60" cy="35" rx="25" ry="12" fill="white" opacity="0.7"/>
+            <ellipse cx="320" cy="50" rx="35" ry="12" fill="white" opacity="0.6"/>
+
+            <!-- Çim -->
+            <rect x="0" y="185" width="400" height="115" fill="url(#grassGrad)"/>
+            <!-- Çim çizgileri -->
+            <line x1="0" y1="210" x2="400" y2="210" stroke="#43A047" stroke-width="1" opacity="0.4"/>
+            <line x1="0" y1="240" x2="400" y2="240" stroke="#43A047" stroke-width="1" opacity="0.3"/>
+
+            <!-- Kale direkleri -->
+            <rect x="40" y="45" width="6" height="155" rx="3" fill="#E0E0E0" stroke="#BDBDBD" stroke-width="1"/>
+            <rect x="354" y="45" width="6" height="155" rx="3" fill="#E0E0E0" stroke="#BDBDBD" stroke-width="1"/>
+            <rect x="38" y="40" width="324" height="8" rx="4" fill="#E0E0E0" stroke="#BDBDBD" stroke-width="1"/>
+
+            <!-- Ağ -->
+            <path d="M46,48 L46,198 L20,210 L20,55 Z" fill="none" stroke="#ccc" stroke-width="0.5" opacity="0.6"/>
+            <path d="M354,48 L354,198 L380,210 L380,55 Z" fill="none" stroke="#ccc" stroke-width="0.5" opacity="0.6"/>
+            <!-- Yatay ağ çizgileri -->
+            ${[70,95,120,145,170].map(y => `<line x1="46" y1="${y}" x2="354" y2="${y}" stroke="#ccc" stroke-width="0.5" opacity="0.3"/>`).join('')}
+            <!-- Dikey ağ çizgileri -->
+            ${[100,150,200,250,300].map(x => `<line x1="${x}" y1="48" x2="${x}" y2="198" stroke="#ccc" stroke-width="0.5" opacity="0.3"/>`).join('')}
+
+            <!-- 3x3 Tıklanabilir bölgeler (görünmez) -->
+            ${ZONES.map((z, i) => `
+                <rect class="pen-target" data-zone="${i}"
+                    x="${z.tx - 50}" y="${z.ty - 25}" width="100" height="50"
+                    fill="transparent" cursor="pointer" rx="8"/>
+            `).join('')}
+
+            <!-- Kaleci Kedi (merkez, ayakta) -->
+            <g id="pen-keeper" transform="translate(200, 140)">
+                <!-- Gövde -->
+                <ellipse cx="0" cy="20" rx="22" ry="28" fill="#FF9800"/>
+                <!-- Kafa -->
+                <circle cx="0" cy="-12" r="18" fill="#FF9800"/>
+                <!-- Kulaklar -->
+                <polygon points="-14,-26 -18,-40 -6,-28" fill="#FF9800"/>
+                <polygon points="14,-26 18,-40 6,-28" fill="#FF9800"/>
+                <polygon points="-12,-28 -15,-38 -7,-29" fill="#FFB74D"/>
+                <polygon points="12,-28 15,-38 7,-29" fill="#FFB74D"/>
+                <!-- Yüz -->
+                <circle cx="-7" cy="-14" r="4" fill="white"/>
+                <circle cx="7" cy="-14" r="4" fill="white"/>
+                <circle cx="-6" cy="-14" r="2.5" fill="#333"/>
+                <circle cx="8" cy="-14" r="2.5" fill="#333"/>
+                <ellipse cx="0" cy="-6" rx="4" ry="3" fill="#FF7043"/>
+                <!-- Karın -->
+                <ellipse cx="0" cy="24" rx="15" ry="18" fill="#FFE0B2"/>
+                <!-- Eller (eldiven) -->
+                <circle cx="-26" cy="10" r="9" fill="#4CAF50"/>
+                <circle cx="26" cy="10" r="9" fill="#4CAF50"/>
+                <!-- Ayaklar -->
+                <ellipse cx="-10" cy="50" rx="8" ry="5" fill="#FF9800"/>
+                <ellipse cx="10" cy="50" rx="8" ry="5" fill="#FF9800"/>
+            </g>
+
+            <!-- Top -->
+            <g id="pen-ball" transform="translate(200, 260)">
+                <circle cx="0" cy="0" r="14" fill="white" stroke="#333" stroke-width="1.5"/>
+                <path d="M-5,-12 L5,-12 L8,-3 L0,4 L-8,-3 Z" fill="#333" opacity="0.8"/>
+                <path d="M-14,0 L-8,-3 L-8,6 L-12,4 Z" fill="#333" opacity="0.6"/>
+                <path d="M14,0 L8,-3 L8,6 L12,4 Z" fill="#333" opacity="0.6"/>
+                <circle cx="-3" cy="-4" r="3" fill="white" opacity="0.4"/>
+            </g>
+
+            <!-- Sonuç mesajı -->
+            <text id="pen-msg" x="200" y="260" text-anchor="middle" font-size="0" font-weight="bold" fill="white" stroke="#333" stroke-width="1"></text>
+        </svg>`;
     }
 
     function render() {
         container.innerHTML = '';
 
-        // Yönerge
-        const instr = document.createElement('div');
-        instr.className = 'game-instruction';
-        instr.textContent = `Atış ${shotsTaken + 1}/${TOTAL_SHOTS} - Kaleye şut çek!`;
-        container.appendChild(instr);
+        // Skor + atış bilgisi
+        const topBar = document.createElement('div');
+        topBar.className = 'pen-topbar';
+        topBar.innerHTML = `
+            <span class="pen-shot-info">Atış ${Math.min(shotsTaken + 1, TOTAL_SHOTS)}/${TOTAL_SHOTS}</span>
+            <span class="pen-score-info">⚽ ${goals} Gol</span>
+        `;
+        container.appendChild(topBar);
 
-        // Skor
-        const scoreBar = document.createElement('div');
-        scoreBar.className = 'penalti-score';
-        scoreBar.innerHTML = `⚽ Gol: <strong>${goals}</strong> / ${TOTAL_SHOTS}`;
-        container.appendChild(scoreBar);
+        // SVG Sahne
+        const sceneWrap = document.createElement('div');
+        sceneWrap.className = 'pen-scene-wrap';
+        sceneWrap.innerHTML = buildScene();
+        container.appendChild(sceneWrap);
 
-        // Kale (3x3 grid)
-        const goal = document.createElement('div');
-        goal.className = 'penalti-goal';
-
-        // Kale çerçevesi
-        const frame = document.createElement('div');
-        frame.className = 'penalti-frame';
-
-        const grid = document.createElement('div');
-        grid.className = 'penalti-grid';
-
-        ZONES.forEach((zone, idx) => {
-            const cell = document.createElement('button');
-            cell.className = 'penalti-zone';
-            cell.innerHTML = `<span class="penalti-arrow">${zone.emoji}</span>`;
-            cell.title = zone.name;
-            cell.disabled = isAnimating;
-
-            cell.addEventListener('click', () => {
+        // Hedef bölgelere tıklama
+        sceneWrap.querySelectorAll('.pen-target').forEach(target => {
+            target.addEventListener('click', () => {
                 if (isAnimating) return;
-                takeShot(idx);
+                const zoneIdx = parseInt(target.dataset.zone);
+                takeShot(zoneIdx);
             });
-            grid.appendChild(cell);
+            // Hover efekti
+            target.addEventListener('mouseenter', () => {
+                if (!isAnimating) target.setAttribute('fill', 'rgba(255,255,255,0.2)');
+            });
+            target.addEventListener('mouseleave', () => {
+                target.setAttribute('fill', 'transparent');
+            });
         });
-
-        frame.appendChild(grid);
-        goal.appendChild(frame);
-
-        // Top
-        const ball = document.createElement('div');
-        ball.className = 'penalti-ball';
-        ball.id = 'penalti-ball';
-        ball.textContent = '⚽';
-        goal.appendChild(ball);
-
-        container.appendChild(goal);
 
         // Atış geçmişi
         const history = document.createElement('div');
-        history.className = 'penalti-history';
+        history.className = 'pen-history';
         for (let i = 0; i < TOTAL_SHOTS; i++) {
             const dot = document.createElement('span');
-            dot.className = 'penalti-dot';
-            if (i < shotsTaken) {
-                // Geçmiş atışlar
-                dot.classList.add(i < goals ? 'goal' : 'miss');
-                dot.textContent = i < goals ? '⚽' : '❌';
+            dot.className = 'pen-dot';
+            if (i < shotResults.length) {
+                dot.classList.add(shotResults[i].goal ? 'goal' : 'miss');
+                dot.textContent = shotResults[i].goal ? '⚽' : '❌';
+            } else if (i === shotsTaken) {
+                dot.classList.add('current');
+                dot.textContent = '🔵';
             } else {
-                dot.textContent = '○';
+                dot.textContent = '⚪';
             }
             history.appendChild(dot);
         }
@@ -123,54 +187,66 @@ const Penalti = (() => {
     function takeShot(zoneIdx) {
         isAnimating = true;
         const zone = ZONES[zoneIdx];
-
-        // Kaleci hangi yöne atlayacak
         const saved = Math.random() < saveChance;
-        const keeperZone = saved ? zoneIdx : getRandomZoneExcluding(zoneIdx);
+        const keeperZoneIdx = saved ? zoneIdx : getRandomZoneExcluding(zoneIdx);
+        const keeperZone = ZONES[keeperZoneIdx];
 
-        // Animasyon
-        const ball = document.getElementById('penalti-ball');
-        const grid = container.querySelector('.penalti-grid');
-        const cells = grid.querySelectorAll('.penalti-zone');
+        const svg = container.querySelector('.penalti-scene');
+        const ball = svg.querySelector('#pen-ball');
+        const keeper = svg.querySelector('#pen-keeper');
+        const msg = svg.querySelector('#pen-msg');
 
-        // Top animasyonu - hedefe doğru
-        if (ball) {
-            ball.style.transition = 'all 0.4s ease-out';
-            const targetCell = cells[zoneIdx];
-            const rect = targetCell.getBoundingClientRect();
-            const goalRect = container.querySelector('.penalti-goal').getBoundingClientRect();
-            ball.style.transform = `translate(${rect.left - goalRect.left - goalRect.width/2 + rect.width/2}px, ${rect.top - goalRect.top - goalRect.height + 20}px) scale(0.6)`;
-        }
+        // 1) Top hedefe uçar
+        ball.style.transition = 'transform 0.5s cubic-bezier(0.2, 0, 0.2, 1)';
+        ball.setAttribute('transform', `translate(${zone.tx}, ${zone.ty}) scale(0.7)`);
 
-        // Kaleci göster
+        // 2) Kaleci atlar
         setTimeout(() => {
-            // Kaleci animasyonu
-            const keeperCell = cells[keeperZone];
-            keeperCell.innerHTML = '<span class="penalti-keeper">🧤</span>';
-            keeperCell.classList.add('keeper-dive');
+            const kx = keeperZone.tx;
+            const ky = keeperZone.ty + 10;
+            keeper.style.transition = 'transform 0.35s ease-out';
+            keeper.setAttribute('transform', `translate(${kx}, ${ky}) scale(0.9)`);
+        }, 200);
 
+        // 3) Sonuç
+        setTimeout(() => {
+            shotsTaken++;
+
+            if (saved) {
+                shotResults.push({ goal: false });
+                msg.textContent = 'KURTARDI!';
+                msg.setAttribute('fill', '#F44336');
+                msg.setAttribute('font-size', '28');
+                AudioManager.play('error');
+            } else {
+                goals++;
+                shotResults.push({ goal: true });
+                callbacks.onCorrect();
+                msg.textContent = 'GOL!';
+                msg.setAttribute('fill', '#4CAF50');
+                msg.setAttribute('font-size', '36');
+                AudioManager.play('success');
+                const rect = container.getBoundingClientRect();
+                Particles.sparkle(rect.left + rect.width * (zone.tx / 400), rect.top + rect.height * 0.3, 8);
+            }
+
+            // 4) Reset ve sonraki atış
             setTimeout(() => {
-                shotsTaken++;
-
-                if (saved) {
-                    // Kurtarıldı!
-                    cells[zoneIdx].classList.add('saved');
-                    AudioManager.play('error');
-                    showResult('Kurtardı! 🧤', false);
+                isAnimating = false;
+                if (shotsTaken >= TOTAL_SHOTS) {
+                    const stars = goals >= 5 ? 3 : goals >= 4 ? 2 : goals >= 3 ? 1 : 0;
+                    if (stars > 0) {
+                        AudioManager.play('levelComplete');
+                        Particles.celebrate();
+                        setTimeout(() => callbacks.onComplete(stars), 500);
+                    } else {
+                        showLose();
+                    }
                 } else {
-                    // GOL!
-                    goals++;
-                    cells[zoneIdx].classList.add('goal-scored');
-                    callbacks.onCorrect();
-                    AudioManager.play('success');
-                    Particles.sparkle(
-                        cells[zoneIdx].getBoundingClientRect().left + 30,
-                        cells[zoneIdx].getBoundingClientRect().top + 30, 6
-                    );
-                    showResult('GOL! ⚽🎉', true);
+                    render();
                 }
-            }, 400);
-        }, 500);
+            }, 1200);
+        }, 700);
     }
 
     function getRandomZoneExcluding(exclude) {
@@ -179,45 +255,17 @@ const Penalti = (() => {
         return idx;
     }
 
-    function showResult(text, isGoal) {
-        const msg = document.createElement('div');
-        msg.className = `penalti-result ${isGoal ? 'goal' : 'miss'}`;
-        msg.textContent = text;
-        container.appendChild(msg);
-
-        setTimeout(() => {
-            isAnimating = false;
-
-            if (shotsTaken >= TOTAL_SHOTS) {
-                // Oyun bitti
-                const stars = goals >= 5 ? 3 : goals >= 4 ? 2 : goals >= 3 ? 1 : 0;
-                if (stars > 0) {
-                    AudioManager.play('levelComplete');
-                    Particles.celebrate();
-                    setTimeout(() => callbacks.onComplete(stars), 500);
-                } else {
-                    // Kaybetti
-                    showLose();
-                }
-            } else {
-                render();
-            }
-        }, 1200);
-    }
-
     function showLose() {
         container.innerHTML = `
-            <div class="chess-lose-msg">
-                <div class="chess-lose-card">
-                    <div style="font-size:3rem;">😔</div>
-                    <h3>Yeterli gol atamadın!</h3>
-                    <p>${goals}/${TOTAL_SHOTS} gol. En az 3 gol gerekli!</p>
-                    <button class="chess-retry-btn" id="pen-retry">Tekrar Dene</button>
+            <div class="kod-gameover">
+                <div class="kod-gameover-card" style="background: linear-gradient(135deg, #fd79a8, #e17055);">
+                    <div class="kod-gameover-icon">😔</div>
+                    <h2 class="kod-gameover-title" style="color:white;">Yeterli Gol Yok!</h2>
+                    <p class="kod-gameover-sub" style="color:rgba(255,255,255,0.8);">${goals}/${TOTAL_SHOTS} gol attın. En az 3 gol gerekli!</p>
+                    <button class="kod-gameover-btn" id="pen-retry">Tekrar Dene</button>
                 </div>
             </div>`;
-        container.querySelector('#pen-retry').onclick = () => {
-            init(container, levels.findIndex(l => l.saveChance === saveChance) + 1, callbacks);
-        };
+        container.querySelector('#pen-retry').onclick = () => init(container, currentLevel, callbacks);
     }
 
     function destroy() {
