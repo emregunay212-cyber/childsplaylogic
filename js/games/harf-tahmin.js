@@ -102,8 +102,8 @@ const HarfTahmin = (() => {
   function guessLetter(letter) {
     if (gameOver || !isMyTurn || myHits.has(letter) || myMisses.has(letter)) return;
     Multiplayer.send('GUESS_LETTER', { letter });
-    isMyTurn = false;
-    updateTurnDisplay();
+    // Sıra değişimini server'dan gelen event'e bırak
+    // Doğru tahminse sıra değişmeyecek, yanlışsa WAIT_TURN gelecek
   }
 
   function updateTurnDisplay() {
@@ -118,6 +118,44 @@ const HarfTahmin = (() => {
     });
   }
 
+  function updateUI() {
+    const myRevealedCount = myRevealed.filter(x => x !== null).length;
+    const opRevealedCount = opRevealed.filter(x => x !== null).length;
+
+    // Update my reveal cells
+    const myRevealEl = container.querySelector('#my-reveal');
+    if (myRevealEl) {
+      myRevealEl.innerHTML = myRevealed.map((ch, i) =>
+        `<div class="harf-cell ${ch ? 'revealed' : 'hidden'}">${ch || '?'}</div>`
+      ).join('');
+    }
+
+    // Update opponent reveal cells
+    const opRevealEl = container.querySelector('#op-reveal');
+    if (opRevealEl) {
+      opRevealEl.innerHTML = opRevealed.map((ch, i) =>
+        `<div class="harf-cell ${ch ? 'revealed opponent-revealed' : 'hidden'}">${ch || '·'}</div>`
+      ).join('');
+    }
+
+    // Update progress texts
+    const progressEls = container.querySelectorAll('.harf-progress');
+    if (progressEls[0]) progressEls[0].textContent = `${TR.mp.found}: ${myRevealedCount}/${gameData.wordLength}`;
+    if (progressEls[1]) progressEls[1].textContent = `${TR.mp.found}: ${opRevealedCount}/${gameData.wordLength}`;
+
+    // Update keyboard
+    container.querySelectorAll('.kb-key').forEach(key => {
+      const k = key.dataset.key;
+      key.classList.remove('kb-hit', 'kb-miss');
+      if (myHits.has(k)) key.classList.add('kb-hit');
+      else if (myMisses.has(k)) key.classList.add('kb-miss');
+      key.disabled = !isMyTurn || myHits.has(k) || myMisses.has(k);
+    });
+
+    // Update turn badge
+    updateTurnDisplay();
+  }
+
   function setupListeners() {
     Multiplayer.on('LETTER_RESULT', (data) => {
       if (data.guesser === gameData.yourRole) {
@@ -126,9 +164,11 @@ const HarfTahmin = (() => {
         if (data.hit) {
           myHits.add(data.letter);
           data.positions.forEach(pos => { myRevealed[pos] = data.revealed[pos]; });
+          isMyTurn = true; // Doğru bildi, sıra bende kalıyor
           AudioManager.play('success');
         } else {
           myMisses.add(data.letter);
+          isMyTurn = false; // Yanlış bildi, sıra karşıya
           AudioManager.play('error');
         }
       } else {
@@ -136,10 +176,12 @@ const HarfTahmin = (() => {
         opGuessedLetters.push(data.letter);
         if (data.hit) {
           data.positions.forEach(pos => { opRevealed[pos] = data.revealed[pos]; });
+          isMyTurn = false; // Rakip doğru bildi, sıra onda kalıyor
+        } else {
+          isMyTurn = true; // Rakip yanlış bildi, sıra bana geçiyor
         }
       }
-      render();
-      setupListeners(); // re-bind after re-render
+      updateUI();
     });
 
     Multiplayer.on('YOUR_TURN', () => {

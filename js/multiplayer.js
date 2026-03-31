@@ -417,10 +417,12 @@ const Multiplayer = (() => {
         const hr = (lobby.hostRevealed || []).length;
         const gr = (lobby.guestRevealed || []).length;
         updates.winner = hr > gr ? 'host' : gr > hr ? 'guest' : 'draw';
-      } else {
+      } else if (!hit) {
+        // Yanlış tahmin: sıra karşıya geçer
         updates.currentTurn = currentRole === 'host' ? 'guest' : 'host';
         if (updates.currentTurn === 'host') updates.turnNumber = (lobby.turnNumber || 0) + 1;
       }
+      // Doğru tahmin (hit): sıra değişmez, aynı oyuncu devam eder
     }
 
     await ref.update(updates);
