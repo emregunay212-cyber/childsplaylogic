@@ -16,7 +16,7 @@ const LegoMacerasi = (() => {
     DOWN:  { color: '#A55EEA', label: 'Aşağı', svg: () => `<svg viewBox="0 0 32 32" width="28" height="28"><rect x="12" y="4" width="8" height="10" rx="2" fill="white"/><path d="M16 28l10-14H6z" fill="white"/></svg>` },
     LEFT:  { color: '#FF6B6B', label: 'Sola', svg: () => `<svg viewBox="0 0 32 32" width="28" height="28"><path d="M4 16l14-10v8h10v4H18v8z" fill="white"/></svg>` },
     RIGHT: { color: '#45B7D1', label: 'Sağa', svg: () => `<svg viewBox="0 0 32 32" width="28" height="28"><path d="M28 16l-14-10v8H4v4h10v8z" fill="white"/></svg>` },
-    PICK:  { color: '#FF9800', label: 'Al', svg: () => `<svg viewBox="0 0 32 32" width="28" height="28"><rect x="8" y="18" width="16" height="10" rx="3" fill="white"/><rect x="10" y="20" width="5" height="3" rx="1" fill="#FF9800"/><rect x="17" y="20" width="5" height="3" rx="1" fill="#FF9800"/><path d="M12 18 L12 10 Q16 4 20 10 L20 18" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>` },
+    PICK:  { color: '#FF9800', label: 'Al', svg: () => `<svg viewBox="0 0 32 32" width="28" height="28"><path d="M16 4 L16 14" stroke="white" stroke-width="3" stroke-linecap="round"/><path d="M10 10 L16 16 L22 10" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><rect x="6" y="20" width="20" height="8" rx="3" fill="white"/></svg>` },
   };
 
   const PIECE_COLORS = ['#E74C3C', '#3498DB', '#2ECC71', '#F1C40F', '#9B59B6'];
