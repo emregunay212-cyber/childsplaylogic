@@ -26,8 +26,8 @@ const Lobby = (() => {
 
   // ── Main Menu ──
   function renderMainMenu() {
-    const gameName = currentGameType === 'kelime-tahmin' ? TR.games['kelime-tahmin'] : TR.games['harf-tahmin'];
-    const icon = currentGameType === 'kelime-tahmin' ? '🔤' : '🔡';
+    const gameName = TR.games[currentGameType] || currentGameType;
+    const icon = currentGameType === 'kelime-tahmin' ? '🔤' : currentGameType === 'harf-tahmin' ? '🔡' : '🤖';
     container.innerHTML = `
       <div class="lobby-main">
         <div class="lobby-header">
@@ -84,9 +84,22 @@ const Lobby = (() => {
 
   // ── Create Lobby ──
   function renderCreateForm() {
-    container.innerHTML = `
-      <div class="lobby-create">
-        <h2>${TR.mp.roomSettings}</h2>
+    const isKod = currentGameType === 'kod-macerasi';
+
+    const settingsHTML = isKod ? `
+        <div class="lobby-setting">
+          <label>${TR.kodMacerasi.gridSize}</label>
+          <div class="pill-selector" data-name="gridSize">
+            ${[3,4,5].map(n => `<button class="pill ${n===4?'active':''}" data-value="${n}">${n}x${n}</button>`).join('')}
+          </div>
+        </div>
+        <div class="lobby-setting">
+          <label>${TR.mp.turnCount}</label>
+          <div class="pill-selector" data-name="totalRounds">
+            ${[1,3,5].map(n => `<button class="pill ${n===3?'active':''}" data-value="${n}">${n}</button>`).join('')}
+          </div>
+        </div>
+    ` : `
         <div class="lobby-setting">
           <label>${TR.mp.letterCount}</label>
           <div class="pill-selector" data-name="wordLength">
@@ -99,6 +112,12 @@ const Lobby = (() => {
             ${[5,10,15].map(n => `<button class="pill ${n===10?'active':''}" data-value="${n}">${n}</button>`).join('')}
           </div>
         </div>
+    `;
+
+    container.innerHTML = `
+      <div class="lobby-create">
+        <h2>${TR.mp.roomSettings}</h2>
+        ${settingsHTML}
         <button class="lobby-btn lobby-btn-create lobby-submit-btn">${TR.mp.create}</button>
         <button class="lobby-back-btn" data-action="back">← ${TR.mp.back}</button>
       </div>`;
@@ -113,13 +132,17 @@ const Lobby = (() => {
     });
 
     container.querySelector('.lobby-submit-btn').onclick = () => {
-      const wordLength = parseInt(container.querySelector('[data-name="wordLength"] .active').dataset.value);
-      const maxTurns = parseInt(container.querySelector('[data-name="maxTurns"] .active').dataset.value);
-
-      Multiplayer.on('LOBBY_CREATED', (data) => {
-        renderWaitingRoom(data.lobbyId);
-      });
-      Multiplayer.send('CREATE_LOBBY', { gameType: currentGameType, wordLength, maxTurns });
+      if (isKod) {
+        const gridSize = parseInt(container.querySelector('[data-name="gridSize"] .active').dataset.value);
+        const totalRounds = parseInt(container.querySelector('[data-name="totalRounds"] .active').dataset.value);
+        Multiplayer.on('LOBBY_CREATED', (data) => renderWaitingRoom(data.lobbyId));
+        Multiplayer.send('CREATE_LOBBY', { gameType: currentGameType, gridSize, totalRounds });
+      } else {
+        const wordLength = parseInt(container.querySelector('[data-name="wordLength"] .active').dataset.value);
+        const maxTurns = parseInt(container.querySelector('[data-name="maxTurns"] .active').dataset.value);
+        Multiplayer.on('LOBBY_CREATED', (data) => renderWaitingRoom(data.lobbyId));
+        Multiplayer.send('CREATE_LOBBY', { gameType: currentGameType, wordLength, maxTurns });
+      }
     };
 
     container.querySelector('[data-action="back"]').onclick = renderMainMenu;
@@ -143,8 +166,24 @@ const Lobby = (() => {
       </div>`;
 
     Multiplayer.on('PLAYER_JOINED', (data) => {
-      renderWordSetup(data);
+      if (currentGameType === 'kod-macerasi') {
+        // Kod macerasi: kelime girisi yok, GAME_START bekle
+        Multiplayer.on('GAME_START', (gameData) => {
+          Multiplayer.offAll();
+          if (onGameStart) onGameStart(gameData);
+        });
+      } else {
+        renderWordSetup(data);
+      }
     });
+
+    // Also listen for GAME_START directly (for joiner in kod-macerasi)
+    if (currentGameType === 'kod-macerasi') {
+      Multiplayer.on('GAME_START', (gameData) => {
+        Multiplayer.offAll();
+        if (onGameStart) onGameStart(gameData);
+      });
+    }
 
     container.querySelector('[data-action="cancel"]').onclick = () => {
       Multiplayer.send('LEAVE_LOBBY');
@@ -174,10 +213,10 @@ const Lobby = (() => {
       listContainer.innerHTML = data.lobbies.map(l => `
         <div class="lobby-list-card">
           <div class="lobby-list-info">
-            <span class="lobby-list-icon">${l.gameType === 'kelime-tahmin' ? '🔤' : '🔡'}</span>
+            <span class="lobby-list-icon">${l.gameType === 'kod-macerasi' ? '🤖' : l.gameType === 'kelime-tahmin' ? '🔤' : '🔡'}</span>
             <div>
               <strong>${l.hostName}</strong>
-              <span class="lobby-list-detail">${l.wordLength} harf · ${l.maxTurns} tur</span>
+              <span class="lobby-list-detail">${l.gameType === 'kod-macerasi' ? l.gridSize+'x'+l.gridSize+' · '+l.totalRounds+' tur' : l.wordLength+' harf · '+l.maxTurns+' tur'}</span>
             </div>
           </div>
           <button class="lobby-join-btn" data-id="${l.id}">${TR.mp.join}</button>
@@ -189,11 +228,17 @@ const Lobby = (() => {
           Multiplayer.on('PLAYER_JOINED', (data) => {
             joinedData = data;
           });
-          Multiplayer.on('WORD_SETUP', (data) => {
-            // WORD_SETUP comes right after PLAYER_JOINED for joiners
-            Multiplayer.offAll();
-            doRenderWordSetup(data.wordLength, joinedData?.opponentName || '?');
-          });
+          if (currentGameType === 'kod-macerasi') {
+            Multiplayer.on('GAME_START', (gameData) => {
+              Multiplayer.offAll();
+              if (onGameStart) onGameStart(gameData);
+            });
+          } else {
+            Multiplayer.on('WORD_SETUP', (data) => {
+              Multiplayer.offAll();
+              doRenderWordSetup(data.wordLength, joinedData?.opponentName || '?');
+            });
+          }
           Multiplayer.on('ERROR', (data) => showError(data.message));
           Multiplayer.send('JOIN_LOBBY', { lobbyId: btn.dataset.id });
         };
@@ -217,10 +262,17 @@ const Lobby = (() => {
     Multiplayer.on('PLAYER_JOINED', (data) => {
       joinedData = data;
     });
-    Multiplayer.on('WORD_SETUP', (data) => {
-      Multiplayer.offAll();
-      doRenderWordSetup(data.wordLength, joinedData?.opponentName || '?');
-    });
+    if (currentGameType === 'kod-macerasi') {
+      Multiplayer.on('GAME_START', (gameData) => {
+        Multiplayer.offAll();
+        if (onGameStart) onGameStart(gameData);
+      });
+    } else {
+      Multiplayer.on('WORD_SETUP', (data) => {
+        Multiplayer.offAll();
+        doRenderWordSetup(data.wordLength, joinedData?.opponentName || '?');
+      });
+    }
     Multiplayer.send('QUICK_PLAY', { gameType: currentGameType });
   }
 

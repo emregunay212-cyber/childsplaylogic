@@ -89,6 +89,7 @@ function handleMessage(ws, player, msg) {
     case 'SET_WORD': return onSetWord(ws, player, data);
     case 'GUESS_WORD': return onGuessWord(ws, player, data);
     case 'GUESS_LETTER': return onGuessLetter(ws, player, data);
+    case 'SUBMIT_SEQUENCE': return onSubmitSequence(ws, player, data);
     case 'LEAVE_LOBBY': return onLeaveLobby(ws, player);
     case 'PING': return send(ws, 'PONG');
     default: return send(ws, 'ERROR', { code: 'UNKNOWN', message: 'Bilinmeyen mesaj tipi' });
@@ -108,33 +109,34 @@ function onCreateLobby(ws, player, { gameType, wordLength, maxTurns }) {
   if (player.lobbyId) {
     return send(ws, 'ERROR', { code: 'ALREADY_IN_LOBBY', message: 'Zaten bir lobidesin' });
   }
-  if (!['kelime-tahmin', 'harf-tahmin'].includes(gameType)) {
+  if (!['kelime-tahmin', 'harf-tahmin', 'kod-macerasi'].includes(gameType)) {
     return send(ws, 'ERROR', { code: 'INVALID_GAME', message: 'Gecersiz oyun tipi' });
   }
-  wordLength = Math.min(Math.max(parseInt(wordLength) || 5, 3), 8);
-  maxTurns = [5, 10, 15].includes(parseInt(maxTurns)) ? parseInt(maxTurns) : 10;
 
   const lobbyId = genLobbyCode();
-  const lobby = {
-    id: lobbyId,
-    gameType,
-    wordLength,
-    maxTurns,
-    hostId: player.id,
-    guestId: null,
-    state: 'WAITING',
-    hostWord: null,
-    guestWord: null,
-    currentTurn: 'host',
-    turnNumber: 0,
-    hostGuesses: [],
-    guestGuesses: [],
-    hostRevealed: [],
-    guestRevealed: [],
-    hostGuessedWord: false,
-    guestGuessedWord: false,
-    createdAt: Date.now()
-  };
+  let lobby;
+
+  if (gameType === 'kod-macerasi') {
+    const gridSize = [3, 4, 5].includes(parseInt(data.gridSize)) ? parseInt(data.gridSize) : 4;
+    const totalRounds = [1, 3, 5].includes(parseInt(data.totalRounds)) ? parseInt(data.totalRounds) : 3;
+    lobby = {
+      id: lobbyId, gameType, gridSize, totalRounds,
+      hostId: player.id, guestId: null, state: 'WAITING',
+      currentRound: 0, puzzles: generateKodPuzzles(gridSize, totalRounds),
+      hostSequence: null, guestSequence: null,
+      hostScore: 0, guestScore: 0, createdAt: Date.now()
+    };
+  } else {
+    wordLength = Math.min(Math.max(parseInt(wordLength) || 5, 3), 8);
+    maxTurns = [5, 10, 15].includes(parseInt(maxTurns)) ? parseInt(maxTurns) : 10;
+    lobby = {
+      id: lobbyId, gameType, wordLength, maxTurns,
+      hostId: player.id, guestId: null, state: 'WAITING',
+      hostWord: null, guestWord: null, currentTurn: 'host', turnNumber: 0,
+      hostGuesses: [], guestGuesses: [], hostRevealed: [], guestRevealed: [],
+      hostGuessedWord: false, guestGuessedWord: false, createdAt: Date.now()
+    };
+  }
   lobbies.set(lobbyId, lobby);
   player.lobbyId = lobbyId;
   player.role = 'host';
@@ -150,13 +152,15 @@ function onListLobbies(ws) {
   for (const [, lobby] of lobbies) {
     if (lobby.state === 'WAITING') {
       const host = findPlayerById(lobby.hostId);
-      list.push({
-        id: lobby.id,
-        gameType: lobby.gameType,
-        wordLength: lobby.wordLength,
-        maxTurns: lobby.maxTurns,
-        hostName: host ? host.name : 'Bilinmiyor'
-      });
+      const item = { id: lobby.id, gameType: lobby.gameType, hostName: host ? host.name : 'Bilinmiyor' };
+      if (lobby.gameType === 'kod-macerasi') {
+        item.gridSize = lobby.gridSize;
+        item.totalRounds = lobby.totalRounds;
+      } else {
+        item.wordLength = lobby.wordLength;
+        item.maxTurns = lobby.maxTurns;
+      }
+      list.push(item);
     }
   }
   send(ws, 'LOBBY_LIST', { lobbies: list });
@@ -187,26 +191,25 @@ function onQuickPlay(ws, player, { gameType }) {
 
   // No lobby found, create one with defaults
   const lobbyId = genLobbyCode();
-  const lobby = {
-    id: lobbyId,
-    gameType: gameType || 'kelime-tahmin',
-    wordLength: 5,
-    maxTurns: 10,
-    hostId: player.id,
-    guestId: null,
-    state: 'WAITING',
-    hostWord: null,
-    guestWord: null,
-    currentTurn: 'host',
-    turnNumber: 0,
-    hostGuesses: [],
-    guestGuesses: [],
-    hostRevealed: [],
-    guestRevealed: [],
-    hostGuessedWord: false,
-    guestGuessedWord: false,
-    createdAt: Date.now()
-  };
+  let lobby;
+  if (gameType === 'kod-macerasi') {
+    lobby = {
+      id: lobbyId, gameType, gridSize: 4, totalRounds: 3,
+      hostId: player.id, guestId: null, state: 'WAITING',
+      currentRound: 0, puzzles: generateKodPuzzles(4, 3),
+      hostSequence: null, guestSequence: null,
+      hostScore: 0, guestScore: 0, createdAt: Date.now()
+    };
+  } else {
+    lobby = {
+      id: lobbyId, gameType: gameType || 'kelime-tahmin',
+      wordLength: 5, maxTurns: 10,
+      hostId: player.id, guestId: null, state: 'WAITING',
+      hostWord: null, guestWord: null, currentTurn: 'host', turnNumber: 0,
+      hostGuesses: [], guestGuesses: [], hostRevealed: [], guestRevealed: [],
+      hostGuessedWord: false, guestGuessedWord: false, createdAt: Date.now()
+    };
+  }
   lobbies.set(lobbyId, lobby);
   player.lobbyId = lobbyId;
   player.role = 'host';
@@ -220,21 +223,42 @@ function onQuickPlay(ws, player, { gameType }) {
 
 function joinPlayerToLobby(player, lobby) {
   lobby.guestId = player.id;
-  lobby.state = 'WORD_SETUP';
   player.lobbyId = lobby.id;
   player.role = 'guest';
 
   const host = findPlayerById(lobby.hostId);
 
-  // Notify host
-  if (host) {
-    send(host.ws, 'PLAYER_JOINED', { opponentName: player.name, role: 'host' });
-    send(host.ws, 'WORD_SETUP', { wordLength: lobby.wordLength });
-  }
+  if (lobby.gameType === 'kod-macerasi') {
+    // Kod macerasi: kelime girisi yok, direkt oyun baslar
+    lobby.state = 'PLAYING';
+    lobby.currentRound = 1;
 
-  // Notify guest
-  send(player.ws, 'PLAYER_JOINED', { opponentName: host ? host.name : '?', role: 'guest' });
-  send(player.ws, 'WORD_SETUP', { wordLength: lobby.wordLength });
+    const puzzle = lobby.puzzles[0];
+    const gameData = {
+      gridSize: lobby.gridSize,
+      totalRounds: lobby.totalRounds,
+      puzzle,
+      round: 1,
+      gameType: 'kod-macerasi'
+    };
+
+    if (host) {
+      send(host.ws, 'PLAYER_JOINED', { opponentName: player.name, role: 'host' });
+      send(host.ws, 'GAME_START', { yourRole: 'host', opponentName: player.name, ...gameData });
+    }
+    send(player.ws, 'PLAYER_JOINED', { opponentName: host ? host.name : '?', role: 'guest' });
+    send(player.ws, 'GAME_START', { yourRole: 'guest', opponentName: host ? host.name : '?', ...gameData });
+  } else {
+    // Kelime/harf tahmin: kelime girisi asamasi
+    lobby.state = 'WORD_SETUP';
+
+    if (host) {
+      send(host.ws, 'PLAYER_JOINED', { opponentName: player.name, role: 'host' });
+      send(host.ws, 'WORD_SETUP', { wordLength: lobby.wordLength });
+    }
+    send(player.ws, 'PLAYER_JOINED', { opponentName: host ? host.name : '?', role: 'guest' });
+    send(player.ws, 'WORD_SETUP', { wordLength: lobby.wordLength });
+  }
 }
 
 function onSetWord(ws, player, { word }) {
@@ -579,13 +603,157 @@ function findPlayerById(id) {
 }
 
 function sanitizeLobby(lobby) {
-  return {
-    id: lobby.id,
-    gameType: lobby.gameType,
-    wordLength: lobby.wordLength,
-    maxTurns: lobby.maxTurns,
-    state: lobby.state
-  };
+  const base = { id: lobby.id, gameType: lobby.gameType, state: lobby.state };
+  if (lobby.gameType === 'kod-macerasi') {
+    return { ...base, gridSize: lobby.gridSize, totalRounds: lobby.totalRounds };
+  }
+  return { ...base, wordLength: lobby.wordLength, maxTurns: lobby.maxTurns };
+}
+
+// ── Kod Macerasi handlers ──
+
+function onSubmitSequence(ws, player, { sequence }) {
+  const lobby = lobbies.get(player.lobbyId);
+  if (!lobby || lobby.state !== 'PLAYING' || lobby.gameType !== 'kod-macerasi') {
+    return send(ws, 'ERROR', { code: 'INVALID_STATE', message: 'Sekans gonderilemez' });
+  }
+  if (!Array.isArray(sequence) || sequence.length === 0) {
+    return send(ws, 'ERROR', { code: 'INVALID_SEQUENCE', message: 'Gecersiz sekans' });
+  }
+
+  if (player.role === 'host') lobby.hostSequence = sequence;
+  else lobby.guestSequence = sequence;
+
+  send(ws, 'SEQUENCE_ACCEPTED', {});
+  const opponent = getOpponent(player);
+  if (opponent) send(opponent.ws, 'OPPONENT_READY', {});
+
+  // Both submitted?
+  if (lobby.hostSequence && lobby.guestSequence) {
+    const puzzle = lobby.puzzles[lobby.currentRound - 1];
+    const hostResult = executeKodSequence(puzzle, lobby.hostSequence);
+    const guestResult = executeKodSequence(puzzle, lobby.guestSequence);
+
+    // Determine round winner
+    let roundWinner = 'draw';
+    if (hostResult.success && !guestResult.success) roundWinner = 'host';
+    else if (!hostResult.success && guestResult.success) roundWinner = 'guest';
+    else if (hostResult.success && guestResult.success) {
+      if (lobby.hostSequence.length < lobby.guestSequence.length) roundWinner = 'host';
+      else if (lobby.guestSequence.length < lobby.hostSequence.length) roundWinner = 'guest';
+    }
+
+    if (roundWinner === 'host') lobby.hostScore++;
+    else if (roundWinner === 'guest') lobby.guestScore++;
+
+    const host = findPlayerById(lobby.hostId);
+    const guest = findPlayerById(lobby.guestId);
+
+    const hasNextRound = lobby.currentRound < lobby.totalRounds;
+    const nextPuzzle = hasNextRound ? lobby.puzzles[lobby.currentRound] : null;
+
+    const roundPayload = {
+      round: lobby.currentRound,
+      totalRounds: lobby.totalRounds,
+      winner: roundWinner,
+      hostResult: { success: hostResult.success, blocks: lobby.hostSequence.length, path: hostResult.path },
+      guestResult: { success: guestResult.success, blocks: lobby.guestSequence.length, path: guestResult.path },
+      hostScore: lobby.hostScore,
+      guestScore: lobby.guestScore,
+      nextPuzzle: nextPuzzle,
+    };
+
+    if (host) send(host.ws, 'ROUND_RESULT', { ...roundPayload, yourRole: 'host' });
+    if (guest) send(guest.ws, 'ROUND_RESULT', { ...roundPayload, yourRole: 'guest' });
+
+    if (!hasNextRound) {
+      // Game over
+      let finalWinner = 'draw';
+      if (lobby.hostScore > lobby.guestScore) finalWinner = 'host';
+      else if (lobby.guestScore > lobby.hostScore) finalWinner = 'guest';
+
+      lobby.state = 'FINISHED';
+      const overPayload = {
+        winner: finalWinner, hostScore: lobby.hostScore, guestScore: lobby.guestScore,
+        gameType: 'kod-macerasi'
+      };
+      if (host) { send(host.ws, 'GAME_OVER', { ...overPayload, yourRole: 'host' }); host.lobbyId = null; host.role = null; }
+      if (guest) { send(guest.ws, 'GAME_OVER', { ...overPayload, yourRole: 'guest' }); guest.lobbyId = null; guest.role = null; }
+      lobbies.delete(lobby.id);
+    } else {
+      // Next round
+      lobby.currentRound++;
+      lobby.hostSequence = null;
+      lobby.guestSequence = null;
+    }
+  }
+}
+
+function generateKodPuzzles(gridSize, count) {
+  const puzzles = [];
+  for (let i = 0; i < count; i++) {
+    puzzles.push(generateKodPuzzle(gridSize, i + 1));
+  }
+  return puzzles;
+}
+
+function generateKodPuzzle(size, difficulty) {
+  const grid = Array.from({ length: size }, () => Array(size).fill(0));
+  const start = { x: 0, y: size - 1, dir: Math.random() < 0.5 ? 'UP' : 'RIGHT' };
+  const target = { x: size - 1, y: 0 };
+
+  const obstacles = [];
+  const numObs = Math.min(difficulty, Math.floor(size * size * 0.15));
+  let attempts = 0;
+  while (obstacles.length < numObs && attempts < 50) {
+    const ox = Math.floor(Math.random() * size);
+    const oy = Math.floor(Math.random() * size);
+    if ((ox === start.x && oy === start.y) || (ox === target.x && oy === target.y)) { attempts++; continue; }
+    if (obstacles.some(o => o.x === ox && o.y === oy)) { attempts++; continue; }
+    obstacles.push({ x: ox, y: oy });
+    grid[oy][ox] = 1;
+    attempts++;
+  }
+
+  const dx = Math.abs(target.x - start.x);
+  const dy = Math.abs(target.y - start.y);
+  const optimal = dx + dy + ((dx > 0 && dy > 0) ? 1 : 0);
+
+  return { size, grid, start, target, collectibles: [], obstacles, optimal };
+}
+
+function executeKodSequence(puzzle, sequence) {
+  const DIRS = { UP: { dx: 0, dy: -1 }, RIGHT: { dx: 1, dy: 0 }, DOWN: { dx: 0, dy: 1 }, LEFT: { dx: -1, dy: 0 } };
+  const DIR_ORDER = ['UP', 'RIGHT', 'DOWN', 'LEFT'];
+
+  let x = puzzle.start.x, y = puzzle.start.y;
+  let dirIdx = DIR_ORDER.indexOf(puzzle.start.dir);
+  const path = [{ x, y, dir: DIR_ORDER[dirIdx], action: 'start' }];
+
+  const expanded = [];
+  for (let i = 0; i < sequence.length; i++) {
+    if (sequence[i] === 'REPEAT' && expanded.length > 0) expanded.push(expanded[expanded.length - 1]);
+    else expanded.push(sequence[i]);
+  }
+
+  for (const cmd of expanded) {
+    if (cmd === 'TURN_LEFT') { dirIdx = (dirIdx + 3) % 4; path.push({ x, y, dir: DIR_ORDER[dirIdx], action: 'turn' }); continue; }
+    if (cmd === 'TURN_RIGHT') { dirIdx = (dirIdx + 1) % 4; path.push({ x, y, dir: DIR_ORDER[dirIdx], action: 'turn' }); continue; }
+
+    const d = DIRS[DIR_ORDER[dirIdx]];
+    if (cmd === 'FORWARD') { x += d.dx; y += d.dy; }
+    else if (cmd === 'BACK') { x -= d.dx; y -= d.dy; }
+
+    if (x < 0 || x >= puzzle.size || y < 0 || y >= puzzle.size) {
+      return { success: false, path, error: 'outOfBounds' };
+    }
+    if (puzzle.obstacles.some(o => o.x === x && o.y === y)) {
+      return { success: false, path, error: 'crashed' };
+    }
+    path.push({ x, y, dir: DIR_ORDER[dirIdx], action: 'move' });
+  }
+
+  return { success: x === puzzle.target.x && y === puzzle.target.y, path, error: null };
 }
 
 console.log(`🎮 Oyun Bahcesi WS Server - port ${PORT}`);

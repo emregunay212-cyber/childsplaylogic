@@ -18,6 +18,7 @@ const TR = {
         'siralama': 'Sıralama',
         'kelime-tahmin': 'Kelime Tahmin',
         'harf-tahmin': 'Harf Tahmin',
+        'kod-macerasi': 'Kod Macerası',
     },
 
     // Multiplayer strings
@@ -96,6 +97,30 @@ const TR = {
         'sekil-bulmaca': 'Şekilleri doğru yerlere sürükle!',
         'boyama': 'Bir renk seç ve resmi boya!',
         'siralama': 'Nesneleri küçükten büyüğe sırala!',
+        'kod-macerasi': 'Robotu yıldıza götür!',
+    },
+
+    // Kod Macerasi stringleri
+    kodMacerasi: {
+        forward: 'İleri',
+        turnLeft: 'Sola Dön',
+        turnRight: 'Sağa Dön',
+        repeat: 'Tekrarla',
+        back: 'Geri',
+        play: 'Çalıştır',
+        ready: 'Hazır',
+        reset: 'Sıfırla',
+        building: 'Kod yazılıyor...',
+        executing: 'Çalıştırılıyor...',
+        reached: 'Hedefe Ulaştı!',
+        crashed: 'Engele Çarptı!',
+        outOfBounds: 'Izgaradan Çıktı!',
+        notReached: 'Hedefe Ulaşamadı!',
+        blocksUsed: 'Blok',
+        round: 'Tur',
+        optimal: 'En Az',
+        gridSize: 'Izgara Boyutu',
+        program: 'Programın',
     },
 
     // Renkler
