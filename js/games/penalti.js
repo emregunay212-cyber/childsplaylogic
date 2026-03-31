@@ -41,78 +41,118 @@ const Penalti = (() => {
         render();
     }
 
-    // Kaleci SVG pozları
+    // İnsan kaleci SVG pozları
+    const SKIN = '#FDDCB5';
+    const JERSEY = '#FFD600'; // sarı forma
+    const SHORTS = '#333';
+    const GLOVES = '#4CAF50';
+    const HAIR = '#5D4037';
+
     function keeperSVG(pose) {
-        // pose: 'stand', 'dive-left', 'dive-right', 'dive-up', 'dive-down-left', 'dive-down-right'
         if (pose === 'dive-left') {
             return `<!-- Sola uçuyor -->
-                <ellipse cx="-10" cy="15" rx="28" ry="18" fill="#FF9800" transform="rotate(-30, -10, 15)"/>
-                <circle cx="-15" cy="-8" r="16" fill="#FF9800"/>
-                <polygon points="-27,-20 -32,-34 -19,-22" fill="#FF9800"/>
-                <polygon points="-3,-20 2,-34 -11,-22" fill="#FF9800"/>
-                <circle cx="-20" cy="-10" r="3.5" fill="white"/><circle cx="-10" cy="-10" r="3.5" fill="white"/>
-                <circle cx="-19" cy="-10" r="2" fill="#333"/><circle cx="-9" cy="-10" r="2" fill="#333"/>
-                <ellipse cx="-15" cy="-3" rx="3" ry="2" fill="#FF7043"/>
-                <ellipse cx="-15" cy="18" rx="12" ry="14" fill="#FFE0B2"/>
-                <circle cx="-42" cy="0" r="10" fill="#4CAF50"/>
-                <circle cx="18" cy="5" r="8" fill="#4CAF50"/>
-                <ellipse cx="-20" cy="35" rx="7" ry="5" fill="#FF9800" transform="rotate(-20)"/>
-                <ellipse cx="0" cy="35" rx="7" ry="5" fill="#FF9800" transform="rotate(-10)"/>`;
+                <g transform="rotate(-25, 0, 10)">
+                    <!-- Bacaklar -->
+                    <rect x="5" y="28" width="8" height="22" rx="4" fill="${SKIN}"/>
+                    <rect x="-12" y="25" width="8" height="22" rx="4" fill="${SKIN}" transform="rotate(20,-8,25)"/>
+                    <!-- Kramponlar -->
+                    <ellipse cx="9" cy="52" rx="6" ry="4" fill="#222"/>
+                    <ellipse cx="-6" cy="50" rx="6" ry="4" fill="#222"/>
+                    <!-- Şort -->
+                    <rect x="-12" y="20" width="28" height="12" rx="4" fill="${SHORTS}"/>
+                    <!-- Gövde (forma) -->
+                    <rect x="-14" y="-2" width="30" height="24" rx="6" fill="${JERSEY}"/>
+                    <text x="1" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="#333">1</text>
+                    <!-- Kafa -->
+                    <circle cx="0" cy="-14" r="12" fill="${SKIN}"/>
+                    <!-- Saç -->
+                    <ellipse cx="0" cy="-22" rx="12" ry="6" fill="${HAIR}"/>
+                    <!-- Yüz -->
+                    <circle cx="-4" cy="-16" r="2" fill="#333"/>
+                    <circle cx="5" cy="-16" r="2" fill="#333"/>
+                    <path d="M-2,-10 Q1,-8 4,-10" fill="none" stroke="#333" stroke-width="1"/>
+                    <!-- Kollar (sola uzanmış) -->
+                    <rect x="-42" y="-8" width="30" height="8" rx="4" fill="${JERSEY}"/>
+                    <circle cx="-44" cy="-4" r="7" fill="${GLOVES}"/>
+                    <rect x="14" y="0" width="18" height="7" rx="3" fill="${JERSEY}"/>
+                    <circle cx="33" cy="3" r="6" fill="${GLOVES}"/>
+                </g>`;
         }
         if (pose === 'dive-right') {
             return `<!-- Sağa uçuyor -->
-                <ellipse cx="10" cy="15" rx="28" ry="18" fill="#FF9800" transform="rotate(30, 10, 15)"/>
-                <circle cx="15" cy="-8" r="16" fill="#FF9800"/>
-                <polygon points="3,-20 -2,-34 11,-22" fill="#FF9800"/>
-                <polygon points="27,-20 32,-34 19,-22" fill="#FF9800"/>
-                <circle cx="10" cy="-10" r="3.5" fill="white"/><circle cx="20" cy="-10" r="3.5" fill="white"/>
-                <circle cx="11" cy="-10" r="2" fill="#333"/><circle cx="21" cy="-10" r="2" fill="#333"/>
-                <ellipse cx="15" cy="-3" rx="3" ry="2" fill="#FF7043"/>
-                <ellipse cx="15" cy="18" rx="12" ry="14" fill="#FFE0B2"/>
-                <circle cx="42" cy="0" r="10" fill="#4CAF50"/>
-                <circle cx="-18" cy="5" r="8" fill="#4CAF50"/>
-                <ellipse cx="20" cy="35" rx="7" ry="5" fill="#FF9800" transform="rotate(20)"/>
-                <ellipse cx="0" cy="35" rx="7" ry="5" fill="#FF9800" transform="rotate(10)"/>`;
+                <g transform="rotate(25, 0, 10)">
+                    <rect x="-12" y="28" width="8" height="22" rx="4" fill="${SKIN}"/>
+                    <rect x="5" y="25" width="8" height="22" rx="4" fill="${SKIN}" transform="rotate(-20,8,25)"/>
+                    <ellipse cx="-8" cy="52" rx="6" ry="4" fill="#222"/>
+                    <ellipse cx="9" cy="50" rx="6" ry="4" fill="#222"/>
+                    <rect x="-14" y="20" width="28" height="12" rx="4" fill="${SHORTS}"/>
+                    <rect x="-14" y="-2" width="30" height="24" rx="6" fill="${JERSEY}"/>
+                    <text x="1" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="#333">1</text>
+                    <circle cx="0" cy="-14" r="12" fill="${SKIN}"/>
+                    <ellipse cx="0" cy="-22" rx="12" ry="6" fill="${HAIR}"/>
+                    <circle cx="-4" cy="-16" r="2" fill="#333"/>
+                    <circle cx="5" cy="-16" r="2" fill="#333"/>
+                    <path d="M-2,-10 Q1,-8 4,-10" fill="none" stroke="#333" stroke-width="1"/>
+                    <!-- Kollar (sağa uzanmış) -->
+                    <rect x="14" y="-8" width="30" height="8" rx="4" fill="${JERSEY}"/>
+                    <circle cx="46" cy="-4" r="7" fill="${GLOVES}"/>
+                    <rect x="-30" y="0" width="18" height="7" rx="3" fill="${JERSEY}"/>
+                    <circle cx="-31" cy="3" r="6" fill="${GLOVES}"/>
+                </g>`;
         }
         if (pose === 'dive-up') {
             return `<!-- Yukarı uzanıyor -->
-                <ellipse cx="0" cy="10" rx="20" ry="30" fill="#FF9800"/>
-                <circle cx="0" cy="-22" r="16" fill="#FF9800"/>
-                <polygon points="-14,-34 -18,-48 -6,-36" fill="#FF9800"/>
-                <polygon points="14,-34 18,-48 6,-36" fill="#FF9800"/>
-                <circle cx="-6" cy="-24" r="3.5" fill="white"/><circle cx="6" cy="-24" r="3.5" fill="white"/>
-                <circle cx="-5" cy="-24" r="2" fill="#333"/><circle cx="7" cy="-24" r="2" fill="#333"/>
-                <ellipse cx="0" cy="-16" rx="3" ry="2" fill="#FF7043"/>
-                <ellipse cx="0" cy="14" rx="13" ry="16" fill="#FFE0B2"/>
-                <circle cx="-28" cy="-15" r="10" fill="#4CAF50"/>
-                <circle cx="28" cy="-15" r="10" fill="#4CAF50"/>
-                <ellipse cx="-8" cy="42" rx="7" ry="5" fill="#FF9800"/>
-                <ellipse cx="8" cy="42" rx="7" ry="5" fill="#FF9800"/>`;
+                <rect x="-5" y="30" width="8" height="22" rx="4" fill="${SKIN}"/>
+                <rect x="0" y="30" width="8" height="22" rx="4" fill="${SKIN}"/>
+                <ellipse cx="-1" cy="54" rx="6" ry="4" fill="#222"/>
+                <ellipse cx="4" cy="54" rx="6" ry="4" fill="#222"/>
+                <rect x="-10" y="22" width="24" height="12" rx="4" fill="${SHORTS}"/>
+                <rect x="-12" y="-2" width="28" height="26" rx="6" fill="${JERSEY}"/>
+                <text x="2" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="#333">1</text>
+                <circle cx="2" cy="-14" r="12" fill="${SKIN}"/>
+                <ellipse cx="2" cy="-22" rx="12" ry="6" fill="${HAIR}"/>
+                <circle cx="-2" cy="-16" r="2" fill="#333"/>
+                <circle cx="7" cy="-16" r="2" fill="#333"/>
+                <path d="M0,-10 Q3,-8 6,-10" fill="none" stroke="#333" stroke-width="1"/>
+                <!-- Kollar yukarı -->
+                <rect x="-18" y="-30" width="7" height="30" rx="3" fill="${JERSEY}"/>
+                <circle cx="-15" cy="-32" r="7" fill="${GLOVES}"/>
+                <rect x="15" y="-30" width="7" height="30" rx="3" fill="${JERSEY}"/>
+                <circle cx="18" cy="-32" r="7" fill="${GLOVES}"/>`;
         }
-        // Default: ayakta
-        return `<!-- Ayakta duruyor -->
-            <ellipse cx="0" cy="20" rx="22" ry="28" fill="#FF9800"/>
-            <circle cx="0" cy="-12" r="18" fill="#FF9800"/>
-            <polygon points="-14,-26 -18,-40 -6,-28" fill="#FF9800"/>
-            <polygon points="14,-26 18,-40 6,-28" fill="#FF9800"/>
-            <polygon points="-12,-28 -15,-38 -7,-29" fill="#FFB74D"/>
-            <polygon points="12,-28 15,-38 7,-29" fill="#FFB74D"/>
-            <circle cx="-7" cy="-14" r="4" fill="white"/><circle cx="7" cy="-14" r="4" fill="white"/>
-            <circle cx="-6" cy="-14" r="2.5" fill="#333"/><circle cx="8" cy="-14" r="2.5" fill="#333"/>
-            <ellipse cx="0" cy="-6" rx="4" ry="3" fill="#FF7043"/>
-            <ellipse cx="0" cy="24" rx="15" ry="18" fill="#FFE0B2"/>
-            <circle cx="-26" cy="10" r="9" fill="#4CAF50"/>
-            <circle cx="26" cy="10" r="9" fill="#4CAF50"/>
-            <ellipse cx="-10" cy="50" rx="8" ry="5" fill="#FF9800"/>
-            <ellipse cx="10" cy="50" rx="8" ry="5" fill="#FF9800"/>`;
+        // Ayakta duruyor
+        return `
+            <!-- Bacaklar -->
+            <rect x="-8" y="30" width="8" height="24" rx="4" fill="${SKIN}"/>
+            <rect x="3" y="30" width="8" height="24" rx="4" fill="${SKIN}"/>
+            <!-- Kramponlar -->
+            <ellipse cx="-4" cy="56" rx="7" ry="4" fill="#222"/>
+            <ellipse cx="7" cy="56" rx="7" ry="4" fill="#222"/>
+            <!-- Şort -->
+            <rect x="-12" y="22" width="28" height="14" rx="5" fill="${SHORTS}"/>
+            <!-- Gövde (sarı forma) -->
+            <rect x="-14" y="-4" width="32" height="28" rx="6" fill="${JERSEY}"/>
+            <text x="2" y="18" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">1</text>
+            <!-- Kafa -->
+            <circle cx="2" cy="-16" r="14" fill="${SKIN}"/>
+            <!-- Saç -->
+            <ellipse cx="2" cy="-26" rx="14" ry="7" fill="${HAIR}"/>
+            <!-- Yüz -->
+            <circle cx="-3" cy="-18" r="2.5" fill="#333"/>
+            <circle cx="7" cy="-18" r="2.5" fill="#333"/>
+            <path d="M-1,-12 Q2,-9 5,-12" fill="none" stroke="#333" stroke-width="1.2"/>
+            <!-- Kollar (iki yana açık, hazır) -->
+            <rect x="-36" y="-2" width="24" height="8" rx="4" fill="${JERSEY}"/>
+            <circle cx="-38" cy="2" r="7" fill="${GLOVES}"/>
+            <rect x="16" y="-2" width="24" height="8" rx="4" fill="${JERSEY}"/>
+            <circle cx="42" cy="2" r="7" fill="${GLOVES}"/>`;
     }
 
     function getKeeperPose(zoneIdx) {
-        // 0=sol-üst, 1=orta-üst, 2=sağ-üst, 3=sol-orta, 4=orta, 5=sağ-orta, 6=sol-alt, 7=orta-alt, 8=sağ-alt
-        if (zoneIdx <= 2) return 'dive-up';       // üst sıra
-        if (zoneIdx === 0 || zoneIdx === 3 || zoneIdx === 6) return 'dive-left';  // sol
-        if (zoneIdx === 2 || zoneIdx === 5 || zoneIdx === 8) return 'dive-right'; // sağ
-        return 'stand'; // orta
+        if (zoneIdx === 0 || zoneIdx === 3 || zoneIdx === 6) return 'dive-left';
+        if (zoneIdx === 2 || zoneIdx === 5 || zoneIdx === 8) return 'dive-right';
+        if (zoneIdx === 1) return 'dive-up';
+        return 'stand';
     }
 
     // ── SVG Sahne ──
