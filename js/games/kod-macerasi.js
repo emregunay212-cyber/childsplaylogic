@@ -32,7 +32,29 @@ const KodMacerasi = (() => {
         isExecuting = false;
 
         GameEngine.setTotal(totalRounds);
+        document.addEventListener('keydown', spKeyHandler);
         nextRound();
+    }
+
+    function spKeyHandler(e) {
+        const keyMap = { ArrowUp: 'UP', ArrowDown: 'DOWN', ArrowLeft: 'LEFT', ArrowRight: 'RIGHT' };
+        const move = keyMap[e.key];
+        if (move && !isExecuting) {
+            e.preventDefault();
+            if (sequence.length < currentLevel.maxBlocks) {
+                sequence.push(move);
+                renderGame();
+            }
+        }
+        if (e.key === 'Enter' && !isExecuting && sequence.length > 0) {
+            e.preventDefault();
+            onPlay();
+        }
+        if (e.key === 'Backspace' && !isExecuting) {
+            e.preventDefault();
+            sequence.pop();
+            renderGame();
+        }
     }
 
     function nextRound() {
@@ -215,6 +237,7 @@ const KodMacerasi = (() => {
     }
 
     function destroy() {
+        document.removeEventListener('keydown', spKeyHandler);
         if (container) container.innerHTML = '';
         sequence = [];
         isExecuting = false;

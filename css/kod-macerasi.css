@@ -395,3 +395,111 @@
     33% { content: '..'; }
     66% { content: '...'; }
 }
+
+/* Game Over Ekranı */
+.kod-gameover {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 70vh;
+    padding: 1rem;
+    animation: fadeIn 0.6s ease;
+}
+.kod-gameover-card {
+    border-radius: 24px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    max-width: 380px;
+    width: 100%;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.kod-gameover-icon {
+    font-size: 4rem;
+    margin-bottom: 0.3rem;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+    animation: bounce 1s ease infinite;
+}
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+.kod-gameover-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0.3rem 0;
+    text-shadow: 0 2px 4px rgba(255,255,255,0.3);
+}
+.kod-gameover-sub {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin: 0 0 1.2rem;
+    color: rgba(0,0,0,0.5);
+}
+.kod-gameover-scores {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1rem 0;
+    background: rgba(255,255,255,0.35);
+    border-radius: 16px;
+    padding: 1rem;
+    backdrop-filter: blur(4px);
+}
+.kod-gameover-player {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+}
+.kod-gameover-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+.kod-gameover-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: rgba(0,0,0,0.6);
+}
+.kod-gameover-pts {
+    font-size: 2rem;
+    font-weight: 900;
+    color: rgba(0,0,0,0.7);
+}
+.kod-gameover-vs {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: rgba(0,0,0,0.3);
+    letter-spacing: 2px;
+}
+.kod-gameover-btn {
+    margin-top: 1rem;
+    padding: 0.8rem 2rem;
+    border: none;
+    border-radius: 50px;
+    background: rgba(255,255,255,0.9);
+    color: #333;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.kod-gameover-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+.kod-gameover-btn:active {
+    transform: scale(0.95);
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

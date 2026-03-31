@@ -42,7 +42,25 @@ const KodMacerasiMP = (() => {
         opRobotPos = data.opRobotPos || { x: opPuzzle.start.x, y: opPuzzle.start.y };
 
         setupListeners();
+        addKeyboardListener();
         renderGame();
+    }
+
+    function handleKeyDown(e) {
+        const keyMap = { ArrowUp: 'UP', ArrowDown: 'DOWN', ArrowLeft: 'LEFT', ArrowRight: 'RIGHT' };
+        const move = keyMap[e.key];
+        if (move && !myFinished && !gameOver) {
+            e.preventDefault();
+            onMove(move);
+        }
+    }
+
+    function addKeyboardListener() {
+        document.addEventListener('keydown', handleKeyDown);
+    }
+
+    function removeKeyboardListener() {
+        document.removeEventListener('keydown', handleKeyDown);
     }
 
     function setupListeners() {
@@ -243,47 +261,61 @@ const KodMacerasiMP = (() => {
     function showGameOver(data) {
         const isWinner = data.winner === gameData.yourRole;
         const isDraw = data.winner === 'draw';
-        const emoji = isDraw ? '🤝' : isWinner ? '🏆' : '😔';
-        const text = isDraw ? TR.mp.draw : isWinner ? TR.mp.youWin : TR.mp.youLose;
 
         if (isWinner) {
             AudioManager.play('levelComplete');
             Particles.celebrate();
+        } else {
+            AudioManager.play('error');
         }
 
         const myScore = gameData.yourRole === 'host' ? (data.hostScore || hostScore) : (data.guestScore || guestScore);
         const opScore = gameData.yourRole === 'host' ? (data.guestScore || guestScore) : (data.hostScore || hostScore);
 
+        const bgGrad = isWinner ? 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
+            : isDraw ? 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)'
+            : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
+        const titleColor = isWinner ? '#1a5e2a' : isDraw ? '#4a1a6b' : '#7a1a2a';
+        const icon = isWinner ? '🏆' : isDraw ? '🤝' : '💪';
+        const title = isWinner ? 'Tebrikler!' : isDraw ? 'Berabere!' : 'İyi Oyundu!';
+        const sub = isWinner ? 'Harika bir yarış oldu, kazandın!' : isDraw ? 'İkiniz de çok iyiydiniz!' : 'Bir dahaki sefere kazanacaksın!';
+
         setTimeout(() => {
+            removeKeyboardListener();
             container.innerHTML = `
-                <div class="mp-game-over-overlay">
-                    <h2 class="mp-result-title">${emoji} ${text}</h2>
-                    <div class="mp-result-scores">
-                        <div class="mp-score-card">
-                            <span class="mp-score-name">${TR.mp.you}</span>
-                            <span class="mp-score-value">${myScore}</span>
+                <div class="kod-gameover">
+                    <div class="kod-gameover-card" style="background:${bgGrad};">
+                        <div class="kod-gameover-icon">${icon}</div>
+                        <h2 class="kod-gameover-title" style="color:${titleColor};">${title}</h2>
+                        <p class="kod-gameover-sub">${sub}</p>
+                        <div class="kod-gameover-scores">
+                            <div class="kod-gameover-player">
+                                <div class="kod-gameover-avatar" style="background:#FF9800;">🟠</div>
+                                <span class="kod-gameover-name">Sen</span>
+                                <span class="kod-gameover-pts">${myScore}</span>
+                            </div>
+                            <div class="kod-gameover-vs">VS</div>
+                            <div class="kod-gameover-player">
+                                <div class="kod-gameover-avatar" style="background:#2196F3;">🔵</div>
+                                <span class="kod-gameover-name">${gameData.opponentName}</span>
+                                <span class="kod-gameover-pts">${opScore}</span>
+                            </div>
                         </div>
-                        <span class="mp-score-vs">-</span>
-                        <div class="mp-score-card">
-                            <span class="mp-score-name">${gameData.opponentName}</span>
-                            <span class="mp-score-value">${opScore}</span>
-                        </div>
-                    </div>
-                    <div class="mp-result-buttons">
-                        <button class="mp-btn mp-btn-hub">${TR.mp.backToHub}</button>
+                        <button class="kod-gameover-btn">${TR.mp.backToHub}</button>
                     </div>
                 </div>`;
 
-            container.querySelector('.mp-btn-hub').onclick = () => {
+            container.querySelector('.kod-gameover-btn').onclick = () => {
                 Multiplayer.send('LEAVE_LOBBY');
                 Multiplayer.offAll();
                 App.showHub();
             };
-        }, 1000);
+        }, 1200);
     }
 
     function destroy() {
         Multiplayer.offAll();
+        removeKeyboardListener();
         if (container) container.innerHTML = '';
         gameOver = false;
     }
