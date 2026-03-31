@@ -41,6 +41,80 @@ const Penalti = (() => {
         render();
     }
 
+    // Kaleci SVG pozları
+    function keeperSVG(pose) {
+        // pose: 'stand', 'dive-left', 'dive-right', 'dive-up', 'dive-down-left', 'dive-down-right'
+        if (pose === 'dive-left') {
+            return `<!-- Sola uçuyor -->
+                <ellipse cx="-10" cy="15" rx="28" ry="18" fill="#FF9800" transform="rotate(-30, -10, 15)"/>
+                <circle cx="-15" cy="-8" r="16" fill="#FF9800"/>
+                <polygon points="-27,-20 -32,-34 -19,-22" fill="#FF9800"/>
+                <polygon points="-3,-20 2,-34 -11,-22" fill="#FF9800"/>
+                <circle cx="-20" cy="-10" r="3.5" fill="white"/><circle cx="-10" cy="-10" r="3.5" fill="white"/>
+                <circle cx="-19" cy="-10" r="2" fill="#333"/><circle cx="-9" cy="-10" r="2" fill="#333"/>
+                <ellipse cx="-15" cy="-3" rx="3" ry="2" fill="#FF7043"/>
+                <ellipse cx="-15" cy="18" rx="12" ry="14" fill="#FFE0B2"/>
+                <circle cx="-42" cy="0" r="10" fill="#4CAF50"/>
+                <circle cx="18" cy="5" r="8" fill="#4CAF50"/>
+                <ellipse cx="-20" cy="35" rx="7" ry="5" fill="#FF9800" transform="rotate(-20)"/>
+                <ellipse cx="0" cy="35" rx="7" ry="5" fill="#FF9800" transform="rotate(-10)"/>`;
+        }
+        if (pose === 'dive-right') {
+            return `<!-- Sağa uçuyor -->
+                <ellipse cx="10" cy="15" rx="28" ry="18" fill="#FF9800" transform="rotate(30, 10, 15)"/>
+                <circle cx="15" cy="-8" r="16" fill="#FF9800"/>
+                <polygon points="3,-20 -2,-34 11,-22" fill="#FF9800"/>
+                <polygon points="27,-20 32,-34 19,-22" fill="#FF9800"/>
+                <circle cx="10" cy="-10" r="3.5" fill="white"/><circle cx="20" cy="-10" r="3.5" fill="white"/>
+                <circle cx="11" cy="-10" r="2" fill="#333"/><circle cx="21" cy="-10" r="2" fill="#333"/>
+                <ellipse cx="15" cy="-3" rx="3" ry="2" fill="#FF7043"/>
+                <ellipse cx="15" cy="18" rx="12" ry="14" fill="#FFE0B2"/>
+                <circle cx="42" cy="0" r="10" fill="#4CAF50"/>
+                <circle cx="-18" cy="5" r="8" fill="#4CAF50"/>
+                <ellipse cx="20" cy="35" rx="7" ry="5" fill="#FF9800" transform="rotate(20)"/>
+                <ellipse cx="0" cy="35" rx="7" ry="5" fill="#FF9800" transform="rotate(10)"/>`;
+        }
+        if (pose === 'dive-up') {
+            return `<!-- Yukarı uzanıyor -->
+                <ellipse cx="0" cy="10" rx="20" ry="30" fill="#FF9800"/>
+                <circle cx="0" cy="-22" r="16" fill="#FF9800"/>
+                <polygon points="-14,-34 -18,-48 -6,-36" fill="#FF9800"/>
+                <polygon points="14,-34 18,-48 6,-36" fill="#FF9800"/>
+                <circle cx="-6" cy="-24" r="3.5" fill="white"/><circle cx="6" cy="-24" r="3.5" fill="white"/>
+                <circle cx="-5" cy="-24" r="2" fill="#333"/><circle cx="7" cy="-24" r="2" fill="#333"/>
+                <ellipse cx="0" cy="-16" rx="3" ry="2" fill="#FF7043"/>
+                <ellipse cx="0" cy="14" rx="13" ry="16" fill="#FFE0B2"/>
+                <circle cx="-28" cy="-15" r="10" fill="#4CAF50"/>
+                <circle cx="28" cy="-15" r="10" fill="#4CAF50"/>
+                <ellipse cx="-8" cy="42" rx="7" ry="5" fill="#FF9800"/>
+                <ellipse cx="8" cy="42" rx="7" ry="5" fill="#FF9800"/>`;
+        }
+        // Default: ayakta
+        return `<!-- Ayakta duruyor -->
+            <ellipse cx="0" cy="20" rx="22" ry="28" fill="#FF9800"/>
+            <circle cx="0" cy="-12" r="18" fill="#FF9800"/>
+            <polygon points="-14,-26 -18,-40 -6,-28" fill="#FF9800"/>
+            <polygon points="14,-26 18,-40 6,-28" fill="#FF9800"/>
+            <polygon points="-12,-28 -15,-38 -7,-29" fill="#FFB74D"/>
+            <polygon points="12,-28 15,-38 7,-29" fill="#FFB74D"/>
+            <circle cx="-7" cy="-14" r="4" fill="white"/><circle cx="7" cy="-14" r="4" fill="white"/>
+            <circle cx="-6" cy="-14" r="2.5" fill="#333"/><circle cx="8" cy="-14" r="2.5" fill="#333"/>
+            <ellipse cx="0" cy="-6" rx="4" ry="3" fill="#FF7043"/>
+            <ellipse cx="0" cy="24" rx="15" ry="18" fill="#FFE0B2"/>
+            <circle cx="-26" cy="10" r="9" fill="#4CAF50"/>
+            <circle cx="26" cy="10" r="9" fill="#4CAF50"/>
+            <ellipse cx="-10" cy="50" rx="8" ry="5" fill="#FF9800"/>
+            <ellipse cx="10" cy="50" rx="8" ry="5" fill="#FF9800"/>`;
+    }
+
+    function getKeeperPose(zoneIdx) {
+        // 0=sol-üst, 1=orta-üst, 2=sağ-üst, 3=sol-orta, 4=orta, 5=sağ-orta, 6=sol-alt, 7=orta-alt, 8=sağ-alt
+        if (zoneIdx <= 2) return 'dive-up';       // üst sıra
+        if (zoneIdx === 0 || zoneIdx === 3 || zoneIdx === 6) return 'dive-left';  // sol
+        if (zoneIdx === 2 || zoneIdx === 5 || zoneIdx === 8) return 'dive-right'; // sağ
+        return 'stand'; // orta
+    }
+
     // ── SVG Sahne ──
     function buildScene() {
         return `
@@ -89,31 +163,9 @@ const Penalti = (() => {
                     fill="transparent" cursor="pointer" rx="8"/>
             `).join('')}
 
-            <!-- Kaleci Kedi (merkez, ayakta) -->
+            <!-- Kaleci Kedi -->
             <g id="pen-keeper" transform="translate(200, 140)">
-                <!-- Gövde -->
-                <ellipse cx="0" cy="20" rx="22" ry="28" fill="#FF9800"/>
-                <!-- Kafa -->
-                <circle cx="0" cy="-12" r="18" fill="#FF9800"/>
-                <!-- Kulaklar -->
-                <polygon points="-14,-26 -18,-40 -6,-28" fill="#FF9800"/>
-                <polygon points="14,-26 18,-40 6,-28" fill="#FF9800"/>
-                <polygon points="-12,-28 -15,-38 -7,-29" fill="#FFB74D"/>
-                <polygon points="12,-28 15,-38 7,-29" fill="#FFB74D"/>
-                <!-- Yüz -->
-                <circle cx="-7" cy="-14" r="4" fill="white"/>
-                <circle cx="7" cy="-14" r="4" fill="white"/>
-                <circle cx="-6" cy="-14" r="2.5" fill="#333"/>
-                <circle cx="8" cy="-14" r="2.5" fill="#333"/>
-                <ellipse cx="0" cy="-6" rx="4" ry="3" fill="#FF7043"/>
-                <!-- Karın -->
-                <ellipse cx="0" cy="24" rx="15" ry="18" fill="#FFE0B2"/>
-                <!-- Eller (eldiven) -->
-                <circle cx="-26" cy="10" r="9" fill="#4CAF50"/>
-                <circle cx="26" cy="10" r="9" fill="#4CAF50"/>
-                <!-- Ayaklar -->
-                <ellipse cx="-10" cy="50" rx="8" ry="5" fill="#FF9800"/>
-                <ellipse cx="10" cy="50" rx="8" ry="5" fill="#FF9800"/>
+                ${keeperSVG('stand')}
             </g>
 
             <!-- Top -->
@@ -200,10 +252,12 @@ const Penalti = (() => {
         ball.style.transition = 'transform 0.5s cubic-bezier(0.2, 0, 0.2, 1)';
         ball.setAttribute('transform', `translate(${zone.tx}, ${zone.ty}) scale(0.7)`);
 
-        // 2) Kaleci atlar
+        // 2) Kaleci atlar + poz değişir
         setTimeout(() => {
             const kx = keeperZone.tx;
             const ky = keeperZone.ty + 10;
+            const pose = getKeeperPose(keeperZoneIdx);
+            keeper.innerHTML = keeperSVG(pose);
             keeper.style.transition = 'transform 0.35s ease-out';
             keeper.setAttribute('transform', `translate(${kx}, ${ky}) scale(0.9)`);
         }, 200);

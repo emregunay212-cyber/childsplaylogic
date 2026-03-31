@@ -1,36 +1,39 @@
-/* Penaltı Oyunu - Gerçekçi SVG Sahne */
+/* Penaltı Oyunu - Büyük Sahne */
 
 .pen-topbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.3rem 1rem;
-    max-width: 420px;
+    padding: 0.4rem 1.2rem;
+    max-width: 700px;
     margin: 0 auto;
 }
 .pen-shot-info {
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: #555;
-    background: rgba(255,255,255,0.8);
-    padding: 4px 12px;
+    background: rgba(255,255,255,0.9);
+    padding: 6px 16px;
     border-radius: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 .pen-score-info {
     font-weight: 800;
-    font-size: 1rem;
+    font-size: 1.1rem;
     color: #2E7D32;
     background: #E8F5E9;
-    padding: 4px 14px;
+    padding: 6px 18px;
     border-radius: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
 .pen-scene-wrap {
-    max-width: 440px;
+    max-width: 700px;
+    width: 95vw;
     margin: 0.3rem auto;
     border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.18);
 }
 
 .penalti-scene {
@@ -44,20 +47,22 @@
     transition: fill 0.15s;
 }
 .penalti-scene .pen-target:hover {
-    fill: rgba(255,255,255,0.25) !important;
+    fill: rgba(255,255,255,0.2) !important;
 }
 
-.penalti-scene #pen-ball,
+.penalti-scene #pen-ball {
+    transition: transform 0.5s cubic-bezier(0.2, 0, 0.2, 1);
+}
 .penalti-scene #pen-keeper {
-    transition: transform 0.4s cubic-bezier(0.2, 0, 0.2, 1);
+    transition: transform 0.4s cubic-bezier(0.3, 0, 0.2, 1);
 }
 
 .pen-history {
     display: flex;
     justify-content: center;
-    gap: 12px;
-    padding: 0.4rem;
-    font-size: 1.2rem;
+    gap: 14px;
+    padding: 0.5rem;
+    font-size: 1.4rem;
 }
 .pen-dot {
     transition: transform 0.3s;
@@ -69,5 +74,5 @@
 
 @keyframes dotBounce {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-4px); }
+    50% { transform: translateY(-5px); }
 }
