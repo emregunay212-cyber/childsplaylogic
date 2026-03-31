@@ -119,19 +119,29 @@ const Multiplayer = (() => {
 
     let lobbyData;
     if (gameType === 'kod-macerasi') {
-      const gridSize = [5,6,7].includes(parseInt(opts.gridSize)) ? parseInt(opts.gridSize) : 7;
-      const puzzle = (typeof KodMacerasiCore !== 'undefined')
-        ? KodMacerasiCore.generateComplexPuzzle(gridSize)
-        : generateKodPuzzle(gridSize, 3);
+      const gridSize = [5,6,7].includes(parseInt(opts.gridSize)) ? parseInt(opts.gridSize) : 6;
+      const totalRounds = 3;
+      // 3 tur icin 6 puzzle uret (her tur host+guest icin ayri)
+      const genPuzzle = (typeof KodMacerasiCore !== 'undefined')
+        ? (s) => KodMacerasiCore.generateComplexPuzzle(s)
+        : (s) => generateKodPuzzle(s, 2);
+      const rounds = {};
+      for (let r = 1; r <= totalRounds; r++) {
+        const hp = genPuzzle(gridSize);
+        const gp = genPuzzle(gridSize);
+        rounds[r] = {
+          hostPuzzle: hp, guestPuzzle: gp,
+          hostRobotPos: { x: hp.start.x, y: hp.start.y },
+          guestRobotPos: { x: gp.start.x, y: gp.start.y },
+          hostFinished: false, guestFinished: false, winner: null
+        };
+      }
       lobbyData = {
-        id: lobbyId, gameType, gridSize,
+        id: lobbyId, gameType, gridSize, totalRounds,
         hostId: playerId, hostName: playerName, guestId: null, guestName: null,
-        state: 'WAITING',
-        puzzle,
-        robotPos: { x: puzzle.start.x, y: puzzle.start.y },
-        currentTurn: 'host',
-        moveHistory: [],
-        winner: null,
+        state: 'WAITING', currentRound: 1,
+        hostScore: 0, guestScore: 0,
+        rounds,
         createdAt: firebase.database.ServerValue.TIMESTAMP
       };
     } else {
@@ -188,24 +198,20 @@ const Multiplayer = (() => {
     currentRole = 'guest';
 
     if (lobby.gameType === 'kod-macerasi') {
-      // Kod macerası: direkt oyun başla (sıra tabanlı)
-      await ref.update({
-        guestId: playerId, guestName: playerName,
-        state: 'PLAYING'
-      });
+      await ref.update({ guestId: playerId, guestName: playerName, state: 'PLAYING' });
       listenToLobby(lobbyId);
 
       const updatedSnap = await ref.once('value');
-      const updatedLobby = updatedSnap.val();
+      const ul = updatedSnap.val();
+      const round = ul.rounds[ul.currentRound];
 
-      emit('PLAYER_JOINED', { opponentName: updatedLobby.hostName, role: 'guest' });
+      emit('PLAYER_JOINED', { opponentName: ul.hostName, role: 'guest' });
       emit('GAME_START', {
-        yourRole: 'guest',
-        opponentName: updatedLobby.hostName,
-        gridSize: updatedLobby.gridSize,
-        puzzle: updatedLobby.puzzle,
-        robotPos: updatedLobby.robotPos,
-        currentTurn: updatedLobby.currentTurn,
+        yourRole: 'guest', opponentName: ul.hostName,
+        gridSize: ul.gridSize, totalRounds: ul.totalRounds, currentRound: ul.currentRound,
+        myPuzzle: round.guestPuzzle, myRobotPos: round.guestRobotPos,
+        opPuzzle: round.hostPuzzle, opRobotPos: round.hostRobotPos,
+        hostScore: ul.hostScore, guestScore: ul.guestScore,
         gameType: 'kod-macerasi'
       });
     } else {
@@ -235,7 +241,7 @@ const Multiplayer = (() => {
     if (!found) {
       // Yeni lobi oluştur
       const defaults = gameType === 'kod-macerasi'
-        ? { gameType, gridSize: 7 }
+        ? { gameType, gridSize: 6 }
         : { gameType, wordLength: 5, maxTurns: 10 };
       await createLobby(defaults);
       emit('LOBBY_CREATED', { lobbyId: currentLobbyId, quickPlay: true });
@@ -405,48 +411,50 @@ const Multiplayer = (() => {
     await ref.child(field).set(sequence);
   }
 
-  // Tek hamle gonder (sira tabanli MP kod macerasi)
+  // Esanli yaris: kendi puzzle'imda bir hamle yap
   async function submitMove(move) {
     if (!currentLobbyId) return;
     const ref = db.ref('lobbies/' + currentLobbyId);
     const snap = await ref.once('value');
     const lobby = snap.val();
-    if (!lobby || lobby.state !== 'PLAYING' || lobby.currentTurn !== currentRole) return;
+    if (!lobby || lobby.state !== 'PLAYING') return;
+
+    const r = lobby.currentRound;
+    const round = lobby.rounds[r];
+    if (!round) return;
+
+    const myPuzzle = currentRole === 'host' ? round.hostPuzzle : round.guestPuzzle;
+    const posField = currentRole === 'host' ? 'hostRobotPos' : 'guestRobotPos';
+    const finField = currentRole === 'host' ? 'hostFinished' : 'guestFinished';
+
+    if (round[finField]) return; // zaten bitirdim
 
     const MOVES_MAP = { UP: {dx:0,dy:-1}, DOWN: {dx:0,dy:1}, LEFT: {dx:-1,dy:0}, RIGHT: {dx:1,dy:0} };
     const m = MOVES_MAP[move];
     if (!m) return;
 
-    const pos = lobby.robotPos || lobby.puzzle.start;
+    const pos = round[posField] || myPuzzle.start;
     const nx = pos.x + m.dx;
     const ny = pos.y + m.dy;
 
     // Sınır ve engel kontrolü
-    const blocked = nx < 0 || nx >= lobby.puzzle.size || ny < 0 || ny >= lobby.puzzle.size ||
-      (lobby.puzzle.obstacles || []).some(o => o.x === nx && o.y === ny);
+    const obstacles = myPuzzle.obstacles || [];
+    if (nx < 0 || nx >= myPuzzle.size || ny < 0 || ny >= myPuzzle.size ||
+        obstacles.some(o => o.x === nx && o.y === ny)) {
+      return; // geçersiz hamle, bir şey yapma
+    }
 
-    const history = lobby.moveHistory || [];
     const updates = {};
+    updates[`rounds/${r}/${posField}`] = { x: nx, y: ny };
 
-    if (blocked) {
-      // Hareket geçersiz - sıra değişir, robot yerinde kalır
-      history.push({ player: currentRole, move, blocked: true, pos: { x: pos.x, y: pos.y } });
-      updates.moveHistory = history;
-      updates.currentTurn = currentRole === 'host' ? 'guest' : 'host';
-      updates.lastMove = { player: currentRole, move, blocked: true, pos: { x: pos.x, y: pos.y } };
-    } else {
-      // Geçerli hareket
-      history.push({ player: currentRole, move, blocked: false, pos: { x: nx, y: ny } });
-      updates.robotPos = { x: nx, y: ny };
-      updates.moveHistory = history;
-      updates.lastMove = { player: currentRole, move, blocked: false, pos: { x: nx, y: ny } };
-
-      // Hedefe ulaştı mı?
-      if (nx === lobby.puzzle.target.x && ny === lobby.puzzle.target.y) {
-        updates.state = 'FINISHED';
-        updates.winner = currentRole;
-      } else {
-        updates.currentTurn = currentRole === 'host' ? 'guest' : 'host';
+    // Hedefe ulaştı mı?
+    if (nx === myPuzzle.target.x && ny === myPuzzle.target.y) {
+      updates[`rounds/${r}/${finField}`] = true;
+      // Ilk bitiren turu kazanir
+      if (!round.winner) {
+        updates[`rounds/${r}/winner`] = currentRole;
+        const scoreField = currentRole === 'host' ? 'hostScore' : 'guestScore';
+        updates[scoreField] = (lobby[scoreField] || 0) + 1;
       }
     }
 
@@ -479,16 +487,15 @@ const Multiplayer = (() => {
         emit('PLAYER_JOINED', { opponentName: lobby.guestName, role: 'host' });
 
         if (lobby.gameType === 'kod-macerasi') {
+          const round = lobby.rounds[lobby.currentRound];
           emit('GAME_START', {
-            yourRole: 'host',
-            opponentName: lobby.guestName,
-            gridSize: lobby.gridSize,
-            puzzle: lobby.puzzle,
-            robotPos: lobby.robotPos,
-            currentTurn: lobby.currentTurn,
+            yourRole: 'host', opponentName: lobby.guestName,
+            gridSize: lobby.gridSize, totalRounds: lobby.totalRounds, currentRound: lobby.currentRound,
+            myPuzzle: round.hostPuzzle, myRobotPos: round.hostRobotPos,
+            opPuzzle: round.guestPuzzle, opRobotPos: round.guestRobotPos,
+            hostScore: lobby.hostScore, guestScore: lobby.guestScore,
             gameType: 'kod-macerasi'
           });
-          emit('YOUR_TURN', {});
         } else {
           emit('WORD_SETUP', { wordLength: lobby.wordLength });
         }
@@ -564,24 +571,63 @@ const Multiplayer = (() => {
         }
       }
 
-      // Kod macerası: sıra tabanlı hamle dinleme
-      if (lobby.gameType === 'kod-macerasi' && lobby.state === 'PLAYING') {
-        const lm = lobby.lastMove;
-        if (lm && JSON.stringify(lm) !== JSON.stringify(prevLastMove)) {
-          emit('MOVE_MADE', {
-            player: lm.player,
-            move: lm.move,
-            blocked: lm.blocked,
-            pos: lm.pos,
-            robotPos: lobby.robotPos || lobby.puzzle.start,
-            currentTurn: lobby.currentTurn,
-            moveHistory: lobby.moveHistory || [],
+      // Kod macerası: eşanlı yarış dinleme
+      if (lobby.gameType === 'kod-macerasi' && lobby.state === 'PLAYING' && lobby.rounds) {
+        const r = lobby.currentRound;
+        const round = lobby.rounds[r];
+        if (round) {
+          // Rakibin robot pozisyonu değişti mi?
+          const opPosField = currentRole === 'host' ? 'guestRobotPos' : 'hostRobotPos';
+          const opFinField = currentRole === 'host' ? 'guestFinished' : 'hostFinished';
+          const myFinField = currentRole === 'host' ? 'hostFinished' : 'guestFinished';
+
+          emit('ROUND_UPDATE', {
+            round: r,
+            opRobotPos: round[opPosField],
+            opFinished: round[opFinField] || false,
+            myFinished: round[myFinField] || false,
+            roundWinner: round.winner,
+            hostScore: lobby.hostScore || 0,
+            guestScore: lobby.guestScore || 0,
           });
-          // Sıra değişti
-          if (lobby.currentTurn === currentRole) emit('YOUR_TURN', {});
-          else emit('WAIT_TURN', {});
+
+          // İki taraf da bitirdiyse sonraki tura geç
+          if (round.hostFinished && round.guestFinished && currentRole === 'host') {
+            if (r < lobby.totalRounds) {
+              // Sonraki tur 2sn sonra
+              setTimeout(() => {
+                if (currentLobbyId) {
+                  db.ref('lobbies/' + currentLobbyId + '/currentRound').set(r + 1);
+                }
+              }, 2500);
+            } else {
+              // Oyun bitti
+              setTimeout(() => {
+                if (currentLobbyId) {
+                  const winner = (lobby.hostScore || 0) > (lobby.guestScore || 0) ? 'host'
+                    : (lobby.guestScore || 0) > (lobby.hostScore || 0) ? 'guest' : 'draw';
+                  db.ref('lobbies/' + currentLobbyId).update({ state: 'FINISHED', winner });
+                }
+              }, 2500);
+            }
+          }
+
+          // Tur değişti mi?
+          if (r !== prevLastMove) {
+            const newRound = lobby.rounds[r];
+            if (newRound && prevLastMove && prevLastMove !== r) {
+              emit('NEW_ROUND', {
+                round: r, totalRounds: lobby.totalRounds,
+                myPuzzle: currentRole === 'host' ? newRound.hostPuzzle : newRound.guestPuzzle,
+                myRobotPos: currentRole === 'host' ? newRound.hostRobotPos : newRound.guestRobotPos,
+                opPuzzle: currentRole === 'host' ? newRound.guestPuzzle : newRound.hostPuzzle,
+                opRobotPos: currentRole === 'host' ? newRound.guestRobotPos : newRound.hostRobotPos,
+                hostScore: lobby.hostScore || 0, guestScore: lobby.guestScore || 0,
+              });
+            }
+            prevLastMove = r;
+          }
         }
-        prevLastMove = lm ? { ...lm } : null;
       }
 
       // Oyun bitti

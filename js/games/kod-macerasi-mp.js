@@ -1,8 +1,8 @@
 /* ============================================
-   OYUN: Kod Macerası MP - Sıra Tabanlı Yarış
-   2 oyuncu aynı grid'de aynı robotu yönetir.
-   Sırayla 1 blok koyar, robot hareket eder.
-   İlk yıldıza ulaştıran kazanır.
+   OYUN: Kod Macerası MP - Eşanlı Puzzle Yarışı
+   Her oyuncu kendi puzzle'ini çözer.
+   Rakibin haritası ve ilerlemesi canlı görünür.
+   3 tur, en çok turu kazanan oyunu kazanır.
    ============================================ */
 
 const KodMacerasiMP = (() => {
@@ -11,64 +11,73 @@ const KodMacerasiMP = (() => {
 
     let container = null;
     let gameData = null;
-    let puzzle = null;
-    let robotPos = null;
-    let isMyTurn = false;
-    let moveHistory = [];
+    let myPuzzle = null;
+    let myRobotPos = null;
+    let opPuzzle = null;
+    let opRobotPos = null;
+    let myFinished = false;
+    let opFinished = false;
+    let currentRound = 1;
+    let hostScore = 0;
+    let guestScore = 0;
     let gameOver = false;
 
     function init(gameArea, data) {
         container = gameArea;
         gameData = data;
-        puzzle = data.puzzle;
-        if (!puzzle) {
-            container.innerHTML = '<div class="game-instruction" style="color:red;">Bulmaca yüklenemedi. Lütfen tekrar deneyin.</div>';
+        currentRound = data.currentRound || 1;
+        hostScore = data.hostScore || 0;
+        guestScore = data.guestScore || 0;
+        myFinished = false;
+        opFinished = false;
+        gameOver = false;
+
+        myPuzzle = data.myPuzzle;
+        opPuzzle = data.opPuzzle;
+        if (!myPuzzle || !opPuzzle) {
+            container.innerHTML = '<div class="game-instruction" style="color:red;">Bulmaca yüklenemedi.</div>';
             return;
         }
-        robotPos = data.robotPos || { x: puzzle.start.x, y: puzzle.start.y };
-        isMyTurn = data.currentTurn === data.yourRole;
-        moveHistory = [];
-        gameOver = false;
+        myRobotPos = data.myRobotPos || { x: myPuzzle.start.x, y: myPuzzle.start.y };
+        opRobotPos = data.opRobotPos || { x: opPuzzle.start.x, y: opPuzzle.start.y };
 
         setupListeners();
         renderGame();
     }
 
     function setupListeners() {
-        Multiplayer.on('MOVE_MADE', (data) => {
-            robotPos = data.robotPos;
-            moveHistory = data.moveHistory || [];
-            isMyTurn = data.currentTurn === gameData.yourRole;
+        Multiplayer.on('ROUND_UPDATE', (data) => {
+            opRobotPos = data.opRobotPos;
+            opFinished = data.opFinished || false;
+            myFinished = data.myFinished || false;
+            hostScore = data.hostScore || 0;
+            guestScore = data.guestScore || 0;
 
-            // Hamle animasyonu
-            renderGame();
+            // Rakip gridini güncelle
+            renderOpponentGrid();
+            renderScorebar();
 
-            if (data.blocked) {
-                AudioManager.play('error');
-            } else {
-                AudioManager.play('tap');
-                // Yıldız pozisyonunda sparkle
-                if (robotPos.x === puzzle.target.x && robotPos.y === puzzle.target.y) {
-                    const gridEl = container.querySelector('.kod-grid');
-                    if (gridEl) {
-                        const targetCell = gridEl.querySelector('.kod-cell.target');
-                        if (targetCell) {
-                            const rect = targetCell.getBoundingClientRect();
-                            Particles.sparkle(rect.left + rect.width / 2, rect.top + rect.height / 2, 8);
-                        }
-                    }
+            if (data.roundWinner && !gameOver) {
+                // Tur kazananı var
+                if (data.roundWinner === gameData.yourRole) {
+                    AudioManager.play('success');
+                } else if (myFinished) {
+                    // Ben de bitirdim ama rakip önce bitirmiş
                 }
             }
         });
 
-        Multiplayer.on('YOUR_TURN', () => {
-            isMyTurn = true;
-            renderTurnIndicator();
-        });
-
-        Multiplayer.on('WAIT_TURN', () => {
-            isMyTurn = false;
-            renderTurnIndicator();
+        Multiplayer.on('NEW_ROUND', (data) => {
+            currentRound = data.round;
+            myPuzzle = data.myPuzzle;
+            opPuzzle = data.opPuzzle;
+            myRobotPos = data.myRobotPos || { x: myPuzzle.start.x, y: myPuzzle.start.y };
+            opRobotPos = data.opRobotPos || { x: opPuzzle.start.x, y: opPuzzle.start.y };
+            hostScore = data.hostScore || 0;
+            guestScore = data.guestScore || 0;
+            myFinished = false;
+            opFinished = false;
+            renderGame();
         });
 
         Multiplayer.on('GAME_OVER', (data) => {
@@ -94,30 +103,28 @@ const KodMacerasiMP = (() => {
     function renderGame() {
         container.innerHTML = '';
 
-        // Başlık: Sen vs Rakip
-        const header = document.createElement('div');
-        header.className = 'kod-mp-header';
-        const myColor = gameData.yourRole === 'host' ? '#FF9800' : '#2196F3';
-        const opColor = gameData.yourRole === 'host' ? '#2196F3' : '#FF9800';
-        header.innerHTML = `
-            <span style="color:${myColor};font-weight:700;">🟠 Sen</span>
-            <span style="color:#999;font-size:0.9rem;">vs</span>
-            <span style="color:${opColor};font-weight:700;">🔵 ${gameData.opponentName}</span>
-        `;
-        container.appendChild(header);
+        // Skor çubuğu
+        const scorebar = document.createElement('div');
+        scorebar.className = 'kod-mp-scorebar';
+        scorebar.id = 'kod-scorebar';
+        container.appendChild(scorebar);
+        renderScorebar();
 
-        // Sıra göstergesi
-        const turnDiv = document.createElement('div');
-        turnDiv.className = 'kod-mp-status ' + (isMyTurn ? 'your-turn' : 'opponent-turn');
-        turnDiv.textContent = isMyTurn ? 'SENİN SIRAN!' : `${gameData.opponentName} düşünüyor...`;
-        container.appendChild(turnDiv);
+        // Benim haritam (büyük)
+        const mySection = document.createElement('div');
+        mySection.className = 'kod-mp-my-section';
+        const myLabel = document.createElement('div');
+        myLabel.className = 'kod-mp-section-label my-label';
+        myLabel.textContent = '🟠 Senin Haritanız';
+        mySection.appendChild(myLabel);
 
-        // Grid
-        if (puzzle) {
-            KodMacerasiCore.renderGrid(container, puzzle, robotPos);
-        }
+        const myGridContainer = document.createElement('div');
+        myGridContainer.id = 'my-grid-container';
+        mySection.appendChild(myGridContainer);
+        renderMyGrid(myGridContainer);
+        container.appendChild(mySection);
 
-        // Blok paleti (sadece sıra bendeyse aktif)
+        // Blok paleti
         const palette = document.createElement('div');
         palette.className = 'kod-palette';
         ['UP', 'DOWN', 'LEFT', 'RIGHT'].forEach(type => {
@@ -125,75 +132,134 @@ const KodMacerasiMP = (() => {
             btn.className = 'kod-block-btn';
             btn.style.background = KodMacerasiCore.BLOCKS[type].color;
             btn.innerHTML = KodMacerasiCore.getBlockSVG(type, 32);
-            btn.title = KodMacerasiCore.BLOCKS[type].label;
-            if (!isMyTurn || gameOver) btn.classList.add('disabled');
+            if (myFinished || gameOver) btn.classList.add('disabled');
             btn.addEventListener('click', () => {
-                if (!isMyTurn || gameOver) return;
-                AudioManager.play('tap');
-                isMyTurn = false; // hemen devre dışı bırak (çift tıklama önleme)
-                renderTurnIndicator();
-                disablePalette();
-                Multiplayer.send('SUBMIT_MOVE', { move: type });
+                if (myFinished || gameOver) return;
+                onMove(type);
             });
             palette.appendChild(btn);
         });
         container.appendChild(palette);
 
-        // Hamle geçmişi
-        if (moveHistory.length > 0) {
-            const histDiv = document.createElement('div');
-            histDiv.className = 'kod-move-history';
-            const label = document.createElement('span');
-            label.className = 'kod-history-label';
-            label.textContent = 'Hamleler: ';
-            histDiv.appendChild(label);
+        // Rakip haritası (küçük)
+        const opSection = document.createElement('div');
+        opSection.className = 'kod-mp-op-section';
+        const opLabel = document.createElement('div');
+        opLabel.className = 'kod-mp-section-label op-label';
+        opLabel.textContent = `🔵 ${gameData.opponentName}`;
+        if (opFinished) opLabel.textContent += ' ✅';
+        opSection.appendChild(opLabel);
 
-            moveHistory.slice(-12).forEach(m => {
-                const chip = document.createElement('span');
-                chip.className = 'kod-history-chip' + (m.blocked ? ' blocked' : '');
-                const arrows = { UP: '⬆', DOWN: '⬇', LEFT: '⬅', RIGHT: '➡' };
-                chip.style.background = m.player === 'host' ? '#FFF3E0' : '#E3F2FD';
-                chip.style.borderColor = m.player === 'host' ? '#FF9800' : '#2196F3';
-                chip.textContent = (m.blocked ? '❌' : '') + (arrows[m.move] || m.move);
-                histDiv.appendChild(chip);
-            });
-            container.appendChild(histDiv);
+        const opGridContainer = document.createElement('div');
+        opGridContainer.id = 'op-grid-container';
+        opGridContainer.className = 'kod-mp-mini-grid-wrap';
+        opSection.appendChild(opGridContainer);
+        renderOpGrid(opGridContainer);
+        container.appendChild(opSection);
+    }
+
+    function renderMyGrid(container) {
+        if (!container) container = document.getElementById('my-grid-container');
+        if (!container) return;
+        container.innerHTML = '';
+        KodMacerasiCore.renderGrid(container, myPuzzle, myRobotPos);
+    }
+
+    function renderOpGrid(container) {
+        if (!container) container = document.getElementById('op-grid-container');
+        if (!container) return;
+        container.innerHTML = '';
+        KodMacerasiCore.renderGrid(container, opPuzzle, opRobotPos, '#2196F3');
+    }
+
+    function renderOpponentGrid() {
+        renderOpGrid();
+        // Rakip label güncelle
+        const opLabel = container.querySelector('.op-label');
+        if (opLabel) {
+            opLabel.textContent = `🔵 ${gameData.opponentName}`;
+            if (opFinished) opLabel.textContent += ' ✅';
         }
     }
 
-    function renderTurnIndicator() {
-        const turnDiv = container.querySelector('.kod-mp-status');
-        if (turnDiv) {
-            turnDiv.className = 'kod-mp-status ' + (isMyTurn ? 'your-turn' : 'opponent-turn');
-            turnDiv.textContent = isMyTurn ? 'SENİN SIRAN!' : `${gameData.opponentName} düşünüyor...`;
-        }
+    function renderScorebar() {
+        const el = document.getElementById('kod-scorebar');
+        if (!el) return;
+        const myScore = gameData.yourRole === 'host' ? hostScore : guestScore;
+        const opScore = gameData.yourRole === 'host' ? guestScore : hostScore;
+        el.innerHTML = `
+            <span class="kod-mp-score my-score">🟠 Sen: ${myScore}</span>
+            <span class="kod-mp-round">Tur ${currentRound}/${gameData.totalRounds || 3}</span>
+            <span class="kod-mp-score op-score">🔵 ${gameData.opponentName}: ${opScore}</span>
+        `;
     }
 
-    function disablePalette() {
-        container.querySelectorAll('.kod-block-btn').forEach(b => b.classList.add('disabled'));
+    function onMove(type) {
+        if (myFinished || gameOver) return;
+
+        // Lokal önizleme: hemen hareket et
+        const MOVES = { UP: {dx:0,dy:-1}, DOWN: {dx:0,dy:1}, LEFT: {dx:-1,dy:0}, RIGHT: {dx:1,dy:0} };
+        const m = MOVES[type];
+        const nx = myRobotPos.x + m.dx;
+        const ny = myRobotPos.y + m.dy;
+
+        const obstacles = myPuzzle.obstacles || [];
+        if (nx < 0 || nx >= myPuzzle.size || ny < 0 || ny >= myPuzzle.size ||
+            obstacles.some(o => o.x === nx && o.y === ny)) {
+            AudioManager.play('error');
+            return; // geçersiz hamle
+        }
+
+        myRobotPos = { x: nx, y: ny };
+        AudioManager.play('tap');
+        renderMyGrid();
+
+        // Hedefe ulaştı mı?
+        if (nx === myPuzzle.target.x && ny === myPuzzle.target.y) {
+            myFinished = true;
+            AudioManager.play('levelComplete');
+            const gridEl = container.querySelector('#my-grid-container .kod-grid');
+            if (gridEl) {
+                const rect = gridEl.getBoundingClientRect();
+                Particles.sparkle(rect.left + rect.width / 2, rect.top + rect.height / 2, 8);
+            }
+            // Butonları devre dışı bırak
+            container.querySelectorAll('.kod-block-btn').forEach(b => b.classList.add('disabled'));
+        }
+
+        // Firebase'e gönder
+        Multiplayer.send('SUBMIT_MOVE', { move: type });
     }
 
     function showGameOver(data) {
         const isWinner = data.winner === gameData.yourRole;
         const isDraw = data.winner === 'draw';
-        const resultEmoji = isDraw ? '🤝' : isWinner ? '🏆' : '😔';
-        const resultText = isDraw ? TR.mp.draw : isWinner ? TR.mp.youWin : TR.mp.youLose;
+        const emoji = isDraw ? '🤝' : isWinner ? '🏆' : '😔';
+        const text = isDraw ? TR.mp.draw : isWinner ? TR.mp.youWin : TR.mp.youLose;
 
         if (isWinner) {
             AudioManager.play('levelComplete');
             Particles.celebrate();
-        } else {
-            AudioManager.play('error');
         }
+
+        const myScore = gameData.yourRole === 'host' ? (data.hostScore || hostScore) : (data.guestScore || guestScore);
+        const opScore = gameData.yourRole === 'host' ? (data.guestScore || guestScore) : (data.hostScore || hostScore);
 
         setTimeout(() => {
             container.innerHTML = `
                 <div class="mp-game-over-overlay">
-                    <h2 class="mp-result-title">${resultEmoji} ${resultText}</h2>
-                    <p style="font-size:1rem;color:#666;margin:0.5rem 0;">
-                        ${isWinner ? 'Robotu yıldıza sen götürdün!' : 'Rakibin robotu yıldıza götürdü!'}
-                    </p>
-                    <p style="font-size:0.9rem;color:#999;">Toplam ${moveHistory.length} hamle yapıldı</p>
+                    <h2 class="mp-result-title">${emoji} ${text}</h2>
+                    <div class="mp-result-scores">
+                        <div class="mp-score-card">
+                            <span class="mp-score-name">${TR.mp.you}</span>
+                            <span class="mp-score-value">${myScore}</span>
+                        </div>
+                        <span class="mp-score-vs">-</span>
+                        <div class="mp-score-card">
+                            <span class="mp-score-name">${gameData.opponentName}</span>
+                            <span class="mp-score-value">${opScore}</span>
+                        </div>
+                    </div>
                     <div class="mp-result-buttons">
                         <button class="mp-btn mp-btn-hub">${TR.mp.backToHub}</button>
                     </div>
@@ -204,14 +270,13 @@ const KodMacerasiMP = (() => {
                 Multiplayer.offAll();
                 App.showHub();
             };
-        }, 1500);
+        }, 1000);
     }
 
     function destroy() {
         Multiplayer.offAll();
         if (container) container.innerHTML = '';
         gameOver = false;
-        moveHistory = [];
     }
 
     return { id, isMultiplayer, init, destroy };

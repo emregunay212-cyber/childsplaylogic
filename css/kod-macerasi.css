@@ -291,75 +291,56 @@
     opacity: 0.5;
 }
 
-/* MP specific styles */
-.kod-mp-header {
+/* MP Eşanlı Yarış Stilleri */
+
+/* Skor çubuğu */
+.kod-mp-scorebar {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 0.8rem;
-    padding: 0.4rem;
-    font-size: 1rem;
-}
-
-.kod-mp-status {
-    text-align: center;
-    padding: 0.5rem;
+    justify-content: space-between;
+    padding: 0.4rem 0.8rem;
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    margin: 0.3rem auto;
+    max-width: 420px;
     font-weight: 700;
-    font-size: 1rem;
-    border-radius: var(--radius-md);
-    margin: 0.3rem auto;
-    max-width: 300px;
-    transition: all 0.3s;
-}
-
-.kod-mp-status.your-turn {
-    background: #E8F5E9;
-    color: #2E7D32;
-    animation: pulse 1.5s ease-in-out infinite;
-}
-
-.kod-mp-status.opponent-turn {
-    background: #FFF3E0;
-    color: #E65100;
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.03); }
-}
-
-/* Hamle geçmişi */
-.kod-move-history {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 4px;
-    padding: 0.4rem;
-    margin: 0.3rem auto;
-    max-width: 400px;
-}
-
-.kod-history-label {
-    font-size: 0.75rem;
-    color: #999;
-    font-weight: 600;
-}
-
-.kod-history-chip {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
     font-size: 0.85rem;
-    border: 2px solid;
 }
+.kod-mp-score.my-score { color: #FF9800; }
+.kod-mp-score.op-score { color: #2196F3; }
+.kod-mp-round { color: #888; font-size: 0.75rem; }
 
-.kod-history-chip.blocked {
-    opacity: 0.4;
-    text-decoration: line-through;
+/* Bölüm etiketleri */
+.kod-mp-section-label {
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 0.2rem;
+    border-radius: 8px;
+    margin: 0.2rem auto;
+    max-width: 300px;
+}
+.kod-mp-section-label.my-label { color: #FF9800; background: #FFF3E0; }
+.kod-mp-section-label.op-label { color: #2196F3; background: #E3F2FD; }
+
+/* Rakip mini grid */
+.kod-mp-mini-grid-wrap {
+    transform: scale(0.55);
+    transform-origin: top center;
+    margin-bottom: -60px;
+    opacity: 0.85;
+    pointer-events: none;
+}
+.kod-mp-mini-grid-wrap .kod-cell {
+    font-size: 1rem;
+}
+.kod-mp-op-section {
+    margin-top: 0.3rem;
+    padding: 0.3rem;
+    background: rgba(33, 150, 243, 0.05);
+    border-radius: var(--radius-lg);
+    border: 2px dashed #BBDEFB;
 }
 
 .kod-mp-opponent-bar {
