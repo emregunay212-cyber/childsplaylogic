@@ -46,6 +46,7 @@ const App = (() => {
             color: '#27AE60',
             games: [
                 { game: KodMacerasi, color: 'var(--kodmacerasi-color)' },
+                { game: LegoMacerasi, color: 'var(--lego-color)' },
                 { game: Satranc, color: 'var(--satranc-color)' },
                 { game: Penalti, color: 'var(--penalti-color)' },
             ]

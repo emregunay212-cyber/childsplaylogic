@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
+  <rect width="96" height="96" rx="20" fill="#FFC107"/>
+  <!-- LEGO bloklar -->
+  <rect x="18" y="54" width="60" height="20" rx="4" fill="#E74C3C"/>
+  <circle cx="32" cy="54" r="6" fill="#E74C3C"/><circle cx="32" cy="52" r="5" fill="#EF5350" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+  <circle cx="48" cy="54" r="6" fill="#E74C3C"/><circle cx="48" cy="52" r="5" fill="#EF5350" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+  <circle cx="64" cy="54" r="6" fill="#E74C3C"/><circle cx="64" cy="52" r="5" fill="#EF5350" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+  <!-- LEGO adam üstte -->
+  <circle cx="48" cy="22" r="10" fill="#FFD600"/>
+  <rect x="40" y="18" width="16" height="4" rx="2" fill="#E74C3C"/>
+  <circle cx="44" cy="24" r="2" fill="#333"/>
+  <circle cx="52" cy="24" r="2" fill="#333"/>
+  <path d="M45,28 Q48,31 51,28" fill="none" stroke="#333" stroke-width="1.5"/>
+  <rect x="40" y="32" width="16" height="14" rx="3" fill="#E74C3C"/>
+  <rect x="40" y="46" width="7" height="8" rx="2" fill="#2980B9"/>
+  <rect x="49" y="46" width="7" height="8" rx="2" fill="#2980B9"/>
+  <!-- Kod blokları -->
+  <rect x="12" y="80" width="16" height="10" rx="3" fill="#4ECDC4"/>
+  <text x="20" y="88" text-anchor="middle" font-size="7" fill="white" font-weight="bold">↑</text>
+  <rect x="30" y="80" width="16" height="10" rx="3" fill="#45B7D1"/>
+  <text x="38" y="88" text-anchor="middle" font-size="7" fill="white" font-weight="bold">→</text>
+  <rect x="48" y="80" width="16" height="10" rx="3" fill="#FF9800"/>
+  <text x="56" y="88" text-anchor="middle" font-size="7" fill="white" font-weight="bold">AL</text>
+</svg>

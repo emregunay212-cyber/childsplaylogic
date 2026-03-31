@@ -592,3 +592,166 @@
     60% { transform: translateX(-5px); }
     100% { transform: translateX(0); opacity: 1; }
 }
+
+/* ============================================
+   LEGO MACERASI - Ek Stiller
+   ============================================ */
+
+.lego-game-wrap {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 0 auto;
+    max-width: 600px;
+}
+
+.lego-grid-wrap {
+    display: flex;
+    justify-content: center;
+}
+
+.lego-grid {
+    display: grid;
+    gap: 3px;
+    background: #90A4AE;
+    border-radius: 12px;
+    padding: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.lego-grid.grid-3x3 { grid-template-columns: repeat(3, clamp(50px, 14vw, 72px)); }
+.lego-grid.grid-4x4 { grid-template-columns: repeat(4, clamp(42px, 11vw, 64px)); }
+.lego-grid.grid-5x5 { grid-template-columns: repeat(5, clamp(36px, 9vw, 56px)); }
+
+.lego-cell {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #B0BEC5;
+    border-radius: 6px;
+    position: relative;
+    font-size: clamp(1.2rem, 4vw, 1.8rem);
+    transition: background 0.2s;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.1);
+}
+
+.lego-stud {
+    position: absolute;
+    top: 3px; left: 50%; transform: translateX(-50%);
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+    pointer-events: none;
+}
+
+.lego-cell.lego-obstacle {
+    background: #78909C;
+}
+.lego-cell.lego-target {
+    background: #FFF9C4;
+    box-shadow: inset 0 0 0 2px #FFC107, 0 0 8px rgba(255,193,7,0.3);
+    animation: targetPulse 2s ease-in-out infinite;
+}
+.lego-cell.lego-has-piece {
+    background: #E3F2FD;
+}
+.lego-cell.lego-robot-here {
+    background: #C8E6C9;
+}
+.lego-cell.lego-trail {
+    background: #DCEDC8;
+}
+
+.lego-piece-cell {
+    font-size: clamp(1rem, 3.5vw, 1.5rem);
+}
+
+.lego-order {
+    position: absolute;
+    top: 2px; right: 4px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: white;
+    background: #E74C3C;
+    border-radius: 50%;
+    width: 16px; height: 16px;
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1;
+}
+
+.lego-man {
+    width: 80%; height: 80%;
+    position: absolute;
+    z-index: 2;
+}
+.lego-man.crashed {
+    animation: robotCrash 0.4s ease-in-out;
+}
+
+/* Yapı Paneli */
+.lego-build-panel {
+    background: rgba(255,255,255,0.92);
+    border-radius: 16px;
+    padding: 12px;
+    min-width: 100px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.lego-build-title {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #5D4037;
+    margin-bottom: 8px;
+}
+.lego-build-stack {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 4px;
+    min-height: 60px;
+}
+.lego-build-slot {
+    width: 70px;
+    height: 30px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+.lego-build-slot .lego-build-empty {
+    width: 100%;
+    height: 100%;
+    border: 2px dashed #ccc;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ccc;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+.lego-build-slot.lego-built {
+    animation: popIn 0.4s var(--ease-spring);
+}
+.lego-build-slot .lego-piece-svg {
+    width: 100%;
+    height: 100%;
+}
+.lego-build-count {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #888;
+    margin-top: 6px;
+}
+
+@media (max-width: 480px) {
+    .lego-game-wrap { flex-direction: column; align-items: center; }
+    .lego-build-panel { flex-direction: row; min-width: auto; }
+    .lego-build-stack { flex-direction: row; min-height: auto; gap: 6px; }
+    .lego-build-slot { width: 50px; height: 26px; }
+}

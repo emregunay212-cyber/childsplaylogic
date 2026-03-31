@@ -334,6 +334,7 @@
 .game-card[data-game="hece-birlestirme"]::before { background: var(--hece-color); }
 .game-card[data-game="jigsaw"]::before { background: var(--jigsaw-color); }
 .game-card[data-game="desen"]::before { background: var(--desen-color); }
+.game-card[data-game="lego-macerasi"]::before { background: var(--lego-color); }
 
 /* Kategori başlıkları */
 .hub-category-header {
