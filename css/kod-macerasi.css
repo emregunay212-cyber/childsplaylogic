@@ -504,6 +504,63 @@
     to { opacity: 1; }
 }
 
+/* Tur sonucu overlay */
+.kod-round-result {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(6px);
+    animation: fadeIn 0.3s ease;
+}
+.kod-round-card {
+    text-align: center;
+    padding: 2rem 2.5rem;
+    border-radius: 24px;
+    max-width: 340px;
+    width: 90%;
+    animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.kod-round-card.won {
+    background: linear-gradient(135deg, #00b894, #00cec9);
+    color: white;
+}
+.kod-round-card.lost {
+    background: linear-gradient(135deg, #fd79a8, #e17055);
+    color: white;
+}
+.kod-round-card.draw {
+    background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+    color: white;
+}
+.kod-round-icon {
+    font-size: 3.5rem;
+    margin-bottom: 0.3rem;
+    animation: bounce 0.8s ease infinite;
+}
+.kod-round-card h2 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0.3rem 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.kod-round-card p {
+    font-size: 0.85rem;
+    opacity: 0.9;
+    margin: 0.2rem 0;
+}
+.kod-round-score {
+    font-size: 2.2rem;
+    font-weight: 900;
+    margin-top: 0.5rem;
+    text-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    letter-spacing: 4px;
+}
+
 /* Ceza mesajı */
 .kod-penalty-msg {
     text-align: center;

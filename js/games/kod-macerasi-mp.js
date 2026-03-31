@@ -64,6 +64,8 @@ const KodMacerasiMP = (() => {
     }
 
     function setupListeners() {
+        let roundResultShown = false;
+
         Multiplayer.on('ROUND_UPDATE', (data) => {
             opRobotPos = data.opRobotPos;
             opFinished = data.opFinished || false;
@@ -71,17 +73,14 @@ const KodMacerasiMP = (() => {
             hostScore = data.hostScore || 0;
             guestScore = data.guestScore || 0;
 
-            // Rakip gridini güncelle
             renderOpponentGrid();
             renderScorebar();
 
-            if (data.roundWinner && !gameOver) {
-                // Tur kazananı var
-                if (data.roundWinner === gameData.yourRole) {
-                    AudioManager.play('success');
-                } else if (myFinished) {
-                    // Ben de bitirdim ama rakip önce bitirmiş
-                }
+            // Tur bitti - galip ekranı göster
+            if (data.roundWinner && !roundResultShown && !gameOver) {
+                roundResultShown = true;
+                const iWon = data.roundWinner === gameData.yourRole;
+                showRoundWinner(iWon, data.roundWinner === 'draw');
             }
         });
 
@@ -95,6 +94,8 @@ const KodMacerasiMP = (() => {
             guestScore = data.guestScore || 0;
             myFinished = false;
             opFinished = false;
+            roundResultShown = false;
+            penaltyActive = false;
             renderGame();
         });
 
@@ -105,12 +106,18 @@ const KodMacerasiMP = (() => {
 
         Multiplayer.on('OPPONENT_LEFT', () => {
             gameOver = true;
+            removeKeyboardListener();
             container.innerHTML = `
-                <div class="mp-game-over-overlay">
-                    <h2>Rakip ayrıldı</h2>
-                    <button class="mp-btn mp-btn-hub">${TR.mp.backToHub}</button>
+                <div class="kod-gameover">
+                    <div class="kod-gameover-card" style="background: linear-gradient(135deg, #dfe6e9 0%, #b2bec3 100%);">
+                        <div class="kod-gameover-icon">🚪</div>
+                        <h2 class="kod-gameover-title" style="color:#2d3436;">Rakip Ayrıldı</h2>
+                        <p class="kod-gameover-sub" style="color:#636e72;">Rakibin oyundan çıktı. Sen kazandın!</p>
+                        <button class="kod-gameover-btn">${TR.mp.backToHub}</button>
+                    </div>
                 </div>`;
-            container.querySelector('.mp-btn-hub').onclick = () => {
+            AudioManager.play('success');
+            container.querySelector('.kod-gameover-btn').onclick = () => {
                 Multiplayer.send('LEAVE_LOBBY');
                 Multiplayer.offAll();
                 App.showHub();
@@ -298,6 +305,50 @@ const KodMacerasiMP = (() => {
 
         // Firebase'e gönder
         Multiplayer.send('SUBMIT_MOVE', { move: type });
+    }
+
+    function showRoundWinner(iWon, isDraw) {
+        // Butonları devre dışı bırak
+        container.querySelectorAll('.kod-block-btn').forEach(b => b.classList.add('disabled'));
+
+        const overlay = document.createElement('div');
+        overlay.className = 'kod-round-result';
+
+        const myScore = gameData.yourRole === 'host' ? hostScore : guestScore;
+        const opScore = gameData.yourRole === 'host' ? guestScore : hostScore;
+
+        if (iWon) {
+            AudioManager.play('levelComplete');
+            Particles.celebrate();
+            overlay.innerHTML = `
+                <div class="kod-round-card won">
+                    <div class="kod-round-icon">🎉</div>
+                    <h2>Tur ${currentRound} - Kazandın!</h2>
+                    <p>Robotu hedefe ilk sen götürdün!</p>
+                    <div class="kod-round-score">${myScore} - ${opScore}</div>
+                </div>`;
+        } else if (isDraw) {
+            overlay.innerHTML = `
+                <div class="kod-round-card draw">
+                    <div class="kod-round-icon">🤝</div>
+                    <h2>Tur ${currentRound} - Berabere!</h2>
+                    <div class="kod-round-score">${myScore} - ${opScore}</div>
+                </div>`;
+        } else {
+            AudioManager.play('error');
+            overlay.innerHTML = `
+                <div class="kod-round-card lost">
+                    <div class="kod-round-icon">😤</div>
+                    <h2>Tur ${currentRound} - Rakip Kazandı!</h2>
+                    <p>Rakip daha hızlıydı!</p>
+                    <div class="kod-round-score">${myScore} - ${opScore}</div>
+                </div>`;
+        }
+
+        container.appendChild(overlay);
+
+        // 3sn sonra overlay kaldırılır (NEW_ROUND gelince renderGame zaten temizler)
+        setTimeout(() => overlay.remove(), 3200);
     }
 
     function showGameOver(data) {

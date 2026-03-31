@@ -457,10 +457,11 @@ const Multiplayer = (() => {
 
     // Hedefe ulaştı mı?
     if (nx === myPuzzle.target.x && ny === myPuzzle.target.y) {
-      updates[`rounds/${r}/${finField}`] = true;
-      // Ilk bitiren turu kazanir
+      // Biri bitirince tur HEMEN biter - beklemeye gerek yok
+      updates[`rounds/${r}/hostFinished`] = true;
+      updates[`rounds/${r}/guestFinished`] = true;
+      updates[`rounds/${r}/winner`] = round.winner || currentRole;
       if (!round.winner) {
-        updates[`rounds/${r}/winner`] = currentRole;
         const scoreField = currentRole === 'host' ? 'hostScore' : 'guestScore';
         updates[scoreField] = (lobby[scoreField] || 0) + 1;
       }
@@ -599,24 +600,22 @@ const Multiplayer = (() => {
             guestScore: lobby.guestScore || 0,
           });
 
-          // İki taraf da bitirdiyse sonraki tura geç
+          // Biri bitirince tur hemen biter - sonraki tura geç
           if (round.hostFinished && round.guestFinished && currentRole === 'host') {
             if (r < lobby.totalRounds) {
-              // Sonraki tur 2sn sonra
               setTimeout(() => {
                 if (currentLobbyId) {
                   db.ref('lobbies/' + currentLobbyId + '/currentRound').set(r + 1);
                 }
-              }, 2500);
+              }, 3500); // galip ekranı gösterme süresi
             } else {
-              // Oyun bitti
               setTimeout(() => {
                 if (currentLobbyId) {
                   const winner = (lobby.hostScore || 0) > (lobby.guestScore || 0) ? 'host'
                     : (lobby.guestScore || 0) > (lobby.hostScore || 0) ? 'guest' : 'draw';
                   db.ref('lobbies/' + currentLobbyId).update({ state: 'FINISHED', winner });
                 }
-              }, 2500);
+              }, 3500);
             }
           }
 
