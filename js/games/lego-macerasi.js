@@ -339,6 +339,19 @@ const LegoMacerasi = (() => {
         path.push({ x, y, action: 'crashed', collected: [...collected] });
         return { success: false, path, collected, error: 'crashed' };
       }
+
+      // AL komutu yoksa (seviye 1) üstüne basınca otomatik topla
+      const hasPick = currentLevel.blocks.includes('PICK');
+      if (!hasPick) {
+        const autoIdx = puzzle.pieces.findIndex((p, i) => p.x === x && p.y === y && !collected.includes(i));
+        if (autoIdx >= 0 && autoIdx === nextPieceIdx) {
+          collected.push(autoIdx);
+          nextPieceIdx++;
+          path.push({ x, y, action: 'pick', pickedIdx: autoIdx, collected: [...collected] });
+          continue;
+        }
+      }
+
       path.push({ x, y, action: 'move', collected: [...collected] });
     }
 
