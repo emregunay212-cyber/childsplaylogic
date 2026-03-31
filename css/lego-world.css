@@ -1,0 +1,202 @@
+/* ============================================
+   LEGO World 3D - UI Overlay Stilleri
+   ============================================ */
+
+/* HUD */
+.lw-hud {
+  position: absolute;
+  top: 8px; left: 8px; right: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  pointer-events: none;
+  z-index: 10;
+  gap: 8px;
+}
+.lw-hud-left, .lw-hud-right {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: auto;
+}
+.lw-hud-bag {
+  background: rgba(255,255,255,0.92);
+  padding: 8px 14px;
+  border-radius: 16px;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #5D4037;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+  cursor: pointer;
+}
+.lw-hud-pieces {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  background: rgba(255,255,255,0.85);
+  padding: 4px 8px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.lw-hud-piece {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.lw-hud-buildings {
+  background: rgba(255,255,255,0.92);
+  padding: 8px 14px;
+  border-radius: 16px;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #2d3436;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+  text-align: right;
+}
+
+/* Hint */
+.lw-hud-hint {
+  position: absolute;
+  bottom: -40px;
+  left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,0.75);
+  color: white;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s, bottom 0.3s;
+  pointer-events: none;
+}
+.lw-hud-hint.lw-hint-show {
+  opacity: 1;
+  bottom: -32px;
+}
+
+/* Overlay */
+.lw-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  animation: fadeIn 0.3s;
+}
+.lw-repair-card {
+  background: white;
+  border-radius: 24px;
+  padding: 24px 28px;
+  max-width: 340px;
+  width: 90%;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+  text-align: center;
+}
+.lw-repair-card h2 {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.3rem;
+  color: #2d3436;
+  margin-bottom: 16px;
+}
+.lw-req-list {
+  text-align: left;
+  margin-bottom: 16px;
+}
+.lw-req-row {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 0.95rem;
+  padding: 6px 10px;
+  border-radius: 10px;
+  margin-bottom: 4px;
+}
+.lw-req-ok {
+  background: #E8F5E9;
+  color: #2E7D32;
+}
+.lw-req-need {
+  background: #FFEBEE;
+  color: #C62828;
+}
+.lw-repair-btns {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.lw-btn {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.lw-btn:active { transform: scale(0.95); }
+.lw-btn-repair {
+  background: linear-gradient(135deg, #27AE60, #2ECC71);
+  color: white;
+  box-shadow: 0 4px 12px rgba(46,204,113,0.3);
+}
+.lw-btn-repair:disabled {
+  background: #ccc;
+  color: #888;
+  box-shadow: none;
+  cursor: default;
+}
+.lw-btn-close {
+  background: #f0f0f0;
+  color: #555;
+}
+
+/* Mobil Joystick */
+.lw-joystick {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.lw-joy-mid {
+  display: flex;
+  gap: 4px;
+}
+.lw-joy-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  border: 2px solid rgba(255,255,255,0.4);
+  background: rgba(0,0,0,0.35);
+  color: white;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+.lw-joy-btn:active {
+  background: rgba(255,255,255,0.3);
+}
+.lw-joy-action {
+  background: rgba(231,76,60,0.5);
+  border-color: rgba(231,76,60,0.6);
+}
+
+@media (max-width: 480px) {
+  .lw-hud-bag { font-size: 0.8rem; padding: 6px 10px; }
+  .lw-hud-buildings { font-size: 0.8rem; padding: 6px 10px; }
+  .lw-hud-piece { font-size: 0.7rem; }
+  .lw-repair-card { padding: 18px 20px; }
+  .lw-repair-card h2 { font-size: 1.1rem; }
+  .lw-joy-btn { width: 42px; height: 42px; font-size: 1rem; }
+}

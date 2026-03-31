@@ -47,6 +47,7 @@ const App = (() => {
             games: [
                 { game: KodMacerasi, color: 'var(--kodmacerasi-color)' },
                 { game: LegoMacerasi, color: 'var(--lego-color)' },
+                { game: LegoWorld, color: 'var(--lego-world-color)' },
                 { game: Satranc, color: 'var(--satranc-color)' },
                 { game: Penalti, color: 'var(--penalti-color)' },
             ]
