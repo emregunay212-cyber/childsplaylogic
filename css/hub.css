@@ -189,6 +189,44 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
+/* Yeni oyun renk temaları */
+.game-card[data-game="matematik"]::before { background: var(--matematik-color); }
+.game-card[data-game="hece-birlestirme"]::before { background: var(--hece-color); }
+.game-card[data-game="jigsaw"]::before { background: var(--jigsaw-color); }
+.game-card[data-game="desen"]::before { background: var(--desen-color); }
+
+/* Kategori başlıkları */
+.hub-category-header {
+    grid-column: 1 / -1;
+    text-align: center;
+    margin: 1.5rem 0 0.3rem;
+    padding: 0.5rem 1rem;
+}
+.hub-category-header:first-child {
+    margin-top: 0;
+}
+.hub-category-header h3 {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--cat-color, #5B4A8A);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.6);
+}
+.hub-category-header h3::before,
+.hub-category-header h3::after {
+    content: '';
+    flex: 1;
+    height: 3px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, var(--cat-color, #D4C5F0) 40%, var(--cat-color, #C4A8FF) 50%, var(--cat-color, #D4C5F0) 60%, transparent);
+    max-width: 80px;
+    opacity: 0.4;
+}
+
 /* Dekoratif elementler */
 .hub .butterfly {
     position: fixed;

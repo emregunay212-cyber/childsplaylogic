@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
+  <rect width="96" height="96" rx="20" fill="#E040FB"/>
+  <circle cx="18" cy="48" r="10" fill="#F44336"/>
+  <circle cx="38" cy="48" r="10" fill="#2196F3"/>
+  <circle cx="58" cy="48" r="10" fill="#F44336"/>
+  <circle cx="78" cy="48" r="10" fill="white" opacity="0.4" stroke="white" stroke-width="2" stroke-dasharray="4,3"/>
+  <text x="78" y="53" text-anchor="middle" font-size="14" font-weight="bold" fill="white">?</text>
+  <text x="48" y="22" text-anchor="middle" font-size="11" font-weight="bold" fill="#FCE4EC" font-family="sans-serif">DESEN</text>
+  <path d="M12,72 L84,72" stroke="white" stroke-width="2" opacity="0.3" stroke-dasharray="6,4"/>
+  <circle cx="28" cy="80" r="5" fill="#FFEB3B" opacity="0.6"/>
+  <circle cx="48" cy="80" r="5" fill="#4CAF50" opacity="0.6"/>
+  <circle cx="68" cy="80" r="5" fill="#FFEB3B" opacity="0.6"/>
+</svg>

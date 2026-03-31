@@ -3,20 +3,57 @@
    ============================================ */
 
 const App = (() => {
-    // Oyun kayıt defteri
-    const gameRegistry = [
-        { game: HafizaKartlari, emoji: '🃏', color: 'var(--hafiza-color)' },
-        { game: RenkEslestirme, emoji: '🎨', color: 'var(--renk-color)' },
-        { game: SayiSayma, emoji: '🔢', color: 'var(--sayi-color)' },
-        { game: HarfTanima, emoji: '🔤', color: 'var(--harf-color)' },
-        { game: SekilBulmaca, emoji: '🧩', color: 'var(--sekil-color)' },
-        { game: Boyama, emoji: '🖌️', color: 'var(--boyama-color)' },
-        { game: Siralama, emoji: '📊', color: 'var(--siralama-color)' },
-        { game: KodMacerasi, emoji: '🤖', color: 'var(--kodmacerasi-color)' },
-        { game: Satranc, emoji: '♟️', color: 'var(--satranc-color)' },
-        { game: Penalti, emoji: '⚽', color: 'var(--penalti-color)' },
-        { game: Tuval, emoji: '🖼️', color: 'var(--tuval-color)' },
+    // Oyun kategorileri
+    const gameCategories = [
+        {
+            title: '📚 Harfler & Kelimeler',
+            color: '#45B7D1',
+            games: [
+                { game: HarfTanima, color: 'var(--harf-color)' },
+                { game: HeceBirlestirme, color: 'var(--hece-color)' },
+            ]
+        },
+        {
+            title: '🔢 Sayılar & Matematik',
+            color: '#4ECDC4',
+            games: [
+                { game: SayiSayma, color: 'var(--sayi-color)' },
+                { game: Matematik, color: 'var(--matematik-color)' },
+                { game: Desen, color: 'var(--desen-color)' },
+            ]
+        },
+        {
+            title: '🧩 Bulmaca & Mantık',
+            color: '#A55EEA',
+            games: [
+                { game: HafizaKartlari, color: 'var(--hafiza-color)' },
+                { game: SekilBulmaca, color: 'var(--sekil-color)' },
+                { game: Siralama, color: 'var(--siralama-color)' },
+                { game: Jigsaw, color: 'var(--jigsaw-color)' },
+            ]
+        },
+        {
+            title: '🎨 Yaratıcılık',
+            color: '#FF78C4',
+            games: [
+                { game: RenkEslestirme, color: 'var(--renk-color)' },
+                { game: Boyama, color: 'var(--boyama-color)' },
+                { game: Tuval, color: 'var(--tuval-color)' },
+            ]
+        },
+        {
+            title: '🎮 Strateji & Macera',
+            color: '#27AE60',
+            games: [
+                { game: KodMacerasi, color: 'var(--kodmacerasi-color)' },
+                { game: Satranc, color: 'var(--satranc-color)' },
+                { game: Penalti, color: 'var(--penalti-color)' },
+            ]
+        },
     ];
+
+    // Flat registry for backward compatibility
+    const gameRegistry = gameCategories.flatMap(cat => cat.games);
 
     let currentView = 'splash';
 
@@ -120,7 +157,7 @@ const App = (() => {
         const grid = document.getElementById('hub-grid');
         grid.innerHTML = '';
 
-        gameRegistry.forEach(({ game, emoji, color }) => {
+        function createGameCard(game) {
             const card = document.createElement('div');
             card.className = 'game-card';
             card.dataset.game = game.id;
@@ -128,11 +165,6 @@ const App = (() => {
             card.setAttribute('tabindex', '0');
             card.setAttribute('aria-label', TR.games[game.id]);
 
-            // Oyun yıldızları
-            const gameTotalStars = Progress.getGameTotalStars(game.id);
-            const maxPossible = (game.levels?.length || 3) * 3;
-
-            // Seviye başına en iyi yıldızları göster
             let starsHTML = '';
             for (let i = 1; i <= (game.levels?.length || 3); i++) {
                 const s = Progress.getLevelStars(game.id, i);
@@ -146,43 +178,45 @@ const App = (() => {
                 <div class="card-stars">${starsHTML}</div>
             `;
 
-            card.addEventListener('click', () => {
-                AudioManager.play('tap');
-                startGame(game);
-            });
-
+            card.addEventListener('click', () => { AudioManager.play('tap'); startGame(game); });
             card.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    AudioManager.play('tap');
-                    startGame(game);
-                }
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); AudioManager.play('tap'); startGame(game); }
             });
+            return card;
+        }
 
-            grid.appendChild(card);
+        // ── Kategorili Tek Oyunculu Oyunlar ──
+        gameCategories.forEach(category => {
+            const header = document.createElement('div');
+            header.className = 'hub-category-header';
+            header.innerHTML = `<h3 style="--cat-color: ${category.color}">${category.title}</h3>`;
+            grid.appendChild(header);
+
+            category.games.forEach(({ game }) => {
+                grid.appendChild(createGameCard(game));
+            });
         });
 
         // ── Çok Oyunculu Bölüm ──
         const mpHeader = document.createElement('div');
-        mpHeader.className = 'mp-section-header';
-        mpHeader.innerHTML = `<h3>🌐 ${TR.multiplayerTitle}</h3>`;
+        mpHeader.className = 'hub-category-header mp-section-header';
+        mpHeader.innerHTML = `<h3 style="--cat-color: #5B4A8A">🌐 ${TR.multiplayerTitle}</h3>`;
         grid.appendChild(mpHeader);
 
         const mpGames = [
-            { id: 'kelime-tahmin', emoji: '🔤', color: 'var(--kelime-color)', game: KelimeTahmin },
-            { id: 'harf-tahmin', emoji: '🔡', color: 'var(--harf-tahmin-color)', game: HarfTahmin },
-            { id: 'kod-macerasi', emoji: '🤖', color: 'var(--kodmacerasi-color)', game: KodMacerasiMP },
-            { id: 'satranc', emoji: '♟️', color: 'var(--satranc-color)', game: SatrancMP },
-            { id: 'penalti-mp', emoji: '⚽', color: 'var(--penalti-color)', game: PenaltiMP },
+            { id: 'kelime-tahmin', game: KelimeTahmin },
+            { id: 'harf-tahmin', game: HarfTahmin },
+            { id: 'kod-macerasi', game: KodMacerasiMP },
+            { id: 'satranc', game: SatrancMP },
+            { id: 'penalti-mp', game: PenaltiMP },
         ];
-        mpGames.forEach(({ id, emoji, color, game }) => {
+        mpGames.forEach(({ id, game }) => {
             const card = document.createElement('div');
             card.className = 'game-card';
             card.dataset.game = id;
             card.setAttribute('role', 'button');
             card.setAttribute('tabindex', '0');
             card.setAttribute('aria-label', TR.games[id]);
-            card.style.borderColor = color;
 
             card.innerHTML = `
                 <div class="mp-badge">2 Oyuncu</div>
@@ -191,10 +225,7 @@ const App = (() => {
                 <div class="card-stars"><span style="font-size:0.7rem;color:#888">🎮 Online</span></div>
             `;
 
-            card.addEventListener('click', () => {
-                AudioManager.play('tap');
-                startMultiplayerGame(game);
-            });
+            card.addEventListener('click', () => { AudioManager.play('tap'); startMultiplayerGame(game); });
             grid.appendChild(card);
         });
     }

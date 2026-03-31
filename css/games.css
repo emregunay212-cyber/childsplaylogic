@@ -551,3 +551,195 @@
     stroke-dasharray: none;
     fill: rgba(46, 204, 113, 0.15);
 }
+
+/* ============================================
+   Matematik Oyunu
+   ============================================ */
+.mat-game {
+    max-width: 500px; margin: 0 auto; padding: 1rem;
+    text-align: center;
+}
+.mat-progress {
+    font-size: 0.85rem; font-weight: 600; color: #888; margin-bottom: 1rem;
+}
+.mat-question {
+    display: flex; align-items: center; justify-content: center;
+    gap: 0.6rem; margin-bottom: 2rem; flex-wrap: wrap;
+}
+.mat-num {
+    font-family: 'Fredoka', sans-serif; font-size: 3rem; font-weight: 700;
+    color: #2d3436; min-width: 60px; text-align: center;
+    background: rgba(255,255,255,0.9); border-radius: 16px; padding: 8px 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.mat-op, .mat-eq {
+    font-size: 2.5rem; font-weight: 700; color: #FF6348;
+}
+.mat-unknown {
+    background: linear-gradient(135deg, #FFD93D, #FF6B6B); color: white;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+.mat-revealed { background: #2ECC71 !important; color: white !important; animation: none; }
+.mat-choices {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+    max-width: 320px; margin: 0 auto;
+}
+.mat-choice {
+    font-family: 'Fredoka', sans-serif; font-size: 2rem; font-weight: 700;
+    color: white; border: none; border-radius: 20px; padding: 1rem;
+    cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.mat-choice:hover:not(:disabled) { transform: scale(1.08); }
+.mat-choice:disabled { opacity: 0.7; cursor: default; }
+.mat-correct { box-shadow: 0 0 0 4px #2ECC71, 0 4px 16px rgba(46,204,113,0.4) !important; }
+.mat-wrong { box-shadow: 0 0 0 4px #E74C3C !important; animation: shake 0.4s; }
+
+/* ============================================
+   Hece Birleştirme Oyunu
+   ============================================ */
+.hece-game {
+    max-width: 500px; margin: 0 auto; padding: 1rem; text-align: center;
+}
+.hece-progress { font-size: 0.85rem; font-weight: 600; color: #888; margin-bottom: 0.5rem; }
+.hece-target { margin-bottom: 1.5rem; }
+.hece-emoji { font-size: 3.5rem; display: block; margin-bottom: 0.3rem; }
+.hece-hint { font-size: 0.9rem; color: #636e72; font-weight: 600; }
+
+.hece-answer-area {
+    display: flex; justify-content: center; gap: 8px;
+    margin-bottom: 1.5rem; min-height: 60px; flex-wrap: wrap;
+}
+.hece-slot {
+    min-width: 70px; height: 50px; border: 3px dashed #ccc; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fredoka', sans-serif; font-size: 1.3rem; font-weight: 600;
+    color: #2d3436; background: rgba(255,255,255,0.8); transition: all 0.3s;
+}
+.hece-slot.hece-filled {
+    border-color: #45B7D1; background: #E3F6FD; border-style: solid;
+}
+
+.hece-syllables {
+    display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+.hece-btn {
+    font-family: 'Fredoka', sans-serif; font-size: 1.2rem; font-weight: 600;
+    padding: 12px 22px; border-radius: 16px; border: 3px solid #00897B;
+    background: white; color: #00897B; cursor: pointer;
+    transition: all 0.2s; box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+.hece-btn:hover:not(:disabled) { background: #00897B; color: white; transform: scale(1.05); }
+.hece-btn.hece-used { opacity: 0.3; transform: scale(0.9); }
+.hece-btn.hece-selected { background: #00897B; color: white; }
+
+.hece-reset-btn {
+    font-size: 0.85rem; padding: 6px 16px; border-radius: 12px;
+    border: 2px solid #ddd; background: white; color: #888; cursor: pointer;
+    margin-top: 0.5rem;
+}
+.hece-reset-btn:hover { border-color: #aaa; color: #555; }
+
+.hece-success { animation: bounceIn 0.5s; }
+.hece-wrong { animation: shake 0.4s; }
+.hece-word-reveal {
+    font-family: 'Fredoka', sans-serif; font-size: 2rem; font-weight: 700;
+    color: #2ECC71; padding: 1rem; animation: bounceIn 0.5s;
+}
+
+/* ============================================
+   Jigsaw Bulmaca Oyunu
+   ============================================ */
+.jig-game {
+    max-width: 500px; margin: 0 auto; padding: 1rem; text-align: center;
+}
+.jig-progress { font-size: 0.85rem; font-weight: 600; color: #888; margin-bottom: 1rem; }
+.jig-board {
+    display: inline-grid; gap: 4px; margin: 0 auto 1rem;
+    background: rgba(0,0,0,0.05); border-radius: 16px; padding: 8px;
+}
+.jig-cell {
+    background: rgba(255,255,255,0.6); border: 2px dashed #ccc; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.2s;
+}
+.jig-cell:hover:not(.jig-placed) { background: rgba(255,255,255,0.9); border-color: #9C27B0; }
+.jig-cell.jig-placed {
+    background: rgba(255,255,255,0.95); border: 2px solid #2ECC71; cursor: default;
+}
+.jig-cell.jig-pop { animation: bounceIn 0.4s; }
+.jig-cell.jig-wrong { animation: shake 0.4s; border-color: #E74C3C !important; }
+.jig-hint { font-size: 0.85rem; color: #636e72; margin-bottom: 0.8rem; }
+.jig-pieces {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+}
+.jig-piece {
+    width: 56px; height: 56px; border-radius: 14px; border: 3px solid #9C27B0;
+    background: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+.jig-piece:hover { transform: scale(1.1); box-shadow: 0 6px 16px rgba(0,0,0,0.15); }
+.jig-piece.jig-selected {
+    background: #F3E5F5; border-color: #7B1FA2;
+    box-shadow: 0 0 0 3px rgba(156,39,176,0.3), 0 6px 16px rgba(0,0,0,0.15);
+    transform: scale(1.1);
+}
+
+/* ============================================
+   Desen Tamamlama Oyunu
+   ============================================ */
+.desen-game {
+    max-width: 500px; margin: 0 auto; padding: 1rem; text-align: center;
+}
+.desen-progress { font-size: 0.85rem; font-weight: 600; color: #888; margin-bottom: 0.5rem; }
+.desen-instruction {
+    font-family: 'Fredoka', sans-serif; font-size: 1.2rem; font-weight: 600;
+    color: #2d3436; margin-bottom: 1.2rem;
+}
+.desen-sequence {
+    display: flex; justify-content: center; align-items: center;
+    gap: 6px; flex-wrap: wrap; margin-bottom: 2rem;
+    background: rgba(255,255,255,0.8); border-radius: 20px; padding: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+.desen-item {
+    font-size: 2.2rem; min-width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s;
+}
+.desen-unknown {
+    background: linear-gradient(135deg, #FFD93D, #FF6B6B); border-radius: 12px;
+    animation: pulse 1.5s ease-in-out infinite; font-size: 1.5rem;
+}
+.desen-revealed {
+    animation: bounceIn 0.5s; background: #2ECC71; border-radius: 12px; color: white;
+}
+.desen-choices {
+    display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;
+}
+.desen-choice {
+    font-size: 2.5rem; width: 72px; height: 72px; border-radius: 18px;
+    border: 3px solid #ddd; background: white; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+.desen-choice:hover:not(:disabled) { transform: scale(1.1); border-color: #E040FB; }
+.desen-choice:disabled { cursor: default; }
+.desen-correct { border-color: #2ECC71 !important; box-shadow: 0 0 0 3px rgba(46,204,113,0.3) !important; }
+.desen-wrong { border-color: #E74C3C !important; animation: shake 0.4s; }
+
+@keyframes bounceIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    60% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@media (max-width: 420px) {
+    .mat-num { font-size: 2.2rem; padding: 6px 12px; min-width: 46px; }
+    .mat-choice { font-size: 1.5rem; padding: 0.7rem; }
+    .hece-btn { font-size: 1rem; padding: 10px 16px; }
+    .hece-slot { min-width: 55px; height: 42px; font-size: 1.1rem; }
+    .desen-item { font-size: 1.6rem; min-width: 36px; height: 36px; }
+    .desen-choice { font-size: 1.8rem; width: 58px; height: 58px; }
+    .jig-piece { width: 46px; height: 46px; }
+}

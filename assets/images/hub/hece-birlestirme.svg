@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
+  <rect width="96" height="96" rx="20" fill="#00897B"/>
+  <rect x="8" y="28" width="34" height="28" rx="10" fill="white" opacity="0.9"/>
+  <text x="25" y="48" text-anchor="middle" font-size="14" font-weight="bold" fill="#00897B" font-family="sans-serif">el</text>
+  <rect x="54" y="28" width="34" height="28" rx="10" fill="white" opacity="0.9"/>
+  <text x="71" y="48" text-anchor="middle" font-size="14" font-weight="bold" fill="#00897B" font-family="sans-serif">ma</text>
+  <text x="46" y="46" font-size="16" fill="#FFF" font-weight="bold">+</text>
+  <text x="48" y="78" text-anchor="middle" font-size="16" font-weight="bold" fill="#E0F2F1" font-family="sans-serif">🍎 elma</text>
+  <path d="M20,60 Q48,72 76,60" fill="none" stroke="white" stroke-width="2" stroke-dasharray="4,3"/>
+</svg>
