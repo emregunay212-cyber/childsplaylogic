@@ -114,6 +114,27 @@
     letter-spacing: -2px;
 }
 
+/* Geri al butonu */
+.chess-undo-btn {
+    display: block;
+    margin: 0.3rem auto;
+    padding: 6px 18px;
+    border: 2px solid #E0E0E0;
+    border-radius: 20px;
+    background: white;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: #777;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.chess-undo-btn:hover {
+    border-color: #FF9800;
+    color: #E65100;
+    background: #FFF3E0;
+}
+.chess-undo-btn:active { transform: scale(0.95); }
+
 /* Durum mesajı */
 .chess-status {
     text-align: center;

@@ -29,6 +29,7 @@ const Satranc = (() => {
     let capturedByMe = [];
     let capturedByAI = [];
     let gameEnded = false;
+    let stateHistory = []; // hamle geri alma için
 
     function init(gameArea, level, cbs) {
         container = gameArea;
@@ -45,6 +46,7 @@ const Satranc = (() => {
         capturedByMe = [];
         capturedByAI = [];
         gameEnded = false;
+        stateHistory = [];
 
         GameEngine.setTotal(1);
         render();
@@ -68,7 +70,7 @@ const Satranc = (() => {
         renderBoard(boardEl);
         container.appendChild(boardEl);
 
-        // Alt: Oyuncu bilgi
+        // Alt: Oyuncu bilgi + geri al butonu
         const botInfo = document.createElement('div');
         botInfo.className = 'chess-player-info player';
         botInfo.innerHTML = `
@@ -76,6 +78,15 @@ const Satranc = (() => {
             <span class="chess-captured">${capturedByMe.map(p => ChessEngine.getSymbol(p)).join('')}</span>
         `;
         container.appendChild(botInfo);
+
+        // Geri al butonu
+        if (stateHistory.length > 0 && !aiThinking && !gameEnded && state.turn === playerColor) {
+            const undoBtn = document.createElement('button');
+            undoBtn.className = 'chess-undo-btn';
+            undoBtn.innerHTML = '↩ Hamle Geri Al';
+            undoBtn.addEventListener('click', undoMove);
+            container.appendChild(undoBtn);
+        }
 
         // Durum mesajı
         const statusEl = document.createElement('div');
@@ -196,6 +207,15 @@ const Satranc = (() => {
     }
 
     function executeMove(move) {
+        // Hamle öncesi durumu kaydet (geri alma için)
+        stateHistory.push({
+            state: ChessEngine.boardToFen(state),
+            capturedByMe: [...capturedByMe],
+            capturedByAI: [...capturedByAI],
+            moveCount,
+            lastMove,
+        });
+
         // Piyon terfisi kontrol (otomatik vezir)
         if (move.promotion) {
             move.promotion = playerColor === 'w' ? 'Q' : 'q';
@@ -237,6 +257,23 @@ const Satranc = (() => {
             render();
             checkGameEnd();
         }, 300 + aiDepth * 100);
+    }
+
+    function undoMove() {
+        if (stateHistory.length === 0 || aiThinking || gameEnded) return;
+
+        // Son kaydedilen durumu geri yükle (oyuncunun hamle öncesi)
+        const prev = stateHistory.pop();
+        state = ChessEngine.fenToBoard(prev.state);
+        capturedByMe = prev.capturedByMe;
+        capturedByAI = prev.capturedByAI;
+        moveCount = prev.moveCount;
+        lastMove = prev.lastMove;
+        selectedSquare = null;
+        validMoves = [];
+
+        AudioManager.play('tap');
+        render();
     }
 
     function checkGameEnd() {
