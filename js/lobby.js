@@ -84,9 +84,19 @@ const Lobby = (() => {
 
   // ── Create Lobby ──
   function renderCreateForm() {
-    const isKod = currentGameType === 'kod-macerasi';
+    const isKod = currentGameType === 'kod-macerasi' || currentGameType === 'satranc';
+    const isSatranc = currentGameType === 'satranc';
 
-    const settingsHTML = isKod ? `
+    const settingsHTML = isSatranc ? `
+        <div class="lobby-setting">
+          <label>Renk Seçimi:</label>
+          <div class="pill-selector" data-name="hostColor">
+            <button class="pill active" data-value="white">⬜ Beyaz</button>
+            <button class="pill" data-value="black">⬛ Siyah</button>
+            <button class="pill" data-value="random">🎲 Rastgele</button>
+          </div>
+        </div>
+    ` : isKod ? `
         <div class="lobby-setting">
           <label>${TR.kodMacerasi.gridSize}</label>
           <div class="pill-selector" data-name="gridSize">
@@ -126,7 +136,12 @@ const Lobby = (() => {
     });
 
     container.querySelector('.lobby-submit-btn').onclick = () => {
-      if (isKod) {
+      if (isSatranc) {
+        let hostColor = container.querySelector('[data-name="hostColor"] .active')?.dataset.value || 'white';
+        if (hostColor === 'random') hostColor = Math.random() < 0.5 ? 'white' : 'black';
+        Multiplayer.on('LOBBY_CREATED', (data) => renderWaitingRoom(data.lobbyId));
+        Multiplayer.send('CREATE_LOBBY', { gameType: currentGameType, hostColor });
+      } else if (isKod) {
         const gridSize = parseInt(container.querySelector('[data-name="gridSize"] .active').dataset.value);
         Multiplayer.on('LOBBY_CREATED', (data) => renderWaitingRoom(data.lobbyId));
         Multiplayer.send('CREATE_LOBBY', { gameType: currentGameType, gridSize });
@@ -159,7 +174,7 @@ const Lobby = (() => {
       </div>`;
 
     Multiplayer.on('PLAYER_JOINED', (data) => {
-      if (currentGameType === 'kod-macerasi') {
+      if (currentGameType === 'kod-macerasi' || currentGameType === 'satranc') {
         // Kod macerasi: kelime girisi yok, GAME_START bekle
         Multiplayer.on('GAME_START', (gameData) => {
           Multiplayer.off('GAME_START');
@@ -172,7 +187,7 @@ const Lobby = (() => {
     });
 
     // Also listen for GAME_START directly (for joiner in kod-macerasi)
-    if (currentGameType === 'kod-macerasi') {
+    if (currentGameType === 'kod-macerasi' || currentGameType === 'satranc') {
       Multiplayer.on('GAME_START', (gameData) => {
         Multiplayer.off('GAME_START');
         Multiplayer.off('PLAYER_JOINED');
@@ -223,7 +238,7 @@ const Lobby = (() => {
           Multiplayer.on('PLAYER_JOINED', (data) => {
             joinedData = data;
           });
-          if (currentGameType === 'kod-macerasi') {
+          if (currentGameType === 'kod-macerasi' || currentGameType === 'satranc') {
             Multiplayer.on('GAME_START', (gameData) => {
               Multiplayer.offAll();
               if (onGameStart) onGameStart(gameData);
@@ -257,7 +272,7 @@ const Lobby = (() => {
     Multiplayer.on('PLAYER_JOINED', (data) => {
       joinedData = data;
     });
-    if (currentGameType === 'kod-macerasi') {
+    if (currentGameType === 'kod-macerasi' || currentGameType === 'satranc') {
       Multiplayer.on('GAME_START', (gameData) => {
         Multiplayer.offAll();
         if (onGameStart) onGameStart(gameData);

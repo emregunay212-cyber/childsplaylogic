@@ -58,6 +58,7 @@ const Multiplayer = (() => {
       case 'GUESS_LETTER': return guessLetter(payload.letter);
       case 'SUBMIT_SEQUENCE': return submitSequence(payload.sequence);
       case 'SUBMIT_MOVE': return submitMove(payload.move);
+      case 'CHESS_MOVE': return chessMove(payload);
       case 'LEAVE_LOBBY': return leaveLobby();
       default: console.warn('Unknown message type:', type);
     }
@@ -144,6 +145,18 @@ const Multiplayer = (() => {
         rounds,
         createdAt: firebase.database.ServerValue.TIMESTAMP
       };
+    } else if (gameType === 'satranc') {
+      const hostColor = opts.hostColor || (Math.random() < 0.5 ? 'white' : 'black');
+      lobbyData = {
+        id: lobbyId, gameType,
+        hostId: playerId, hostName: playerName, guestId: null, guestName: null,
+        state: 'WAITING', hostColor,
+        fen: ChessEngine.START_FEN,
+        currentTurn: 'white',
+        moves: [], lastMove: null,
+        winner: null, winReason: null,
+        createdAt: firebase.database.ServerValue.TIMESTAMP
+      };
     } else {
       const wordLength = Math.min(Math.max(parseInt(opts.wordLength) || 5, 3), 8);
       const maxTurns = [5,10,15].includes(parseInt(opts.maxTurns)) ? parseInt(opts.maxTurns) : 10;
@@ -197,7 +210,16 @@ const Multiplayer = (() => {
     currentLobbyId = lobbyId;
     currentRole = 'guest';
 
-    if (lobby.gameType === 'kod-macerasi') {
+    if (lobby.gameType === 'satranc') {
+      await ref.update({ guestId: playerId, guestName: playerName, state: 'PLAYING' });
+      listenToLobby(lobbyId);
+      emit('PLAYER_JOINED', { opponentName: lobby.hostName, role: 'guest' });
+      emit('GAME_START', {
+        yourRole: 'guest', opponentName: lobby.hostName,
+        fen: lobby.fen, hostColor: lobby.hostColor,
+        gameType: 'satranc'
+      });
+    } else if (lobby.gameType === 'kod-macerasi') {
       await ref.update({ guestId: playerId, guestName: playerName, state: 'PLAYING' });
       listenToLobby(lobbyId);
 
@@ -242,6 +264,8 @@ const Multiplayer = (() => {
       // Yeni lobi oluştur
       const defaults = gameType === 'kod-macerasi'
         ? { gameType, gridSize: 6 }
+        : gameType === 'satranc'
+        ? { gameType, hostColor: Math.random() < 0.5 ? 'white' : 'black' }
         : { gameType, wordLength: 5, maxTurns: 10 };
       await createLobby(defaults);
       emit('LOBBY_CREATED', { lobbyId: currentLobbyId, quickPlay: true });
@@ -470,6 +494,52 @@ const Multiplayer = (() => {
     await ref.update(updates);
   }
 
+  // ── Satranç ──
+  async function chessMove(moveData) {
+    if (!currentLobbyId) return;
+    const ref = db.ref('lobbies/' + currentLobbyId);
+    const snap = await ref.once('value');
+    const lobby = snap.val();
+    if (!lobby || lobby.state !== 'PLAYING' || lobby.gameType !== 'satranc') return;
+
+    const state = ChessEngine.fenToBoard(lobby.fen);
+
+    // Hamleyi bul ve uygula
+    const legalMoves = ChessEngine.getLegalMoves(state);
+    const move = legalMoves.find(m =>
+      m.from[0] === moveData.from[0] && m.from[1] === moveData.from[1] &&
+      m.to[0] === moveData.to[0] && m.to[1] === moveData.to[1]
+    );
+    if (!move) return;
+
+    if (moveData.promotion) move.promotion = moveData.promotion;
+    const newState = ChessEngine.makeMove(state, move);
+    const newFen = ChessEngine.boardToFen(newState);
+
+    const moves = lobby.moves || [];
+    moves.push({ from: move.from, to: move.to, mover: currentRole });
+
+    const updates = {
+      fen: newFen,
+      currentTurn: newState.turn === 'w' ? 'white' : 'black',
+      moves,
+      lastMove: { from: move.from, to: move.to, mover: currentRole, captured: move.capture || null },
+    };
+
+    // Mat/pat kontrol
+    if (ChessEngine.isCheckmate(newState)) {
+      updates.state = 'FINISHED';
+      updates.winner = currentRole;
+      updates.winReason = 'checkmate';
+    } else if (ChessEngine.isStalemate(newState) || ChessEngine.isDraw(newState)) {
+      updates.state = 'FINISHED';
+      updates.winner = 'draw';
+      updates.winReason = 'stalemate';
+    }
+
+    await ref.update(updates);
+  }
+
   // ── Lobi Dinleyici ──
 
   function listenToLobby(lobbyId) {
@@ -495,7 +565,13 @@ const Multiplayer = (() => {
       if (currentRole === 'host' && lobby.guestId && prevState === 'WAITING' && lobby.state !== 'WAITING') {
         emit('PLAYER_JOINED', { opponentName: lobby.guestName, role: 'host' });
 
-        if (lobby.gameType === 'kod-macerasi') {
+        if (lobby.gameType === 'satranc') {
+          emit('GAME_START', {
+            yourRole: 'host', opponentName: lobby.guestName,
+            fen: lobby.fen, hostColor: lobby.hostColor,
+            gameType: 'satranc'
+          });
+        } else if (lobby.gameType === 'kod-macerasi') {
           const round = lobby.rounds[lobby.currentRound];
           emit('GAME_START', {
             yourRole: 'host', opponentName: lobby.guestName,
@@ -578,6 +654,22 @@ const Multiplayer = (() => {
           if (lobby.currentTurn === currentRole) emit('YOUR_TURN', { turnNumber: lobby.turnNumber });
           else emit('WAIT_TURN', { turnNumber: lobby.turnNumber });
         }
+      }
+
+      // Satranç: hamle dinleme
+      if (lobby.gameType === 'satranc' && lobby.state === 'PLAYING') {
+        const lm = lobby.lastMove;
+        if (lm && lm.mover !== currentRole && JSON.stringify(lm) !== JSON.stringify(prevLastMove)) {
+          emit('CHESS_UPDATE', {
+            fen: lobby.fen,
+            lastMove: lm,
+            captured: lm.captured,
+            mover: lm.mover,
+            checkmate: false,
+            stalemate: false,
+          });
+        }
+        if (lm) prevLastMove = { ...lm };
       }
 
       // Kod macerası: eşanlı yarış dinleme

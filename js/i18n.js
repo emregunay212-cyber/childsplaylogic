@@ -19,6 +19,7 @@ const TR = {
         'kelime-tahmin': 'Kelime Tahmin',
         'harf-tahmin': 'Harf Tahmin',
         'kod-macerasi': 'Kod Macerası',
+        'satranc': 'Satranç',
     },
 
     // Multiplayer strings
@@ -98,6 +99,7 @@ const TR = {
         'boyama': 'Bir renk seç ve resmi boya!',
         'siralama': 'Nesneleri küçükten büyüğe sırala!',
         'kod-macerasi': 'Robotu yıldıza götür!',
+        'satranc': 'Bilgisayarı mat et!',
     },
 
     // Kod Macerasi stringleri

@@ -13,6 +13,7 @@ const App = (() => {
         { game: Boyama, emoji: '🖌️', color: 'var(--boyama-color)' },
         { game: Siralama, emoji: '📊', color: 'var(--siralama-color)' },
         { game: KodMacerasi, emoji: '🤖', color: 'var(--kodmacerasi-color)' },
+        { game: Satranc, emoji: '♟️', color: 'var(--satranc-color)' },
     ];
 
     let currentView = 'splash';
@@ -169,6 +170,7 @@ const App = (() => {
             { id: 'kelime-tahmin', emoji: '🔤', color: 'var(--kelime-color)', game: KelimeTahmin },
             { id: 'harf-tahmin', emoji: '🔡', color: 'var(--harf-tahmin-color)', game: HarfTahmin },
             { id: 'kod-macerasi', emoji: '🤖', color: 'var(--kodmacerasi-color)', game: KodMacerasiMP },
+            { id: 'satranc', emoji: '♟️', color: 'var(--satranc-color)', game: SatrancMP },
         ];
         mpGames.forEach(({ id, emoji, color, game }) => {
             const card = document.createElement('div');
