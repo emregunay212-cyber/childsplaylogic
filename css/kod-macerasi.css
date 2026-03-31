@@ -6,16 +6,18 @@
 .kod-grid-wrap {
     display: flex;
     justify-content: center;
-    margin: 0.5rem 0;
+    margin: 0.3rem 0;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .kod-grid {
     display: grid;
-    gap: 3px;
+    gap: 2px;
     background: #C8E6C9;
-    border: 4px solid #81C784;
+    border: 3px solid #81C784;
     border-radius: var(--radius-md);
-    padding: 4px;
+    padding: 3px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
@@ -27,14 +29,14 @@
 
 /* Grid Cells */
 .kod-cell {
-    width: clamp(36px, 12vw, 76px);
-    height: clamp(36px, 12vw, 76px);
+    width: clamp(32px, 10vw, 68px);
+    height: clamp(32px, 10vw, 68px);
     background: #E8F5E9;
-    border-radius: 8px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.8rem;
+    font-size: 1.4rem;
     position: relative;
     transition: background 0.3s;
 }
@@ -203,17 +205,17 @@
 .kod-palette {
     display: flex;
     justify-content: center;
-    gap: 10px;
-    margin: 0.5rem auto;
-    padding: 0.6rem;
+    gap: 8px;
+    margin: 0.3rem auto;
+    padding: 0.4rem;
     background: rgba(255,255,255,0.7);
     border-radius: var(--radius-lg);
     max-width: 400px;
 }
 
 .kod-block-btn {
-    width: 56px;
-    height: 56px;
+    width: 50px;
+    height: 50px;
     border: 3px solid transparent;
     border-radius: 14px;
     cursor: pointer;
@@ -326,21 +328,24 @@
 
 /* Rakip mini grid */
 .kod-mp-mini-grid-wrap {
-    transform: scale(0.55);
+    transform: scale(0.38);
     transform-origin: top center;
-    margin-bottom: -60px;
-    opacity: 0.85;
+    height: 120px;
+    overflow: hidden;
+    opacity: 0.8;
     pointer-events: none;
 }
 .kod-mp-mini-grid-wrap .kod-cell {
-    font-size: 1rem;
+    font-size: 0.7rem;
 }
 .kod-mp-op-section {
-    margin-top: 0.3rem;
-    padding: 0.3rem;
+    margin-top: 0.2rem;
+    padding: 0.2rem;
     background: rgba(33, 150, 243, 0.05);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-md);
     border: 2px dashed #BBDEFB;
+    max-height: 160px;
+    overflow: hidden;
 }
 
 .kod-mp-opponent-bar {
