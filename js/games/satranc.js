@@ -47,50 +47,51 @@ const Satranc = (() => {
         capturedByAI = [];
         gameEnded = false;
         stateHistory = [];
+        boardMounted = false;
 
         GameEngine.setTotal(1);
         render();
     }
 
+    let boardMounted = false;
+
     function render() {
-        container.innerHTML = '';
+        if (!boardMounted) {
+            // İlk render: DOM yapısını oluştur
+            container.innerHTML = `
+                <div class="chess-player-info opponent" id="chess-top-info"></div>
+                <div class="chess-board" id="chess-board"></div>
+                <div class="chess-player-info player" id="chess-bot-info"></div>
+                <div id="chess-undo-wrap"></div>
+                <div class="chess-status" id="chess-status"></div>
+            `;
+            boardMounted = true;
+        }
 
-        // Üst: AI bilgi
-        const topInfo = document.createElement('div');
-        topInfo.className = 'chess-player-info opponent';
-        topInfo.innerHTML = `
-            <span class="chess-player-name">🖥️ Bilgisayar</span>
-            <span class="chess-captured">${capturedByAI.map(p => ChessEngine.getSymbol(p)).join('')}</span>
-        `;
-        container.appendChild(topInfo);
+        // Üst bilgi güncelle (innerHTML değişmez ise dokunma)
+        const topEl = container.querySelector('#chess-top-info');
+        topEl.innerHTML = `<span class="chess-player-name">🖥️ Bilgisayar</span><span class="chess-captured">${capturedByAI.map(p => ChessEngine.getSymbol(p)).join('')}</span>`;
 
-        // Tahta
-        const boardEl = document.createElement('div');
-        boardEl.className = 'chess-board';
+        // Tahta güncelle
+        const boardEl = container.querySelector('#chess-board');
+        boardEl.innerHTML = '';
         renderBoard(boardEl);
-        container.appendChild(boardEl);
 
-        // Alt: Oyuncu bilgi + geri al butonu
-        const botInfo = document.createElement('div');
-        botInfo.className = 'chess-player-info player';
-        botInfo.innerHTML = `
-            <span class="chess-player-name">👤 Sen</span>
-            <span class="chess-captured">${capturedByMe.map(p => ChessEngine.getSymbol(p)).join('')}</span>
-        `;
-        container.appendChild(botInfo);
+        // Alt bilgi güncelle
+        const botEl = container.querySelector('#chess-bot-info');
+        botEl.innerHTML = `<span class="chess-player-name">👤 Sen</span><span class="chess-captured">${capturedByMe.map(p => ChessEngine.getSymbol(p)).join('')}</span>`;
 
         // Geri al butonu
+        const undoWrap = container.querySelector('#chess-undo-wrap');
         if (stateHistory.length > 0 && !aiThinking && !gameEnded && state.turn === playerColor) {
-            const undoBtn = document.createElement('button');
-            undoBtn.className = 'chess-undo-btn';
-            undoBtn.innerHTML = '↩ Hamle Geri Al';
-            undoBtn.addEventListener('click', undoMove);
-            container.appendChild(undoBtn);
+            undoWrap.innerHTML = '<button class="chess-undo-btn">↩ Hamle Geri Al</button>';
+            undoWrap.querySelector('.chess-undo-btn').addEventListener('click', undoMove);
+        } else {
+            undoWrap.innerHTML = '';
         }
 
         // Durum mesajı
-        const statusEl = document.createElement('div');
-        statusEl.className = 'chess-status';
+        const statusEl = container.querySelector('#chess-status');
         if (aiThinking) {
             statusEl.innerHTML = '<span class="chess-thinking">🤔 Düşünüyor...</span>';
         } else if (gameEnded) {
@@ -99,8 +100,9 @@ const Satranc = (() => {
             statusEl.innerHTML = ChessEngine.isCheck(state)
                 ? '<span class="chess-check">⚠️ ŞAH! Kralını kurtar!</span>'
                 : '<span>♟️ Senin sıran</span>';
+        } else {
+            statusEl.textContent = '';
         }
-        container.appendChild(statusEl);
     }
 
     function renderBoard(boardEl) {
@@ -321,6 +323,7 @@ const Satranc = (() => {
         if (container) container.innerHTML = '';
         gameEnded = false;
         aiThinking = false;
+        boardMounted = false;
     }
 
     return { id, levels, init, destroy };
