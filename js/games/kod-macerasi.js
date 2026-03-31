@@ -5,9 +5,9 @@
 const KodMacerasi = (() => {
     const id = 'kod-macerasi';
     const levels = [
-        { gridSize: 3, maxBlocks: 3, blocks: ['FORWARD', 'TURN_LEFT', 'TURN_RIGHT'], rounds: 3 },
-        { gridSize: 4, maxBlocks: 5, blocks: ['FORWARD', 'TURN_LEFT', 'TURN_RIGHT', 'REPEAT'], rounds: 3 },
-        { gridSize: 5, maxBlocks: 7, blocks: ['FORWARD', 'TURN_LEFT', 'TURN_RIGHT', 'REPEAT', 'BACK'], rounds: 3 },
+        { gridSize: 3, maxBlocks: 4, blocks: ['UP', 'DOWN', 'LEFT', 'RIGHT'], rounds: 3 },
+        { gridSize: 4, maxBlocks: 6, blocks: ['UP', 'DOWN', 'LEFT', 'RIGHT', 'REPEAT'], rounds: 3 },
+        { gridSize: 5, maxBlocks: 8, blocks: ['UP', 'DOWN', 'LEFT', 'RIGHT', 'REPEAT'], rounds: 3 },
     ];
 
     let container = null;
@@ -61,8 +61,7 @@ const KodMacerasi = (() => {
         // Grid
         const gridEl = KodMacerasiCore.renderGrid(
             container, puzzle,
-            { x: puzzle.start.x, y: puzzle.start.y },
-            puzzle.start.dir
+            { x: puzzle.start.x, y: puzzle.start.y }
         );
 
         // Program alanı
@@ -130,8 +129,7 @@ const KodMacerasi = (() => {
         // Sekansı çalıştır
         const result = KodMacerasiCore.executeSequence(
             puzzle, sequence,
-            { x: puzzle.start.x, y: puzzle.start.y },
-            puzzle.start.dir
+            { x: puzzle.start.x, y: puzzle.start.y }
         );
 
         const gridEl = container.querySelector('.kod-grid');

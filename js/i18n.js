@@ -102,11 +102,11 @@ const TR = {
 
     // Kod Macerasi stringleri
     kodMacerasi: {
-        forward: 'İleri',
-        turnLeft: 'Sola Dön',
-        turnRight: 'Sağa Dön',
+        up: 'Yukarı',
+        down: 'Aşağı',
+        left: 'Sola',
+        right: 'Sağa',
         repeat: 'Tekrarla',
-        back: 'Geri',
         play: 'Çalıştır',
         ready: 'Hazır',
         reset: 'Sıfırla',

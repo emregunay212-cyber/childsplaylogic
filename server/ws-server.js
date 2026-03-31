@@ -723,12 +723,10 @@ function generateKodPuzzle(size, difficulty) {
 }
 
 function executeKodSequence(puzzle, sequence) {
-  const DIRS = { UP: { dx: 0, dy: -1 }, RIGHT: { dx: 1, dy: 0 }, DOWN: { dx: 0, dy: 1 }, LEFT: { dx: -1, dy: 0 } };
-  const DIR_ORDER = ['UP', 'RIGHT', 'DOWN', 'LEFT'];
+  const MOVES = { UP: { dx: 0, dy: -1 }, DOWN: { dx: 0, dy: 1 }, LEFT: { dx: -1, dy: 0 }, RIGHT: { dx: 1, dy: 0 } };
 
   let x = puzzle.start.x, y = puzzle.start.y;
-  let dirIdx = DIR_ORDER.indexOf(puzzle.start.dir);
-  const path = [{ x, y, dir: DIR_ORDER[dirIdx], action: 'start' }];
+  const path = [{ x, y, action: 'start' }];
 
   const expanded = [];
   for (let i = 0; i < sequence.length; i++) {
@@ -737,12 +735,11 @@ function executeKodSequence(puzzle, sequence) {
   }
 
   for (const cmd of expanded) {
-    if (cmd === 'TURN_LEFT') { dirIdx = (dirIdx + 3) % 4; path.push({ x, y, dir: DIR_ORDER[dirIdx], action: 'turn' }); continue; }
-    if (cmd === 'TURN_RIGHT') { dirIdx = (dirIdx + 1) % 4; path.push({ x, y, dir: DIR_ORDER[dirIdx], action: 'turn' }); continue; }
+    const move = MOVES[cmd];
+    if (!move) continue;
 
-    const d = DIRS[DIR_ORDER[dirIdx]];
-    if (cmd === 'FORWARD') { x += d.dx; y += d.dy; }
-    else if (cmd === 'BACK') { x -= d.dx; y -= d.dy; }
+    x += move.dx;
+    y += move.dy;
 
     if (x < 0 || x >= puzzle.size || y < 0 || y >= puzzle.size) {
       return { success: false, path, error: 'outOfBounds' };
@@ -750,7 +747,7 @@ function executeKodSequence(puzzle, sequence) {
     if (puzzle.obstacles.some(o => o.x === x && o.y === y)) {
       return { success: false, path, error: 'crashed' };
     }
-    path.push({ x, y, dir: DIR_ORDER[dirIdx], action: 'move' });
+    path.push({ x, y, action: 'move' });
   }
 
   return { success: x === puzzle.target.x && y === puzzle.target.y, path, error: null };

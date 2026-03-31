@@ -4,32 +4,31 @@
 
 const KodMacerasiCore = (() => {
 
-    // Yön sabitleri
-    const DIRS = {
+    // Hareket sabitleri (yön yok, doğrudan 4 yöne hareket)
+    const MOVES = {
         UP:    { dx: 0, dy: -1 },
-        RIGHT: { dx: 1, dy: 0 },
         DOWN:  { dx: 0, dy: 1 },
         LEFT:  { dx: -1, dy: 0 },
+        RIGHT: { dx: 1, dy: 0 },
     };
-    const DIR_ORDER = ['UP', 'RIGHT', 'DOWN', 'LEFT'];
 
     // Blok tanımları
     const BLOCKS = {
-        FORWARD:    { color: '#4ECDC4', label: TR.kodMacerasi.forward },
-        TURN_LEFT:  { color: '#FF6B6B', label: TR.kodMacerasi.turnLeft },
-        TURN_RIGHT: { color: '#45B7D1', label: TR.kodMacerasi.turnRight },
-        REPEAT:     { color: '#F7B731', label: TR.kodMacerasi.repeat },
-        BACK:       { color: '#A55EEA', label: TR.kodMacerasi.back },
+        UP:     { color: '#4ECDC4', label: 'Yukarı' },
+        DOWN:   { color: '#A55EEA', label: 'Aşağı' },
+        LEFT:   { color: '#FF6B6B', label: 'Sola' },
+        RIGHT:  { color: '#45B7D1', label: 'Sağa' },
+        REPEAT: { color: '#F7B731', label: TR.kodMacerasi.repeat },
     };
 
-    // Blok SVG ikonları
+    // Blok SVG ikonları (basit oklar)
     function getBlockSVG(type, size = 28) {
         const svgs = {
-            FORWARD: `<svg viewBox="0 0 32 32" width="${size}" height="${size}"><path d="M16 4l10 14H6z" fill="white"/><rect x="12" y="18" width="8" height="10" rx="2" fill="white"/></svg>`,
-            TURN_LEFT: `<svg viewBox="0 0 32 32" width="${size}" height="${size}"><path d="M8 12l8-8v5c8 0 10 4 10 11-2-5-5-7-10-7v5z" fill="white"/></svg>`,
-            TURN_RIGHT: `<svg viewBox="0 0 32 32" width="${size}" height="${size}"><path d="M24 12l-8-8v5c-8 0-10 4-10 11 2-5 5-7 10-7v5z" fill="white"/></svg>`,
+            UP: `<svg viewBox="0 0 32 32" width="${size}" height="${size}"><path d="M16 4l10 14H6z" fill="white"/><rect x="12" y="18" width="8" height="10" rx="2" fill="white"/></svg>`,
+            DOWN: `<svg viewBox="0 0 32 32" width="${size}" height="${size}"><rect x="12" y="4" width="8" height="10" rx="2" fill="white"/><path d="M16 28l10-14H6z" fill="white"/></svg>`,
+            LEFT: `<svg viewBox="0 0 32 32" width="${size}" height="${size}"><path d="M4 16l14-10v8h10v4H18v8z" fill="white"/></svg>`,
+            RIGHT: `<svg viewBox="0 0 32 32" width="${size}" height="${size}"><path d="M28 16l-14-10v8H4v4h10v8z" fill="white"/></svg>`,
             REPEAT: `<svg viewBox="0 0 32 32" width="${size}" height="${size}"><path d="M22 8l4 4-4 4" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 16a10 10 0 0 1 20 0" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"/><path d="M10 24l-4-4 4-4" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M26 16a10 10 0 0 1-20 0" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>`,
-            BACK: `<svg viewBox="0 0 32 32" width="${size}" height="${size}"><rect x="12" y="4" width="8" height="10" rx="2" fill="white"/><path d="M16 28l10-14H6z" fill="white"/></svg>`,
         };
         return svgs[type] || '';
     }
@@ -57,7 +56,7 @@ const KodMacerasiCore = (() => {
             { // Düz ileri 2 adım
                 size: 3,
                 grid: [[0,0,0],[0,0,0],[0,0,0]],
-                start: { x: 1, y: 2, dir: 'UP' },
+                start: { x: 1, y: 2 },
                 target: { x: 1, y: 0 },
                 collectibles: [],
                 obstacles: [],
@@ -66,7 +65,7 @@ const KodMacerasiCore = (() => {
             { // Sağa 2 adım
                 size: 3,
                 grid: [[0,0,0],[0,0,0],[0,0,0]],
-                start: { x: 0, y: 1, dir: 'RIGHT' },
+                start: { x: 0, y: 1 },
                 target: { x: 2, y: 1 },
                 collectibles: [],
                 obstacles: [],
@@ -75,7 +74,7 @@ const KodMacerasiCore = (() => {
             { // İleri 1 + Sağa Dön + İleri 1
                 size: 3,
                 grid: [[0,0,0],[0,0,0],[0,0,0]],
-                start: { x: 0, y: 2, dir: 'UP' },
+                start: { x: 0, y: 2 },
                 target: { x: 1, y: 1 },
                 collectibles: [],
                 obstacles: [],
@@ -84,7 +83,7 @@ const KodMacerasiCore = (() => {
             { // İleri 1 + Sola Dön + İleri 1
                 size: 3,
                 grid: [[0,0,0],[0,0,0],[0,0,0]],
-                start: { x: 2, y: 2, dir: 'UP' },
+                start: { x: 2, y: 2 },
                 target: { x: 1, y: 1 },
                 collectibles: [],
                 obstacles: [],
@@ -93,7 +92,7 @@ const KodMacerasiCore = (() => {
             { // Düz ileri 1 adım (en basit)
                 size: 3,
                 grid: [[0,0,0],[0,0,0],[0,0,0]],
-                start: { x: 1, y: 1, dir: 'UP' },
+                start: { x: 1, y: 1 },
                 target: { x: 1, y: 0 },
                 collectibles: [],
                 obstacles: [],
@@ -104,7 +103,7 @@ const KodMacerasiCore = (() => {
             {
                 size: 4,
                 grid: [[0,0,0,0],[0,1,0,0],[0,0,0,0],[0,0,1,0]],
-                start: { x: 0, y: 3, dir: 'UP' },
+                start: { x: 0, y: 3 },
                 target: { x: 3, y: 0 },
                 collectibles: [{ x: 1, y: 0 }],
                 obstacles: [{ x: 1, y: 1 }, { x: 2, y: 3 }],
@@ -113,7 +112,7 @@ const KodMacerasiCore = (() => {
             {
                 size: 4,
                 grid: [[0,0,0,0],[0,0,1,0],[0,0,0,0],[0,1,0,0]],
-                start: { x: 0, y: 3, dir: 'RIGHT' },
+                start: { x: 0, y: 3 },
                 target: { x: 3, y: 0 },
                 collectibles: [{ x: 3, y: 3 }],
                 obstacles: [{ x: 2, y: 1 }, { x: 1, y: 3 }],
@@ -122,7 +121,7 @@ const KodMacerasiCore = (() => {
             {
                 size: 4,
                 grid: [[0,0,0,0],[0,0,0,0],[0,1,0,0],[0,0,0,0]],
-                start: { x: 0, y: 3, dir: 'UP' },
+                start: { x: 0, y: 3 },
                 target: { x: 3, y: 1 },
                 collectibles: [{ x: 0, y: 0 }],
                 obstacles: [{ x: 1, y: 2 }],
@@ -131,7 +130,7 @@ const KodMacerasiCore = (() => {
             {
                 size: 4,
                 grid: [[0,0,0,0],[1,0,0,0],[0,0,1,0],[0,0,0,0]],
-                start: { x: 1, y: 3, dir: 'UP' },
+                start: { x: 1, y: 3 },
                 target: { x: 1, y: 0 },
                 collectibles: [{ x: 3, y: 2 }],
                 obstacles: [{ x: 0, y: 1 }, { x: 2, y: 2 }],
@@ -142,7 +141,7 @@ const KodMacerasiCore = (() => {
             {
                 size: 5,
                 grid: [[0,0,0,0,0],[0,1,0,1,0],[0,0,0,0,0],[0,1,0,0,0],[0,0,0,1,0]],
-                start: { x: 0, y: 4, dir: 'UP' },
+                start: { x: 0, y: 4 },
                 target: { x: 4, y: 0 },
                 collectibles: [{ x: 2, y: 2 }, { x: 4, y: 4 }],
                 obstacles: [{ x: 1, y: 1 }, { x: 3, y: 1 }, { x: 1, y: 3 }, { x: 3, y: 4 }],
@@ -151,7 +150,7 @@ const KodMacerasiCore = (() => {
             {
                 size: 5,
                 grid: [[0,0,0,0,0],[0,0,1,0,0],[0,0,0,0,0],[0,0,1,0,0],[0,0,0,0,0]],
-                start: { x: 0, y: 4, dir: 'RIGHT' },
+                start: { x: 0, y: 4 },
                 target: { x: 4, y: 0 },
                 collectibles: [{ x: 4, y: 4 }, { x: 0, y: 0 }],
                 obstacles: [{ x: 2, y: 1 }, { x: 2, y: 3 }],
@@ -160,7 +159,7 @@ const KodMacerasiCore = (() => {
             {
                 size: 5,
                 grid: [[0,0,0,0,0],[0,1,0,0,0],[0,0,0,1,0],[0,0,0,0,0],[0,0,1,0,0]],
-                start: { x: 2, y: 4, dir: 'UP' },
+                start: { x: 2, y: 4 },
                 target: { x: 2, y: 0 },
                 collectibles: [{ x: 0, y: 2 }, { x: 4, y: 2 }],
                 obstacles: [{ x: 1, y: 1 }, { x: 3, y: 2 }, { x: 2, y: 4 }],
@@ -170,7 +169,7 @@ const KodMacerasiCore = (() => {
     };
 
     // Grid render
-    function renderGrid(container, puzzle, robotPos, robotDir, robotColor) {
+    function renderGrid(container, puzzle, robotPos, robotColor) {
         const { size, obstacles, collectibles, target } = puzzle;
         const wrap = document.createElement('div');
         wrap.className = 'kod-grid-wrap';
@@ -205,8 +204,6 @@ const KodMacerasiCore = (() => {
                 if (robotPos.x === x && robotPos.y === y) {
                     cell.classList.add('robot-here');
                     cell.innerHTML += createRobotSVG(robotColor || '#FF9800');
-                    const robotEl = cell.querySelector('.kod-robot');
-                    robotEl.classList.add('dir-' + robotDir.toLowerCase());
                 }
 
                 grid.appendChild(cell);
@@ -307,14 +304,13 @@ const KodMacerasiCore = (() => {
         return wrap;
     }
 
-    // Sekans çalıştırma (saf fonksiyon)
-    function executeSequence(puzzle, sequence, startPos, startDir) {
+    // Sekans çalıştırma (saf fonksiyon) - basit 4 yönlü hareket
+    function executeSequence(puzzle, sequence, startPos) {
         const { size, obstacles, collectibles, target } = puzzle;
         let x = startPos.x;
         let y = startPos.y;
-        let dirIdx = DIR_ORDER.indexOf(startDir);
         let collected = [];
-        let path = [{ x, y, dir: DIR_ORDER[dirIdx], action: 'start' }];
+        let path = [{ x, y, action: 'start' }];
 
         // REPEAT bloğunu genişlet
         const expanded = [];
@@ -330,43 +326,24 @@ const KodMacerasiCore = (() => {
 
         for (let i = 0; i < expanded.length; i++) {
             const cmd = expanded[i];
-            const dir = DIR_ORDER[dirIdx];
+            const move = MOVES[cmd];
+            if (!move) continue;
 
-            if (cmd === 'FORWARD') {
-                const d = DIRS[dir];
-                x += d.dx;
-                y += d.dy;
-            } else if (cmd === 'BACK') {
-                const d = DIRS[dir];
-                x -= d.dx;
-                y -= d.dy;
-            } else if (cmd === 'TURN_LEFT') {
-                dirIdx = (dirIdx + 3) % 4;
-                path.push({ x, y, dir: DIR_ORDER[dirIdx], action: 'turn' });
-                continue;
-            } else if (cmd === 'TURN_RIGHT') {
-                dirIdx = (dirIdx + 1) % 4;
-                path.push({ x, y, dir: DIR_ORDER[dirIdx], action: 'turn' });
-                continue;
-            }
+            const prevX = x, prevY = y;
+            x += move.dx;
+            y += move.dy;
 
             // Sınır kontrolü
             if (x < 0 || x >= size || y < 0 || y >= size) {
-                path.push({ x, y, dir: DIR_ORDER[dirIdx], action: 'outOfBounds' });
+                path.push({ x, y, action: 'outOfBounds' });
                 return { success: false, path, collected, error: 'outOfBounds' };
             }
 
             // Engel kontrolü
             if (obstacles.some(o => o.x === x && o.y === y)) {
-                // Geri al
-                if (cmd === 'FORWARD') {
-                    x -= DIRS[dir].dx;
-                    y -= DIRS[dir].dy;
-                } else if (cmd === 'BACK') {
-                    x += DIRS[dir].dx;
-                    y += DIRS[dir].dy;
-                }
-                path.push({ x, y, dir: DIR_ORDER[dirIdx], action: 'crashed' });
+                x = prevX;
+                y = prevY;
+                path.push({ x, y, action: 'crashed' });
                 return { success: false, path, collected, error: 'crashed' };
             }
 
@@ -376,7 +353,7 @@ const KodMacerasiCore = (() => {
                 collected.push(`${collectibles[cIdx].x},${collectibles[cIdx].y}`);
             }
 
-            path.push({ x, y, dir: DIR_ORDER[dirIdx], action: 'move' });
+            path.push({ x, y, action: 'move' });
         }
 
         // Hedefe ulaştı mı?
@@ -423,7 +400,6 @@ const KodMacerasiCore = (() => {
                 if (p.action !== 'start') cell.classList.add('trail');
                 cell.innerHTML += createRobotSVG('#FF9800');
                 const robot = cell.querySelector('.kod-robot');
-                robot.classList.add('dir-' + p.dir.toLowerCase());
 
                 if (p.action === 'crashed') {
                     robot.classList.add('crashed');
@@ -439,7 +415,6 @@ const KodMacerasiCore = (() => {
                         cell.classList.add('robot-here');
                         cell.innerHTML += createRobotSVG('#FF9800');
                         const r2 = cell.querySelector('.kod-robot');
-                        r2.classList.add('dir-' + p.dir.toLowerCase());
                         AudioManager.play('success');
                         const rect = cell.getBoundingClientRect();
                         Particles.sparkle(rect.left + rect.width / 2, rect.top + rect.height / 2, 4);
@@ -451,7 +426,7 @@ const KodMacerasiCore = (() => {
             step++;
 
             if (step < path.length) {
-                setTimeout(nextStep, p.action === 'turn' ? 300 : 450);
+                setTimeout(nextStep, 450);
             } else {
                 setTimeout(() => onComplete(p), 400);
             }
@@ -489,8 +464,7 @@ const KodMacerasiCore = (() => {
         ];
         const start = corners[0];
         const target = corners[1];
-        const dirs = ['UP', 'RIGHT'];
-        const startDir = dirs[Math.floor(Math.random() * dirs.length)];
+        // Artık yön yok, sadece 4 yöne doğrudan hareket
 
         // Rastgele engeller (başlangıç ve hedef olmayan yerler)
         const obstacles = [];
@@ -517,7 +491,7 @@ const KodMacerasiCore = (() => {
         return {
             size,
             grid,
-            start: { x: start.x, y: start.y, dir: startDir },
+            start: { x: start.x, y: start.y },
             target,
             collectibles: [],
             obstacles,
@@ -527,18 +501,13 @@ const KodMacerasiCore = (() => {
 
     // BFS ile en kısa yol (dönüş dahil)
     function bfsOptimal(size, obstacles, start, target) {
-        // Basitleştirilmiş: Manhattan mesafesi + dönüş sayısı
-        const dx = Math.abs(target.x - start.x);
-        const dy = Math.abs(target.y - start.y);
-        // En az dx + dy hamle + en az 1 dönüş (eğer her iki eksende hareket gerekiyorsa)
-        const turns = (dx > 0 && dy > 0) ? 1 : 0;
-        return dx + dy + turns;
+        // Manhattan mesafesi (artık dönüş yok)
+        return Math.abs(target.x - start.x) + Math.abs(target.y - start.y);
     }
 
     return {
         BLOCKS,
-        DIRS,
-        DIR_ORDER,
+        MOVES,
         PUZZLES,
         getBlockSVG,
         createRobotSVG,

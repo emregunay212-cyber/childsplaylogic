@@ -76,15 +76,14 @@ const KodMacerasiMP = (() => {
             KodMacerasiCore.renderGrid(
                 container, currentPuzzle,
                 { x: currentPuzzle.start.x, y: currentPuzzle.start.y },
-                currentPuzzle.start.dir,
                 gameData.yourRole === 'host' ? '#FF9800' : '#2196F3'
             );
         }
 
         // Program alanı
         const availBlocks = currentPuzzle && currentPuzzle.size <= 3
-            ? ['FORWARD', 'TURN_LEFT', 'TURN_RIGHT']
-            : ['FORWARD', 'TURN_LEFT', 'TURN_RIGHT', 'REPEAT', 'BACK'];
+            ? ['UP', 'DOWN', 'LEFT', 'RIGHT']
+            : ['UP', 'DOWN', 'LEFT', 'RIGHT', 'REPEAT'];
 
         KodMacerasiCore.renderProgramArea(
             container, maxBlocks, sequence,
