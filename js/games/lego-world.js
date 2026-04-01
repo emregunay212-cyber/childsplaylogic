@@ -181,8 +181,43 @@ const LegoWorld = (() => {
   // ── LEGO KARAKTER ──
   function createPlayer() {
     playerGroup = new THREE.Group();
+    playerGroup.position.set(0, 0, 0);
+    scene.add(playerGroup);
 
-    // Bacaklar
+    // GLTF model yüklemeyi dene
+    if (typeof THREE.GLTFLoader !== 'undefined') {
+      const loader = new THREE.GLTFLoader();
+      loader.load('assets/models/player.glb',
+        (gltf) => {
+          const model = gltf.scene;
+          model.scale.set(0.7, 0.7, 0.7);
+          model.position.y = 0;
+          model.traverse((child) => {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+            }
+          });
+          // Eski fallback modeli varsa kaldır
+          while (playerGroup.children.length > 0) playerGroup.remove(playerGroup.children[0]);
+          playerGroup.add(model);
+        },
+        undefined, // progress
+        (err) => {
+          console.warn('GLTF model yüklenemedi, fallback kullanılıyor:', err);
+          createFallbackPlayer();
+        }
+      );
+    } else {
+      createFallbackPlayer();
+    }
+
+    // Başlangıçta fallback göster (GLTF yüklenene kadar)
+    createFallbackPlayer();
+  }
+
+  function createFallbackPlayer() {
+    // Mevcut prosedürel LEGO adam (fallback)
     const legMat = new THREE.MeshLambertMaterial({ color: 0x2980B9 });
     const legGeo = new THREE.BoxGeometry(0.3, 0.5, 0.3);
     const leftLeg = new THREE.Mesh(legGeo, legMat);
@@ -194,47 +229,31 @@ const LegoWorld = (() => {
     rightLeg.castShadow = true;
     playerGroup.add(rightLeg);
 
-    // Gövde
     const bodyMat = new THREE.MeshLambertMaterial({ color: 0xE74C3C });
-    const bodyGeo = new THREE.BoxGeometry(0.7, 0.6, 0.4);
-    const body = new THREE.Mesh(bodyGeo, bodyMat);
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.6, 0.4), bodyMat);
     body.position.y = 0.8;
     body.castShadow = true;
     playerGroup.add(body);
 
-    // Gövde detay
-    const detailMat = new THREE.MeshLambertMaterial({ color: 0xC0392B });
-    const detail = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.15, 0.42), detailMat);
-    detail.position.y = 0.7;
-    playerGroup.add(detail);
-
-    // Kollar
     const armMat = new THREE.MeshLambertMaterial({ color: 0xFFD600 });
     const armGeo = new THREE.BoxGeometry(0.2, 0.5, 0.2);
     const leftArm = new THREE.Mesh(armGeo, armMat);
     leftArm.position.set(-0.5, 0.75, 0);
-    leftArm.castShadow = true;
     playerGroup.add(leftArm);
     const rightArm = new THREE.Mesh(armGeo, armMat);
     rightArm.position.set(0.5, 0.75, 0);
-    rightArm.castShadow = true;
     playerGroup.add(rightArm);
 
-    // Kafa (LEGO silindir kafa)
     const headMat = new THREE.MeshLambertMaterial({ color: 0xFFD600 });
-    const headGeo = new THREE.CylinderGeometry(0.3, 0.3, 0.45, 16);
-    const head = new THREE.Mesh(headGeo, headMat);
+    const head = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.45, 16), headMat);
     head.position.y = 1.35;
     head.castShadow = true;
     playerGroup.add(head);
 
-    // Kafa üstü çıkıntı (LEGO stud)
-    const studGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.12, 12);
-    const stud = new THREE.Mesh(studGeo, headMat);
+    const stud = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.12, 12), headMat);
     stud.position.y = 1.63;
     playerGroup.add(stud);
 
-    // Gözler
     const eyeMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
     const eyeGeo = new THREE.SphereGeometry(0.05, 8, 8);
     const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
@@ -243,26 +262,6 @@ const LegoWorld = (() => {
     const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
     rightEye.position.set(0.12, 1.38, 0.28);
     playerGroup.add(rightEye);
-
-    // Gülümseme
-    const smileCurve = new THREE.EllipseCurve(0, 0, 0.12, 0.06, Math.PI, 0, false);
-    const smilePoints = smileCurve.getPoints(12);
-    const smileGeo = new THREE.BufferGeometry().setFromPoints(smilePoints);
-    const smileMat = new THREE.LineBasicMaterial({ color: 0x000000 });
-    const smile = new THREE.Line(smileGeo, smileMat);
-    smile.position.set(0, 1.3, 0.31);
-    playerGroup.add(smile);
-
-    // Kask (yarım küre)
-    const helmMat = new THREE.MeshLambertMaterial({ color: 0xE74C3C });
-    const helmGeo = new THREE.SphereGeometry(0.32, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2);
-    const helmet = new THREE.Mesh(helmGeo, helmMat);
-    helmet.position.y = 1.55;
-    helmet.castShadow = true;
-    playerGroup.add(helmet);
-
-    playerGroup.position.set(0, 0, 0);
-    scene.add(playerGroup);
     player = playerGroup;
   }
 
