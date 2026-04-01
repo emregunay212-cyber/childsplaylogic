@@ -7,7 +7,7 @@ const LegoWorld = (() => {
   const id = 'lego-world';
 
   const levels = [
-    { worldSize: 20, buildings: 2, pieceCount: 12, capacity: 15 },
+    { worldSize: 20, buildings: 2, pieceCount: 18, capacity: 20 },
     { worldSize: 30, buildings: 3, pieceCount: 20, capacity: 25 },
     { worldSize: 40, buildings: 4, pieceCount: 30, capacity: 40 },
   ];
@@ -475,13 +475,23 @@ const LegoWorld = (() => {
       }
     });
 
+    // Önce her gerekli tip için tam ihtiyaç kadar ekle (garanti)
     const pool = [];
     for (const [t, c] of Object.entries(needed)) {
-      for (let i = 0; i < c + 2; i++) pool.push(t); // fazladan ekle
+      for (let i = 0; i < c; i++) pool.push(t);
+    }
+    // Sonra fazladan ekle
+    for (const [t, c] of Object.entries(needed)) {
+      for (let i = 0; i < 2; i++) pool.push(t);
     }
     // Kalan slotları rastgele doldur
     while (pool.length < count) {
       pool.push(typeKeys[Math.floor(Math.random() * typeKeys.length)]);
+    }
+    // Pool'u karıştır (beyazlar sona düşmesin)
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
     }
 
     let spawned = 0;
