@@ -142,6 +142,8 @@ const App = (() => {
         splash.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
         splash.style.opacity = '0';
         splash.style.transform = 'scale(1.05)';
+        const seoBlock = document.getElementById('seo-content');
+        if (seoBlock) seoBlock.style.display = 'none';
         setTimeout(() => {
             splash.classList.add('hidden');
             splash.style.opacity = '';
