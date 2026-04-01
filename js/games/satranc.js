@@ -68,18 +68,27 @@ const Satranc = (() => {
             boardMounted = true;
         }
 
-        // Üst bilgi güncelle (innerHTML değişmez ise dokunma)
+        // Yenilen taşları SVG ile göster (null/undefined filtrele)
+        function renderCaptured(pieces) {
+            return pieces.filter(p => p).map(p => {
+                const url = ChessEngine.getPieceSVG(p);
+                if (url) return `<img src="${url}" class="chess-captured-piece" alt="${p}" draggable="false">`;
+                return ChessEngine.getSymbol(p);
+            }).join('');
+        }
+
+        // Üst bilgi (AI'ın yediği taşlar = beyaz taşlarım)
         const topEl = container.querySelector('#chess-top-info');
-        topEl.innerHTML = `<span class="chess-player-name">🖥️ Bilgisayar</span><span class="chess-captured">${capturedByAI.map(p => ChessEngine.getSymbol(p)).join('')}</span>`;
+        topEl.innerHTML = `<span class="chess-player-name">🖥️ Bilgisayar</span><span class="chess-captured">${renderCaptured(capturedByAI)}</span>`;
 
         // Tahta güncelle
         const boardEl = container.querySelector('#chess-board');
         boardEl.innerHTML = '';
         renderBoard(boardEl);
 
-        // Alt bilgi güncelle
+        // Alt bilgi (benim yediğim taşlar = siyah taşları)
         const botEl = container.querySelector('#chess-bot-info');
-        botEl.innerHTML = `<span class="chess-player-name">👤 Sen</span><span class="chess-captured">${capturedByMe.map(p => ChessEngine.getSymbol(p)).join('')}</span>`;
+        botEl.innerHTML = `<span class="chess-player-name">👤 Sen</span><span class="chess-captured">${renderCaptured(capturedByMe)}</span>`;
 
         // Geri al butonu
         const undoWrap = container.querySelector('#chess-undo-wrap');
@@ -224,7 +233,7 @@ const Satranc = (() => {
         }
 
         const result = ChessEngine.makeMove(state, move);
-        if (move.capture || move.enPassant) {
+        if (move.capture) {
             capturedByMe.push(move.capture);
         }
         state = result;
@@ -245,7 +254,7 @@ const Satranc = (() => {
         setTimeout(() => {
             const aiMove = ChessEngine.getBestMove(state, aiDepth);
             if (aiMove) {
-                if (aiMove.capture || aiMove.enPassant) {
+                if (aiMove.capture) {
                     capturedByAI.push(aiMove.capture);
                 }
                 if (aiMove.promotion) {
