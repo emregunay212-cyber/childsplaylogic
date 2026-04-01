@@ -7,9 +7,15 @@ const LegoWorld = (() => {
   const id = 'lego-world';
 
   const levels = [
+    { worldSize: 18, buildings: 1, pieceCount: 10, capacity: 12 },
     { worldSize: 20, buildings: 2, pieceCount: 18, capacity: 20 },
-    { worldSize: 30, buildings: 3, pieceCount: 20, capacity: 25 },
-    { worldSize: 40, buildings: 4, pieceCount: 30, capacity: 40 },
+    { worldSize: 24, buildings: 2, pieceCount: 22, capacity: 25 },
+    { worldSize: 28, buildings: 3, pieceCount: 26, capacity: 30 },
+    { worldSize: 32, buildings: 3, pieceCount: 30, capacity: 35 },
+    { worldSize: 36, buildings: 4, pieceCount: 35, capacity: 40 },
+    { worldSize: 40, buildings: 4, pieceCount: 40, capacity: 45 },
+    { worldSize: 44, buildings: 5, pieceCount: 45, capacity: 50 },
+    { worldSize: 50, buildings: 6, pieceCount: 55, capacity: 60 },
   ];
 
   // ── Bina Tanımları ──
