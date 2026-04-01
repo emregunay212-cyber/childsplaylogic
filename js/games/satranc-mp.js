@@ -87,10 +87,18 @@ const SatrancMP = (() => {
             : `⏳ ${gameData.opponentName} düşünüyor...`;
         container.appendChild(turnDiv);
 
+        function renderCapturedMP(pieces) {
+            return pieces.filter(p => p).map(p => {
+                const url = ChessEngine.getPieceSVG(p);
+                if (url) return `<img src="${url}" class="chess-captured-piece" alt="${p}" draggable="false">`;
+                return ChessEngine.getSymbol(p);
+            }).join('');
+        }
+
         // Üst: Rakip bilgi
         const topInfo = document.createElement('div');
         topInfo.className = 'chess-player-info opponent';
-        topInfo.innerHTML = `<span>🔵 ${gameData.opponentName}</span><span class="chess-captured">${capturedByOp.map(p => ChessEngine.getSymbol(p)).join('')}</span>`;
+        topInfo.innerHTML = `<span>🔵 ${gameData.opponentName}</span><span class="chess-captured">${renderCapturedMP(capturedByOp)}</span>`;
         container.appendChild(topInfo);
 
         // Tahta
@@ -102,7 +110,7 @@ const SatrancMP = (() => {
         // Alt: Ben bilgi
         const botInfo = document.createElement('div');
         botInfo.className = 'chess-player-info player';
-        botInfo.innerHTML = `<span>🟠 Sen</span><span class="chess-captured">${capturedByMe.map(p => ChessEngine.getSymbol(p)).join('')}</span>`;
+        botInfo.innerHTML = `<span>🟠 Sen</span><span class="chess-captured">${renderCapturedMP(capturedByMe)}</span>`;
         container.appendChild(botInfo);
     }
 
