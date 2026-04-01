@@ -1,0 +1,44 @@
+# ChildsPlayLogic - Oyun Bahcesi
+
+> Anaokulu ve ilkokul cocuklari icin 20+ ucretsiz egitici oyun platformu.
+
+## Ana Sayfa
+
+- [Home](https://www.childsplaylogic.com): Tum oyunlara erisim - ucretsiz, kayit gerektirmez, tum cihazlarda calisir
+
+## Oyunlar (22 Oyun)
+
+### Tek Oyunculu (17 oyun)
+- Hafiza Kartlari (10 seviye) - Eslesen kartlari bul
+- Renk Eslestirme (3 seviye) - Renkleri esle
+- Sayi Sayma (3 seviye) - Nesneleri say
+- Harf Tanima (3 seviye) - Harfleri ogne
+- Sekil Bulmaca (3 seviye) - Sekilleri yerlestir
+- Boyama (10 resim) - Resimleri boya
+- Siralama (3 seviye) - Nesneleri sirala
+- Kod Macerasi (3 seviye) - Kodlama ogret
+- LEGO Macerasi (3 seviye) - LEGO kodlama + insa
+- LEGO World 3D (9 seviye) - 3D acik dunya
+- Satranc (9 seviye) - AI'ya karsi satranc
+- Penalti (9 seviye) - Kaleciye sut cek
+- Tuval (3 seviye) - Pixel boyama
+- Matematik (3 seviye) - Toplama cikarma
+- Hece Birlestirme (3 seviye) - Heceleri birlestir
+- Jigsaw Bulmaca (3 seviye) - Parcalari birlestir
+- Desen Tamamlama (3 seviye) - Desenleri tamamla
+
+### Online Cok Oyunculu (5 oyun)
+- Kelime Tahmin - Wordle tarzi kelime oyunu
+- Harf Tahmin - Adam asmaca tarzi
+- Kod Macerasi Yarisi - Esanli puzzle yarisi
+- Online Satranc - 2 kisilik satranc
+- Online Penalti - 2 kisilik penalti
+
+## Onemli Bilgiler
+
+- Tamamen ucretsiz, hesap gerektirmez
+- Turkce arayuz
+- 4-10 yas arasi cocuklar icin
+- Telefon, tablet ve bilgisayarda calisir
+- Firebase Realtime Database ile online cok oyunculu
+- Progressive Web App (PWA) destegi
