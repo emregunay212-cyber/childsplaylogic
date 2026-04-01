@@ -118,7 +118,7 @@ const Lobby = (() => {
         <div class="lobby-setting">
           <label>${TR.mp.turnCount}</label>
           <div class="pill-selector" data-name="maxTurns">
-            ${[5,10,15].map(n => `<button class="pill ${n===10?'active':''}" data-value="${n}">${n}</button>`).join('')}
+            ${[5,10,15,999].map(n => `<button class="pill ${n===10?'active':''}" data-value="${n}">${n===999?'∞':n}</button>`).join('')}
           </div>
         </div>
     `;
@@ -234,7 +234,7 @@ const Lobby = (() => {
             <span class="lobby-list-icon">${l.gameType === 'penalti-mp' ? '⚽' : l.gameType === 'kod-macerasi' ? '🤖' : l.gameType === 'kelime-tahmin' ? '🔤' : l.gameType === 'satranc' ? '♟️' : '🔡'}</span>
             <div>
               <strong>${l.hostName}</strong>
-              <span class="lobby-list-detail">${l.gameType === 'penalti-mp' ? '5 atış' : l.gameType === 'kod-macerasi' ? l.gridSize+'x'+l.gridSize+' grid' : l.gameType === 'satranc' ? 'Satranç' : l.wordLength+' harf · '+l.maxTurns+' tur'}</span>
+              <span class="lobby-list-detail">${l.gameType === 'penalti-mp' ? '5 atış' : l.gameType === 'kod-macerasi' ? l.gridSize+'x'+l.gridSize+' grid' : l.gameType === 'satranc' ? 'Satranç' : l.wordLength+' harf · '+(l.maxTurns>=999?'∞':l.maxTurns)+' tur'}</span>
             </div>
           </div>
           <button class="lobby-join-btn" data-id="${l.id}">${TR.mp.join}</button>

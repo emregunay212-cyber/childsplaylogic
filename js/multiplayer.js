@@ -174,7 +174,7 @@ const Multiplayer = (() => {
       };
     } else {
       const wordLength = Math.min(Math.max(parseInt(opts.wordLength) || 5, 3), 8);
-      const maxTurns = [5,10,15].includes(parseInt(opts.maxTurns)) ? parseInt(opts.maxTurns) : 10;
+      const maxTurns = [5,10,15,999].includes(parseInt(opts.maxTurns)) ? parseInt(opts.maxTurns) : 10;
       lobbyData = {
         id: lobbyId, gameType, wordLength, maxTurns,
         hostId: playerId, hostName: playerName, guestId: null, guestName: null,
