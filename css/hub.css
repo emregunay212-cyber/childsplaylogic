@@ -89,20 +89,24 @@
 
 .popular-scroll {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     overflow-x: auto;
-    padding-bottom: 8px;
+    padding: 4px 0 8px;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    scroll-snap-type: x mandatory;
 }
 .popular-scroll::-webkit-scrollbar { display: none; }
 
 .popular-card {
     display: flex;
     align-items: center;
-    gap: 10px;
-    min-width: 170px;
-    padding: 10px 14px;
+    gap: 8px;
+    min-width: 140px;
+    max-width: 170px;
+    padding: 8px 12px;
+    scroll-snap-align: start;
+    flex-shrink: 0;
     background: rgba(255,255,255,0.92);
     border-radius: 16px;
     box-shadow: 0 3px 12px rgba(0,0,0,0.08);

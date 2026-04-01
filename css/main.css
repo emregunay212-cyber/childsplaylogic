@@ -159,10 +159,18 @@ button {
     margin-bottom: 8px;
 }
 
+.splash-subtitle-brand {
+    font-family: 'Fredoka', sans-serif;
+    font-size: clamp(1.2rem, 3.5vw, 1.8rem);
+    color: rgba(255,255,255,0.95);
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.1);
+    letter-spacing: 1px;
+    margin-top: -0.3rem;
+}
 .splash-subtitle {
     font-family: 'Fredoka', sans-serif;
-    font-size: clamp(1.1rem, 3vw, 1.6rem);
-    color: rgba(255,255,255,0.9);
+    font-size: clamp(1rem, 2.5vw, 1.4rem);
+    color: rgba(255,255,255,0.8);
     text-shadow: 1px 1px 0 rgba(0,0,0,0.1);
     margin-bottom: 32px;
     font-weight: 500;
@@ -300,6 +308,20 @@ button {
     font-size: 1.3rem;
     font-weight: 700;
     color: var(--text-warm);
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+.top-brand {
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+.top-sub {
+    font-size: 0.65rem;
+    font-weight: 600;
+    opacity: 0.6;
+    letter-spacing: 1px;
     text-align: center;
 }
 

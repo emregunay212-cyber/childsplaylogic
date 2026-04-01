@@ -3,7 +3,7 @@
    ============================================ */
 
 const TR = {
-    appName: 'Oyun Bahçesi',
+    appName: 'ChildsPlayLogic',
     splashSubtitle: 'Öğrenmeye Hazır Mısın?',
     splashStart: 'Oynamaya Başla!',
 

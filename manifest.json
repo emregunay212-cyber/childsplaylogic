@@ -1,7 +1,7 @@
 {
-    "name": "Oyun Bahçesi - Eğitici Çocuk Oyunları",
-    "short_name": "Oyun Bahçesi",
-    "description": "Anaokulu seviyesinde eğlenceli ve eğitici oyunlar",
+    "name": "ChildsPlayLogic - Oyun Bahçesi | Eğitici Çocuk Oyunları",
+    "short_name": "ChildsPlayLogic",
+    "description": "ChildsPlayLogic Oyun Bahçesi - Anaokulu ve ilkokul çocukları için 20+ eğitici oyun. Satranç, kodlama, matematik, hafıza kartları ve online çok oyunculu oyunlar.",
     "start_url": "./index.html",
     "display": "standalone",
     "orientation": "any",
