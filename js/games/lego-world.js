@@ -187,29 +187,51 @@ const LegoWorld = (() => {
     // GLTF model yüklemeyi dene
     if (typeof THREE.GLTFLoader !== 'undefined') {
       const loader = new THREE.GLTFLoader();
+
       loader.load('assets/models/player.glb',
         (gltf) => {
           const model = gltf.scene;
           model.scale.set(0.7, 0.7, 0.7);
           model.position.y = 0;
+
+          // Mesh'lere LEGO renkleri uygula (texture yerine)
+          const partColors = {
+            'head': 0xFFD600,     // sarı kafa
+            'body': 0xE74C3C,     // kırmızı gövde
+            'arm': 0xFFD600,      // sarı kol
+            'hand': 0xFFD600,     // sarı el
+            'leg': 0x2980B9,      // mavi bacak
+            'shoe': 0x2C3E50,     // koyu ayakkabı
+            'hair': 0x8B4513,     // kahverengi saç
+          };
+          const defaultColor = 0xE74C3C;
+          let meshIdx = 0;
+          const colorOrder = [0x8B4513, 0xFFD600, 0xE74C3C, 0xE74C3C, 0xFFD600, 0xFFD600, 0x2980B9, 0x2980B9, 0x2C3E50, 0x2C3E50];
+
           model.traverse((child) => {
             if (child.isMesh) {
               child.castShadow = true;
               child.receiveShadow = true;
+              // Adına göre renk ata, yoksa sırayla
+              const name = (child.name || '').toLowerCase();
+              let color = defaultColor;
+              for (const [part, c] of Object.entries(partColors)) {
+                if (name.includes(part)) { color = c; break; }
+              }
+              if (color === defaultColor && meshIdx < colorOrder.length) {
+                color = colorOrder[meshIdx];
+              }
+              child.material = new THREE.MeshLambertMaterial({ color });
+              meshIdx++;
             }
           });
-          // Eski fallback modeli varsa kaldır
+
           while (playerGroup.children.length > 0) playerGroup.remove(playerGroup.children[0]);
           playerGroup.add(model);
         },
-        undefined, // progress
-        (err) => {
-          console.warn('GLTF model yüklenemedi, fallback kullanılıyor:', err);
-          createFallbackPlayer();
-        }
+        undefined,
+        (err) => { console.warn('GLB yüklenemedi:', err); }
       );
-    } else {
-      createFallbackPlayer();
     }
 
     // Başlangıçta fallback göster (GLTF yüklenene kadar)
