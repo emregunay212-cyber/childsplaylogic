@@ -743,19 +743,28 @@ const LegoWorld = (() => {
       if (Math.abs(newX) < ws / 2 - 1) player.position.x = newX;
       if (Math.abs(newZ) < ws / 2 - 1) player.position.z = newZ;
 
-      // Yön
-      player.rotation.y = Math.atan2(dx, dz);
+      // Yön (yumuşak dönüş)
+      const targetRot = Math.atan2(dx, dz);
+      let diff = targetRot - player.rotation.y;
+      while (diff > Math.PI) diff -= Math.PI * 2;
+      while (diff < -Math.PI) diff += Math.PI * 2;
+      player.rotation.y += diff * 10 * delta;
 
-      // Yürüme animasyonu (basit sallanma)
+      // Yürüme animasyonu (bounce + sallama)
       const t = clock.elapsedTime;
-      player.children[0].position.y = 0.25 + Math.sin(t * 12) * 0.05;
-      player.children[1].position.y = 0.25 + Math.cos(t * 12) * 0.05;
+      player.position.y = Math.abs(Math.sin(t * 10)) * 0.08;
+      player.rotation.z = Math.sin(t * 8) * 0.06;
+    } else {
+      // Duruyorken düz dur
+      player.position.y *= 0.9;
+      player.rotation.z *= 0.9;
     }
 
-    // Kamera takibi
-    camera.position.x += (player.position.x - camera.position.x) * 3 * delta;
-    camera.position.z += (player.position.z + 14 - camera.position.z) * 3 * delta;
-    camera.lookAt(player.position.x, 0, player.position.z);
+    // Kamera takibi (yumuşak lerp)
+    const camLerp = 4 * delta;
+    camera.position.x += (player.position.x - camera.position.x) * camLerp;
+    camera.position.z += (player.position.z + 14 - camera.position.z) * camLerp;
+    camera.lookAt(player.position.x, 1, player.position.z);
 
     // Parça toplama kontrolü
     checkPieceCollection();
