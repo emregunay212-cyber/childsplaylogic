@@ -28,7 +28,7 @@ const LegoWorld = (() => {
     yellow: { color: 0xF1C40F, label: 'Sarı', emoji: '🟨' },
     green:  { color: 0x2ECC71, label: 'Yeşil', emoji: '🟩' },
     orange: { color: 0xFF9800, label: 'Turuncu', emoji: '🟠' },
-    white:  { color: 0xECF0F1, label: 'Beyaz', emoji: '⬜' },
+    white:  { color: 0xFFFFFF, label: 'Beyaz', emoji: '⬜' },
     brown:  { color: 0x8D6E63, label: 'Kahverengi', emoji: '🟤' },
     gray:   { color: 0x95A5A6, label: 'Gri', emoji: '⬛' },
     black:  { color: 0x2C3E50, label: 'Siyah', emoji: '⚫' },
@@ -463,13 +463,17 @@ const LegoWorld = (() => {
       pool.push(typeKeys[Math.floor(Math.random() * typeKeys.length)]);
     }
 
-    for (let i = 0; i < count; i++) {
-      const type = pool[i] || typeKeys[Math.floor(Math.random() * typeKeys.length)];
+    let spawned = 0;
+    let attempts = 0;
+    while (spawned < count && attempts < count * 3) {
+      attempts++;
+      const type = pool[spawned] || typeKeys[Math.floor(Math.random() * typeKeys.length)];
       const px = (Math.random() - 0.5) * (ws - 4);
       const pz = (Math.random() - 0.5) * (ws - 4);
 
       // Yol ve binaların üstünde spawn etme
       if (Math.abs(px) < 2 && Math.abs(pz) < 2) continue;
+      spawned++;
 
       const pieceGroup = new THREE.Group();
 
@@ -482,6 +486,16 @@ const LegoWorld = (() => {
       block.position.y = 0.15;
       block.castShadow = true;
       pieceGroup.add(block);
+
+      // Beyaz/açık renk bloklar için siyah kenar çizgisi
+      if (type === 'white' || type === 'gray') {
+        const edges = new THREE.LineSegments(
+          new THREE.EdgesGeometry(block.geometry),
+          new THREE.LineBasicMaterial({ color: 0x333333, linewidth: 2 })
+        );
+        edges.position.copy(block.position);
+        pieceGroup.add(edges);
+      }
 
       // LEGO stud
       const stud = new THREE.Mesh(
