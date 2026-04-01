@@ -7,11 +7,13 @@
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     width: clamp(280px, 80vw, 420px);
+    aspect-ratio: 1;
     margin: 0.3rem auto;
     border: 3px solid #5D4037;
     border-radius: 6px;
     box-shadow: 0 6px 20px rgba(0,0,0,0.2);
     overflow: hidden;
+    contain: layout style;
 }
 
 /* Hücreler - sabit kare */

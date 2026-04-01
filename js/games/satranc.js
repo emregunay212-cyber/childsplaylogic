@@ -58,6 +58,10 @@ const Satranc = (() => {
     let boardMounted = false;
 
     function render() {
+        // Scroll pozisyonunu koru
+        const gameArea = document.getElementById('game-area');
+        const scrollY = gameArea ? gameArea.scrollTop : 0;
+
         if (!boardMounted) {
             // İlk render: DOM yapısını oluştur
             container.innerHTML = `
@@ -114,6 +118,9 @@ const Satranc = (() => {
         } else {
             statusEl.textContent = '';
         }
+
+        // Scroll pozisyonunu geri yükle
+        if (gameArea) gameArea.scrollTop = scrollY;
     }
 
     function renderBoard(boardEl) {
