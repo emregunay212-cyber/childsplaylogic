@@ -57,13 +57,20 @@ const Satranc = (() => {
 
     let boardMounted = false;
 
-    function render() {
-        // Scroll pozisyonunu koru
-        const gameArea = document.getElementById('game-area');
-        const scrollY = gameArea ? gameArea.scrollTop : 0;
+    // Hücre cache - DOM bir kez oluşturulur, sonra sadece güncellenir
+    let cellCache = []; // 64 hücre referansı
 
+    function renderCapturedHTML(pieces) {
+        return pieces.filter(p => p).map(p => {
+            const url = ChessEngine.getPieceSVG(p);
+            if (url) return `<img src="${url}" class="chess-captured-piece" alt="${p}" draggable="false">`;
+            return ChessEngine.getSymbol(p);
+        }).join('');
+    }
+
+    function render() {
         if (!boardMounted) {
-            // İlk render: DOM yapısını oluştur
+            // İlk render: DOM yapısını bir kez oluştur
             container.innerHTML = `
                 <div class="chess-player-info opponent" id="chess-top-info"></div>
                 <div class="chess-board" id="chess-board"></div>
@@ -71,36 +78,107 @@ const Satranc = (() => {
                 <div id="chess-undo-wrap"></div>
                 <div class="chess-status" id="chess-status"></div>
             `;
+            // 64 hücreyi bir kez oluştur
+            const boardEl = container.querySelector('#chess-board');
+            cellCache = [];
+            const flipped = playerColor === 'b';
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const br = flipped ? 7 - r : r;
+                    const bc = flipped ? 7 - c : c;
+                    const cell = document.createElement('div');
+                    cell.dataset.r = br;
+                    cell.dataset.c = bc;
+                    cell.addEventListener('click', () => onCellClick(br, bc));
+                    boardEl.appendChild(cell);
+                    cellCache.push({ el: cell, r: br, c: bc });
+                }
+            }
             boardMounted = true;
         }
 
-        // Yenilen taşları SVG ile göster (null/undefined filtrele)
-        function renderCaptured(pieces) {
-            return pieces.filter(p => p).map(p => {
-                const url = ChessEngine.getPieceSVG(p);
-                if (url) return `<img src="${url}" class="chess-captured-piece" alt="${p}" draggable="false">`;
-                return ChessEngine.getSymbol(p);
-            }).join('');
+        // Üst/Alt bilgi güncelle
+        container.querySelector('#chess-top-info').innerHTML =
+            `<span class="chess-player-name">🖥️ Bilgisayar</span><span class="chess-captured">${renderCapturedHTML(capturedByAI)}</span>`;
+        container.querySelector('#chess-bot-info').innerHTML =
+            `<span class="chess-player-name">👤 Sen</span><span class="chess-captured">${renderCapturedHTML(capturedByMe)}</span>`;
+
+        // Tahtayı güncelle - DOM silmeden sadece class ve içerik değiştir
+        const isCheck = ChessEngine.isCheck(state);
+        const checkKing = isCheck ? (state.turn === 'w' ? 'K' : 'k') : null;
+
+        for (const cached of cellCache) {
+            const { el, r: br, c: bc } = cached;
+            const isDark = (br + bc) % 2 === 1;
+
+            // Class sıfırla ve yeniden ata
+            el.className = `chess-cell ${isDark ? 'dark' : 'light'}`;
+
+            if (lastMove && ((lastMove.from[0] === br && lastMove.from[1] === bc) || (lastMove.to[0] === br && lastMove.to[1] === bc)))
+                el.classList.add('last-move');
+            if (checkKing && state.board[br][bc] === checkKing)
+                el.classList.add('in-check');
+            if (selectedSquare && selectedSquare[0] === br && selectedSquare[1] === bc)
+                el.classList.add('selected');
+            if (validMoves.some(m => m.to[0] === br && m.to[1] === bc)) {
+                el.classList.add('valid-move');
+                if (state.board[br][bc]) el.classList.add('valid-capture');
+            }
+
+            // Taş içeriğini güncelle (sadece değiştiyse)
+            const piece = state.board[br][bc];
+            const currentPiece = el.dataset.piece || '';
+            if (piece !== currentPiece) {
+                // Sadece taş elemanını değiştir, koordinatları koru
+                const oldPieceEl = el.querySelector('.chess-piece');
+                if (oldPieceEl) oldPieceEl.remove();
+
+                if (piece) {
+                    const svgUrl = ChessEngine.getPieceSVG(piece);
+                    if (svgUrl) {
+                        const img = document.createElement('img');
+                        img.className = 'chess-piece';
+                        img.src = svgUrl;
+                        img.alt = piece;
+                        img.draggable = false;
+                        el.insertBefore(img, el.firstChild);
+                    } else {
+                        const span = document.createElement('span');
+                        span.className = 'chess-piece';
+                        span.textContent = ChessEngine.getSymbol(piece);
+                        el.insertBefore(span, el.firstChild);
+                    }
+                }
+                el.dataset.piece = piece || '';
+            }
+
+            // Koordinatlar (sadece ilk render'da yoksa ekle)
+            if (!el.querySelector('.chess-coord')) {
+                const idx = cellCache.indexOf(cached);
+                const visualC = idx % 8;
+                const visualR = Math.floor(idx / 8);
+                if (visualC === 0) {
+                    const rank = document.createElement('span');
+                    rank.className = 'chess-coord rank';
+                    rank.textContent = 8 - br;
+                    el.appendChild(rank);
+                }
+                if (visualR === 7) {
+                    const file = document.createElement('span');
+                    file.className = 'chess-coord file';
+                    file.textContent = String.fromCharCode(97 + bc);
+                    el.appendChild(file);
+                }
+            }
         }
-
-        // Üst bilgi (AI'ın yediği taşlar = beyaz taşlarım)
-        const topEl = container.querySelector('#chess-top-info');
-        topEl.innerHTML = `<span class="chess-player-name">🖥️ Bilgisayar</span><span class="chess-captured">${renderCaptured(capturedByAI)}</span>`;
-
-        // Tahta güncelle
-        const boardEl = container.querySelector('#chess-board');
-        boardEl.innerHTML = '';
-        renderBoard(boardEl);
-
-        // Alt bilgi (benim yediğim taşlar = siyah taşları)
-        const botEl = container.querySelector('#chess-bot-info');
-        botEl.innerHTML = `<span class="chess-player-name">👤 Sen</span><span class="chess-captured">${renderCaptured(capturedByMe)}</span>`;
 
         // Geri al butonu
         const undoWrap = container.querySelector('#chess-undo-wrap');
         if (stateHistory.length > 0 && !aiThinking && !gameEnded && state.turn === playerColor) {
-            undoWrap.innerHTML = '<button class="chess-undo-btn">↩ Hamle Geri Al</button>';
-            undoWrap.querySelector('.chess-undo-btn').addEventListener('click', undoMove);
+            if (!undoWrap.querySelector('.chess-undo-btn')) {
+                undoWrap.innerHTML = '<button class="chess-undo-btn">↩ Hamle Geri Al</button>';
+                undoWrap.querySelector('.chess-undo-btn').addEventListener('click', undoMove);
+            }
         } else {
             undoWrap.innerHTML = '';
         }
@@ -112,90 +190,11 @@ const Satranc = (() => {
         } else if (gameEnded) {
             statusEl.textContent = '';
         } else if (state.turn === playerColor) {
-            statusEl.innerHTML = ChessEngine.isCheck(state)
+            statusEl.innerHTML = isCheck
                 ? '<span class="chess-check">⚠️ ŞAH! Kralını kurtar!</span>'
                 : '<span>♟️ Senin sıran</span>';
         } else {
             statusEl.textContent = '';
-        }
-
-        // Scroll pozisyonunu geri yükle
-        if (gameArea) gameArea.scrollTop = scrollY;
-    }
-
-    function renderBoard(boardEl) {
-        const flipped = playerColor === 'b';
-        for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 8; c++) {
-                const br = flipped ? 7 - r : r;
-                const bc = flipped ? 7 - c : c;
-                const cell = document.createElement('div');
-                const isDark = (br + bc) % 2 === 1;
-                cell.className = `chess-cell ${isDark ? 'dark' : 'light'}`;
-                cell.dataset.r = br;
-                cell.dataset.c = bc;
-
-                // Son hamle vurgusu
-                if (lastMove && ((lastMove.from[0] === br && lastMove.from[1] === bc) || (lastMove.to[0] === br && lastMove.to[1] === bc))) {
-                    cell.classList.add('last-move');
-                }
-
-                // Şah vurgusu
-                if (ChessEngine.isCheck(state)) {
-                    const king = state.turn === 'w' ? 'K' : 'k';
-                    if (state.board[br][bc] === king) {
-                        cell.classList.add('in-check');
-                    }
-                }
-
-                // Seçili kare
-                if (selectedSquare && selectedSquare[0] === br && selectedSquare[1] === bc) {
-                    cell.classList.add('selected');
-                }
-
-                // Geçerli hamle göstergesi
-                const isValidTarget = validMoves.some(m => m.to[0] === br && m.to[1] === bc);
-                if (isValidTarget) {
-                    cell.classList.add('valid-move');
-                    if (state.board[br][bc]) cell.classList.add('valid-capture');
-                }
-
-                // Taş
-                const piece = state.board[br][bc];
-                if (piece) {
-                    const svgUrl = ChessEngine.getPieceSVG(piece);
-                    if (svgUrl) {
-                        const img = document.createElement('img');
-                        img.className = 'chess-piece';
-                        img.src = svgUrl;
-                        img.alt = piece;
-                        img.draggable = false;
-                        cell.appendChild(img);
-                    } else {
-                        const span = document.createElement('span');
-                        span.className = 'chess-piece';
-                        span.textContent = ChessEngine.getSymbol(piece);
-                        cell.appendChild(span);
-                    }
-                }
-
-                // Koordinatlar
-                if (c === 0) {
-                    const rank = document.createElement('span');
-                    rank.className = 'chess-coord rank';
-                    rank.textContent = 8 - br;
-                    cell.appendChild(rank);
-                }
-                if (r === 7) {
-                    const file = document.createElement('span');
-                    file.className = 'chess-coord file';
-                    file.textContent = String.fromCharCode(97 + bc);
-                    cell.appendChild(file);
-                }
-
-                cell.addEventListener('click', () => onCellClick(br, bc));
-                boardEl.appendChild(cell);
-            }
         }
     }
 
