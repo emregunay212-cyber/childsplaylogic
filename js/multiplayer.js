@@ -645,36 +645,29 @@ const Multiplayer = (() => {
     const lobby = snap.val();
     if (!lobby || lobby.state !== 'PLAYING' || lobby.gameType !== 'satranc') return;
 
-    const state = ChessEngine.fenToBoard(lobby.fen);
+    // chess.js ile hamleyi uygula
+    const game = ChessEngine.createGame(lobby.fen);
+    const from = ChessEngine.rcToSquare(moveData.from[0], moveData.from[1]);
+    const to = ChessEngine.rcToSquare(moveData.to[0], moveData.to[1]);
+    const result = game.move({ from, to, promotion: moveData.promotion || 'q' });
+    if (!result) return;
 
-    // Hamleyi bul ve uygula
-    const legalMoves = ChessEngine.getLegalMoves(state);
-    const move = legalMoves.find(m =>
-      m.from[0] === moveData.from[0] && m.from[1] === moveData.from[1] &&
-      m.to[0] === moveData.to[0] && m.to[1] === moveData.to[1]
-    );
-    if (!move) return;
-
-    if (moveData.promotion) move.promotion = moveData.promotion;
-    const newState = ChessEngine.makeMove(state, move);
-    const newFen = ChessEngine.boardToFen(newState);
-
+    const newFen = game.fen();
     const moves = lobby.moves || [];
-    moves.push({ from: move.from, to: move.to, mover: currentRole });
+    moves.push({ from, to, mover: currentRole });
 
     const updates = {
       fen: newFen,
-      currentTurn: newState.turn === 'w' ? 'white' : 'black',
+      currentTurn: game.turn() === 'w' ? 'white' : 'black',
       moves,
-      lastMove: { from: move.from, to: move.to, mover: currentRole, captured: move.capture || null },
+      lastMove: { from, to, mover: currentRole, captured: moveData.captured || null },
     };
 
-    // Mat/pat kontrol
-    if (ChessEngine.isCheckmate(newState)) {
+    if (game.in_checkmate()) {
       updates.state = 'FINISHED';
       updates.winner = currentRole;
       updates.winReason = 'checkmate';
-    } else if (ChessEngine.isStalemate(newState) || ChessEngine.isDraw(newState)) {
+    } else if (game.in_stalemate() || game.in_draw() || game.in_threefold_repetition()) {
       updates.state = 'FINISHED';
       updates.winner = 'draw';
       updates.winReason = 'stalemate';

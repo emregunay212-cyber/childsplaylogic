@@ -1,45 +1,47 @@
 /* ============================================
-   OYUN: Satranç - Tek Oyunculu (9 Seviye, AI)
+   OYUN: Satranç - Tek Oyunculu (9 Seviye)
+   chess.js + Stockfish.js entegrasyonu
    ============================================ */
 
 const Satranc = (() => {
     const id = 'satranc';
     const levels = [
-        { depth: 1, errorRate: 0.5, name: 'Çok Kolay' },
-        { depth: 1, errorRate: 0.35, name: 'Kolay' },
-        { depth: 2, errorRate: 0.4, name: 'Kolay+' },
-        { depth: 2, errorRate: 0.2, name: 'Orta' },
-        { depth: 3, errorRate: 0.2, name: 'Orta+' },
-        { depth: 3, errorRate: 0.1, name: 'Zor' },
-        { depth: 4, errorRate: 0.1, name: 'Zor+' },
-        { depth: 4, errorRate: 0.0, name: 'Çok Zor' },
-        { depth: 5, errorRate: 0.0, name: 'Usta' },
+        { skill: 0,  depth: 5,  errorRate: 0.5, name: 'Çok Kolay' },
+        { skill: 3,  depth: 6,  errorRate: 0.35, name: 'Kolay' },
+        { skill: 5,  depth: 7,  errorRate: 0.25, name: 'Kolay+' },
+        { skill: 8,  depth: 8,  errorRate: 0.15, name: 'Orta' },
+        { skill: 10, depth: 10, errorRate: 0.1, name: 'Orta+' },
+        { skill: 13, depth: 12, errorRate: 0.05, name: 'Zor' },
+        { skill: 15, depth: 14, errorRate: 0.0, name: 'Zor+' },
+        { skill: 18, depth: 16, errorRate: 0.0, name: 'Çok Zor' },
+        { skill: 20, depth: 20, errorRate: 0.0, name: 'Usta' },
     ];
 
     let container = null;
     let callbacks = null;
-    let state = null;
+    let game = null; // chess.js instance
     let selectedSquare = null;
     let validMoves = [];
     let lastMove = null;
     let playerColor = 'w';
-    let aiDepth = 1;
-    let aiErrorRate = 0;
     let aiThinking = false;
     let moveCount = 0;
     let capturedByMe = [];
     let capturedByAI = [];
     let gameEnded = false;
-    let stateHistory = []; // hamle geri alma için
+    let stateHistory = [];
+    let boardMounted = false;
+    let cellCache = [];
+    let currentLevelConfig = null;
+    let currentLevel = 1;
 
-    function init(gameArea, level, cbs) {
+    async function init(gameArea, level, cbs) {
         container = gameArea;
         callbacks = cbs;
-        const config = levels[level - 1];
-        aiDepth = config.depth;
-        aiErrorRate = config.errorRate || 0;
+        currentLevel = level;
+        currentLevelConfig = levels[level - 1];
         playerColor = 'w';
-        state = ChessEngine.fenToBoard(ChessEngine.START_FEN);
+        game = ChessEngine.createGame();
         selectedSquare = null;
         validMoves = [];
         lastMove = null;
@@ -50,15 +52,15 @@ const Satranc = (() => {
         gameEnded = false;
         stateHistory = [];
         boardMounted = false;
+        cellCache = [];
 
         GameEngine.setTotal(1);
+
+        // Stockfish'i arka planda başlat
+        ChessEngine.initStockfish();
+
         render();
     }
-
-    let boardMounted = false;
-
-    // Hücre cache - DOM bir kez oluşturulur, sonra sadece güncellenir
-    let cellCache = []; // 64 hücre referansı
 
     function renderCapturedHTML(pieces) {
         return pieces.filter(p => p).map(p => {
@@ -70,7 +72,6 @@ const Satranc = (() => {
 
     function render() {
         if (!boardMounted) {
-            // İlk render: DOM yapısını bir kez oluştur
             container.innerHTML = `
                 <div class="chess-player-info opponent" id="chess-top-info"></div>
                 <div class="chess-board" id="chess-board"></div>
@@ -78,7 +79,6 @@ const Satranc = (() => {
                 <div id="chess-undo-wrap"></div>
                 <div class="chess-status" id="chess-status"></div>
             `;
-            // 64 hücreyi bir kez oluştur
             const boardEl = container.querySelector('#chess-board');
             cellCache = [];
             const flipped = playerColor === 'b';
@@ -97,39 +97,50 @@ const Satranc = (() => {
             boardMounted = true;
         }
 
-        // Üst/Alt bilgi güncelle
+        // Üst/Alt bilgi
         container.querySelector('#chess-top-info').innerHTML =
             `<span class="chess-player-name">🖥️ Bilgisayar</span><span class="chess-captured">${renderCapturedHTML(capturedByAI)}</span>`;
         container.querySelector('#chess-bot-info').innerHTML =
             `<span class="chess-player-name">👤 Sen</span><span class="chess-captured">${renderCapturedHTML(capturedByMe)}</span>`;
 
-        // Tahtayı güncelle - DOM silmeden sadece class ve içerik değiştir
-        const isCheck = ChessEngine.isCheck(state);
-        const checkKing = isCheck ? (state.turn === 'w' ? 'K' : 'k') : null;
+        // Tahtayı güncelle
+        const board = ChessEngine.gameToBoard(game);
+        const inCheck = game.in_check();
+        const turn = game.turn();
 
         for (const cached of cellCache) {
             const { el, r: br, c: bc } = cached;
             const isDark = (br + bc) % 2 === 1;
 
-            // Class sıfırla ve yeniden ata
             el.className = `chess-cell ${isDark ? 'dark' : 'light'}`;
 
-            if (lastMove && ((lastMove.from[0] === br && lastMove.from[1] === bc) || (lastMove.to[0] === br && lastMove.to[1] === bc)))
-                el.classList.add('last-move');
-            if (checkKing && state.board[br][bc] === checkKing)
-                el.classList.add('in-check');
-            if (selectedSquare && selectedSquare[0] === br && selectedSquare[1] === bc)
-                el.classList.add('selected');
-            if (validMoves.some(m => m.to[0] === br && m.to[1] === bc)) {
-                el.classList.add('valid-move');
-                if (state.board[br][bc]) el.classList.add('valid-capture');
+            if (lastMove) {
+                const [fr, fc] = ChessEngine.squareToRC(lastMove.from);
+                const [tr, tc] = ChessEngine.squareToRC(lastMove.to);
+                if ((br === fr && bc === fc) || (br === tr && bc === tc))
+                    el.classList.add('last-move');
             }
 
-            // Taş içeriğini güncelle (sadece değiştiyse)
-            const piece = state.board[br][bc];
+            if (inCheck) {
+                const king = turn === 'w' ? 'K' : 'k';
+                if (board[br][bc] === king) el.classList.add('in-check');
+            }
+
+            if (selectedSquare && selectedSquare[0] === br && selectedSquare[1] === bc)
+                el.classList.add('selected');
+
+            if (validMoves.some(m => {
+                const [tr, tc] = ChessEngine.squareToRC(m.to);
+                return tr === br && tc === bc;
+            })) {
+                el.classList.add('valid-move');
+                if (board[br][bc]) el.classList.add('valid-capture');
+            }
+
+            // Taş güncelle
+            const piece = board[br][bc];
             const currentPiece = el.dataset.piece || '';
             if (piece !== currentPiece) {
-                // Sadece taş elemanını değiştir, koordinatları koru
                 const oldPieceEl = el.querySelector('.chess-piece');
                 if (oldPieceEl) oldPieceEl.remove();
 
@@ -142,17 +153,12 @@ const Satranc = (() => {
                         img.alt = piece;
                         img.draggable = false;
                         el.insertBefore(img, el.firstChild);
-                    } else {
-                        const span = document.createElement('span');
-                        span.className = 'chess-piece';
-                        span.textContent = ChessEngine.getSymbol(piece);
-                        el.insertBefore(span, el.firstChild);
                     }
                 }
                 el.dataset.piece = piece || '';
             }
 
-            // Koordinatlar (sadece ilk render'da yoksa ekle)
+            // Koordinatlar
             if (!el.querySelector('.chess-coord')) {
                 const idx = cellCache.indexOf(cached);
                 const visualC = idx % 8;
@@ -174,7 +180,7 @@ const Satranc = (() => {
 
         // Geri al butonu
         const undoWrap = container.querySelector('#chess-undo-wrap');
-        if (stateHistory.length > 0 && !aiThinking && !gameEnded && state.turn === playerColor) {
+        if (stateHistory.length > 0 && !aiThinking && !gameEnded && game.turn() === playerColor) {
             if (!undoWrap.querySelector('.chess-undo-btn')) {
                 undoWrap.innerHTML = '<button class="chess-undo-btn">↩ Hamle Geri Al</button>';
                 undoWrap.querySelector('.chess-undo-btn').addEventListener('click', undoMove);
@@ -189,8 +195,8 @@ const Satranc = (() => {
             statusEl.innerHTML = '<span class="chess-thinking">🤔 Düşünüyor...</span>';
         } else if (gameEnded) {
             statusEl.textContent = '';
-        } else if (state.turn === playerColor) {
-            statusEl.innerHTML = isCheck
+        } else if (game.turn() === playerColor) {
+            statusEl.innerHTML = inCheck
                 ? '<span class="chess-check">⚠️ ŞAH! Kralını kurtar!</span>'
                 : '<span>♟️ Senin sıran</span>';
         } else {
@@ -199,91 +205,123 @@ const Satranc = (() => {
     }
 
     function onCellClick(r, c) {
-        if (aiThinking || gameEnded || state.turn !== playerColor) return;
+        if (aiThinking || gameEnded || game.turn() !== playerColor) return;
 
-        const piece = state.board[r][c];
+        const board = ChessEngine.gameToBoard(game);
 
         // Geçerli hamle hedefine tıklandı
-        const targetMove = validMoves.find(m => m.to[0] === r && m.to[1] === c);
+        const sq = ChessEngine.rcToSquare(r, c);
+        const targetMove = validMoves.find(m => m.to === sq);
         if (targetMove) {
             executeMove(targetMove);
             return;
         }
 
         // Kendi taşına tıklandı
+        const piece = board[r][c];
         if (piece && ChessEngine.isOwnPiece(piece, playerColor)) {
             selectedSquare = [r, c];
-            validMoves = ChessEngine.getMovesForSquare(state, r, c);
+            validMoves = ChessEngine.getMovesForSquare(game, r, c);
             AudioManager.play('tap');
             render();
             return;
         }
 
-        // Boş kare veya düşman taşı (seçim iptal)
         selectedSquare = null;
         validMoves = [];
         render();
     }
 
-    function executeMove(move) {
-        // Hamle öncesi durumu kaydet (geri alma için)
+    function executeMove(moveObj) {
+        // Geri alma için kaydet
         stateHistory.push({
-            state: ChessEngine.boardToFen(state),
+            fen: game.fen(),
             capturedByMe: [...capturedByMe],
             capturedByAI: [...capturedByAI],
             moveCount,
             lastMove,
         });
 
-        // Piyon terfisi kontrol (otomatik vezir)
-        if (move.promotion) {
-            move.promotion = playerColor === 'w' ? 'Q' : 'q';
+        // Piyon terfisi (otomatik vezir)
+        const moveData = { from: moveObj.from, to: moveObj.to };
+        if (moveObj.flags && moveObj.flags.includes('p')) {
+            moveData.promotion = 'q';
         }
 
-        const result = ChessEngine.makeMove(state, move);
-        if (move.capture) {
-            capturedByMe.push(move.capture);
+        const result = game.move(moveData);
+        if (!result) return;
+
+        if (result.captured) {
+            const cap = playerColor === 'w' ? result.captured : result.captured.toUpperCase();
+            capturedByMe.push(cap);
         }
-        state = result;
-        lastMove = move;
+
+        lastMove = { from: result.from, to: result.to };
         selectedSquare = null;
         validMoves = [];
         moveCount++;
 
-        AudioManager.play(move.capture ? 'success' : 'tap');
+        AudioManager.play(result.captured ? 'success' : 'tap');
         render();
 
-        // Oyun durumu kontrol
         if (checkGameEnd()) return;
 
         // AI hamlesi
         aiThinking = true;
         render();
-        setTimeout(() => {
-            const aiMove = ChessEngine.getBestMove(state, aiDepth, aiErrorRate);
-            if (aiMove) {
-                if (aiMove.capture) {
-                    capturedByAI.push(aiMove.capture);
+
+        doAIMove();
+    }
+
+    async function doAIMove() {
+        const cfg = currentLevelConfig;
+        let aiMoveStr = null;
+
+        // Stockfish hazırsa onu kullan
+        if (ChessEngine.isStockfishReady()) {
+            aiMoveStr = await ChessEngine.getStockfishMove(game.fen(), cfg.skill, cfg.depth);
+        }
+
+        if (aiMoveStr) {
+            // Stockfish hamlesini uygula
+            const moveData = ChessEngine.sfMoveToChessMove(aiMoveStr);
+            if (moveData) {
+                const result = game.move(moveData);
+                if (result) {
+                    if (result.captured) {
+                        const cap = playerColor === 'w' ? result.captured.toUpperCase() : result.captured;
+                        capturedByAI.push(cap);
+                    }
+                    lastMove = { from: result.from, to: result.to };
+                    moveCount++;
                 }
-                if (aiMove.promotion) {
-                    aiMove.promotion = playerColor === 'w' ? 'q' : 'Q';
-                }
-                state = ChessEngine.makeMove(state, aiMove);
-                lastMove = aiMove;
-                moveCount++;
             }
-            aiThinking = false;
-            render();
-            checkGameEnd();
-        }, 300 + aiDepth * 100);
+        } else {
+            // Fallback: basit AI
+            const fallbackMove = ChessEngine.getFallbackMove(game, cfg.errorRate);
+            if (fallbackMove) {
+                const result = game.move({ from: fallbackMove.from, to: fallbackMove.to, promotion: fallbackMove.promotion });
+                if (result) {
+                    if (result.captured) {
+                        const cap = playerColor === 'w' ? result.captured.toUpperCase() : result.captured;
+                        capturedByAI.push(cap);
+                    }
+                    lastMove = { from: result.from, to: result.to };
+                    moveCount++;
+                }
+            }
+        }
+
+        aiThinking = false;
+        render();
+        checkGameEnd();
     }
 
     function undoMove() {
         if (stateHistory.length === 0 || aiThinking || gameEnded) return;
 
-        // Son kaydedilen durumu geri yükle (oyuncunun hamle öncesi)
         const prev = stateHistory.pop();
-        state = ChessEngine.fenToBoard(prev.state);
+        game = ChessEngine.createGame(prev.fen);
         capturedByMe = prev.capturedByMe;
         capturedByAI = prev.capturedByAI;
         moveCount = prev.moveCount;
@@ -296,9 +334,9 @@ const Satranc = (() => {
     }
 
     function checkGameEnd() {
-        if (ChessEngine.isCheckmate(state)) {
+        if (game.in_checkmate()) {
             gameEnded = true;
-            const playerWon = state.turn !== playerColor;
+            const playerWon = game.turn() !== playerColor;
             if (playerWon) {
                 AudioManager.play('levelComplete');
                 Particles.celebrate();
@@ -306,14 +344,13 @@ const Satranc = (() => {
                 setTimeout(() => callbacks.onComplete(stars), 800);
             } else {
                 AudioManager.play('error');
-                // Kaybetti - tekrar dene mesajı
                 showLoseMessage();
             }
             return true;
         }
-        if (ChessEngine.isStalemate(state) || ChessEngine.isDraw(state)) {
+        if (game.in_stalemate() || game.in_draw() || game.in_threefold_repetition()) {
             gameEnded = true;
-            setTimeout(() => callbacks.onComplete(1), 800); // Pat = 1 yıldız
+            setTimeout(() => callbacks.onComplete(1), 800);
             return true;
         }
         return false;
@@ -332,15 +369,17 @@ const Satranc = (() => {
         `;
         container.appendChild(msg);
         msg.querySelector('.chess-retry-btn').onclick = () => {
-            init(container, levels.indexOf(levels.find(l => l.depth === aiDepth)) + 1, callbacks);
+            init(container, currentLevel, callbacks);
         };
     }
 
     function destroy() {
+        ChessEngine.destroyStockfish();
         if (container) container.innerHTML = '';
         gameEnded = false;
         aiThinking = false;
         boardMounted = false;
+        cellCache = [];
     }
 
     return { id, levels, init, destroy };

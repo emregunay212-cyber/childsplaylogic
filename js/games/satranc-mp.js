@@ -1,5 +1,6 @@
 /* ============================================
    OYUN: Satranç MP - Online 2 Kişilik
+   chess.js entegrasyonu
    ============================================ */
 
 const SatrancMP = (() => {
@@ -8,7 +9,7 @@ const SatrancMP = (() => {
 
     let container = null;
     let gameData = null;
-    let state = null;
+    let game = null; // chess.js instance
     let selectedSquare = null;
     let validMoves = [];
     let lastMove = null;
@@ -20,7 +21,7 @@ const SatrancMP = (() => {
     function init(gameArea, data) {
         container = gameArea;
         gameData = data;
-        state = ChessEngine.fenToBoard(data.fen || ChessEngine.START_FEN);
+        game = ChessEngine.createGame(data.fen || ChessEngine.START_FEN);
         myColor = data.hostColor === 'white' ? (data.yourRole === 'host' ? 'w' : 'b') : (data.yourRole === 'host' ? 'b' : 'w');
         selectedSquare = null;
         validMoves = [];
@@ -35,7 +36,7 @@ const SatrancMP = (() => {
 
     function setupListeners() {
         Multiplayer.on('CHESS_UPDATE', (data) => {
-            if (data.fen) state = ChessEngine.fenToBoard(data.fen);
+            if (data.fen) game = ChessEngine.createGame(data.fen);
             if (data.lastMove) lastMove = data.lastMove;
             if (data.captured && data.mover !== gameData.yourRole) {
                 capturedByOp.push(data.captured);
@@ -43,11 +44,6 @@ const SatrancMP = (() => {
             selectedSquare = null;
             validMoves = [];
             render();
-
-            // Mat/pat kontrol
-            if (data.checkmate || data.stalemate || data.draw) {
-                gameOver = true;
-            }
         });
 
         Multiplayer.on('GAME_OVER', (data) => {
@@ -74,40 +70,36 @@ const SatrancMP = (() => {
         });
     }
 
+    function renderCapturedMP(pieces) {
+        return pieces.filter(p => p).map(p => {
+            const url = ChessEngine.getPieceSVG(p);
+            if (url) return `<img src="${url}" class="chess-captured-piece" alt="${p}" draggable="false">`;
+            return ChessEngine.getSymbol(p);
+        }).join('');
+    }
+
     function render() {
         container.innerHTML = '';
 
-        const isMyTurn = state.turn === myColor;
+        const isMyTurn = game.turn() === myColor;
 
-        // Sıra göstergesi
         const turnDiv = document.createElement('div');
         turnDiv.className = `chess-mp-turn ${isMyTurn ? 'my-turn' : 'op-turn'}`;
         turnDiv.textContent = isMyTurn
-            ? (ChessEngine.isCheck(state) ? '⚠️ ŞAH! Kralını kurtar!' : '♟️ Senin sıran!')
+            ? (game.in_check() ? '⚠️ ŞAH! Kralını kurtar!' : '♟️ Senin sıran!')
             : `⏳ ${gameData.opponentName} düşünüyor...`;
         container.appendChild(turnDiv);
 
-        function renderCapturedMP(pieces) {
-            return pieces.filter(p => p).map(p => {
-                const url = ChessEngine.getPieceSVG(p);
-                if (url) return `<img src="${url}" class="chess-captured-piece" alt="${p}" draggable="false">`;
-                return ChessEngine.getSymbol(p);
-            }).join('');
-        }
-
-        // Üst: Rakip bilgi
         const topInfo = document.createElement('div');
         topInfo.className = 'chess-player-info opponent';
         topInfo.innerHTML = `<span>🔵 ${gameData.opponentName}</span><span class="chess-captured">${renderCapturedMP(capturedByOp)}</span>`;
         container.appendChild(topInfo);
 
-        // Tahta
         const boardEl = document.createElement('div');
         boardEl.className = 'chess-board';
         renderBoard(boardEl);
         container.appendChild(boardEl);
 
-        // Alt: Ben bilgi
         const botInfo = document.createElement('div');
         botInfo.className = 'chess-player-info player';
         botInfo.innerHTML = `<span>🟠 Sen</span><span class="chess-captured">${renderCapturedMP(capturedByMe)}</span>`;
@@ -115,6 +107,7 @@ const SatrancMP = (() => {
     }
 
     function renderBoard(boardEl) {
+        const board = ChessEngine.gameToBoard(game);
         const flipped = myColor === 'b';
         for (let r = 0; r < 8; r++) {
             for (let c = 0; c < 8; c++) {
@@ -123,26 +116,31 @@ const SatrancMP = (() => {
                 const cell = document.createElement('div');
                 const isDark = (br + bc) % 2 === 1;
                 cell.className = `chess-cell ${isDark ? 'dark' : 'light'}`;
-                cell.dataset.r = br;
-                cell.dataset.c = bc;
 
-                if (lastMove && ((lastMove.from[0] === br && lastMove.from[1] === bc) || (lastMove.to[0] === br && lastMove.to[1] === bc)))
-                    cell.classList.add('last-move');
+                if (lastMove) {
+                    const [fr, fc] = ChessEngine.squareToRC(lastMove.from);
+                    const [tr, tc] = ChessEngine.squareToRC(lastMove.to);
+                    if ((br === fr && bc === fc) || (br === tr && bc === tc))
+                        cell.classList.add('last-move');
+                }
 
-                if (ChessEngine.isCheck(state)) {
-                    const king = state.turn === 'w' ? 'K' : 'k';
-                    if (state.board[br][bc] === king) cell.classList.add('in-check');
+                if (game.in_check()) {
+                    const king = game.turn() === 'w' ? 'K' : 'k';
+                    if (board[br][bc] === king) cell.classList.add('in-check');
                 }
 
                 if (selectedSquare && selectedSquare[0] === br && selectedSquare[1] === bc)
                     cell.classList.add('selected');
 
-                if (validMoves.some(m => m.to[0] === br && m.to[1] === bc)) {
+                if (validMoves.some(m => {
+                    const [tr, tc] = ChessEngine.squareToRC(m.to);
+                    return tr === br && tc === bc;
+                })) {
                     cell.classList.add('valid-move');
-                    if (state.board[br][bc]) cell.classList.add('valid-capture');
+                    if (board[br][bc]) cell.classList.add('valid-capture');
                 }
 
-                const piece = state.board[br][bc];
+                const piece = board[br][bc];
                 if (piece) {
                     const svgUrl = ChessEngine.getPieceSVG(piece);
                     if (svgUrl) {
@@ -152,11 +150,6 @@ const SatrancMP = (() => {
                         img.alt = piece;
                         img.draggable = false;
                         cell.appendChild(img);
-                    } else {
-                        const span = document.createElement('span');
-                        span.className = 'chess-piece';
-                        span.textContent = ChessEngine.getSymbol(piece);
-                        cell.appendChild(span);
                     }
                 }
 
@@ -170,18 +163,20 @@ const SatrancMP = (() => {
     }
 
     function onCellClick(r, c) {
-        if (gameOver || state.turn !== myColor) return;
+        if (gameOver || game.turn() !== myColor) return;
 
-        const targetMove = validMoves.find(m => m.to[0] === r && m.to[1] === c);
+        const sq = ChessEngine.rcToSquare(r, c);
+        const targetMove = validMoves.find(m => m.to === sq);
         if (targetMove) {
             executeMove(targetMove);
             return;
         }
 
-        const piece = state.board[r][c];
+        const board = ChessEngine.gameToBoard(game);
+        const piece = board[r][c];
         if (piece && ChessEngine.isOwnPiece(piece, myColor)) {
             selectedSquare = [r, c];
-            validMoves = ChessEngine.getMovesForSquare(state, r, c);
+            validMoves = ChessEngine.getMovesForSquare(game, r, c);
             AudioManager.play('tap');
             render();
             return;
@@ -192,26 +187,28 @@ const SatrancMP = (() => {
         render();
     }
 
-    function executeMove(move) {
-        if (move.promotion) move.promotion = myColor === 'w' ? 'Q' : 'q';
-        if (move.capture) capturedByMe.push(move.capture);
+    function executeMove(moveObj) {
+        const moveData = { from: moveObj.from, to: moveObj.to };
+        if (moveObj.flags && moveObj.flags.includes('p')) {
+            moveData.promotion = 'q';
+        }
 
-        const result = ChessEngine.makeMove(state, move);
-        state = result;
-        lastMove = move;
+        const result = game.move(moveData);
+        if (!result) return;
+
+        if (result.captured) capturedByMe.push(result.captured);
+
+        lastMove = { from: result.from, to: result.to };
         selectedSquare = null;
         validMoves = [];
 
-        AudioManager.play(move.capture ? 'success' : 'tap');
+        AudioManager.play(result.captured ? 'success' : 'tap');
 
-        // Firebase'e gönder
         Multiplayer.send('CHESS_MOVE', {
-            from: move.from,
-            to: move.to,
-            promotion: move.promotion || null,
-            castle: move.castle || null,
-            enPassant: move.enPassant || false,
-            captured: move.capture || null
+            from: [8 - parseInt(result.from[1]), result.from.charCodeAt(0) - 97],
+            to: [8 - parseInt(result.to[1]), result.to.charCodeAt(0) - 97],
+            promotion: result.promotion || null,
+            captured: result.captured || null
         });
 
         render();
@@ -225,7 +222,7 @@ const SatrancMP = (() => {
             : 'linear-gradient(135deg, #f093fb, #f5576c)';
         const icon = isWinner ? '🏆' : isDraw ? '🤝' : '💪';
         const title = isWinner ? 'Tebrikler!' : isDraw ? 'Berabere!' : 'İyi Oyundu!';
-        const reason = data.winReason === 'checkmate' ? 'Şah Mat!' : data.winReason === 'stalemate' ? 'Pat' : data.winReason === 'resign' ? 'Teslim' : '';
+        const reason = data.winReason === 'checkmate' ? 'Şah Mat!' : data.winReason === 'stalemate' ? 'Pat' : '';
 
         if (isWinner) { AudioManager.play('levelComplete'); Particles.celebrate(); }
 
