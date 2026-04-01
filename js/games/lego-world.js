@@ -37,6 +37,9 @@ const LegoWorld = (() => {
   let container, callbacks, currentLevel;
   let scene, camera, renderer, clock;
   let player, playerGroup;
+  let playerMixer = null; // AnimationMixer
+  let playerAnimations = {}; // { idle, walk, run, ... }
+  let currentAnim = null;
   let keys = {};
   let pieces3D = []; // { mesh, type, collected }
   let buildings3D = []; // { group, def, repaired, position }
@@ -191,16 +194,35 @@ const LegoWorld = (() => {
       loader.load('assets/models/player.glb',
         (gltf) => {
           const model = gltf.scene;
-          model.scale.set(0.7, 0.7, 0.7);
+          model.scale.set(0.55, 0.55, 0.55);
           model.position.y = 0;
 
-          // Modelin kendi texture'ını kullan (r160 KHR_texture_transform destekliyor)
           model.traverse((child) => {
             if (child.isMesh) {
               child.castShadow = true;
               child.receiveShadow = true;
             }
           });
+
+          // Animasyonları ayarla
+          if (gltf.animations && gltf.animations.length > 0) {
+            playerMixer = new THREE.AnimationMixer(model);
+            gltf.animations.forEach(clip => {
+              const name = clip.name.toLowerCase();
+              playerAnimations[name] = playerMixer.clipAction(clip);
+              // İlk idle animasyonunu bul ve oynat
+              if (name.includes('idle') && !currentAnim) {
+                playerAnimations[name].play();
+                currentAnim = name;
+              }
+            });
+            // idle bulunamadıysa ilk animasyonu oynat
+            if (!currentAnim && gltf.animations.length > 0) {
+              const firstName = gltf.animations[0].name.toLowerCase();
+              playerAnimations[firstName]?.play();
+              currentAnim = firstName;
+            }
+          }
 
           while (playerGroup.children.length > 0) playerGroup.remove(playerGroup.children[0]);
           playerGroup.add(model);
@@ -212,6 +234,22 @@ const LegoWorld = (() => {
 
     // Başlangıçta fallback göster (GLTF yüklenene kadar)
     createFallbackPlayer();
+  }
+
+  function playAnim(name) {
+    // Animasyon adını bul (kısmi eşleşme)
+    let key = Object.keys(playerAnimations).find(k => k.includes(name));
+    if (!key) key = Object.keys(playerAnimations)[0]; // fallback
+    if (!key || key === currentAnim) return;
+
+    // Eski animasyonu durdur, yenisini başlat (crossfade)
+    if (currentAnim && playerAnimations[currentAnim]) {
+      playerAnimations[currentAnim].fadeOut(0.2);
+    }
+    if (playerAnimations[key]) {
+      playerAnimations[key].reset().fadeIn(0.2).play();
+    }
+    currentAnim = key;
   }
 
   function createFallbackPlayer() {
@@ -724,15 +762,26 @@ const LegoWorld = (() => {
       while (diff < -Math.PI) diff += Math.PI * 2;
       player.rotation.y += diff * 10 * delta;
 
-      // Yürüme animasyonu (bounce + sallama)
-      const t = clock.elapsedTime;
-      player.position.y = Math.abs(Math.sin(t * 10)) * 0.08;
-      player.rotation.z = Math.sin(t * 8) * 0.06;
+      // Yürüme animasyonu
+      if (playerMixer) {
+        playAnim('walk');
+      } else {
+        const t = clock.elapsedTime;
+        player.position.y = Math.abs(Math.sin(t * 10)) * 0.08;
+        player.rotation.z = Math.sin(t * 8) * 0.06;
+      }
     } else {
-      // Duruyorken düz dur
-      player.position.y *= 0.9;
-      player.rotation.z *= 0.9;
+      // Duruyorken
+      if (playerMixer) {
+        playAnim('idle');
+      } else {
+        player.position.y *= 0.9;
+        player.rotation.z *= 0.9;
+      }
     }
+
+    // AnimationMixer güncelle
+    if (playerMixer) playerMixer.update(delta);
 
     // Kamera takibi (yumuşak lerp)
     const camLerp = 4 * delta;
@@ -842,6 +891,8 @@ const LegoWorld = (() => {
 
     scene = null; camera = null; renderer = null;
     player = null; playerGroup = null;
+    if (playerMixer) { playerMixer.stopAllAction(); playerMixer = null; }
+    playerAnimations = {}; currentAnim = null;
     pieces3D = []; buildings3D = []; trees3D = [];
 
     if (hudEl) { hudEl.remove(); hudEl = null; }
