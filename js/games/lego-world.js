@@ -194,35 +194,11 @@ const LegoWorld = (() => {
           model.scale.set(0.7, 0.7, 0.7);
           model.position.y = 0;
 
-          // Mesh'lere LEGO renkleri uygula (texture yerine)
-          const partColors = {
-            'head': 0xFFD600,     // sarı kafa
-            'body': 0xE74C3C,     // kırmızı gövde
-            'arm': 0xFFD600,      // sarı kol
-            'hand': 0xFFD600,     // sarı el
-            'leg': 0x2980B9,      // mavi bacak
-            'shoe': 0x2C3E50,     // koyu ayakkabı
-            'hair': 0x8B4513,     // kahverengi saç
-          };
-          const defaultColor = 0xE74C3C;
-          let meshIdx = 0;
-          const colorOrder = [0x8B4513, 0xFFD600, 0xE74C3C, 0xE74C3C, 0xFFD600, 0xFFD600, 0x2980B9, 0x2980B9, 0x2C3E50, 0x2C3E50];
-
+          // Modelin kendi texture'ını kullan (r160 KHR_texture_transform destekliyor)
           model.traverse((child) => {
             if (child.isMesh) {
               child.castShadow = true;
               child.receiveShadow = true;
-              // Adına göre renk ata, yoksa sırayla
-              const name = (child.name || '').toLowerCase();
-              let color = defaultColor;
-              for (const [part, c] of Object.entries(partColors)) {
-                if (name.includes(part)) { color = c; break; }
-              }
-              if (color === defaultColor && meshIdx < colorOrder.length) {
-                color = colorOrder[meshIdx];
-              }
-              child.material = new THREE.MeshLambertMaterial({ color });
-              meshIdx++;
             }
           });
 
