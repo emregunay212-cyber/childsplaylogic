@@ -5,15 +5,15 @@
 const Satranc = (() => {
     const id = 'satranc';
     const levels = [
-        { depth: 0, name: 'Çok Kolay' },
-        { depth: 1, name: 'Kolay' },
-        { depth: 1, name: 'Kolay+' },
-        { depth: 2, name: 'Orta' },
-        { depth: 2, name: 'Orta+' },
-        { depth: 3, name: 'Zor' },
-        { depth: 3, name: 'Zor+' },
-        { depth: 3, name: 'Çok Zor' },
-        { depth: 4, name: 'Usta' },
+        { depth: 1, errorRate: 0.6, name: 'Çok Kolay' },
+        { depth: 1, errorRate: 0.4, name: 'Kolay' },
+        { depth: 2, errorRate: 0.4, name: 'Kolay+' },
+        { depth: 2, errorRate: 0.2, name: 'Orta' },
+        { depth: 3, errorRate: 0.2, name: 'Orta+' },
+        { depth: 3, errorRate: 0.1, name: 'Zor' },
+        { depth: 4, errorRate: 0.1, name: 'Zor+' },
+        { depth: 4, errorRate: 0.0, name: 'Çok Zor' },
+        { depth: 5, errorRate: 0.0, name: 'Usta' },
     ];
 
     let container = null;
@@ -24,6 +24,7 @@ const Satranc = (() => {
     let lastMove = null;
     let playerColor = 'w';
     let aiDepth = 1;
+    let aiErrorRate = 0;
     let aiThinking = false;
     let moveCount = 0;
     let capturedByMe = [];
@@ -36,6 +37,7 @@ const Satranc = (() => {
         callbacks = cbs;
         const config = levels[level - 1];
         aiDepth = config.depth;
+        aiErrorRate = config.errorRate || 0;
         playerColor = 'w';
         state = ChessEngine.fenToBoard(ChessEngine.START_FEN);
         selectedSquare = null;
@@ -252,7 +254,7 @@ const Satranc = (() => {
         aiThinking = true;
         render();
         setTimeout(() => {
-            const aiMove = ChessEngine.getBestMove(state, aiDepth);
+            const aiMove = ChessEngine.getBestMove(state, aiDepth, aiErrorRate);
             if (aiMove) {
                 if (aiMove.capture) {
                     capturedByAI.push(aiMove.capture);

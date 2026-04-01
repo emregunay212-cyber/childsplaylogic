@@ -432,17 +432,26 @@ const ChessEngine = (() => {
         }
     }
 
-    function getBestMove(state, depth = 2) {
+    function getBestMove(state, depth = 2, errorRate = 0) {
         const moves = getLegalMoves(state);
         if (moves.length === 0) return null;
 
-        // Derinlik 0 = rastgele hamle
-        if (depth <= 0) {
+        // Hata oranına göre rastgele hamle yap (kolay seviyeler için)
+        if (errorRate > 0 && Math.random() < errorRate) {
+            // Tamamen rastgele değil - yeme hamlelerini biraz tercih et
+            const captureMoves = moves.filter(m => m.capture);
+            if (captureMoves.length > 0 && Math.random() < 0.3) {
+                return captureMoves[Math.floor(Math.random() * captureMoves.length)];
+            }
             return moves[Math.floor(Math.random() * moves.length)];
         }
 
-        // Hamle sıralaması
-        moves.sort((a, b) => (b.capture ? 1 : 0) - (a.capture ? 1 : 0));
+        // Hamle sıralaması (yeme önce - alpha-beta budama için kritik)
+        moves.sort((a, b) => {
+            const aVal = a.capture ? PIECE_VALUES[a.capture.toLowerCase()] || 0 : 0;
+            const bVal = b.capture ? PIECE_VALUES[b.capture.toLowerCase()] || 0 : 0;
+            return bVal - aVal;
+        });
 
         let bestMove = moves[0];
         let bestScore = -Infinity;
