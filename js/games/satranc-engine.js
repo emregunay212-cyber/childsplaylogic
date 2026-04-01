@@ -40,28 +40,42 @@ const ChessEngine = (() => {
             if (sfReady) return resolve();
 
             try {
-                // Stockfish.js CDN (lite single-thread, ~2MB)
-                sfWorker = new Worker('https://cdn.jsdelivr.net/npm/stockfish@16.0.0/src/stockfish-nnue-16.js');
+                // Stockfish.js lokal dosyadan Blob Worker oluştur
+                const sfUrl = new URL('js/lib/stockfish.js', window.location.href).href;
+                const blob = new Blob(
+                    [`importScripts("${sfUrl}");`],
+                    { type: 'application/javascript' }
+                );
+                sfWorker = new Worker(URL.createObjectURL(blob));
+
+                let uciTimeout = setTimeout(() => {
+                    if (!sfReady) {
+                        console.warn('Stockfish UCI timeout, fallback AI');
+                        resolve();
+                    }
+                }, 8000);
 
                 sfWorker.onmessage = (e) => {
                     const line = typeof e.data === 'string' ? e.data : e.data?.data || '';
 
                     if (line === 'uciok') {
                         sfReady = true;
+                        clearTimeout(uciTimeout);
                         resolve();
                     }
 
                     // bestmove yanıtı
                     if (line.startsWith('bestmove') && sfResolve) {
-                        const move = line.split(' ')[1]; // 'e2e4' formatı
+                        const move = line.split(' ')[1];
                         sfResolve(move);
                         sfResolve = null;
                     }
                 };
 
-                sfWorker.onerror = () => {
-                    console.warn('Stockfish yüklenemedi, fallback AI kullanılacak');
+                sfWorker.onerror = (err) => {
+                    console.warn('Stockfish Worker hatası:', err);
                     sfReady = false;
+                    clearTimeout(uciTimeout);
                     resolve();
                 };
 
