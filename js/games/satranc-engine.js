@@ -436,14 +436,30 @@ const ChessEngine = (() => {
         const moves = getLegalMoves(state);
         if (moves.length === 0) return null;
 
-        // Hata oranına göre rastgele hamle yap (kolay seviyeler için)
+        // Hata oranına göre zayıf hamle yap (kolay seviyeler için)
         if (errorRate > 0 && Math.random() < errorRate) {
-            // Tamamen rastgele değil - yeme hamlelerini biraz tercih et
-            const captureMoves = moves.filter(m => m.capture);
+            // Büyük taş kaybına yol açan hamleleri filtrele
+            const safeMoves = moves.filter(move => {
+                const newState = makeMove(state, move);
+                // Hamle sonrası rakip değerli taş yiyebilir mi?
+                const opponentMoves = generateMoves(newState, true); // sadece yeme hamleleri
+                const maxLoss = opponentMoves.reduce((max, om) => {
+                    const val = PIECE_VALUES[state.board[om.to[0]]?.[om.to[1]]?.toLowerCase()] || 0;
+                    // Hamle yapan taşın değerinden büyük kayıp varsa tehlikeli
+                    const movedPiece = move.promotion || state.board[move.from[0]][move.from[1]];
+                    const movedVal = PIECE_VALUES[movedPiece?.toLowerCase()] || 0;
+                    return Math.max(max, val > movedVal ? val - movedVal : 0);
+                }, 0);
+                return maxLoss < 400; // Kale (500) veya vezir (900) kaybını engelle
+            });
+
+            const pool = safeMoves.length > 0 ? safeMoves : moves;
+            // Yeme hamlelerini biraz tercih et
+            const captureMoves = pool.filter(m => m.capture);
             if (captureMoves.length > 0 && Math.random() < 0.3) {
                 return captureMoves[Math.floor(Math.random() * captureMoves.length)];
             }
-            return moves[Math.floor(Math.random() * moves.length)];
+            return pool[Math.floor(Math.random() * pool.length)];
         }
 
         // Hamle sıralaması (yeme önce - alpha-beta budama için kritik)

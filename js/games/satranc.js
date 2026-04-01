@@ -5,8 +5,8 @@
 const Satranc = (() => {
     const id = 'satranc';
     const levels = [
-        { depth: 1, errorRate: 0.6, name: 'Çok Kolay' },
-        { depth: 1, errorRate: 0.4, name: 'Kolay' },
+        { depth: 1, errorRate: 0.5, name: 'Çok Kolay' },
+        { depth: 1, errorRate: 0.35, name: 'Kolay' },
         { depth: 2, errorRate: 0.4, name: 'Kolay+' },
         { depth: 2, errorRate: 0.2, name: 'Orta' },
         { depth: 3, errorRate: 0.2, name: 'Orta+' },
