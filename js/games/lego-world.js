@@ -467,44 +467,42 @@ const LegoWorld = (() => {
     const count = currentLevel.pieceCount;
     const typeKeys = Object.keys(PIECE_TYPES);
 
-    // Binalara göre gerekli parçaları ağırlıklı spawn et
+    // Binalara göre gerekli parçaları hesapla
     const needed = {};
     buildings3D.forEach(b => {
+      if (b.repaired) return;
       for (const [t, c] of Object.entries(b.def.required)) {
         needed[t] = (needed[t] || 0) + c;
       }
     });
 
-    // Önce her gerekli tip için tam ihtiyaç kadar ekle (garanti)
+    // Pool: önce her gerekli tipin TAM SAYISINI ekle, sonra ekstra
     const pool = [];
     for (const [t, c] of Object.entries(needed)) {
-      for (let i = 0; i < c; i++) pool.push(t);
+      for (let i = 0; i < c + 1; i++) pool.push(t); // ihtiyaç + 1 fazladan
     }
-    // Sonra fazladan ekle
-    for (const [t, c] of Object.entries(needed)) {
-      for (let i = 0; i < 2; i++) pool.push(t);
-    }
-    // Kalan slotları rastgele doldur
     while (pool.length < count) {
       pool.push(typeKeys[Math.floor(Math.random() * typeKeys.length)]);
     }
-    // Pool'u karıştır (beyazlar sona düşmesin)
+    // Karıştır
     for (let i = pool.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [pool[i], pool[j]] = [pool[j], pool[i]];
     }
 
-    let spawned = 0;
-    let attempts = 0;
-    while (spawned < count && attempts < count * 3) {
-      attempts++;
-      const type = pool[spawned] || typeKeys[Math.floor(Math.random() * typeKeys.length)];
-      const px = (Math.random() - 0.5) * (ws - 4);
-      const pz = (Math.random() - 0.5) * (ws - 4);
+    function getValidPos() {
+      for (let a = 0; a < 50; a++) {
+        const px = (Math.random() - 0.5) * (ws - 4);
+        const pz = (Math.random() - 0.5) * (ws - 4);
+        if (Math.abs(px) < 2 && Math.abs(pz) < 2) continue;
+        return { px, pz };
+      }
+      return { px: 3 + Math.random() * 4, pz: 3 + Math.random() * 4 };
+    }
 
-      // Yol ve binaların üstünde spawn etme
-      if (Math.abs(px) < 2 && Math.abs(pz) < 2) continue;
-      spawned++;
+    for (let i = 0; i < pool.length; i++) {
+      const type = pool[i];
+      const { px, pz } = getValidPos();
 
       const pieceGroup = new THREE.Group();
 
