@@ -212,6 +212,66 @@
 }
 .chess-retry-btn:active { transform: scale(0.95); }
 
+/* Zorluk Seçim Ekranı */
+.chess-diff-screen {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    animation: fadeIn 0.4s ease;
+}
+.chess-diff-title {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-warm);
+    margin-bottom: 0.3rem;
+}
+.chess-diff-subtitle {
+    font-size: 1rem;
+    color: #888;
+    margin-bottom: 1rem;
+}
+.chess-diff-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    max-width: 320px;
+    margin: 0 auto;
+}
+.chess-diff-grid > :last-child {
+    grid-column: 1 / -1;
+    max-width: 154px;
+    margin: 0 auto;
+}
+.chess-diff-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 16px 12px;
+    border: 3px solid #E0E0E0;
+    border-radius: 16px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.chess-diff-card:hover {
+    border-color: var(--diff-color);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+.chess-diff-card:active { transform: scale(0.95); }
+.chess-diff-emoji { font-size: 2.2rem; }
+.chess-diff-name {
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--diff-color);
+}
+.chess-diff-desc {
+    font-size: 0.75rem;
+    color: #999;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
 /* MP özel */
 .chess-mp-turn {
     text-align: center;
