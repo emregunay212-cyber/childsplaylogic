@@ -9,10 +9,9 @@
     "theme_color": "#4AABE0",
     "lang": "tr",
     "icons": [
-        {
-            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2387CEEB' width='100' height='100' rx='20'/><text x='50' y='65' text-anchor='middle' font-size='50'>🎮</text></svg>",
-            "sizes": "any",
-            "type": "image/svg+xml"
-        }
+        { "src": "favicon-32x32.png", "sizes": "32x32", "type": "image/png" },
+        { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+        { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+        { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }
     ]
 }
