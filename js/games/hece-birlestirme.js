@@ -85,8 +85,8 @@ const HeceBirlestirme = (() => {
     const syllables = wordData[0];
     const emoji = wordData[1];
     const distractors = wordData[2] || [];
-    const pool = [...syllables, ...distractors];
-    const shuffled = pool.sort(() => Math.random() - 0.5);
+    const allSyllables = [...syllables, ...distractors];
+    const shuffled = allSyllables.sort(() => Math.random() - 0.5);
     let selected = [];
 
     container.innerHTML = `
