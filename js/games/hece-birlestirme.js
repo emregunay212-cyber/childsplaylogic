@@ -5,31 +5,53 @@
 const HeceBirlestirme = (() => {
   const id = 'hece-birlestirme';
 
-  // Kelime havuzu: [heceler, emoji]
+  // Kelime havuzu: [heceler, emoji, yanıltıcılar(opsiyonel)]
   const WORDS_L1 = [
-    [['la','le'], '🌷'], [['el','ma'], '🍎'], [['ka','pı'], '🚪'],
-    [['ba','ba'], '👨'], [['an','ne'], '👩'], [['de','de'], '👴'],
-    [['ye','mek'], '🍽️'], [['ta','vuk'], '🐔'], [['ör','dek'], '🦆'],
-    [['ka','lem'], '✏️'], [['sil','gi'], '🧹'], [['ma','sa'], '🪑'],
-    [['ke','di'], '🐱'], [['kö','pek'], '🐶'], [['ku','zu'], '🐑'],
+    // 3 heceli kelimeler — yanıltıcı yok
+    [['a','ra','ba'], '🚗'],
+    [['por','ta','kal'], '🍊'],
+    [['do','ma','tes'], '🍅'],
+    [['pa','ta','tes'], '🥔'],
+    [['ke','le','bek'], '🦋'],
+    [['kur','ba','ğa'], '🐸'],
+    [['öğ','ret','men'], '👩‍🏫'],
+    [['ka','rın','ca'], '🐜'],
+    [['san','dal','ye'], '💺'],
+    [['hay','van','lar'], '🐾'],
+    [['per','şem','be'], '📅'],
+    [['çi','çek','ler'], '🌸'],
   ];
   const WORDS_L2 = [
-    [['ba','lık'], '🐟'], [['ço','cuk'], '👦'], [['tav','şan'], '🐰'],
-    [['çi','çek'], '🌸'], [['bu','lut'], '☁️'], [['ka','lem'], '✏️'],
-    [['a','ra','ba'], '🚗'], [['ay','çi','çek'], '🌻'], [['kar','puz'], '🍉'], [['por','ta','kal'], '🍊'],
-    [['ke','le','bek'], '🦋'], [['kur','ba','ğa'], '🐸'], [['de','niz'], '🌊'],
+    // 4 heceli kelimeler + 1 yanıltıcı hece
+    [['bil','gi','sa','yar'], '💻', ['me']],
+    [['te','le','viz','yon'], '📺', ['ka']],
+    [['ka','ra','bi','ber'], '🌶️', ['tu']],
+    [['he','li','kop','ter'], '🚁', ['sa']],
+    [['a','yak','ka','bı'], '👟', ['lı']],
+    [['kü','tüp','ha','ne'], '📚', ['ri']],
+    [['o','to','mo','bil'], '🚗', ['de']],
+    [['cu','mar','te','si'], '📅', ['na']],
+    [['ça','ma','şır','lar'], '🧺', ['be']],
+    [['mü','hen','dis','lik'], '👷', ['pa']],
   ];
   const WORDS_L3 = [
-    [['ke','le','bek'], '🦋'], [['pa','ta','tes'], '🥔'], [['do','ma','tes'], '🍅'],
-    [['por','ta','kal'], '🍊'], [['ço','cuk','lar'], '👧'], [['hay','van','lar'], '🐾'],
-    [['öğ','ret','men'], '👩‍🏫'], [['kur','ba','ğa'], '🐸'], [['bil','gi','sa','yar'], '💻'],
-    [['te','le','viz','yon'], '📺'], [['ka','ra','bi','ber'], '🌶️'],
+    // 4-5 heceli kelimeler + 2 yanıltıcı hece
+    [['an','sik','lo','pe','di'], '📖', ['ta','mu']],
+    [['ü','ni','ver','si','te'], '🎓', ['ka','lo']],
+    [['ma','te','ma','tik','çi'], '🔢', ['bu','le']],
+    [['bil','gi','sa','yar','cı'], '💻', ['me','tu']],
+    [['te','le','viz','yon','cu'], '📺', ['ra','şı']],
+    [['kü','tüp','ha','ne','ci'], '📚', ['bo','lu']],
+    [['he','li','kop','ter','ler'], '🚁', ['sa','ni']],
+    [['o','to','mo','bil','ler'], '🚗', ['ka','dü']],
+    [['a','yak','ka','bı','lar'], '👟', ['ti','se']],
+    [['cu','mar','te','si','ler'], '📅', ['ba','nö']],
   ];
 
   const levels = [
-    { words: WORDS_L1, rounds: 5 },
-    { words: WORDS_L2, rounds: 5 },
-    { words: WORDS_L3, rounds: 5 },
+    { words: WORDS_L1, rounds: 6 },
+    { words: WORDS_L2, rounds: 6 },
+    { words: WORDS_L3, rounds: 7 },
   ];
 
   let container, callbacks, currentLevel, round, totalRounds, usedIndices;
@@ -59,8 +81,12 @@ const HeceBirlestirme = (() => {
 
   function nextRound() {
     round++;
-    const [syllables, emoji] = pickWord();
-    const shuffled = [...syllables].sort(() => Math.random() - 0.5);
+    const wordData = pickWord();
+    const syllables = wordData[0];
+    const emoji = wordData[1];
+    const distractors = wordData[2] || [];
+    const pool = [...syllables, ...distractors];
+    const shuffled = pool.sort(() => Math.random() - 0.5);
     let selected = [];
 
     container.innerHTML = `
