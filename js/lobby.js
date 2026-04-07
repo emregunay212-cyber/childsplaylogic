@@ -147,7 +147,10 @@ const Lobby = (() => {
     });
 
     container.querySelector('.lobby-submit-btn').onclick = () => {
-      if (isPenalti) {
+      if (isAtesBuz) {
+        Multiplayer.on('LOBBY_CREATED', (data) => renderWaitingRoom(data.lobbyId));
+        Multiplayer.send('CREATE_LOBBY', { gameType: currentGameType });
+      } else if (isPenalti) {
         Multiplayer.on('LOBBY_CREATED', (data) => renderWaitingRoom(data.lobbyId));
         Multiplayer.send('CREATE_LOBBY', { gameType: currentGameType });
       } else if (isSatranc) {

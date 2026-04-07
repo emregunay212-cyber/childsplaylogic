@@ -308,6 +308,8 @@ const Multiplayer = (() => {
       // Yeni lobi oluştur
       const defaults = gameType === 'penalti-mp'
         ? { gameType }
+        : gameType === 'ates-buz'
+        ? { gameType }
         : gameType === 'kod-macerasi'
         ? { gameType, gridSize: 6 }
         : gameType === 'satranc'
