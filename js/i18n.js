@@ -3,7 +3,7 @@
    ============================================ */
 
 const TR = {
-    appName: 'ChildsPlayLogic',
+    appName: 'Bilnet Oyun',
     splashSubtitle: 'Öğrenmeye Hazır Mısın?',
     splashStart: 'Oynamaya Başla!',
 

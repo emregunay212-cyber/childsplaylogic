@@ -1,7 +1,7 @@
 {
-    "name": "ChildsPlayLogic - Oyun Bahçesi | Eğitici Çocuk Oyunları",
-    "short_name": "ChildsPlayLogic",
-    "description": "ChildsPlayLogic Oyun Bahçesi - Anaokulu ve ilkokul çocukları için 20+ eğitici oyun. Satranç, kodlama, matematik, hafıza kartları ve online çok oyunculu oyunlar.",
+    "name": "Bilnet Oyun - Eğitici Oyunlar | Eğitici Çocuk Oyunları",
+    "short_name": "Bilnet Oyun",
+    "description": "Bilnet Oyun - Bilnet Okulları Eğitici Oyun Platformu. Anaokulu ve ilkokul çocukları için 20+ eğitici oyun. Satranç, kodlama, matematik, hafıza kartları ve online çok oyunculu oyunlar.",
     "start_url": "./index.html",
     "display": "standalone",
     "orientation": "any",

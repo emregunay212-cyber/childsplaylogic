@@ -1,10 +1,10 @@
-# ChildsPlayLogic - Oyun Bahcesi
+# Bilnet Oyun - Bilnet Okulları Eğitici Oyun Platformu
 
 > Anaokulu ve ilkokul cocuklari icin 20+ ucretsiz egitici oyun platformu.
 
 ## Ana Sayfa
 
-- [Home](https://www.childsplaylogic.com): Tum oyunlara erisim - ucretsiz, kayit gerektirmez, tum cihazlarda calisir
+- [Home](https://www.bilnetoyun.com): Tum oyunlara erisim - ucretsiz, kayit gerektirmez, tum cihazlarda calisir
 
 ## Oyunlar (22 Oyun)
 

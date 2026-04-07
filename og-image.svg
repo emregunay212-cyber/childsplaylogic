@@ -7,13 +7,13 @@
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
   <rect x="40" y="420" width="1120" height="180" rx="20" fill="#7EC850" opacity="0.6"/>
-  <text x="600" y="200" text-anchor="middle" font-size="80" font-family="sans-serif" fill="white" font-weight="bold">ChildsPlayLogic</text>
-  <text x="600" y="280" text-anchor="middle" font-size="40" font-family="sans-serif" fill="rgba(255,255,255,0.9)">Oyun Bahçesi</text>
+  <text x="600" y="200" text-anchor="middle" font-size="80" font-family="sans-serif" fill="white" font-weight="bold">Bilnet Oyun</text>
+  <text x="600" y="280" text-anchor="middle" font-size="40" font-family="sans-serif" fill="rgba(255,255,255,0.9)">Bilnet Okulları Eğitici Oyun Platformu</text>
   <text x="600" y="360" text-anchor="middle" font-size="28" font-family="sans-serif" fill="rgba(255,255,255,0.8)">20+ Eğitici Oyun | Satranç | Kodlama | Matematik | Online</text>
   <text x="200" y="520" text-anchor="middle" font-size="50">🎮</text>
   <text x="400" y="520" text-anchor="middle" font-size="50">♟️</text>
   <text x="600" y="520" text-anchor="middle" font-size="50">🤖</text>
   <text x="800" y="520" text-anchor="middle" font-size="50">⚽</text>
   <text x="1000" y="520" text-anchor="middle" font-size="50">🧩</text>
-  <text x="600" y="600" text-anchor="middle" font-size="22" font-family="sans-serif" fill="rgba(255,255,255,0.7)">www.childsplaylogic.com</text>
+  <text x="600" y="600" text-anchor="middle" font-size="22" font-family="sans-serif" fill="rgba(255,255,255,0.7)">www.bilnetoyun.com</text>
 </svg>

@@ -13,4 +13,4 @@ Allow: /
 User-agent: Googlebot
 Allow: /
 
-Sitemap: https://www.childsplaylogic.com/sitemap.xml
+Sitemap: https://www.bilnetoyun.com/sitemap.xml
