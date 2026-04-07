@@ -36,7 +36,7 @@ const LegoMacerasi = (() => {
       { size: 4, start: {x:0,y:3}, target: {x:3,y:3}, pieces: [{x:1,y:3,color:0},{x:2,y:1,color:1}], obstacles: [{x:2,y:3}], optimal: 8 },
       { size: 4, start: {x:3,y:3}, target: {x:0,y:0}, pieces: [{x:2,y:2,color:0},{x:1,y:1,color:1}], obstacles: [{x:1,y:2}], optimal: 8 },
       { size: 4, start: {x:0,y:0}, target: {x:3,y:3}, pieces: [{x:2,y:0,color:0},{x:3,y:2,color:1}], obstacles: [{x:2,y:2}], optimal: 7 },
-      { size: 4, start: {x:0,y:3}, target: {x:3,y:0}, pieces: [{x:0,y:1,color:0},{x:3,y:2,color:1}], obstacles: [{x:1,y:1},{x:2,y:2}], optimal: 9 },
+      { size: 4, start: {x:0,y:3}, target: {x:3,y:0}, pieces: [{x:1,y:3,color:0},{x:3,y:1,color:1}], obstacles: [{x:1,y:1},{x:2,y:2}], optimal: 8 },
     ],
     3: [ // 5x5, 3 parça, 2-3 engel
       { size: 5, start: {x:0,y:4}, target: {x:4,y:0}, pieces: [{x:1,y:3,color:0},{x:2,y:2,color:1},{x:3,y:1,color:2}], obstacles: [{x:1,y:1},{x:3,y:3}], optimal: 11 },

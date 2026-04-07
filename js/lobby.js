@@ -291,6 +291,11 @@ const Lobby = (() => {
         doRenderWordSetup(data.wordLength, joinedData?.opponentName || '?');
       });
     }
+    Multiplayer.on('ERROR', (data) => {
+      // Lobi bulunamadı/doluysa tekrar dene (yeni lobi oluşturulacak)
+      showLoading(TR.mp.searching);
+      Multiplayer.send('QUICK_PLAY', { gameType: currentGameType });
+    });
     Multiplayer.send('QUICK_PLAY', { gameType: currentGameType });
   }
 

@@ -274,14 +274,17 @@ const Multiplayer = (() => {
   async function quickPlay(gameType) {
     // Bekleten lobi ara
     const snapshot = await db.ref('lobbies').orderByChild('state').equalTo('WAITING').once('value');
+    const entries = [];
+    snapshot.forEach(child => entries.push(child.val()));
+
     let found = false;
-    snapshot.forEach(child => {
-      const lobby = child.val();
-      if (lobby.gameType === gameType && !found) {
+    for (const lobby of entries) {
+      if (lobby.gameType === gameType) {
         found = true;
-        joinLobby(lobby.id);
+        await joinLobby(lobby.id);
+        break;
       }
-    });
+    }
 
     if (!found) {
       // Yeni lobi oluştur
