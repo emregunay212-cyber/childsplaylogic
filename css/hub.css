@@ -353,6 +353,8 @@
 .game-card[data-game="desen"]::before { background: var(--desen-color); }
 .game-card[data-game="lego-macerasi"]::before { background: var(--lego-color); }
 .game-card[data-game="lego-world"]::before { background: var(--lego-world-color); }
+.game-card[data-game="zipla-topla"]::before { background: var(--zipla-topla-color); }
+.game-card[data-game="ates-buz"]::before { background: var(--ates-buz-color); }
 
 /* Kategori başlıkları */
 .hub-category-header {

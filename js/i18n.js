@@ -29,6 +29,8 @@ const TR = {
         'penalti': 'Penaltı',
         'penalti-mp': 'Penaltı Online',
         'tuval': 'Tuval',
+        'zipla-topla': 'Zıpla Topla',
+        'ates-buz': 'Ateş & Buz',
     },
 
     // Multiplayer strings

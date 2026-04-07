@@ -84,11 +84,17 @@ const Lobby = (() => {
 
   // ── Create Lobby ──
   function renderCreateForm() {
-    const isKod = currentGameType === 'kod-macerasi' || currentGameType === 'satranc' || currentGameType === 'penalti-mp';
+    const isKod = currentGameType === 'kod-macerasi' || currentGameType === 'satranc' || currentGameType === 'penalti-mp' || currentGameType === 'ates-buz';
     const isSatranc = currentGameType === 'satranc';
     const isPenalti = currentGameType === 'penalti-mp';
 
-    const settingsHTML = isPenalti ? `
+    const isAtesBuz = currentGameType === 'ates-buz';
+
+    const settingsHTML = isAtesBuz ? `
+        <div class="lobby-setting">
+          <p style="text-align:center;color:#888;font-size:0.9rem;">Host = Ates, Guest = Buz | 5 seviye</p>
+        </div>
+    ` : isPenalti ? `
         <div class="lobby-setting">
           <p style="text-align:center;color:#888;font-size:0.9rem;">⚽ 5'er penaltı atışı + seri penaltı</p>
         </div>

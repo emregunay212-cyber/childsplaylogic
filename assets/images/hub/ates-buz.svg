@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <rect width="256" height="256" rx="48" fill="#2C3E50"/>
+  <!-- Zemin -->
+  <rect x="20" y="190" width="216" height="16" rx="4" fill="#4a4a5e"/>
+  <!-- Lava -->
+  <rect x="80" y="190" width="40" height="16" rx="2" fill="#FF4500"/>
+  <!-- Su -->
+  <rect x="140" y="190" width="40" height="16" rx="2" fill="#1E90FF"/>
+  <!-- Ateş karakteri -->
+  <circle cx="90" cy="150" r="16" fill="#FF6600"/>
+  <rect x="80" y="158" width="20" height="22" rx="4" fill="#FF4500"/>
+  <circle cx="85" cy="148" r="4" fill="white"/>
+  <circle cx="95" cy="148" r="4" fill="white"/>
+  <circle cx="85" cy="148" r="2" fill="#333"/>
+  <circle cx="95" cy="148" r="2" fill="#333"/>
+  <polygon points="82,138 90,124 98,138" fill="#FFD700"/>
+  <polygon points="85,138 90,128 95,138" fill="#FF6600"/>
+  <!-- Buz karakteri -->
+  <circle cx="166" cy="150" r="16" fill="#4FC3F7"/>
+  <rect x="156" y="158" width="20" height="22" rx="4" fill="#1E90FF"/>
+  <circle cx="161" cy="148" r="4" fill="white"/>
+  <circle cx="171" cy="148" r="4" fill="white"/>
+  <circle cx="161" cy="148" r="2" fill="#333"/>
+  <circle cx="171" cy="148" r="2" fill="#333"/>
+  <polygon points="158,138 163,128 168,138" fill="#B3E5FC"/>
+  <polygon points="164,138 169,128 174,138" fill="#B3E5FC"/>
+  <!-- VS -->
+  <text x="128" y="110" text-anchor="middle" font-size="28" font-family="sans-serif" fill="white" font-weight="bold">VS</text>
+  <!-- Kapılar -->
+  <rect x="30" y="160" width="18" height="30" rx="3" fill="#FF6347"/>
+  <rect x="33" y="163" width="12" height="24" rx="2" fill="#FFD700"/>
+  <rect x="208" y="160" width="18" height="30" rx="3" fill="#4FC3F7"/>
+  <rect x="211" y="163" width="12" height="24" rx="2" fill="#E0F7FA"/>
+</svg>

@@ -65,6 +65,7 @@ const App = (() => {
                 { game: LegoWorld, color: 'var(--lego-world-color)' },
                 { game: Satranc, color: 'var(--satranc-color)' },
                 { game: Penalti, color: 'var(--penalti-color)' },
+                { game: ZiplaTopla, color: 'var(--zipla-topla-color)' },
             ]
         },
     ];
@@ -79,6 +80,7 @@ const App = (() => {
         { id: 'kod-macerasi', game: KodMacerasiMP },
         { id: 'satranc', game: SatrancMP },
         { id: 'penalti-mp', game: PenaltiMP },
+        { id: 'ates-buz', game: AtesBuz },
     ];
 
     let currentView = 'splash';

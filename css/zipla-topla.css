@@ -1,0 +1,59 @@
+/* Zıpla Topla - Platform Oyunu */
+.zt-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+}
+.zt-canvas {
+    width: 100%;
+    max-width: 800px;
+    height: auto;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    image-rendering: pixelated;
+    background: #87CEEB;
+}
+.zt-hud {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #B8860B;
+    background: linear-gradient(135deg, #FFF8E1, #FFF3C4);
+    padding: 8px 20px;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.zt-controls {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+}
+.zt-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 3px solid rgba(0,0,0,0.1);
+    font-size: 1.5rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.1s, box-shadow 0.1s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    touch-action: manipulation;
+}
+.zt-btn:active { transform: scale(0.9); }
+.zt-btn-left { background: linear-gradient(135deg, #74b9ff, #0984e3); color: white; }
+.zt-btn-right { background: linear-gradient(135deg, #74b9ff, #0984e3); color: white; }
+.zt-btn-jump { background: linear-gradient(135deg, #55efc4, #00b894); color: white; }
+
+@media (min-width: 768px) {
+    .zt-controls { display: none; }
+}
+@media (max-width: 480px) {
+    .zt-btn { width: 56px; height: 56px; font-size: 1.3rem; }
+}

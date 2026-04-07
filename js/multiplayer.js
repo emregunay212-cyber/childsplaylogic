@@ -61,6 +61,7 @@ const Multiplayer = (() => {
       case 'CHESS_MOVE': return chessMove(payload);
       case 'PENALTY_SHOOT': return penaltyShoot(payload.zone);
       case 'PENALTY_KEEPER': return penaltyKeeper(payload.zone);
+      case 'AB_UPDATE': return abUpdate(payload);
       case 'LEAVE_LOBBY': return leaveLobby();
       default: console.warn('Unknown message type:', type);
     }
@@ -160,6 +161,15 @@ const Multiplayer = (() => {
         winner: null,
         createdAt: firebase.database.ServerValue.TIMESTAMP
       };
+    } else if (gameType === 'ates-buz') {
+      lobbyData = {
+        id: lobbyId, gameType,
+        hostId: playerId, hostName: playerName, guestId: null, guestName: null,
+        state: 'WAITING', level: 1,
+        positions: { host: {x:0,y:0}, guest: {x:0,y:0} },
+        buttons: {},
+        createdAt: firebase.database.ServerValue.TIMESTAMP
+      };
     } else if (gameType === 'satranc') {
       const hostColor = opts.hostColor || (Math.random() < 0.5 ? 'white' : 'black');
       lobbyData = {
@@ -241,6 +251,14 @@ const Multiplayer = (() => {
         yourRole: 'guest', opponentName: lobby.hostName,
         fen: lobby.fen, hostColor: lobby.hostColor,
         gameType: 'satranc'
+      });
+    } else if (lobby.gameType === 'ates-buz') {
+      await ref.update({ guestId: playerId, guestName: playerName, state: 'PLAYING' });
+      listenToLobby(lobbyId);
+      emit('PLAYER_JOINED', { opponentName: lobby.hostName, role: 'guest' });
+      emit('GAME_START', {
+        yourRole: 'guest', opponentName: lobby.hostName,
+        gameType: 'ates-buz', lobbyId, level: lobby.level || 1
       });
     } else if (lobby.gameType === 'kod-macerasi') {
       await ref.update({ guestId: playerId, guestName: playerName, state: 'PLAYING' });
@@ -470,6 +488,11 @@ const Multiplayer = (() => {
     await ref.update({ pendingShot: { zone, player: currentRole } });
     // Eğer kaleci de seçtiyse sonuç hesapla
     await resolvePenalty(ref);
+  }
+
+  // Ateş & Buz - pozisyon güncelleme (oyun kendi Firebase'ini yönetir)
+  async function abUpdate(payload) {
+    // Boş - AtesBuz oyunu doğrudan Firebase'e yazıyor
   }
 
   async function penaltyKeeper(zone) {
@@ -714,6 +737,11 @@ const Multiplayer = (() => {
             yourRole: 'host', opponentName: lobby.guestName,
             fen: lobby.fen, hostColor: lobby.hostColor,
             gameType: 'satranc'
+          });
+        } else if (lobby.gameType === 'ates-buz') {
+          emit('GAME_START', {
+            yourRole: 'host', opponentName: lobby.guestName,
+            gameType: 'ates-buz', lobbyId: currentLobbyId, level: lobby.level || 1
           });
         } else if (lobby.gameType === 'kod-macerasi') {
           const round = lobby.rounds[lobby.currentRound];
