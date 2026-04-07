@@ -255,6 +255,7 @@ const App = (() => {
     function renderHubGrid() {
         const grid = document.getElementById('hub-grid');
         grid.innerHTML = '';
+        let cardIndex = 0;
 
         function createGameCard(game) {
             const card = document.createElement('div');
@@ -277,6 +278,9 @@ const App = (() => {
                 <div class="card-stars">${starsHTML}</div>
             `;
 
+            card.style.animationDelay = `${cardIndex * 0.06}s`;
+            cardIndex++;
+
             card.addEventListener('click', () => { AudioManager.play('tap'); startGame(game); });
             card.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); AudioManager.play('tap'); startGame(game); }
@@ -297,6 +301,8 @@ const App = (() => {
                 <div class="card-title">${TR.games[id]}</div>
                 <div class="card-stars"><span style="font-size:0.7rem;color:#888">🎮 Online</span></div>
             `;
+            card.style.animationDelay = `${cardIndex * 0.06}s`;
+            cardIndex++;
             card.addEventListener('click', () => { AudioManager.play('tap'); startMultiplayerGame(game); });
             return card;
         }

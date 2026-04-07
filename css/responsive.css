@@ -82,11 +82,11 @@
         border-radius: var(--radius-sm);
     }
 
-    .card-title { font-size: 0.85rem; }
+    .card-title { font-size: 0.95rem; }
     .card-stars svg { width: 18px; height: 18px; }
 
     .top-title { font-size: 1.1rem; }
-    .star-counter { padding: 4px 8px; font-size: 0.85rem; }
+    .star-counter { padding: 6px 10px; font-size: 0.95rem; }
 
     .sun { width: 50px; height: 50px; top: 5%; right: 5%; }
 
@@ -114,8 +114,8 @@
 
 /* Landscape küçük cihaz */
 @media (max-height: 500px) and (orientation: landscape) {
-    .hub { padding-top: 50px; }
-    .top-bar { height: 50px; }
+    .hub { padding-top: 54px; }
+    .top-bar { height: 54px; }
     .game-toolbar { height: 46px; }
     .game-area { top: 46px; padding: var(--space-sm); }
 
@@ -221,8 +221,8 @@
 @supports (padding-top: env(safe-area-inset-top)) {
     .top-bar {
         padding-top: env(safe-area-inset-top);
-        height: calc(60px + env(safe-area-inset-top));
+        height: calc(64px + env(safe-area-inset-top));
     }
-    .hub { padding-top: calc(60px + env(safe-area-inset-top)); }
+    .hub { padding-top: calc(130px + env(safe-area-inset-top)); }
     .game-area { bottom: env(safe-area-inset-bottom); }
 }
