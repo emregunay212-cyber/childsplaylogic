@@ -4,9 +4,20 @@
 
 const App = (() => {
     // Oyun kategorileri
+    const categoryIcons = {
+        letters: 'assets/images/categories/letters.png',
+        numbers: 'assets/images/categories/numbers.png',
+        puzzles: 'assets/images/categories/puzzles.png',
+        creativity: 'assets/images/categories/creativity.png',
+        strategy: 'assets/images/categories/strategy.png',
+        home: 'assets/images/categories/home.png',
+        online: 'assets/images/categories/online.png',
+    };
+
     const gameCategories = [
         {
-            title: '📚 Harfler & Kelimeler',
+            title: 'Harfler & Kelimeler',
+            icon: categoryIcons.letters,
             color: '#45B7D1',
             games: [
                 { game: HarfTanima, color: 'var(--harf-color)' },
@@ -14,7 +25,8 @@ const App = (() => {
             ]
         },
         {
-            title: '🔢 Sayılar & Matematik',
+            title: 'Sayılar & Matematik',
+            icon: categoryIcons.numbers,
             color: '#4ECDC4',
             games: [
                 { game: SayiSayma, color: 'var(--sayi-color)' },
@@ -23,7 +35,8 @@ const App = (() => {
             ]
         },
         {
-            title: '🧩 Bulmaca & Mantık',
+            title: 'Bulmaca & Mantık',
+            icon: categoryIcons.puzzles,
             color: '#A55EEA',
             games: [
                 { game: HafizaKartlari, color: 'var(--hafiza-color)' },
@@ -33,7 +46,8 @@ const App = (() => {
             ]
         },
         {
-            title: '🎨 Yaratıcılık',
+            title: 'Yaratıcılık',
+            icon: categoryIcons.creativity,
             color: '#FF78C4',
             games: [
                 { game: RenkEslestirme, color: 'var(--renk-color)' },
@@ -42,7 +56,8 @@ const App = (() => {
             ]
         },
         {
-            title: '🎮 Strateji & Macera',
+            title: 'Strateji & Macera',
+            icon: categoryIcons.strategy,
             color: '#27AE60',
             games: [
                 { game: KodMacerasi, color: 'var(--kodmacerasi-color)' },
@@ -171,17 +186,28 @@ const App = (() => {
     function renderCategoryNav() {
         const nav = document.getElementById('hub-nav-scroll');
         const cats = [
-            { id: 'all', emoji: '🏠', label: 'Tümü' },
-            ...gameCategories.map((c, i) => ({ id: 'cat-' + i, emoji: c.title.split(' ')[0], label: c.title.replace(/^[^\s]+\s/, '') })),
-            { id: 'mp', emoji: '🌐', label: 'Online' },
+            { id: 'all', icon: categoryIcons.home, label: 'Tümü' },
+            ...gameCategories.map((c, i) => ({ id: 'cat-' + i, icon: c.icon, label: c.title })),
+            { id: 'mp', icon: categoryIcons.online, label: 'Online' },
         ];
 
-        nav.innerHTML = cats.map(c =>
-            `<button class="hub-nav-chip ${c.id === activeCategory ? 'active' : ''}" data-cat="${c.id}">
-                <span class="chip-emoji">${c.emoji}</span>
-                <span class="chip-label">${c.label}</span>
-            </button>`
-        ).join('');
+        nav.innerHTML = '';
+        cats.forEach(c => {
+            const btn = document.createElement('button');
+            btn.className = 'hub-nav-chip' + (c.id === activeCategory ? ' active' : '');
+            btn.dataset.cat = c.id;
+            const img = document.createElement('img');
+            img.className = 'chip-icon';
+            img.src = c.icon;
+            img.alt = c.label;
+            img.draggable = false;
+            btn.appendChild(img);
+            const lbl = document.createElement('span');
+            lbl.className = 'chip-label';
+            lbl.textContent = c.label;
+            btn.appendChild(lbl);
+            nav.appendChild(btn);
+        });
 
         nav.querySelectorAll('.hub-nav-chip').forEach(chip => {
             chip.onclick = () => {
@@ -299,7 +325,7 @@ const App = (() => {
                 <div class="mp-badge">2 Oyuncu</div>
                 <div class="card-icon"><img src="assets/images/hub/${id}.svg" alt="${TR.games[id]}" draggable="false"></div>
                 <div class="card-title">${TR.games[id]}</div>
-                <div class="card-stars"><span style="font-size:0.7rem;color:#888">🎮 Online</span></div>
+                <div class="card-stars"><span style="font-size:0.7rem;color:#888">Online</span></div>
             `;
             card.style.animationDelay = `${cardIndex * 0.06}s`;
             cardIndex++;
@@ -318,7 +344,16 @@ const App = (() => {
 
                 const header = document.createElement('div');
                 header.className = 'hub-category-header';
-                header.innerHTML = `<h3 style="--cat-color: ${category.color}">${category.title}</h3>`;
+                const h3 = document.createElement('h3');
+                h3.style.setProperty('--cat-color', category.color);
+                const catImg = document.createElement('img');
+                catImg.src = category.icon;
+                catImg.alt = category.title;
+                catImg.className = 'cat-header-icon';
+                catImg.draggable = false;
+                h3.appendChild(catImg);
+                h3.appendChild(document.createTextNode(' ' + category.title));
+                header.appendChild(h3);
                 grid.appendChild(header);
 
                 category.games.forEach(({ game }) => {
@@ -331,7 +366,16 @@ const App = (() => {
         if (showAll || showMP) {
             const mpHeader = document.createElement('div');
             mpHeader.className = 'hub-category-header mp-section-header';
-            mpHeader.innerHTML = `<h3 style="--cat-color: #5B4A8A">🌐 ${TR.multiplayerTitle}</h3>`;
+            const mpH3 = document.createElement('h3');
+            mpH3.style.setProperty('--cat-color', '#5B4A8A');
+            const mpImg = document.createElement('img');
+            mpImg.src = categoryIcons.online;
+            mpImg.alt = 'Online';
+            mpImg.className = 'cat-header-icon';
+            mpImg.draggable = false;
+            mpH3.appendChild(mpImg);
+            mpH3.appendChild(document.createTextNode(' ' + TR.multiplayerTitle));
+            mpHeader.appendChild(mpH3);
             grid.appendChild(mpHeader);
 
             mpGamesList.forEach(({ id, game }) => {

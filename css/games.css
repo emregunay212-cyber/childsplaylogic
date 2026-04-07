@@ -605,6 +605,8 @@
 .hece-progress { font-size: 0.85rem; font-weight: 600; color: #888; margin-bottom: 0.5rem; }
 .hece-target { margin-bottom: 1.5rem; }
 .hece-emoji { font-size: 3.5rem; display: block; margin-bottom: 0.3rem; }
+.hece-emoji-img { width: 80px; height: 80px; object-fit: contain; display: block; margin: 0 auto 0.3rem; border-radius: 12px; }
+.hece-reveal-img { width: 40px; height: 40px; object-fit: contain; vertical-align: middle; margin-right: 8px; }
 .hece-hint { font-size: 0.9rem; color: #636e72; font-weight: 600; }
 
 .hece-answer-area {

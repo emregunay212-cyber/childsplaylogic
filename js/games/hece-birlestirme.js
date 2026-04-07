@@ -5,47 +5,48 @@
 const HeceBirlestirme = (() => {
   const id = 'hece-birlestirme';
 
-  // Kelime havuzu: [heceler, emoji, yanıltıcılar(opsiyonel)]
+  // Kelime havuzu: [heceler, resim_yolu, yanıltıcılar(opsiyonel)]
+  const IMG = 'assets/images/words/';
   const WORDS_L1 = [
     // 3 heceli kelimeler — yanıltıcı yok
-    [['a','ra','ba'], '🚗'],
-    [['por','ta','kal'], '🍊'],
-    [['do','ma','tes'], '🍅'],
-    [['pa','ta','tes'], '🥔'],
-    [['ke','le','bek'], '🦋'],
-    [['kur','ba','ğa'], '🐸'],
-    [['öğ','ret','men'], '👩‍🏫'],
-    [['ka','rın','ca'], '🐜'],
-    [['san','dal','ye'], '💺'],
-    [['hay','van','lar'], '🐾'],
-    [['per','şem','be'], '📅'],
-    [['çi','çek','ler'], '🌸'],
+    [['a','ra','ba'], IMG+'araba.png'],
+    [['por','ta','kal'], IMG+'portakal.png'],
+    [['do','ma','tes'], IMG+'domates.png'],
+    [['pa','ta','tes'], IMG+'patates.png'],
+    [['ke','le','bek'], IMG+'kelebek.png'],
+    [['kur','ba','ğa'], IMG+'kurbaga.png'],
+    [['öğ','ret','men'], IMG+'ogretmen.png'],
+    [['ka','rın','ca'], IMG+'karinca.png'],
+    [['san','dal','ye'], IMG+'sandalye.png'],
+    [['hay','van','lar'], IMG+'hayvanlar.png'],
+    [['per','şem','be'], IMG+'takvim.png'],
+    [['çi','çek','ler'], IMG+'cicekler.png'],
   ];
   const WORDS_L2 = [
     // 4 heceli kelimeler + 1 yanıltıcı hece
-    [['bil','gi','sa','yar'], '💻', ['me']],
-    [['te','le','viz','yon'], '📺', ['ka']],
-    [['ka','ra','bi','ber'], '🌶️', ['tu']],
-    [['he','li','kop','ter'], '🚁', ['sa']],
-    [['a','yak','ka','bı'], '👟', ['lı']],
-    [['kü','tüp','ha','ne'], '📚', ['ri']],
-    [['o','to','mo','bil'], '🚗', ['de']],
-    [['cu','mar','te','si'], '📅', ['na']],
-    [['ça','ma','şır','lar'], '🧺', ['be']],
-    [['mü','hen','dis','lik'], '👷', ['pa']],
+    [['bil','gi','sa','yar'], IMG+'bilgisayar.png', ['me']],
+    [['te','le','viz','yon'], IMG+'televizyon.png', ['ka']],
+    [['ka','ra','bi','ber'], IMG+'karabiber.png', ['tu']],
+    [['he','li','kop','ter'], IMG+'helikopter.png', ['sa']],
+    [['a','yak','ka','bı'], IMG+'ayakkabi.png', ['lı']],
+    [['kü','tüp','ha','ne'], IMG+'kutüphane.png', ['ri']],
+    [['o','to','mo','bil'], IMG+'araba.png', ['de']],
+    [['cu','mar','te','si'], IMG+'takvim.png', ['na']],
+    [['ça','ma','şır','lar'], IMG+'camasir.png', ['be']],
+    [['mü','hen','dis','lik'], IMG+'muhendis.png', ['pa']],
   ];
   const WORDS_L3 = [
     // 4-5 heceli kelimeler + 2 yanıltıcı hece
-    [['an','sik','lo','pe','di'], '📖', ['ta','mu']],
-    [['ü','ni','ver','si','te'], '🎓', ['ka','lo']],
-    [['ma','te','ma','tik','çi'], '🔢', ['bu','le']],
-    [['bil','gi','sa','yar','cı'], '💻', ['me','tu']],
-    [['te','le','viz','yon','cu'], '📺', ['ra','şı']],
-    [['kü','tüp','ha','ne','ci'], '📚', ['bo','lu']],
-    [['he','li','kop','ter','ler'], '🚁', ['sa','ni']],
-    [['o','to','mo','bil','ler'], '🚗', ['ka','dü']],
-    [['a','yak','ka','bı','lar'], '👟', ['ti','se']],
-    [['cu','mar','te','si','ler'], '📅', ['ba','nö']],
+    [['an','sik','lo','pe','di'], IMG+'kutüphane.png', ['ta','mu']],
+    [['ü','ni','ver','si','te'], IMG+'universite.png', ['ka','lo']],
+    [['ma','te','ma','tik','çi'], IMG+'matematik.png', ['bu','le']],
+    [['bil','gi','sa','yar','cı'], IMG+'bilgisayar.png', ['me','tu']],
+    [['te','le','viz','yon','cu'], IMG+'televizyon.png', ['ra','şı']],
+    [['kü','tüp','ha','ne','ci'], IMG+'kutüphane.png', ['bo','lu']],
+    [['he','li','kop','ter','ler'], IMG+'helikopter.png', ['sa','ni']],
+    [['o','to','mo','bil','ler'], IMG+'araba.png', ['ka','dü']],
+    [['a','yak','ka','bı','lar'], IMG+'ayakkabi.png', ['ti','se']],
+    [['cu','mar','te','si','ler'], IMG+'takvim.png', ['ba','nö']],
   ];
 
   const levels = [
@@ -83,7 +84,7 @@ const HeceBirlestirme = (() => {
     round++;
     const wordData = pickWord();
     const syllables = wordData[0];
-    const emoji = wordData[1];
+    const imgSrc = wordData[1];
     const distractors = wordData[2] || [];
     const allSyllables = [...syllables, ...distractors];
     const shuffled = allSyllables.sort(() => Math.random() - 0.5);
@@ -93,7 +94,7 @@ const HeceBirlestirme = (() => {
       <div class="hece-game">
         <div class="hece-progress">Kelime ${round}/${totalRounds}</div>
         <div class="hece-target">
-          <span class="hece-emoji">${emoji}</span>
+          <img class="hece-emoji-img" src="${imgSrc}" alt="ipucu" draggable="false">
           <span class="hece-hint">Heceleri doğru sıraya koy!</span>
         </div>
         <div class="hece-answer-area" id="hece-answer">
@@ -126,7 +127,7 @@ const HeceBirlestirme = (() => {
 
         // All syllables placed?
         if (selected.length === syllables.length) {
-          setTimeout(() => checkAnswer(selected, syllables, emoji), 400);
+          setTimeout(() => checkAnswer(selected, syllables, imgSrc), 400);
         }
       };
     });
@@ -143,7 +144,7 @@ const HeceBirlestirme = (() => {
     container.querySelector('.hece-game').appendChild(resetBtn);
   }
 
-  function checkAnswer(selected, correct, emoji) {
+  function checkAnswer(selected, correct, imgSrc) {
     const isCorrect = selected.join('') === correct.join('');
     const answerArea = container.querySelector('#hece-answer');
 
@@ -152,9 +153,18 @@ const HeceBirlestirme = (() => {
       callbacks.onCorrect();
       AudioManager.play('success');
 
-      // Show full word
+      // Show full word with image
       const word = correct.join('');
-      answerArea.innerHTML = `<div class="hece-word-reveal">${emoji} ${word}</div>`;
+      while (answerArea.firstChild) answerArea.removeChild(answerArea.firstChild);
+      const reveal = document.createElement('div');
+      reveal.className = 'hece-word-reveal';
+      const revealImg = document.createElement('img');
+      revealImg.src = imgSrc;
+      revealImg.alt = word;
+      revealImg.className = 'hece-reveal-img';
+      reveal.appendChild(revealImg);
+      reveal.appendChild(document.createTextNode(word));
+      answerArea.appendChild(reveal);
 
       const rect = answerArea.getBoundingClientRect();
       Particles.sparkle(rect.left + rect.width / 2, rect.top, 8);

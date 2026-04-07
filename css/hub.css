@@ -58,8 +58,19 @@
     box-shadow: 0 4px 16px rgba(102,126,234,0.4);
     font-weight: 600;
 }
-.chip-emoji { font-size: 1.4rem; line-height: 1; }
+.chip-icon {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
 .chip-label { line-height: 1; }
+.cat-header-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    vertical-align: middle;
+}
 
 /* ── Popüler Oyunlar ── */
 .hub-popular {
@@ -378,7 +389,7 @@
 /* ── Mobil Responsive ── */
 @media (max-width: 480px) {
     .hub-nav-chip { padding: 10px 14px; font-size: 0.95rem; gap: 6px; min-height: 48px; }
-    .chip-emoji { font-size: 1.2rem; }
+    .chip-icon { width: 24px; height: 24px; }
     .hub-nav-scroll { gap: 8px; padding: 8px 12px; }
 
     .popular-card { min-width: 150px; padding: 10px 12px; }
