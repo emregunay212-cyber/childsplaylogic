@@ -266,11 +266,11 @@
 .game-card:hover, .game-card:focus-visible {
     transform: scale(1.08) translateY(-6px);
     box-shadow: 0 12px 36px rgba(0,0,0,0.18);
-    animation: none;
+    animation-play-state: paused;
 }
 
 .game-card:active {
-    animation: bouncePress 0.3s ease;
+    transform: scale(0.95);
     box-shadow: var(--shadow-sm);
 }
 
