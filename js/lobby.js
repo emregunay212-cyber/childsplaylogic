@@ -191,8 +191,8 @@ const Lobby = (() => {
       </div>`;
 
     Multiplayer.on('PLAYER_JOINED', (data) => {
-      if (currentGameType === 'kod-macerasi' || currentGameType === 'satranc' || currentGameType === 'penalti-mp') {
-        // Kod macerasi: kelime girisi yok, GAME_START bekle
+      if (currentGameType === 'kod-macerasi' || currentGameType === 'satranc' || currentGameType === 'penalti-mp' || currentGameType === 'ates-buz') {
+        // Kelime girisi yok, GAME_START bekle
         Multiplayer.on('GAME_START', (gameData) => {
           Multiplayer.off('GAME_START');
           Multiplayer.off('PLAYER_JOINED');
@@ -203,8 +203,8 @@ const Lobby = (() => {
       }
     });
 
-    // Also listen for GAME_START directly (for joiner in kod-macerasi)
-    if (currentGameType === 'kod-macerasi' || currentGameType === 'satranc') {
+    // Also listen for GAME_START directly (for joiner)
+    if (currentGameType === 'kod-macerasi' || currentGameType === 'satranc' || currentGameType === 'ates-buz') {
       Multiplayer.on('GAME_START', (gameData) => {
         Multiplayer.off('GAME_START');
         Multiplayer.off('PLAYER_JOINED');
@@ -240,10 +240,10 @@ const Lobby = (() => {
       listContainer.innerHTML = data.lobbies.map(l => `
         <div class="lobby-list-card">
           <div class="lobby-list-info">
-            <span class="lobby-list-icon">${l.gameType === 'penalti-mp' ? '⚽' : l.gameType === 'kod-macerasi' ? '🤖' : l.gameType === 'kelime-tahmin' ? '🔤' : l.gameType === 'satranc' ? '♟️' : '🔡'}</span>
+            <span class="lobby-list-icon">${l.gameType === 'penalti-mp' ? '⚽' : l.gameType === 'ates-buz' ? '🔥' : l.gameType === 'kod-macerasi' ? '🤖' : l.gameType === 'kelime-tahmin' ? '🔤' : l.gameType === 'satranc' ? '♟️' : '🔡'}</span>
             <div>
               <strong>${l.hostName}</strong>
-              <span class="lobby-list-detail">${l.gameType === 'penalti-mp' ? '5 atış' : l.gameType === 'kod-macerasi' ? l.gridSize+'x'+l.gridSize+' grid' : l.gameType === 'satranc' ? 'Satranç' : l.wordLength+' harf · '+(l.maxTurns>=999?'∞':l.maxTurns)+' tur'}</span>
+              <span class="lobby-list-detail">${l.gameType === 'penalti-mp' ? '5 atış' : l.gameType === 'ates-buz' ? '5 seviye' : l.gameType === 'kod-macerasi' ? l.gridSize+'x'+l.gridSize+' grid' : l.gameType === 'satranc' ? 'Satranç' : l.wordLength+' harf · '+(l.maxTurns>=999?'∞':l.maxTurns)+' tur'}</span>
             </div>
           </div>
           <button class="lobby-join-btn" data-id="${l.id}">${TR.mp.join}</button>
@@ -255,7 +255,7 @@ const Lobby = (() => {
           Multiplayer.on('PLAYER_JOINED', (data) => {
             joinedData = data;
           });
-          if (currentGameType === 'kod-macerasi' || currentGameType === 'satranc' || currentGameType === 'penalti-mp') {
+          if (currentGameType === 'kod-macerasi' || currentGameType === 'satranc' || currentGameType === 'penalti-mp' || currentGameType === 'ates-buz') {
             Multiplayer.on('GAME_START', (gameData) => {
               Multiplayer.offAll();
               if (onGameStart) onGameStart(gameData);
@@ -289,7 +289,7 @@ const Lobby = (() => {
     Multiplayer.on('PLAYER_JOINED', (data) => {
       joinedData = data;
     });
-    if (currentGameType === 'kod-macerasi' || currentGameType === 'satranc') {
+    if (currentGameType === 'kod-macerasi' || currentGameType === 'satranc' || currentGameType === 'ates-buz' || currentGameType === 'penalti-mp') {
       Multiplayer.on('GAME_START', (gameData) => {
         Multiplayer.offAll();
         if (onGameStart) onGameStart(gameData);
