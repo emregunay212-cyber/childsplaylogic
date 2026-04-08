@@ -109,13 +109,13 @@ const AtesBuz = (() => {
   const TS = 40; // Tile size
   const GW = 20 * TS, GH = 12 * TS;
 
-  // Delta-time fizik sabitleri (piksel/saniye cinsinden)
-  const GRAVITY  = TS * 50;     // yerçekimi ivmesi (2000)
-  const MAXDX    = TS * 6;      // max yatay hız
-  const MAXDY    = TS * 30;     // max dikey hız
-  const ACCEL    = MAXDX * 3;   // 0.33s'de max hıza ulaş
-  const FRICTION = MAXDX * 6;   // 0.16s'de dur
-  const IMPULSE  = TS * 1200;   // zıplama impulse (48000 - gravity'nin 24x'i)
+  // Fizik sabitleri (piksel/saniye)
+  const GRAVITY   = 1800;     // yerçekimi ivmesi
+  const MAXDX     = 220;      // max yatay hız
+  const MAXDY     = 800;      // max dikey hız
+  const ACCEL     = 600;      // yatay ivme
+  const FRICTION  = 1200;     // sürtünme
+  const JUMP_VEL  = 580;      // zıplama hızı (direk atanır, ~3 tile yükseklik)
 
   const FPS = 60;
   const STEP = 1 / FPS;
@@ -130,10 +130,8 @@ const AtesBuz = (() => {
   function makeEntity(x, y) {
     return {
       x: x, y: y, dx: 0, dy: 0,
-      gravity: GRAVITY, maxdx: MAXDX, maxdy: MAXDY,
-      impulse: IMPULSE, accel: ACCEL, friction: FRICTION,
       left: false, right: false, jump: false,
-      jumping: false, falling: true, atDoor: false,
+      jumping: false, falling: false, atDoor: false,
       start: { x: x, y: y }
     };
   }
@@ -310,71 +308,74 @@ const AtesBuz = (() => {
     checkCoins(p);
   }
 
-  // Delta-time tabanlı fizik motoru (referans: jakesgordon/javascript-tiny-platformer, MIT)
+  // Basit ve güvenilir fizik motoru
   function updateEntity(e, dt) {
-    var wasleft  = e.dx < 0,
-        wasright = e.dx > 0,
-        falling  = e.falling,
-        friction = e.friction * (falling ? 0.5 : 1),
-        accel    = e.accel * (falling ? 0.5 : 1);
+    // Yatay hareket (ivme/sürtünme)
+    if (e.left) e.dx = Math.max(-MAXDX, e.dx - ACCEL * dt);
+    else if (e.right) e.dx = Math.min(MAXDX, e.dx + ACCEL * dt);
+    else {
+      // Sürtünme ile yavaşla
+      if (e.dx > 0) { e.dx = Math.max(0, e.dx - FRICTION * dt); }
+      else if (e.dx < 0) { e.dx = Math.min(0, e.dx + FRICTION * dt); }
+    }
 
-    e.ddx = 0;
-    e.ddy = e.gravity;
-
-    if (e.left)       e.ddx -= accel;
-    else if (wasleft) e.ddx += friction;
-
-    if (e.right)       e.ddx += accel;
-    else if (wasright) e.ddx -= friction;
-
-    if (e.jump && !e.jumping && !falling) {
-      e.ddy -= e.impulse;
+    // Zıplama - doğrudan hız ata (impulse değil!)
+    if (e.jump && !e.jumping && !e.falling) {
+      e.dy = -JUMP_VEL;
       e.jumping = true;
     }
 
-    e.x  += dt * e.dx;
-    e.y  += dt * e.dy;
-    e.dx  = Math.max(-e.maxdx, Math.min(e.maxdx, e.dx + dt * e.ddx));
-    e.dy  = Math.max(-e.maxdy, Math.min(e.maxdy, e.dy + dt * e.ddy));
+    // Yerçekimi
+    e.dy = Math.min(MAXDY, e.dy + GRAVITY * dt);
 
-    if ((wasleft && e.dx > 0) || (wasright && e.dx < 0)) e.dx = 0;
+    // Pozisyon güncelle
+    e.x += e.dx * dt;
+    e.y += e.dy * dt;
 
     // Tile tabanlı çarpışma
     var tx = p2t(e.x), ty = p2t(e.y),
-        nx = e.x % TS,  ny = e.y % TS,
-        cell      = tcell(tx, ty),
+        nx = e.x % TS, ny = e.y % TS;
+
+    // Yeniden hesapla (pozisyon değişti)
+    var cell      = tcell(tx, ty),
         cellright = tcell(tx + 1, ty),
         celldown  = tcell(tx, ty + 1),
         celldiag  = tcell(tx + 1, ty + 1);
 
-    // Aşağı düşme
+    // Zemine iniş
     if (e.dy > 0) {
       if ((celldown && !cell) || (celldiag && !cellright && nx)) {
-        e.y = t2p(ty); e.dy = 0; e.falling = false; e.jumping = false; ny = 0;
+        e.y = t2p(ty); e.dy = 0; e.falling = false; e.jumping = false;
       }
     }
-    // Yukarı çarpma
+    // Tavana çarpma
     else if (e.dy < 0) {
       if ((cell && !celldown) || (cellright && !celldiag && nx)) {
         e.y = t2p(ty + 1); e.dy = 0;
-        cell = celldown; cellright = celldiag; ny = 0;
       }
     }
 
-    // Sağa çarpma
+    // Sağ duvar
     if (e.dx > 0) {
       if ((cellright && !cell) || (celldiag && !celldown && ny)) {
         e.x = t2p(tx); e.dx = 0;
       }
     }
-    // Sola çarpma
+    // Sol duvar
     else if (e.dx < 0) {
       if ((cell && !cellright) || (celldown && !celldiag && ny)) {
         e.x = t2p(tx + 1); e.dx = 0;
       }
     }
 
-    e.falling = !(celldown || (nx && celldiag));
+    // Düşme durumu - pozisyon değiştikten sonra yeniden kontrol
+    tx = p2t(e.x); ty = p2t(e.y);
+    nx = e.x % TS;
+    celldown = tcell(tx, ty + 1);
+    celldiag = tcell(tx + 1, ty + 1);
+    var onGround = celldown || (nx && celldiag);
+    if (onGround) { e.falling = false; }
+    else { e.falling = true; }
   }
 
   function rawTileAt(px, py) {
