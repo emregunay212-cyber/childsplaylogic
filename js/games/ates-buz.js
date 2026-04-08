@@ -107,15 +107,47 @@ const AtesBuz = (() => {
   ];
 
   const TS = 40; // Tile size
-  const PW = 20, PH = 28;
-  const GRAV = 0.42, JFORCE = -10.5, SPEED = 2;
   const GW = 20 * TS, GH = 12 * TS;
+
+  // Delta-time fizik sabitleri (piksel/saniye cinsinden)
+  const GRAVITY  = TS * 50;     // yerçekimi ivmesi
+  const MAXDX    = TS * 6;      // max yatay hız (6 tile/s)
+  const MAXDY    = TS * 15;     // max dikey hız
+  const ACCEL    = MAXDX * 3;   // 0.33s'de max hıza ulaş
+  const FRICTION = MAXDX * 6;   // 0.16s'de dur
+  const IMPULSE  = TS * 22;     // zıplama impulse
+
+  const FPS = 60;
+  const STEP = 1 / FPS;
 
   let container, gameData, canvas, ctx, animId;
   let myPlayer, opPlayer, myRole, opName;
   let currentMap, currentLevel, gates, coins, collectedCoins;
   let keys, gameActive, bothAtDoor;
   let lobbyRef, posRef, syncInterval;
+  let lastTime, accumulator;
+
+  function makeEntity(x, y) {
+    return {
+      x: x, y: y, dx: 0, dy: 0,
+      gravity: GRAVITY, maxdx: MAXDX, maxdy: MAXDY,
+      impulse: IMPULSE, accel: ACCEL, friction: FRICTION,
+      left: false, right: false, jump: false,
+      jumping: false, falling: true, atDoor: false,
+      start: { x: x, y: y }
+    };
+  }
+
+  // Tile koordinat yardımcıları
+  function p2t(p) { return Math.floor(p / TS); }
+  function t2p(t) { return t * TS; }
+  function tcell(tx, ty) {
+    if (tx < 0 || tx >= 20 || ty < 0 || ty >= 12) return 1; // duvar
+    const tile = currentMap[ty][tx];
+    if (tile === T.GATE_F) { const g = gates.fire.find(g => g.x === tx && g.y === ty); return (g && g.open) ? 0 : 1; }
+    if (tile === T.GATE_I) { const g = gates.ice.find(g => g.x === tx && g.y === ty); return (g && g.open) ? 0 : 1; }
+    return (tile === T.WALL) ? 1 : 0;
+  }
 
   function init(gameArea, data) {
     container = gameArea;
@@ -127,6 +159,8 @@ const AtesBuz = (() => {
     bothAtDoor = false;
     keys = {};
     collectedCoins = 0;
+    lastTime = performance.now();
+    accumulator = 0;
     loadLevel(currentLevel);
     buildDOM();
     setupSync();
@@ -154,8 +188,8 @@ const AtesBuz = (() => {
     const myStart = isHost ? map.fireStart : map.iceStart;
     const opStart = isHost ? map.iceStart : map.fireStart;
 
-    myPlayer = { x: myStart.x * TS + 10, y: myStart.y * TS + 10, vx: 0, vy: 0, onGround: false, atDoor: false };
-    opPlayer = { x: opStart.x * TS + 10, y: opStart.y * TS + 10, vx: 0, vy: 0, onGround: false, atDoor: false };
+    myPlayer = makeEntity(myStart.x * TS, myStart.y * TS);
+    opPlayer = makeEntity(opStart.x * TS, opStart.y * TS);
   }
 
   function buildDOM() {
@@ -240,111 +274,142 @@ const AtesBuz = (() => {
 
   function loop() {
     if (!gameActive) return;
-    update(); draw();
+    const now = performance.now();
+    accumulator += Math.min(0.1, (now - lastTime) / 1000);
+    lastTime = now;
+    while (accumulator >= STEP) {
+      accumulator -= STEP;
+      updatePhysics(STEP);
+    }
+    draw();
     animId = requestAnimationFrame(loop);
   }
 
-  function update() {
-    // Input
-    if (keys['ArrowLeft']) myPlayer.vx = -SPEED;
-    else if (keys['ArrowRight']) myPlayer.vx = SPEED;
-    else myPlayer.vx = 0;
+  function updatePhysics(dt) {
+    const p = myPlayer;
 
-    if ((keys[' '] || keys['ArrowUp']) && myPlayer.onGround) {
-      myPlayer.vy = JFORCE;
-      myPlayer.onGround = false;
-    }
+    // Input → entity flags
+    p.left = !!keys['ArrowLeft'];
+    p.right = !!keys['ArrowRight'];
+    p.jump = !!(keys[' '] || keys['ArrowUp']);
 
-    // Physics
-    myPlayer.vy += GRAV;
-    myPlayer.x += myPlayer.vx;
-    resolveCollisionX(myPlayer);
-    myPlayer.y += myPlayer.vy;
-    resolveCollisionY(myPlayer);
+    // Fizik güncelle
+    updateEntity(p, dt);
 
     // Tehlike kontrolü
     const isFire = myRole === 'host';
-    checkHazards(myPlayer, isFire);
+    checkHazards(p, isFire);
 
     // Düğme kontrolü
-    checkButtons(myPlayer, isFire);
+    checkButtons(p, isFire);
 
     // Kapı kontrolü
-    checkDoor(myPlayer, isFire);
+    checkDoor(p, isFire);
 
     // Coin kontrolü
-    checkCoins(myPlayer);
+    checkCoins(p);
   }
 
-  function tileAt(px, py) {
-    const tx = Math.floor(px / TS);
-    const ty = Math.floor(py / TS);
+  // Delta-time tabanlı fizik motoru (referans: jakesgordon/javascript-tiny-platformer, MIT)
+  function updateEntity(e, dt) {
+    var wasleft  = e.dx < 0,
+        wasright = e.dx > 0,
+        falling  = e.falling,
+        friction = e.friction * (falling ? 0.5 : 1),
+        accel    = e.accel * (falling ? 0.5 : 1);
+
+    e.ddx = 0;
+    e.ddy = e.gravity;
+
+    if (e.left)       e.ddx -= accel;
+    else if (wasleft) e.ddx += friction;
+
+    if (e.right)       e.ddx += accel;
+    else if (wasright) e.ddx -= friction;
+
+    if (e.jump && !e.jumping && !falling) {
+      e.ddy -= e.impulse;
+      e.jumping = true;
+    }
+
+    e.x  += dt * e.dx;
+    e.y  += dt * e.dy;
+    e.dx  = Math.max(-e.maxdx, Math.min(e.maxdx, e.dx + dt * e.ddx));
+    e.dy  = Math.max(-e.maxdy, Math.min(e.maxdy, e.dy + dt * e.ddy));
+
+    if ((wasleft && e.dx > 0) || (wasright && e.dx < 0)) e.dx = 0;
+
+    // Tile tabanlı çarpışma
+    var tx = p2t(e.x), ty = p2t(e.y),
+        nx = e.x % TS,  ny = e.y % TS,
+        cell      = tcell(tx, ty),
+        cellright = tcell(tx + 1, ty),
+        celldown  = tcell(tx, ty + 1),
+        celldiag  = tcell(tx + 1, ty + 1);
+
+    // Aşağı düşme
+    if (e.dy > 0) {
+      if ((celldown && !cell) || (celldiag && !cellright && nx)) {
+        e.y = t2p(ty); e.dy = 0; e.falling = false; e.jumping = false; ny = 0;
+      }
+    }
+    // Yukarı çarpma
+    else if (e.dy < 0) {
+      if ((cell && !celldown) || (cellright && !celldiag && nx)) {
+        e.y = t2p(ty + 1); e.dy = 0;
+        cell = celldown; cellright = celldiag; ny = 0;
+      }
+    }
+
+    // Sağa çarpma
+    if (e.dx > 0) {
+      if ((cellright && !cell) || (celldiag && !celldown && ny)) {
+        e.x = t2p(tx); e.dx = 0;
+      }
+    }
+    // Sola çarpma
+    else if (e.dx < 0) {
+      if ((cell && !cellright) || (celldown && !celldiag && ny)) {
+        e.x = t2p(tx + 1); e.dx = 0;
+      }
+    }
+
+    e.falling = !(celldown || (nx && celldiag));
+  }
+
+  function rawTileAt(px, py) {
+    const tx = p2t(px), ty = p2t(py);
     if (tx < 0 || tx >= 20 || ty < 0 || ty >= 12) return T.WALL;
-    const tile = currentMap[ty][tx];
-    // Kapılar açıksa boş
-    if (tile === T.GATE_F) { const g = gates.fire.find(g => g.x === tx && g.y === ty); return g && g.open ? T.EMPTY : T.WALL; }
-    if (tile === T.GATE_I) { const g = gates.ice.find(g => g.x === tx && g.y === ty); return g && g.open ? T.EMPTY : T.WALL; }
-    return tile;
-  }
-
-  function isSolid(tile) {
-    return tile === T.WALL;
-  }
-
-  function resolveCollisionX(p) {
-    // Sol
-    if (isSolid(tileAt(p.x, p.y + 2)) || isSolid(tileAt(p.x, p.y + PH - 2))) {
-      p.x = Math.floor(p.x / TS) * TS + TS; p.vx = 0;
-    }
-    // Sağ
-    if (isSolid(tileAt(p.x + PW, p.y + 2)) || isSolid(tileAt(p.x + PW, p.y + PH - 2))) {
-      p.x = Math.floor((p.x + PW) / TS) * TS - PW; p.vx = 0;
-    }
-  }
-
-  function resolveCollisionY(p) {
-    p.onGround = false;
-    // Aşağı
-    if (isSolid(tileAt(p.x + 2, p.y + PH)) || isSolid(tileAt(p.x + PW - 2, p.y + PH))) {
-      p.y = Math.floor((p.y + PH) / TS) * TS - PH;
-      p.vy = 0; p.onGround = true;
-    }
-    // Yukarı
-    if (p.vy < 0 && (isSolid(tileAt(p.x + 2, p.y)) || isSolid(tileAt(p.x + PW - 2, p.y)))) {
-      p.y = Math.floor(p.y / TS) * TS + TS; p.vy = 0;
-    }
+    return currentMap[ty][tx];
   }
 
   function checkHazards(p, isFire) {
-    const cx = p.x + PW / 2, cy = p.y + PH / 2;
-    const tile = tileAt(cx, cy);
-    // Ateş su'dan ölür, Buz lava'dan ölür, ikisi de zehirden ölür
-    if ((isFire && tile === T.WATER) || (!isFire && tile === T.LAVA) || tile === T.POISON) {
+    // Karakterin alt-orta noktasını kontrol et
+    const tile = rawTileAt(p.x + TS * 0.3, p.y + TS * 0.8);
+    const tile2 = rawTileAt(p.x + TS * 0.7, p.y + TS * 0.8);
+    const danger = (t) => (isFire && t === T.WATER) || (!isFire && t === T.LAVA) || t === T.POISON;
+    if (danger(tile) || danger(tile2)) {
       AudioManager.play('error');
-      respawn(p);
+      respawnEntity(p);
     }
   }
 
-  function respawn(p) {
-    const map = MAPS[currentLevel - 1];
-    const isFire = myRole === 'host';
-    const start = isFire ? map.fireStart : map.iceStart;
-    p.x = start.x * TS + 10; p.y = start.y * TS + 10;
-    p.vx = 0; p.vy = 0; p.onGround = false; p.atDoor = false;
+  function respawnEntity(p) {
+    p.x = p.start.x; p.y = p.start.y;
+    p.dx = 0; p.dy = 0;
+    p.falling = true; p.jumping = false; p.atDoor = false;
   }
 
   function checkButtons(p, isFire) {
-    const tx = Math.floor((p.x + PW / 2) / TS);
-    const ty = Math.floor((p.y + PH) / TS);
-    if (ty >= 12) return;
+    const tx = p2t(p.x + TS / 2);
+    const ty = p2t(p.y + TS);
+    if (ty >= 12 || ty < 0) return;
     const tile = currentMap[ty][tx];
-    const isOnButton = p.onGround && (p.y + PH >= ty * TS - 2);
-
-    if (isOnButton && tile === T.BUTTON_F && isFire) {
-      gates.fire.forEach((g, i) => { g.open = true; });
+    if (!p.falling && tile === T.BUTTON_F && isFire) {
+      gates.fire.forEach(g => { g.open = true; });
       syncButtons();
-    } else if (isOnButton && tile === T.BUTTON_I && !isFire) {
-      gates.ice.forEach((g, i) => { g.open = true; });
+    } else if (!p.falling && tile === T.BUTTON_I && !isFire) {
+      gates.ice.forEach(g => { g.open = true; });
       syncButtons();
     }
   }
@@ -358,8 +423,8 @@ const AtesBuz = (() => {
   }
 
   function checkDoor(p, isFire) {
-    const tx = Math.floor((p.x + PW / 2) / TS);
-    const ty = Math.floor((p.y + PH / 2) / TS);
+    const tx = p2t(p.x + TS / 2);
+    const ty = p2t(p.y + TS / 2);
     if (ty < 0 || ty >= 12 || tx < 0 || tx >= 20) return;
     const tile = currentMap[ty][tx];
     const myDoor = isFire ? T.FIRE_DOOR : T.ICE_DOOR;
@@ -370,9 +435,9 @@ const AtesBuz = (() => {
   function checkCoins(p) {
     for (const c of coins) {
       if (c.collected) continue;
-      const dx = (p.x + PW / 2) - (c.x * TS + TS / 2);
-      const dy = (p.y + PH / 2) - (c.y * TS + TS / 2);
-      if (dx * dx + dy * dy < 600) {
+      const dx = (p.x + TS / 2) - (c.x * TS + TS / 2);
+      const dy = (p.y + TS / 2) - (c.y * TS + TS / 2);
+      if (dx * dx + dy * dy < TS * TS) {
         c.collected = true;
         collectedCoins++;
         AudioManager.play('success');
@@ -538,43 +603,45 @@ const AtesBuz = (() => {
   }
 
   function drawCharacter(p, isFire) {
+    const S = TS; // karakter boyutu = tile boyutu
     const color = isFire ? '#FF4500' : '#1E90FF';
     const highlight = isFire ? '#FF6600' : '#4FC3F7';
+    const cx = p.x + S / 2;
 
     // Gövde
     ctx.fillStyle = color;
-    ctx.fillRect(p.x + 4, p.y + 10, PW - 8, PH - 14);
+    ctx.fillRect(p.x + 8, p.y + 14, S - 16, S - 20);
 
     // Kafa
     ctx.fillStyle = highlight;
     ctx.beginPath();
-    ctx.arc(p.x + PW / 2, p.y + 8, 8, 0, Math.PI * 2);
+    ctx.arc(cx, p.y + 10, 10, 0, Math.PI * 2);
     ctx.fill();
 
     // Gözler
     ctx.fillStyle = '#FFF';
-    ctx.beginPath(); ctx.arc(p.x + 7, p.y + 7, 3, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(p.x + 13, p.y + 7, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx - 4, p.y + 9, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + 4, p.y + 9, 4, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = '#333';
-    ctx.beginPath(); ctx.arc(p.x + 7, p.y + 7, 1.5, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(p.x + 13, p.y + 7, 1.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx - 4, p.y + 9, 2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + 4, p.y + 9, 2, 0, Math.PI * 2); ctx.fill();
 
     // Alev/Buz efekti (kafada)
     if (isFire) {
       ctx.fillStyle = '#FF6600';
-      ctx.beginPath(); ctx.moveTo(p.x + 5, p.y); ctx.lineTo(p.x + 10, p.y - 8); ctx.lineTo(p.x + 15, p.y); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx - 8, p.y); ctx.lineTo(cx, p.y - 12); ctx.lineTo(cx + 8, p.y); ctx.fill();
       ctx.fillStyle = '#FFD700';
-      ctx.beginPath(); ctx.moveTo(p.x + 7, p.y); ctx.lineTo(p.x + 10, p.y - 5); ctx.lineTo(p.x + 13, p.y); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx - 5, p.y); ctx.lineTo(cx, p.y - 8); ctx.lineTo(cx + 5, p.y); ctx.fill();
     } else {
       ctx.fillStyle = '#B3E5FC';
-      ctx.beginPath(); ctx.moveTo(p.x + 4, p.y - 2); ctx.lineTo(p.x + 7, p.y - 7); ctx.lineTo(p.x + 10, p.y - 2); ctx.fill();
-      ctx.beginPath(); ctx.moveTo(p.x + 10, p.y - 2); ctx.lineTo(p.x + 13, p.y - 7); ctx.lineTo(p.x + 16, p.y - 2); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx - 8, p.y - 2); ctx.lineTo(cx - 4, p.y - 10); ctx.lineTo(cx, p.y - 2); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx, p.y - 2); ctx.lineTo(cx + 4, p.y - 10); ctx.lineTo(cx + 8, p.y - 2); ctx.fill();
     }
 
     // Bacaklar
     ctx.fillStyle = color;
-    ctx.fillRect(p.x + 4, p.y + PH - 4, 5, 4);
-    ctx.fillRect(p.x + PW - 9, p.y + PH - 4, 5, 4);
+    ctx.fillRect(p.x + 8, p.y + S - 6, 8, 6);
+    ctx.fillRect(p.x + S - 16, p.y + S - 6, 8, 6);
   }
 
   function destroy() {

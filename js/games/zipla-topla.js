@@ -56,14 +56,22 @@ const ZiplaTopla = (() => {
   ];
 
   const levels = LEVELS.map(() => ({}));
-  const PLAYER_W = 20, PLAYER_H = 28, COIN_R = 8;
-  const GRAVITY = 0.5, JUMP_FORCE = -9, MOVE_SPEED = 3.5;
+  const PLAYER_W = 24, PLAYER_H = 32, COIN_R = 8;
   const GAME_W = 800, GAME_H = 300;
+
+  // Delta-time fizik (piksel/saniye)
+  const PX_GRAVITY = 900;     // yerçekimi
+  const PX_MAXDX   = 180;     // max yatay hız
+  const PX_MAXDY   = 500;     // max dikey hız
+  const PX_ACCEL   = 600;     // yatay ivme
+  const PX_FRIC    = 1200;    // sürtünme
+  const PX_JUMP    = 380;     // zıplama impulse
+  const FPS = 60, STEP = 1/FPS;
 
   let container, callbacks, canvas, ctx;
   let player, coinList, spikeList, platformList, movingPlatforms, door;
   let collectedCoins, totalCoins, animFrameId, gameOver, levelWon;
-  let keys, currentLevelIdx;
+  let keys, currentLevelIdx, lastTime, accum;
 
   function init(gameArea, level, cbs) {
     container = gameArea;
@@ -78,7 +86,13 @@ const ZiplaTopla = (() => {
     gameOver = false; levelWon = false;
     collectedCoins = 0; totalCoins = lvl.coins.length;
     keys = {};
-    player = { x: lvl.start.x, y: lvl.start.y, vx: 0, vy: 0, onGround: false, w: PLAYER_W, h: PLAYER_H, dir: 1 };
+    lastTime = performance.now(); accum = 0;
+    player = {
+      x: lvl.start.x, y: lvl.start.y, dx: 0, dy: 0,
+      w: PLAYER_W, h: PLAYER_H, dir: 1,
+      falling: true, jumping: false,
+      startX: lvl.start.x, startY: lvl.start.y
+    };
     coinList = lvl.coins.map(c => ({ x: c.x, y: c.y, collected: false, bob: Math.random() * Math.PI * 2 }));
     spikeList = lvl.spikes.map(s => ({ ...s }));
     platformList = lvl.platforms.map(p => ({ ...p }));
@@ -140,44 +154,48 @@ const ZiplaTopla = (() => {
 
   function gameLoop() {
     if (gameOver || levelWon) return;
-    update(); draw();
+    const now = performance.now();
+    accum += Math.min(0.1, (now - lastTime) / 1000);
+    lastTime = now;
+    while (accum >= STEP) {
+      accum -= STEP;
+      fixedUpdate(STEP);
+    }
+    draw();
     animFrameId = requestAnimationFrame(gameLoop);
   }
 
-  function update() {
-    if (keys['ArrowLeft']) { player.vx = -MOVE_SPEED; player.dir = -1; }
-    else if (keys['ArrowRight']) { player.vx = MOVE_SPEED; player.dir = 1; }
-    else player.vx = 0;
+  function fixedUpdate(dt) {
+    const p = player;
+    var wasleft = p.dx < 0, wasright = p.dx > 0;
+    var accelX = PX_ACCEL * (p.falling ? 0.5 : 1);
+    var fricX  = PX_FRIC  * (p.falling ? 0.5 : 1);
 
-    if ((keys[' '] || keys['ArrowUp']) && player.onGround) {
-      player.vy = JUMP_FORCE; player.onGround = false;
+    // Yatay ivme
+    var ddx = 0;
+    if (keys['ArrowLeft'])       { ddx = -accelX; p.dir = -1; }
+    else if (wasleft)             ddx = fricX;
+    if (keys['ArrowRight'])      { ddx = accelX; p.dir = 1; }
+    else if (wasright)            ddx = -fricX;
+
+    // Zıplama
+    var ddy = PX_GRAVITY;
+    if ((keys[' '] || keys['ArrowUp']) && !p.jumping && !p.falling) {
+      ddy -= PX_JUMP * FPS;
+      p.jumping = true;
       AudioManager.play('pop');
     }
 
-    player.vy += GRAVITY;
-    player.x += player.vx;
-    player.y += player.vy;
+    // Hareket
+    p.x += dt * p.dx;
+    p.y += dt * p.dy;
+    p.dx = Math.max(-PX_MAXDX, Math.min(PX_MAXDX, p.dx + dt * ddx));
+    p.dy = Math.max(-PX_MAXDY, Math.min(PX_MAXDY, p.dy + dt * ddy));
+    if ((wasleft && p.dx > 0) || (wasright && p.dx < 0)) p.dx = 0;
 
-    // Platform çarpışma
-    player.onGround = false;
-    const allPlats = [...platformList, ...movingPlatforms];
-    for (const p of allPlats) {
-      if (player.x + player.w > p.x && player.x < p.x + p.w &&
-          player.y + player.h > p.y && player.y + player.h < p.y + p.h + 10 && player.vy >= 0) {
-        player.y = p.y - player.h;
-        player.vy = 0;
-        player.onGround = true;
-      }
-    }
-
-    // Sınırlar
-    if (player.x < 0) player.x = 0;
-    if (player.x > GAME_W - player.w) player.x = GAME_W - player.w;
-    if (player.y > GAME_H + 50) { callbacks.onWrong(); AudioManager.play('error'); resetPlayer(); }
-
-    // Hareketli platformlar
+    // Hareketli platformları güncelle
     for (const mp of movingPlatforms) {
-      mp.phase += mp.speed * 0.02;
+      mp.phase += mp.speed * dt;
       if (mp.vertical) {
         mp.y = mp.minY + (Math.sin(mp.phase) * 0.5 + 0.5) * (mp.maxY - mp.minY);
       } else {
@@ -185,14 +203,39 @@ const ZiplaTopla = (() => {
       }
     }
 
+    // Platform çarpışma
+    p.falling = true;
+    const allPlats = [...platformList, ...movingPlatforms];
+    for (const pl of allPlats) {
+      if (p.x + p.w > pl.x && p.x < pl.x + pl.w) {
+        // Üstüne düşme
+        if (p.dy >= 0 && p.y + p.h >= pl.y && p.y + p.h <= pl.y + pl.h + dt * PX_MAXDY) {
+          p.y = pl.y - p.h;
+          p.dy = 0;
+          p.falling = false;
+          p.jumping = false;
+        }
+        // Alttan çarpma
+        if (p.dy < 0 && p.y <= pl.y + pl.h && p.y >= pl.y) {
+          p.y = pl.y + pl.h;
+          p.dy = 0;
+        }
+      }
+    }
+
+    // Sınırlar
+    if (p.x < 0) { p.x = 0; p.dx = 0; }
+    if (p.x > GAME_W - p.w) { p.x = GAME_W - p.w; p.dx = 0; }
+    if (p.y > GAME_H + 50) { callbacks.onWrong(); AudioManager.play('error'); resetPlayer(); return; }
+
     // Para toplama
     for (const coin of coinList) {
       if (coin.collected) continue;
-      coin.bob += 0.05;
+      coin.bob += dt * 3;
       const cy = coin.y + Math.sin(coin.bob) * 3;
-      const dx = (player.x + player.w / 2) - coin.x;
-      const dy = (player.y + player.h / 2) - cy;
-      if (dx * dx + dy * dy < (COIN_R + 12) * (COIN_R + 12)) {
+      const cdx = (p.x + p.w / 2) - coin.x;
+      const cdy = (p.y + p.h / 2) - cy;
+      if (cdx * cdx + cdy * cdy < (COIN_R + 14) * (COIN_R + 14)) {
         coin.collected = true; collectedCoins++;
         callbacks.onCorrect(); AudioManager.play('success'); updateHUD();
       }
@@ -200,16 +243,16 @@ const ZiplaTopla = (() => {
 
     // Diken çarpışma
     for (const s of spikeList) {
-      if (player.x + player.w > s.x && player.x < s.x + s.w &&
-          player.y + player.h > s.y && player.y + player.h < s.y + 16) {
+      if (p.x + p.w > s.x + 4 && p.x < s.x + s.w - 4 &&
+          p.y + p.h > s.y + 4 && p.y + p.h < s.y + 16) {
         callbacks.onWrong(); AudioManager.play('error'); resetPlayer(); return;
       }
     }
 
     // Kapı
-    const dx = (player.x + player.w / 2) - (door.x + 15);
-    const dy = (player.y + player.h / 2) - (door.y + 20);
-    if (dx * dx + dy * dy < 625) {
+    const ddx2 = (p.x + p.w / 2) - (door.x + 15);
+    const ddy2 = (p.y + p.h / 2) - (door.y + 20);
+    if (ddx2 * ddx2 + ddy2 * ddy2 < 900) {
       levelWon = true; AudioManager.play('complete');
       const pct = totalCoins > 0 ? collectedCoins / totalCoins : 1;
       const stars = pct >= 0.9 ? 3 : pct >= 0.7 ? 2 : 1;
@@ -219,9 +262,9 @@ const ZiplaTopla = (() => {
   }
 
   function resetPlayer() {
-    const lvl = LEVELS[currentLevelIdx];
-    player.x = lvl.start.x; player.y = lvl.start.y;
-    player.vx = 0; player.vy = 0; player.onGround = false;
+    player.x = player.startX; player.y = player.startY;
+    player.dx = 0; player.dy = 0;
+    player.falling = true; player.jumping = false;
   }
 
   function draw() {
