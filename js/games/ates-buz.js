@@ -110,12 +110,12 @@ const AtesBuz = (() => {
   const GW = 20 * TS, GH = 12 * TS;
 
   // Delta-time fizik sabitleri (piksel/saniye cinsinden)
-  const GRAVITY  = TS * 50;     // yerçekimi ivmesi
-  const MAXDX    = TS * 6;      // max yatay hız (6 tile/s)
-  const MAXDY    = TS * 15;     // max dikey hız
+  const GRAVITY  = TS * 50;     // yerçekimi ivmesi (2000)
+  const MAXDX    = TS * 6;      // max yatay hız
+  const MAXDY    = TS * 30;     // max dikey hız
   const ACCEL    = MAXDX * 3;   // 0.33s'de max hıza ulaş
   const FRICTION = MAXDX * 6;   // 0.16s'de dur
-  const IMPULSE  = TS * 22;     // zıplama impulse
+  const IMPULSE  = TS * 1200;   // zıplama impulse (48000 - gravity'nin 24x'i)
 
   const FPS = 60;
   const STEP = 1 / FPS;
