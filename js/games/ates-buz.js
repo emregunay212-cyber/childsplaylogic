@@ -106,35 +106,57 @@ const AtesBuz = (() => {
     },
   ];
 
-  const TS = 40; // Tile size
-  const GW = 20 * TS, GH = 12 * TS;
+  // Referans motor: jakesgordon/javascript-tiny-platformer (MIT)
+  // Karakter = 1 tile boyutunda, tile-grid çarpışma
+  var TILE    = 40,
+      MAP_TW  = 20, MAP_TH = 12,
+      GW      = MAP_TW * TILE, GH = MAP_TH * TILE,
+      METER   = TILE,
+      GRAVITY_C = 9.8 * 6,
+      MAXDX   = 15,
+      MAXDY   = 60,
+      ACCEL_T = 1/2,
+      FRIC_T  = 1/6,
+      IMPULSE_C = 1500;
 
-  // Fizik sabitleri (piksel/frame, 60fps)
-  const MOVE_SPEED = 3;      // yatay hız
-  const JUMP_FORCE = -8;     // zıplama (negatif = yukarı)
-  const GRAVITY_F  = 0.4;    // yerçekimi (frame başına)
-  const MAX_FALL   = 10;     // max düşme hızı
+  var fps_c = 60, step_c = 1/fps_c;
+  var TS = TILE; // alias
 
   let container, gameData, canvas, ctx, animId;
   let myPlayer, opPlayer, myRole, opName;
   let currentMap, currentLevel, gates, coins, collectedCoins;
   let keys, gameActive, bothAtDoor;
   let lobbyRef, posRef, syncInterval;
-
-  function makeEntity(x, y) {
-    return { x: x, y: y, vx: 0, vy: 0, onGround: false, atDoor: false, startX: x, startY: y };
-  }
+  let dt_acc, last_ts;
 
   // Tile yardımcıları
-  function p2t(p) { return Math.floor(p / TS); }
-  function t2p(t) { return t * TS; }
-  function isSolidAt(px, py) {
-    var tx = p2t(px), ty = p2t(py);
-    if (tx < 0 || tx >= 20 || ty < 0 || ty >= 12) return true;
+  function t2p(t)     { return t * TILE; }
+  function p2t(p)     { return Math.floor(p / TILE); }
+  function tcell(tx, ty) {
+    if (tx < 0 || tx >= MAP_TW || ty < 0 || ty >= MAP_TH) return 1;
     var tile = currentMap[ty][tx];
-    if (tile === T.GATE_F) { var g = gates.fire.find(function(g){ return g.x===tx && g.y===ty; }); return !(g && g.open); }
-    if (tile === T.GATE_I) { var g = gates.ice.find(function(g){ return g.x===tx && g.y===ty; }); return !(g && g.open); }
-    return tile === T.WALL;
+    if (tile === T.GATE_F) { var g = gates.fire.find(function(gg){ return gg.x===tx && gg.y===ty; }); return (g && g.open) ? 0 : 1; }
+    if (tile === T.GATE_I) { var g = gates.ice.find(function(gg){ return gg.x===tx && gg.y===ty; }); return (g && g.open) ? 0 : 1; }
+    return (tile === T.WALL) ? 1 : 0;
+  }
+  function bound(x, min, max) { return Math.max(min, Math.min(max, x)); }
+
+  function makeEntity(tx, ty) {
+    return {
+      x: t2p(tx), y: t2p(ty), dx: 0, dy: 0,
+      gravity: METER * GRAVITY_C,
+      maxdx: METER * MAXDX,
+      maxdy: METER * MAXDY,
+      impulse: METER * IMPULSE_C,
+      accel: 0, friction: 0,
+      left: false, right: false, jump: false,
+      jumping: false, falling: false, atDoor: false,
+      start: { x: t2p(tx), y: t2p(ty) }
+    };
+  }
+  function initEntity(e) {
+    e.accel    = e.maxdx / ACCEL_T;
+    e.friction = e.maxdx / FRIC_T;
   }
 
   function init(gameArea, data) {
@@ -147,6 +169,8 @@ const AtesBuz = (() => {
     bothAtDoor = false;
     keys = {};
     collectedCoins = 0;
+    dt_acc = 0;
+    last_ts = performance.now();
     loadLevel(currentLevel);
     buildDOM();
     setupSync();
@@ -174,8 +198,10 @@ const AtesBuz = (() => {
     const myStart = isHost ? map.fireStart : map.iceStart;
     const opStart = isHost ? map.iceStart : map.fireStart;
 
-    myPlayer = makeEntity(myStart.x * TS + 10, myStart.y * TS + 12);
-    opPlayer = makeEntity(opStart.x * TS + 10, opStart.y * TS + 12);
+    myPlayer = makeEntity(myStart.x, myStart.y);
+    initEntity(myPlayer);
+    opPlayer = makeEntity(opStart.x, opStart.y);
+    initEntity(opPlayer);
   }
 
   function buildDOM() {
@@ -258,70 +284,27 @@ const AtesBuz = (() => {
   }
   function onKeyUp(e) { keys[e.key] = false; }
 
+  // Game loop - referanstan birebir (jakesgordon, MIT)
   function loop() {
     if (!gameActive) return;
-    update();
+    var now = performance.now();
+    dt_acc = dt_acc + Math.min(1, (now - last_ts) / 1000);
+    while (dt_acc > step_c) {
+      dt_acc = dt_acc - step_c;
+      update(step_c);
+    }
     draw();
+    last_ts = now;
     animId = requestAnimationFrame(loop);
   }
 
-  function update() {
+  function update(dt) {
     var p = myPlayer;
-    var PW = 20, PH = 28; // karakter hitbox
+    p.left  = !!keys['ArrowLeft'];
+    p.right = !!keys['ArrowRight'];
+    p.jump  = !!(keys[' '] || keys['ArrowUp']);
+    updateEntity(p, dt);
 
-    // Yatay hareket
-    p.vx = 0;
-    if (keys['ArrowLeft']) p.vx = -MOVE_SPEED;
-    if (keys['ArrowRight']) p.vx = MOVE_SPEED;
-
-    // Zıplama
-    if ((keys[' '] || keys['ArrowUp']) && p.onGround) {
-      p.vy = JUMP_FORCE;
-      p.onGround = false;
-    }
-
-    // Yerçekimi
-    p.vy += GRAVITY_F;
-    if (p.vy > MAX_FALL) p.vy = MAX_FALL;
-
-    // Yatay hareket + çarpışma
-    p.x += p.vx;
-    // Sol duvar
-    if (isSolidAt(p.x, p.y + 2) || isSolidAt(p.x, p.y + PH - 2)) {
-      p.x = (p2t(p.x) + 1) * TS;
-      p.vx = 0;
-    }
-    // Sağ duvar
-    if (isSolidAt(p.x + PW, p.y + 2) || isSolidAt(p.x + PW, p.y + PH - 2)) {
-      p.x = p2t(p.x + PW) * TS - PW;
-      p.vx = 0;
-    }
-
-    // Dikey hareket + çarpışma
-    p.y += p.vy;
-    p.onGround = false;
-    // Zemin
-    if (p.vy >= 0) {
-      if (isSolidAt(p.x + 2, p.y + PH) || isSolidAt(p.x + PW - 2, p.y + PH)) {
-        p.y = p2t(p.y + PH) * TS - PH;
-        p.vy = 0;
-        p.onGround = true;
-      }
-    }
-    // Tavan
-    if (p.vy < 0) {
-      if (isSolidAt(p.x + 2, p.y) || isSolidAt(p.x + PW - 2, p.y)) {
-        p.y = (p2t(p.y) + 1) * TS;
-        p.vy = 0;
-      }
-    }
-
-    // Dünya sınırları
-    if (p.x < 0) p.x = 0;
-    if (p.x > GW - PW) p.x = GW - PW;
-    if (p.y > GH) { respawnEntity(p); }
-
-    // Tehlike kontrolü
     var isFire = myRole === 'host';
     checkHazards(p, isFire);
     checkButtons(p, isFire);
@@ -329,15 +312,98 @@ const AtesBuz = (() => {
     checkCoins(p);
   }
 
+  // Fizik motoru - referanstan birebir (jakesgordon/javascript-tiny-platformer, MIT)
+  function updateEntity(entity, dt) {
+    var wasleft  = entity.dx < 0,
+        wasright = entity.dx > 0,
+        falling  = entity.falling,
+        friction = entity.friction * (falling ? 0.5 : 1),
+        accel    = entity.accel    * (falling ? 0.5 : 1);
+
+    entity.ddx = 0;
+    entity.ddy = entity.gravity;
+
+    if (entity.left)
+      entity.ddx = entity.ddx - accel;
+    else if (wasleft)
+      entity.ddx = entity.ddx + friction;
+
+    if (entity.right)
+      entity.ddx = entity.ddx + accel;
+    else if (wasright)
+      entity.ddx = entity.ddx - friction;
+
+    if (entity.jump && !entity.jumping && !falling) {
+      entity.ddy = entity.ddy - entity.impulse;
+      entity.jumping = true;
+    }
+
+    entity.x  = entity.x  + (dt * entity.dx);
+    entity.y  = entity.y  + (dt * entity.dy);
+    entity.dx = bound(entity.dx + (dt * entity.ddx), -entity.maxdx, entity.maxdx);
+    entity.dy = bound(entity.dy + (dt * entity.ddy), -entity.maxdy, entity.maxdy);
+
+    if ((wasleft  && (entity.dx > 0)) ||
+        (wasright && (entity.dx < 0))) {
+      entity.dx = 0;
+    }
+
+    var tx        = p2t(entity.x),
+        ty        = p2t(entity.y),
+        nx        = entity.x % TILE,
+        ny        = entity.y % TILE,
+        cell      = tcell(tx,     ty),
+        cellright = tcell(tx + 1, ty),
+        celldown  = tcell(tx,     ty + 1),
+        celldiag  = tcell(tx + 1, ty + 1);
+
+    if (entity.dy > 0) {
+      if ((celldown && !cell) ||
+          (celldiag && !cellright && nx)) {
+        entity.y = t2p(ty);
+        entity.dy = 0;
+        entity.falling = false;
+        entity.jumping = false;
+        ny = 0;
+      }
+    }
+    else if (entity.dy < 0) {
+      if ((cell      && !celldown) ||
+          (cellright && !celldiag && nx)) {
+        entity.y = t2p(ty + 1);
+        entity.dy = 0;
+        cell      = celldown;
+        cellright = celldiag;
+        ny        = 0;
+      }
+    }
+
+    if (entity.dx > 0) {
+      if ((cellright && !cell) ||
+          (celldiag  && !celldown && ny)) {
+        entity.x = t2p(tx);
+        entity.dx = 0;
+      }
+    }
+    else if (entity.dx < 0) {
+      if ((cell     && !cellright) ||
+          (celldown && !celldiag && ny)) {
+        entity.x = t2p(tx + 1);
+        entity.dx = 0;
+      }
+    }
+
+    entity.falling = !(celldown || (nx && celldiag));
+  }
+
   function rawTileAt(px, py) {
     var tx = p2t(px), ty = p2t(py);
-    if (tx < 0 || tx >= 20 || ty < 0 || ty >= 12) return T.WALL;
+    if (tx < 0 || tx >= MAP_TW || ty < 0 || ty >= MAP_TH) return T.WALL;
     return currentMap[ty][tx];
   }
 
   function checkHazards(p, isFire) {
-    var PW = 20, PH = 28;
-    var cx = p.x + PW / 2, cy = p.y + PH - 4;
+    var cx = p.x + TILE / 2, cy = p.y + TILE - 4;
     var tile = rawTileAt(cx, cy);
     if ((isFire && tile === T.WATER) || (!isFire && tile === T.LAVA) || tile === T.POISON) {
       AudioManager.play('error');
@@ -346,20 +412,20 @@ const AtesBuz = (() => {
   }
 
   function respawnEntity(p) {
-    p.x = p.startX; p.y = p.startY;
-    p.vx = 0; p.vy = 0; p.onGround = false; p.atDoor = false;
+    p.x = p.start.x; p.y = p.start.y;
+    p.dx = 0; p.dy = 0;
+    p.falling = false; p.jumping = false; p.atDoor = false;
   }
 
   function checkButtons(p, isFire) {
-    var PW = 20, PH = 28;
-    var tx = p2t(p.x + PW / 2);
-    var ty = p2t(p.y + PH + 2);
-    if (ty >= 12 || ty < 0) return;
+    var tx = p2t(p.x + TILE / 2);
+    var ty = p2t(p.y + TILE + 2);
+    if (ty >= MAP_TH || ty < 0) return;
     var tile = currentMap[ty][tx];
-    if (p.onGround && tile === T.BUTTON_F && isFire) {
+    if (!p.falling && tile === T.BUTTON_F && isFire) {
       gates.fire.forEach(function(g) { g.open = true; });
       syncButtons();
-    } else if (p.onGround && tile === T.BUTTON_I && !isFire) {
+    } else if (!p.falling && tile === T.BUTTON_I && !isFire) {
       gates.ice.forEach(function(g) { g.open = true; });
       syncButtons();
     }
@@ -374,10 +440,9 @@ const AtesBuz = (() => {
   }
 
   function checkDoor(p, isFire) {
-    var PW = 20, PH = 28;
-    var tx = p2t(p.x + PW / 2);
-    var ty = p2t(p.y + PH / 2);
-    if (ty < 0 || ty >= 12 || tx < 0 || tx >= 20) return;
+    var tx = p2t(p.x + TILE / 2);
+    var ty = p2t(p.y + TILE / 2);
+    if (ty < 0 || ty >= MAP_TH || tx < 0 || tx >= MAP_TW) return;
     var tile = currentMap[ty][tx];
     var myDoor = isFire ? T.FIRE_DOOR : T.ICE_DOOR;
     p.atDoor = (tile === myDoor);
@@ -385,13 +450,12 @@ const AtesBuz = (() => {
   }
 
   function checkCoins(p) {
-    var PW = 20;
     for (var i = 0; i < coins.length; i++) {
       var c = coins[i];
       if (c.collected) continue;
-      var dx = (p.x + PW / 2) - (c.x * TS + TS / 2);
-      var dy = (p.y + 14) - (c.y * TS + TS / 2);
-      if (dx * dx + dy * dy < 700) {
+      var dx = (p.x + TILE / 2) - (c.x * TILE + TILE / 2);
+      var dy = (p.y + TILE / 2) - (c.y * TILE + TILE / 2);
+      if (dx * dx + dy * dy < TILE * TILE) {
         c.collected = true;
         collectedCoins++;
         AudioManager.play('success');
@@ -557,45 +621,45 @@ const AtesBuz = (() => {
   }
 
   function drawCharacter(p, isFire) {
-    var PW = 20, PH = 28;
+    var S = TILE;
     var color = isFire ? '#FF4500' : '#1E90FF';
     var highlight = isFire ? '#FF6600' : '#4FC3F7';
-    var cx = p.x + PW / 2;
+    var cx = p.x + S / 2;
 
     // Gövde
     ctx.fillStyle = color;
-    ctx.fillRect(p.x + 3, p.y + 10, PW - 6, PH - 14);
+    ctx.fillRect(p.x + 8, p.y + 14, S - 16, S - 20);
 
     // Kafa
     ctx.fillStyle = highlight;
     ctx.beginPath();
-    ctx.arc(cx, p.y + 7, 8, 0, Math.PI * 2);
+    ctx.arc(cx, p.y + 10, 10, 0, Math.PI * 2);
     ctx.fill();
 
     // Gözler
     ctx.fillStyle = '#FFF';
-    ctx.beginPath(); ctx.arc(cx - 3, p.y + 6, 3, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx + 3, p.y + 6, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx - 4, p.y + 9, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + 4, p.y + 9, 4, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = '#333';
-    ctx.beginPath(); ctx.arc(cx - 3, p.y + 6, 1.5, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx + 3, p.y + 6, 1.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx - 4, p.y + 9, 2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + 4, p.y + 9, 2, 0, Math.PI * 2); ctx.fill();
 
     // Alev/Buz efekti
     if (isFire) {
       ctx.fillStyle = '#FF6600';
-      ctx.beginPath(); ctx.moveTo(cx - 6, p.y - 1); ctx.lineTo(cx, p.y - 10); ctx.lineTo(cx + 6, p.y - 1); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx - 8, p.y); ctx.lineTo(cx, p.y - 12); ctx.lineTo(cx + 8, p.y); ctx.fill();
       ctx.fillStyle = '#FFD700';
-      ctx.beginPath(); ctx.moveTo(cx - 4, p.y - 1); ctx.lineTo(cx, p.y - 7); ctx.lineTo(cx + 4, p.y - 1); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx - 5, p.y); ctx.lineTo(cx, p.y - 8); ctx.lineTo(cx + 5, p.y); ctx.fill();
     } else {
       ctx.fillStyle = '#B3E5FC';
-      ctx.beginPath(); ctx.moveTo(cx - 6, p.y - 1); ctx.lineTo(cx - 2, p.y - 8); ctx.lineTo(cx + 2, p.y - 1); ctx.fill();
-      ctx.beginPath(); ctx.moveTo(cx - 2, p.y - 1); ctx.lineTo(cx + 2, p.y - 8); ctx.lineTo(cx + 6, p.y - 1); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx - 8, p.y - 2); ctx.lineTo(cx - 4, p.y - 10); ctx.lineTo(cx, p.y - 2); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx, p.y - 2); ctx.lineTo(cx + 4, p.y - 10); ctx.lineTo(cx + 8, p.y - 2); ctx.fill();
     }
 
     // Bacaklar
     ctx.fillStyle = color;
-    ctx.fillRect(p.x + 3, p.y + PH - 4, 6, 4);
-    ctx.fillRect(p.x + PW - 9, p.y + PH - 4, 6, 4);
+    ctx.fillRect(p.x + 8, p.y + S - 6, 8, 6);
+    ctx.fillRect(p.x + S - 16, p.y + S - 6, 8, 6);
   }
 
   function destroy() {
