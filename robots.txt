@@ -13,4 +13,4 @@ Allow: /
 User-agent: Googlebot
 Allow: /
 
-Sitemap: https://www.bilnetoyun.com/sitemap.xml
+Sitemap: https://bilnetoyun.com/sitemap.xml

@@ -4,7 +4,7 @@
 
 ## Ana Sayfa
 
-- [Home](https://www.bilnetoyun.com): Tum oyunlara erisim - ucretsiz, kayit gerektirmez, tum cihazlarda calisir
+- [Home](https://bilnetoyun.com): Tum oyunlara erisim - ucretsiz, kayit gerektirmez, tum cihazlarda calisir
 
 ## Oyunlar (22 Oyun)
 
