@@ -114,7 +114,7 @@
 
 /* Landscape küçük cihaz */
 @media (max-height: 500px) and (orientation: landscape) {
-    .hub { padding-top: 54px; }
+    .hub { padding-top: 58px; }
     .top-bar { height: 54px; }
     .game-toolbar { height: 46px; }
     .game-area { top: 46px; padding: var(--space-sm); }
@@ -223,6 +223,6 @@
         padding-top: env(safe-area-inset-top);
         height: calc(64px + env(safe-area-inset-top));
     }
-    .hub { padding-top: calc(130px + env(safe-area-inset-top)); }
+    .hub { padding-top: calc(74px + env(safe-area-inset-top)); }
     .game-area { bottom: env(safe-area-inset-bottom); }
 }
