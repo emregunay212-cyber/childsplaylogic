@@ -1,7 +1,7 @@
 /* ============================================
    OYUN: Ateş & Buz - Online 2 Kişilik Platform
-   Canvas tabanlı işbirlikçi bulmaca platformer
-   Host = Ateş (kırmızı), Guest = Buz (mavi)
+   Host-authoritative: Host tüm fiziği hesaplar.
+   Guest sadece input gönderir, host state yayınlar.
    ============================================ */
 
 const AtesBuz = (() => {
@@ -12,210 +12,669 @@ const AtesBuz = (() => {
   const T = {
     EMPTY: 0, WALL: 1, LAVA: 2, WATER: 3, POISON: 4,
     FIRE_DOOR: 5, ICE_DOOR: 6, BUTTON_F: 7, BUTTON_I: 8,
-    GATE_F: 9, GATE_I: 10, COIN: 11,
+    GATE_F: 9, GATE_I: 10,
   };
 
-  // Seviye haritaları (20x12 tile grid, her tile 40px)
-  // Max zıplama: ~3 tile yüksek, ~2.5 tile yatay
-  // Platformlar arası max 2 tile dikey, 2 tile yatay boşluk
-  const MAPS = [
-    { // Seviye 1: Tutorial - düz yol + basit platformlar
-      grid: [
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,6,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,2,2,0,0,0,0,0,3,3,0,0,0,0,0,0,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  // Grid: 20 wide x 12 tall, 40px tile
+  const TILE = 40, MAP_W = 20, MAP_H = 12;
+  const GW = MAP_W * TILE, GH = MAP_H * TILE;
+
+  // Fizik sabitleri (host tick: 60Hz)
+  const GRAVITY = 1800;
+  const MOVE_SPEED = 220;
+  const JUMP_V = 560;
+  const MAX_FALL = 900;
+
+  // Ağ: host state yayın hızı ~25Hz, guest input hızı ~20Hz
+  const BROADCAST_MS = 40;
+  const DISCONNECT_MS = 8000;
+
+  // Seviye haritaları (1 = duvar, _ = boş, diğerleri tile kodu)
+  // Legend: F=fire_door, I=ice_door, b=button_f, B=button_i, g=gate_f, G=gate_i,
+  //         L=lava, W=water, P=poison, 1=wall, .=empty
+  // Fire (host) = kırmızı, Buz (guest) = mavi
+  // Fire ↔ water (ölümcül), Ice ↔ lava (ölümcül), poison ikisine de
+  const LEVELS = [ // max zıplama ~2 tile ↑ + 1 tile ↔
+    // Seviye 1: Başlangıç — 2 sıçrama, geniş platformlar, tehlikesiz.
+    {
+      name: 'Başlangıç',
+      rows: [
+        '11111111111111111111',
+        '1..................1',
+        '1..................1',
+        '1..................1',
+        '1..................1',
+        '1..................1',
+        '1..................1',
+        '1.F..............I.1',
+        '1111............1111',
+        '1..1111......1111..1',
+        '1..................1',
+        '11111111111111111111',
       ],
-      fireStart: {x:1,y:10}, iceStart: {x:3,y:10},
+      fireStart: { x: 2, y: 10 },
+      iceStart: { x: 17, y: 10 },
     },
-    { // Seviye 2: Zigzag platformlar + coin'ler
-      grid: [
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,6,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1],
-        [1,0,0,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1],
-        [1,0,0,0,0,0,2,2,0,0,0,0,3,3,0,0,0,0,0,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    // Seviye 2: Dikkat — aynı yapı + ortada küçük lav/su havuzu.
+    {
+      name: 'Dikkat',
+      rows: [
+        '11111111111111111111',
+        '1..................1',
+        '1..................1',
+        '1..................1',
+        '1..................1',
+        '1..................1',
+        '1..................1',
+        '1.F..............I.1',
+        '1111............1111',
+        '1..1111......1111..1',
+        '1.......LL.WW......1',
+        '11111111111111111111',
       ],
-      fireStart: {x:1,y:10}, iceStart: {x:18,y:10},
+      fireStart: { x: 2, y: 10 },
+      iceStart: { x: 17, y: 10 },
     },
-    { // Seviye 3: Düğme mekaniği tanıtım
-      grid: [
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,5,0,6,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,1,1,0,9,0,10,0,1,1,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0,0,1],
-        [1,0,0,0,7,0,0,0,0,0,0,0,0,0,0,8,0,0,0,1],
-        [1,0,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,0,1],
-        [1,0,0,0,0,0,0,2,0,0,0,0,3,0,0,0,0,0,0,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    // Seviye 3: Düğme — her oyuncu kendi butonuna basar, üstteki dekoratif
+    // kapısı kaybolur (cause-and-effect). Mutual koordinasyon yok.
+    {
+      name: 'Düğme',
+      rows: [
+        '11111111111111111111',
+        '1.g..............G.1',
+        '1..................1',
+        '1..................1',
+        '1..................1',
+        '1..................1',
+        '1..................1',
+        '1.F..............I.1',
+        '1111............1111',
+        '1..1111......1111..1',
+        '1..b............B..1',
+        '11111111111111111111',
       ],
-      fireStart: {x:1,y:10}, iceStart: {x:18,y:10},
-    },
-    { // Seviye 4: Karmaşık düğme + zehir
-      grid: [
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,5,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,1,1,0,0,9,0,0,0,1,1,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,1],
-        [1,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,1],
-        [1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1],
-        [1,0,0,0,0,0,2,0,0,4,4,0,0,3,0,0,0,0,0,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-      ],
-      fireStart: {x:1,y:10}, iceStart: {x:14,y:10},
-    },
-    { // Seviye 5: Final - tüm mekanikler
-      grid: [
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,5,0,6,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,9,0,0,0,0,0,0,0,10,0,0,0,0,1],
-        [1,0,0,0,0,1,1,1,0,0,0,0,0,1,1,1,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,8,0,1],
-        [1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1],
-        [1,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,2,2,0,0,0,0,0,0,3,3,0,0,0,0,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-      ],
-      fireStart: {x:1,y:10}, iceStart: {x:18,y:10},
+      fireStart: { x: 2, y: 10 },
+      iceStart: { x: 17, y: 10 },
     },
   ];
 
-  // Referans motor: jakesgordon/javascript-tiny-platformer (MIT)
-  // Karakter = 1 tile boyutunda, tile-grid çarpışma
-  var TILE    = 40,
-      MAP_TW  = 20, MAP_TH = 12,
-      GW      = MAP_TW * TILE, GH = MAP_TH * TILE,
-      METER   = TILE,
-      GRAVITY_C = 9.8 * 6,
-      MAXDX   = 15,
-      MAXDY   = 60,
-      ACCEL_T = 1/2,
-      FRIC_T  = 1/6,
-      IMPULSE_C = 1500;
+  // Modül durumu
+  let container, gameData, myRole, opName;
+  let canvas, ctx, animId;
+  let currentLevelIdx;
+  let map;                      // 2D tile array (mutable: gates değişir)
+  let gates;                    // {fire:[{x,y,open}], ice:[...]}
+  let fireDoor, iceDoor;        // {x,y}
+  let fire, ice;                // { x,y,vx,vy, onGround, dead, atDoor, inputL, inputR, inputJ }
+  // Guest render smoothing
+  let renderFire, renderIce;    // lerp hedefleri
+  let gameActive, levelComplete;
 
-  var fps_c = 60, step_c = 1/fps_c;
-  var TS = TILE; // alias
+  // Firebase
+  let lobbyRef, stateRef, lobbyLevelRef;
+  let hostBroadcastTimer = null;
+  let disconnectTimer = null;
+  let completeTimeoutId = null;
 
-  let container, gameData, canvas, ctx, animId;
-  let myPlayer, opPlayer, myRole, opName;
-  let currentMap, currentLevel, gates, coins, collectedCoins;
-  let keys, gameActive, bothAtDoor;
-  let lobbyRef, posRef, syncInterval;
-  let dt_acc, last_ts;
+  // Girdi
+  let keys;
 
-  // Tile yardımcıları
-  function t2p(t)     { return t * TILE; }
-  function p2t(p)     { return Math.floor(p / TILE); }
-  function tcell(tx, ty) {
-    if (tx < 0 || tx >= MAP_TW || ty < 0 || ty >= MAP_TH) return 1;
-    var tile = currentMap[ty][tx];
-    if (tile === T.GATE_F) { var g = gates.fire.find(function(gg){ return gg.x===tx && gg.y===ty; }); return (g && g.open) ? 0 : 1; }
-    if (tile === T.GATE_I) { var g = gates.ice.find(function(gg){ return gg.x===tx && gg.y===ty; }); return (g && g.open) ? 0 : 1; }
-    return (tile === T.WALL) ? 1 : 0;
+  // ─────────────────────────────────────────
+  // Yaşam döngüsü
+  // ─────────────────────────────────────────
+  function init(gameArea, data) {
+    container = gameArea;
+    gameData = data || {};
+    myRole = gameData.yourRole;
+    opName = gameData.opponentName || 'Rakip';
+    currentLevelIdx = Math.max(0, (gameData.level || 1) - 1);
+    gameActive = true;
+    levelComplete = false;
+    keys = {};
+
+    buildDOM();
+    loadLevel(currentLevelIdx);
+    setupNetwork();
+    addInputListeners();
+
+    animId = requestAnimationFrame(loop);
   }
-  function bound(x, min, max) { return Math.max(min, Math.min(max, x)); }
+
+  function destroy() {
+    gameActive = false;
+    if (animId) cancelAnimationFrame(animId);
+    animId = null;
+    stopNetwork();
+    removeInputListeners();
+    if (container) while (container.firstChild) container.removeChild(container.firstChild);
+    container = null; canvas = null; ctx = null;
+    fire = ice = renderFire = renderIce = null;
+    map = null; gates = null;
+  }
+
+  // ─────────────────────────────────────────
+  // Seviye & harita
+  // ─────────────────────────────────────────
+  function parseLevel(idx) {
+    const L = LEVELS[idx];
+    const grid = [];
+    const fireGates = [], iceGates = [];
+    let fd = null, idoor = null;
+
+    for (let y = 0; y < MAP_H; y++) {
+      const row = L.rows[y];
+      const rowArr = new Array(MAP_W).fill(T.EMPTY);
+      for (let x = 0; x < MAP_W; x++) {
+        const c = row[x];
+        switch (c) {
+          case '1': rowArr[x] = T.WALL; break;
+          case 'L': rowArr[x] = T.LAVA; break;
+          case 'W': rowArr[x] = T.WATER; break;
+          case 'P': rowArr[x] = T.POISON; break;
+          case 'F': rowArr[x] = T.FIRE_DOOR; fd = { x, y }; break;
+          case 'I': rowArr[x] = T.ICE_DOOR; idoor = { x, y }; break;
+          case 'b': rowArr[x] = T.BUTTON_F; break;
+          case 'B': rowArr[x] = T.BUTTON_I; break;
+          case 'g': rowArr[x] = T.GATE_F; fireGates.push({ x, y, open: false }); break;
+          case 'G': rowArr[x] = T.GATE_I; iceGates.push({ x, y, open: false }); break;
+          default: rowArr[x] = T.EMPTY;
+        }
+      }
+      grid.push(rowArr);
+    }
+    return {
+      grid, fireGates, iceGates,
+      fireDoor: fd, iceDoor: idoor,
+      fireStart: L.fireStart, iceStart: L.iceStart,
+      name: L.name,
+    };
+  }
+
+  function loadLevel(idx) {
+    const lv = parseLevel(idx);
+    map = lv.grid;
+    gates = { fire: lv.fireGates, ice: lv.iceGates };
+    fireDoor = lv.fireDoor;
+    iceDoor = lv.iceDoor;
+
+    fire = makeEntity(lv.fireStart.x, lv.fireStart.y);
+    ice = makeEntity(lv.iceStart.x, lv.iceStart.y);
+    renderFire = { x: fire.x, y: fire.y };
+    renderIce = { x: ice.x, y: ice.y };
+
+    levelComplete = false;
+    updateInfoBar();
+  }
 
   function makeEntity(tx, ty) {
     return {
-      x: t2p(tx), y: t2p(ty), dx: 0, dy: 0,
-      gravity: METER * GRAVITY_C,
-      maxdx: METER * MAXDX,
-      maxdy: METER * MAXDY,
-      impulse: METER * IMPULSE_C,
-      accel: 0, friction: 0,
-      left: false, right: false, jump: false,
-      jumping: false, falling: false, atDoor: false,
-      start: { x: t2p(tx), y: t2p(ty) }
+      x: tx * TILE, y: ty * TILE,
+      vx: 0, vy: 0,
+      onGround: false, dead: false, atDoor: false,
+      startX: tx * TILE, startY: ty * TILE,
+      inputL: false, inputR: false, inputJ: false,
+      jumpHeld: false, // zıplama tuşu serbest bırakılmadan tekrar zıplanamaz
     };
   }
-  function initEntity(e) {
-    e.accel    = e.maxdx / ACCEL_T;
-    e.friction = e.maxdx / FRIC_T;
+
+  // ─────────────────────────────────────────
+  // Çarpışma yardımcıları
+  // ─────────────────────────────────────────
+  function tileAt(tx, ty) {
+    if (tx < 0 || tx >= MAP_W || ty < 0 || ty >= MAP_H) return T.WALL;
+    return map[ty][tx];
   }
 
-  function init(gameArea, data) {
-    container = gameArea;
-    gameData = data;
-    myRole = data.yourRole;
-    opName = data.opponentName;
-    currentLevel = data.level || 1;
-    gameActive = true;
-    bothAtDoor = false;
-    keys = {};
-    collectedCoins = 0;
-    dt_acc = 0;
-    last_ts = performance.now();
-    loadLevel(currentLevel);
-    buildDOM();
-    setupSync();
-    document.addEventListener('keydown', onKeyDown);
-    document.addEventListener('keyup', onKeyUp);
-    loop();
+  function isSolid(tx, ty) {
+    const t = tileAt(tx, ty);
+    if (t === T.WALL) return true;
+    if (t === T.GATE_F) {
+      const g = gates.fire.find(g => g.x === tx && g.y === ty);
+      return !(g && g.open);
+    }
+    if (t === T.GATE_I) {
+      const g = gates.ice.find(g => g.x === tx && g.y === ty);
+      return !(g && g.open);
+    }
+    return false;
   }
 
-  function loadLevel(lvl) {
-    const map = MAPS[lvl - 1];
-    currentMap = map.grid.map(row => [...row]);
-    gates = { fire: [], ice: [] };
-    coins = [];
+  // Karakter hitbox = 32x36 (tile 40x40), grid'de sığar
+  const BOX_W = 32, BOX_H = 36;
+  function entityBox(e) {
+    return {
+      l: e.x + (TILE - BOX_W) / 2,
+      r: e.x + (TILE - BOX_W) / 2 + BOX_W,
+      t: e.y + (TILE - BOX_H),
+      b: e.y + TILE,
+    };
+  }
 
-    // Kapılar ve coinleri bul
-    for (let y = 0; y < 12; y++) {
-      for (let x = 0; x < 20; x++) {
-        if (currentMap[y][x] === T.GATE_F) gates.fire.push({x, y, open: false});
-        if (currentMap[y][x] === T.GATE_I) gates.ice.push({x, y, open: false});
-        if (currentMap[y][x] === T.COIN) { coins.push({x, y, collected: false}); currentMap[y][x] = T.EMPTY; }
+  function collidesAt(e, newX, newY) {
+    const l = newX + (TILE - BOX_W) / 2;
+    const r = l + BOX_W - 1;
+    const t = newY + (TILE - BOX_H);
+    const b = newY + TILE - 1;
+    const lt = Math.floor(l / TILE), rt = Math.floor(r / TILE);
+    const tt = Math.floor(t / TILE), bt = Math.floor(b / TILE);
+    for (let ty = tt; ty <= bt; ty++) {
+      for (let tx = lt; tx <= rt; tx++) {
+        if (isSolid(tx, ty)) return true;
+      }
+    }
+    return false;
+  }
+
+  // ─────────────────────────────────────────
+  // Fizik (sadece host)
+  // ─────────────────────────────────────────
+  function stepEntity(e, dt) {
+    if (e.dead) return;
+
+    const dir = (e.inputR ? 1 : 0) - (e.inputL ? 1 : 0);
+    e.vx = dir * MOVE_SPEED;
+
+    // Zıplama: tuş basılı tutulurken tek zıplama
+    if (e.inputJ && e.onGround && !e.jumpHeld) {
+      e.vy = -JUMP_V;
+      e.onGround = false;
+      e.jumpHeld = true;
+    }
+    if (!e.inputJ) e.jumpHeld = false;
+
+    // Yerçekimi
+    e.vy += GRAVITY * dt;
+    if (e.vy > MAX_FALL) e.vy = MAX_FALL;
+
+    // X ekseninde ilerle
+    let nx = e.x + e.vx * dt;
+    if (collidesAt(e, nx, e.y)) {
+      // Blok — kademeli yaklaştır
+      const step = Math.sign(e.vx);
+      while (step !== 0 && !collidesAt(e, e.x + step, e.y)) e.x += step;
+      e.vx = 0;
+    } else {
+      e.x = nx;
+    }
+
+    // Y ekseninde ilerle
+    let ny = e.y + e.vy * dt;
+    if (collidesAt(e, e.x, ny)) {
+      const step = Math.sign(e.vy);
+      while (step !== 0 && !collidesAt(e, e.x, e.y + step)) e.y += step;
+      if (e.vy > 0) e.onGround = true;
+      e.vy = 0;
+    } else {
+      e.y = ny;
+      e.onGround = false;
+    }
+
+    // Yerde kontrolü (1 px altta katı var mı?)
+    if (e.vy === 0) {
+      e.onGround = collidesAt(e, e.x, e.y + 1);
+    }
+
+    // Harita sınırı
+    if (e.y > GH + 200) killEntity(e);
+  }
+
+  function checkHazards(e, isFire) {
+    if (e.dead) return;
+    // Merkez tile'a bak
+    const cx = e.x + TILE / 2;
+    const cy = e.y + TILE - 8;
+    const tx = Math.floor(cx / TILE), ty = Math.floor(cy / TILE);
+    const t = tileAt(tx, ty);
+    if (t === T.POISON) return killEntity(e);
+    if (isFire && t === T.WATER) return killEntity(e);
+    if (!isFire && t === T.LAVA) return killEntity(e);
+  }
+
+  function killEntity(e) {
+    if (e.dead) return;
+    e.dead = true;
+    setTimeout(() => {
+      if (!gameActive) return;
+      e.x = e.startX; e.y = e.startY;
+      e.vx = 0; e.vy = 0; e.dead = false; e.onGround = false; e.atDoor = false;
+    }, 600);
+  }
+
+  function checkButtons() {
+    // Kalıcı buton: bir kez basıldığında kapı kalıcı açık, false'a geri dönmez.
+    // Sıfırlama sadece loadLevel'de olur (yeni gate'ler open:false yaratılır).
+    const onButton = (e, type) => {
+      if (e.dead) return false;
+      const cx = e.x + TILE / 2;
+      const feetY = e.y + TILE - 2;
+      const tx = Math.floor(cx / TILE), ty = Math.floor(feetY / TILE);
+      return tileAt(tx, ty) === type;
+    };
+    if (myRole === 'host') {
+      if (onButton(fire, T.BUTTON_F)) gates.fire.forEach(g => { g.open = true; });
+    } else {
+      if (onButton(ice, T.BUTTON_I)) gates.ice.forEach(g => { g.open = true; });
+    }
+  }
+
+  function checkDoors() {
+    const atOwnDoor = (e, door) => {
+      if (!door || e.dead) return false;
+      const cx = e.x + TILE / 2, cy = e.y + TILE / 2;
+      const tx = Math.floor(cx / TILE), ty = Math.floor(cy / TILE);
+      return tx === door.x && ty === door.y;
+    };
+    // Her oyuncu sadece kendi karakterinin kapı durumunu günceller
+    if (myRole === 'host') {
+      fire.atDoor = atOwnDoor(fire, fireDoor);
+    } else {
+      ice.atDoor = atOwnDoor(ice, iceDoor);
+    }
+    // Host otoriter olarak seviye tamamlanmasını tespit eder (her iki atDoor true)
+    if (myRole === 'host' && fire.atDoor && ice.atDoor && !levelComplete) {
+      levelComplete = true;
+      gameActive = false;
+      if (typeof AudioManager !== 'undefined') AudioManager.play('complete');
+      if (typeof Particles !== 'undefined' && Particles.celebrate) Particles.celebrate();
+      completeTimeoutId = setTimeout(() => {
+        completeTimeoutId = null;
+        if (levelComplete) showLevelComplete();
+      }, 700);
+    }
+  }
+
+  function tick(dt) {
+    if (!gameActive || levelComplete) return;
+    // Her oyuncu sadece kendi karakterinin fiziğini çalıştırır
+    if (myRole === 'host') {
+      stepEntity(fire, dt);
+      checkHazards(fire, true);
+    } else {
+      stepEntity(ice, dt);
+      checkHazards(ice, false);
+    }
+    checkButtons();
+    checkDoors();
+  }
+
+  // ─────────────────────────────────────────
+  // Ağ
+  // ─────────────────────────────────────────
+  let lastOpponentSeenAt = 0;
+  let lastOpponentT = null;
+
+  function setupNetwork() {
+    if (typeof db === 'undefined' || !db || !gameData.lobbyId) return;
+    lobbyRef = db.ref('lobbies/' + gameData.lobbyId);
+    stateRef = lobbyRef.child('ab_state');
+    lobbyLevelRef = lobbyRef.child('level');
+
+    // Tek otorite: lobby.level — seviye geçişleri için
+    lobbyLevelRef.on('value', snap => {
+      const lvl = snap.val();
+      if (typeof lvl !== 'number') return;
+      const idx = Math.max(0, lvl - 1);
+      if (idx > currentLevelIdx) advanceTo(idx);
+    });
+
+    // Her iki taraf state'e yazar (kendi subtree'sine) ve her iki taraf dinler
+    stateRef.on('value', snap => {
+      const v = snap.val();
+      if (!v) return;
+      applyRemoteState(v);
+      // Rakibin timestamp'i — disconnect watchdog için
+      const opField = myRole === 'host' ? 'g' : 'h';
+      const op = v[opField];
+      if (op && typeof op.t === 'number' && op.t !== lastOpponentT) {
+        lastOpponentT = op.t;
+        lastOpponentSeenAt = performance.now();
+      }
+    });
+
+    hostBroadcastTimer = setInterval(broadcastState, BROADCAST_MS);
+    broadcastState();
+
+    disconnectTimer = setInterval(() => {
+      if (!gameActive || lastOpponentSeenAt === 0) return;
+      if (performance.now() - lastOpponentSeenAt > DISCONNECT_MS) onDisconnect();
+    }, 1500);
+  }
+
+  function stopNetwork() {
+    if (hostBroadcastTimer) { clearInterval(hostBroadcastTimer); hostBroadcastTimer = null; }
+    if (disconnectTimer) { clearInterval(disconnectTimer); disconnectTimer = null; }
+    if (completeTimeoutId) { clearTimeout(completeTimeoutId); completeTimeoutId = null; }
+    if (stateRef) stateRef.off();
+    if (lobbyLevelRef) lobbyLevelRef.off();
+    lobbyRef = stateRef = lobbyLevelRef = null;
+    lastOpponentSeenAt = 0; lastOpponentT = null;
+  }
+
+  function broadcastState() {
+    if (!stateRef) return;
+    if (myRole === 'host') {
+      stateRef.child('h').set({
+        x: Math.round(fire.x), y: Math.round(fire.y), d: fire.dead ? 1 : 0,
+        atd: fire.atDoor ? 1 : 0,
+        gf: gates.fire.map(g => g.open ? 1 : 0).join(''),
+        lvl: currentLevelIdx,
+        done: levelComplete ? 1 : 0,
+        t: Date.now(),
+      });
+    } else {
+      stateRef.child('g').set({
+        x: Math.round(ice.x), y: Math.round(ice.y), d: ice.dead ? 1 : 0,
+        atd: ice.atDoor ? 1 : 0,
+        gi: gates.ice.map(g => g.open ? 1 : 0).join(''),
+        t: Date.now(),
+      });
+    }
+  }
+
+  function applyRemoteState(v) {
+    if (myRole === 'host') {
+      // Host guest'in verisini okur (ice pozisyon + ice gates + ice atDoor)
+      const g = v.g;
+      if (!g) return;
+      if (typeof g.x === 'number') ice.x = g.x;
+      if (typeof g.y === 'number') ice.y = g.y;
+      ice.dead = !!g.d;
+      ice.atDoor = !!g.atd;
+      // Monotonik: kalıcı buton ile tutarlı — sadece true'ya yükselt
+      if (typeof g.gi === 'string')
+        for (let i = 0; i < gates.ice.length; i++) if (g.gi[i] === '1') gates.ice[i].open = true;
+    } else {
+      // Guest host'un verisini okur (fire + lvl/done)
+      const h = v.h;
+      if (!h) return;
+      if (typeof h.lvl === 'number' && h.lvl > currentLevelIdx) {
+        advanceTo(h.lvl);
+        return;
+      }
+      if (typeof h.lvl === 'number' && h.lvl !== currentLevelIdx) return;
+      if (typeof h.x === 'number') fire.x = h.x;
+      if (typeof h.y === 'number') fire.y = h.y;
+      fire.dead = !!h.d;
+      fire.atDoor = !!h.atd;
+      if (typeof h.gf === 'string')
+        for (let i = 0; i < gates.fire.length; i++) if (h.gf[i] === '1') gates.fire[i].open = true;
+      if (h.done && !levelComplete) {
+        levelComplete = true;
+        gameActive = false;
+        if (typeof AudioManager !== 'undefined') AudioManager.play('complete');
+        if (typeof Particles !== 'undefined' && Particles.celebrate) Particles.celebrate();
+        completeTimeoutId = setTimeout(() => {
+          completeTimeoutId = null;
+          if (levelComplete) showLevelComplete();
+        }, 700);
+      }
+    }
+  }
+
+  function onDisconnect() {
+    if (!gameActive) return;
+    gameActive = false;
+    showOverlay('Rakip bağlantısı koptu', 'Ana Sayfaya Dön', () => {
+      destroy();
+      if (typeof App !== 'undefined' && App.showHub) App.showHub();
+    });
+  }
+
+  // ─────────────────────────────────────────
+  // Ana döngü
+  // ─────────────────────────────────────────
+  let lastTime = 0;
+  function loop(ts) {
+    if (animId === null) return;
+
+    if (!lastTime) lastTime = ts;
+    let dt = Math.min(0.05, (ts - lastTime) / 1000);
+    lastTime = ts;
+
+    // Her oyuncu kendi karakterinin input'unu günceller ve fiziğini yerel çalıştırır
+    if (myRole === 'host') {
+      fire.inputL = !!keys['ArrowLeft']; fire.inputR = !!keys['ArrowRight']; fire.inputJ = !!(keys[' '] || keys['ArrowUp']);
+    } else {
+      ice.inputL = !!keys['ArrowLeft']; ice.inputR = !!keys['ArrowRight']; ice.inputJ = !!(keys[' '] || keys['ArrowUp']);
+    }
+    if (gameActive) tick(dt);
+
+    // Kendi karakterin direkt render; rakip karakter lerp ile yumuşatılır
+    const a = 0.35;
+    if (myRole === 'host') {
+      renderFire.x = fire.x; renderFire.y = fire.y;
+      renderIce.x += (ice.x - renderIce.x) * a;
+      renderIce.y += (ice.y - renderIce.y) * a;
+    } else {
+      renderIce.x = ice.x; renderIce.y = ice.y;
+      renderFire.x += (fire.x - renderFire.x) * a;
+      renderFire.y += (fire.y - renderFire.y) * a;
+    }
+
+    draw();
+    animId = requestAnimationFrame(loop);
+  }
+
+  // ─────────────────────────────────────────
+  // Çizim
+  // ─────────────────────────────────────────
+  function draw() {
+    if (!ctx) return;
+    // Gradient arka plan
+    const g = ctx.createLinearGradient(0, 0, 0, GH);
+    g.addColorStop(0, '#1a1a2e');
+    g.addColorStop(1, '#0f1424');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, GW, GH);
+
+    // Tile'lar
+    for (let y = 0; y < MAP_H; y++) {
+      for (let x = 0; x < MAP_W; x++) {
+        const t = map[y][x];
+        const px = x * TILE, py = y * TILE;
+        if (t === T.WALL) drawWall(px, py);
+        else if (t === T.LAVA) drawLava(px, py);
+        else if (t === T.WATER) drawWater(px, py);
+        else if (t === T.POISON) drawPoison(px, py);
+        else if (t === T.FIRE_DOOR) drawDoor(px, py, true);
+        else if (t === T.ICE_DOOR) drawDoor(px, py, false);
+        else if (t === T.BUTTON_F) drawButton(px, py, true, gates.fire.length > 0 && gates.fire[0].open);
+        else if (t === T.BUTTON_I) drawButton(px, py, false, gates.ice.length > 0 && gates.ice[0].open);
+        else if (t === T.GATE_F) {
+          const gg = gates.fire.find(g => g.x === x && g.y === y);
+          if (!gg || !gg.open) drawGate(px, py, true);
+        } else if (t === T.GATE_I) {
+          const gg = gates.ice.find(g => g.x === x && g.y === y);
+          if (!gg || !gg.open) drawGate(px, py, false);
+        }
       }
     }
 
-    const isHost = myRole === 'host';
-    const myStart = isHost ? map.fireStart : map.iceStart;
-    const opStart = isHost ? map.iceStart : map.fireStart;
-
-    myPlayer = makeEntity(myStart.x, myStart.y);
-    initEntity(myPlayer);
-    opPlayer = makeEntity(opStart.x, opStart.y);
-    initEntity(opPlayer);
+    // Karakterler
+    if (!fire.dead) drawCharacter(renderFire.x, renderFire.y, true);
+    if (!ice.dead) drawCharacter(renderIce.x, renderIce.y, false);
   }
 
+  function drawWall(px, py) {
+    ctx.fillStyle = '#3a3a52'; ctx.fillRect(px, py, TILE, TILE);
+    ctx.fillStyle = '#4a4a66'; ctx.fillRect(px, py, TILE, 4);
+    ctx.fillStyle = '#2a2a3e'; ctx.fillRect(px, py + TILE - 4, TILE, 4);
+  }
+  function drawLiquid(px, py, deep, mid, top) {
+    ctx.fillStyle = deep; ctx.fillRect(px, py + 8, TILE, TILE - 8);
+    ctx.fillStyle = mid; ctx.fillRect(px, py + 6, TILE, 6);
+    ctx.fillStyle = top;
+    ctx.fillRect(px, py + 4 + Math.sin(performance.now() / 200 + px) * 2, TILE, 3);
+  }
+  function drawLava(px, py)   { drawLiquid(px, py, '#c12a0a', '#ff5722', '#ffb300'); }
+  function drawWater(px, py)  { drawLiquid(px, py, '#0d47a1', '#1e88e5', '#81d4fa'); }
+  function drawPoison(px, py) { drawLiquid(px, py, '#2e7d32', '#66bb6a', '#ccff90'); }
+  function drawDoor(px, py, isFire) {
+    ctx.fillStyle = isFire ? '#ff6b35' : '#4fc3f7';
+    ctx.fillRect(px + 4, py + 2, TILE - 8, TILE - 2);
+    ctx.fillStyle = isFire ? '#ffd166' : '#e1f5fe';
+    ctx.fillRect(px + 8, py + 6, TILE - 16, TILE - 10);
+    ctx.fillStyle = '#333';
+    ctx.beginPath(); ctx.arc(px + TILE - 12, py + TILE / 2, 2, 0, Math.PI * 2); ctx.fill();
+  }
+  function drawButton(px, py, isFire, pressed) {
+    ctx.fillStyle = '#444'; ctx.fillRect(px + 6, py + TILE - 10, TILE - 12, 4);
+    ctx.fillStyle = pressed ? (isFire ? '#992b00' : '#0d47a1') : (isFire ? '#ff4500' : '#1e90ff');
+    ctx.fillRect(px + 10, py + (pressed ? TILE - 11 : TILE - 14), TILE - 20, pressed ? 3 : 6);
+  }
+  function drawGate(px, py, isFire) {
+    ctx.fillStyle = isFire ? 'rgba(255,69,0,0.7)' : 'rgba(30,144,255,0.7)';
+    ctx.fillRect(px + 2, py, TILE - 4, TILE);
+    ctx.fillStyle = isFire ? 'rgba(255,140,0,0.4)' : 'rgba(79,195,247,0.4)';
+    for (let i = 0; i < 3; i++) ctx.fillRect(px + 4, py + 4 + i * 12, TILE - 8, 4);
+  }
+  function drawCharacter(x, y, isFire) {
+    const color = isFire ? '#ff5722' : '#29b6f6';
+    const hl = isFire ? '#ffab40' : '#b3e5fc';
+    const cx = x + TILE / 2;
+    // Gövde
+    ctx.fillStyle = color;
+    ctx.fillRect(x + 10, y + 14, TILE - 20, TILE - 18);
+    // Kafa
+    ctx.fillStyle = hl;
+    ctx.beginPath();
+    ctx.arc(cx, y + 12, 10, 0, Math.PI * 2);
+    ctx.fill();
+    // Gözler
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(cx - 4, y + 11, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + 4, y + 11, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#222';
+    ctx.beginPath(); ctx.arc(cx - 4, y + 11, 1.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + 4, y + 11, 1.5, 0, Math.PI * 2); ctx.fill();
+    // Efekt
+    if (isFire) {
+      ctx.fillStyle = '#ffab40';
+      ctx.beginPath(); ctx.moveTo(cx - 8, y + 2); ctx.lineTo(cx, y - 8); ctx.lineTo(cx + 8, y + 2); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#ffeb3b';
+      ctx.beginPath(); ctx.moveTo(cx - 4, y + 2); ctx.lineTo(cx, y - 4); ctx.lineTo(cx + 4, y + 2); ctx.closePath(); ctx.fill();
+    } else {
+      ctx.fillStyle = '#81d4fa';
+      ctx.beginPath(); ctx.moveTo(cx - 7, y + 2); ctx.lineTo(cx - 3, y - 6); ctx.lineTo(cx + 1, y + 2); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx - 1, y + 2); ctx.lineTo(cx + 3, y - 6); ctx.lineTo(cx + 7, y + 2); ctx.closePath(); ctx.fill();
+    }
+    // Bacak
+    ctx.fillStyle = color;
+    ctx.fillRect(x + 10, y + TILE - 4, 8, 4);
+    ctx.fillRect(x + TILE - 18, y + TILE - 4, 8, 4);
+  }
+
+  // ─────────────────────────────────────────
+  // DOM & girdi
+  // ─────────────────────────────────────────
   function buildDOM() {
     while (container.firstChild) container.removeChild(container.firstChild);
     const wrap = document.createElement('div');
     wrap.className = 'ab-wrap';
 
-    // Info bar
     const info = document.createElement('div');
     info.className = 'ab-info';
     info.id = 'ab-info';
-    const myLabel = myRole === 'host' ? 'Ateş (Sen)' : 'Buz (Sen)';
-    const opLabel = myRole === 'host' ? 'Buz (' + opName + ')' : 'Ateş (' + opName + ')';
-    info.textContent = myLabel + ' vs ' + opLabel + ' | Seviye ' + currentLevel;
     wrap.appendChild(info);
 
     canvas = document.createElement('canvas');
@@ -227,456 +686,114 @@ const AtesBuz = (() => {
     // Mobil kontroller
     const controls = document.createElement('div');
     controls.className = 'ab-controls';
-    const makeBtn = (cls, txt) => { const b = document.createElement('button'); b.className = 'ab-btn ' + cls; b.textContent = txt; return b; };
-    const btnL = makeBtn('ab-btn-left', '\u25C0');
-    const btnR = makeBtn('ab-btn-right', '\u25B6');
-    const btnJ = makeBtn('ab-btn-jump', '\u25B2');
-    const bind = (btn, key) => {
-      btn.addEventListener('touchstart', e => { e.preventDefault(); keys[key] = true; });
-      btn.addEventListener('touchend', e => { e.preventDefault(); keys[key] = false; });
-      btn.addEventListener('mousedown', () => { keys[key] = true; });
-      btn.addEventListener('mouseup', () => { keys[key] = false; });
-      btn.addEventListener('mouseleave', () => { keys[key] = false; });
+    const mk = (cls, txt, k) => {
+      const b = document.createElement('button');
+      b.className = 'ab-btn ' + cls;
+      b.textContent = txt;
+      const dn = e => { e.preventDefault(); keys[k] = true; };
+      const up = e => { e.preventDefault(); keys[k] = false; };
+      b.addEventListener('touchstart', dn, { passive: false });
+      b.addEventListener('touchend', up);
+      b.addEventListener('touchcancel', up);
+      b.addEventListener('mousedown', dn);
+      b.addEventListener('mouseup', up);
+      b.addEventListener('mouseleave', up);
+      return b;
     };
-    bind(btnL, 'ArrowLeft'); bind(btnR, 'ArrowRight'); bind(btnJ, ' ');
-    controls.appendChild(btnL); controls.appendChild(btnJ); controls.appendChild(btnR);
+    controls.appendChild(mk('ab-btn-left', '\u25C0', 'ArrowLeft'));
+    controls.appendChild(mk('ab-btn-jump', '\u25B2', ' '));
+    controls.appendChild(mk('ab-btn-right', '\u25B6', 'ArrowRight'));
     wrap.appendChild(controls);
+
     container.appendChild(wrap);
   }
 
-  function setupSync() {
-    if (!db || !gameData.lobbyId) return;
-    const lobbyId = gameData.lobbyId;
-    lobbyRef = db.ref('lobbies/' + lobbyId);
-    posRef = lobbyRef.child('positions');
-
-    // Karşı oyuncunun pozisyonunu dinle
-    const opField = myRole === 'host' ? 'guest' : 'host';
-    posRef.child(opField).on('value', snap => {
-      const val = snap.val();
-      if (val) {
-        opPlayer.x = val.x;
-        opPlayer.y = val.y;
-        opPlayer.atDoor = val.atDoor || false;
-        checkBothAtDoor();
-      }
-    });
-
-    // Düğme durumlarını dinle
-    lobbyRef.child('buttons').on('value', snap => {
-      const val = snap.val();
-      if (val) {
-        gates.fire.forEach((g, i) => { g.open = val['gf' + i] || false; });
-        gates.ice.forEach((g, i) => { g.open = val['gi' + i] || false; });
-      }
-    });
-
-    // Kendi pozisyonumu düzenli gönder
-    syncInterval = setInterval(() => {
-      if (!gameActive) return;
-      const myField = myRole === 'host' ? 'host' : 'guest';
-      posRef.child(myField).set({ x: myPlayer.x, y: myPlayer.y, atDoor: myPlayer.atDoor });
-    }, 50);
+  function updateInfoBar() {
+    const info = document.getElementById('ab-info');
+    if (!info) return;
+    const isFire = myRole === 'host';
+    const me = isFire ? 'Ateş' : 'Buz';
+    const op = isFire ? 'Buz' : 'Ateş';
+    info.textContent =
+      'Sen: ' + me + '  ·  ' + opName + ': ' + op +
+      '  ·  ' + (currentLevelIdx + 1) + '/' + LEVELS.length + ' — ' + LEVELS[currentLevelIdx].name;
   }
 
   function onKeyDown(e) {
-    if (['ArrowLeft','ArrowRight','ArrowUp',' '].includes(e.key)) { e.preventDefault(); keys[e.key] = true; }
-  }
-  function onKeyUp(e) { keys[e.key] = false; }
-
-  // Game loop - referanstan birebir (jakesgordon, MIT)
-  function loop() {
-    if (!gameActive) return;
-    var now = performance.now();
-    dt_acc = dt_acc + Math.min(1, (now - last_ts) / 1000);
-    while (dt_acc > step_c) {
-      dt_acc = dt_acc - step_c;
-      update(step_c);
-    }
-    draw();
-    last_ts = now;
-    animId = requestAnimationFrame(loop);
-  }
-
-  function update(dt) {
-    var p = myPlayer;
-    p.left  = !!keys['ArrowLeft'];
-    p.right = !!keys['ArrowRight'];
-    p.jump  = !!(keys[' '] || keys['ArrowUp']);
-    updateEntity(p, dt);
-
-    var isFire = myRole === 'host';
-    checkHazards(p, isFire);
-    checkButtons(p, isFire);
-    checkDoor(p, isFire);
-    checkCoins(p);
-  }
-
-  // Fizik motoru - referanstan birebir (jakesgordon/javascript-tiny-platformer, MIT)
-  function updateEntity(entity, dt) {
-    var wasleft  = entity.dx < 0,
-        wasright = entity.dx > 0,
-        falling  = entity.falling,
-        friction = entity.friction * (falling ? 0.5 : 1),
-        accel    = entity.accel    * (falling ? 0.5 : 1);
-
-    entity.ddx = 0;
-    entity.ddy = entity.gravity;
-
-    if (entity.left)
-      entity.ddx = entity.ddx - accel;
-    else if (wasleft)
-      entity.ddx = entity.ddx + friction;
-
-    if (entity.right)
-      entity.ddx = entity.ddx + accel;
-    else if (wasright)
-      entity.ddx = entity.ddx - friction;
-
-    if (entity.jump && !entity.jumping && !falling) {
-      entity.ddy = entity.ddy - entity.impulse;
-      entity.jumping = true;
-    }
-
-    entity.x  = entity.x  + (dt * entity.dx);
-    entity.y  = entity.y  + (dt * entity.dy);
-    entity.dx = bound(entity.dx + (dt * entity.ddx), -entity.maxdx, entity.maxdx);
-    entity.dy = bound(entity.dy + (dt * entity.ddy), -entity.maxdy, entity.maxdy);
-
-    if ((wasleft  && (entity.dx > 0)) ||
-        (wasright && (entity.dx < 0))) {
-      entity.dx = 0;
-    }
-
-    var tx        = p2t(entity.x),
-        ty        = p2t(entity.y),
-        nx        = entity.x % TILE,
-        ny        = entity.y % TILE,
-        cell      = tcell(tx,     ty),
-        cellright = tcell(tx + 1, ty),
-        celldown  = tcell(tx,     ty + 1),
-        celldiag  = tcell(tx + 1, ty + 1);
-
-    if (entity.dy > 0) {
-      if ((celldown && !cell) ||
-          (celldiag && !cellright && nx)) {
-        entity.y = t2p(ty);
-        entity.dy = 0;
-        entity.falling = false;
-        entity.jumping = false;
-        ny = 0;
-      }
-    }
-    else if (entity.dy < 0) {
-      if ((cell      && !celldown) ||
-          (cellright && !celldiag && nx)) {
-        entity.y = t2p(ty + 1);
-        entity.dy = 0;
-        cell      = celldown;
-        cellright = celldiag;
-        ny        = 0;
-      }
-    }
-
-    if (entity.dx > 0) {
-      if ((cellright && !cell) ||
-          (celldiag  && !celldown && ny)) {
-        entity.x = t2p(tx);
-        entity.dx = 0;
-      }
-    }
-    else if (entity.dx < 0) {
-      if ((cell     && !cellright) ||
-          (celldown && !celldiag && ny)) {
-        entity.x = t2p(tx + 1);
-        entity.dx = 0;
-      }
-    }
-
-    entity.falling = !(celldown || (nx && celldiag));
-  }
-
-  function rawTileAt(px, py) {
-    var tx = p2t(px), ty = p2t(py);
-    if (tx < 0 || tx >= MAP_TW || ty < 0 || ty >= MAP_TH) return T.WALL;
-    return currentMap[ty][tx];
-  }
-
-  function checkHazards(p, isFire) {
-    var cx = p.x + TILE / 2, cy = p.y + TILE - 4;
-    var tile = rawTileAt(cx, cy);
-    if ((isFire && tile === T.WATER) || (!isFire && tile === T.LAVA) || tile === T.POISON) {
-      AudioManager.play('error');
-      respawnEntity(p);
+    if (['ArrowLeft','ArrowRight','ArrowUp',' '].includes(e.key)) {
+      e.preventDefault();
+      keys[e.key] = true;
     }
   }
-
-  function respawnEntity(p) {
-    p.x = p.start.x; p.y = p.start.y;
-    p.dx = 0; p.dy = 0;
-    p.falling = false; p.jumping = false; p.atDoor = false;
-  }
-
-  function checkButtons(p, isFire) {
-    var tx = p2t(p.x + TILE / 2);
-    var ty = p2t(p.y + TILE + 2);
-    if (ty >= MAP_TH || ty < 0) return;
-    var tile = currentMap[ty][tx];
-    if (!p.falling && tile === T.BUTTON_F && isFire) {
-      gates.fire.forEach(function(g) { g.open = true; });
-      syncButtons();
-    } else if (!p.falling && tile === T.BUTTON_I && !isFire) {
-      gates.ice.forEach(function(g) { g.open = true; });
-      syncButtons();
+  function onKeyUp(e) {
+    if (['ArrowLeft','ArrowRight','ArrowUp',' '].includes(e.key)) {
+      keys[e.key] = false;
     }
   }
-
-  function syncButtons() {
-    if (!lobbyRef) return;
-    const data = {};
-    gates.fire.forEach((g, i) => { data['gf' + i] = g.open; });
-    gates.ice.forEach((g, i) => { data['gi' + i] = g.open; });
-    lobbyRef.child('buttons').set(data);
+  function addInputListeners() {
+    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('keyup', onKeyUp);
+  }
+  function removeInputListeners() {
+    document.removeEventListener('keydown', onKeyDown);
+    document.removeEventListener('keyup', onKeyUp);
   }
 
-  function checkDoor(p, isFire) {
-    var tx = p2t(p.x + TILE / 2);
-    var ty = p2t(p.y + TILE / 2);
-    if (ty < 0 || ty >= MAP_TH || tx < 0 || tx >= MAP_TW) return;
-    var tile = currentMap[ty][tx];
-    var myDoor = isFire ? T.FIRE_DOOR : T.ICE_DOOR;
-    p.atDoor = (tile === myDoor);
-    checkBothAtDoor();
-  }
-
-  function checkCoins(p) {
-    for (var i = 0; i < coins.length; i++) {
-      var c = coins[i];
-      if (c.collected) continue;
-      var dx = (p.x + TILE / 2) - (c.x * TILE + TILE / 2);
-      var dy = (p.y + TILE / 2) - (c.y * TILE + TILE / 2);
-      if (dx * dx + dy * dy < TILE * TILE) {
-        c.collected = true;
-        collectedCoins++;
-        AudioManager.play('success');
-      }
-    }
-  }
-
-  function checkBothAtDoor() {
-    if (myPlayer.atDoor && opPlayer.atDoor && !bothAtDoor) {
-      bothAtDoor = true;
-      gameActive = false;
-      AudioManager.play('complete');
-      Particles.celebrate();
-
-      // Seviye tamamlandı
-      if (currentLevel < 5) {
-        setTimeout(() => {
-          showLevelComplete();
-        }, 800);
-      } else {
-        setTimeout(() => showGameOver(), 800);
-      }
-    }
+  // ─────────────────────────────────────────
+  // Seviye geçiş
+  // ─────────────────────────────────────────
+  function advanceTo(newIdx) {
+    if (newIdx === currentLevelIdx) return;
+    if (completeTimeoutId) { clearTimeout(completeTimeoutId); completeTimeoutId = null; }
+    if (newIdx >= LEVELS.length) return showAllDone();
+    currentLevelIdx = newIdx;
+    loadLevel(currentLevelIdx);
+    gameActive = true;
+    levelComplete = false;
+    removeOverlay();
   }
 
   function showLevelComplete() {
-    const overlay = document.createElement('div');
-    overlay.className = 'ab-overlay';
-    const card = document.createElement('div');
-    card.className = 'ab-complete-card';
-    const title = document.createElement('h2');
-    title.textContent = 'Seviye ' + currentLevel + ' Tamam!';
-    card.appendChild(title);
-    const nextBtn = document.createElement('button');
-    nextBtn.className = 'ab-next-btn';
-    nextBtn.textContent = 'Sonraki Seviye';
-    nextBtn.onclick = () => {
-      overlay.remove();
-      currentLevel++;
-      gameActive = true;
-      bothAtDoor = false;
-      collectedCoins = 0;
-      loadLevel(currentLevel);
-      // Seviye bilgisini Firebase'e yaz
-      if (lobbyRef && myRole === 'host') lobbyRef.child('level').set(currentLevel);
-      buildDOM();
-      loop();
-    };
-    card.appendChild(nextBtn);
-    overlay.appendChild(card);
-    container.appendChild(overlay);
+    if (currentLevelIdx + 1 >= LEVELS.length) return showAllDone();
+    const btnText = myRole === 'host' ? 'Sonraki Seviye' : 'Host bekleniyor...';
+    showOverlay('Seviye ' + (currentLevelIdx + 1) + ' tamam!', btnText, () => {
+      if (myRole !== 'host') return;
+      // Tek otorite: lobby.level. Listener her iki tarafta da advanceTo'yu tetikler.
+      if (lobbyLevelRef) lobbyLevelRef.set(currentLevelIdx + 2);
+      else advanceTo(currentLevelIdx + 1);
+    }, myRole !== 'host');
   }
-
-  function showGameOver() {
-    const overlay = document.createElement('div');
-    overlay.className = 'ab-overlay';
-    const card = document.createElement('div');
-    card.className = 'ab-complete-card';
-    const title = document.createElement('h2');
-    title.textContent = 'Tebrikler! Tum Seviyeler Tamam!';
-    card.appendChild(title);
-    const hubBtn = document.createElement('button');
-    hubBtn.className = 'ab-next-btn';
-    hubBtn.textContent = 'Ana Sayfaya Don';
-    hubBtn.onclick = () => { destroy(); App.showHub(); };
-    card.appendChild(hubBtn);
-    overlay.appendChild(card);
-    container.appendChild(overlay);
-  }
-
-  function draw() {
-    ctx.clearRect(0, 0, GW, GH);
-
-    // Arka plan
-    ctx.fillStyle = '#1a1a2e';
-    ctx.fillRect(0, 0, GW, GH);
-
-    // Tile'ları çiz
-    for (let y = 0; y < 12; y++) {
-      for (let x = 0; x < 20; x++) {
-        const tile = currentMap[y][x];
-        const px = x * TS, py = y * TS;
-
-        if (tile === T.WALL) {
-          ctx.fillStyle = '#4a4a5e';
-          ctx.fillRect(px, py, TS, TS);
-          ctx.strokeStyle = '#3a3a4e';
-          ctx.strokeRect(px, py, TS, TS);
-        } else if (tile === T.LAVA) {
-          ctx.fillStyle = '#FF4500';
-          ctx.fillRect(px, py, TS, TS);
-          ctx.fillStyle = '#FF6600';
-          ctx.fillRect(px, py, TS, TS / 3);
-        } else if (tile === T.WATER) {
-          ctx.fillStyle = '#1E90FF';
-          ctx.fillRect(px, py, TS, TS);
-          ctx.fillStyle = '#4FC3F7';
-          ctx.fillRect(px, py, TS, TS / 3);
-        } else if (tile === T.POISON) {
-          ctx.fillStyle = '#32CD32';
-          ctx.fillRect(px, py, TS, TS);
-          ctx.fillStyle = '#7CFC00';
-          ctx.fillRect(px, py, TS, TS / 3);
-        } else if (tile === T.FIRE_DOOR) {
-          ctx.fillStyle = '#FF6347';
-          ctx.fillRect(px + 5, py, TS - 10, TS);
-          ctx.fillStyle = '#FFD700';
-          ctx.fillRect(px + 8, py + 3, TS - 16, TS - 6);
-        } else if (tile === T.ICE_DOOR) {
-          ctx.fillStyle = '#4FC3F7';
-          ctx.fillRect(px + 5, py, TS - 10, TS);
-          ctx.fillStyle = '#E0F7FA';
-          ctx.fillRect(px + 8, py + 3, TS - 16, TS - 6);
-        } else if (tile === T.BUTTON_F) {
-          ctx.fillStyle = '#FF4500';
-          ctx.fillRect(px + 10, py + TS - 8, TS - 20, 8);
-          ctx.fillRect(px + 14, py + TS - 14, TS - 28, 6);
-        } else if (tile === T.BUTTON_I) {
-          ctx.fillStyle = '#1E90FF';
-          ctx.fillRect(px + 10, py + TS - 8, TS - 20, 8);
-          ctx.fillRect(px + 14, py + TS - 14, TS - 28, 6);
-        } else if (tile === T.GATE_F) {
-          const g = gates.fire.find(g => g.x === x && g.y === y);
-          if (!g || !g.open) {
-            ctx.fillStyle = 'rgba(255,69,0,0.6)';
-            ctx.fillRect(px + 2, py, TS - 4, TS);
-            // Çizgiler
-            for (let i = 0; i < 4; i++) {
-              ctx.fillStyle = 'rgba(255,140,0,0.5)';
-              ctx.fillRect(px + 6, py + i * 10 + 2, TS - 12, 4);
-            }
-          }
-        } else if (tile === T.GATE_I) {
-          const g = gates.ice.find(g => g.x === x && g.y === y);
-          if (!g || !g.open) {
-            ctx.fillStyle = 'rgba(30,144,255,0.6)';
-            ctx.fillRect(px + 2, py, TS - 4, TS);
-            for (let i = 0; i < 4; i++) {
-              ctx.fillStyle = 'rgba(79,195,247,0.5)';
-              ctx.fillRect(px + 6, py + i * 10 + 2, TS - 12, 4);
-            }
-          }
-        }
-      }
-    }
-
-    // Coinler
-    for (const c of coins) {
-      if (c.collected) continue;
-      const cx = c.x * TS + TS / 2, cy = c.y * TS + TS / 2;
-      ctx.beginPath(); ctx.arc(cx, cy, 10, 0, Math.PI * 2);
-      ctx.fillStyle = '#FFD700'; ctx.fill();
-      ctx.strokeStyle = '#DAA520'; ctx.lineWidth = 2; ctx.stroke();
-    }
-
-    // Ateş karakteri (host)
-    const fireP = myRole === 'host' ? myPlayer : opPlayer;
-    drawCharacter(fireP, true);
-
-    // Buz karakteri (guest)
-    const iceP = myRole === 'host' ? opPlayer : myPlayer;
-    drawCharacter(iceP, false);
-  }
-
-  function drawCharacter(p, isFire) {
-    var S = TILE;
-    var color = isFire ? '#FF4500' : '#1E90FF';
-    var highlight = isFire ? '#FF6600' : '#4FC3F7';
-    var cx = p.x + S / 2;
-
-    // Gövde
-    ctx.fillStyle = color;
-    ctx.fillRect(p.x + 8, p.y + 14, S - 16, S - 20);
-
-    // Kafa
-    ctx.fillStyle = highlight;
-    ctx.beginPath();
-    ctx.arc(cx, p.y + 10, 10, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Gözler
-    ctx.fillStyle = '#FFF';
-    ctx.beginPath(); ctx.arc(cx - 4, p.y + 9, 4, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx + 4, p.y + 9, 4, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#333';
-    ctx.beginPath(); ctx.arc(cx - 4, p.y + 9, 2, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx + 4, p.y + 9, 2, 0, Math.PI * 2); ctx.fill();
-
-    // Alev/Buz efekti
-    if (isFire) {
-      ctx.fillStyle = '#FF6600';
-      ctx.beginPath(); ctx.moveTo(cx - 8, p.y); ctx.lineTo(cx, p.y - 12); ctx.lineTo(cx + 8, p.y); ctx.fill();
-      ctx.fillStyle = '#FFD700';
-      ctx.beginPath(); ctx.moveTo(cx - 5, p.y); ctx.lineTo(cx, p.y - 8); ctx.lineTo(cx + 5, p.y); ctx.fill();
-    } else {
-      ctx.fillStyle = '#B3E5FC';
-      ctx.beginPath(); ctx.moveTo(cx - 8, p.y - 2); ctx.lineTo(cx - 4, p.y - 10); ctx.lineTo(cx, p.y - 2); ctx.fill();
-      ctx.beginPath(); ctx.moveTo(cx, p.y - 2); ctx.lineTo(cx + 4, p.y - 10); ctx.lineTo(cx + 8, p.y - 2); ctx.fill();
-    }
-
-    // Bacaklar
-    ctx.fillStyle = color;
-    ctx.fillRect(p.x + 8, p.y + S - 6, 8, 6);
-    ctx.fillRect(p.x + S - 16, p.y + S - 6, 8, 6);
-  }
-
-  function destroy() {
-    if (animId) cancelAnimationFrame(animId);
-    if (syncInterval) clearInterval(syncInterval);
-    document.removeEventListener('keydown', onKeyDown);
-    document.removeEventListener('keyup', onKeyUp);
-    keys = {};
+  function showAllDone() {
     gameActive = false;
+    showOverlay('Tebrikler! Tüm seviyeler tamam.', 'Ana Sayfaya Dön', () => {
+      destroy();
+      if (typeof App !== 'undefined' && App.showHub) App.showHub();
+    });
+  }
 
-    // Firebase dinleyicileri temizle
-    if (posRef) {
-      const opField = myRole === 'host' ? 'guest' : 'host';
-      posRef.child(opField).off();
-    }
-    if (lobbyRef) lobbyRef.child('buttons').off();
-    if (container) while (container.firstChild) container.removeChild(container.firstChild);
+  function showOverlay(title, btnText, onClick, disabled) {
+    removeOverlay();
+    const overlay = document.createElement('div');
+    overlay.className = 'ab-overlay';
+    overlay.id = 'ab-overlay';
+    const card = document.createElement('div');
+    card.className = 'ab-complete-card';
+    const h = document.createElement('h2');
+    h.textContent = title;
+    card.appendChild(h);
+    const btn = document.createElement('button');
+    btn.className = 'ab-next-btn';
+    btn.textContent = btnText;
+    btn.disabled = !!disabled;
+    if (disabled) btn.style.opacity = '0.6';
+    btn.onclick = onClick;
+    card.appendChild(btn);
+    overlay.appendChild(card);
+    container.appendChild(overlay);
+  }
+  function removeOverlay() {
+    const ex = document.getElementById('ab-overlay');
+    if (ex) ex.remove();
   }
 
   return { id, isMultiplayer, init, destroy };
