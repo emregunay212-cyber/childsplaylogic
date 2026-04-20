@@ -1,0 +1,39 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "leaderboards": {
+      ".read": false,
+      "space-waves": {
+        ".read": true,
+        ".indexOn": ["score"],
+        "$entryId": {
+          ".write": "!data.exists() && newData.exists()",
+          ".validate": "newData.hasChildren(['name','score','timestamp'])",
+          "name": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 16"
+          },
+          "score": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000000"
+          },
+          "timestamp": {
+            ".validate": "newData.val() == now"
+          },
+          "$other": { ".validate": false }
+        }
+      }
+    },
+    "rooms": {
+      ".read": true,
+      ".write": true
+    },
+    "games": {
+      ".read": true,
+      ".write": true
+    },
+    "lobby": {
+      ".read": true,
+      ".write": true
+    }
+  }
+}

@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <radialGradient id="sw-space" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#2b0f4f"/>
+      <stop offset="60%" stop-color="#170a38"/>
+      <stop offset="100%" stop-color="#0b0324"/>
+    </radialGradient>
+    <linearGradient id="sw-ship" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#9ae8ff"/>
+      <stop offset="100%" stop-color="#2a7cff"/>
+    </linearGradient>
+    <radialGradient id="sw-nebula" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#b76dff" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#b76dff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="60" cy="60" r="58" fill="url(#sw-space)"/>
+  <circle cx="60" cy="60" r="58" fill="none" stroke="#7b5bff" stroke-width="2" opacity="0.6"/>
+  <circle cx="80" cy="40" r="28" fill="url(#sw-nebula)"/>
+  <circle cx="32" cy="78" r="22" fill="url(#sw-nebula)"/>
+  <g fill="#fff">
+    <circle cx="22" cy="30" r="1.2"/>
+    <circle cx="40" cy="20" r="0.8"/>
+    <circle cx="90" cy="25" r="1"/>
+    <circle cx="100" cy="55" r="1.4"/>
+    <circle cx="95" cy="85" r="0.8"/>
+    <circle cx="75" cy="95" r="1"/>
+    <circle cx="25" cy="95" r="1.2"/>
+    <circle cx="18" cy="60" r="0.8"/>
+    <circle cx="50" cy="100" r="0.8"/>
+    <circle cx="48" cy="35" r="0.8" opacity="0.7"/>
+  </g>
+  <g stroke="#ffd54a" stroke-width="1.2" stroke-linecap="round">
+    <line x1="30" y1="48" x2="30" y2="54"/>
+    <line x1="27" y1="51" x2="33" y2="51"/>
+  </g>
+  <g stroke="#ffd54a" stroke-width="1" stroke-linecap="round">
+    <line x1="88" y1="72" x2="88" y2="76"/>
+    <line x1="86" y1="74" x2="90" y2="74"/>
+  </g>
+  <path d="M 38 60 L 28 56 L 25 60 L 28 64 Z" fill="#ffd54a" opacity="0.9"/>
+  <path d="M 34 60 L 22 58 L 18 60 L 22 62 Z" fill="#ff7a00" opacity="0.6"/>
+  <g transform="translate(60 60)">
+    <path d="M -20 -10 L 22 0 L -20 10 Q -24 0 -20 -10 Z" fill="url(#sw-ship)" stroke="#0f1a3a" stroke-width="1.5"/>
+    <path d="M -6 -9 L -14 -16 L -2 -9 Z" fill="#4a9cff"/>
+    <path d="M -6 9 L -14 16 L -2 9 Z" fill="#4a9cff"/>
+    <ellipse cx="5" cy="0" rx="7" ry="4" fill="#15223a"/>
+    <ellipse cx="5" cy="-1" rx="4" ry="2" fill="#6ff0ff"/>
+  </g>
+  <g opacity="0.4">
+    <path d="M 95 30 Q 100 40 95 50" fill="none" stroke="#00dcff" stroke-width="2" stroke-linecap="round"/>
+    <path d="M 18 72 Q 13 80 18 90" fill="none" stroke="#00dcff" stroke-width="2" stroke-linecap="round"/>
+  </g>
+</svg>

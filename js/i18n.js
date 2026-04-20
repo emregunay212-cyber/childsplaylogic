@@ -31,6 +31,7 @@ const TR = {
         'tuval': 'Tuval',
         'zipla-topla': 'Zıpla Topla',
         'ates-buz': 'Ateş & Buz',
+        'space-waves': 'SpaceWaves',
     },
 
     // Multiplayer strings
