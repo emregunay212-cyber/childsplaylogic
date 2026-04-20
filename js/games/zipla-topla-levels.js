@@ -118,21 +118,29 @@ window.ZIPLA_TOPLA_LEVELS = [
             { x: 1110, y: 210 }, { x: 1180, y: 210 }, { x: 1330, y: 170 }, { x: 1390, y: 170 },
             { x: 1530, y: 230 }, { x: 1600, y: 230 },
         ],
-        spikes: [{ x: 360, y: 304, w: 40 }, { x: 1240, y: 304, w: 40 }],
+        spikes: [{ x: 1240, y: 304, w: 40 }],
         enemies: [
             { x: 200, y: 294, minX: 140, maxX: 360 },
             { x: 720, y: 194, minX: 620, maxX: 720 },
         ],
-        movingPlatforms: [{ x: 940, y: 240, w: 90, h: 14, minX: 920, maxX: 1060, speed: 1.2 }],
+        movingPlatforms: [
+            { x: 410, y: 250, w: 80, h: 14, minX: 400, maxX: 500, speed: 1.2 },
+            { x: 940, y: 240, w: 90, h: 14, minX: 920, maxX: 1060, speed: 1.2 },
+        ],
         start: { x: 40, y: 284 },
         door: { x: 1720, y: 240 },
     },
     {
+        // Level 6: stepping-stone platform over hole 1, spikes moved away from hole edges
         theme: 'cave', width: 2200,
         ground: { y: 320, holes: [{ x: 380, w: 100 }, { x: 780, w: 110 }, { x: 1400, w: 130 }] },
         platforms: [
-            { x: 180, y: 260, w: 120, h: 16 }, { x: 580, y: 240, w: 120, h: 16 },
+            { x: 180, y: 260, w: 120, h: 16 },
+            { x: 400, y: 240, w: 80, h: 14 },      // stepping stone over hole 1
+            { x: 580, y: 240, w: 120, h: 16 },
+            { x: 820, y: 220, w: 80, h: 14 },      // stepping stone over hole 2
             { x: 940, y: 240, w: 120, h: 16 }, { x: 1160, y: 200, w: 120, h: 16 },
+            { x: 1430, y: 220, w: 80, h: 14 },     // stepping stone over hole 3
             { x: 1600, y: 240, w: 120, h: 16 }, { x: 1780, y: 200, w: 120, h: 16 },
             { x: 1980, y: 260, w: 160, h: 16 },
         ],
@@ -143,7 +151,8 @@ window.ZIPLA_TOPLA_LEVELS = [
             { x: 2010, y: 230 }, { x: 2070, y: 230 },
         ],
         spikes: [
-            { x: 320, y: 304, w: 40 }, { x: 500, y: 304, w: 40 }, { x: 1350, y: 304, w: 40 },
+            { x: 220, y: 304, w: 40 },             // safe middle of first ground segment
+            { x: 1300, y: 304, w: 40 },
         ],
         enemies: [
             { x: 640, y: 214, minX: 580, maxX: 700 },
