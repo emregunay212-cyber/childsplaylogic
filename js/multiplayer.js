@@ -198,7 +198,13 @@ const Multiplayer = (() => {
       };
     }
 
-    await db.ref('lobbies/' + lobbyId).set(lobbyData);
+    try {
+      await db.ref('lobbies/' + lobbyId).set(lobbyData);
+    } catch (err) {
+      console.error('[Multiplayer] createLobby failed:', err);
+      emit('ERROR', { message: 'Oda oluşturulamadı. Bağlantıyı kontrol edip tekrar deneyin.' });
+      return;
+    }
     currentLobbyId = lobbyId;
     currentRole = 'host';
     listenToLobby(lobbyId);

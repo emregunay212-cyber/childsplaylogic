@@ -1,0 +1,98 @@
+{
+    "1": [
+        {
+            "position": {
+                "x": 1116,
+                "y": 108
+            },
+            "element": "fire"
+        },
+        {
+            "position": {
+                "x": 1224,
+                "y": 108
+            },
+            "element": "water"
+        }
+    ],
+    "2": [
+        {
+            "position": {
+                "x": 40,
+                "y": 72
+            },
+            "element": "fire"
+        },
+        {
+            "position": {
+                "x": 150,
+                "y": 72
+            },
+            "element": "water"
+        }
+    ],
+    "3": [
+        {
+            "position": {
+                "x": 1116,
+                "y": 432
+            },
+            "element": "fire"
+        },
+        {
+            "position": {
+                "x": 210,
+                "y": 900
+            },
+            "element": "water"
+        }
+    ],
+    "4": [
+        {
+            "position": {
+                "x": 1044,
+                "y": 900
+            },
+            "element": "fire"
+        },
+        {
+            "position": {
+                "x": 1152,
+                "y": 900
+            },
+            "element": "water"
+        }
+    ],
+    "5": [
+        {
+            "position": {
+                "x": 396,
+                "y": 324
+            },
+            "element": "fire"
+        },
+        {
+            "position": {
+                "x": 756,
+                "y": 324
+            },
+            "element": "water"
+        }
+    ],
+    "6": [
+        {
+            "position": {
+                "x": 864,
+                "y": 900
+            },
+            "element": "fire"
+        },
+        {
+            "position": {
+                "x": 972,
+                "y": 900
+            },
+            "element": "water"
+        }
+    ]
+}
