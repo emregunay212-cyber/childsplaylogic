@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ateş & Buz</title>
+    <link rel="stylesheet" href="./css/style.css" />
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: #1a1a2e;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #canvas {
+        max-width: 100%;
+        max-height: 100vh;
+        height: auto;
+        width: auto;
+        display: block;
+      }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script type="module">
+      import { start } from './js/main.js';
+      start().catch(err => console.error('Ateş & Buz başlatılamadı:', err));
+    </script>
+</body>
+</html>

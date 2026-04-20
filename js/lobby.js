@@ -84,6 +84,9 @@ const Lobby = (() => {
 
   // ── Create Lobby ──
   function renderCreateForm() {
+    // Önce eski listener'ları temizle — aksi halde stale LOBBY_CREATED handler'ları tetiklenebilir
+    Multiplayer.offAll();
+
     const isKod = currentGameType === 'kod-macerasi' || currentGameType === 'satranc' || currentGameType === 'penalti-mp' || currentGameType === 'ates-buz';
     const isSatranc = currentGameType === 'satranc';
     const isPenalti = currentGameType === 'penalti-mp';
