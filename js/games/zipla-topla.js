@@ -19,18 +19,18 @@ const ZiplaTopla = (() => {
     const COIN_R = 9;
 
     // Fizik (piksel / saniye)
-    const GRAVITY = 1800;
+    const GRAVITY = 1700;
     const MAX_VY_FALL = 720;
-    const MAX_VY_JUMP = -600;
-    const JUMP_VELOCITY = 560;
-    const JUMP_CUT = 0.45;
-    const MAX_VX = 230;
-    const ACCEL_GROUND = 1500;
-    const ACCEL_AIR = 900;
-    const FRIC_GROUND = 2000;
+    const MAX_VY_JUMP = -680;
+    const JUMP_VELOCITY = 640;
+    const JUMP_CUT = 0.5;
+    const MAX_VX = 280;
+    const ACCEL_GROUND = 1800;
+    const ACCEL_AIR = 1000;
+    const FRIC_GROUND = 2200;
     const FRIC_AIR = 400;
-    const COYOTE_TIME = 0.12;
-    const JUMP_BUFFER = 0.14;
+    const COYOTE_TIME = 0.15;
+    const JUMP_BUFFER = 0.16;
 
     const ENEMY_SPEED = 60;
     const ENEMY_W = 28, ENEMY_H = 26;

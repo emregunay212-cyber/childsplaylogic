@@ -106,7 +106,7 @@ window.ZIPLA_TOPLA_LEVELS = [
     // === TEMA 2: YERALTI (Level 5-8) ===
     {
         theme: 'cave', width: 1800,
-        ground: { y: 320, holes: [{ x: 400, w: 120 }, { x: 900, w: 140 }] },
+        ground: { y: 320, holes: [{ x: 400, w: 90 }, { x: 900, w: 110 }] },
         platforms: [
             { x: 200, y: 250, w: 160, h: 16 }, { x: 600, y: 220, w: 140, h: 16 },
             { x: 800, y: 180, w: 100, h: 16 }, { x: 1080, y: 240, w: 160, h: 16 },
@@ -129,7 +129,7 @@ window.ZIPLA_TOPLA_LEVELS = [
     },
     {
         theme: 'cave', width: 2200,
-        ground: { y: 320, holes: [{ x: 380, w: 120 }, { x: 780, w: 120 }, { x: 1400, w: 160 }] },
+        ground: { y: 320, holes: [{ x: 380, w: 100 }, { x: 780, w: 110 }, { x: 1400, w: 130 }] },
         platforms: [
             { x: 180, y: 260, w: 120, h: 16 }, { x: 580, y: 240, w: 120, h: 16 },
             { x: 940, y: 240, w: 120, h: 16 }, { x: 1160, y: 200, w: 120, h: 16 },
@@ -156,7 +156,7 @@ window.ZIPLA_TOPLA_LEVELS = [
     },
     {
         theme: 'cave', width: 2500,
-        ground: { y: 320, holes: [{ x: 300, w: 140 }, { x: 780, w: 140 }, { x: 1280, w: 140 }, { x: 1900, w: 160 }] },
+        ground: { y: 320, holes: [{ x: 300, w: 120 }, { x: 780, w: 120 }, { x: 1280, w: 130 }, { x: 1900, w: 140 }] },
         platforms: [
             { x: 180, y: 240, w: 120, h: 16 }, { x: 500, y: 220, w: 140, h: 16 },
             { x: 940, y: 240, w: 140, h: 16 }, { x: 1140, y: 200, w: 100, h: 16 },
@@ -191,7 +191,7 @@ window.ZIPLA_TOPLA_LEVELS = [
     },
     {
         theme: 'cave', width: 2900,
-        ground: { y: 320, holes: [{ x: 320, w: 160 }, { x: 720, w: 160 }, { x: 1180, w: 180 }, { x: 1720, w: 180 }, { x: 2260, w: 160 }] },
+        ground: { y: 320, holes: [{ x: 320, w: 130 }, { x: 720, w: 140 }, { x: 1180, w: 140 }, { x: 1720, w: 150 }, { x: 2260, w: 140 }] },
         platforms: [
             { x: 160, y: 240, w: 120, h: 16 }, { x: 500, y: 220, w: 160, h: 16 },
             { x: 880, y: 240, w: 140, h: 16 }, { x: 1060, y: 180, w: 100, h: 16 },
