@@ -23,6 +23,15 @@
         }
       }
     },
+    "lobbies": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["state"]
+    },
+    "players": {
+      ".read": true,
+      ".write": true
+    },
     "rooms": {
       ".read": true,
       ".write": true
