@@ -1,46 +1,88 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
   <defs>
     <linearGradient id="eg-sky" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#1a0f3d"/>
-      <stop offset="60%" stop-color="#3a1a70"/>
-      <stop offset="100%" stop-color="#ff6e5a"/>
+      <stop offset="0%" stop-color="#05010f"/>
+      <stop offset="55%" stop-color="#1a0340"/>
+      <stop offset="85%" stop-color="#ff2a8a"/>
+      <stop offset="100%" stop-color="#ff8a4a"/>
     </linearGradient>
-    <linearGradient id="eg-track" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#2a1860"/>
-      <stop offset="100%" stop-color="#6a3fb0"/>
+    <linearGradient id="eg-sun" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fff2a0"/>
+      <stop offset="50%" stop-color="#ff9a3a"/>
+      <stop offset="100%" stop-color="#ff2a8a"/>
     </linearGradient>
-    <radialGradient id="eg-ball" cx="35%" cy="30%" r="70%">
-      <stop offset="0%" stop-color="#8fe5ff"/>
-      <stop offset="60%" stop-color="#2a7cff"/>
-      <stop offset="100%" stop-color="#0a2a80"/>
+    <radialGradient id="eg-ball" cx="30%" cy="25%" r="80%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="25%" stop-color="#b0fff0"/>
+      <stop offset="65%" stop-color="#00e8c0"/>
+      <stop offset="100%" stop-color="#002a28"/>
     </radialGradient>
+    <filter id="eg-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="eg-clip"><circle cx="60" cy="60" r="58"/></clipPath>
   </defs>
+
+  <!-- Arka plan -->
   <circle cx="60" cy="60" r="58" fill="url(#eg-sky)"/>
-  <circle cx="60" cy="60" r="58" fill="none" stroke="#ff7e4a" stroke-width="2" opacity="0.7"/>
-  <!-- dağlar -->
-  <path d="M 4 62 L 18 48 L 30 58 L 42 42 L 58 60 L 72 46 L 88 58 L 104 44 L 116 62 L 116 62 Z" fill="#1c0f40" opacity="0.85"/>
-  <!-- pist trapezoid -->
-  <path d="M 48 58 L 72 58 L 110 108 L 10 108 Z" fill="url(#eg-track)" stroke="#ffd54a" stroke-width="1.5"/>
-  <!-- pist yatay çizgileri -->
-  <line x1="52" y1="68" x2="68" y2="68" stroke="#fff" stroke-width="0.8" opacity="0.6"/>
-  <line x1="42" y1="82" x2="78" y2="82" stroke="#fff" stroke-width="1" opacity="0.6"/>
-  <line x1="28" y1="98" x2="92" y2="98" stroke="#fff" stroke-width="1.2" opacity="0.6"/>
-  <!-- engeller -->
-  <g>
-    <rect x="54" y="64" width="6" height="5" fill="#c0392b" stroke="#4a1410" stroke-width="0.5"/>
-    <rect x="54" y="63" width="6" height="1.5" fill="#e74c3c"/>
+
+  <g clip-path="url(#eg-clip)">
+    <!-- Güneş -->
+    <circle cx="60" cy="62" r="22" fill="url(#eg-sun)"/>
+    <!-- Güneş çizgileri -->
+    <g fill="#05010f">
+      <rect x="38" y="66" width="44" height="1.5"/>
+      <rect x="38" y="70" width="44" height="2"/>
+      <rect x="38" y="75" width="44" height="2.5"/>
+      <rect x="38" y="81" width="44" height="3"/>
+    </g>
+
+    <!-- Retro grid -->
+    <g stroke="#ff2a8a" stroke-width="0.6" opacity="0.6" filter="url(#eg-glow)">
+      <line x1="60" y1="62" x2="-10" y2="120"/>
+      <line x1="60" y1="62" x2="15" y2="120"/>
+      <line x1="60" y1="62" x2="35" y2="120"/>
+      <line x1="60" y1="62" x2="85" y2="120"/>
+      <line x1="60" y1="62" x2="105" y2="120"/>
+      <line x1="60" y1="62" x2="130" y2="120"/>
+      <line x1="0" y1="82" x2="120" y2="82"/>
+      <line x1="0" y1="95" x2="120" y2="95"/>
+      <line x1="0" y1="108" x2="120" y2="108"/>
+    </g>
+
+    <!-- Pist trapezoid -->
+    <path d="M 50 62 L 70 62 L 108 118 L 12 118 Z" fill="#0a0220" opacity="0.95"/>
+    <!-- Pist neon cyan kenarları -->
+    <g stroke="#00ffd0" stroke-width="1.8" fill="none" filter="url(#eg-glow)">
+      <line x1="50" y1="62" x2="12" y2="118"/>
+      <line x1="70" y1="62" x2="108" y2="118"/>
+      <line x1="60" y1="62" x2="60" y2="118" opacity="0.4"/>
+    </g>
+
+    <!-- Neon kırmızı engeller -->
+    <g filter="url(#eg-glow)">
+      <g>
+        <rect x="52" y="70" width="6" height="5" fill="#1a0008" stroke="#ff2060" stroke-width="0.8"/>
+        <rect x="52" y="69" width="6" height="1.5" fill="#ff2060" opacity="0.9"/>
+      </g>
+      <g>
+        <rect x="75" y="86" width="10" height="8" fill="#1a0008" stroke="#ff2060" stroke-width="1"/>
+        <rect x="75" y="84" width="10" height="2" fill="#ff2060" opacity="0.9"/>
+      </g>
+      <g>
+        <rect x="32" y="86" width="9" height="7" fill="#1a0008" stroke="#ff2060" stroke-width="1"/>
+        <rect x="32" y="84" width="9" height="2" fill="#ff2060" opacity="0.9"/>
+      </g>
+    </g>
+
+    <!-- Top (chrome/neon) -->
+    <ellipse cx="60" cy="106" rx="11" ry="3" fill="#00ffd0" opacity="0.4" filter="url(#eg-glow)"/>
+    <circle cx="60" cy="96" r="10" fill="url(#eg-ball)" stroke="#00ffd0" stroke-width="1.2" filter="url(#eg-glow)"/>
+    <ellipse cx="60" cy="96" rx="8.5" ry="3" fill="none" stroke="#fff" stroke-width="0.7" opacity="0.5"/>
+    <circle cx="56" cy="92" r="2.2" fill="#ffffff" opacity="0.95"/>
   </g>
-  <g>
-    <rect x="74" y="78" width="9" height="7" fill="#c0392b" stroke="#4a1410" stroke-width="0.6"/>
-    <rect x="74" y="76" width="9" height="2" fill="#e74c3c"/>
-  </g>
-  <g>
-    <rect x="36" y="78" width="8" height="6" fill="#c0392b" stroke="#4a1410" stroke-width="0.6"/>
-    <rect x="36" y="76" width="8" height="2" fill="#e74c3c"/>
-  </g>
-  <!-- top -->
-  <ellipse cx="60" cy="100" rx="9" ry="2.5" fill="#000" opacity="0.4"/>
-  <circle cx="60" cy="92" r="9" fill="url(#eg-ball)" stroke="#071448" stroke-width="1"/>
-  <ellipse cx="60" cy="92" rx="8" ry="3" fill="none" stroke="#fff" stroke-width="0.8" opacity="0.4"/>
-  <circle cx="57" cy="88" r="2" fill="#fff" opacity="0.55"/>
+
+  <!-- Dış neon çerçeve -->
+  <circle cx="60" cy="60" r="58" fill="none" stroke="#00ffd0" stroke-width="2" opacity="0.85" filter="url(#eg-glow)"/>
 </svg>

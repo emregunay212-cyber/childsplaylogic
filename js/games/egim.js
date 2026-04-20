@@ -530,22 +530,29 @@ const Egim = (() => {
 
     // ---- Draw ----
     function draw() {
-        // Gökyüzü gradient
+        // Synthwave gökyüzü — derin lacivert → magenta → sıcak pembe
         const g = ctx.createLinearGradient(0, 0, 0, HORIZON_Y);
-        g.addColorStop(0, '#1a0f3d');
-        g.addColorStop(0.5, '#3a1a70');
-        g.addColorStop(1, '#ff6e5a');
+        g.addColorStop(0, '#05010f');
+        g.addColorStop(0.45, '#1a0340');
+        g.addColorStop(0.8, '#ff2a8a');
+        g.addColorStop(1, '#ff8a4a');
         ctx.fillStyle = g;
         ctx.fillRect(0, 0, GAME_W, HORIZON_Y);
 
-        // Arka plan alt: koyu gri boşluk
-        ctx.fillStyle = '#0a0820';
+        // Neon güneş
+        drawNeonSun();
+
+        // Alt void — derin siyah-mor
+        const bg = ctx.createLinearGradient(0, HORIZON_Y, 0, GAME_H);
+        bg.addColorStop(0, '#0a021a');
+        bg.addColorStop(1, '#02000a');
+        ctx.fillStyle = bg;
         ctx.fillRect(0, HORIZON_Y, GAME_W, GAME_H - HORIZON_Y);
 
-        // Uzak dağ silueti
-        drawMountains();
+        // Retrowave grid — ufuk çizgisi altında
+        drawRetroGrid();
 
-        // Pist (trapezoid — uzaktan yakına)
+        // Pist
         drawTrack();
 
         // Engelleri, topu, partikülleri z sırasına göre çiz (uzak → yakın)
@@ -569,13 +576,16 @@ const Egim = (() => {
             else if (d.type === 'ball') drawBall(d.ref);
         }
 
-        // Speed glow (hız göstergesi)
+        // Tarama hattı (CRT efekti)
+        drawScanlines();
+
+        // Hız vinyet — neon magenta
         const speedPct = (currentSpeed - BASE_SPEED) / (MAX_SPEED - BASE_SPEED);
         if (speedPct > 0.3) {
-            ctx.globalAlpha = clamp(speedPct * 0.4, 0, 0.4);
-            const vg = ctx.createRadialGradient(GAME_W / 2, GAME_H / 2, GAME_H / 3, GAME_W / 2, GAME_H / 2, GAME_W / 2);
-            vg.addColorStop(0, 'rgba(255, 120, 40, 0)');
-            vg.addColorStop(1, 'rgba(255, 120, 40, 0.8)');
+            ctx.globalAlpha = clamp(speedPct * 0.45, 0, 0.45);
+            const vg = ctx.createRadialGradient(GAME_W / 2, GAME_H / 2, GAME_H / 3, GAME_W / 2, GAME_H / 2, GAME_W / 1.6);
+            vg.addColorStop(0, 'rgba(255, 42, 138, 0)');
+            vg.addColorStop(1, 'rgba(255, 42, 138, 0.9)');
             ctx.fillStyle = vg;
             ctx.fillRect(0, 0, GAME_W, GAME_H);
             ctx.globalAlpha = 1;
@@ -584,37 +594,97 @@ const Egim = (() => {
         if (state === 'countdown') drawCountdownOverlay();
     }
 
-    function drawMountains() {
-        ctx.fillStyle = '#1c0f40';
+    function drawNeonSun() {
+        const cx = GAME_W / 2;
+        const cy = HORIZON_Y + 10;
+        const r = 70;
+        // Halo
+        const halo = ctx.createRadialGradient(cx, cy, r * 0.3, cx, cy, r * 2.4);
+        halo.addColorStop(0, 'rgba(255, 180, 80, 0.55)');
+        halo.addColorStop(0.5, 'rgba(255, 80, 140, 0.25)');
+        halo.addColorStop(1, 'rgba(255, 80, 140, 0)');
+        ctx.fillStyle = halo;
+        ctx.fillRect(0, 0, GAME_W, HORIZON_Y + 30);
+        // Güneş diski (ufuk üstünde yarım)
+        ctx.save();
         ctx.beginPath();
-        ctx.moveTo(0, HORIZON_Y);
-        for (let i = 0; i <= 10; i++) {
-            const x = (i / 10) * GAME_W;
-            const y = HORIZON_Y - 20 - Math.abs(Math.sin(i * 1.7)) * 40;
-            ctx.lineTo(x, y);
-        }
-        ctx.lineTo(GAME_W, HORIZON_Y);
-        ctx.closePath();
+        ctx.rect(0, 0, GAME_W, HORIZON_Y);
+        ctx.clip();
+        const sg = ctx.createLinearGradient(cx, cy - r, cx, cy + r);
+        sg.addColorStop(0, '#fff2a0');
+        sg.addColorStop(0.5, '#ff9a3a');
+        sg.addColorStop(1, '#ff2a8a');
+        ctx.fillStyle = sg;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
         ctx.fill();
+        // Yatay kesim çizgileri (synthwave klasik)
+        ctx.fillStyle = '#05010f';
+        for (let i = 0; i < 8; i++) {
+            const y = cy - r + (i / 8) * r * 1.1 + 18;
+            const h = 2 + i * 0.8;
+            ctx.globalAlpha = 0.85 - i * 0.05;
+            ctx.fillRect(cx - r, y, r * 2, h);
+        }
+        ctx.globalAlpha = 1;
+        ctx.restore();
+    }
+
+    function drawRetroGrid() {
+        // Ufuk çizgisi altındaki zeminde perspektif grid (pist dışı alan)
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255, 42, 138, 0.5)';
+        ctx.lineWidth = 1;
+        ctx.shadowColor = '#ff2a8a';
+        ctx.shadowBlur = 6;
+
+        // Dikey çizgiler — ufuktan dışa doğru yayılan
+        const vanishX = GAME_W / 2;
+        const lineCount = 18;
+        for (let i = -lineCount; i <= lineCount; i++) {
+            if (Math.abs(i) < 3) continue; // pist alanını atla
+            const endX = vanishX + i * (GAME_W / 2.5);
+            ctx.beginPath();
+            ctx.moveTo(vanishX, HORIZON_Y);
+            ctx.lineTo(endX, GAME_H);
+            ctx.stroke();
+        }
+
+        // Yatay çizgiler — uzaklaştıkça sıklaşan
+        const offset = (trackStripeOffset * 22) % 40;
+        for (let i = 0; i < 12; i++) {
+            const t = i / 12;
+            const y = HORIZON_Y + Math.pow(t, 2.2) * (GAME_H - HORIZON_Y) + offset * (1 - t) * 0.5;
+            if (y > GAME_H) continue;
+            ctx.globalAlpha = 0.25 + t * 0.4;
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(GAME_W, y);
+            ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+        ctx.restore();
+    }
+
+    function drawScanlines() {
+        ctx.save();
+        ctx.globalAlpha = 0.08;
+        ctx.fillStyle = '#000';
+        for (let y = 0; y < GAME_H; y += 3) {
+            ctx.fillRect(0, y, GAME_W, 1);
+        }
+        ctx.restore();
     }
 
     function drawTrack() {
-        // Pist: perspektif trapezoid
-        // Yakın uç (z=cameraZ) — ekranın altına yakın
-        const near = project(0, 0, cameraZ + 0.5);
-        const far = project(0, 0, cameraZ + VIEW_DIST);
-        if (!near || !far) return;
-
         const nearLeft = project(-TRACK_HALF_WIDTH, 0, cameraZ + 0.5);
         const nearRight = project(TRACK_HALF_WIDTH, 0, cameraZ + 0.5);
         const farLeft = project(-TRACK_HALF_WIDTH, 0, cameraZ + VIEW_DIST);
         const farRight = project(TRACK_HALF_WIDTH, 0, cameraZ + VIEW_DIST);
+        if (!nearLeft || !farLeft) return;
 
-        // Pist zemini gradient
-        const tg = ctx.createLinearGradient(0, farLeft.sy, 0, nearLeft.sy);
-        tg.addColorStop(0, '#2a1860');
-        tg.addColorStop(1, '#6a3fb0');
-        ctx.fillStyle = tg;
+        // Pist zemini — koyu temel
+        ctx.fillStyle = '#0a0220';
         ctx.beginPath();
         ctx.moveTo(farLeft.sx, farLeft.sy);
         ctx.lineTo(farRight.sx, farRight.sy);
@@ -623,8 +693,53 @@ const Egim = (() => {
         ctx.closePath();
         ctx.fill();
 
-        // Pist kenar çizgileri
-        ctx.strokeStyle = '#ffd54a';
+        // Satranç tahtası panelleri — alternatif koyu/biraz açık
+        const stripeSize = 4;
+        for (let dz = -trackStripeOffset; dz < VIEW_DIST; dz += stripeSize) {
+            const z0 = cameraZ + dz + 0.5;
+            const z1 = cameraZ + dz + stripeSize + 0.5;
+            const l0 = project(-TRACK_HALF_WIDTH, 0, z0);
+            const r0 = project(TRACK_HALF_WIDTH, 0, z0);
+            const l1 = project(-TRACK_HALF_WIDTH, 0, z1);
+            const r1 = project(TRACK_HALF_WIDTH, 0, z1);
+            if (!l0 || !l1) continue;
+
+            const stripeIdx = Math.floor((cameraZ + dz) / stripeSize);
+            const isDark = stripeIdx % 2 === 0;
+            const alpha = clamp(1 - dz / VIEW_DIST, 0, 1);
+            ctx.fillStyle = isDark
+                ? `rgba(30, 10, 60, ${alpha * 0.85})`
+                : `rgba(80, 20, 120, ${alpha * 0.7})`;
+            ctx.beginPath();
+            ctx.moveTo(l1.sx, l1.sy);
+            ctx.lineTo(r1.sx, r1.sy);
+            ctx.lineTo(r0.sx, r0.sy);
+            ctx.lineTo(l0.sx, l0.sy);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // Merkez şerit çizgileri (yakın — uzak, solarak)
+        ctx.save();
+        ctx.shadowColor = '#00ffff';
+        ctx.shadowBlur = 8;
+        ctx.strokeStyle = 'rgba(0, 255, 255, 0.35)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        const midFar = project(0, 0, cameraZ + VIEW_DIST);
+        const midNear = project(0, 0, cameraZ + 0.5);
+        if (midFar && midNear) {
+            ctx.moveTo(midFar.sx, midFar.sy);
+            ctx.lineTo(midNear.sx, midNear.sy);
+            ctx.stroke();
+        }
+        ctx.restore();
+
+        // Neon kenar çizgileri — cyan glow
+        ctx.save();
+        ctx.shadowColor = '#00ffff';
+        ctx.shadowBlur = 18;
+        ctx.strokeStyle = '#00ffff';
         ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.moveTo(farLeft.sx, farLeft.sy);
@@ -632,44 +747,33 @@ const Egim = (() => {
         ctx.moveTo(farRight.sx, farRight.sy);
         ctx.lineTo(nearRight.sx, nearRight.sy);
         ctx.stroke();
-
-        // Yol çizgileri (ileri giden çizgiler hissi için — yatay bantlar)
-        ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-        ctx.lineWidth = 2;
-        for (let dz = -trackStripeOffset; dz < VIEW_DIST; dz += 4) {
-            const absZ = cameraZ + dz + 0.5;
-            const lp = project(-TRACK_HALF_WIDTH, 0, absZ);
-            const rp = project(TRACK_HALF_WIDTH, 0, absZ);
-            if (!lp || !rp) continue;
-            const alpha = clamp(1 - dz / VIEW_DIST, 0, 1);
-            ctx.globalAlpha = alpha * 0.6;
-            ctx.beginPath();
-            ctx.moveTo(lp.sx, lp.sy);
-            ctx.lineTo(rp.sx, rp.sy);
-            ctx.stroke();
-        }
-        ctx.globalAlpha = 1;
+        // Ek iç çizgi (daha parlak)
+        ctx.shadowBlur = 6;
+        ctx.strokeStyle = 'rgba(220, 255, 255, 0.9)';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+        ctx.restore();
     }
 
     function drawObstacle(o) {
-        // Kırmızı küp — 4 köşeyi projekte et ve poligon çiz
         const hx = OBSTACLE_W / 2;
         const hz = OBSTACLE_W / 2;
         const h = OBSTACLE_H;
         const corners = [
-            project(o.x - hx, 0, o.z - hz),
-            project(o.x + hx, 0, o.z - hz),
-            project(o.x + hx, 0, o.z + hz),
-            project(o.x - hx, 0, o.z + hz),
-            project(o.x - hx, h, o.z - hz),
-            project(o.x + hx, h, o.z - hz),
-            project(o.x + hx, h, o.z + hz),
-            project(o.x - hx, h, o.z + hz),
+            project(o.x - hx, 0, o.z - hz),      // 0 alt-sol-ön
+            project(o.x + hx, 0, o.z - hz),      // 1 alt-sağ-ön
+            project(o.x + hx, 0, o.z + hz),      // 2 alt-sağ-arka
+            project(o.x - hx, 0, o.z + hz),      // 3 alt-sol-arka
+            project(o.x - hx, h, o.z - hz),      // 4 üst-sol-ön
+            project(o.x + hx, h, o.z - hz),      // 5 üst-sağ-ön
+            project(o.x + hx, h, o.z + hz),      // 6 üst-sağ-arka
+            project(o.x - hx, h, o.z + hz),      // 7 üst-sol-arka
         ];
         if (corners.some(c => c === null)) return;
 
-        // Ön yüz (yakın - en yakın z)
-        ctx.fillStyle = '#c0392b';
+        // Derin siyah gövde — neon neon efekti için
+        ctx.fillStyle = '#1a0008';
+        // Ön yüz
         ctx.beginPath();
         ctx.moveTo(corners[0].sx, corners[0].sy);
         ctx.lineTo(corners[1].sx, corners[1].sy);
@@ -677,9 +781,11 @@ const Egim = (() => {
         ctx.lineTo(corners[4].sx, corners[4].sy);
         ctx.closePath();
         ctx.fill();
-
-        // Üst yüz
-        ctx.fillStyle = '#e74c3c';
+        // Üst
+        const topGrad = ctx.createLinearGradient(corners[4].sx, corners[4].sy, corners[6].sx, corners[6].sy);
+        topGrad.addColorStop(0, '#ff2040');
+        topGrad.addColorStop(1, '#8a001a');
+        ctx.fillStyle = topGrad;
         ctx.beginPath();
         ctx.moveTo(corners[4].sx, corners[4].sy);
         ctx.lineTo(corners[5].sx, corners[5].sy);
@@ -687,10 +793,9 @@ const Egim = (() => {
         ctx.lineTo(corners[7].sx, corners[7].sy);
         ctx.closePath();
         ctx.fill();
-
-        // Yan (sol/sağ) — topun konumuna göre
+        // Yan
         const visible = ball.x < o.x ? 'right' : 'left';
-        ctx.fillStyle = '#962d22';
+        ctx.fillStyle = '#2a0010';
         ctx.beginPath();
         if (visible === 'right') {
             ctx.moveTo(corners[1].sx, corners[1].sy);
@@ -706,16 +811,29 @@ const Egim = (() => {
         ctx.closePath();
         ctx.fill();
 
-        // Kenar çizgisi
-        ctx.strokeStyle = '#4a1410';
-        ctx.lineWidth = 1.5;
+        // NEON KENAR ÇİZGİLERİ — tüm küp iskeleti
+        ctx.save();
+        ctx.shadowColor = '#ff0050';
+        ctx.shadowBlur = 16;
+        ctx.strokeStyle = '#ff2060';
+        ctx.lineWidth = 2.5;
+        const edges = [
+            [0,1],[1,2],[2,3],[3,0],        // alt kare
+            [4,5],[5,6],[6,7],[7,4],        // üst kare
+            [0,4],[1,5],[2,6],[3,7],        // dikey
+        ];
         ctx.beginPath();
-        ctx.moveTo(corners[0].sx, corners[0].sy);
-        ctx.lineTo(corners[1].sx, corners[1].sy);
-        ctx.lineTo(corners[5].sx, corners[5].sy);
-        ctx.lineTo(corners[4].sx, corners[4].sy);
-        ctx.closePath();
+        for (const [a, b] of edges) {
+            ctx.moveTo(corners[a].sx, corners[a].sy);
+            ctx.lineTo(corners[b].sx, corners[b].sy);
+        }
         ctx.stroke();
+        // İç parlak çizgi
+        ctx.shadowBlur = 4;
+        ctx.strokeStyle = '#ffb0c0';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.restore();
     }
 
     function drawBall(b) {
@@ -723,51 +841,73 @@ const Egim = (() => {
         if (!p) return;
         const r = BALL_RADIUS * p.scale;
 
-        // Gölge
+        // Gölge — neon cyan ışık izi
         const shadow = project(b.x, 0.01, b.z);
         if (shadow) {
-            ctx.fillStyle = 'rgba(0,0,0,0.4)';
+            ctx.save();
+            ctx.shadowColor = '#00ffd0';
+            ctx.shadowBlur = 12;
+            ctx.fillStyle = 'rgba(0, 255, 208, 0.35)';
             ctx.beginPath();
-            ctx.ellipse(shadow.sx, shadow.sy, r * 0.9, r * 0.3, 0, 0, Math.PI * 2);
+            ctx.ellipse(shadow.sx, shadow.sy, r * 1.1, r * 0.35, 0, 0, Math.PI * 2);
             ctx.fill();
+            ctx.restore();
         }
 
-        // Top gövde - gradient
-        const bg = ctx.createRadialGradient(p.sx - r * 0.35, p.sy - r * 0.35, r * 0.1, p.sx, p.sy, r);
-        bg.addColorStop(0, '#8fe5ff');
-        bg.addColorStop(0.6, '#2a7cff');
-        bg.addColorStop(1, '#0a2a80');
+        // Dış neon glow
+        ctx.save();
+        ctx.shadowColor = '#00ffd0';
+        ctx.shadowBlur = 25;
+        ctx.fillStyle = 'rgba(0, 255, 208, 0.3)';
+        ctx.beginPath();
+        ctx.arc(p.sx, p.sy, r * 1.15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Chrome gövde - koyu → neon cyan
+        const bg = ctx.createRadialGradient(p.sx - r * 0.4, p.sy - r * 0.4, r * 0.05, p.sx, p.sy, r);
+        bg.addColorStop(0, '#ffffff');
+        bg.addColorStop(0.25, '#b0fff0');
+        bg.addColorStop(0.6, '#00e8c0');
+        bg.addColorStop(1, '#002a28');
         ctx.fillStyle = bg;
         ctx.beginPath();
         ctx.arc(p.sx, p.sy, r, 0, Math.PI * 2);
         ctx.fill();
 
-        // Yuvarlanma çizgileri (top dönüyor hissi)
+        // Yuvarlanma — neon çizgi
         ctx.save();
         ctx.translate(p.sx, p.sy);
         ctx.rotate(b.rollAngle);
-        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+        ctx.shadowColor = '#00ffd0';
+        ctx.shadowBlur = 4;
+        ctx.strokeStyle = 'rgba(255,255,255,0.7)';
         ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.ellipse(0, 0, r * 0.85, r * 0.35, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 0, r * 0.85, r * 0.3, 0, 0, Math.PI * 2);
         ctx.stroke();
+        ctx.strokeStyle = 'rgba(0, 255, 208, 0.7)';
         ctx.beginPath();
-        ctx.ellipse(0, 0, r * 0.4, r * 0.8, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 0, r * 0.35, r * 0.8, 0, 0, Math.PI * 2);
         ctx.stroke();
         ctx.restore();
 
-        // Vurgulama
-        ctx.fillStyle = 'rgba(255,255,255,0.55)';
+        // Parlak nokta
+        ctx.fillStyle = 'rgba(255,255,255,0.95)';
         ctx.beginPath();
-        ctx.arc(p.sx - r * 0.35, p.sy - r * 0.4, r * 0.2, 0, Math.PI * 2);
+        ctx.arc(p.sx - r * 0.4, p.sy - r * 0.45, r * 0.18, 0, Math.PI * 2);
         ctx.fill();
 
-        // Kenar
-        ctx.strokeStyle = '#071448';
-        ctx.lineWidth = 1.5;
+        // Neon kenar
+        ctx.save();
+        ctx.shadowColor = '#00ffd0';
+        ctx.shadowBlur = 10;
+        ctx.strokeStyle = '#00ffd0';
+        ctx.lineWidth = 1.8;
         ctx.beginPath();
         ctx.arc(p.sx, p.sy, r, 0, Math.PI * 2);
         ctx.stroke();
+        ctx.restore();
     }
 
     function drawParticle(p) {
@@ -796,10 +936,10 @@ const Egim = (() => {
 
         ctx.translate(GAME_W / 2, GAME_H / 2);
         ctx.scale(scale, scale);
-        ctx.font = 'bold 92px "Comic Sans MS", system-ui, sans-serif';
-        ctx.shadowColor = '#ffd54a';
-        ctx.shadowBlur = 22;
-        ctx.fillStyle = countdownSec > 0 ? '#ffd54a' : '#2ecc71';
+        ctx.font = 'bold 96px "Orbitron", "Arial Black", system-ui, sans-serif';
+        ctx.shadowColor = countdownSec > 0 ? '#ff2a8a' : '#00ffd0';
+        ctx.shadowBlur = 32;
+        ctx.fillStyle = countdownSec > 0 ? '#ff2a8a' : '#00ffd0';
         ctx.fillText(label, 0, 0);
         ctx.shadowBlur = 0;
         ctx.strokeStyle = 'rgba(0,0,0,0.6)';
