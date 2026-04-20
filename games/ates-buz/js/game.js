@@ -60,6 +60,7 @@ let allCubes = [];
 let allDoors = [];
 let allBridges = [];
 let allBalls = [];
+let allRamps = [];
 
 let startedTime;
 let pausedTime = 0;
@@ -87,6 +88,7 @@ function startGame() {
     allDoors = [];
     allBridges = [];
     allBalls = [];
+    allRamps = [];
 
     setLevelCompleted(false);
 
@@ -130,6 +132,7 @@ function startGame() {
                 rotated: buttonGroup.ramp.rotated,
             });
             allAssets.push(ramp);
+            allRamps.push(ramp);
 
             let groupButtons = [];
 
@@ -162,6 +165,7 @@ function startGame() {
                 rotated: leverGroup.ramp.rotated,
             });
             allAssets.push(ramp);
+            allRamps.push(ramp);
 
             const lever = new Lever({
                 position: leverGroup.lever.position,
@@ -222,6 +226,10 @@ function startGame() {
             position: door.position,
             element: door.element,
         });
+        // Guest: kapı animasyonu host broadcast'teki currentFrame'den — lokal openDoor no-op
+        if (isOnline() && getMyRole() === 'guest') {
+            newDoor.openDoor = () => {};
+        }
         allDoors.push(newDoor);
     });
 
@@ -401,13 +409,16 @@ function playGame() {
 
                     button.fillColor();
                     button.draw();
+                    // Guest: ramp host'tan sync, lokal move yapma (sadece draw)
                     if (button.pressed && !movedRamp) {
                         movedRamp = true;
-                        button.run();
+                        if (!isGuestMode) button.run();
+                        else button.ramp.draw(button.pressed);
                     }
                 }
                 if (!movedRamp) {
-                    buttons[0].run();
+                    if (!isGuestMode) buttons[0].run();
+                    else buttons[0].ramp.draw(false);
                 }
             }
 
@@ -431,7 +442,8 @@ function playGame() {
             });
 
             allLevers.forEach((lever) => {
-                lever.run();
+                if (!isGuestMode) lever.run();
+                else lever.ramp.draw(lever.pressed);
             });
 
             allDoors.forEach((door) => {
@@ -441,7 +453,10 @@ function playGame() {
 
             allBalls.forEach((ball) => {
                 ball.draw();
-                ball.update();
+                // Online'da ball sadece host tarafında fizik; guest sync'ten pozisyon alır
+                if (!isOnline() || getMyRole() === 'host') {
+                    ball.update();
+                }
             });
 
             allBridges.forEach((bridge) => {
@@ -565,6 +580,13 @@ function playGame() {
                         levers: allLevers.map(l => Math.round(l.angle * 1000) / 1000),
                         cubes: allCubes.map(c => ({
                             x: Math.round(c.position.x), y: Math.round(c.position.y),
+                        })),
+                        balls: allBalls.map(b => ({
+                            x: Math.round(b.position.x), y: Math.round(b.position.y),
+                            a: Math.round((b.angle || 0) * 100) / 100,
+                        })),
+                        ramps: allRamps.map(r => ({
+                            x: Math.round(r.position.x), y: Math.round(r.position.y),
                         })),
                         diamondsCollected: allDiamonds.map(d => d.collected ? 1 : 0),
                         doorFire: fireDoor ? { pressed: fireDoor.pressed ? 1 : 0, frame: fireDoor.currentFrame || 0, opened: fireDoor.opened ? 1 : 0 } : null,
@@ -970,6 +992,38 @@ function playGame() {
                 if (allCubes[i] && s) {
                     allCubes[i].position.x = s.x;
                     allCubes[i].position.y = s.y;
+                }
+            });
+        }
+        // Toplar
+        if (Array.isArray(st.balls)) {
+            st.balls.forEach((s, i) => {
+                if (allBalls[i] && s) {
+                    allBalls[i].position.x = s.x;
+                    allBalls[i].position.y = s.y;
+                    if (typeof s.a === 'number') allBalls[i].angle = s.a;
+                }
+            });
+        }
+        // Rampalar
+        if (Array.isArray(st.ramps)) {
+            st.ramps.forEach((s, i) => {
+                if (allRamps[i] && s) {
+                    const dx = s.x - allRamps[i].position.x;
+                    const dy = s.y - allRamps[i].position.y;
+                    if (dx !== 0 || dy !== 0) {
+                        // Rampa parçalarıyla birlikte tüm child'ları kaydır
+                        allRamps[i].position.x = s.x;
+                        allRamps[i].position.y = s.y;
+                        allRamps[i].hitbox.position.x += dx;
+                        allRamps[i].hitbox.position.y += dy;
+                        if (allRamps[i].ramps) {
+                            allRamps[i].ramps.forEach(r => {
+                                r.position.x += dx;
+                                r.position.y += dy;
+                            });
+                        }
+                    }
                 }
             });
         }

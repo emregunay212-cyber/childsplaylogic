@@ -8,6 +8,7 @@ export class Ball extends Sprite {
         super({ position, imgSrc });
 
         this.position = position;
+        this.startPosition = { x: position.x, y: position.y };
         this.velocity = {
             x: 0,
             y: 0,
@@ -30,6 +31,15 @@ export class Ball extends Sprite {
 
         this.lastPosition = { ...this.position };
         this.angle = 90 * (Math.PI / 180);
+    }
+    checkOffscreen() {
+        if (this.position.y > 1200) {
+            this.position.x = this.startPosition.x;
+            this.position.y = this.startPosition.y;
+            this.velocity.x = 0;
+            this.velocity.y = 0;
+            this.hitboxPositionCalc();
+        }
     }
     hitboxPositionCalc() {
         this.hitbox.position = {
@@ -65,6 +75,8 @@ export class Ball extends Sprite {
 
         this.hitboxPositionCalc();
         this.verticalCollision(this.allAssets);
+
+        this.checkOffscreen();
     }
     gravity() {
         this.velocity.y += 0.25;

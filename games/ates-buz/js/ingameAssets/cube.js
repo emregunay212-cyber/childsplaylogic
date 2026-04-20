@@ -6,6 +6,7 @@ export class Cube extends Sprite {
         super({ position, imgSrc });
 
         this.position = position;
+        this.startPosition = { x: position.x, y: position.y };
         this.velocity = {
             x: 0,
             y: 0,
@@ -29,6 +30,16 @@ export class Cube extends Sprite {
         this.players = players;
 
         this.rampBlocked = false;
+    }
+    checkOffscreen() {
+        // Havuza düşüp canvas dışına kaybolursa başa dön
+        if (this.position.y > 1200) {
+            this.position.x = this.startPosition.x;
+            this.position.y = this.startPosition.y;
+            this.velocity.x = 0;
+            this.velocity.y = 0;
+            this.hitboxPositionCalc();
+        }
     }
     hitboxPositionCalc() {
         this.hitbox.position = {
@@ -64,6 +75,8 @@ export class Cube extends Sprite {
         this.verticalCollision(this.players);
 
         this.hitboxPositionCalc();
+
+        this.checkOffscreen();
     }
     gravity() {
         this.velocity.y += 0.25;
