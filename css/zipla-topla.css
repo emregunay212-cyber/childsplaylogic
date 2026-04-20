@@ -1,59 +1,211 @@
-/* Zıpla Topla - Platform Oyunu */
-.zt-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    padding: 10px;
-}
-.zt-canvas {
-    width: 100%;
-    max-width: 800px;
-    height: auto;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    image-rendering: pixelated;
-    background: #87CEEB;
-}
-.zt-hud {
-    font-family: 'Fredoka', sans-serif;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #B8860B;
-    background: linear-gradient(135deg, #FFF8E1, #FFF3C4);
-    padding: 8px 20px;
-    border-radius: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-.zt-controls {
-    display: flex;
-    gap: 16px;
-    justify-content: center;
-}
-.zt-btn {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    border: 3px solid rgba(0,0,0,0.1);
-    font-size: 1.5rem;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.1s, box-shadow 0.1s;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-    touch-action: manipulation;
-}
-.zt-btn:active { transform: scale(0.9); }
-.zt-btn-left { background: linear-gradient(135deg, #74b9ff, #0984e3); color: white; }
-.zt-btn-right { background: linear-gradient(135deg, #74b9ff, #0984e3); color: white; }
-.zt-btn-jump { background: linear-gradient(135deg, #55efc4, #00b894); color: white; }
+/* ============================================
+   Zıpla Topla — Mario tarzı platformer stilleri
+   ============================================ */
 
-@media (min-width: 768px) {
-    .zt-controls { display: none; }
+.zt-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  aspect-ratio: 800 / 360;
+  background: #0a0820;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 4px #6b3b1f,
+    0 0 0 6px #2a1a10,
+    0 20px 40px rgba(0,0,0,0.4);
+  user-select: none;
+  touch-action: manipulation;
 }
-@media (max-width: 480px) {
-    .zt-btn { width: 56px; height: 56px; font-size: 1.3rem; }
+
+.zt-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* ---- HUD ---- */
+.zt-hud {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  gap: 6px;
+  font-family: 'Comic Sans MS', 'Baloo', system-ui, sans-serif;
+  pointer-events: none;
+}
+
+.zt-hud-box {
+  background: rgba(15, 10, 30, 0.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 2px solid #ffcf3a;
+  border-radius: 8px;
+  padding: 4px 10px;
+  color: #fff;
+  font-weight: 800;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.6);
+}
+
+.zt-hud-label {
+  font-size: 10px;
+  opacity: 0.85;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.zt-hud-coins span:last-child,
+.zt-hud-level span:last-child {
+  color: #ffd54a;
+  font-variant-numeric: tabular-nums;
+}
+
+.zt-hud-lives { gap: 2px; padding: 4px 8px; }
+.zt-heart {
+  font-size: 18px;
+  transition: transform 0.2s, opacity 0.2s;
+  filter: drop-shadow(0 0 4px rgba(255, 0, 80, 0.5));
+}
+.zt-heart.on { color: #ff5470; }
+.zt-heart.off { color: #2a1830; filter: none; opacity: 0.4; }
+
+.zt-hud-coins, .zt-hud-level { margin-left: auto; }
+.zt-hud-level { margin-left: 0; }
+
+/* ---- Mobile Controls ---- */
+.zt-controls {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  display: none;
+  justify-content: space-between;
+  align-items: flex-end;
+  pointer-events: none;
+}
+
+.zt-btn {
+  pointer-events: auto;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: rgba(15, 10, 30, 0.75);
+  border: 2.5px solid #ffcf3a;
+  color: #ffcf3a;
+  font-size: 22px;
+  font-weight: 900;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 0 12px rgba(255, 207, 58, 0.15);
+  text-shadow: 0 0 6px rgba(255, 207, 58, 0.5);
+  transition: transform 0.08s;
+  -webkit-tap-highlight-color: transparent;
+}
+.zt-btn:active {
+  background: rgba(255, 207, 58, 0.3);
+  transform: scale(0.92);
+}
+.zt-btn-jump {
+  width: 66px;
+  height: 66px;
+  border-color: #e74c3c;
+  color: #ff8070;
+  text-shadow: 0 0 8px rgba(231, 76, 60, 0.6);
+  box-shadow: 0 4px 14px rgba(231, 76, 60, 0.5), inset 0 0 12px rgba(231, 76, 60, 0.2);
+}
+.zt-btn-jump:active { background: rgba(231, 76, 60, 0.4); }
+
+@media (max-width: 768px) and (hover: none) {
+  .zt-controls { display: flex; }
+}
+
+/* ---- Game Over Modal ---- */
+.zt-modal {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: ztFadeIn 0.3s ease;
+}
+@keyframes ztFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.zt-modal-card {
+  background: linear-gradient(145deg, #2a1a48, #4a2a70);
+  border: 3px solid #ffcf3a;
+  border-radius: 18px;
+  padding: 24px 28px;
+  max-width: 88%;
+  min-width: 300px;
+  color: #fff;
+  font-family: 'Comic Sans MS', system-ui, sans-serif;
+  box-shadow: 0 25px 80px rgba(0,0,0,0.6);
+  text-align: center;
+}
+
+.zt-modal-title {
+  font-size: 28px;
+  font-weight: 900;
+  margin-bottom: 10px;
+  color: #ff5470;
+  text-shadow: 0 4px 14px rgba(255, 84, 112, 0.5);
+}
+.zt-modal-sub {
+  font-size: 15px;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 14px;
+}
+.zt-modal-stats {
+  background: rgba(0,0,0,0.3);
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  font-size: 15px;
+}
+.zt-modal-stats b {
+  color: #ffd54a;
+  font-size: 17px;
+  text-shadow: 0 0 6px rgba(255, 213, 74, 0.6);
+}
+
+.zt-modal-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.zt-mbtn {
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  transition: transform 0.12s;
+}
+.zt-mbtn:hover { transform: translateY(-2px); }
+.zt-mbtn:active { transform: translateY(0); }
+.zt-mbtn-primary {
+  background: linear-gradient(135deg, #ffcf3a, #ff8a3a);
+  color: #2a1010;
+  box-shadow: 0 5px 18px rgba(255, 138, 58, 0.5);
+}
+.zt-mbtn-secondary {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.3);
 }
