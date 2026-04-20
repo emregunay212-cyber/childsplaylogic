@@ -18,9 +18,9 @@ const SpaceWaves = (() => {
   const MAX_SPEED  = 300;
   const RAMP_SECONDS = 2.5;
 
-  const GRAVITY = 650;
-  const MAX_VY  = 210;
-  const FLIP_KICK = 0.35;  // toggle anında anlık yön hızı oranı (0-1)
+  const GRAVITY = 380;
+  const MAX_VY  = 170;
+  const FLIP_KICK = 0.30;  // toggle anında anlık yön hızı oranı (0-1)
 
   const CHECKPOINT_EVERY = 500;
   const RESPAWN_CLEAR_AHEAD = 260;
