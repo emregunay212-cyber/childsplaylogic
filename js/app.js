@@ -67,6 +67,7 @@ const App = (() => {
                 { game: Penalti, color: 'var(--penalti-color)' },
                 { game: ZiplaTopla, color: 'var(--zipla-topla-color)' },
                 { game: SpaceWaves, color: 'var(--space-waves-color)' },
+                { game: Egim, color: 'var(--egim-color)' },
             ]
         },
     ];

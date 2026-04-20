@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="eg-sky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1a0f3d"/>
+      <stop offset="60%" stop-color="#3a1a70"/>
+      <stop offset="100%" stop-color="#ff6e5a"/>
+    </linearGradient>
+    <linearGradient id="eg-track" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2a1860"/>
+      <stop offset="100%" stop-color="#6a3fb0"/>
+    </linearGradient>
+    <radialGradient id="eg-ball" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#8fe5ff"/>
+      <stop offset="60%" stop-color="#2a7cff"/>
+      <stop offset="100%" stop-color="#0a2a80"/>
+    </radialGradient>
+  </defs>
+  <circle cx="60" cy="60" r="58" fill="url(#eg-sky)"/>
+  <circle cx="60" cy="60" r="58" fill="none" stroke="#ff7e4a" stroke-width="2" opacity="0.7"/>
+  <!-- dağlar -->
+  <path d="M 4 62 L 18 48 L 30 58 L 42 42 L 58 60 L 72 46 L 88 58 L 104 44 L 116 62 L 116 62 Z" fill="#1c0f40" opacity="0.85"/>
+  <!-- pist trapezoid -->
+  <path d="M 48 58 L 72 58 L 110 108 L 10 108 Z" fill="url(#eg-track)" stroke="#ffd54a" stroke-width="1.5"/>
+  <!-- pist yatay çizgileri -->
+  <line x1="52" y1="68" x2="68" y2="68" stroke="#fff" stroke-width="0.8" opacity="0.6"/>
+  <line x1="42" y1="82" x2="78" y2="82" stroke="#fff" stroke-width="1" opacity="0.6"/>
+  <line x1="28" y1="98" x2="92" y2="98" stroke="#fff" stroke-width="1.2" opacity="0.6"/>
+  <!-- engeller -->
+  <g>
+    <rect x="54" y="64" width="6" height="5" fill="#c0392b" stroke="#4a1410" stroke-width="0.5"/>
+    <rect x="54" y="63" width="6" height="1.5" fill="#e74c3c"/>
+  </g>
+  <g>
+    <rect x="74" y="78" width="9" height="7" fill="#c0392b" stroke="#4a1410" stroke-width="0.6"/>
+    <rect x="74" y="76" width="9" height="2" fill="#e74c3c"/>
+  </g>
+  <g>
+    <rect x="36" y="78" width="8" height="6" fill="#c0392b" stroke="#4a1410" stroke-width="0.6"/>
+    <rect x="36" y="76" width="8" height="2" fill="#e74c3c"/>
+  </g>
+  <!-- top -->
+  <ellipse cx="60" cy="100" rx="9" ry="2.5" fill="#000" opacity="0.4"/>
+  <circle cx="60" cy="92" r="9" fill="url(#eg-ball)" stroke="#071448" stroke-width="1"/>
+  <ellipse cx="60" cy="92" rx="8" ry="3" fill="none" stroke="#fff" stroke-width="0.8" opacity="0.4"/>
+  <circle cx="57" cy="88" r="2" fill="#fff" opacity="0.55"/>
+</svg>

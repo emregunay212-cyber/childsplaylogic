@@ -32,6 +32,7 @@ const TR = {
         'zipla-topla': 'Zıpla Topla',
         'ates-buz': 'Ateş & Buz',
         'space-waves': 'SpaceWaves',
+        'egim': 'Eğim',
     },
 
     // Multiplayer strings
