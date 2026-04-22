@@ -2,6 +2,18 @@
    OYUN BAHÇESİ - Oyun Ortak Stilleri
    ============================================ */
 
+/* Mobile scroll-lock — oyun açıkken sayfa scroll/bounce'u engelle */
+@media (hover: none) and (pointer: coarse) {
+    body.game-active {
+        overflow: hidden;
+        overscroll-behavior: none;
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+    }
+}
+
 /* Oyun Container */
 .game-container {
     position: fixed;

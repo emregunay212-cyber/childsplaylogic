@@ -128,6 +128,10 @@
   -webkit-backdrop-filter: blur(6px);
   box-shadow: 0 0 18px rgba(0, 255, 208, 0.4), inset 0 0 10px rgba(0, 255, 208, 0.15);
   text-shadow: 0 0 10px rgba(0, 255, 208, 0.8);
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 .eg-mbtn:active { background: rgba(0, 255, 208, 0.25); transform: scale(0.95); box-shadow: 0 0 24px rgba(0, 255, 208, 0.7); }
 .eg-mjump { margin: 0 auto; }
@@ -135,6 +139,17 @@
 @media (max-width: 768px) and (hover: none) {
   .eg-mobile { display: flex; }
   .eg-hint { display: none; }
+}
+
+@media (max-width: 768px) and (hover: none) and (orientation: landscape) {
+  .eg-mobile { bottom: 20px; padding: 0 max(12px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left)); }
+}
+
+@media (max-width: 420px) {
+  .eg-mbtn { width: 54px; height: 54px; font-size: 20px; border-radius: 12px; }
+  .eg-hud-box { padding: 4px 8px; font-size: 12px; }
+  .eg-hud-label { font-size: 9px; }
+  .eg-mobile { bottom: 40px; }
 }
 
 /* ---- Modal ---- */

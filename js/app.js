@@ -99,6 +99,9 @@ const App = (() => {
             document.getElementById('btn-sound')?.classList.add('muted');
         }
 
+        // Mobil: ilk dokunuşta audio context kilidini aç (iOS gereği)
+        try { MobileUtils.attachGlobalAudioUnlock(); } catch (e) {}
+
         // Event listener'lar
         setupEventListeners();
 
@@ -413,6 +416,8 @@ const App = (() => {
         document.getElementById('game-container').classList.remove('hidden');
         document.getElementById('top-bar').classList.add('hidden');
 
+        try { MobileUtils.lockBodyScroll(); } catch (e) {}
+
         GameEngine.startGame(game, level);
     }
 
@@ -423,6 +428,7 @@ const App = (() => {
         // Cleanup multiplayer if active
         Multiplayer.offAll();
         Multiplayer.disconnect();
+        try { MobileUtils.unlockBodyScroll(); } catch (e) {}
         showHub();
     }
 

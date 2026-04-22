@@ -143,9 +143,10 @@ const Egim = (() => {
 
         canvas = document.createElement('canvas');
         canvas.className = 'eg-canvas';
-        canvas.width = GAME_W;
-        canvas.height = GAME_H;
         ctx = canvas.getContext('2d');
+        try { MobileUtils.setupHiDPICanvas(canvas, ctx, GAME_W, GAME_H); }
+        catch (e) { canvas.width = GAME_W; canvas.height = GAME_H; }
+        canvas.style.touchAction = 'none';
         wrap.appendChild(canvas);
 
         uiLayer = document.createElement('div');
@@ -196,30 +197,57 @@ const Egim = (() => {
         document.addEventListener('keydown', keyDownHandler);
         document.addEventListener('keyup', keyUpHandler);
 
-        // Mobil
+        // Mobil — per-touch identifier tracking (stuck-button fix)
+        const touchToDir = Object.create(null);
         const setDir = (dir, val) => {
             if (dir === 'left') keys.left = val;
             else if (dir === 'right') keys.right = val;
             else if (dir === 'jump') keys.jump = val;
         };
+        const findBtn = (target) => target && target.closest && target.closest('.eg-mbtn');
         touchStartHandler = (e) => {
-            const t = e.target.closest('.eg-mbtn');
-            if (!t) return;
-            e.preventDefault();
-            setDir(t.dataset.dir, true);
+            let handled = false;
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                const t = e.changedTouches[i];
+                const btn = findBtn(document.elementFromPoint(t.clientX, t.clientY));
+                if (!btn) continue;
+                handled = true;
+                touchToDir[t.identifier] = btn.dataset.dir;
+                setDir(btn.dataset.dir, true);
+            }
+            if (handled) e.preventDefault();
         };
         touchEndHandler = (e) => {
-            const t = e.target.closest('.eg-mbtn');
-            if (!t) return;
-            e.preventDefault();
-            setDir(t.dataset.dir, false);
+            let handled = false;
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                const t = e.changedTouches[i];
+                const dir = touchToDir[t.identifier];
+                if (!dir) continue;
+                handled = true;
+                delete touchToDir[t.identifier];
+                setDir(dir, false);
+            }
+            if (handled) e.preventDefault();
+        };
+        touchMoveHandler = (e) => {
+            if (e.changedTouches) e.preventDefault();
+        };
+        const mouseStart = (e) => {
+            const btn = findBtn(e.target);
+            if (!btn) return;
+            setDir(btn.dataset.dir, true);
+        };
+        const mouseEnd = () => {
+            keys.left = false; keys.right = false; keys.jump = false;
         };
         if (uiLayer) {
             uiLayer.addEventListener('touchstart', touchStartHandler, { passive: false });
             uiLayer.addEventListener('touchend', touchEndHandler, { passive: false });
-            uiLayer.addEventListener('mousedown', touchStartHandler);
-            uiLayer.addEventListener('mouseup', touchEndHandler);
-            uiLayer.addEventListener('mouseleave', touchEndHandler);
+            uiLayer.addEventListener('touchcancel', touchEndHandler, { passive: false });
+            uiLayer.addEventListener('touchmove', touchMoveHandler, { passive: false });
+            uiLayer.addEventListener('mousedown', mouseStart);
+            uiLayer.addEventListener('mouseup', mouseEnd);
+            uiLayer.addEventListener('mouseleave', mouseEnd);
         }
     }
 
@@ -953,7 +981,8 @@ const Egim = (() => {
         ctx.font = 'bold 18px "Comic Sans MS", system-ui, sans-serif';
         ctx.shadowColor = 'rgba(0,0,0,0.8)';
         ctx.shadowBlur = 6;
-        ctx.fillText('◀ ▶ ile yönel, Boşluk ile zıpla', GAME_W / 2, GAME_H - 40);
+        const isTouch = (typeof MobileUtils !== 'undefined' && MobileUtils.isTouchDevice());
+        ctx.fillText(isTouch ? 'Alttaki tuşlarla yönel ve zıpla' : '◀ ▶ ile yönel, Boşluk ile zıpla', GAME_W / 2, GAME_H - 40);
         ctx.restore();
     }
 
