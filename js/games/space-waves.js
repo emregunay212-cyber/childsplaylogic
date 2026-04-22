@@ -153,9 +153,9 @@ const SpaceWaves = (() => {
 
     canvas = document.createElement('canvas');
     canvas.className = 'sw-canvas';
-    canvas.width = GAME_W;
-    canvas.height = GAME_H;
     ctx = canvas.getContext('2d');
+    try { MobileUtils.setupHiDPICanvas(canvas, ctx, GAME_W, GAME_H); }
+    catch (e) { canvas.width = GAME_W; canvas.height = GAME_H; }
     wrap.appendChild(canvas);
 
     uiLayer = document.createElement('div');
@@ -172,7 +172,9 @@ const SpaceWaves = (() => {
 
     const hint = document.createElement('div');
     hint.className = 'sw-hint';
-    hint.innerHTML = '<span>Boşluk / Sol tık ile <b>yön değiştir</b></span>';
+    hint.innerHTML =
+      '<span class="sw-hint-desktop">Boşluk / Sol tık ile <b>yön değiştir</b></span>' +
+      '<span class="sw-hint-mobile">Ekrana <b>dokun</b> — yön değiştir</span>';
     uiLayer.appendChild(hint);
 
     container.appendChild(wrap);
@@ -195,6 +197,7 @@ const SpaceWaves = (() => {
     document.addEventListener('keydown', keyHandler);
     canvas.addEventListener('mousedown', clickHandler);
     canvas.addEventListener('touchstart', touchHandler, { passive: false });
+    canvas.style.touchAction = 'none';
   }
 
   function unbindInput() {
@@ -803,7 +806,10 @@ const SpaceWaves = (() => {
     ctx.font = 'bold 16px "Comic Sans MS", system-ui, sans-serif';
     ctx.shadowColor = 'rgba(0,0,0,0.8)';
     ctx.shadowBlur = 6;
-    ctx.fillText('Boşluk / Tık ile yön seç', GAME_W / 2, GAME_H - 40);
+    const hintTxt = (typeof MobileUtils !== 'undefined' && MobileUtils.isTouchDevice())
+      ? 'Ekrana dokun ile yön seç'
+      : 'Boşluk / Tık ile yön seç';
+    ctx.fillText(hintTxt, GAME_W / 2, GAME_H - 40);
     ctx.restore();
   }
 

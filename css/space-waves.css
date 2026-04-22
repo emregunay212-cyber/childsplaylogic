@@ -95,6 +95,11 @@
   animation: sw-fadeOut 6s ease-in 2s forwards;
 }
 .sw-hint b { color: #ffd54a; }
+.sw-hint-mobile { display: none; }
+@media (hover: none) and (pointer: coarse) {
+  .sw-hint-desktop { display: none; }
+  .sw-hint-mobile { display: inline; }
+}
 
 @keyframes sw-fadeOut { to { opacity: 0; transform: translateX(-50%) translateY(10px); } }
 
@@ -225,4 +230,14 @@
   .sw-question-text { font-size: 16px; }
   .sw-gameover-title { font-size: 22px; }
   .sw-hint { font-size: 11px; padding: 4px 10px; }
+}
+
+@media (max-width: 380px) {
+  .sw-hud { gap: 4px; top: 6px; left: 6px; right: 6px; }
+  .sw-hud-box { padding: 3px 6px; font-size: 11px; border-radius: 10px; }
+  .sw-hud-label { font-size: 9px; }
+  .sw-heart { font-size: 15px; }
+  .sw-hint { font-size: 10px; padding: 3px 8px; bottom: 8px; }
+  .sw-modal-card { padding: 14px 16px; }
+  .sw-gameover-title { font-size: 20px; }
 }

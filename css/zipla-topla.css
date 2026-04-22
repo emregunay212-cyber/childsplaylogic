@@ -7,7 +7,6 @@
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
-  aspect-ratio: 800 / 360;
   background: #0a0820;
   border-radius: 16px;
   overflow: hidden;
@@ -17,6 +16,15 @@
     0 20px 40px rgba(0,0,0,0.4);
   user-select: none;
   touch-action: manipulation;
+  display: flex;
+  flex-direction: column;
+}
+
+.zt-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 800 / 360;
+  overflow: hidden;
 }
 
 .zt-canvas {
@@ -81,16 +89,22 @@
 .zt-hud-coins, .zt-hud-level { margin-left: auto; }
 .zt-hud-level { margin-left: 0; }
 
-/* ---- Mobile Controls ---- */
+/* ---- Mobile Controls (canvas altında ayrı bar) ---- */
 .zt-controls {
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  right: 12px;
   display: none;
   justify-content: space-between;
-  align-items: flex-end;
-  pointer-events: none;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, #1a0a2a 0%, #0a0820 100%);
+  border-top: 2px solid #6b3b1f;
+}
+
+.zt-ctrl-side {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .zt-btn {
@@ -110,24 +124,99 @@
   text-shadow: 0 0 6px rgba(255, 207, 58, 0.5);
   transition: transform 0.08s;
   -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  flex-shrink: 0;
+  padding: 0;
+  line-height: 1;
 }
 .zt-btn:active {
   background: rgba(255, 207, 58, 0.3);
   transform: scale(0.92);
 }
 .zt-btn-jump {
-  width: 66px;
-  height: 66px;
+  width: 72px;
+  height: 72px;
   border-color: #e74c3c;
   color: #ff8070;
   text-shadow: 0 0 8px rgba(231, 76, 60, 0.6);
   box-shadow: 0 4px 14px rgba(231, 76, 60, 0.5), inset 0 0 12px rgba(231, 76, 60, 0.2);
+  font-size: 26px;
 }
 .zt-btn-jump:active { background: rgba(231, 76, 60, 0.4); }
 
-@media (max-width: 768px) and (hover: none) {
+@media (max-width: 900px) and (hover: none), (max-width: 768px) {
   .zt-controls { display: flex; }
 }
+
+@media (max-width: 380px) {
+  .zt-btn { width: 52px; height: 52px; font-size: 19px; }
+  .zt-btn-jump { width: 64px; height: 64px; font-size: 22px; }
+  .zt-controls { padding: 8px 10px; gap: 8px; }
+  .zt-ctrl-side { gap: 8px; }
+  .zt-hud-box { padding: 3px 7px; font-size: 12px; }
+  .zt-hud-label { font-size: 9px; }
+}
+
+/* ---- Portrait rotate hint ---- */
+.zt-rotate-hint {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 2, 20, 0.85);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  padding: 20px;
+}
+.zt-rotate-card {
+  background: linear-gradient(145deg, #2a1a48, #4a2a70);
+  border: 2px solid #ffcf3a;
+  border-radius: 14px;
+  padding: 20px 22px;
+  max-width: 320px;
+  text-align: center;
+  color: #fff;
+  font-family: 'Comic Sans MS', system-ui, sans-serif;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+.zt-rotate-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+  animation: zt-rotate-anim 2.5s ease-in-out infinite;
+}
+@keyframes zt-rotate-anim {
+  0%, 40%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(90deg); }
+}
+.zt-rotate-title {
+  font-size: 18px;
+  font-weight: 900;
+  color: #ffd54a;
+  margin-bottom: 8px;
+}
+.zt-rotate-text {
+  font-size: 13px;
+  color: rgba(255,255,255,0.88);
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+.zt-rotate-btn {
+  background: linear-gradient(135deg, #ffcf3a, #ff8a3a);
+  color: #2a1010;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 4px 14px rgba(255, 138, 58, 0.4);
+}
+.zt-rotate-btn:active { transform: scale(0.96); }
 
 /* ---- Game Over Modal ---- */
 .zt-modal {

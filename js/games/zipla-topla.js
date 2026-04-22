@@ -154,11 +154,16 @@ const ZiplaTopla = (() => {
         const wrap = document.createElement('div');
         wrap.className = 'zt-wrap';
 
+        const frame = document.createElement('div');
+        frame.className = 'zt-frame';
+
         canvas = document.createElement('canvas');
         canvas.className = 'zt-canvas';
-        canvas.width = GAME_W; canvas.height = GAME_H;
         ctx = canvas.getContext('2d');
-        wrap.appendChild(canvas);
+        try { MobileUtils.setupHiDPICanvas(canvas, ctx, GAME_W, GAME_H, { forceIntegerDpr: true }); }
+        catch (e) { canvas.width = GAME_W; canvas.height = GAME_H; }
+        canvas.style.touchAction = 'none';
+        frame.appendChild(canvas);
 
         const hud = document.createElement('div');
         hud.className = 'zt-hud';
@@ -166,7 +171,9 @@ const ZiplaTopla = (() => {
             '<div class="zt-hud-box zt-hud-lives" id="zt-lives"></div>' +
             '<div class="zt-hud-box zt-hud-coins"><span class="zt-hud-label">💰</span><span id="zt-coins">0/' + totalCoins + '</span></div>' +
             '<div class="zt-hud-box zt-hud-level"><span class="zt-hud-label">Seviye</span><span>' + (currentLevelIdx + 1) + '/12</span></div>';
-        wrap.appendChild(hud);
+        frame.appendChild(hud);
+
+        wrap.appendChild(frame);
 
         const controls = document.createElement('div');
         controls.className = 'zt-controls';
@@ -180,19 +187,63 @@ const ZiplaTopla = (() => {
         const btnL = makeBtn('zt-btn-left', '◀');
         const btnR = makeBtn('zt-btn-right', '▶');
         const btnJ = makeBtn('zt-btn-jump', '▲');
+
         const bind = (btn, key) => {
-            btn.addEventListener('touchstart', e => { e.preventDefault(); keys[key] = true; });
-            btn.addEventListener('touchend', e => { e.preventDefault(); keys[key] = false; });
-            btn.addEventListener('mousedown', () => { keys[key] = true; });
-            btn.addEventListener('mouseup', () => { keys[key] = false; });
-            btn.addEventListener('mouseleave', () => { keys[key] = false; });
+            if (typeof MobileUtils !== 'undefined' && MobileUtils.bindHoldButton) {
+                MobileUtils.bindHoldButton(btn, () => { keys[key] = true; }, () => { keys[key] = false; });
+            } else {
+                btn.addEventListener('touchstart', e => { e.preventDefault(); keys[key] = true; });
+                btn.addEventListener('touchend', e => { e.preventDefault(); keys[key] = false; });
+                btn.addEventListener('touchcancel', () => { keys[key] = false; });
+                btn.addEventListener('mousedown', () => { keys[key] = true; });
+                btn.addEventListener('mouseup', () => { keys[key] = false; });
+                btn.addEventListener('mouseleave', () => { keys[key] = false; });
+            }
         };
         bind(btnL, 'ArrowLeft'); bind(btnR, 'ArrowRight'); bind(btnJ, ' ');
-        controls.appendChild(btnL); controls.appendChild(btnJ); controls.appendChild(btnR);
+
+        const leftSide = document.createElement('div');
+        leftSide.className = 'zt-ctrl-side zt-ctrl-left';
+        leftSide.appendChild(btnL); leftSide.appendChild(btnR);
+
+        const rightSide = document.createElement('div');
+        rightSide.className = 'zt-ctrl-side zt-ctrl-right';
+        rightSide.appendChild(btnJ);
+
+        controls.appendChild(leftSide);
+        controls.appendChild(rightSide);
         wrap.appendChild(controls);
 
         container.appendChild(wrap);
+
+        maybeShowOrientationHint(wrap);
+
         updateHUD();
+    }
+
+    function maybeShowOrientationHint(wrap) {
+        const isTouch = (typeof MobileUtils !== 'undefined' && MobileUtils.isTouchDevice());
+        if (!isTouch) return;
+        let dismissed = false;
+        try { dismissed = localStorage.getItem('zt-rotate-hint-dismissed') === '1'; } catch (e) {}
+        if (dismissed) return;
+        const isPortrait = window.matchMedia && window.matchMedia('(orientation: portrait)').matches;
+        if (!isPortrait) return;
+
+        const overlay = document.createElement('div');
+        overlay.className = 'zt-rotate-hint';
+        overlay.innerHTML =
+            '<div class="zt-rotate-card">' +
+                '<div class="zt-rotate-icon">📱↻</div>' +
+                '<div class="zt-rotate-title">Daha iyi deneyim için</div>' +
+                '<div class="zt-rotate-text">Telefonunu yan çevir — platformer oyunları geniş ekranda çok daha eğlenceli!</div>' +
+                '<button class="zt-rotate-btn" id="zt-rotate-dismiss" type="button">Yine de oyna</button>' +
+            '</div>';
+        wrap.appendChild(overlay);
+        overlay.querySelector('#zt-rotate-dismiss').addEventListener('click', () => {
+            try { localStorage.setItem('zt-rotate-hint-dismissed', '1'); } catch (e) {}
+            overlay.remove();
+        });
     }
 
     function updateHUD() {
