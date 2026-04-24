@@ -146,7 +146,7 @@
 }
 .zt-btn-jump:active { background: rgba(231, 76, 60, 0.4); }
 
-@media (max-width: 900px) and (hover: none), (max-width: 768px) {
+@media (pointer: coarse), (hover: none), (max-width: 900px) {
   .zt-controls { display: flex; }
 }
 

@@ -10,8 +10,15 @@ const MobileUtils = (() => {
   }
 
   function isTouchDevice() {
-    return (window.matchMedia && window.matchMedia('(hover: none)').matches) ||
-           ('ontouchstart' in window);
+    if ('ontouchstart' in window) return true;
+    if (navigator.maxTouchPoints && navigator.maxTouchPoints > 0) return true;
+    if (navigator.msMaxTouchPoints && navigator.msMaxTouchPoints > 0) return true;
+    if (window.matchMedia) {
+      if (window.matchMedia('(pointer: coarse)').matches) return true;
+      if (window.matchMedia('(hover: none)').matches) return true;
+      if (window.matchMedia('(any-pointer: coarse)').matches) return true;
+    }
+    return false;
   }
 
   function setupHiDPICanvas(canvas, ctx, logicalW, logicalH, opts) {

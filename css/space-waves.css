@@ -96,7 +96,7 @@
 }
 .sw-hint b { color: #ffd54a; }
 .sw-hint-mobile { display: none; }
-@media (hover: none) and (pointer: coarse) {
+@media (pointer: coarse), (hover: none), (max-width: 820px) {
   .sw-hint-desktop { display: none; }
   .sw-hint-mobile { display: inline; }
 }
