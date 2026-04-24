@@ -197,57 +197,27 @@ const Egim = (() => {
         document.addEventListener('keydown', keyDownHandler);
         document.addEventListener('keyup', keyUpHandler);
 
-        // Mobil — per-touch identifier tracking (stuck-button fix)
-        const touchToDir = Object.create(null);
+        // Mobil — her butona ayrı dinleyici bağla (MobileUtils.bindHoldButton ile)
         const setDir = (dir, val) => {
             if (dir === 'left') keys.left = val;
             else if (dir === 'right') keys.right = val;
             else if (dir === 'jump') keys.jump = val;
         };
-        const findBtn = (target) => target && target.closest && target.closest('.eg-mbtn');
-        touchStartHandler = (e) => {
-            let handled = false;
-            for (let i = 0; i < e.changedTouches.length; i++) {
-                const t = e.changedTouches[i];
-                const btn = findBtn(document.elementFromPoint(t.clientX, t.clientY));
-                if (!btn) continue;
-                handled = true;
-                touchToDir[t.identifier] = btn.dataset.dir;
-                setDir(btn.dataset.dir, true);
-            }
-            if (handled) e.preventDefault();
-        };
-        touchEndHandler = (e) => {
-            let handled = false;
-            for (let i = 0; i < e.changedTouches.length; i++) {
-                const t = e.changedTouches[i];
-                const dir = touchToDir[t.identifier];
-                if (!dir) continue;
-                handled = true;
-                delete touchToDir[t.identifier];
-                setDir(dir, false);
-            }
-            if (handled) e.preventDefault();
-        };
-        touchMoveHandler = (e) => {
-            if (e.changedTouches) e.preventDefault();
-        };
-        const mouseStart = (e) => {
-            const btn = findBtn(e.target);
-            if (!btn) return;
-            setDir(btn.dataset.dir, true);
-        };
-        const mouseEnd = () => {
-            keys.left = false; keys.right = false; keys.jump = false;
-        };
         if (uiLayer) {
-            uiLayer.addEventListener('touchstart', touchStartHandler, { passive: false });
-            uiLayer.addEventListener('touchend', touchEndHandler, { passive: false });
-            uiLayer.addEventListener('touchcancel', touchEndHandler, { passive: false });
-            uiLayer.addEventListener('touchmove', touchMoveHandler, { passive: false });
-            uiLayer.addEventListener('mousedown', mouseStart);
-            uiLayer.addEventListener('mouseup', mouseEnd);
-            uiLayer.addEventListener('mouseleave', mouseEnd);
+            const buttons = uiLayer.querySelectorAll('.eg-mbtn');
+            buttons.forEach((btn) => {
+                const dir = btn.dataset.dir;
+                if (typeof MobileUtils !== 'undefined' && MobileUtils.bindHoldButton) {
+                    MobileUtils.bindHoldButton(btn, () => setDir(dir, true), () => setDir(dir, false));
+                } else {
+                    btn.addEventListener('touchstart', (e) => { e.preventDefault(); setDir(dir, true); }, { passive: false });
+                    btn.addEventListener('touchend', (e) => { e.preventDefault(); setDir(dir, false); }, { passive: false });
+                    btn.addEventListener('touchcancel', () => setDir(dir, false));
+                    btn.addEventListener('mousedown', (e) => { e.preventDefault(); setDir(dir, true); });
+                    btn.addEventListener('mouseup', () => setDir(dir, false));
+                    btn.addEventListener('mouseleave', () => setDir(dir, false));
+                }
+            });
         }
     }
 
