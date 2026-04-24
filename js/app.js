@@ -417,6 +417,8 @@ const App = (() => {
         document.getElementById('top-bar').classList.add('hidden');
 
         try { MobileUtils.lockBodyScroll(); } catch (e) {}
+        // CSS targeting için aktif oyun kimliği — portrait mobile auto-rotation
+        if (game && game.id) document.body.dataset.activeGame = game.id;
 
         GameEngine.startGame(game, level);
     }
@@ -429,6 +431,7 @@ const App = (() => {
         Multiplayer.offAll();
         Multiplayer.disconnect();
         try { MobileUtils.unlockBodyScroll(); } catch (e) {}
+        delete document.body.dataset.activeGame;
         showHub();
     }
 
