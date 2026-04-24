@@ -192,19 +192,38 @@ const SpaceWaves = (() => {
         toggleGravity();
       }
     };
-    clickHandler = (e) => { if (e.button === 0) toggleGravity(); };
-    touchHandler = (e) => { e.preventDefault(); toggleGravity(); };
+    // Modal/buton üzerinde tıklama → toggleGravity'i atla
+    const isInteractiveTarget = (el) => {
+      if (!el || !el.closest) return false;
+      return !!el.closest('.sw-modal, button, input, select, textarea, a');
+    };
+    clickHandler = (e) => {
+      if (e.button !== 0) return;
+      if (isInteractiveTarget(e.target)) return;
+      toggleGravity();
+    };
+    touchHandler = (e) => {
+      if (isInteractiveTarget(e.target)) return;
+      e.preventDefault();
+      toggleGravity();
+    };
     document.addEventListener('keydown', keyHandler);
-    canvas.addEventListener('mousedown', clickHandler);
-    canvas.addEventListener('touchstart', touchHandler, { passive: false });
+    // Wrap seviyesinde dinle (canvas + uiLayer'ı kapsar) — modal/buton dışı her dokunuş toggle eder
+    const wrap = canvas.parentElement;
+    if (wrap) {
+      wrap.addEventListener('mousedown', clickHandler);
+      wrap.addEventListener('touchstart', touchHandler, { passive: false });
+      wrap.style.touchAction = 'none';
+    }
     canvas.style.touchAction = 'none';
   }
 
   function unbindInput() {
     document.removeEventListener('keydown', keyHandler);
-    if (canvas) {
-      canvas.removeEventListener('mousedown', clickHandler);
-      canvas.removeEventListener('touchstart', touchHandler);
+    const wrap = canvas ? canvas.parentElement : null;
+    if (wrap) {
+      wrap.removeEventListener('mousedown', clickHandler);
+      wrap.removeEventListener('touchstart', touchHandler);
     }
   }
 
