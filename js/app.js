@@ -72,7 +72,8 @@ const App = (() => {
                 { game: SpaceWaves, color: 'var(--space-waves-color)' },
                 { game: Egim, color: 'var(--egim-color)' },
                 { game: BuzKulesi, color: 'var(--buz-kulesi-color)' },
-                { game: ZindanOkcusu, color: 'var(--zindan-okcusu-color)' },
+                // comingSoon: içerik onayı alınana kadar deaktif — kart görünür ama oynanamaz ("Yakında")
+                { game: ZindanOkcusu, color: 'var(--zindan-okcusu-color)', comingSoon: true },
             ]
         },
     ];
@@ -335,13 +336,13 @@ const App = (() => {
         grid.innerHTML = '';
         let cardIndex = 0;
 
-        function createGameCard(game) {
+        function createGameCard(game, comingSoon) {
             const card = document.createElement('div');
             card.className = 'game-card';
             card.dataset.game = game.id;
             card.setAttribute('role', 'button');
             card.setAttribute('tabindex', '0');
-            card.setAttribute('aria-label', TR.games[game.id]);
+            card.setAttribute('aria-label', TR.games[game.id] + (comingSoon ? ' (yakında)' : ''));
 
             let starsHTML = '';
             for (let i = 1; i <= (game.levels?.length || 3); i++) {
@@ -358,6 +359,34 @@ const App = (() => {
 
             card.style.animationDelay = `${cardIndex * 0.06}s`;
             cardIndex++;
+
+            if (comingSoon) {
+                // Henüz aktif değil: kart "Yakında" rozetiyle görünür ama oynanamaz.
+                card.classList.add('coming-soon');
+                card.setAttribute('aria-disabled', 'true');
+
+                const badge = document.createElement('div');
+                badge.className = 'coming-soon-badge';
+                badge.textContent = 'Yakında';
+                card.appendChild(badge);
+
+                // Yıldız satırını "Çok yakında!" etiketiyle değiştir.
+                const stars = card.querySelector('.card-stars');
+                const label = document.createElement('div');
+                label.className = 'card-soon-label';
+                label.textContent = 'Çok yakında!';
+                if (stars) stars.replaceWith(label); else card.appendChild(label);
+
+                const bump = () => {
+                    try { AudioManager.play('tap'); } catch (e) {}
+                    card.classList.remove('cs-bump'); void card.offsetWidth; card.classList.add('cs-bump');
+                };
+                card.addEventListener('click', bump);
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); bump(); }
+                });
+                return card;
+            }
 
             card.addEventListener('click', () => { AudioManager.play('tap'); startGame(game); });
             card.addEventListener('keydown', (e) => {
@@ -408,8 +437,8 @@ const App = (() => {
                 header.appendChild(h3);
                 grid.appendChild(header);
 
-                category.games.forEach(({ game }) => {
-                    grid.appendChild(createGameCard(game));
+                category.games.forEach(({ game, comingSoon }) => {
+                    grid.appendChild(createGameCard(game, comingSoon));
                 });
             });
         }

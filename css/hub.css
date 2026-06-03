@@ -352,6 +352,42 @@
 .game-card[data-game="tetris"]::before { background: var(--tetris-color); }
 .game-card[data-game="zindan-okcusu"]::before { background: var(--zindan-okcusu-color); }
 
+/* ── Yakında (deaktif) oyun kartı ── */
+.game-card.coming-soon { cursor: default; }
+.game-card.coming-soon .card-icon img {
+    filter: grayscale(0.85) brightness(0.93);
+    opacity: 0.72;
+}
+.game-card.coming-soon .card-title { opacity: 0.7; }
+.coming-soon-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    background: linear-gradient(135deg, #8E8E93 0%, #B6B6BE 100%);
+    color: #fff;
+    font-family: var(--font-heading);
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 10px;
+    letter-spacing: 0.03em;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.22);
+}
+.card-soon-label {
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--zindan-okcusu-color, #9D4EDD);
+    opacity: 0.92;
+    letter-spacing: 0.02em;
+}
+.game-card.cs-bump { animation: csBump 0.4s ease; }
+@keyframes csBump {
+    0%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-4px) scale(1.02); }
+}
+
 /* Kategori başlıkları */
 .hub-category-header {
     grid-column: 1 / -1;
