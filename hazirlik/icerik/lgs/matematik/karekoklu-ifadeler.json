@@ -1,0 +1,188 @@
+{
+  "sinav": "LGS",
+  "ders": "Matematik",
+  "konuSlug": "karekoklu-ifadeler",
+  "konu": "Kareköklü İfadeler",
+  "sinif": 8,
+  "anlatimSurum": 2,
+  "anlatim": {
+    "ozet": "Tam kare sayıları, karekök kavramını ve kareköklü ifadelerde çarpma, bölme, toplama-çıkarma ile sadeleştirmeyi öğreniyoruz. Karekök, 'hangi sayının karesi bu?' sorusunun cevabıdır.",
+    "bolumler": [
+      {
+        "tip": "hook",
+        "baslik": "Karekök ne işe yarar?",
+        "icerikHtml": "<p>Kare şeklinde bir bahçen var ve alanı <b>25 m²</b>. Bir kenarı kaç metre? Cevap: kareköküdür, yani √25 = 5 m. Karekök, üs almanın TERSİdir: 5'in karesi 25 ise, 25'in karekökü 5'tir. Televizyon, ekran, karo… kare olan her yerde karşımıza çıkar.</p>"
+      },
+      {
+        "tip": "kavram",
+        "baslik": "1. Tam Kare ve Karekök",
+        "kutular": [
+          { "tur": "tanim", "baslik": "Tam Kare", "metin": "Bir tam sayının karesi olan sayılar: 1, 4, 9, 16, 25, 36, 49, 64, 81, 100…" },
+          { "tur": "tanim", "baslik": "Karekök (√)", "metin": "√a, karesi a olan pozitif sayıdır. √25 = 5, çünkü 5² = 25." },
+          { "tur": "ipucu", "baslik": "İpucu", "metin": "İlk 10 tam kareyi ezbere bil; karekök sorularının çoğu anında çözülür." }
+        ]
+      },
+      {
+        "tip": "gorsel",
+        "baslik": "2. Karekök = Karenin Kenarı",
+        "svg": "<svg viewBox='0 0 220 195' role='img' aria-label='Alanı 25 olan karenin kenarı 5'><style>.kare{fill:#EAF1FB;stroke:#3D6FB4;stroke-width:2}.iz{stroke:#B9C7D8;stroke-width:1}.et{font-family:Fredoka,sans-serif;font-size:14px;fill:#2C5489;font-weight:600}.al{font-family:Nunito,sans-serif;font-size:13px;fill:#243140;font-weight:700}</style><rect class='kare' x='35' y='12' width='140' height='140'/><line class='iz' x1='63' y1='12' x2='63' y2='152'/><line class='iz' x1='91' y1='12' x2='91' y2='152'/><line class='iz' x1='119' y1='12' x2='119' y2='152'/><line class='iz' x1='147' y1='12' x2='147' y2='152'/><line class='iz' x1='35' y1='40' x2='175' y2='40'/><line class='iz' x1='35' y1='68' x2='175' y2='68'/><line class='iz' x1='35' y1='96' x2='175' y2='96'/><line class='iz' x1='35' y1='124' x2='175' y2='124'/><text class='al' x='105' y='86' text-anchor='middle'>Alan = 25</text><text class='et' x='105' y='178' text-anchor='middle'>kenar = √25 = 5</text></svg>",
+        "aciklama": "Kareyi 25 küçük kareye böldük (5 satır × 5 sütun). Alan 25 ise bir kenar √25 = 5 birimdir. Karekök, karenin alanından kenarını bulmaktır."
+      },
+      {
+        "tip": "ornek",
+        "baslik": "3. Tam Kare Köklerini Bulma",
+        "ornekler": [
+          { "soru": "√64 kaçtır?", "adimlar": ["Hangi sayının karesi 64? 8 × 8 = 64"], "sonuc": "√64 = 8" },
+          { "soru": "√121 kaçtır?", "adimlar": ["11 × 11 = 121"], "sonuc": "√121 = 11" }
+        ]
+      },
+      {
+        "tip": "kavram",
+        "baslik": "4. Çarpma ve Bölme",
+        "kutular": [
+          { "tur": "tanim", "baslik": "Kural", "metin": "√a × √b = √(a×b) ve √a ÷ √b = √(a÷b). Kök içleri çarpılır/bölünür." }
+        ],
+        "icerikHtml": "<p>Örnek: √3 × √12 = √36 = 6.  √80 ÷ √5 = √16 = 4. Sonuç tam kare çıkarsa kökten kurtuluruz!</p>"
+      },
+      {
+        "tip": "gorsel",
+        "baslik": "5. Tam Karelerin Kökleri Tam Sayıdır",
+        "svg": "<svg viewBox='0 0 340 95' role='img' aria-label='Tam karelerin karekökleri sayı doğrusunda'><style>.ax{stroke:#B9C7D8;stroke-width:2}.dot{fill:#2ECC71}.up{font-family:Nunito,sans-serif;font-size:11px;fill:#62707F}.dn{font-family:Fredoka,sans-serif;font-size:12px;fill:#2C5489;font-weight:600}</style><line class='ax' x1='18' y1='50' x2='330' y2='50'/><circle class='dot' cx='30' cy='50' r='5'/><text class='up' x='30' y='34' text-anchor='middle'>1</text><text class='dn' x='30' y='72' text-anchor='middle'>√1=1</text><circle class='dot' cx='66' cy='50' r='5'/><text class='up' x='66' y='34' text-anchor='middle'>4</text><text class='dn' x='66' y='72' text-anchor='middle'>√4=2</text><circle class='dot' cx='123' cy='50' r='5'/><text class='up' x='123' y='34' text-anchor='middle'>9</text><text class='dn' x='123' y='72' text-anchor='middle'>√9=3</text><circle class='dot' cx='205' cy='50' r='5'/><text class='up' x='205' y='34' text-anchor='middle'>16</text><text class='dn' x='205' y='72' text-anchor='middle'>√16=4</text><circle class='dot' cx='312' cy='50' r='5'/><text class='up' x='312' y='34' text-anchor='middle'>25</text><text class='dn' x='312' y='72' text-anchor='middle'>√25=5</text></svg>",
+        "aciklama": "Tam kare sayıların (1, 4, 9, 16, 25) karekökleri tam sayıdır (1, 2, 3, 4, 5). Aralarındaki sayıların kökü ondalıklıdır (ör. √10 ≈ 3,16)."
+      },
+      {
+        "tip": "kavram",
+        "baslik": "6. Sadeleştirme (Kök Dışına Çıkarma)",
+        "kutular": [
+          { "tur": "tanim", "baslik": "Yöntem", "metin": "Kök içini tam kare × başka sayı biçiminde yaz; tam kareyi kök dışına karekökü olarak çıkar. √72 = √(36×2) = 6√2." },
+          { "tur": "dikkat", "baslik": "Dikkat", "metin": "Toplama/çıkarma yalnızca kök içi AYNI olanlarda yapılır: 2√7 + 3√7 = 5√7. Ama √2 + √3 sadeleşmez!" }
+        ]
+      },
+      {
+        "tip": "ornek",
+        "baslik": "7. Sadeleştirme ve Toplama Örnekleri",
+        "ornekler": [
+          { "soru": "√45 ifadesini sadeleştir.", "adimlar": ["45'i tam kare çarpanla ayır: 45 = 9 × 5", "√9 = 3 kök dışına çıkar"], "sonuc": "√45 = 3√5" },
+          { "soru": "√8 + √18 toplamını bul.", "adimlar": ["√8 = √(4×2) = 2√2", "√18 = √(9×2) = 3√2", "Kök içi aynı, katsayıları topla: 2√2 + 3√2"], "sonuc": "√8 + √18 = 5√2" }
+        ]
+      },
+      {
+        "tip": "dene",
+        "baslik": "8. Şimdi Sıra Sende!",
+        "soru": "√50 ifadesini en sade biçimde yaz.",
+        "ipucu": "50'yi tam kare bir çarpanla ayır: 50 = 25 × 2. Sonra √25'i dışarı çıkar.",
+        "cevap": "√50 = √(25×2) = 5√2"
+      },
+      {
+        "tip": "ozet",
+        "baslik": "Özet",
+        "icerikHtml": "<ul><li>√a = karesi a olan pozitif sayı (üssün tersi).</li><li>Tam karelerin kökü tam sayıdır.</li><li>√a × √b = √(ab); √a ÷ √b = √(a/b).</li><li>Sadeleştir: tam kare çarpanı dışarı çıkar (√72 = 6√2).</li><li>Topla/çıkar yalnız kök içi aynıysa.</li></ul>",
+        "merak": "Artık sayıları hem üs hem kökle biliyorsun. Peki bu bilgiyi harflerle (x, a) kullanmaya ne dersin? Sırada Cebirsel İfadeler var!"
+      }
+    ],
+    "sikHatalar": [
+      "√a + √b = √(a+b) sanmak — YANLIŞ. Toplama yalnız kök içi aynıysa yapılır.",
+      "√(a×b) = √a × √b doğrudur; ama bu kural TOPLAMADA işlemez.",
+      "Sadeleştirmede tam kare çarpanı bulamamak (√72 = 6√2; 8√1 değil).",
+      "(√a)² = a olduğunu unutmak."
+    ]
+  },
+  "sorular": [
+    { "id": "lgs-mat-karekoklu-ifadeler-001", "zorluk": "kolay", "soru": "√64 ifadesinin değeri kaçtır?", "siklar": { "A": "6", "B": "7", "C": "8", "D": "32" }, "dogruCevap": "C", "cozum": "√64 = 8, çünkü 8² = 64.", "kazanim": "Tam kare sayının karekökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-002", "zorluk": "kolay", "soru": "√121 ifadesinin değeri kaçtır?", "siklar": { "A": "11", "B": "12", "C": "21", "D": "61" }, "dogruCevap": "A", "cozum": "√121 = 11, çünkü 11² = 121.", "kazanim": "Tam kare sayının karekökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-003", "zorluk": "kolay", "soru": "Aşağıdaki sayılardan hangisi tam karedir?", "siklar": { "A": "18", "B": "24", "C": "36", "D": "50" }, "dogruCevap": "C", "cozum": "36 = 6² olduğundan tam karedir. 18, 24 ve 50 bir tam sayının karesi değildir.", "kazanim": "Tam kare sayıları tanır.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-004", "zorluk": "orta", "soru": "√3 × √12 işleminin sonucu kaçtır?", "siklar": { "A": "4", "B": "6", "C": "15", "D": "36" }, "dogruCevap": "B", "cozum": "√3 × √12 = √36 = 6.", "kazanim": "Kareköklü ifadelerde çarpma yapar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-005", "zorluk": "orta", "soru": "√45 ifadesinin en sade biçimi aşağıdakilerden hangisidir?", "siklar": { "A": "3√5", "B": "5√3", "C": "9√5", "D": "15" }, "dogruCevap": "A", "cozum": "√45 = √(9×5) = √9 × √5 = 3√5.", "kazanim": "Kareköklü ifadeyi sadeleştirir.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-006", "zorluk": "orta", "soru": "2√7 + 3√7 işleminin sonucu kaçtır?", "siklar": { "A": "5√14", "B": "6√7", "C": "5√7", "D": "5√49" }, "dogruCevap": "C", "cozum": "Kök içi aynı olduğundan katsayılar toplanır: 2√7 + 3√7 = 5√7.", "kazanim": "Benzer kareköklü ifadeleri toplar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-007", "zorluk": "orta", "soru": "√80 ÷ √5 işleminin sonucu kaçtır?", "siklar": { "A": "4", "B": "5", "C": "8", "D": "16" }, "dogruCevap": "A", "cozum": "√80 ÷ √5 = √(80÷5) = √16 = 4.", "kazanim": "Kareköklü ifadelerde bölme yapar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-008", "zorluk": "orta", "soru": "(√11)² ifadesinin değeri kaçtır?", "siklar": { "A": "11", "B": "22", "C": "121", "D": "√11" }, "dogruCevap": "A", "cozum": "Bir sayının karekökünün karesi kendisidir: (√11)² = 11.", "kazanim": "Karekök ile karenin ters işlem olduğunu kullanır.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-009", "zorluk": "zor", "soru": "√8 + √18 işleminin sonucu aşağıdakilerden hangisidir?", "siklar": { "A": "√26", "B": "5√2", "C": "6√2", "D": "10√2" }, "dogruCevap": "B", "cozum": "√8 = 2√2 ve √18 = 3√2. Kök içi aynı olduğundan: 2√2 + 3√2 = 5√2.", "kazanim": "Sadeleştirerek kareköklü ifadeleri toplar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-010", "zorluk": "orta", "soru": "√0,25 ifadesinin değeri kaçtır?", "siklar": { "A": "0,025", "B": "0,05", "C": "0,5", "D": "5" }, "dogruCevap": "C", "cozum": "√0,25 = 0,5, çünkü 0,5 × 0,5 = 0,25.", "kazanim": "Ondalık sayının karekökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-011", "zorluk": "kolay", "soru": "√81 ifadesinin değeri kaçtır?", "siklar": { "A": "8", "B": "9", "C": "18", "D": "40" }, "dogruCevap": "B", "cozum": "√81 = 9, çünkü 9² = 81.", "kazanim": "Tam kare sayının karekökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-012", "zorluk": "kolay", "soru": "√100 ifadesinin değeri kaçtır?", "siklar": { "A": "10", "B": "50", "C": "20", "D": "1000" }, "dogruCevap": "A", "cozum": "√100 = 10, çünkü 10² = 100.", "kazanim": "Tam kare sayının karekökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-013", "zorluk": "kolay", "soru": "√1 ifadesinin değeri kaçtır?", "siklar": { "A": "0", "B": "1", "C": "2", "D": "10" }, "dogruCevap": "B", "cozum": "√1 = 1, çünkü 1² = 1.", "kazanim": "Tam kare sayının karekökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-014", "zorluk": "kolay", "soru": "Aşağıdaki sayılardan hangisi tam karedir?", "siklar": { "A": "49", "B": "50", "C": "60", "D": "90" }, "dogruCevap": "A", "cozum": "49 = 7² olduğundan tam karedir. 50, 60, 90 bir tam sayının karesi değildir.", "kazanim": "Tam kare sayıları tanır.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-015", "zorluk": "kolay", "soru": "√16 ifadesinin değeri kaçtır?", "siklar": { "A": "2", "B": "4", "C": "8", "D": "256" }, "dogruCevap": "B", "cozum": "√16 = 4, çünkü 4² = 16.", "kazanim": "Tam kare sayının karekökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-016", "zorluk": "orta", "soru": "√2 × √18 işleminin sonucu kaçtır?", "siklar": { "A": "6", "B": "9", "C": "36", "D": "20" }, "dogruCevap": "A", "cozum": "√2 × √18 = √36 = 6.", "kazanim": "Kareköklü ifadelerde çarpma yapar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-017", "zorluk": "orta", "soru": "√200 ÷ √2 işleminin sonucu kaçtır?", "siklar": { "A": "10", "B": "100", "C": "20", "D": "40" }, "dogruCevap": "A", "cozum": "√200 ÷ √2 = √100 = 10.", "kazanim": "Kareköklü ifadelerde bölme yapar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-018", "zorluk": "zor", "soru": "√98 ifadesinin en sade biçimi aşağıdakilerden hangisidir?", "siklar": { "A": "7√2", "B": "2√7", "C": "49√2", "D": "14" }, "dogruCevap": "A", "cozum": "√98 = √(49×2) = 7√2.", "kazanim": "Kareköklü ifadeyi sadeleştirir.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-019", "zorluk": "zor", "soru": "√12 + √3 işleminin sonucu aşağıdakilerden hangisidir?", "siklar": { "A": "√15", "B": "3√3", "C": "2√3", "D": "6" }, "dogruCevap": "B", "cozum": "√12 = 2√3. 2√3 + √3 = 3√3.", "kazanim": "Sadeleştirerek kareköklü ifadeleri toplar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-020", "zorluk": "zor", "soru": "3√2 × √2 işleminin sonucu kaçtır?", "siklar": { "A": "6", "B": "3√2", "C": "9", "D": "6√2" }, "dogruCevap": "A", "cozum": "3√2 × √2 = 3 × (√2 × √2) = 3 × 2 = 6.", "kazanim": "Kareköklü ifadelerde çarpma yapar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-021", "zorluk": "zor", "soru": "(2√3)² ifadesinin değeri kaçtır?", "siklar": { "A": "6", "B": "12", "C": "2√3", "D": "36" }, "dogruCevap": "B", "cozum": "(2√3)² = 2² × (√3)² = 4 × 3 = 12.", "kazanim": "Kareköklü ifadenin karesini alır.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-022", "zorluk": "zor", "soru": "√0,09 ifadesinin değeri kaçtır?", "siklar": { "A": "0,03", "B": "0,3", "C": "3", "D": "0,003" }, "dogruCevap": "B", "cozum": "√0,09 = 0,3, çünkü 0,3 × 0,3 = 0,09.", "kazanim": "Ondalık sayının karekökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-023", "zorluk": "zor", "soru": "√50 − √8 işleminin sonucu aşağıdakilerden hangisidir?", "siklar": { "A": "√42", "B": "3√2", "C": "7√2", "D": "√2" }, "dogruCevap": "B", "cozum": "√50 = 5√2, √8 = 2√2. 5√2 − 2√2 = 3√2.", "kazanim": "Sadeleştirerek kareköklü ifadeleri çıkarır.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-024", "zorluk": "zor", "soru": "√144 + √25 işleminin sonucu kaçtır?", "siklar": { "A": "13", "B": "17", "C": "169", "D": "7" }, "dogruCevap": "B", "cozum": "√144 = 12, √25 = 5. 12 + 5 = 17.", "kazanim": "Tam kare köklerini toplar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-025", "zorluk": "kolay", "soru": "√256 işleminin sonucu kaçtır?", "siklar": { "A": "16", "B": "14", "C": "18", "D": "128" }, "dogruCevap": "A", "cozum": "256 = 16², bu yüzden √256 = 16.", "kazanim": "Tam kare sayıların karekökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-026", "zorluk": "kolay", "soru": "√324 işleminin sonucu kaçtır?", "siklar": { "A": "16", "B": "18", "C": "162", "D": "22" }, "dogruCevap": "B", "cozum": "324 = 18², bu yüzden √324 = 18.", "kazanim": "Tam kare sayıların karekökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-027", "zorluk": "kolay", "soru": "√361 işleminin sonucu kaçtır?", "siklar": { "A": "17", "B": "21", "C": "19", "D": "38" }, "dogruCevap": "C", "cozum": "361 = 19², bu yüzden √361 = 19.", "kazanim": "Tam kare sayıların karekökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-028", "zorluk": "kolay", "soru": "√400 işleminin sonucu kaçtır?", "siklar": { "A": "200", "B": "40", "C": "16", "D": "20" }, "dogruCevap": "D", "cozum": "400 = 20², bu yüzden √400 = 20.", "kazanim": "Tam kare sayıların karekökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-029", "zorluk": "kolay", "soru": "√441 işleminin sonucu kaçtır?", "siklar": { "A": "21", "B": "20", "C": "22", "D": "49" }, "dogruCevap": "A", "cozum": "441 = 21², bu yüzden √441 = 21.", "kazanim": "Tam kare sayıların karekökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-030", "zorluk": "kolay", "soru": "√289 işleminin sonucu kaçtır?", "siklar": { "A": "19", "B": "17", "C": "23", "D": "15" }, "dogruCevap": "B", "cozum": "289 = 17², bu yüzden √289 = 17.", "kazanim": "Tam kare sayıların karekökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-031", "zorluk": "kolay", "soru": "(√7)² ifadesinin değeri kaçtır?", "siklar": { "A": "14", "B": "49", "C": "7", "D": "21" }, "dogruCevap": "C", "cozum": "Karekökün karesi kökün içini verir: (√7)² = 7.", "kazanim": "Kareköklü ifadenin karesini alır.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-032", "zorluk": "kolay", "soru": "(√13)² ifadesinin değeri kaçtır?", "siklar": { "A": "169", "B": "26", "C": "6", "D": "13" }, "dogruCevap": "D", "cozum": "(√13)² = 13.", "kazanim": "Kareköklü ifadenin karesini alır.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-033", "zorluk": "orta", "soru": "√2 · √8 işleminin sonucu kaçtır?", "siklar": { "A": "4", "B": "16", "C": "10", "D": "6" }, "dogruCevap": "A", "cozum": "√2·√8 = √(2·8) = √16 = 4.", "kazanim": "Kareköklü ifadelerde çarpma yapar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-034", "zorluk": "orta", "soru": "√3 · √27 işleminin sonucu kaçtır?", "siklar": { "A": "30", "B": "9", "C": "81", "D": "15" }, "dogruCevap": "B", "cozum": "√3·√27 = √(3·27) = √81 = 9.", "kazanim": "Kareköklü ifadelerde çarpma yapar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-035", "zorluk": "orta", "soru": "√5 · √20 işleminin sonucu kaçtır?", "siklar": { "A": "25", "B": "100", "C": "10", "D": "15" }, "dogruCevap": "C", "cozum": "√5·√20 = √(5·20) = √100 = 10.", "kazanim": "Kareköklü ifadelerde çarpma yapar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-036", "zorluk": "orta", "soru": "√48 / √3 işleminin sonucu kaçtır?", "siklar": { "A": "45", "B": "51", "C": "16", "D": "4" }, "dogruCevap": "D", "cozum": "√48/√3 = √(48/3) = √16 = 4.", "kazanim": "Kareköklü ifadelerde bölme yapar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-037", "zorluk": "orta", "soru": "√72 / √2 işleminin sonucu kaçtır?", "siklar": { "A": "6", "B": "36", "C": "70", "D": "9" }, "dogruCevap": "A", "cozum": "√72/√2 = √(72/2) = √36 = 6.", "kazanim": "Kareköklü ifadelerde bölme yapar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-038", "zorluk": "orta", "soru": "√98 / √2 işleminin sonucu kaçtır?", "siklar": { "A": "49", "B": "7", "C": "96", "D": "14" }, "dogruCevap": "B", "cozum": "√98/√2 = √(98/2) = √49 = 7.", "kazanim": "Kareköklü ifadelerde bölme yapar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-039", "zorluk": "orta", "soru": "√20 ifadesinin en sade biçimi aşağıdakilerden hangisidir?", "siklar": { "A": "4√5", "B": "2√10", "C": "2√5", "D": "5√2" }, "dogruCevap": "C", "cozum": "√20 = √(4·5) = 2√5.", "kazanim": "Kareköklü ifadeyi sadeleştirir.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-040", "zorluk": "orta", "soru": "√45 ifadesinin en sade biçimi aşağıdakilerden hangisidir?", "siklar": { "A": "5√3", "B": "9√5", "C": "3√3", "D": "3√5" }, "dogruCevap": "D", "cozum": "√45 = √(9·5) = 3√5.", "kazanim": "Kareköklü ifadeyi sadeleştirir.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-041", "zorluk": "zor", "soru": "√72 ifadesinin en sade biçimi aşağıdakilerden hangisidir?", "siklar": { "A": "6√2", "B": "2√6", "C": "36√2", "D": "8√3" }, "dogruCevap": "A", "cozum": "√72 = √(36·2) = 6√2.", "kazanim": "Kareköklü ifadeyi sadeleştirir.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-042", "zorluk": "zor", "soru": "√32 ifadesinin en sade biçimi aşağıdakilerden hangisidir?", "siklar": { "A": "8√2", "B": "4√2", "C": "2√16", "D": "16√2" }, "dogruCevap": "B", "cozum": "√32 = √(16·2) = 4√2.", "kazanim": "Kareköklü ifadeyi sadeleştirir.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-043", "zorluk": "zor", "soru": "2√5 + 3√5 işleminin sonucu aşağıdakilerden hangisidir?", "siklar": { "A": "5√10", "B": "6√5", "C": "5√5", "D": "5√25" }, "dogruCevap": "C", "cozum": "Benzer köklü terimler: 2√5 + 3√5 = 5√5.", "kazanim": "Benzer köklü terimleri toplar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-044", "zorluk": "zor", "soru": "7√3 − 4√3 işleminin sonucu aşağıdakilerden hangisidir?", "siklar": { "A": "3√6", "B": "11√3", "C": "3", "D": "3√3" }, "dogruCevap": "D", "cozum": "7√3 − 4√3 = 3√3.", "kazanim": "Benzer köklü terimleri çıkarır.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-045", "zorluk": "zor", "soru": "√8 + √2 işleminin sonucu aşağıdakilerden hangisidir?", "siklar": { "A": "3√2", "B": "√10", "C": "4√2", "D": "2√2" }, "dogruCevap": "A", "cozum": "√8 = 2√2. 2√2 + √2 = 3√2.", "kazanim": "Sadeleştirerek kareköklü ifadeleri toplar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-046", "zorluk": "zor", "soru": "√18 + √2 işleminin sonucu aşağıdakilerden hangisidir?", "siklar": { "A": "√20", "B": "4√2", "C": "3√2", "D": "5√2" }, "dogruCevap": "B", "cozum": "√18 = 3√2. 3√2 + √2 = 4√2.", "kazanim": "Sadeleştirerek kareköklü ifadeleri toplar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-047", "zorluk": "zor", "soru": "√12 + √27 işleminin sonucu aşağıdakilerden hangisidir?", "siklar": { "A": "5√6", "B": "√39", "C": "5√3", "D": "6√3" }, "dogruCevap": "C", "cozum": "√12 = 2√3, √27 = 3√3. 2√3 + 3√3 = 5√3.", "kazanim": "Sadeleştirerek kareköklü ifadeleri toplar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-048", "zorluk": "zor", "soru": "√75 − √12 işleminin sonucu aşağıdakilerden hangisidir?", "siklar": { "A": "√63", "B": "2√3", "C": "7√3", "D": "3√3" }, "dogruCevap": "D", "cozum": "√75 = 5√3, √12 = 2√3. 5√3 − 2√3 = 3√3.", "kazanim": "Sadeleştirerek kareköklü ifadeleri çıkarır.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-049", "zorluk": "kolay", "soru": "√100 ifadesinin değeri kaçtır?", "siklar": { "A": "10", "B": "50", "C": "20", "D": "1000" }, "dogruCevap": "A", "cozum": "10² = 100 olduğundan √100 = 10.", "kazanim": "Tam kare sayının karekökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-050", "zorluk": "kolay", "soru": "√144 ifadesinin değeri kaçtır?", "siklar": { "A": "24", "B": "12", "C": "72", "D": "14" }, "dogruCevap": "B", "cozum": "12² = 144 olduğundan √144 = 12.", "kazanim": "Tam kare sayının karekökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-051", "zorluk": "kolay", "soru": "√169 ifadesinin değeri kaçtır?", "siklar": { "A": "23", "B": "39", "C": "13", "D": "169" }, "dogruCevap": "C", "cozum": "13² = 169 olduğundan √169 = 13.", "kazanim": "Tam kare sayının karekökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-052", "zorluk": "kolay", "soru": "√225 ifadesinin değeri kaçtır?", "siklar": { "A": "25", "B": "45", "C": "125", "D": "15" }, "dogruCevap": "D", "cozum": "15² = 225 olduğundan √225 = 15.", "kazanim": "Tam kare sayının karekökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-053", "zorluk": "kolay", "soru": "(√11)² ifadesinin değeri kaçtır?", "siklar": { "A": "11", "B": "121", "C": "22", "D": "1" }, "dogruCevap": "A", "cozum": "(√a)² = a olduğundan (√11)² = 11.", "kazanim": "Karekökün karesini bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-054", "zorluk": "kolay", "soru": "√196 ifadesinin değeri kaçtır?", "siklar": { "A": "16", "B": "14", "C": "98", "D": "28" }, "dogruCevap": "B", "cozum": "14² = 196 olduğundan √196 = 14.", "kazanim": "Tam kare sayının karekökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-055", "zorluk": "kolay", "soru": "(√17)² ifadesinin değeri kaçtır?", "siklar": { "A": "34", "B": "1", "C": "17", "D": "289" }, "dogruCevap": "C", "cozum": "(√a)² = a olduğundan (√17)² = 17.", "kazanim": "Karekökün karesini bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-056", "zorluk": "kolay", "soru": "√81 ifadesinin değeri kaçtır?", "siklar": { "A": "18", "B": "27", "C": "3", "D": "9" }, "dogruCevap": "D", "cozum": "9² = 81 olduğundan √81 = 9.", "kazanim": "Tam kare sayının karekökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-057", "zorluk": "orta", "soru": "√2 · √18 işleminin sonucu kaçtır?", "siklar": { "A": "6", "B": "√20", "C": "36", "D": "9" }, "dogruCevap": "A", "cozum": "√2·√18 = √36 = 6.", "kazanim": "Kareköklü ifadeleri çarpar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-058", "zorluk": "orta", "soru": "√5 · √5 işleminin sonucu kaçtır?", "siklar": { "A": "10", "B": "5", "C": "25", "D": "√10" }, "dogruCevap": "B", "cozum": "√5·√5 = √25 = 5 (√a·√a = a).", "kazanim": "Kareköklü ifadeleri çarpar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-059", "zorluk": "orta", "soru": "√2 · √50 işleminin sonucu kaçtır?", "siklar": { "A": "√52", "B": "100", "C": "10", "D": "25" }, "dogruCevap": "C", "cozum": "√2·√50 = √100 = 10.", "kazanim": "Kareköklü ifadeleri çarpar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-060", "zorluk": "orta", "soru": "√50 / √2 işleminin sonucu kaçtır?", "siklar": { "A": "√48", "B": "25", "C": "10", "D": "5" }, "dogruCevap": "D", "cozum": "√50/√2 = √25 = 5.", "kazanim": "Kareköklü ifadeleri böler.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-061", "zorluk": "orta", "soru": "√200 / √2 işleminin sonucu kaçtır?", "siklar": { "A": "10", "B": "100", "C": "√198", "D": "50" }, "dogruCevap": "A", "cozum": "√200/√2 = √100 = 10.", "kazanim": "Kareköklü ifadeleri böler.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-062", "zorluk": "orta", "soru": "√50 ifadesinin en sade biçimi aşağıdakilerden hangisidir?", "siklar": { "A": "2√5", "B": "5√2", "C": "10√2", "D": "2√10" }, "dogruCevap": "B", "cozum": "√50 = √(25·2) = 5√2.", "kazanim": "Kareköklü ifadeyi sadeleştirir.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-063", "zorluk": "orta", "soru": "√48 ifadesinin en sade biçimi aşağıdakilerden hangisidir?", "siklar": { "A": "2√3", "B": "16√3", "C": "4√3", "D": "3√6" }, "dogruCevap": "C", "cozum": "√48 = √(16·3) = 4√3.", "kazanim": "Kareköklü ifadeyi sadeleştirir.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-064", "zorluk": "orta", "soru": "√98 ifadesinin en sade biçimi aşağıdakilerden hangisidir?", "siklar": { "A": "2√7", "B": "49√2", "C": "7√7", "D": "7√2" }, "dogruCevap": "D", "cozum": "√98 = √(49·2) = 7√2.", "kazanim": "Kareköklü ifadeyi sadeleştirir.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-065", "zorluk": "zor", "soru": "√27 + √3 işleminin sonucu aşağıdakilerden hangisidir?", "siklar": { "A": "4√3", "B": "√30", "C": "2√3", "D": "3√3" }, "dogruCevap": "A", "cozum": "√27 = 3√3. 3√3 + √3 = 4√3.", "kazanim": "Sadeleştirerek kareköklü ifadeleri toplar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-066", "zorluk": "zor", "soru": "√48 − √12 işleminin sonucu aşağıdakilerden hangisidir?", "siklar": { "A": "6√3", "B": "2√3", "C": "√36", "D": "2√6" }, "dogruCevap": "B", "cozum": "√48 = 4√3, √12 = 2√3. 4√3 − 2√3 = 2√3.", "kazanim": "Sadeleştirerek kareköklü ifadeleri çıkarır.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-067", "zorluk": "zor", "soru": "5√6 + 2√6 işleminin sonucu aşağıdakilerden hangisidir?", "siklar": { "A": "7√12", "B": "10√6", "C": "7√6", "D": "7√36" }, "dogruCevap": "C", "cozum": "Kökler aynı: (5+2)√6 = 7√6.", "kazanim": "Benzer kareköklü ifadeleri toplar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-068", "zorluk": "zor", "soru": "9√5 − 5√5 işleminin sonucu aşağıdakilerden hangisidir?", "siklar": { "A": "14√5", "B": "4√10", "C": "45√5", "D": "4√5" }, "dogruCevap": "D", "cozum": "Kökler aynı: (9−5)√5 = 4√5.", "kazanim": "Benzer kareköklü ifadeleri çıkarır.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-069", "zorluk": "zor", "soru": "√20 + √45 işleminin sonucu aşağıdakilerden hangisidir?", "siklar": { "A": "5√5", "B": "√65", "C": "6√5", "D": "5√65" }, "dogruCevap": "A", "cozum": "√20 = 2√5, √45 = 3√5. 2√5 + 3√5 = 5√5.", "kazanim": "Sadeleştirerek kareköklü ifadeleri toplar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-070", "zorluk": "zor", "soru": "√50 + √8 işleminin sonucu aşağıdakilerden hangisidir?", "siklar": { "A": "9√2", "B": "7√2", "C": "√58", "D": "7√10" }, "dogruCevap": "B", "cozum": "√50 = 5√2, √8 = 2√2. 5√2 + 2√2 = 7√2.", "kazanim": "Sadeleştirerek kareköklü ifadeleri toplar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-071", "zorluk": "zor", "soru": "√45 − √20 işleminin sonucu aşağıdakilerden hangisidir?", "siklar": { "A": "5√5", "B": "√25", "C": "√5", "D": "2√5" }, "dogruCevap": "C", "cozum": "√45 = 3√5, √20 = 2√5. 3√5 − 2√5 = √5.", "kazanim": "Sadeleştirerek kareköklü ifadeleri çıkarır.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-072", "zorluk": "zor", "soru": "√8 · √2 işleminin sonucu kaçtır?", "siklar": { "A": "√10", "B": "16", "C": "8", "D": "4" }, "dogruCevap": "D", "cozum": "√8·√2 = √16 = 4.", "kazanim": "Kareköklü ifadeleri çarpar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-073", "zorluk": "kolay", "soru": "√64 işleminin sonucu kaçtır?", "siklar": { "A": "8", "B": "6", "C": "16", "D": "32" }, "dogruCevap": "A", "cozum": "8² = 64 olduğundan √64 = 8.", "kazanim": "Tam kare kökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-074", "zorluk": "kolay", "soru": "√121 işleminin sonucu kaçtır?", "siklar": { "A": "10", "B": "11", "C": "12", "D": "21" }, "dogruCevap": "B", "cozum": "11² = 121 olduğundan √121 = 11.", "kazanim": "Tam kare kökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-075", "zorluk": "kolay", "soru": "√256 işleminin sonucu kaçtır?", "siklar": { "A": "14", "B": "15", "C": "16", "D": "18" }, "dogruCevap": "C", "cozum": "16² = 256 olduğundan √256 = 16.", "kazanim": "Tam kare kökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-076", "zorluk": "kolay", "soru": "√400 işleminin sonucu kaçtır?", "siklar": { "A": "40", "B": "25", "C": "16", "D": "20" }, "dogruCevap": "D", "cozum": "20² = 400 olduğundan √400 = 20.", "kazanim": "Tam kare kökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-077", "zorluk": "kolay", "soru": "(√9)² işleminin sonucu kaçtır?", "siklar": { "A": "9", "B": "3", "C": "81", "D": "18" }, "dogruCevap": "A", "cozum": "(√a)² = a olduğundan (√9)² = 9.", "kazanim": "Karekökün karesini bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-078", "zorluk": "kolay", "soru": "√289 işleminin sonucu kaçtır?", "siklar": { "A": "16", "B": "17", "C": "19", "D": "23" }, "dogruCevap": "B", "cozum": "17² = 289 olduğundan √289 = 17.", "kazanim": "Tam kare kökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-079", "zorluk": "kolay", "soru": "√196 işleminin sonucu kaçtır?", "siklar": { "A": "12", "B": "13", "C": "14", "D": "16" }, "dogruCevap": "C", "cozum": "14² = 196 olduğundan √196 = 14.", "kazanim": "Tam kare kökünü bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-080", "zorluk": "kolay", "soru": "(√15)² işleminin sonucu kaçtır?", "siklar": { "A": "30", "B": "225", "C": "45", "D": "15" }, "dogruCevap": "D", "cozum": "(√a)² = a olduğundan (√15)² = 15.", "kazanim": "Karekökün karesini bulur.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-081", "zorluk": "orta", "soru": "√3 · √12 işleminin sonucu kaçtır?", "siklar": { "A": "6", "B": "36", "C": "√15", "D": "15" }, "dogruCevap": "A", "cozum": "√3·√12 = √36 = 6.", "kazanim": "Kareköklü ifadeleri çarpar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-082", "zorluk": "orta", "soru": "√98 / √2 işleminin sonucu kaçtır?", "siklar": { "A": "49", "B": "7", "C": "14", "D": "2" }, "dogruCevap": "B", "cozum": "√98/√2 = √49 = 7.", "kazanim": "Kareköklü ifadeleri böler.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-083", "zorluk": "orta", "soru": "√5 · √20 işleminin sonucu kaçtır?", "siklar": { "A": "25", "B": "100", "C": "10", "D": "√10" }, "dogruCevap": "C", "cozum": "√5·√20 = √100 = 10.", "kazanim": "Kareköklü ifadeleri çarpar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-084", "zorluk": "orta", "soru": "√75 ifadesinin en sade biçimi aşağıdakilerden hangisidir?", "siklar": { "A": "3√5", "B": "5√5", "C": "25√3", "D": "5√3" }, "dogruCevap": "D", "cozum": "75 = 25·3, √75 = √25·√3 = 5√3.", "kazanim": "Kök dışına çarpan çıkarır.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-085", "zorluk": "orta", "soru": "√32 ifadesinin en sade biçimi aşağıdakilerden hangisidir?", "siklar": { "A": "4√2", "B": "2√2", "C": "8√2", "D": "16√2" }, "dogruCevap": "A", "cozum": "32 = 16·2, √32 = √16·√2 = 4√2.", "kazanim": "Kök dışına çarpan çıkarır.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-086", "zorluk": "orta", "soru": "√50 ifadesinin en sade biçimi aşağıdakilerden hangisidir?", "siklar": { "A": "2√5", "B": "5√2", "C": "25√2", "D": "10√2" }, "dogruCevap": "B", "cozum": "50 = 25·2, √50 = √25·√2 = 5√2.", "kazanim": "Kök dışına çarpan çıkarır.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-087", "zorluk": "orta", "soru": "√200 / √2 işleminin sonucu kaçtır?", "siklar": { "A": "20", "B": "100", "C": "10", "D": "40" }, "dogruCevap": "C", "cozum": "√200/√2 = √100 = 10.", "kazanim": "Kareköklü ifadeleri böler.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-088", "zorluk": "orta", "soru": "√6 · √24 işleminin sonucu kaçtır?", "siklar": { "A": "24", "B": "144", "C": "√30", "D": "12" }, "dogruCevap": "D", "cozum": "√6·√24 = √144 = 12.", "kazanim": "Kareköklü ifadeleri çarpar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-089", "zorluk": "zor", "soru": "√8 + √18 işleminin sonucu aşağıdakilerden hangisidir?", "siklar": { "A": "5√2", "B": "√26", "C": "2√2", "D": "6√2" }, "dogruCevap": "A", "cozum": "√8 = 2√2, √18 = 3√2. 2√2 + 3√2 = 5√2.", "kazanim": "Sadeleştirerek kareköklü ifadeleri toplar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-090", "zorluk": "zor", "soru": "√50 − √8 işleminin sonucu aşağıdakilerden hangisidir?", "siklar": { "A": "7√2", "B": "3√2", "C": "√42", "D": "2√2" }, "dogruCevap": "B", "cozum": "√50 = 5√2, √8 = 2√2. 5√2 − 2√2 = 3√2.", "kazanim": "Sadeleştirerek kareköklü ifadeleri çıkarır.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-091", "zorluk": "zor", "soru": "√12 + √48 işleminin sonucu aşağıdakilerden hangisidir?", "siklar": { "A": "2√3", "B": "4√3", "C": "6√3", "D": "√60" }, "dogruCevap": "C", "cozum": "√12 = 2√3, √48 = 4√3. 2√3 + 4√3 = 6√3.", "kazanim": "Sadeleştirerek kareköklü ifadeleri toplar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-092", "zorluk": "zor", "soru": "√80 − √20 işleminin sonucu aşağıdakilerden hangisidir?", "siklar": { "A": "6√5", "B": "√60", "C": "4√5", "D": "2√5" }, "dogruCevap": "D", "cozum": "√80 = 4√5, √20 = 2√5. 4√5 − 2√5 = 2√5.", "kazanim": "Sadeleştirerek kareköklü ifadeleri çıkarır.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-093", "zorluk": "zor", "soru": "4√7 + 5√7 işleminin sonucu aşağıdakilerden hangisidir?", "siklar": { "A": "9√7", "B": "9√14", "C": "20√7", "D": "√7" }, "dogruCevap": "A", "cozum": "Benzer köklerde katsayılar toplanır: 4√7 + 5√7 = 9√7.", "kazanim": "Benzer kareköklü ifadeleri toplar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-094", "zorluk": "zor", "soru": "8√6 − 3√6 işleminin sonucu aşağıdakilerden hangisidir?", "siklar": { "A": "11√6", "B": "5√6", "C": "5√12", "D": "24√6" }, "dogruCevap": "B", "cozum": "Benzer köklerde katsayılar çıkarılır: 8√6 − 3√6 = 5√6.", "kazanim": "Benzer kareköklü ifadeleri çıkarır.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-095", "zorluk": "zor", "soru": "√18 + √32 işleminin sonucu aşağıdakilerden hangisidir?", "siklar": { "A": "5√2", "B": "12√2", "C": "7√2", "D": "√14" }, "dogruCevap": "C", "cozum": "√18 = 3√2, √32 = 4√2. 3√2 + 4√2 = 7√2.", "kazanim": "Sadeleştirerek kareköklü ifadeleri toplar.", "dogrulandi": true },
+    { "id": "lgs-mat-karekoklu-ifadeler-096", "zorluk": "zor", "soru": "√72 − √18 işleminin sonucu aşağıdakilerden hangisidir?", "siklar": { "A": "9√2", "B": "√54", "C": "5√2", "D": "3√2" }, "dogruCevap": "D", "cozum": "√72 = 6√2, √18 = 3√2. 6√2 − 3√2 = 3√2.", "kazanim": "Sadeleştirerek kareköklü ifadeleri çıkarır.", "dogrulandi": true }
+  ]
+}

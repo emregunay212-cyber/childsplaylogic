@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Çalışma Alanım — Sınav Hazırlık | Bilnet Oyun</title>
+  <meta name="description" content="Bilnet Oyun Sınav Hazırlık: LGS, YKS ve KPSS için kişiye uyarlanan konu anlatımı ve soru çözme.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/hazirlik.css">
+</head>
+<body>
+  <main class="hz-giris-merkez">
+    <div class="hz-giris-kutu">
+      <h1>📚 Çalışma Alanım</h1>
+      <p class="hz-alt">Sınavına birlikte, adım adım hazırlanalım.</p>
+      <form id="hz-giris-form">
+        <div class="hz-form-grup">
+          <label for="hz-ad">Adın</label>
+          <input class="hz-girdi" id="hz-ad" type="text" placeholder="Örn. Elif" required maxlength="24" autocomplete="off">
+        </div>
+        <div class="hz-form-grup">
+          <label for="hz-sinav">Hangi sınava hazırlanıyorsun?</label>
+          <select class="hz-secim" id="hz-sinav">
+            <option value="LGS">LGS (8. Sınıf)</option>
+            <option value="YKS" disabled>YKS (yakında)</option>
+            <option value="KPSS" disabled>KPSS (yakında)</option>
+          </select>
+        </div>
+        <div class="hz-form-grup">
+          <label for="hz-veli">Veli e-postası</label>
+          <input class="hz-girdi" id="hz-veli" type="email" placeholder="veli@ornek.com" autocomplete="off">
+        </div>
+        <div class="hz-form-grup">
+          <label for="hz-sinav-tarihi">Sınav tarihi (yaklaşık)</label>
+          <input class="hz-girdi" id="hz-sinav-tarihi" type="date">
+        </div>
+        <label class="hz-kvkk">
+          <input type="checkbox" id="hz-kvkk" required>
+          <span>Velisi olarak, çocuğumun bu çalışma alanını kullanmasına izin veriyorum. (Bilgiler şu an yalnızca bu cihazda saklanır.)</span>
+        </label>
+        <button class="hz-btn hz-btn-tam" type="submit">Başla</button>
+      </form>
+    </div>
+  </main>
+  <script src="js/plan.js"></script>
+  <script src="js/giris.js"></script>
+</body>
+</html>
