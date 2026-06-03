@@ -16,6 +16,10 @@ const AltinAvi = (() => {
   const CHOICE_DURATION_MS = 20000;
   const REVEAL_DURATION_MS = 5000;
   const PREP_DURATION_MS = 5000;
+  // Anti-stuck: host normal sürede fazı ilerletmezse (cihazı donduysa veya sekme
+  // arka plana geçtiyse setInterval kısılır), bu ek süre sonra en eski non-host
+  // oyuncu ilerletmeyi devralır. Faz geçişleri transaction ile çift-ilerletmeye karşı korumalı.
+  const HOST_GRACE_MS = 7000;
   const CODE_CHARS = 'ABCDEFGHJKLMNPRSTUVYZ';
 
   // Hız bonusu: doğru cevap verenlere sıraya göre dağıtılır
@@ -167,6 +171,35 @@ const AltinAvi = (() => {
     cleanup();
     if (typeof App !== 'undefined' && App.showHub) App.showHub();
   }
+  // Host: oyunu erken bitir → state FINISHED → herkeste final ekranı (podyum, 1.) gösterilir.
+  async function endGameEarly() {
+    if (!isHost || !roomRef) return;
+    if (!confirm('Oyunu şimdi bitirmek istediğine emin misin? Sıralama (1.) hemen gösterilecek.')) return;
+    try {
+      await roomRef.update({ state: 'FINISHED' });
+    } catch (e) {
+      console.error('endGameEarly error', e);
+      toast('Bitirilemedi.');
+    }
+  }
+
+  // Oyun içi üst bar sağ aksiyonları: host'a "BİTİR" + herkese "ayrıl" (🚪).
+  function topBarEndButtons() {
+    const children = [];
+    if (isHost) {
+      children.push(h('button', {
+        class: 'aa-end-btn',
+        title: 'Oyunu bitir ve sıralamayı göster',
+        onClick: endGameEarly
+      }, '⏹ BİTİR'));
+    }
+    children.push(h('button', {
+      class: 'aa-leave-btn',
+      onClick: () => { if (confirm('Oyundan ayrılmak istediğine emin misin?')) leaveAndExit(); }
+    }, '🚪'));
+    return h('div', { class: 'aa-top-actions' }, ...children);
+  }
+
   function actionLabel(a) {
     if (a === 'attack') return '🪙 KAP';
     if (a === 'defend') return '⛨ SAVUN';
@@ -484,7 +517,9 @@ const AltinAvi = (() => {
       else if (phase === 'REVEAL') updateLeaderboardOnly();
     }
 
-    if (isHost && state === 'PLAYING') ensureHostTick();
+    // Tick'i artık yalnız host değil HERKES çalıştırır: host donarsa/arka plana
+    // geçerse en eski non-host oyuncu fazı ilerletmeyi devralabilsin (anti-stuck).
+    if (state === 'PLAYING') ensureTick();
     else if (hostTickInterval) { clearInterval(hostTickInterval); hostTickInterval = null; }
   }
 
@@ -577,10 +612,7 @@ const AltinAvi = (() => {
         ),
         h('span', { class: 'aa-timer-num', id: 'aa-timer-num', text: '5' })
       ),
-      h('button', {
-        class: 'aa-leave-btn',
-        onClick: () => { if (confirm('Oyundan ayrılmak istediğine emin misin?')) leaveAndExit(); }
-      }, '🚪')
+      topBarEndButtons()
     );
 
     const leaderboard = h('div', { class: 'aa-leaderboard', id: 'aa-leaderboard' });
@@ -643,6 +675,7 @@ const AltinAvi = (() => {
       h('div', { class: 'aa-game-main' }, actionSection, statsSection, prepInfo)
     ));
 
+    renderLeaderboard();
     updatePrepPhase();
     startPrepTimer();
   }
@@ -666,7 +699,8 @@ const AltinAvi = (() => {
   }
 
   function updatePrepPhase() {
-    renderLeaderboard();
+    // PREP'te altın yalnız kendi yükseltmemle değişir; leaderboard'ı her 'value'
+    // event'inde yeniden çizmeyiz (faz başında bir kez çizilir) — yük azaltma.
     const me = roomData.players && roomData.players[myId];
     if (!me) return;
     const myGold = me.gold || 0;
@@ -728,10 +762,7 @@ const AltinAvi = (() => {
         ),
         h('span', { class: 'aa-timer-num', id: 'aa-timer-num', text: String(Math.ceil(dur / 1000)) })
       ),
-      h('button', {
-        class: 'aa-leave-btn',
-        onClick: () => { if (confirm('Oyundan ayrılmak istediğine emin misin?')) leaveAndExit(); }
-      }, '🚪')
+      topBarEndButtons()
     );
 
     const leaderboard = h('div', { class: 'aa-leaderboard', id: 'aa-leaderboard' });
@@ -777,6 +808,7 @@ const AltinAvi = (() => {
       h('div', { class: 'aa-game-main' }, actionIndicator, questionCard, waiting)
     ));
 
+    renderLeaderboard();
     updateChoicePhase();
     startChoiceTimer();
   }
@@ -943,7 +975,11 @@ const AltinAvi = (() => {
   }
 
   function updateChoicePhase() {
-    renderLeaderboard();
+    // KRİTİK PERFORMANS: CHOICE fazında altın DEĞİŞMEZ (yalnız REVEAL'de hesaplanır).
+    // Kalabalıkta her oyuncunun currentChoice yazımı herkeste 'value' event tetikler;
+    // leaderboard'ı her seferinde yeniden çizmek O(n²) DOM yüküne yol açıp host
+    // cihazını kilitliyordu ("bir süre sonra herkes takılıyor" sorununun ana sebebi).
+    // Tablo faz başında bir kez çizilir; burada yalnız kendi kilit durumumu kontrol ederim.
     const me = roomData.players && roomData.players[myId];
     if (me && me.currentChoice && me.currentChoice.round === roomData.currentRound) {
       lockMyChoiceUI();
@@ -1031,10 +1067,7 @@ const AltinAvi = (() => {
         h('span', { class: 'aa-round-num', text: pad2(result.round) + ' / ' + pad2(roomData.totalRounds ?? TOTAL_ROUNDS) })
       ),
       h('div', { class: 'aa-reveal-label', text: '◆ SONUÇLAR ◆' }),
-      h('button', {
-        class: 'aa-leave-btn',
-        onClick: () => { if (confirm('Oyundan ayrılmak istediğine emin misin?')) leaveAndExit(); }
-      }, '🚪')
+      topBarEndButtons()
     );
 
     const leaderboard = h('div', { class: 'aa-leaderboard', id: 'aa-leaderboard' });
@@ -1237,22 +1270,39 @@ const AltinAvi = (() => {
     }
   }
 
-  // ── HOST TICK ──
-  function ensureHostTick() {
+  // ── TICK (faz ilerletme) ──
+  function ensureTick() {
     if (hostTickInterval) return;
-    hostTickInterval = setInterval(hostTickFrame, 1000);
+    hostTickInterval = setInterval(tickFrame, 1000);
   }
 
-  async function hostTickFrame() {
-    if (!isHost || !roomData) return;
+  // Fazı ilerletme yetkisi: normalde host. Ama host beklenen süreyi + HOST_GRACE_MS
+  // kadar aştıysa (cihazı donmuş / sekme arka planda) en eski non-host oyuncu devralır.
+  // Böylece host kilitlense bile oyun tıkanmaz. Transaction'lar çift-ilerletmeyi önler.
+  function canDrive(elapsed, expectedDur) {
+    if (!roomData) return false;
+    if (isHost) return true;
+    if (elapsed < expectedDur + HOST_GRACE_MS) return false;
+    const players = roomData.players || {};
+    const arr = Object.values(players).sort((a, b) => (a.joinedAt || 0) - (b.joinedAt || 0));
+    const backup = arr.find(p => p.id !== roomData.hostId);
+    return !!(backup && backup.id === myId);
+  }
+
+  async function tickFrame() {
+    if (!roomData) return;
     if (roomData.state !== 'PLAYING') return;
     const phase = roomData.roundPhase;
 
     if (phase === 'PREP') {
       const prepElapsed = Date.now() - (roomData.prepStartedAt || 0);
-      if (prepElapsed >= PREP_DURATION_MS) {
+      if (prepElapsed >= PREP_DURATION_MS && canDrive(prepElapsed, PREP_DURATION_MS)) {
         try {
-          await roomRef.update({ roundPhase: 'CHOICE', roundStartedAt: Date.now() });
+          // Atomik: yalnız PREP→CHOICE geçişini ilk yapan kazanır
+          const tx = await roomRef.child('roundPhase').transaction(cur => (cur === 'PREP' ? 'CHOICE' : undefined));
+          if (tx.committed && tx.snapshot.val() === 'CHOICE') {
+            await roomRef.update({ roundStartedAt: Date.now() });
+          }
         } catch (e) { console.error('PREP→CHOICE error', e); }
       }
       return;
@@ -1270,18 +1320,23 @@ const AltinAvi = (() => {
         const c = players[id].currentChoice;
         return c && c.round === r;
       });
-      if (allChosen || elapsed >= (roomData.choiceDurationMs ?? CHOICE_DURATION_MS)) {
+      const dur = roomData.choiceDurationMs ?? CHOICE_DURATION_MS;
+      // Herkes cevapladıysa host hemen çözer; süre dolunca host (host donmuşsa grace
+      // sonrası yedek) çözer. resolveRound deterministik + idempotent → çift-çağrı güvenli.
+      if ((allChosen && isHost) || (elapsed >= dur && canDrive(elapsed, dur))) {
         await resolveRound();
       }
     } else if (phase === 'REVEAL') {
-      if (elapsed >= REVEAL_DURATION_MS) {
+      if (elapsed >= REVEAL_DURATION_MS && canDrive(elapsed, REVEAL_DURATION_MS)) {
         await advanceRound();
       }
     }
   }
 
   async function resolveRound() {
-    if (!isHost) return;
+    // Yetki tickFrame/canDrive'da verilir (host ya da donmuş-host yedeği). Bu fonksiyon
+    // deterministik + fresh-read idempotent: iki client çalıştırsa bile aynı sonucu
+    // yazar, çift-resolve zarar vermez.
     if (!roomRef || !roomData) return;
     if (roomData.roundPhase !== 'CHOICE') return;
     if (roomData.lastResult && roomData.lastResult.round === roomData.currentRound) return;
@@ -1433,16 +1488,18 @@ const AltinAvi = (() => {
   }
 
   async function advanceRound() {
-    if (!isHost) return;
+    // Yetki tickFrame/canDrive'da. Çift-ilerletmeyi (round atlama) önlemek için
+    // currentRound transaction ile atomik artırılır — yalnız ilk geçen kazanır.
     if (!roomRef || !roomData) return;
     try {
       const r = roomData.currentRound;
       if (r >= (roomData.totalRounds ?? TOTAL_ROUNDS)) {
-        await roomRef.update({ state: 'FINISHED' });
+        await roomRef.child('state').transaction(cur => (cur === 'PLAYING' ? 'FINISHED' : undefined));
         return;
       }
+      const tx = await roomRef.child('currentRound').transaction(cur => (cur === r ? r + 1 : undefined));
+      if (!tx.committed) return; // başka bir client zaten ilerletti
       const updates = {
-        currentRound: r + 1,
         roundPhase: 'PREP',
         prepStartedAt: Date.now()
       };

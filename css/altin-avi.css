@@ -681,6 +681,34 @@
   box-shadow: 0 3px 0 var(--rt-pink-dim);
 }
 
+/* Üst bar sağ aksiyon grubu (host: BİTİR + AYRIL) */
+.aa-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.aa-end-btn {
+  background: var(--rt-panel);
+  border: 2px solid var(--rt-yellow);
+  color: var(--rt-yellow);
+  height: 42px;
+  padding: 0 12px;
+  font-family: var(--rt-font-body);
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+  box-shadow: 0 2px 0 var(--rt-border-color);
+  border-radius: 2px;
+  white-space: nowrap;
+}
+.aa-end-btn:hover {
+  background: var(--rt-yellow);
+  color: var(--rt-bg);
+  box-shadow: 0 3px 0 var(--rt-border-color);
+}
+
 .aa-reveal-label {
   font-family: var(--rt-font-display);
   font-size: 0.75rem;
