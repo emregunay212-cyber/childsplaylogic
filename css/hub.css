@@ -350,6 +350,7 @@
 .game-card[data-game="ates-buz"]::before { background: var(--ates-buz-color); }
 .game-card[data-game="buz-kulesi"]::before { background: var(--buz-kulesi-color); }
 .game-card[data-game="tetris"]::before { background: var(--tetris-color); }
+.game-card[data-game="zindan-okcusu"]::before { background: var(--zindan-okcusu-color); }
 
 /* Kategori başlıkları */
 .hub-category-header {

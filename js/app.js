@@ -72,6 +72,7 @@ const App = (() => {
                 { game: SpaceWaves, color: 'var(--space-waves-color)' },
                 { game: Egim, color: 'var(--egim-color)' },
                 { game: BuzKulesi, color: 'var(--buz-kulesi-color)' },
+                { game: ZindanOkcusu, color: 'var(--zindan-okcusu-color)' },
             ]
         },
     ];
@@ -92,6 +93,9 @@ const App = (() => {
 
     let currentView = 'splash';
     let activeCategory = 'all';
+    // GameEngine/Multiplayer dışında, kendi Firebase dinleyicisiyle çalışan
+    // multiplayer oyun (örn. Altın Avı). Geçişlerde destroy edilmeli.
+    let activeMpGame = null;
 
     function init() {
         // Parçacık sistemi başlat
@@ -214,6 +218,7 @@ const App = (() => {
     }
 
     function showHub() {
+        cleanupActiveMpGame();
         currentView = 'hub';
         activeCategory = 'all';
         const app = document.getElementById('app');
@@ -432,6 +437,7 @@ const App = (() => {
     }
 
     function startMultiplayerGame(game) {
+        cleanupActiveMpGame();
         currentView = 'game';
         document.getElementById('hub').classList.add('hidden');
         document.getElementById('hub-nav').classList.add('hidden');
@@ -443,18 +449,21 @@ const App = (() => {
 
         // Altın Avı kendi lobisini yönetir (5-30 kişilik, 1v1 Lobby uygun değil)
         if (game.id === 'altin-avi') {
+            activeMpGame = game;
             game.init(gameArea, {});
             return;
         }
 
         Lobby.show(game.id, gameArea, {
             onGameStart: (data) => {
+                activeMpGame = game;
                 game.init(gameArea, data);
             }
         });
     }
 
     function startGame(game, level = 1) {
+        cleanupActiveMpGame();
         currentView = 'game';
 
         document.getElementById('hub').classList.add('hidden');
@@ -467,6 +476,13 @@ const App = (() => {
         if (game && game.id) document.body.dataset.activeGame = game.id;
 
         GameEngine.startGame(game, level);
+    }
+
+    function cleanupActiveMpGame() {
+        if (activeMpGame && typeof activeMpGame.destroy === 'function') {
+            try { activeMpGame.destroy(); } catch (e) {}
+        }
+        activeMpGame = null;
     }
 
     function navigateToHub() {

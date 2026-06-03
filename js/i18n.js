@@ -38,6 +38,7 @@ const TR = {
         'altin-avi': 'Altın Avı',
         'buz-kulesi': 'Buz Kulesi',
         'tetris': 'Tetris',
+        'zindan-okcusu': 'Zindan Okçusu',
     },
 
     // Multiplayer strings
@@ -131,6 +132,7 @@ const TR = {
         'emoji-yapici': 'Parçaları seç, kendi emoji yüzünü yarat!',
         'altin-avi': 'Soruyu cevapla, akıllı seç, en çok altın topla!',
         'tetris': 'Blokları döndür, satırları doldur ve temizle!',
+        'zindan-okcusu': 'Ok at, düşmanları yen, ekipman topla, zindanı temizle!',
     },
 
     // Kod Macerasi stringleri
