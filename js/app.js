@@ -43,7 +43,7 @@ const App = (() => {
                 { game: SekilBulmaca, color: 'var(--sekil-color)' },
                 { game: Siralama, color: 'var(--siralama-color)' },
                 { game: Jigsaw, color: 'var(--jigsaw-color)' },
-                { game: Tetris, color: 'var(--tetris-color)' },
+                { game: Tetris, color: 'var(--tetris-color)', requiredStars: 10 },
             ]
         },
         {
@@ -67,13 +67,13 @@ const App = (() => {
                 { game: LegoMacerasi, color: 'var(--lego-color)' },
                 { game: LegoWorld, color: 'var(--lego-world-color)' },
                 { game: Satranc, color: 'var(--satranc-color)' },
-                { game: Penalti, color: 'var(--penalti-color)' },
-                { game: ZiplaTopla, color: 'var(--zipla-topla-color)' },
-                { game: SpaceWaves, color: 'var(--space-waves-color)' },
-                { game: Egim, color: 'var(--egim-color)' },
-                { game: BuzKulesi, color: 'var(--buz-kulesi-color)' },
-                // comingSoon: içerik onayı alınana kadar deaktif — kart görünür ama oynanamaz ("Yakında")
-                { game: ZindanOkcusu, color: 'var(--zindan-okcusu-color)', comingSoon: true },
+                // requiredStars: kademeli yıldız eşiği — eşiğe ulaşınca VEYA öğretmen izniyle açılır
+                { game: ZiplaTopla, color: 'var(--zipla-topla-color)', requiredStars: 15 },
+                { game: SpaceWaves, color: 'var(--space-waves-color)', requiredStars: 20 },
+                { game: Egim, color: 'var(--egim-color)', requiredStars: 25 },
+                { game: BuzKulesi, color: 'var(--buz-kulesi-color)', requiredStars: 30 },
+                { game: Penalti, color: 'var(--penalti-color)', requiredStars: 35 },
+                { game: ZindanOkcusu, color: 'var(--zindan-okcusu-color)', requiredStars: 40 },
             ]
         },
     ];
@@ -81,15 +81,83 @@ const App = (() => {
     // Flat registry for backward compatibility
     const gameRegistry = gameCategories.flatMap(cat => cat.games);
 
+    // Bir oyun girdisinin kanonik kimliği (tek-oyunculu: game.id, online: entry.id)
+    function entryId(entry) {
+        return (entry && entry.id) || (entry && entry.game && entry.game.id);
+    }
+
+    // Oyun kilidi açık mı? requiredStars yoksa hep açık; öğretmen izni eşiği atlar;
+    // aksi halde toplam yıldız eşiği karşılamalı.
+    function isGameUnlocked(gameEntry) {
+        if (!gameEntry) return true;
+        const req = gameEntry.requiredStars;
+        if (!req) return true;
+        if (Progress.isTeacherUnlocked(entryId(gameEntry))) return true;
+        return Progress.getTotalStars() >= req;
+    }
+
+    // Tek path'li bir SVG ikonu DOM ile güvenli şekilde üretir (innerHTML yok)
+    function svgIcon(cls, pathD) {
+        const ns = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(ns, 'svg');
+        if (cls) svg.setAttribute('class', cls);
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('aria-hidden', 'true');
+        const p = document.createElementNS(ns, 'path');
+        p.setAttribute('d', pathD);
+        svg.appendChild(p);
+        return svg;
+    }
+    const LOCK_PATH = 'M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 0 1 6 0v3H9z';
+    const STAR_PATH = 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z';
+
+    // Bir karta kilitli görünümü uygular: gri + "Kilitli" rozeti + "X / N" ilerleme + tıkta bump.
+    // Hem tek-oyunculu (createGameCard) hem online (createMPCard) kartlarda kullanılır.
+    function applyLockedState(card, entry, displayId) {
+        card.classList.add('locked');
+        card.setAttribute('aria-disabled', 'true');
+        card.setAttribute('aria-label', TR.games[displayId] + ' (kilitli)');
+
+        const badge = document.createElement('div');
+        badge.className = 'lock-badge';
+        badge.appendChild(svgIcon('lock-ico', LOCK_PATH));
+        const badgeText = document.createElement('span');
+        badgeText.textContent = 'Kilitli';
+        badge.appendChild(badgeText);
+        card.appendChild(badge);
+
+        // Yıldız satırını "X / eşik" ilerleme göstergesiyle değiştir (çocuğu motive eder)
+        const have = Progress.getTotalStars();
+        const need = entry.requiredStars;
+        const prog = document.createElement('div');
+        prog.className = 'card-lock-progress';
+        prog.appendChild(svgIcon('lp-star', STAR_PATH));
+        const progText = document.createElement('span');
+        progText.textContent = Math.min(have, need) + ' / ' + need;
+        prog.appendChild(progText);
+        const starsRow = card.querySelector('.card-stars');
+        if (starsRow) starsRow.replaceWith(prog); else card.appendChild(prog);
+
+        const bump = () => {
+            try { AudioManager.play('tap'); } catch (e) {}
+            card.classList.remove('cs-bump'); void card.offsetWidth; card.classList.add('cs-bump');
+        };
+        card.addEventListener('click', bump);
+        card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); bump(); }
+        });
+    }
+
     // Multiplayer games list
+    // requiredStars: online oyunlar da kademeli kilitli (tek-oyunculu arcade'lerden sonra, daha yüksek eşik)
     const mpGamesList = [
-        { id: 'kelime-tahmin', game: KelimeTahmin },
-        { id: 'harf-tahmin', game: HarfTahmin },
-        { id: 'kod-macerasi', game: KodMacerasiMP },
-        { id: 'satranc', game: SatrancMP },
-        { id: 'penalti-mp', game: PenaltiMP },
-        { id: 'ates-buz', game: AtesBuz },
-        { id: 'altin-avi', game: AltinAvi },
+        { id: 'kelime-tahmin', game: KelimeTahmin, requiredStars: 40 },
+        { id: 'harf-tahmin', game: HarfTahmin, requiredStars: 45 },
+        { id: 'kod-macerasi', game: KodMacerasiMP, requiredStars: 50 },
+        { id: 'satranc', game: SatrancMP, requiredStars: 55 },
+        { id: 'penalti-mp', game: PenaltiMP, requiredStars: 60 },
+        { id: 'ates-buz', game: AtesBuz, requiredStars: 65 },
+        { id: 'altin-avi', game: AltinAvi, requiredStars: 70 },
     ];
 
     let currentView = 'splash';
@@ -336,7 +404,8 @@ const App = (() => {
         grid.innerHTML = '';
         let cardIndex = 0;
 
-        function createGameCard(game, comingSoon) {
+        function createGameCard(gameEntry) {
+            const { game, comingSoon } = gameEntry;
             const card = document.createElement('div');
             card.className = 'game-card';
             card.dataset.game = game.id;
@@ -388,6 +457,12 @@ const App = (() => {
                 return card;
             }
 
+            // Kilitli oyun: yıldız eşiği dolmamış ve öğretmen izni yok → gri kart, "Kilitli" rozeti, ilerleme
+            if (!isGameUnlocked(gameEntry)) {
+                applyLockedState(card, gameEntry, game.id);
+                return card;
+            }
+
             card.addEventListener('click', () => { AudioManager.play('tap'); startGame(game); });
             card.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); AudioManager.play('tap'); startGame(game); }
@@ -395,7 +470,8 @@ const App = (() => {
             return card;
         }
 
-        function createMPCard(id, game) {
+        function createMPCard(entry) {
+            const { id, game } = entry;
             const card = document.createElement('div');
             card.className = 'game-card';
             card.dataset.game = id;
@@ -410,6 +486,13 @@ const App = (() => {
             `;
             card.style.animationDelay = `${cardIndex * 0.06}s`;
             cardIndex++;
+
+            // Kilitli online oyun: gri kart + "Kilitli" rozeti + ilerleme (mp-badge CSS ile gizlenir)
+            if (!isGameUnlocked(entry)) {
+                applyLockedState(card, entry, id);
+                return card;
+            }
+
             card.addEventListener('click', () => { AudioManager.play('tap'); startMultiplayerGame(game); });
             return card;
         }
@@ -437,8 +520,8 @@ const App = (() => {
                 header.appendChild(h3);
                 grid.appendChild(header);
 
-                category.games.forEach(({ game, comingSoon }) => {
-                    grid.appendChild(createGameCard(game, comingSoon));
+                category.games.forEach((entry) => {
+                    grid.appendChild(createGameCard(entry));
                 });
             });
         }
@@ -459,13 +542,16 @@ const App = (() => {
             mpHeader.appendChild(mpH3);
             grid.appendChild(mpHeader);
 
-            mpGamesList.forEach(({ id, game }) => {
-                grid.appendChild(createMPCard(id, game));
+            mpGamesList.forEach((entry) => {
+                grid.appendChild(createMPCard(entry));
             });
         }
     }
 
     function startMultiplayerGame(game) {
+        // Kilitli online oyun guard'ı
+        const entry = mpGamesList.find(e => e.game === game);
+        if (entry && !isGameUnlocked(entry)) { try { AudioManager.play('tap'); } catch (e) {} return; }
         cleanupActiveMpGame();
         currentView = 'game';
         document.getElementById('hub').classList.add('hidden');
@@ -492,6 +578,12 @@ const App = (() => {
     }
 
     function startGame(game, level = 1) {
+        // Kilitli oyun guard'ı — kartı bypass eden tüm yollar için tek koruma noktası
+        const entry = gameRegistry.find(e => e.game.id === game.id);
+        if (entry && !isGameUnlocked(entry)) {
+            try { AudioManager.play('tap'); } catch (e) {}
+            return;
+        }
         cleanupActiveMpGame();
         currentView = 'game';
 
@@ -542,22 +634,70 @@ const App = (() => {
         const a = 2 + Math.floor(Math.random() * 7);
         const b = 2 + Math.floor(Math.random() * 7);
         const answer = prompt(`Ebeveyn kontrolü\n\n${a} + ${b} = ?`);
+        if (parseInt(answer) !== a + b) return;
 
-        if (parseInt(answer) === a + b) {
-            const action = prompt(
-                'Ebeveyn Ayarları:\n\n' +
-                '1 - İlerlemeyi Sıfırla\n' +
-                '2 - Kapat\n\n' +
-                'Seçiminiz:'
+        const action = prompt(
+            'Ebeveyn / Öğretmen Ayarları:\n\n' +
+            '1 - İlerlemeyi Sıfırla\n' +
+            '2 - Tüm Kilitleri Aç\n' +
+            '3 - Kilitleri Sıfırla (tekrar kilitle)\n' +
+            '4 - Oyun Kilidini Tek Tek Yönet\n' +
+            '5 - Kapat\n\n' +
+            'Seçiminiz:'
+        );
+
+        const refresh = () => {
+            updateStarCounter();
+            if (currentView === 'hub') renderHubGrid();
+        };
+
+        if (action === '1') {
+            if (confirm('Tüm ilerleme silinecek. Emin misiniz?')) {
+                Progress.resetAll();
+                refresh();
+                alert('İlerleme sıfırlandı!');
+            }
+        } else if (action === '2') {
+            [...gameRegistry, ...mpGamesList].forEach((e) => { if (e.requiredStars) Progress.setTeacherUnlock(entryId(e), true); });
+            refresh();
+            alert('Tüm oyunların kilidi açıldı!');
+        } else if (action === '3') {
+            Progress.clearTeacherUnlocks();
+            refresh();
+            alert('Kilitler sıfırlandı. Oyunlar yıldız eşiğine göre yeniden kilitlendi.');
+        } else if (action === '4') {
+            manageGameLocks();
+            refresh();
+        }
+    }
+
+    // Kilitlenebilir oyunları tek tek öğretmen izniyle aç/kapat (toggle)
+    function manageGameLocks() {
+        const lockables = [...gameRegistry, ...mpGamesList]
+            .filter((e) => e.requiredStars)
+            .sort((a, b) => a.requiredStars - b.requiredStars);
+        if (!lockables.length) { alert('Kilitlenebilir oyun yok.'); return; }
+        while (true) {
+            const lines = lockables.map((e, i) => {
+                const gid = entryId(e);
+                let st;
+                if (Progress.isTeacherUnlocked(gid)) st = 'ÖĞRETMEN AÇTI';
+                else if (Progress.getTotalStars() >= e.requiredStars) st = 'YILDIZLA AÇIK';
+                else st = 'KİLİTLİ (' + e.requiredStars + ' yıldız)';
+                return `${i + 1} - ${TR.games[gid]} [${st}]`;
+            });
+            const sel = prompt(
+                'Oyun kilidini değiştir (numara gir):\n\n' +
+                lines.join('\n') +
+                '\n\n0 - Geri\n\nSeçiminiz:'
             );
-
-            if (action === '1') {
-                if (confirm('Tüm ilerleme silinecek. Emin misiniz?')) {
-                    Progress.resetAll();
-                    updateStarCounter();
-                    if (currentView === 'hub') renderHubGrid();
-                    alert('İlerleme sıfırlandı!');
-                }
+            if (sel === null) return;
+            const t = sel.trim();
+            if (t === '' || t === '0') return;
+            const idx = parseInt(t, 10) - 1;
+            if (idx >= 0 && idx < lockables.length) {
+                const gid = entryId(lockables[idx]);
+                Progress.setTeacherUnlock(gid, !Progress.isTeacherUnlocked(gid));
             }
         }
     }

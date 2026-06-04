@@ -388,6 +388,54 @@
     30% { transform: translateY(-4px) scale(1.02); }
 }
 
+/* ── Kilitli oyun kartı (yıldız eşiği / öğretmen izni) ── */
+.game-card.locked { cursor: default; }
+.game-card.locked .card-icon img {
+    filter: grayscale(0.85) brightness(0.93);
+    opacity: 0.72;
+}
+.game-card.locked .card-title { opacity: 0.7; }
+/* Online kartta "2 Oyuncu" rozetini gizle — kilit rozetiyle aynı köşede */
+.game-card.locked .mp-badge { display: none; }
+.lock-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, #5B4A8A 0%, #8E7BC4 100%);
+    color: #fff;
+    font-family: var(--font-heading);
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 10px;
+    letter-spacing: 0.03em;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.22);
+}
+.lock-badge .lock-ico {
+    width: 11px;
+    height: 11px;
+    fill: currentColor;
+}
+.card-lock-progress {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--font-heading);
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: var(--text-muted, #888);
+    letter-spacing: 0.02em;
+}
+.card-lock-progress .lp-star {
+    width: 14px;
+    height: 14px;
+    fill: #FFC107;
+}
+
 /* Kategori başlıkları */
 .hub-category-header {
     grid-column: 1 / -1;

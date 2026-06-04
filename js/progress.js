@@ -11,6 +11,7 @@ const Progress = (() => {
         totalStars: 0,
         settings: {
             soundEnabled: true,
+            teacherUnlocks: {},
         }
     };
 
@@ -108,6 +109,27 @@ const Progress = (() => {
         save(data);
     }
 
+    // Öğretmen/veli kilit açma override'ları (oyun bazlı): { 'oyun-id': true }
+    function getTeacherUnlocks() {
+        const s = getSettings();
+        return (s && s.teacherUnlocks) || {};
+    }
+
+    function setTeacherUnlock(gameId, on) {
+        const map = getTeacherUnlocks();
+        if (on) map[gameId] = true;
+        else delete map[gameId];
+        saveSetting('teacherUnlocks', map);
+    }
+
+    function isTeacherUnlocked(gameId) {
+        return !!getTeacherUnlocks()[gameId];
+    }
+
+    function clearTeacherUnlocks() {
+        saveSetting('teacherUnlocks', {});
+    }
+
     function resetAll() {
         save(JSON.parse(JSON.stringify(defaultData)));
     }
@@ -121,6 +143,10 @@ const Progress = (() => {
         getGameProgress,
         getSettings,
         saveSetting,
+        getTeacherUnlocks,
+        setTeacherUnlock,
+        isTeacherUnlocked,
+        clearTeacherUnlocks,
         resetAll,
     };
 })();
