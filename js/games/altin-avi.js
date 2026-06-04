@@ -329,17 +329,14 @@ const AltinAvi = (() => {
     lastRenderedPhase = 'JOIN';
     clearContainer();
 
+    // Canlı value yeniden yazımı YAPMA: input olayında .value'yu değiştirmek
+    // mobil/Türkçe klavyelerin IME birleştirmesini bozup harf düşürüyordu
+    // (bazen hiç yazılamıyordu). Büyük harf gösterimi CSS text-transform ile,
+    // filtre/normalize KATIL'da yapılıyor. maxlength=5 uzunluğu doğal sınırlar.
     const codeInput = h('input', {
       id: 'aa-code-input', class: 'aa-code-input', maxlength: '5',
-      placeholder: 'ABCDE', autocomplete: 'off'
-    });
-    codeInput.addEventListener('input', () => {
-      codeInput.value = codeInput.value
-        .toLocaleUpperCase('tr-TR')
-        .split('')
-        .filter(c => CODE_CHARS.includes(c))
-        .join('')
-        .slice(0, 5);
+      placeholder: 'ABCDE', autocomplete: 'off',
+      autocapitalize: 'characters', autocorrect: 'off', spellcheck: 'false'
     });
 
     const card = h('div', { class: 'aa-entry-card' },
@@ -350,7 +347,8 @@ const AltinAvi = (() => {
         h('button', {
           class: 'aa-btn aa-btn-primary',
           onClick: async () => {
-            const code = codeInput.value.trim().toUpperCase();
+            const code = codeInput.value.toUpperCase()
+              .split('').filter(c => CODE_CHARS.includes(c)).join('');
             if (code.length !== 5) { toast('5 KARAKTER GİR!'); return; }
             await joinRoom(code);
           }

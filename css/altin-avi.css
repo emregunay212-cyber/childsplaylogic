@@ -380,6 +380,7 @@
 }
 .aa-code-input {
   text-align: center;
+  text-transform: uppercase;
   font-family: var(--rt-font-num);
   font-size: 1.8rem;
   letter-spacing: 0.3em;
