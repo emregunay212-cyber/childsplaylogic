@@ -436,6 +436,46 @@
     fill: #FFC107;
 }
 
+/* ── Kilitli oyun bilgi penceresi ── */
+.lock-modal {
+    position: fixed; inset: 0; z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    background: rgba(24, 18, 46, 0.55);
+    -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+    animation: lmFade 0.18s ease;
+}
+.lock-modal.hidden { display: none; }
+.lock-modal-card {
+    background: #fff; border-radius: 22px;
+    padding: 26px 24px 22px; max-width: 340px; width: 100%;
+    text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+    animation: lmPop 0.28s cubic-bezier(.18,.9,.32,1.4);
+}
+.lm-icon {
+    width: 64px; height: 64px; margin: 0 auto 12px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #5B4A8A 0%, #8E7BC4 100%);
+    box-shadow: 0 6px 18px rgba(91,74,138,0.4);
+}
+.lm-icon .lm-lock { width: 32px; height: 32px; fill: #fff; }
+.lm-title { font-family: var(--font-heading); font-size: 1.3rem; color: #3a2f5e; margin: 0 0 8px; }
+.lm-msg { font-size: 0.95rem; color: #4a4a5a; line-height: 1.5; margin: 0 0 16px; }
+.lm-bar { height: 14px; background: #ece8f5; border-radius: 999px; overflow: hidden; margin: 0 0 6px; }
+.lm-bar-fill { height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, #FFC107, #FF9800); transition: width 0.5s ease; }
+.lm-bar-label { font-size: 0.82rem; font-weight: 700; color: #C77800; margin: 0 0 16px; }
+.lm-hint { font-size: 0.82rem; color: #7a7a8a; margin: 0 0 20px; }
+.lm-btn {
+    background: linear-gradient(135deg, #5B4A8A 0%, #8E7BC4 100%);
+    color: #fff; border: none; border-radius: 14px;
+    font-family: var(--font-heading); font-weight: 700; font-size: 1rem;
+    padding: 12px 34px; cursor: pointer; transition: transform 0.05s, filter 0.15s;
+}
+.lm-btn:hover { filter: brightness(1.07); }
+.lm-btn:active { transform: scale(0.96); }
+@keyframes lmFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes lmPop { from { opacity: 0; transform: scale(0.82) translateY(12px); } to { opacity: 1; transform: none; } }
+
 /* Kategori başlıkları */
 .hub-category-header {
     grid-column: 1 / -1;

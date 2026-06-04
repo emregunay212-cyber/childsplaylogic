@@ -151,14 +151,99 @@ const App = (() => {
         const starsRow = card.querySelector('.card-stars');
         if (starsRow) starsRow.replaceWith(prog); else card.appendChild(prog);
 
-        const bump = () => {
+        const onTap = () => {
             try { AudioManager.play('tap'); } catch (e) {}
             card.classList.remove('cs-bump'); void card.offsetWidth; card.classList.add('cs-bump');
+            showLockInfo(entry);
         };
-        card.addEventListener('click', bump);
+        card.addEventListener('click', onTap);
         card.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); bump(); }
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTap(); }
         });
+    }
+
+    // ── Kilitli oyun bilgi penceresi: neden kilitli + nasıl açılır ──
+    let lockModalEl = null;
+    function ensureLockModal() {
+        if (lockModalEl) return lockModalEl;
+        const ov = document.createElement('div');
+        ov.className = 'lock-modal hidden';
+        ov.setAttribute('role', 'dialog');
+        ov.setAttribute('aria-modal', 'true');
+
+        const card = document.createElement('div');
+        card.className = 'lock-modal-card';
+
+        const iconWrap = document.createElement('div');
+        iconWrap.className = 'lm-icon';
+        iconWrap.appendChild(svgIcon('lm-lock', LOCK_PATH));
+
+        const title = document.createElement('h2');
+        title.className = 'lm-title';
+        title.textContent = 'Bu Oyun Kilitli';
+
+        const msg = document.createElement('p');
+        msg.className = 'lm-msg';
+
+        const bar = document.createElement('div');
+        bar.className = 'lm-bar';
+        const fill = document.createElement('div');
+        fill.className = 'lm-bar-fill';
+        bar.appendChild(fill);
+
+        const barLabel = document.createElement('div');
+        barLabel.className = 'lm-bar-label';
+
+        const hint = document.createElement('p');
+        hint.className = 'lm-hint';
+
+        const btn = document.createElement('button');
+        btn.className = 'lm-btn';
+        btn.type = 'button';
+        btn.textContent = 'Tamam';
+        btn.addEventListener('click', hideLockInfo);
+
+        card.appendChild(iconWrap);
+        card.appendChild(title);
+        card.appendChild(msg);
+        card.appendChild(bar);
+        card.appendChild(barLabel);
+        card.appendChild(hint);
+        card.appendChild(btn);
+        ov.appendChild(card);
+        ov.addEventListener('click', (e) => { if (e.target === ov) hideLockInfo(); });
+        document.body.appendChild(ov);
+
+        ov._msg = msg; ov._bar = bar; ov._fill = fill; ov._barLabel = barLabel; ov._hint = hint;
+        lockModalEl = ov;
+        return ov;
+    }
+    function hideLockInfo() { if (lockModalEl) lockModalEl.classList.add('hidden'); }
+    function showLockInfo(entry) {
+        const key = lockKey(entry);
+        const need = LOCK_STARS_BY_KEY[key];
+        const forced = adminConfig.locks && adminConfig.locks[key] === 'lock';
+        const ov = ensureLockModal();
+        if (forced || !need) {
+            // Admin zorla kapatmış (veya eşik yok) → yıldız nudge'ı anlamsız
+            ov._msg.textContent = 'Bu oyun şimdilik kapalı.';
+            ov._bar.classList.add('hidden');
+            ov._barLabel.classList.add('hidden');
+            ov._hint.textContent = 'Daha sonra tekrar dene.';
+        } else {
+            const have = Progress.getTotalStars();
+            const remaining = Math.max(0, need - have);
+            ov._msg.textContent = remaining > 0
+                ? ('Bu oyunu açmak için ' + need + ' yıldıza ulaşman gerekiyor. Şu an ' + have + ' yıldızın var — ' + remaining + ' tane daha topla!')
+                : ('Bu oyunu açmak için ' + need + ' yıldız gerekiyor.');
+            const pct = Math.max(0, Math.min(100, Math.round((have / need) * 100)));
+            ov._fill.style.width = pct + '%';
+            ov._barLabel.textContent = Math.min(have, need) + ' / ' + need + ' yıldız';
+            ov._bar.classList.remove('hidden');
+            ov._barLabel.classList.remove('hidden');
+            ov._hint.textContent = 'İpucu: Diğer (açık) oyunları oynayarak yıldız topla!';
+        }
+        ov.classList.remove('hidden');
     }
 
     // Multiplayer games list
