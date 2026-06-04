@@ -43,7 +43,7 @@ const App = (() => {
                 { game: SekilBulmaca, color: 'var(--sekil-color)' },
                 { game: Siralama, color: 'var(--siralama-color)' },
                 { game: Jigsaw, color: 'var(--jigsaw-color)' },
-                { game: Tetris, color: 'var(--tetris-color)', requiredStars: 10 },
+                { game: Tetris, color: 'var(--tetris-color)' },
             ]
         },
         {
@@ -67,13 +67,13 @@ const App = (() => {
                 { game: LegoMacerasi, color: 'var(--lego-color)' },
                 { game: LegoWorld, color: 'var(--lego-world-color)' },
                 { game: Satranc, color: 'var(--satranc-color)' },
-                // requiredStars: kademeli yıldız eşiği — eşiğe ulaşınca VEYA öğretmen izniyle açılır
-                { game: ZiplaTopla, color: 'var(--zipla-topla-color)', requiredStars: 15 },
-                { game: SpaceWaves, color: 'var(--space-waves-color)', requiredStars: 20 },
-                { game: Egim, color: 'var(--egim-color)', requiredStars: 25 },
-                { game: BuzKulesi, color: 'var(--buz-kulesi-color)', requiredStars: 30 },
-                { game: Penalti, color: 'var(--penalti-color)', requiredStars: 35 },
-                { game: ZindanOkcusu, color: 'var(--zindan-okcusu-color)', requiredStars: 40 },
+                // Kilit eşikleri js/lock-catalog.js'te (LOCK_CATALOG). Buradaki sıra = görünüm sırası.
+                { game: ZiplaTopla, color: 'var(--zipla-topla-color)' },
+                { game: SpaceWaves, color: 'var(--space-waves-color)' },
+                { game: Egim, color: 'var(--egim-color)' },
+                { game: BuzKulesi, color: 'var(--buz-kulesi-color)' },
+                { game: Penalti, color: 'var(--penalti-color)' },
+                { game: ZindanOkcusu, color: 'var(--zindan-okcusu-color)' },
             ]
         },
     ];
@@ -81,18 +81,31 @@ const App = (() => {
     // Flat registry for backward compatibility
     const gameRegistry = gameCategories.flatMap(cat => cat.games);
 
-    // Bir oyun girdisinin kanonik kimliği (tek-oyunculu: game.id, online: entry.id)
+    // Bir oyun girdisinin görüntü kimliği (tek-oyunculu: game.id, online: entry.id) — TR.games için.
     function entryId(entry) {
         return (entry && entry.id) || (entry && entry.game && entry.game.id);
     }
 
-    // Oyun kilidi açık mı? requiredStars yoksa hep açık; öğretmen izni eşiği atlar;
-    // aksi halde toplam yıldız eşiği karşılamalı.
+    // Kilit/override anahtarı: online girdiler 'mp:' önekli (solo/online id çakışmasını önler).
+    // js/lock-catalog.js'teki LOCK_CATALOG key'leriyle birebir eşleşir.
+    function lockKey(entry) {
+        if (!entry) return '';
+        return entry.id ? ('mp:' + entry.id) : (entry.game && entry.game.id);
+    }
+
+    // Merkezi admin ayarları (Firebase /adminConfig). Cihaz bunu okuyup uygular.
+    let adminConfig = {};
+
+    // Oyun kilidi açık mı? Öncelik: admin override > öğretmen izni > yıldız eşiği.
     function isGameUnlocked(gameEntry) {
         if (!gameEntry) return true;
-        const req = gameEntry.requiredStars;
-        if (!req) return true;
-        if (Progress.isTeacherUnlocked(entryId(gameEntry))) return true;
+        const key = lockKey(gameEntry);
+        const ov = adminConfig.locks && adminConfig.locks[key];
+        if (ov === 'unlock') return true;   // admin zorla açtı
+        if (ov === 'lock') return false;    // admin zorla kilitledi
+        const req = LOCK_STARS_BY_KEY[key];
+        if (!req) return true;              // eşik yok → açık
+        if (Progress.isTeacherUnlocked(key)) return true;
         return Progress.getTotalStars() >= req;
     }
 
@@ -128,7 +141,7 @@ const App = (() => {
 
         // Yıldız satırını "X / eşik" ilerleme göstergesiyle değiştir (çocuğu motive eder)
         const have = Progress.getTotalStars();
-        const need = entry.requiredStars;
+        const need = LOCK_STARS_BY_KEY[lockKey(entry)];
         const prog = document.createElement('div');
         prog.className = 'card-lock-progress';
         prog.appendChild(svgIcon('lp-star', STAR_PATH));
@@ -149,15 +162,15 @@ const App = (() => {
     }
 
     // Multiplayer games list
-    // requiredStars: online oyunlar da kademeli kilitli (tek-oyunculu arcade'lerden sonra, daha yüksek eşik)
+    // Online oyunların kilit eşikleri js/lock-catalog.js'te (LOCK_CATALOG, 'mp:' önekli key).
     const mpGamesList = [
-        { id: 'kelime-tahmin', game: KelimeTahmin, requiredStars: 40 },
-        { id: 'harf-tahmin', game: HarfTahmin, requiredStars: 45 },
-        { id: 'kod-macerasi', game: KodMacerasiMP, requiredStars: 50 },
-        { id: 'satranc', game: SatrancMP, requiredStars: 55 },
-        { id: 'penalti-mp', game: PenaltiMP, requiredStars: 60 },
-        { id: 'ates-buz', game: AtesBuz, requiredStars: 65 },
-        { id: 'altin-avi', game: AltinAvi, requiredStars: 70 },
+        { id: 'kelime-tahmin', game: KelimeTahmin },
+        { id: 'harf-tahmin', game: HarfTahmin },
+        { id: 'kod-macerasi', game: KodMacerasiMP },
+        { id: 'satranc', game: SatrancMP },
+        { id: 'penalti-mp', game: PenaltiMP },
+        { id: 'ates-buz', game: AtesBuz },
+        { id: 'altin-avi', game: AltinAvi },
     ];
 
     let currentView = 'splash';
@@ -176,6 +189,9 @@ const App = (() => {
             AudioManager.setEnabled(false);
             document.getElementById('btn-sound')?.classList.add('muted');
         }
+
+        // Merkezi admin ayarlarını dinlemeye başla (Firebase /adminConfig)
+        subscribeAdminConfig();
 
         // Mobil: ilk dokunuşta audio context kilidini aç (iOS gereği)
         try { MobileUtils.attachGlobalAudioUnlock(); } catch (e) {}
@@ -629,6 +645,36 @@ const App = (() => {
         if (counter) counter.textContent = total;
     }
 
+    // Firebase /adminConfig'i dinle — merkezi admin ayarları (kilitler/sıfırlama/ses)
+    function subscribeAdminConfig() {
+        try {
+            if (typeof db === 'undefined' || !db) return;
+            db.ref('adminConfig').on('value', (snap) => {
+                adminConfig = snap.val() || {};
+                applyAdminConfig();
+            }, () => { /* okuma reddedildi/çevrimdışı → adminConfig boş kalır, yerel mantık sürer */ });
+        } catch (e) { /* Firebase yoksa yerel mantıkla devam */ }
+    }
+
+    // Merkezi ayarları cihaza uygula: global sıfırlama sinyali, ses, kilit yeniden render
+    function applyAdminConfig() {
+        // Global sıfırlama: token yerelde görülenden büyükse ilerlemeyi bir kez sıfırla
+        const tok = adminConfig.resetToken;
+        if (tok) {
+            let seen = 0;
+            try { seen = parseInt(localStorage.getItem('oyun_bahcesi_lastResetToken') || '0', 10); } catch (e) {}
+            if (tok > seen) {
+                Progress.resetAll();
+                try { localStorage.setItem('oyun_bahcesi_lastResetToken', String(tok)); } catch (e) {}
+            }
+        }
+        // Ses zorlaması (admin 'on'/'off' dayatabilir; yoksa cihazın kendi ayarı)
+        if (adminConfig.sound === 'off') { AudioManager.setEnabled(false); document.getElementById('btn-sound')?.classList.add('muted'); }
+        else if (adminConfig.sound === 'on') { AudioManager.setEnabled(true); document.getElementById('btn-sound')?.classList.remove('muted'); }
+        updateStarCounter();
+        if (currentView === 'hub') renderHubGrid();
+    }
+
     function showParentControls() {
         // Basit matematik PIN
         const a = 2 + Math.floor(Math.random() * 7);
@@ -658,7 +704,7 @@ const App = (() => {
                 alert('İlerleme sıfırlandı!');
             }
         } else if (action === '2') {
-            [...gameRegistry, ...mpGamesList].forEach((e) => { if (e.requiredStars) Progress.setTeacherUnlock(entryId(e), true); });
+            [...gameRegistry, ...mpGamesList].forEach((e) => { if (LOCK_STARS_BY_KEY[lockKey(e)]) Progress.setTeacherUnlock(lockKey(e), true); });
             refresh();
             alert('Tüm oyunların kilidi açıldı!');
         } else if (action === '3') {
@@ -674,17 +720,18 @@ const App = (() => {
     // Kilitlenebilir oyunları tek tek öğretmen izniyle aç/kapat (toggle)
     function manageGameLocks() {
         const lockables = [...gameRegistry, ...mpGamesList]
-            .filter((e) => e.requiredStars)
-            .sort((a, b) => a.requiredStars - b.requiredStars);
+            .filter((e) => LOCK_STARS_BY_KEY[lockKey(e)])
+            .sort((a, b) => LOCK_STARS_BY_KEY[lockKey(a)] - LOCK_STARS_BY_KEY[lockKey(b)]);
         if (!lockables.length) { alert('Kilitlenebilir oyun yok.'); return; }
         while (true) {
             const lines = lockables.map((e, i) => {
-                const gid = entryId(e);
+                const key = lockKey(e);
+                const need = LOCK_STARS_BY_KEY[key];
                 let st;
-                if (Progress.isTeacherUnlocked(gid)) st = 'ÖĞRETMEN AÇTI';
-                else if (Progress.getTotalStars() >= e.requiredStars) st = 'YILDIZLA AÇIK';
-                else st = 'KİLİTLİ (' + e.requiredStars + ' yıldız)';
-                return `${i + 1} - ${TR.games[gid]} [${st}]`;
+                if (Progress.isTeacherUnlocked(key)) st = 'ÖĞRETMEN AÇTI';
+                else if (Progress.getTotalStars() >= need) st = 'YILDIZLA AÇIK';
+                else st = 'KİLİTLİ (' + need + ' yıldız)';
+                return `${i + 1} - ${TR.games[entryId(e)]} [${st}]`;
             });
             const sel = prompt(
                 'Oyun kilidini değiştir (numara gir):\n\n' +
@@ -696,8 +743,8 @@ const App = (() => {
             if (t === '' || t === '0') return;
             const idx = parseInt(t, 10) - 1;
             if (idx >= 0 && idx < lockables.length) {
-                const gid = entryId(lockables[idx]);
-                Progress.setTeacherUnlock(gid, !Progress.isTeacherUnlocked(gid));
+                const key = lockKey(lockables[idx]);
+                Progress.setTeacherUnlock(key, !Progress.isTeacherUnlocked(key));
             }
         }
     }

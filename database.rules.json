@@ -2,6 +2,10 @@
   "rules": {
     ".read": false,
     ".write": false,
+    "adminConfig": {
+      ".read": true,
+      ".write": "auth != null && auth.token.email === 'admin@bilnetoyun.com'"
+    },
     "leaderboards": {
       ".read": false,
       "space-waves": {

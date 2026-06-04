@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>BilnetOyun — Yönetim Paneli</title>
+    <link rel="stylesheet" href="css/admin.css?v=1">
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+</head>
+<body>
+    <div class="wrap">
+        <!-- ── Giriş ── -->
+        <div id="login-view">
+            <form id="login-form" class="login-box">
+                <h1>Yönetim Paneli</h1>
+                <p class="sub">BilnetOyun — admin girişi</p>
+                <div class="field">
+                    <label for="email">E-posta</label>
+                    <input id="email" type="email" autocomplete="username" placeholder="admin@bilnetoyun.com" required>
+                </div>
+                <div class="field">
+                    <label for="pw">Şifre</label>
+                    <input id="pw" type="password" autocomplete="current-password" required>
+                </div>
+                <button class="btn btn-primary" type="submit">Giriş Yap</button>
+                <div id="login-err" class="err"></div>
+                <a class="back-link" href="index.html">← Oyunlara dön</a>
+            </form>
+        </div>
+
+        <!-- ── Panel ── -->
+        <div id="panel-view" class="hidden">
+            <div class="topbar">
+                <div>
+                    <h1>Yönetim Paneli</h1>
+                    <div class="who" id="who"></div>
+                </div>
+                <button class="btn btn-ghost btn-sm" type="button" id="logout">Çıkış</button>
+            </div>
+
+            <div class="card">
+                <h2>Durum (bu cihaz)</h2>
+                <p class="hint">İlerleme her cihazda yerel tutulur; bu özet yalnızca şu an kullandığınız cihazı gösterir.</p>
+                <div id="stats-body"></div>
+            </div>
+
+            <div class="card">
+                <h2>Oyun Kilitleri</h2>
+                <p class="hint">Merkezi — değişiklik tüm cihazlara uygulanır. "Otomatik" = yıldız eşiği / öğretmen iznine göre. "Açık / Kilit" = zorla.</p>
+                <div class="bulk">
+                    <button class="btn btn-ghost btn-sm" type="button" id="bulk-unlock">Tümünü Aç</button>
+                    <button class="btn btn-ghost btn-sm" type="button" id="bulk-lock">Tümünü Kilitle</button>
+                    <button class="btn btn-ghost btn-sm" type="button" id="bulk-auto">Tümü Otomatik</button>
+                </div>
+                <div id="lock-list" class="lock-list"></div>
+            </div>
+
+            <div class="card">
+                <h2>Ses</h2>
+                <p class="hint">Merkezi ses dayatması. "Otomatik" = her cihaz kendi ayarını kullanır.</p>
+                <div class="sound-seg seg">
+                    <button class="on-auto" type="button" id="snd-auto">Otomatik</button>
+                    <button class="on-unlock" type="button" id="snd-on">Açık</button>
+                    <button class="on-lock" type="button" id="snd-off">Kapalı</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Tehlikeli Bölge</h2>
+                <p class="hint">Tüm cihazlardaki ilerlemeyi (yıldızlar) sıfırlar. Cihazlar bir sonraki açılışta uygular. Geri alınamaz.</p>
+                <button class="btn btn-danger" type="button" id="btn-reset">Tüm Cihazları Sıfırla</button>
+            </div>
+
+            <a class="back-link" href="index.html">← Oyunlara dön</a>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/i18n.js?v=5"></script>
+    <script src="js/lock-catalog.js?v=1"></script>
+    <script src="js/admin.js?v=1"></script>
+</body>
+</html>
