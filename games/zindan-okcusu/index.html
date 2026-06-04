@@ -473,7 +473,7 @@ function computeLoadout(){
     if(s.front)frontAdd+=s.front;
   }
   b.fireInterval*=fireMul; b.moveSpeed*=moveMul; b.front+=frontAdd;
-  b.def=Math.min(b.def,0.7); b.crit=Math.min(b.crit,0.75);
+  b.def=Math.min(b.def,0.7); b.crit=Math.min(b.crit,0.75); b.healOnKill=Math.min(b.healOnKill,3);
   return b;
 }
 function powerScore(L){return Math.round(L.dmg*5+L.maxHp*0.6+(60/L.fireInterval)+(L.front-1)*60+L.crit*400+(L.critDmg-1.5)*150+L.def*400+(L.moveSpeed-218)*0.6+L.healOnKill*12);}
@@ -616,7 +616,7 @@ function makePlayer(L){return{x:W/2,y:H/2,r:15,hp:L.maxHp,maxHp:L.maxHp,moveSpee
   def:L.def,goldBonus:L.goldBonus,xpBonus:L.xpBonus,invuln:0,hitFlash:0,
   meleeTimer:0,meleeInterval:0.5,meleeRange:42,meleeMul:1.2,meleeFx:0,
   orbs:0,orbAng:0,lightning:0,lightTimer:1,aura:0,auraTick:0,_auraR:0,
-  picks:{},magnetR:130,
+  picks:{},magnetR:130,lifestealCd:0,
   xp:0,level:1,xpToNext:8,anim:0};}
 
 /* ============================ ENEMIES ============================ */
@@ -651,6 +651,10 @@ function spawnEnemy(type,pos,opt){
     const t=Math.max(0,wave-3);
     if(type==='boss'){hp*=1+t*0.16+t*t*0.009;dmg*=1+t*0.07;}
     else{hp*=1+t*0.30+t*t*0.024;dmg*=1+t*0.09;speed*=1+Math.min(0.55,t*0.018);}
+  }else{ // sahne (bölüm) modu — bölüm ve oda ilerledikçe sertleşir
+    const ch=Math.floor(stageIndex/5), st=stageIndex%5, k=ch*0.35+st*0.30;
+    if(type==='boss'){hp*=1+k*0.6;dmg*=1+k*0.22;}
+    else{hp*=1+k;dmg*=1+k*0.28;}
   }
   enemies.push({type,x:p.x,y:p.y,r:s.r,hp,maxHp:hp,speed,dmg,xp:s.xp,color:s.color,fly,
     bossKind:(opt&&opt.bossKind)||'demon',enraged:false,
@@ -726,7 +730,7 @@ function killEnemy(e){
   burst(e.x,e.y,e.color,e.type==='boss'?40:randInt(8,14),e.type==='boss'?340:200,0.6,e.type==='boss'?5:3.5);
   const drops=e.type==='boss'?6:e.type==='tank'?2:1, val=e.type==='boss'?5:e.xp;
   for(let i=0;i<drops;i++)gems.push({x:e.x+rand(-14,14),y:e.y+rand(-14,14),vx:rand(-40,40),vy:rand(-40,40),val,r:5,pulse:rand(0,TAU)});
-  if(player.healOnKill)player.hp=Math.min(player.maxHp,player.hp+player.healOnKill);
+  if(player.healOnKill&&player.lifestealCd<=0){player.hp=Math.min(player.maxHp,player.hp+player.healOnKill);player.lifestealCd=0.4;}
   if(e.type==='boss'){bossAlive=false;shake=16;flashV=Math.max(flashV,0.5);
     const bonus=Math.round((90+wave*8)*(1+player.goldBonus));runGold+=bonus;score+=400;
     for(let i=0;i<16;i++)gems.push({x:e.x+rand(-26,26),y:e.y+rand(-26,26),vx:rand(-70,70),vy:rand(-70,70),val:8,r:6,pulse:rand(0,TAU)});
@@ -783,7 +787,7 @@ function update(dt){
 
   readInput();spawnLogic(dt);
   const p=player;
-  p.invuln=Math.max(0,p.invuln-dt);p.hitFlash=Math.max(0,p.hitFlash-dt);
+  p.invuln=Math.max(0,p.invuln-dt);p.hitFlash=Math.max(0,p.hitFlash-dt);p.lifestealCd=Math.max(0,p.lifestealCd-dt);
   p.meleeTimer=Math.max(0,p.meleeTimer-dt);p.meleeFx=Math.max(0,p.meleeFx-dt);
 
   p.anim+=dt;
@@ -1307,7 +1311,7 @@ function updateHUD(){
 function addFront(p){p.front=Math.min(2,p.front+1);}
 const UPGRADES=[
   // --- temel ---
-  {id:'dmg',name:'Güç',icon:'⚔️',tag:'Saldırı',c:'#ff9f43',g:'rgba(255,159,67,.3)',cap:5,desc:'Hasar +%30',apply:p=>p.dmg*=1.3},
+  {id:'dmg',name:'Güç',icon:'⚔️',tag:'Saldırı',c:'#ff9f43',g:'rgba(255,159,67,.3)',cap:5,desc:'Hasar +%22',apply:p=>p.dmg*=1.22},
   {id:'as',name:'Çeviklik',icon:'⚡',tag:'Saldırı',c:'#ffd166',g:'rgba(255,209,102,.3)',cap:5,desc:'Atış hızı +%20',apply:p=>p.fireInterval*=0.83},
   {id:'multi',name:'Çoklu Ok',icon:'🏹',tag:'Saldırı',c:'#ffe08a',g:'rgba(255,224,138,.3)',cap:1,req:p=>p.front<2,desc:'Önüne +1 ok (maks 2)',apply:p=>addFront(p)},
   {id:'crit',name:'Keskin Nişan',icon:'✨',tag:'Saldırı',c:'#ffd166',g:'rgba(255,209,102,.3)',cap:4,desc:'Kritik şans +%8',apply:p=>p.crit=Math.min(0.85,p.crit+0.08)},
@@ -1316,12 +1320,12 @@ const UPGRADES=[
   {id:'rear',name:'Arka Ok',icon:'🔙',tag:'Yön',c:'#7af0ff',g:'rgba(122,240,255,.3)',desc:'Arkana 1 ok atar',once:true,apply:p=>p.rear=true},
   {id:'pierce',name:'Delici Ok',icon:'🎯',tag:'Ok',c:'#b06bff',g:'rgba(176,107,255,.3)',cap:4,desc:'Oklar +1 düşman deler',apply:p=>p.pierce++},
   {id:'bounce',name:'Sektiren Ok',icon:'🪃',tag:'Ok',c:'#b06bff',g:'rgba(176,107,255,.3)',cap:4,desc:'Oklar +1 düşmana sıçrar',apply:p=>p.bounce++},
-  {id:'big',name:'Ağır Ok',icon:'⭕',tag:'Ok',c:'#ff5ccd',g:'rgba(255,92,205,.3)',cap:3,desc:'Hasar +%22',apply:p=>p.dmg*=1.22},
+  {id:'big',name:'Ağır Ok',icon:'⭕',tag:'Ok',c:'#ff5ccd',g:'rgba(255,92,205,.3)',cap:3,desc:'Hasar +%15',apply:p=>p.dmg*=1.15},
   {id:'spd',name:'Hızlı Ok',icon:'💨',tag:'Ok',c:'#ff5ccd',g:'rgba(255,92,205,.3)',cap:3,desc:'Ok hızı +%20',apply:p=>p.arrowSpeed*=1.2},
   {id:'hp',name:'Can Kalkanı',icon:'🛡️',tag:'Dayanıklılık',c:'#4fe3ff',g:'rgba(79,227,255,.3)',cap:5,desc:'Maks. can +30, dolar',apply:p=>{p.maxHp+=30;p.hp+=30;}},
   {id:'heal',name:'Şifa',icon:'💚',tag:'Dayanıklılık',c:'#5dff8f',g:'rgba(93,255,143,.3)',cap:99,desc:'Canının %50si dolar',apply:p=>p.hp=Math.min(p.maxHp,p.hp+p.maxHp*0.5)},
   {id:'move',name:'Atik Adım',icon:'👟',tag:'Dayanıklılık',c:'#5dff8f',g:'rgba(93,255,143,.3)',cap:4,desc:'Hareket hızı +%12',apply:p=>p.moveSpeed*=1.12},
-  {id:'lifekill',name:'Can Çalan',icon:'🩸',tag:'Dayanıklılık',c:'#ff4d6d',g:'rgba(255,77,109,.3)',cap:2,rare:true,desc:'Her öldürmede +2 can',apply:p=>p.healOnKill+=2},
+  {id:'lifekill',name:'Can Çalan',icon:'🩸',tag:'Dayanıklılık',c:'#ff4d6d',g:'rgba(255,77,109,.3)',cap:2,rare:true,desc:'Her öldürmede +1 can',apply:p=>p.healOnKill+=1},
   {id:'magnet',name:'Cevher Mıknatısı',icon:'🧲',tag:'Beceri',c:'#9ad0ff',g:'rgba(154,208,255,.4)',cap:3,desc:'Cevherleri daha uzaktan çeker',apply:p=>p.magnetR+=95},
   {id:'palausta',name:'Pala Ustası',icon:'🗡️',tag:'Yakın',c:'#ff9f43',g:'rgba(255,159,67,.3)',cap:3,desc:'Yakın saldırı hasarı +%50 ve menzili artar',apply:p=>{p.meleeMul+=0.5;p.meleeRange+=12;}},
   {id:'hizlipala',name:'Çevik Pala',icon:'⚔️',tag:'Yakın',c:'#ffd166',g:'rgba(255,209,102,.3)',cap:3,desc:'Yakın saldırı hızı +%30',apply:p=>p.meleeInterval*=0.7},
@@ -1329,28 +1333,28 @@ const UPGRADES=[
   {id:'light',name:'Zincir Yıldırım',icon:'⚡',tag:'Beceri',c:'#7ad0ff',g:'rgba(122,208,255,.4)',cap:3,desc:'Ara sıra düşmana yıldırım çakar, yakındakilere sıçrar',apply:p=>p.lightning++},
   {id:'aura',name:'Ateş Aurası',icon:'🔥',tag:'Beceri',c:'#ff7a3a',g:'rgba(255,122,58,.4)',cap:3,desc:'Çevrendeki düşmanları sürekli yakar',apply:p=>p.aura++},
   // --- İkili (2 etki birden) ---
-  {id:'cengaver',name:'Cengaver',icon:'🔥',tag:'İkili',c:'#ff7a43',g:'rgba(255,122,67,.35)',cap:3,desc:'Hasar +%25 ve Atış hızı +%12',apply:p=>{p.dmg*=1.25;p.fireInterval*=0.88;}},
-  {id:'izci',name:'İzci',icon:'🎯',tag:'İkili',c:'#ffd166',g:'rgba(255,209,102,.35)',cap:2,desc:'+1 ok (maks 2) ve Hasar +%12',apply:p=>{addFront(p);p.dmg*=1.12;}},
+  {id:'cengaver',name:'Cengaver',icon:'🔥',tag:'İkili',c:'#ff7a43',g:'rgba(255,122,67,.35)',cap:3,desc:'Hasar +%18 ve Atış hızı +%12',apply:p=>{p.dmg*=1.18;p.fireInterval*=0.88;}},
+  {id:'izci',name:'İzci',icon:'🎯',tag:'İkili',c:'#ffd166',g:'rgba(255,209,102,.35)',cap:2,desc:'+1 ok (maks 2) ve Hasar +%10',apply:p=>{addFront(p);p.dmg*=1.10;}},
   {id:'zirhli',name:'Zırhlı',icon:'🛡️',tag:'İkili',c:'#4fe3ff',g:'rgba(79,227,255,.35)',cap:3,desc:'Maks. can +25 (dolar) ve Hareket +%8',apply:p=>{p.maxHp+=25;p.hp+=25;p.moveSpeed*=1.08;}},
   {id:'nisanci',name:'Nişancı',icon:'✨',tag:'İkili',c:'#ffe08a',g:'rgba(255,224,138,.35)',cap:3,desc:'Kritik şans +%7 ve Kritik hasar +%25',apply:p=>{p.crit=Math.min(0.85,p.crit+0.07);p.critDmg+=0.25;}},
   // --- Risk (ödünleşme) ---
-  {id:'glass',name:'Cam Top',icon:'💎',tag:'Risk',c:'#ff5ccd',g:'rgba(255,92,205,.35)',cap:1,desc:'Hasar +%45 ama Maks. can -%20',apply:p=>{p.dmg*=1.45;p.maxHp=Math.round(p.maxHp*0.8);p.hp=Math.min(p.hp,p.maxHp);}},
+  {id:'glass',name:'Cam Top',icon:'💎',tag:'Risk',c:'#ff5ccd',g:'rgba(255,92,205,.35)',cap:1,desc:'Hasar +%30 ama Maks. can -%20',apply:p=>{p.dmg*=1.30;p.maxHp=Math.round(p.maxHp*0.8);p.hp=Math.min(p.hp,p.maxHp);}},
   {id:'titan',name:'Titan',icon:'🪨',tag:'Risk',c:'#9aa0b5',g:'rgba(154,160,181,.35)',cap:1,desc:'Maks. can +%55 (dolar) ama Hasar -%12',apply:p=>{const add=Math.round(p.maxHp*0.55);p.maxHp+=add;p.hp+=add;p.dmg*=0.88;}},
   // --- Sinerji (önceki seçime göre açılır) ---
-  {id:'piercemaster',name:'★ Delici Usta',icon:'🎯',tag:'Sinerji',c:'#f5c451',g:'rgba(245,196,81,.4)',cap:2,desc:'Delme +1 ve Hasar +%15',req:p=>p.pierce>0,apply:p=>{p.pierce++;p.dmg*=1.15;}},
+  {id:'piercemaster',name:'★ Delici Usta',icon:'🎯',tag:'Sinerji',c:'#f5c451',g:'rgba(245,196,81,.4)',cap:2,desc:'Delme +1 ve Hasar +%10',req:p=>p.pierce>0,apply:p=>{p.pierce++;p.dmg*=1.10;}},
   {id:'bouncemaster',name:'★ Sektirme Usta',icon:'🪃',tag:'Sinerji',c:'#f5c451',g:'rgba(245,196,81,.4)',cap:2,desc:'Sıçrama +1 ve Atış hızı +%12',req:p=>p.bounce>0,apply:p=>{p.bounce++;p.fireInterval*=0.88;}},
   {id:'rain',name:'★ Ok Yağmuru',icon:'🏹',tag:'Sinerji',c:'#f5c451',g:'rgba(245,196,81,.4)',cap:2,desc:'Delme +1 ve Sıçrama +1',req:p=>p.front>=2,apply:p=>{p.pierce++;p.bounce++;}},
   {id:'deadly',name:'★ Ölümcül Darbe',icon:'💥',tag:'Sinerji',c:'#f5c451',g:'rgba(245,196,81,.4)',cap:2,desc:'Kritik hasar +%50',req:p=>p.crit>=0.2,apply:p=>{p.critDmg+=0.5;}},
-  {id:'vampire',name:'★ Kan Emici',icon:'🩸',tag:'Sinerji',c:'#f5c451',g:'rgba(245,196,81,.4)',cap:1,rare:true,desc:'Öldürünce +3 can ve Hasar +%10',req:p=>p.healOnKill>0,apply:p=>{p.healOnKill+=3;p.dmg*=1.1;}},
-  {id:'siege',name:'★ Çok Yönlü Usta',icon:'✳️',tag:'Sinerji',c:'#f5c451',g:'rgba(245,196,81,.4)',cap:2,desc:'Hasar +%25 (yan/çapraz/arka atışlara güç)',req:p=>p.side||p.diag||p.rear,apply:p=>{p.dmg*=1.25;}},
+  {id:'vampire',name:'★ Kan Emici',icon:'🩸',tag:'Sinerji',c:'#f5c451',g:'rgba(245,196,81,.4)',cap:1,rare:true,desc:'Öldürünce +2 can ve Hasar +%8',req:p=>p.healOnKill>0,apply:p=>{p.healOnKill+=2;p.dmg*=1.08;}},
+  {id:'siege',name:'★ Çok Yönlü Usta',icon:'✳️',tag:'Sinerji',c:'#f5c451',g:'rgba(245,196,81,.4)',cap:2,desc:'Hasar +%18 (yan/çapraz/arka atışlara güç)',req:p=>p.side||p.diag||p.rear,apply:p=>{p.dmg*=1.18;}},
   {id:'storm',name:'★ Ok Fırtınası',icon:'⚡',tag:'Sinerji',c:'#f5c451',g:'rgba(245,196,81,.4)',cap:2,desc:'Atış hızı +%18 ve Kritik +%5',req:p=>p.fireInterval<0.36,apply:p=>{p.fireInterval*=0.82;p.crit=Math.min(0.85,p.crit+0.05);}},
 ];
 /* ============================ BİRLEŞİMLER (FUSIONS) ============================ */
 /* İki uyumlu beceri maks seviyeye gelince açılır; oyuncu hangi tarafın daha çok artacağını seçer */
 const FUSIONS=[
   {id:'fz_berserk',need:['dmg','as'],icon:'🔥',name:'Berserker',variants:[
-    {label:'Güç ağırlıklı',desc:'Hasar +%25, Atış hızı +%8',apply:p=>{p.dmg*=1.25;p.fireInterval*=0.92;}},
-    {label:'Hız ağırlıklı',desc:'Atış hızı +%22, Hasar +%10',apply:p=>{p.fireInterval*=0.78;p.dmg*=1.10;}}]},
+    {label:'Güç ağırlıklı',desc:'Hasar +%18, Atış hızı +%8',apply:p=>{p.dmg*=1.18;p.fireInterval*=0.92;}},
+    {label:'Hız ağırlıklı',desc:'Atış hızı +%22, Hasar +%8',apply:p=>{p.fireInterval*=0.78;p.dmg*=1.08;}}]},
   {id:'fz_marks',need:['crit','pierce'],icon:'🎯',name:'Nişan Ustası',variants:[
     {label:'Kritik ağırlıklı',desc:'Kritik hasar +%55, Delme +1',apply:p=>{p.critDmg+=0.55;p.pierce++;}},
     {label:'Delme ağırlıklı',desc:'Delme +2, Kritik şans +%6',apply:p=>{p.pierce+=2;p.crit=Math.min(0.85,p.crit+0.06);}}]},
