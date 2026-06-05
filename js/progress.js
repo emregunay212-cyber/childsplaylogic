@@ -4,6 +4,9 @@
 
 const Progress = (() => {
     const STORAGE_KEY = 'oyun_bahcesi_progress';
+    // Bulut senkron kancası — Google girişinde Auth ayarlar; her save sonrası çağrılır.
+    // Misafir/çıkışta null'dur → yerel kalır, buluta yazılmaz.
+    let syncHook = null;
 
     const defaultData = {
         version: 1,
@@ -31,6 +34,8 @@ const Progress = (() => {
         } catch (e) {
             console.warn('İlerleme kaydedilemedi:', e);
         }
+        // Google kullanıcısı aktifse buluta da yansıt (Auth ayarlar)
+        if (syncHook) { try { syncHook(data); } catch (e) {} }
     }
 
     function getGameProgress(gameId) {
@@ -134,7 +139,22 @@ const Progress = (() => {
         save(JSON.parse(JSON.stringify(defaultData)));
     }
 
+    // ── Bulut senkron yardımcıları (Auth modülü kullanır) ──
+    // save() sonrası çağrılacak kancayı ayarla (Google: buluta yaz; misafir/çıkış: null)
+    function setSyncHook(fn) { syncHook = fn || null; }
+
+    // Tüm ilerlemeyi buluttan gelen veriyle değiştir (varsayılan şekille güvenli birleştir)
+    function replaceAll(data) {
+        const base = JSON.parse(JSON.stringify(defaultData));
+        const merged = Object.assign(base, data || {});
+        if (!merged.games || typeof merged.games !== 'object') merged.games = {};
+        if (!merged.settings || typeof merged.settings !== 'object') merged.settings = base.settings;
+        save(merged);
+    }
+
     return {
+        setSyncHook,
+        replaceAll,
         getLevelStars,
         setLevelStars,
         getTotalStars,

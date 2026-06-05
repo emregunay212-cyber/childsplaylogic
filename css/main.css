@@ -226,6 +226,136 @@ button {
         0 4px 10px rgba(0,0,0,0.2);
 }
 
+/* ── Giriş Ekranı (Google / Misafir) ── */
+.login-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: linear-gradient(180deg, #87CEEB 0%, #C9E8F7 50%, #8ED45E 50%, #7EC850 100%);
+    overflow: auto;
+}
+.login-card {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.94);
+    border: 5px solid rgba(255, 255, 255, 0.6);
+    border-radius: var(--radius-xl, 28px);
+    box-shadow: 0 14px 44px rgba(0, 0, 0, 0.18);
+    padding: 34px 26px 28px;
+    animation: fadeInUp 0.6s var(--ease-spring, ease) both;
+}
+.login-sun {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 14px;
+    background: radial-gradient(circle, #FFE066 40%, #FFD700 70%, transparent 71%);
+    border-radius: 50%;
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.4);
+    animation: sunPulse 3s ease-in-out infinite;
+}
+.login-title {
+    font-family: 'Fredoka', sans-serif;
+    font-size: clamp(1.6rem, 5vw, 2.2rem);
+    font-weight: 700;
+    color: #E67E22;
+    margin: 0 0 4px;
+}
+.login-sub {
+    color: #6b7280;
+    font-size: 1.02rem;
+    margin: 0 0 22px;
+}
+.login-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 1.12rem;
+    font-weight: 700;
+    padding: 15px 20px;
+    border: none;
+    border-radius: var(--radius-lg, 18px);
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+    margin-bottom: 14px;
+}
+.login-btn:active { transform: translateY(3px); }
+.login-btn:disabled { opacity: 0.6; cursor: default; }
+.login-google {
+    background: #fff;
+    color: #3c4043;
+    border: 2px solid #dadce0;
+    box-shadow: 0 4px 0 #dadce0, 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+.login-guest {
+    background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+    color: #fff;
+    box-shadow: 0 5px 0 #D94848, 0 7px 16px rgba(0, 0, 0, 0.18);
+}
+.login-note {
+    font-size: 0.82rem;
+    color: #9099a3;
+    line-height: 1.5;
+    margin: 8px 2px 0;
+}
+.login-error {
+    background: #fde8e8;
+    color: #c0392b;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 14px;
+}
+
+/* ── Üst bar kullanıcı çipi ── */
+.user-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.user-chip:empty { display: none; }
+.user-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.7);
+}
+.user-name {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-light, #fff);
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.user-signout {
+    background: rgba(255, 255, 255, 0.22);
+    color: var(--text-light, #fff);
+    border: none;
+    border-radius: 12px;
+    padding: 5px 10px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+.user-signout:active { transform: translateY(1px); }
+@media (max-width: 640px) {
+    .user-name { display: none; }
+}
+
 .splash-clouds {
     position: absolute;
     inset: 0;

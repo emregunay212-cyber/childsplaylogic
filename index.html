@@ -129,7 +129,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/main.css?v=4">
+    <link rel="stylesheet" href="css/main.css?v=5">
     <link rel="stylesheet" href="css/animations.css">
     <link rel="stylesheet" href="css/hub.css?v=2">
     <link rel="stylesheet" href="css/multiplayer.css">
@@ -155,6 +155,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 </head>
@@ -174,6 +175,30 @@
             <div class="cloud cloud-3"></div>
         </div>
         <div class="splash-ground"></div>
+    </div>
+
+    <!-- Giriş Ekranı: Google / Misafir (Auth modülü gösterir) -->
+    <div id="login-screen" class="login-screen hidden">
+        <div class="login-card">
+            <div class="login-sun"></div>
+            <h2 class="login-title">Bilnet Oyun</h2>
+            <p class="login-sub">Nasıl oynamak istersin?</p>
+            <div id="login-error" class="login-error hidden"></div>
+            <button id="login-google" class="login-btn login-google" type="button">
+                <svg width="24" height="24" viewBox="0 0 48 48" aria-hidden="true">
+                    <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.3-.4-3.5z"/>
+                    <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
+                    <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.3 0-9.7-3.1-11.3-7.5l-6.5 5C9.6 39.6 16.2 44 24 44z"/>
+                    <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.6l6.2 5.2C41.4 36.1 44 30.6 44 24c0-1.3-.1-2.3-.4-3.5z"/>
+                </svg>
+                <span>Google ile Giriş</span>
+            </button>
+            <button id="login-guest" class="login-btn login-guest" type="button">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                <span>Misafir Olarak Oyna</span>
+            </button>
+            <p class="login-note">Google ile girersen yıldızların kaydolur, başka cihazdan da kaldığın yerden devam edersin. Misafir modunda kayıt tutulmaz; her girişte sıfırdan başlarsın.</p>
+        </div>
     </div>
 
     <!-- Ana Uygulama -->
@@ -205,6 +230,7 @@
                 <a id="btn-admin" class="top-btn admin-btn" href="admin.html" title="Yönetim Paneli" aria-label="Yönetim paneli">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
                 </a>
+                <div id="user-chip" class="user-chip"></div>
             </div>
         </header>
 
@@ -304,7 +330,7 @@
     <script src="js/i18n.js?v=5"></script>
     <script src="js/audio.js"></script>
     <script src="js/mobile-utils.js?v=3"></script>
-    <script src="js/progress.js?v=1"></script>
+    <script src="js/progress.js?v=2"></script>
     <script src="js/particles.js"></script>
     <script src="js/drag.js"></script>
     <script src="js/engine.js"></script>
@@ -348,7 +374,8 @@
     <script src="js/games/tetris.js"></script>
     <script src="js/games/zindan-okcusu.js"></script>
     <script src="js/lock-catalog.js?v=1"></script>
-    <script src="js/app.js?v=10"></script>
+    <script src="js/auth.js?v=1"></script>
+    <script src="js/app.js?v=11"></script>
     <!-- SEO: ana sayfadan oyun landing sayfalarına taranabilir iç linkler (Google bunları keşfeder) -->
     <footer id="seo-footer" style="background:#0e2a44;color:#9fc3e0;padding:24px 16px;font-family:'Nunito',system-ui,sans-serif;font-size:14px;line-height:1.7">
       <div style="max-width:960px;margin:0 auto">

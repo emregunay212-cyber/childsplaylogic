@@ -284,9 +284,21 @@ const App = (() => {
         // Event listener'lar
         setupEventListeners();
 
-        // SEO derin link: /?oyun=<slug> → splash'i atla, doğrudan oyunu aç (landing sayfasından gelen ziyaretçi)
-        if (!tryDeepLink()) showSplash();
+        // Giriş kapısı: Google/Misafir oturumu çözülünce app devam eder (proceedAfterAuth).
+        // Deep-link & splash artık oturum belirlendikten SONRA işlenir.
+        Auth.init(proceedAfterAuth);
     }
+
+    // Auth oturumu hazır (Google yüklendi / misafir seçildi) → app'e gir
+    let authEntered = false;
+    function proceedAfterAuth() {
+        updateStarCounter();
+        try { hideSplash(); } catch (e) {}
+        if (authEntered) { showHub(); return; }   // çıkış sonrası yeniden giriş → hub
+        authEntered = true;
+        if (!tryDeepLink()) showHub();
+    }
+
     function tryDeepLink() {
         let slug;
         try { slug = new URLSearchParams(location.search).get('oyun'); } catch (e) { return false; }
@@ -305,6 +317,8 @@ const App = (() => {
     function setupEventListeners() {
         // Splash başla butonu
         document.getElementById('splash-start')?.addEventListener('click', () => {
+            // Oturum henüz çözülmediyse (giriş gerekiyorsa) splash'i atlatma — Auth karar verir
+            if (typeof Auth !== 'undefined' && !Auth.getMode()) return;
             AudioManager.init();
             AudioManager.play('whoosh');
             hideSplash();
