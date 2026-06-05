@@ -553,7 +553,7 @@ let enemies=[],pProj=[],eProj=[],parts=[],gems=[],dmgs=[],embers=[],bolts=[];
 let mode='endless', stageIndex=0, wave=1, waveTime=0, spawnTimer=0, runTime=0;
 let score=0, kills=0, runGold=0, pendingLevels=0, shake=0, flashV=0;
 let bossAlive=false, bossSpawned=false, bossStage=false;
-let spawnBudget=0, spawnedCount=0, biomeTint=null, dropPending=null;
+let spawnBudget=0, spawnedCount=0, biomeTint=null, dropPending=null, roomVacuum=false;
 let aimAngle=0, lastMoveAng=0;
 let curGrid='rgba(130,115,180,0.06)', curAccent='rgba(140,110,210,0.5)';
 const WAVE_DUR=17;
@@ -780,7 +780,10 @@ function spawnLogic(dt){
       else{spawnEnemy(type);spawnedCount++;}
       spawnTimer=Math.max(0.45,1.2-wave*0.04);
     }
-    if(spawnedCount>=spawnBudget&&enemies.length===0&&!bossAlive&&(!bossStage||bossSpawned))roomClear();
+    if(spawnedCount>=spawnBudget&&enemies.length===0&&!bossAlive&&(!bossStage||bossSpawned)){
+      if(gems.length)roomVacuum=true; /* önce yerdeki can/tecrübe küreleri karaktere aksın */
+      else{roomVacuum=false;roomClear();}                /* hepsi toplanınca bölüm-geçiş açılır */
+    }
   }
 }
 
@@ -1197,10 +1200,10 @@ function update(dt){
   eProj=eProj.filter(pr=>pr.life>0);
 
   // gems
-  const mr=p.magnetR||130;
+  const mr=roomVacuum?1e9:(p.magnetR||130); /* oda temizlenince TÜM küreleri güçlü çek (mesafe fark etmez) */
   for(const g of gems){
     g.pulse+=dt*4;const d=dist(g.x,g.y,p.x,p.y);
-    if(d<mr){const a=Math.atan2(p.y-g.y,p.x-g.x),pull=lerp(440,90,clamp(d/mr,0,1));g.x+=Math.cos(a)*pull*dt;g.y+=Math.sin(a)*pull*dt;}
+    if(d<mr){const a=Math.atan2(p.y-g.y,p.x-g.x),pull=roomVacuum?Math.max(620,d*7):lerp(440,90,clamp(d/mr,0,1));g.x+=Math.cos(a)*pull*dt;g.y+=Math.sin(a)*pull*dt;}
     else{g.x+=g.vx*dt;g.y+=g.vy*dt;g.vx*=0.92;g.vy*=0.92;}
     if(d<p.r+10){g.dead=true;if(g.heal){player.hp=Math.min(player.maxHp,player.hp+g.heal);sfx.coin();}else gainXP(g.val);}
   }
@@ -1892,7 +1895,7 @@ function goMap(){hideAllOverlays();biomeTint=null;state=ST.MAP;renderMap();$('ma
 function goEquip(){hideAllOverlays();biomeTint=null;state=ST.EQUIP;renderEquip();$('equip').classList.add('show');}
 
 function setupRoom(idx){ // configure a room WITHOUT touching player stats / runGold
-  stageIndex=idx;
+  roomVacuum=false;stageIndex=idx;
   const ch=Math.floor(idx/5),st=idx%5;
   wave=ch*5+st*2+2; spawnBudget=10+ch*5+st*4; spawnedCount=0; spawnTimer=0.5;
   bossStage=(st===4); bossAlive=false; bossSpawned=false; biomeTint=BIOMES[ch];
