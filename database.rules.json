@@ -48,23 +48,38 @@
     "lobbies": {
       ".read": true,
       ".write": true,
-      ".indexOn": ["state"]
+      ".indexOn": ["state"],
+      "$lobbyId": {
+        "hostName":  { ".validate": "newData.isString() && newData.val().length <= 24" },
+        "guestName": { ".validate": "newData.isString() && newData.val().length <= 24" },
+        "state":     { ".validate": "newData.isString() && newData.val().length <= 24" },
+        "gameType":  { ".validate": "newData.isString() && newData.val().length <= 32" }
+      }
     },
     "players": {
       ".read": true,
-      ".write": true
+      ".write": true,
+      "$playerId": {
+        "name":     { ".validate": "newData.isString() && newData.val().length <= 24" },
+        "online":   { ".validate": "newData.isBoolean()" },
+        "lastSeen": { ".validate": "newData.isNumber()" },
+        "$other":   { ".validate": false }
+      }
     },
     "rooms": {
       ".read": true,
-      ".write": true
-    },
-    "games": {
-      ".read": true,
-      ".write": true
-    },
-    "lobby": {
-      ".read": true,
-      ".write": true
+      ".write": true,
+      "altin-avi": {
+        ".indexOn": ["state"],
+        "$code": {
+          "state":    { ".validate": "newData.isString() && newData.val().length <= 24" },
+          "players": {
+            "$playerId": {
+              "name": { ".validate": "newData.isString() && newData.val().length <= 24" }
+            }
+          }
+        }
+      }
     }
   }
 }
