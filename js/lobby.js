@@ -4,6 +4,13 @@ const Lobby = (() => {
   let container = null;
   let onGameStart = null;
 
+  // Güvenlik (XSS): kullanıcı-kontrollü metni (oyuncu/oda adı) innerHTML'e basmadan önce escape et
+  function escapeHTML(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
   const TURKISH_KEYBOARD = [
     ['A','B','C','Ç','D','E','F','G','Ğ','H'],
     ['I','İ','J','K','L','M','N','O','Ö','P'],
@@ -37,7 +44,7 @@ const Lobby = (() => {
         </div>
         <div class="lobby-name-row">
           <label>${TR.mp.yourName}</label>
-          <input type="text" class="lobby-name-input" maxlength="20" placeholder="Adını yaz..." value="${localStorage.getItem('mp_name') || ''}">
+          <input type="text" class="lobby-name-input" maxlength="20" placeholder="Adını yaz..." value="${escapeHTML(localStorage.getItem('mp_name') || '')}">
         </div>
         <div class="lobby-buttons">
           <button class="lobby-btn lobby-btn-create" data-action="create">
@@ -184,7 +191,7 @@ const Lobby = (() => {
         <h2>${TR.mp.waitingRoom}</h2>
         <div class="lobby-code-box">
           <span class="lobby-code-label">${TR.mp.roomCode}</span>
-          <span class="lobby-code">${lobbyId}</span>
+          <span class="lobby-code">${escapeHTML(lobbyId)}</span>
         </div>
         <div class="lobby-waiting-anim">
           <div class="waiting-dots"><span>.</span><span>.</span><span>.</span></div>
@@ -245,7 +252,7 @@ const Lobby = (() => {
           <div class="lobby-list-info">
             <span class="lobby-list-icon">${l.gameType === 'penalti-mp' ? '⚽' : l.gameType === 'ates-buz' ? '🔥' : l.gameType === 'kod-macerasi' ? '🤖' : l.gameType === 'kelime-tahmin' ? '🔤' : l.gameType === 'satranc' ? '♟️' : '🔡'}</span>
             <div>
-              <strong>${l.hostName}</strong>
+              <strong>${escapeHTML(l.hostName)}</strong>
               <span class="lobby-list-detail">${l.gameType === 'penalti-mp' ? '5 atış' : l.gameType === 'ates-buz' ? '5 seviye' : l.gameType === 'kod-macerasi' ? l.gridSize+'x'+l.gridSize+' grid' : l.gameType === 'satranc' ? 'Satranç' : l.wordLength+' harf · '+(l.maxTurns>=999?'∞':l.maxTurns)+' tur'}</span>
             </div>
           </div>
@@ -333,7 +340,7 @@ const Lobby = (() => {
       <div class="word-setup">
         <h2>${TR.mp.writeWord}</h2>
         <p class="word-setup-info">${TR.mp.writeWordDesc.replace('{n}', wordLength)}</p>
-        <p class="word-setup-opponent">${TR.mp.opponent}: <strong>${opponentName || '?'}</strong></p>
+        <p class="word-setup-opponent">${TR.mp.opponent}: <strong>${escapeHTML(opponentName || '?')}</strong></p>
         <div class="word-boxes">${Array(wordLength).fill('<div class="word-box"></div>').join('')}</div>
         <div class="tr-keyboard">
           ${TURKISH_KEYBOARD.map(row => `<div class="kb-row">${row.map(k =>

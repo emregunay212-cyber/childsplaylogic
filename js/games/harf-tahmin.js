@@ -13,6 +13,13 @@ const HarfTahmin = (() => {
   let isMyTurn = false;
   let gameOver = false;
 
+  // Güvenlik (XSS): ağdan gelen metni (ad/kelime/harf) HTML'e basmadan önce kaçışla
+  function escapeHTML(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
   const KEYBOARD = [
     ['A','B','C','Ç','D','E','F','G','Ğ','H'],
     ['I','İ','J','K','L','M','N','O','Ö','P'],
@@ -57,21 +64,21 @@ const HarfTahmin = (() => {
           <h3>${TR.mp.opponentWordTitle}</h3>
           <div class="harf-word-display" id="my-reveal">
             ${myRevealed.map((ch, i) =>
-              `<div class="harf-cell ${ch ? 'revealed' : 'hidden'}">${ch || '?'}</div>`
+              `<div class="harf-cell ${ch ? 'revealed' : 'hidden'}">${escapeHTML(ch || '?')}</div>`
             ).join('')}
           </div>
           <div class="harf-progress">${TR.mp.found}: ${myRevealedCount}/${gameData.wordLength}</div>
         </div>
 
         <div class="harf-divider">
-          <span>🆚 ${gameData.opponentName}</span>
+          <span>🆚 ${escapeHTML(gameData.opponentName)}</span>
         </div>
 
         <div class="harf-section opponent-section">
           <h3>${TR.mp.yourWordTitle}</h3>
           <div class="harf-word-display" id="op-reveal">
             ${opRevealed.map((ch, i) =>
-              `<div class="harf-cell ${ch ? 'revealed opponent-revealed' : 'hidden'}">${ch || '·'}</div>`
+              `<div class="harf-cell ${ch ? 'revealed opponent-revealed' : 'hidden'}">${escapeHTML(ch || '·')}</div>`
             ).join('')}
           </div>
           <div class="harf-progress">${TR.mp.found}: ${opRevealedCount}/${gameData.wordLength}</div>
@@ -126,7 +133,7 @@ const HarfTahmin = (() => {
     const myRevealEl = container.querySelector('#my-reveal');
     if (myRevealEl) {
       myRevealEl.innerHTML = myRevealed.map((ch, i) =>
-        `<div class="harf-cell ${ch ? 'revealed' : 'hidden'}">${ch || '?'}</div>`
+        `<div class="harf-cell ${ch ? 'revealed' : 'hidden'}">${escapeHTML(ch || '?')}</div>`
       ).join('');
     }
 
@@ -134,7 +141,7 @@ const HarfTahmin = (() => {
     const opRevealEl = container.querySelector('#op-reveal');
     if (opRevealEl) {
       opRevealEl.innerHTML = opRevealed.map((ch, i) =>
-        `<div class="harf-cell ${ch ? 'revealed opponent-revealed' : 'hidden'}">${ch || '·'}</div>`
+        `<div class="harf-cell ${ch ? 'revealed opponent-revealed' : 'hidden'}">${escapeHTML(ch || '·')}</div>`
       ).join('');
     }
 
@@ -238,11 +245,11 @@ const HarfTahmin = (() => {
         <div class="mp-game-over-words">
           <div class="mp-word-reveal">
             <span class="mp-word-label">${TR.mp.yourWord}:</span>
-            <span class="mp-word-value">${data.yourRole === 'host' ? data.hostWord : data.guestWord}</span>
+            <span class="mp-word-value">${escapeHTML(data.yourRole === 'host' ? data.hostWord : data.guestWord)}</span>
           </div>
           <div class="mp-word-reveal">
             <span class="mp-word-label">${TR.mp.opponentWord}:</span>
-            <span class="mp-word-value">${data.yourRole === 'host' ? data.guestWord : data.hostWord}</span>
+            <span class="mp-word-value">${escapeHTML(data.yourRole === 'host' ? data.guestWord : data.hostWord)}</span>
           </div>
         </div>
         <div class="mp-game-over-btns">

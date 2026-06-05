@@ -10,6 +10,13 @@ const KelimeTahmin = (() => {
   let isMyTurn = false;
   let gameOver = false;
 
+  // Güvenlik (XSS): ağdan gelen metni (ad/kelime/harf) HTML'e basmadan önce kaçışla
+  function escapeHTML(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
   const KEYBOARD = [
     ['A','B','C','Ç','D','E','F','G','Ğ','H'],
     ['I','İ','J','K','L','M','N','O','Ö','P'],
@@ -47,7 +54,7 @@ const KelimeTahmin = (() => {
         </div>
 
         <div class="mp-opponent-info">
-          <span>🆚 ${gameData.opponentName}</span>
+          <span>🆚 ${escapeHTML(gameData.opponentName)}</span>
           <span class="opponent-progress">${TR.mp.opponentGuesses}: ${opponentGuessCount}</span>
         </div>
 
@@ -84,7 +91,7 @@ const KelimeTahmin = (() => {
     // My previous guesses
     for (const g of myGuesses) {
       rows.push(`<div class="guess-row completed">${g.results.map(r =>
-        `<div class="guess-cell ${r.status}">${r.letter}</div>`
+        `<div class="guess-cell ${r.status}">${escapeHTML(r.letter)}</div>`
       ).join('')}</div>`);
     }
     // Current input row (if not game over)
@@ -211,11 +218,11 @@ const KelimeTahmin = (() => {
         <div class="mp-game-over-words">
           <div class="mp-word-reveal">
             <span class="mp-word-label">${TR.mp.yourWord}:</span>
-            <span class="mp-word-value">${data.yourRole === 'host' ? data.hostWord : data.guestWord}</span>
+            <span class="mp-word-value">${escapeHTML(data.yourRole === 'host' ? data.hostWord : data.guestWord)}</span>
           </div>
           <div class="mp-word-reveal">
             <span class="mp-word-label">${TR.mp.opponentWord}:</span>
-            <span class="mp-word-value">${data.yourRole === 'host' ? data.guestWord : data.hostWord}</span>
+            <span class="mp-word-value">${escapeHTML(data.yourRole === 'host' ? data.guestWord : data.hostWord)}</span>
           </div>
         </div>
         <div class="mp-game-over-stats">
