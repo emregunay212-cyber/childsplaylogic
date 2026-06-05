@@ -448,17 +448,12 @@ function generateItem(slot,bias){return makeItem(slot||pick(SLOTS),rollRarity(bi
    Mitik (Red) = spec'in "Red Equipment" tieri. Yüksek tier seyrekleştirildi (spec #1):
    wood %0.1 mitik, silver %0.5 mitik, gold %1.4 mitik — eski %1/%3/%9 yerine. */
 const CHESTS=[
-  {key:'wood',  name:'Ahşap Sandık',icon:'📦',baseCost:120,c:'#b98a5a',w:[700,280,18,2,1]},
-  {key:'silver',name:'Gümüş Sandık',icon:'🎁',baseCost:360,c:'#cfd6e6',w:[180,520,260,38,5]},
-  {key:'gold',  name:'Altın Sandık',icon:'💎',baseCost:820,c:'#f5c451',w:[20,260,520,186,14]},
+  {key:'wood',  name:'Ahşap Sandık',icon:'📦',baseCost:120,reqCh:1,c:'#b98a5a',w:[700,280,18,2,1]},
+  {key:'silver',name:'Gümüş Sandık',icon:'🎁',baseCost:360,reqCh:2,c:'#cfd6e6',w:[180,520,260,38,5]},
+  {key:'gold',  name:'Altın Sandık',icon:'💎',baseCost:820,reqCh:3,c:'#f5c451',w:[20,260,520,186,14]},
 ];
-/* Dinamik sandık fiyatı (spec #1): oyuncunun chapter ilerlemesi büyüdükçe sandık fiyatı
-   loglineer ölçeklenir. Erken oyunda baseCost'a yakın, geç oyunda 2.2x-2.8x'e çıkar. */
-function chestCost(c){
-  const ch=Math.max(0,save.chapterProgress||0);
-  const scale=1+Math.log2(ch+1)*0.45;
-  return Math.round(c.baseCost*scale);
-}
+/* Sandık fiyatı sabit (dinamik chapter-ölçeği kaldırıldı); ilerleme artık reqCh kilidiyle sağlanır. */
+function chestCost(c){ return c.baseCost; }
 function findItem(uid){return save.inventory.find(i=>i.uid===uid);}
 function addItem(it){save.inventory.push(it);}
 function isEquipped(uid){return Object.values(save.equipped).includes(uid);}
@@ -797,10 +792,11 @@ function fire(){
   const sizeMul=wave?1.6:(cnt>=6?0.82:cnt>=4?0.92:1);
   const alpha=wave?0.95:(cnt>=6?0.7:cnt>=4?0.85:1);
   const dmgMul=wave?1.18:(cnt>=6?1.08:1);
+  const lowHp=(player.lastStand&&player.hp<player.maxHp*0.35)?player.lastStand:1; /* Son Nefes pasifi */
   for(const off of angles){const a=aimAngle+off;
     pProj.push({x:player.x+Math.cos(a)*player.r,y:player.y+Math.sin(a)*player.r,
       vx:Math.cos(a)*player.arrowSpeed,vy:Math.sin(a)*player.arrowSpeed,
-      r:Math.min(14,player.arrowSize*sizeMul),dmg:player.dmg*dmgMul,
+      r:Math.min(14,player.arrowSize*sizeMul),dmg:player.dmg*dmgMul*lowHp,
       pierce:player.pierce+(wave?2:0),
       chainBounce:player.chainBounce||0,wallBounce:player.wallBounce||0,
       ang:a,life:wave?1.1:1.6,hits:new Set(),alpha,wave});}
@@ -1550,17 +1546,18 @@ function drawPProj(){
   for(const pr of pProj){
     ctx.save();ctx.translate(pr.x,pr.y);ctx.rotate(pr.ang);
     ctx.globalAlpha=pr.alpha||1;
+    const vr=pr.r*0.62; /* görsel yarıçap: hitbox pr.r'den ayrı — ok daha küçük çizilir, vuruş aynı */
     if(pr.wave){ /* spec #3: enerji volley sprite — geniş, cyan, multi-hit */
-      ctx.shadowColor='#7af0ff';ctx.shadowBlur=18;
+      ctx.shadowColor='#7af0ff';ctx.shadowBlur=14;
       ctx.fillStyle='#cff8ff';
-      const L=pr.r*3.2;
-      ctx.beginPath();ctx.moveTo(L,0);ctx.lineTo(-pr.r*0.6,pr.r*1.1);ctx.lineTo(-pr.r*0.2,0);ctx.lineTo(-pr.r*0.6,-pr.r*1.1);ctx.closePath();ctx.fill();
-      ctx.fillStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.ellipse(L*0.55,0,L*0.35,pr.r*0.5,0,0,TAU);ctx.fill();
+      const L=vr*3.2;
+      ctx.beginPath();ctx.moveTo(L,0);ctx.lineTo(-vr*0.6,vr*1.1);ctx.lineTo(-vr*0.2,0);ctx.lineTo(-vr*0.6,-vr*1.1);ctx.closePath();ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.ellipse(L*0.55,0,L*0.35,vr*0.5,0,0,TAU);ctx.fill();
     }else{
-      ctx.shadowColor='#ffcf5c';ctx.shadowBlur=12;
+      ctx.shadowColor='#ffcf5c';ctx.shadowBlur=9;
       ctx.fillStyle='#ffe08a';
-      const L=pr.r*2.6;
-      ctx.beginPath();ctx.moveTo(L,0);ctx.lineTo(-pr.r,pr.r);ctx.lineTo(-pr.r*0.4,0);ctx.lineTo(-pr.r,-pr.r);ctx.closePath();ctx.fill();
+      const L=vr*2.6;
+      ctx.beginPath();ctx.moveTo(L,0);ctx.lineTo(-vr,vr);ctx.lineTo(-vr*0.4,0);ctx.lineTo(-vr,-vr);ctx.closePath();ctx.fill();
     }
     ctx.restore();
   }
@@ -1582,7 +1579,7 @@ function updateHUD(){
   else{const ch=Math.floor(stageIndex/5),st=stageIndex%5;$('waveLbl').textContent='BÖLÜM';$('waveNum').textContent=(ch+1)+'-'+(st+1);$('stageLabel').style.display='block';$('stageLabel').textContent=(bossStage?'👑 BOSS • ':'')+'Düşman '+Math.min(spawnedCount,spawnBudget)+'/'+spawnBudget;}
   /* Enrage göstergesi (spec #2): aktifken stageLabel'a kırmızı uyarı ekler.
      Skill slot göstergesi (spec #5): kullanılan/maks slot sayısı. */
-  const slotN=p.picks?Object.keys(p.picks).length:0;
+  const slotN=p.picks?Object.keys(p.picks).filter(isActiveId).length:0;
   let extras='🎯 '+slotN+'/'+MAX_SKILL_SLOTS+' Beceri';
   if(enraged)extras+=' • 🔥 ÖFKE x'+enrageStacks;
   /* Spec #8: berserk meter / aktif görsel. */
@@ -1640,6 +1637,9 @@ const UPGRADES=[
   {id:'vampire',name:'★ Kan Emici',icon:'🩸',tag:'Sinerji',c:'#f5c451',g:'rgba(245,196,81,.4)',cap:1,rare:true,desc:'Öldürünce +2 can ve Hasar +%8',req:p=>p.healOnKill>0,apply:p=>{p.healOnKill+=2;p.dmg*=1.08;}},
   {id:'siege',name:'★ Çok Yönlü Usta',icon:'✳️',tag:'Sinerji',c:'#f5c451',g:'rgba(245,196,81,.4)',cap:2,desc:'Hasar +%18 (yan/çapraz/arka atışlara güç)',req:p=>p.side||p.diag||p.rear,apply:p=>{p.dmg*=1.18;}},
   {id:'storm',name:'★ Ok Fırtınası',icon:'⚡',tag:'Sinerji',c:'#f5c451',g:'rgba(245,196,81,.4)',cap:2,desc:'Atış hızı +%18 ve Kritik +%5',req:p=>p.fireInterval<0.36,apply:p=>{p.fireInterval*=0.82;p.crit=Math.min(0.85,p.crit+0.05);}},
+  // --- YENİ pasifler (slotsuz) ---
+  {id:'hazavci',name:'Hazine Avcısı',icon:'💰',tag:'Beceri',c:'#ffd700',g:'rgba(255,215,0,.35)',cap:3,desc:'Altın +%25 ve Tecrübe +%15',apply:p=>{p.goldBonus+=0.25;p.xpBonus+=0.15;}},
+  {id:'sonnefes',name:'Son Nefes',icon:'💢',tag:'Risk',c:'#ff4d6d',g:'rgba(255,77,109,.35)',cap:2,desc:'Can %35 altındayken Hasar +%25',apply:p=>{p.lastStand=(p.lastStand||1)+0.25;}},
 ];
 /* ============================ BİRLEŞİMLER (FUSIONS) ============================ */
 /* İki uyumlu beceri maks seviyeye gelince açılır; oyuncu hangi tarafın daha çok artacağını seçer */
@@ -1681,7 +1681,7 @@ const FUSIONS=[
 function capOf(id){const u=UPGRADES.find(x=>x.id===id);return u?(u.cap||3):3;}
 function availableFusions(){
   if(!player)return[];
-  return FUSIONS.filter(f=>!owned.has(f.id)&&f.need.every(id=>(player.picks[id]||0)>=capOf(id)));
+  return FUSIONS.filter(f=>!owned.has(f.id)&&f.need.every(id=>!fusedAway.has(id))&&f.need.every(id=>(player.picks[id]||0)>=capOf(id)));
 }
 /* Spec #4 + #5: exclusive grup kilidi — bir gruptan biri seçildiyse aynı grubun
    diğer üyeleri level-up listesinden düşer. arrowBounce: chain vs ricochet,
@@ -1699,23 +1699,35 @@ function lockedExclusives(){
 /* Spec #5 hard cap: oyuncu en fazla MAX_SKILL_SLOTS farklı beceri seçebilir.
    Slot dolduğunda yalnızca mevcut seçimlerin level-up'ları görünür (tactical depth). */
 const MAX_SKILL_SLOTS=5;
+/* Aktif skiller (slot kaplar, füzyon düğümü/mekanik); geri kalan UPGRADES pasif (slotsuz). */
+const ACTIVE_IDS=new Set(['dmg','as','multi','crit','side','diag','rear','pierce','bounce','ricochet','hp','move','lifekill','palausta','hizlipala','orb','light','aura']);
+const fusedAway=new Set(); // füzyona harcanmış temel skiller — bir daha gelmez
+function isActiveId(id){ return ACTIVE_IDS.has(id)||FUSIONS.some(f=>f.id===id); }
+function activeSlotCount(){ return Object.keys(player.picks).filter(isActiveId).length; }
 function rollUpgrades(n){
   const locked=lockedExclusives();
-  const slotCount=Object.keys(player.picks).length;
-  const slotFull=slotCount>=MAX_SKILL_SLOTS;
+  const slotFull=activeSlotCount()>=MAX_SKILL_SLOTS;
+  // füzyon partner önceliği: sahip olunan aktiflerin füzyon eşlerini öne çıkar (kombinasyona ulaşılsın)
+  const partner=new Set();
+  for(const f of FUSIONS){
+    if(owned.has(f.id)||f.need.some(id=>fusedAway.has(id)))continue;
+    if(f.need.some(id=>(player.picks[id]||0)>0))for(const id of f.need)if(!fusedAway.has(id))partner.add(id);
+  }
   const elig=UPGRADES.filter(u=>{
     if(u.once&&owned.has(u.id))return false;
+    if(fusedAway.has(u.id))return false;
     if((player.picks[u.id]||0)>=(u.cap||3))return false;
     if(u.req&&!u.req(player))return false;
     if(locked.has(u.id))return false;
-    if(slotFull&&!player.picks[u.id])return false; // yeni slot açamaz
+    if(slotFull&&ACTIVE_IDS.has(u.id)&&!player.picks[u.id])return false; // yeni AKTİF slot açamaz (pasifler serbest)
     return true;
   });
+  const wOf=u=>(u.rare?1:4)*(partner.has(u.id)?3:1);
   const out=[];
   while(out.length<n&&elig.length){
-    const total=elig.reduce((s,u)=>s+(u.rare?1:4),0);
+    const total=elig.reduce((s,u)=>s+wOf(u),0);
     let r=Math.random()*total,idx=0;
-    for(let i=0;i<elig.length;i++){r-=(elig[i].rare?1:4);if(r<=0){idx=i;break;}}
+    for(let i=0;i<elig.length;i++){r-=wOf(elig[i]);if(r<=0){idx=i;break;}}
     out.push(elig.splice(idx,1)[0]);
   }
   return out;
@@ -1723,7 +1735,8 @@ function rollUpgrades(n){
 function cardEl(opt,onClick){
   const card=document.createElement('div');card.className='card';
   card.style.setProperty('--cardc',opt.c);card.style.setProperty('--cardglow',opt.g);
-  card.innerHTML='<div class="cardTag">'+opt.tag+'</div><div class="cardIcon">'+opt.icon+'</div><div class="cardName">'+opt.name+'</div><div class="cardDesc">'+opt.desc+'</div>';
+  const kb=opt.id?(ACTIVE_IDS.has(opt.id)?'<div style="font-size:9px;font-weight:800;color:#9beaff;letter-spacing:.4px;margin:1px 0 2px">⚔️ AKTİF · SLOT</div>':'<div style="font-size:9px;font-weight:800;color:#8fffc0;letter-spacing:.4px;margin:1px 0 2px">🔧 PASİF</div>'):'';
+  card.innerHTML='<div class="cardTag">'+opt.tag+'</div>'+kb+'<div class="cardIcon">'+opt.icon+'</div><div class="cardName">'+opt.name+'</div><div class="cardDesc">'+opt.desc+'</div>';
   card.onclick=onClick;return card;
 }
 function openLevelUp(){
@@ -1744,11 +1757,15 @@ function openLevelUp(){
   if(chance(0.09)){
     wrap.appendChild(cardEl({tag:'❓ KADER',icon:'🎲',name:'Kader Parası',desc:'%50 efsanevi/mitik ekipman düşer • %50 maks can -%40',c:'#c79bff',g:'rgba(199,155,255,.45)'},chooseGambler));
   }
+  if(!wrap.children.length){ /* emniyet: havuz boşsa oyun donmasın — garanti bonus kart */
+    wrap.appendChild(cardEl({tag:'💠 BONUS',icon:'💚',name:'Toparlan',desc:'Canın %40 dolar ve +40 altın',c:'#5dff8f',g:'rgba(93,255,143,.4)'},chooseFallback));
+  }
   $('levelup').classList.add('show');
 }
 function afterPick(){burst(player.x,player.y,'#7af0ff',16,200,0.5,4);pendingLevels--;$('levelup').classList.remove('show');if(pendingLevels>0)setTimeout(openLevelUp,120);else state=ST.PLAYING;}
+function chooseFallback(){player.hp=Math.min(player.maxHp,player.hp+player.maxHp*0.4);runGold+=40;afterPick();}
 function chooseUpgrade(u){u.apply(player);owned.add(u.id);player.picks[u.id]=(player.picks[u.id]||0)+1;afterPick();}
-function chooseFusion(f,v){v.apply(player);owned.add(f.id);burst(player.x,player.y,'#ff5ccd',26,260,0.6,5);shake=Math.max(shake,8);afterPick();}
+function chooseFusion(f,v){v.apply(player);owned.add(f.id);for(const id of f.need){delete player.picks[id];fusedAway.add(id);}player.picks[f.id]=1;/* 2 temel aktif slottan kalkar, füzyon 1 slot → net -1 */burst(player.x,player.y,'#ff5ccd',26,260,0.6,5);shake=Math.max(shake,8);afterPick();}
 function chooseGambler(){
   if(chance(0.5)){
     const r=chance(0.35)?'mythic':'legendary';
@@ -1786,7 +1803,7 @@ function setupRoom(idx){ // configure a room WITHOUT touching player stats / run
 function startChapter(ch){ // begin a chapter from room 1 with FRESH abilities
   audioInit();if(actx&&actx.state==='suspended')actx.resume();
   mode='stage';
-  const L=computeLoadout();player=makePlayer(L);owned.clear();
+  const L=computeLoadout();player=makePlayer(L);owned.clear();fusedAway.clear();
   runGold=0;score=0;kills=0;pendingLevels=0;
   hideAllOverlays();
   setupRoom(ch*5);
@@ -1798,7 +1815,7 @@ function nextRoom(){ // continue to next room in same chapter, KEEP player + run
 function startEndless(){
   audioInit();if(actx&&actx.state==='suspended')actx.resume();
   mode='endless';
-  const L=computeLoadout();player=makePlayer(L);owned.clear();
+  const L=computeLoadout();player=makePlayer(L);owned.clear();fusedAway.clear();
   enemies=[];pProj=[];eProj=[];parts=[];gems=[];dmgs=[];walls=[];waters=[];bolts=[];novas=[];pNovas=[];slowZones=[];hazards=[];endlessBossCount=0;
   runTime=0;score=0;kills=0;pendingLevels=0;runGold=0;shake=0;flashV=0;bossAlive=false;bossSpawned=false;resetEnrage();
   wave=1;waveTime=0;spawnTimer=0.6;biomeTint=null;bossStage=false;
@@ -1902,7 +1919,7 @@ function playChapter(ch){if(ch>save.chapterProgress)return;startChapter(ch);}
 let selectedUid=null;
 function renderEquip(){
   updateGoldDisplays();
-  $('chestRow').innerHTML=CHESTS.map(c=>{const cost=chestCost(c),dis=save.gold<cost?'disabled':'';return '<button class="chestBtn" '+dis+' style="border-color:'+c.c+'" onclick="openChest(\''+c.key+'\')"><div class="ci">'+c.icon+'</div><div class="cn">'+c.name+'</div><div class="cc">'+fmt(cost)+' 🪙</div></button>';}).join('');
+  $('chestRow').innerHTML=CHESTS.map(c=>{const cost=chestCost(c),locked=(save.chapterProgress||0)<c.reqCh,dis=(locked||save.gold<cost)?'disabled':'',cc=locked?('🔒 Bölüm '+c.reqCh):(fmt(cost)+' 🪙');return '<button class="chestBtn" '+dis+' style="border-color:'+c.c+'" onclick="openChest(\''+c.key+'\')"><div class="ci">'+c.icon+'</div><div class="cn">'+c.name+'</div><div class="cc">'+cc+'</div></button>';}).join('');
   let sl='';
   for(const slot of SLOTS){const uid=save.equipped[slot],it=uid?findItem(uid):null,selCls=(selectedUid&&it&&it.uid===selectedUid)?' sel':'';
     if(it){const r=RARITY[rIdx(it.rarity)];sl+='<div class="slot'+selCls+'" style="border-color:'+r.c+'" onclick="selectItem(\''+it.uid+'\')">'+SLOT_META[slot].icon+'<span class="lv">'+it.level+'</span></div>';}
@@ -1938,7 +1955,7 @@ function doUnequip(){const it=findItem(selectedUid);if(!it)return;if(save.equipp
 function doSell(){const it=findItem(selectedUid);if(!it||isEquipped(it.uid))return;save.gold+=sellValue(it);save.inventory=save.inventory.filter(i=>i.uid!==it.uid);selectedUid=null;persist();sfx.coin();renderEquip();}
 function doUpgrade(){const it=findItem(selectedUid);if(!it)return;const cost=upgradeCost(it);if(save.gold<cost)return;save.gold-=cost;it.level++;persist();sfx.level();renderEquip();}
 function doMerge(){const it=findItem(selectedUid);if(!canMerge(it))return;const grp=mergeGroup(it).slice(0,3),ids=grp.map(g=>g.uid);save.inventory=save.inventory.filter(x=>!ids.includes(x.uid));const nr=RARITY[rIdx(it.rarity)+1].key;const ni=makeItem(it.slot,nr,it.variant);addItem(ni);selectedUid=ni.uid;persist();sfx.win();renderEquip();}
-function openChest(key){const c=CHESTS.find(x=>x.key===key)||CHESTS[0];const cost=chestCost(c);if(save.gold<cost)return;save.gold-=cost;const it=makeItem(pick(SLOTS),rollRarityW(c.w));addItem(it);selectedUid=it.uid;persist();sfx.win();renderEquip();}
+function openChest(key){const c=CHESTS.find(x=>x.key===key)||CHESTS[0];if((save.chapterProgress||0)<c.reqCh)return;const cost=chestCost(c);if(save.gold<cost)return;save.gold-=cost;const it=makeItem(pick(SLOTS),rollRarityW(c.w));addItem(it);selectedUid=it.uid;persist();sfx.win();renderEquip();}
 
 /* ============================ WIRE ============================ */
 $('goMapBtn').onclick=goMap;
