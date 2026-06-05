@@ -284,8 +284,22 @@ const App = (() => {
         // Event listener'lar
         setupEventListeners();
 
-        // Splash ekranı
-        showSplash();
+        // SEO derin link: /?oyun=<slug> → splash'i atla, doğrudan oyunu aç (landing sayfasından gelen ziyaretçi)
+        if (!tryDeepLink()) showSplash();
+    }
+    function tryDeepLink() {
+        let slug;
+        try { slug = new URLSearchParams(location.search).get('oyun'); } catch (e) { return false; }
+        if (!slug) return false;
+        const sp = gameRegistry.find(e => e.game && e.game.id === slug);
+        const mp = mpGamesList.find(e => e.id === slug);
+        if (!sp && !mp) return false;            // bilinmeyen slug → normal splash akışı
+        try { AudioManager.init(); } catch (e) {}
+        try { hideSplash(); } catch (e) {}
+        showHub();                               // kilitliyse hub'da kalır, bilgi penceresi gösterir
+        if (sp && isGameUnlocked(sp)) startGame(sp.game);
+        else if (mp && isGameUnlocked(mp)) startMultiplayerGame(mp.game);
+        return true;
     }
 
     function setupEventListeners() {
