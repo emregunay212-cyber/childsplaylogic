@@ -50,7 +50,8 @@
   .overlay{position:absolute;inset:0;z-index:20;display:none;align-items:center;justify-content:center;
     flex-direction:column;text-align:center;padding:24px;
     background:radial-gradient(120% 90% at 50% 0%, rgba(40,25,70,.55), rgba(6,5,12,.92) 70%);}
-  .overlay.show{display:flex;animation:fade .3s ease;}
+  /* Spec #6: dar/kısa ekranlarda kartlar kesilmesin diye overlay scrollable. */
+  .overlay.show{display:flex;animation:fade .3s ease;overflow-y:auto;-webkit-overflow-scrolling:touch;}
   @keyframes fade{from{opacity:0}to{opacity:1}}
 
   /* ---------- Full meta screens ---------- */
@@ -190,11 +191,24 @@
   #luTitle{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(24px,7vw,42px);color:#9beaff;
     text-shadow:0 0 30px rgba(79,227,255,.4);letter-spacing:2px;}
   #luSub{color:var(--muted);font-size:13px;letter-spacing:3px;margin:4px 0 22px;font-weight:600;text-transform:uppercase;}
-  #cards{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;max-width:740px;}
+  #cards{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;max-width:740px;padding-bottom:20px;}
   .card{cursor:pointer;width:188px;min-height:188px;border-radius:18px;
     background:linear-gradient(180deg,rgba(40,32,62,.96),rgba(22,18,36,.96));border:1.5px solid var(--panel-brd);
     padding:18px 14px;display:flex;flex-direction:column;align-items:center;gap:9px;position:relative;overflow:hidden;
     transition:transform .12s,box-shadow .12s,border-color .12s;}
+  /* Spec #6: dar mobil (<420px) ekranda kartları dikey carousel'a indir, taşmayı önle. */
+  @media (max-width:420px){
+    #cards{flex-direction:column;gap:10px;max-width:96vw;}
+    .card{width:96vw;min-height:auto;padding:14px 14px;flex-direction:row;gap:14px;text-align:left;align-items:center;}
+    .cardIcon{font-size:34px;}
+    .cardName{font-size:15px;}
+    .cardDesc{font-size:12.5px;}
+    .cardTag{position:static;align-self:flex-start;}
+  }
+  @media (max-height:560px){
+    .card{min-height:auto;padding:12px 12px;}
+    #luTitle{font-size:22px;margin-bottom:0;} #luSub{margin:2px 0 10px;}
+  }
   .card::before{content:'';position:absolute;inset:0;background:radial-gradient(80% 60% at 50% -10%,var(--cardglow,rgba(255,200,90,.18)),transparent 70%);}
   .card:active{transform:scale(.96);}
   @media(hover:hover){.card:hover{transform:translateY(-6px);border-color:var(--cardc,var(--gold));
@@ -345,7 +359,13 @@ function resize(){
   cv.width=Math.floor(W*DPR);cv.height=Math.floor(H*DPR);
   cv.style.width=W+'px';cv.style.height=H+'px';
   ctx.setTransform(DPR,0,0,DPR,0,0);
-  bounds={left:10,top:78,right:W-10,bottom:H-10};
+  /* Spec #6: dar portrait ekranlarda (9:16, 19.5:9) HUD'ı daha sıkı tut ve
+     yan margin'i küçült ki oyuncunun görüş alanı genişlesin (claustrophobia fix). */
+  const portrait=H>W, narrow=W<600;
+  const sideM=narrow?6:10;
+  const topM=portrait?(narrow?68:74):78;
+  const botM=narrow?12:10;
+  bounds={left:sideM,top:topM,right:W-sideM,bottom:H-botM};
   if(player){player.x=clamp(player.x,bounds.left+player.r,bounds.right-player.r);
              player.y=clamp(player.y,bounds.top+player.r,bounds.bottom-player.r);}
 }
@@ -424,12 +444,21 @@ function makeItem(slot,rarity,variant){save._uid=(save._uid||0)+1;const vs=VARIA
 function rollRarity(bias=0){const r=Math.random()-bias;if(r<0.55)return'common';if(r<0.82)return'rare';if(r<0.95)return'epic';if(r<0.992)return'legendary';return'mythic';}
 function rollRarityW(w){const tot=w.reduce((a,b)=>a+b,0);let r=Math.random()*tot;for(let i=0;i<w.length&&i<RARITY.length;i++){r-=w[i];if(r<=0)return RARITY[i].key;}return RARITY[0].key;}
 function generateItem(slot,bias){return makeItem(slot||pick(SLOTS),rollRarity(bias||0));}
-/* Sandık çeşitleri — ağırlıklar RARITY sırasına göre: [sıradan,nadir,epik,efsanevi,mitik] */
+/* Sandık çeşitleri — ağırlıklar RARITY sırasına göre: [sıradan,nadir,epik,efsanevi,mitik]
+   Mitik (Red) = spec'in "Red Equipment" tieri. Yüksek tier seyrekleştirildi (spec #1):
+   wood %0.1 mitik, silver %0.5 mitik, gold %1.4 mitik — eski %1/%3/%9 yerine. */
 const CHESTS=[
-  {key:'wood',  name:'Ahşap Sandık',icon:'📦',cost:120,c:'#b98a5a',w:[56,30,10,3,1]},
-  {key:'silver',name:'Gümüş Sandık',icon:'🎁',cost:360,c:'#cfd6e6',w:[18,40,29,10,3]},
-  {key:'gold',  name:'Altın Sandık',icon:'💎',cost:820,c:'#f5c451',w:[3,20,40,28,9]},
+  {key:'wood',  name:'Ahşap Sandık',icon:'📦',baseCost:120,c:'#b98a5a',w:[700,280,18,2,1]},
+  {key:'silver',name:'Gümüş Sandık',icon:'🎁',baseCost:360,c:'#cfd6e6',w:[180,520,260,38,5]},
+  {key:'gold',  name:'Altın Sandık',icon:'💎',baseCost:820,c:'#f5c451',w:[20,260,520,186,14]},
 ];
+/* Dinamik sandık fiyatı (spec #1): oyuncunun chapter ilerlemesi büyüdükçe sandık fiyatı
+   loglineer ölçeklenir. Erken oyunda baseCost'a yakın, geç oyunda 2.2x-2.8x'e çıkar. */
+function chestCost(c){
+  const ch=Math.max(0,save.chapterProgress||0);
+  const scale=1+Math.log2(ch+1)*0.45;
+  return Math.round(c.baseCost*scale);
+}
 function findItem(uid){return save.inventory.find(i=>i.uid===uid);}
 function addItem(it){save.inventory.push(it);}
 function isEquipped(uid){return Object.values(save.equipped).includes(uid);}
@@ -473,7 +502,13 @@ function computeLoadout(){
     if(s.front)frontAdd+=s.front;
   }
   b.fireInterval*=fireMul; b.moveSpeed*=moveMul; b.front+=frontAdd;
-  b.def=Math.min(b.def,0.7); b.crit=Math.min(b.crit,0.75); b.healOnKill=Math.min(b.healOnKill,3);
+  /* Soft cap formülü (spec #2): saf toplama yerine 1-e^(-α*sum) ile diminishing returns.
+     α=1.6 ile: ham 0.30→0.38, 0.50→0.55, 0.70→0.67, 1.0→0.80, 2.0→0.96. Asimptot 1.0
+     ama hard cap 0.85 ile gerçek ölümsüzlüğü kapatır (true dmg enrage bunu bypass'lar). */
+  const defRaw=b.def;
+  b.defRaw=defRaw;
+  b.def=Math.min(0.85,1-Math.exp(-1.6*defRaw));
+  b.crit=Math.min(b.crit,0.75); b.healOnKill=Math.min(b.healOnKill,3);
   return b;
 }
 function powerScore(L){return Math.round(L.dmg*5+L.maxHp*0.6+(60/L.fireInterval)+(L.front-1)*60+L.crit*400+(L.critDmg-1.5)*150+L.def*400+(L.moveSpeed-218)*0.6+L.healOnKill*12);}
@@ -509,6 +544,16 @@ let curGrid='rgba(130,115,180,0.06)', curAccent='rgba(140,110,210,0.5)';
 const WAVE_DUR=17;
 const owned=new Set();
 let novas=[], endlessBossCount=0;
+/* Spec #7 yeni efekt havuzları: pNovas oyuncunun storm volley şokdalgaları,
+   slowZones incendiary singularity alev kapanları (rear ok düştüğü yere bırakır). */
+let pNovas=[], slowZones=[];
+/* Spec #8 çevre etkileşimleri: hazards = patlayıcı variller, kinetik grid'ler. */
+let hazards=[];
+/* Enrage (spec #2): waveStuckTimer ENRAGE_BASE'i aşarsa düşmanlar hızlanır +%50 ve her
+   ENRAGE_STACK_S saniyede true damage stack'i +%5. AFK build matematiksel olarak kırılır. */
+const ENRAGE_BASE=42, ENRAGE_STACK_S=5, ENRAGE_TRUE_PCT=0.05, ENRAGE_SPEED_MUL=1.5;
+let enrageTimer=0, enrageStacks=0, enraged=false, enrageTickCd=0;
+function resetEnrage(){enrageTimer=0;enrageStacks=0;enraged=false;enrageTickCd=0;}
 const BOSS_KINDS=['demon','golem','lich','serpent'];
 const BOSS_BY_CH=['serpent','golem','demon','lich'];
 
@@ -564,6 +609,25 @@ function generateObstacles(){
 function safeSpawn(p){ // push an edge spawn out of any obstacle
   for(let t=0;t<8;t++){ if(!blockedAt(p.x,p.y,12,false))return p; p.x=clamp(p.x+rand(-40,40),bounds.left+12,bounds.right-12); p.y=clamp(p.y+rand(-40,40),bounds.top+12,bounds.bottom-12);} return p;
 }
+/* Spec #8: oda başında 1-3 patlayıcı varil yerleştir. Çakışma kontrolüyle.
+   Endless modda yok (zaten obstacle yok). Boss odasında 1 ekstra. */
+function generateHazards(){
+  hazards=[];
+  if(mode==='endless')return;
+  const ch=Math.floor(stageIndex/5);
+  const base=1+Math.min(ch,2)+(bossStage?1:0);
+  const cx=W/2, cy=(bounds.top+bounds.bottom)/2;
+  for(let i=0;i<base;i++){
+    for(let t=0;t<14;t++){
+      const x=rand(bounds.left+40,bounds.right-40), y=rand(bounds.top+50,bounds.bottom-40);
+      if(dist(x,y,cx,cy)<100)continue;
+      if(blockedAt(x,y,18,false))continue;
+      let bad=false;for(const h of hazards)if(dist(x,y,h.x,h.y)<70){bad=true;break;}
+      if(bad)continue;
+      hazards.push({x,y,r:14,hp:1,kind:'barrel',flash:0});break;
+    }
+  }
+}
 
 /* ============================ INPUT ============================ */
 const keys={};
@@ -612,11 +676,20 @@ function dmgNum(x,y,val,color,big){if(dmgs.length>22)return null;const o={x:x+ra
 /* ============================ PLAYER ============================ */
 function makePlayer(L){return{x:W/2,y:H/2,r:15,hp:L.maxHp,maxHp:L.maxHp,moveSpeed:L.moveSpeed,dmg:L.dmg,
   fireInterval:L.fireInterval,fireTimer:0,arrowSpeed:L.arrowSpeed,arrowSize:L.arrowSize,front:L.front,
-  side:false,diag:false,rear:false,pierce:0,bounce:0,healOnKill:L.healOnKill,crit:L.crit,critDmg:L.critDmg,
+  side:false,diag:false,rear:false,pierce:0,
+  /* spec #4: bounce ikiye bölündü — chainBounce düşmanlar arası, wallBounce duvar/engel */
+  chainBounce:0,wallBounce:0,
+  healOnKill:L.healOnKill,crit:L.crit,critDmg:L.critDmg,
   def:L.def,goldBonus:L.goldBonus,xpBonus:L.xpBonus,invuln:0,hitFlash:0,
   meleeTimer:0,meleeInterval:0.5,meleeRange:42,meleeMul:1.2,meleeFx:0,
   orbs:0,orbAng:0,lightning:0,lightTimer:1,aura:0,auraTick:0,_auraR:0,
   picks:{},magnetR:130,lifestealCd:0,
+  /* Spec #7 fusion state'leri: stormVolley/vampShadow/incendiary FUSIONS apply'larıyla set edilir. */
+  stormVolley:0,stormCharge:0,stillTimer:0,
+  vampShadow:0,
+  incendiary:0,incendiaryCd:0,
+  /* Spec #8 Berserk Meter: hasar aldıkça dolar, max'ta 5s hyper-bolt modu. */
+  berserk:0,berserkActive:0,berserkFireTimer:0,
   xp:0,level:1,xpToNext:8,anim:0};}
 
 /* ============================ ENEMIES ============================ */
@@ -707,11 +780,31 @@ function fire(){
   if(player.side){angles.push(Math.PI/2);angles.push(-Math.PI/2);}
   if(player.diag){angles.push(Math.PI/4);angles.push(-Math.PI/4);}
   if(player.rear)angles.push(Math.PI);
+  /* Spec #7 incendiary: rear ok atılıyorsa oyuncunun arkasına alev kapanı bırak.
+     Cooldown ile spam'i engelle. variant 1 dar, variant 2 geniş alan. */
+  if(player.rear&&player.incendiary&&player.incendiaryCd<=0){
+    const back=aimAngle+Math.PI;
+    const r=player.incendiary===2?72:48;
+    slowZones.push({x:player.x+Math.cos(back)*40,y:player.y+Math.sin(back)*40,r,life:3.5});
+    player.incendiaryCd=0.55;
+  }
+  /* Spec #3 görsel temizlik:
+     - 4-5 ok: alpha 0.85, size ×0.92
+     - 6+ ok: alpha 0.7, size ×0.82, dmg ×1.08 (yoğunluk telafisi)
+     - 8+ ok: enerji volley modu — sprite "wave", combined multi-hit, life kısa */
+  const cnt=angles.length;
+  const wave=cnt>=8;
+  const sizeMul=wave?1.6:(cnt>=6?0.82:cnt>=4?0.92:1);
+  const alpha=wave?0.95:(cnt>=6?0.7:cnt>=4?0.85:1);
+  const dmgMul=wave?1.18:(cnt>=6?1.08:1);
   for(const off of angles){const a=aimAngle+off;
     pProj.push({x:player.x+Math.cos(a)*player.r,y:player.y+Math.sin(a)*player.r,
       vx:Math.cos(a)*player.arrowSpeed,vy:Math.sin(a)*player.arrowSpeed,
-      r:Math.min(10,player.arrowSize),dmg:player.dmg,pierce:player.pierce,bounce:player.bounce,ang:a,life:1.6,hits:new Set()});}
-  burst(player.x+Math.cos(aimAngle)*player.r,player.y+Math.sin(aimAngle)*player.r,'#ffe08a',3,160,0.25,2.5);
+      r:Math.min(14,player.arrowSize*sizeMul),dmg:player.dmg*dmgMul,
+      pierce:player.pierce+(wave?2:0),
+      chainBounce:player.chainBounce||0,wallBounce:player.wallBounce||0,
+      ang:a,life:wave?1.1:1.6,hits:new Set(),alpha,wave});}
+  burst(player.x+Math.cos(aimAngle)*player.r,player.y+Math.sin(aimAngle)*player.r,wave?'#9beaff':'#ffe08a',wave?5:3,wave?220:160,0.25,wave?3.5:2.5);
   sfx.shoot();
 }
 
@@ -724,15 +817,25 @@ function damageEnemy(e,d,fx,fy,crit){
   crit?sfx.crit():sfx.hit();
   if(e.hp<=0)killEnemy(e);
 }
+/* Gold drop log scaling (spec #1): erken aşamada baz değer, ileri stage/wave'lerde
+   log2(stage+1) çarpanı ama MAX_GOLD_PER_KILL clamp ile patlamayı önler. */
+const MAX_GOLD_PER_KILL=85;
+function goldDrop(baseVal){
+  const stageDepth=mode==='endless'?wave:(Math.floor(stageIndex/5)*5+(stageIndex%5)+1);
+  const scaled=baseVal*Math.log2(Math.max(1,stageDepth)+1);
+  return Math.min(scaled*(1+player.goldBonus),MAX_GOLD_PER_KILL*(1+player.goldBonus));
+}
 function killEnemy(e){
   e.dead=true;kills++;score+=e.xp*15+5;
-  runGold+=GOLDVAL[e.type]*(1+player.goldBonus);
+  runGold+=goldDrop(GOLDVAL[e.type]);
   burst(e.x,e.y,e.color,e.type==='boss'?40:randInt(8,14),e.type==='boss'?340:200,0.6,e.type==='boss'?5:3.5);
   const drops=e.type==='boss'?6:e.type==='tank'?2:1, val=e.type==='boss'?5:e.xp;
   for(let i=0;i<drops;i++)gems.push({x:e.x+rand(-14,14),y:e.y+rand(-14,14),vx:rand(-40,40),vy:rand(-40,40),val,r:5,pulse:rand(0,TAU)});
   if(player.healOnKill&&player.lifestealCd<=0){player.hp=Math.min(player.maxHp,player.hp+player.healOnKill);player.lifestealCd=0.4;}
   if(e.type==='boss'){bossAlive=false;shake=16;flashV=Math.max(flashV,0.5);
-    const bonus=Math.round((90+wave*8)*(1+player.goldBonus));runGold+=bonus;score+=400;
+    /* Boss bonusu da log clamp'li (spec #1): 90 + 60*log2(wave+1) ≈ erken 90-150, geç 350-450 */
+    const bossBonus=90+60*Math.log2(Math.max(1,wave)+1);
+    const bonus=Math.round(Math.min(bossBonus,520)*(1+player.goldBonus));runGold+=bonus;score+=400;
     for(let i=0;i<16;i++)gems.push({x:e.x+rand(-26,26),y:e.y+rand(-26,26),vx:rand(-70,70),vy:rand(-70,70),val:8,r:6,pulse:rand(0,TAU)});
     player.hp=Math.min(player.maxHp,player.hp+player.maxHp*0.12);
     burst(e.x,e.y,'#ffd166',46,360,0.8,6);sfx.win();sfx.coin();}
@@ -751,8 +854,18 @@ function killEnemy(e){
 }
 function hurtPlayer(d,fx,fy){
   if(player.invuln>0)return;
-  d*=(1-player.def);
+  /* Spec #2: Enrage stack'leri true damage olarak savunmayı bypass eder.
+     Önce stack'lerin payını ayır, kalan kısmı def ile azalt, sonra ekle. */
+  const truePart=d*ENRAGE_TRUE_PCT*enrageStacks;
+  const mitigated=(d-truePart)*(1-player.def);
+  d=mitigated+truePart;
   player.hp-=d;player.invuln=0.7;player.hitFlash=0.2;shake=9;flashV=0.35;
+  /* Spec #8: Berserk meter — sustained damage'i izle. 100'e ulaşırsa 5s hyper-bolt. */
+  player.berserk=Math.min(100,player.berserk+d*1.8);
+  if(player.berserk>=100&&player.berserkActive<=0){
+    player.berserkActive=5;player.berserk=0;
+    burst(player.x,player.y,'#ff3060',36,320,0.7,5);shake=Math.max(shake,12);flashV=Math.max(flashV,0.55);sfx.boss();
+  }
   const a=Math.atan2(player.y-fy,player.x-fx),kb=14;
   const nx=player.x+Math.cos(a)*kb, ny=player.y+Math.sin(a)*kb;
   if(!blockedAt(nx,player.y,player.r,false))player.x=nx;
@@ -786,6 +899,14 @@ function update(dt){
   if(state!==ST.PLAYING){shake*=0.85;flashV*=0.9;return;}
 
   readInput();spawnLogic(dt);
+  /* Enrage update (spec #2): wave süre uzadıkça baskı artar.
+     ENRAGE_BASE'i geçince düşmanlar bir kerelik hızlanır, sonra her 5s'de stack +1. */
+  enrageTimer+=dt;
+  if(enrageTimer>=ENRAGE_BASE){
+    if(!enraged){enraged=true;for(const e of enemies)e.speed*=ENRAGE_SPEED_MUL;flashV=Math.max(flashV,0.4);shake=Math.max(shake,8);sfx.boss();}
+    enrageTickCd-=dt;
+    if(enrageTickCd<=0){enrageTickCd=ENRAGE_STACK_S;enrageStacks=Math.min(20,enrageStacks+1);}
+  }
   const p=player;
   p.invuln=Math.max(0,p.invuln-dt);p.hitFlash=Math.max(0,p.hitFlash-dt);p.lifestealCd=Math.max(0,p.lifestealCd-dt);
   p.meleeTimer=Math.max(0,p.meleeTimer-dt);p.meleeFx=Math.max(0,p.meleeFx-dt);
@@ -797,7 +918,38 @@ function update(dt){
 
   // ranged auto-fire (only when standing still)
   p.fireTimer=Math.min(p.fireTimer+dt,p.fireInterval);
-  if(!moving&&enemies.length&&p.fireTimer>=p.fireInterval){p.fireTimer=0;fire();}
+  /* Spec #7 Storm Volley: hareketsiz kalma süresini izle; threshold'u aşınca ateşle
+     birlikte şok dalgası fırlat. variant 1: 2.5s büyük dalga, variant 2: 1.5s küçük. */
+  if(moving)p.stillTimer=0;else p.stillTimer+=dt;
+  p.incendiaryCd=Math.max(0,p.incendiaryCd-dt);
+  /* Spec #8 Berserk Mode: aktifken sürekli hyper-bolt fırlat, normal fire devre dışı. */
+  if(p.berserkActive>0){
+    p.berserkActive-=dt;
+    p.berserkFireTimer-=dt;
+    if(p.berserkFireTimer<=0&&enemies.length){
+      p.berserkFireTimer=0.22;
+      const t=nearestEnemy();if(t){
+        const a=Math.atan2(t.y-p.y,t.x-p.x);aimAngle=a;
+        pProj.push({x:p.x+Math.cos(a)*p.r,y:p.y+Math.sin(a)*p.r,
+          vx:Math.cos(a)*p.arrowSpeed*1.4,vy:Math.sin(a)*p.arrowSpeed*1.4,
+          r:18,dmg:p.dmg*3.2,pierce:99,
+          chainBounce:0,wallBounce:0,ang:a,life:1.4,
+          hits:new Set(),alpha:1,wave:true,hyper:true});
+        burst(p.x+Math.cos(a)*p.r,p.y+Math.sin(a)*p.r,'#ff3060',6,260,0.3,4);sfx.zap();
+      }
+    }
+  }else if(!moving&&enemies.length&&p.fireTimer>=p.fireInterval){
+    p.fireTimer=0;fire();
+    if(p.stormVolley){
+      const need=p.stormVolley===1?2.5:1.5;
+      if(p.stillTimer>=need){
+        const dmg=p.dmg*(p.stormVolley===1?1.2:0.7);
+        const maxR=p.stormVolley===1?Math.max(W,H)*0.45:Math.max(W,H)*0.28;
+        pNovas.push({x:p.x,y:p.y,r:p.r,spd:560,maxR,dmg,hits:new Set()});
+        p.stillTimer=0;shake=Math.max(shake,p.stormVolley===1?7:4);sfx.zap();
+      }
+    }
+  }
 
   // melee swing — auto-hits any enemy hugging the player (works while moving too)
   if(p.meleeTimer<=0){
@@ -815,21 +967,58 @@ function update(dt){
     }
   }
 
-  // player projectiles
+  /* player projectiles — spec #4: wallBounce (duvar yansıması) ve chainBounce (düşman zinciri)
+     ayrı sayaçlar. Eskiden tek pr.bounce her iki davranışı paylaşıyordu — buggy. */
   for(const pr of pProj){
     pr.x+=pr.vx*dt;pr.y+=pr.vy*dt;pr.life-=dt;
-    if(pr.x<bounds.left||pr.x>bounds.right){if(pr.bounce>0){pr.bounce--;pr.vx*=-1;pr.x=clamp(pr.x,bounds.left,bounds.right);pr.ang=Math.atan2(pr.vy,pr.vx);}else pr.life=0;}
-    if(pr.y<bounds.top||pr.y>bounds.bottom){if(pr.bounce>0){pr.bounce--;pr.vy*=-1;pr.y=clamp(pr.y,bounds.top,bounds.bottom);pr.ang=Math.atan2(pr.vy,pr.vx);}else pr.life=0;}
+    // ekran kenarı — sadece wallBounce sayar
+    if(pr.x<bounds.left||pr.x>bounds.right){if(pr.wallBounce>0){pr.wallBounce--;pr.vx*=-1;pr.x=clamp(pr.x,bounds.left,bounds.right);pr.ang=Math.atan2(pr.vy,pr.vx);burst(pr.x,pr.y,'#9beaff',2,80,0.18,2);}else pr.life=0;}
+    if(pr.y<bounds.top||pr.y>bounds.bottom){if(pr.wallBounce>0){pr.wallBounce--;pr.vy*=-1;pr.y=clamp(pr.y,bounds.top,bounds.bottom);pr.ang=Math.atan2(pr.vy,pr.vx);burst(pr.x,pr.y,'#9beaff',2,80,0.18,2);}else pr.life=0;}
     if(pr.life<=0)continue;
-    if(hitsWall(pr.x,pr.y,pr.r)){pr.life=0;burst(pr.x,pr.y,'#ffd27a',3,80,0.25,2);continue;}
+    // engel duvarları (obstacle wall) — Vector3.Reflect benzeri açı yansıması
+    /* Spec #8: hazard varili ok değerse patlar — alana hasar + knockback. */
+    let hazardHit=false;
+    for(const h of hazards){
+      if(h.dead)continue;
+      if(dist(pr.x,pr.y,h.x,h.y)<h.r+pr.r){
+        h.dead=true;
+        const blastR=110,blastDmg=p.dmg*1.6;
+        for(const e of enemies){if(e.dead)continue;const dd=dist(e.x,e.y,h.x,h.y);if(dd<blastR){damageEnemy(e,blastDmg*(1-dd/blastR*0.5),h.x,h.y,false);const a=Math.atan2(e.y-h.y,e.x-h.x);e.x+=Math.cos(a)*22;e.y+=Math.sin(a)*22;}}
+        burst(h.x,h.y,'#ffb347',32,360,0.7,5.5);shake=Math.max(shake,9);flashV=Math.max(flashV,0.32);sfx.boss();
+        pNovas.push({x:h.x,y:h.y,r:6,spd:520,maxR:blastR,dmg:0,hits:new Set()}); // visual ring
+        hazardHit=true;break;
+      }
+    }
+    if(hazardHit){pr.life=0;continue;}
+    if(hitsWall(pr.x,pr.y,pr.r)){
+      if(pr.wallBounce>0){
+        pr.wallBounce--;
+        // ekseni tahmin et: hangi yöndense onu çevir (basit yaklaşım)
+        const stepX=pr.vx*dt,stepY=pr.vy*dt;
+        if(!hitsWall(pr.x-stepX,pr.y,pr.r))pr.vx*=-1;
+        else if(!hitsWall(pr.x,pr.y-stepY,pr.r))pr.vy*=-1;
+        else{pr.vx*=-1;pr.vy*=-1;}
+        pr.x-=stepX*1.1;pr.y-=stepY*1.1;
+        pr.ang=Math.atan2(pr.vy,pr.vx);
+        burst(pr.x,pr.y,'#9beaff',3,90,0.2,2);
+      }else{pr.life=0;burst(pr.x,pr.y,'#ffd27a',3,80,0.25,2);continue;}
+    }
     for(const e of enemies){
       if(e.dead||pr.hits.has(e))continue;
       if(dist(pr.x,pr.y,e.x,e.y)<e.r+pr.r){
         pr.hits.add(e);
         let d=pr.dmg,crit=false;if(Math.random()<p.crit){d*=p.critDmg;crit=true;}
         damageEnemy(e,d,pr.x,pr.y,crit);
+        /* Spec #7 vampiric shadow: zincir geçişinde kritik vurmuşsa can çal.
+           variant 1: +5 can ama mevcut HP -%5 (max'ın), variant 2: +3 can penaltı yok.
+           Sadece chainBounce ile yapılan vuruşlarda — yani ilk hit'ten sonra. */
+        if(crit&&p.vampShadow&&pr.hits.size>1){
+          const heal=p.vampShadow===1?5:3;
+          p.hp=Math.min(p.maxHp,p.hp+heal);
+          if(p.vampShadow===1)p.hp=Math.max(1,p.hp-p.maxHp*0.05);
+        }
         if(pr.pierce>0)pr.pierce--;
-        else if(pr.bounce>0){pr.bounce--;let nb=null,bd=1e9;for(const o of enemies){if(o.dead||pr.hits.has(o))continue;const dd=dist(o.x,o.y,pr.x,pr.y);if(dd<bd){bd=dd;nb=o;}}if(nb){const a=Math.atan2(nb.y-pr.y,nb.x-pr.x),sp=Math.hypot(pr.vx,pr.vy);pr.vx=Math.cos(a)*sp;pr.vy=Math.sin(a)*sp;pr.ang=a;}else pr.life=0;}
+        else if(pr.chainBounce>0){pr.chainBounce--;let nb=null,bd=1e9;for(const o of enemies){if(o.dead||pr.hits.has(o))continue;const dd=dist(o.x,o.y,pr.x,pr.y);if(dd<bd){bd=dd;nb=o;}}if(nb){const a=Math.atan2(nb.y-pr.y,nb.x-pr.x),sp=Math.hypot(pr.vx,pr.vy);pr.vx=Math.cos(a)*sp;pr.vy=Math.sin(a)*sp;pr.ang=a;}else pr.life=0;}
         else pr.life=0;
         break;
       }
@@ -900,8 +1089,34 @@ function update(dt){
       vx=Math.cos(ang+wob)*e.speed;vy=Math.sin(ang+wob)*e.speed;
     }
     e.moving=(vx*vx+vy*vy)>100;
+    /* Spec #7 incendiary singularity: slow zone içindeki düşmanın hızı düşer. */
+    if(slowZones.length){
+      for(const sz of slowZones){if(dist(e.x,e.y,sz.x,sz.y)<sz.r){vx*=0.45;vy*=0.45;break;}}
+    }
     stepEntity(e,vx,vy,dt,e.fly);
     if(d<e.r+p.r&&e.touchCd<=0&&e.born<=0){e.touchCd=0.8;hurtPlayer(e.dmg,e.x,e.y);}
+  }
+  /* pNovas (storm volley şokdalgaları) — yayılır, düşmana hasar + knockback ver. */
+  if(pNovas.length){
+    for(const nv of pNovas){
+      nv.r+=nv.spd*dt;
+      for(const e of enemies){
+        if(e.dead||nv.hits.has(e))continue;
+        if(e.type==='boss')continue; // spec: boss hariç
+        const dd=dist(e.x,e.y,nv.x,nv.y);
+        if(nv.r>=dd-e.r){
+          nv.hits.add(e);
+          damageEnemy(e,nv.dmg,e.x,e.y,false);
+          if(!e.dead){const a=Math.atan2(e.y-nv.y,e.x-nv.x);e.x+=Math.cos(a)*46;e.y+=Math.sin(a)*46;}
+        }
+      }
+    }
+    pNovas=pNovas.filter(nv=>nv.r<nv.maxR);
+  }
+  /* slowZones decay */
+  if(slowZones.length){
+    for(const sz of slowZones)sz.life-=dt;
+    slowZones=slowZones.filter(sz=>sz.life>0);
   }
 
   // --- BECERİLER (skills) ---
@@ -998,7 +1213,7 @@ function render(){
     curAccent=biomeTint?biomeTint.accent:'rgba(140,110,210,0.5)';
     let sx=0,sy=0;if(shake>0.4){sx=rand(-shake,shake);sy=rand(-shake,shake);}
     ctx.save();ctx.translate(sx,sy);
-    drawFloor();drawObstacles();drawAura();drawNovas();drawGems();drawEProj();drawEnemies();drawPlayer();drawOrbs();drawBolts();drawPProj();drawParticles();drawDmg();
+    drawFloor();drawObstacles();drawHazards();drawSlowZones();drawAura();drawNovas();drawPNovas();drawGems();drawEProj();drawEnemies();drawPlayer();drawOrbs();drawBolts();drawPProj();drawParticles();drawDmg();
     ctx.restore();
     drawJoystick();
   }
@@ -1078,6 +1293,48 @@ function drawNovas(){
   ctx.save();ctx.shadowColor='#ff7a3a';ctx.shadowBlur=12;
   for(const nv of novas){const a=clamp(1-nv.r/nv.maxR,0,1);ctx.globalAlpha=a*0.85;ctx.strokeStyle='#ffb347';ctx.lineWidth=5;ctx.beginPath();ctx.arc(nv.x,nv.y,nv.r,0,TAU);ctx.stroke();ctx.globalAlpha=a*0.4;ctx.strokeStyle='#fff3d0';ctx.lineWidth=2;ctx.beginPath();ctx.arc(nv.x,nv.y,Math.max(0,nv.r-6),0,TAU);ctx.stroke();}
   ctx.globalAlpha=1;ctx.restore();
+}
+function drawPNovas(){
+  if(!pNovas.length)return;
+  ctx.save();ctx.shadowColor='#7af0ff';ctx.shadowBlur=14;
+  for(const nv of pNovas){const a=clamp(1-nv.r/nv.maxR,0,1);ctx.globalAlpha=a*0.9;ctx.strokeStyle='#9beaff';ctx.lineWidth=4;ctx.beginPath();ctx.arc(nv.x,nv.y,nv.r,0,TAU);ctx.stroke();ctx.globalAlpha=a*0.5;ctx.strokeStyle='#e6fbff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(nv.x,nv.y,Math.max(0,nv.r-7),0,TAU);ctx.stroke();}
+  ctx.globalAlpha=1;ctx.restore();
+}
+function drawSlowZones(){
+  if(!slowZones.length)return;
+  ctx.save();ctx.shadowColor='#ff7a3a';ctx.shadowBlur=14;
+  for(const sz of slowZones){
+    const a=clamp(sz.life/3.5,0,1)*0.85;
+    const grd=ctx.createRadialGradient(sz.x,sz.y,sz.r*0.2,sz.x,sz.y,sz.r);
+    grd.addColorStop(0,'rgba(255,180,80,'+(a*0.6)+')');
+    grd.addColorStop(1,'rgba(255,80,40,0)');
+    ctx.fillStyle=grd;ctx.beginPath();ctx.arc(sz.x,sz.y,sz.r,0,TAU);ctx.fill();
+    ctx.globalAlpha=a*0.5;ctx.strokeStyle='#ffb347';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(sz.x,sz.y,sz.r,0,TAU);ctx.stroke();
+  }
+  ctx.globalAlpha=1;ctx.restore();
+}
+function drawHazards(){
+  if(!hazards.length)return;
+  for(const h of hazards){
+    if(h.dead)continue;
+    ctx.save();ctx.translate(h.x,h.y);
+    shadowEllipse(h.r*0.9,h.r*0.95);
+    // barrel: silindir gövde
+    const r=h.r;
+    ctx.fillStyle='#5a3a1e';
+    rr(-r*0.85,-r,r*1.7,r*2,4);ctx.fill();
+    ctx.fillStyle='#8a5a2e';
+    rr(-r*0.85,-r*0.4,r*1.7,r*0.25,2);ctx.fill();
+    rr(-r*0.85,r*0.15,r*1.7,r*0.25,2);ctx.fill();
+    ctx.fillStyle='#ffb347';ctx.font='700 12px Rajdhani';ctx.textAlign='center';
+    ctx.fillText('TNT',0,r*0.05);
+    // tetik glow
+    const pulse=0.5+Math.sin(runTime*5+h.x)*0.5;
+    ctx.shadowColor='#ff5a30';ctx.shadowBlur=12;
+    ctx.fillStyle='rgba(255,90,48,'+(0.5+0.4*pulse)+')';
+    ctx.beginPath();ctx.arc(0,-r-3,3+pulse*1.5,0,TAU);ctx.fill();
+    ctx.restore();
+  }
 }
 function drawGems(){ctx.save();ctx.shadowColor='#4fe3ff';ctx.shadowBlur=12;for(const g of gems){const s=g.r*(1+Math.sin(g.pulse)*0.15);ctx.fillStyle='#7af0ff';ctx.save();ctx.translate(g.x,g.y);ctx.rotate(Math.PI/4);ctx.fillRect(-s,-s,s*2,s*2);ctx.restore();}ctx.restore();}
 function drawEProj(){ctx.save();ctx.shadowBlur=10;for(const pr of eProj){ctx.shadowColor=pr.color;ctx.fillStyle=pr.color;ctx.beginPath();ctx.arc(pr.x,pr.y,pr.r,0,TAU);ctx.fill();ctx.fillStyle='rgba(255,255,255,.7)';ctx.beginPath();ctx.arc(pr.x,pr.y,pr.r*0.4,0,TAU);ctx.fill();}ctx.restore();}
@@ -1277,7 +1534,6 @@ function drawPlayer(){
   eye(r*0.13,-r*0.66,r*0.07,'#8df0ff');
   ctx.fillStyle=cloakD;ctx.beginPath();ctx.moveTo(-r*0.3,-r*0.92);ctx.lineTo(-r*0.05,-r*1.25);ctx.lineTo(r*0.2,-r*0.92);ctx.closePath();ctx.fill();
   ctx.restore();
-  // bow + string, rotated to aim
   ctx.save();ctx.rotate(aimAngle);
   ctx.strokeStyle=flashing?'#fff':gold;ctx.lineWidth=r*0.16;ctx.lineCap='round';ctx.shadowColor='#ffe08a';ctx.shadowBlur=6;
   ctx.beginPath();ctx.arc(r*0.5,0,r*0.85,-1.25,1.25);ctx.stroke();ctx.shadowBlur=0;
@@ -1289,7 +1545,27 @@ function drawPlayer(){
   ctx.restore();
   ctx.restore();
 }
-function drawPProj(){ctx.save();ctx.shadowColor='#ffcf5c';ctx.shadowBlur=12;for(const pr of pProj){ctx.save();ctx.translate(pr.x,pr.y);ctx.rotate(pr.ang);ctx.fillStyle='#ffe08a';const L=pr.r*2.6;ctx.beginPath();ctx.moveTo(L,0);ctx.lineTo(-pr.r,pr.r);ctx.lineTo(-pr.r*0.4,0);ctx.lineTo(-pr.r,-pr.r);ctx.closePath();ctx.fill();ctx.restore();}ctx.restore();}
+function drawPProj(){
+  ctx.save();
+  for(const pr of pProj){
+    ctx.save();ctx.translate(pr.x,pr.y);ctx.rotate(pr.ang);
+    ctx.globalAlpha=pr.alpha||1;
+    if(pr.wave){ /* spec #3: enerji volley sprite — geniş, cyan, multi-hit */
+      ctx.shadowColor='#7af0ff';ctx.shadowBlur=18;
+      ctx.fillStyle='#cff8ff';
+      const L=pr.r*3.2;
+      ctx.beginPath();ctx.moveTo(L,0);ctx.lineTo(-pr.r*0.6,pr.r*1.1);ctx.lineTo(-pr.r*0.2,0);ctx.lineTo(-pr.r*0.6,-pr.r*1.1);ctx.closePath();ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.ellipse(L*0.55,0,L*0.35,pr.r*0.5,0,0,TAU);ctx.fill();
+    }else{
+      ctx.shadowColor='#ffcf5c';ctx.shadowBlur=12;
+      ctx.fillStyle='#ffe08a';
+      const L=pr.r*2.6;
+      ctx.beginPath();ctx.moveTo(L,0);ctx.lineTo(-pr.r,pr.r);ctx.lineTo(-pr.r*0.4,0);ctx.lineTo(-pr.r,-pr.r);ctx.closePath();ctx.fill();
+    }
+    ctx.restore();
+  }
+  ctx.globalAlpha=1;ctx.restore();
+}
 function drawParticles(){for(const pt of parts){const a=clamp(pt.life/pt.max,0,1);ctx.globalAlpha=a;ctx.fillStyle=pt.color;ctx.beginPath();ctx.arc(pt.x,pt.y,pt.size*a+0.5,0,TAU);ctx.fill();}ctx.globalAlpha=1;}
 function drawDmg(){ctx.save();ctx.textAlign='center';ctx.font='700 16px Rajdhani';for(const dn of dmgs){const a=clamp(dn.life/0.7,0,1);ctx.globalAlpha=a;ctx.fillStyle=dn.color;ctx.save();ctx.translate(dn.x,dn.y);ctx.scale(dn.scale,dn.scale);ctx.fillText(dn.val,0,0);ctx.restore();}ctx.globalAlpha=1;ctx.restore();}
 function drawJoystick(){if(!moveJoy.active)return;ctx.save();ctx.strokeStyle='rgba(255,255,255,.18)';ctx.lineWidth=3;ctx.beginPath();ctx.arc(moveJoy.bx,moveJoy.by,58,0,TAU);ctx.stroke();const dx=moveJoy.cx-moveJoy.bx,dy=moveJoy.cy-moveJoy.by,d=Math.min(Math.hypot(dx,dy),58),a=Math.atan2(dy,dx),kx=moveJoy.bx+Math.cos(a)*d,ky=moveJoy.by+Math.sin(a)*d;ctx.fillStyle='rgba(245,196,81,.55)';ctx.shadowColor='#ffb347';ctx.shadowBlur=16;ctx.beginPath();ctx.arc(kx,ky,24,0,TAU);ctx.fill();ctx.restore();}
@@ -1304,6 +1580,19 @@ function updateHUD(){
   const m=Math.floor(runTime/60),s=Math.floor(runTime%60);$('timeNum').textContent=m+':'+(s<10?'0':'')+s;
   if(mode==='endless'){$('waveLbl').textContent='DALGA';$('waveNum').textContent=wave;$('stageLabel').style.display='none';}
   else{const ch=Math.floor(stageIndex/5),st=stageIndex%5;$('waveLbl').textContent='BÖLÜM';$('waveNum').textContent=(ch+1)+'-'+(st+1);$('stageLabel').style.display='block';$('stageLabel').textContent=(bossStage?'👑 BOSS • ':'')+'Düşman '+Math.min(spawnedCount,spawnBudget)+'/'+spawnBudget;}
+  /* Enrage göstergesi (spec #2): aktifken stageLabel'a kırmızı uyarı ekler.
+     Skill slot göstergesi (spec #5): kullanılan/maks slot sayısı. */
+  const slotN=p.picks?Object.keys(p.picks).length:0;
+  let extras='🎯 '+slotN+'/'+MAX_SKILL_SLOTS+' Beceri';
+  if(enraged)extras+=' • 🔥 ÖFKE x'+enrageStacks;
+  /* Spec #8: berserk meter / aktif görsel. */
+  if(p.berserkActive>0)extras+=' • 💢 ÖFKE MODU '+p.berserkActive.toFixed(1)+'s';
+  else if(p.berserk>0)extras+=' • 💢 '+Math.round(p.berserk)+'%';
+  const el=$('stageLabel');
+  if(mode==='endless'){el.style.display='block';el.textContent=extras;}
+  else{const base=el.textContent.replace(/ ?• (🎯|🔥|💢).*$/,'');el.textContent=base+' • '+extras;}
+  const danger=enraged||p.berserkActive>0;
+  el.style.color=danger?'#ff6680':'';el.style.textShadow=danger?'0 0 8px rgba(255,80,100,.55)':'';
 }
 
 /* ============================ UPGRADES (in-run) ============================ */
@@ -1315,11 +1604,14 @@ const UPGRADES=[
   {id:'as',name:'Çeviklik',icon:'⚡',tag:'Saldırı',c:'#ffd166',g:'rgba(255,209,102,.3)',cap:5,desc:'Atış hızı +%20',apply:p=>p.fireInterval*=0.83},
   {id:'multi',name:'Çoklu Ok',icon:'🏹',tag:'Saldırı',c:'#ffe08a',g:'rgba(255,224,138,.3)',cap:1,req:p=>p.front<2,desc:'Önüne +1 ok (maks 2)',apply:p=>addFront(p)},
   {id:'crit',name:'Keskin Nişan',icon:'✨',tag:'Saldırı',c:'#ffd166',g:'rgba(255,209,102,.3)',cap:4,desc:'Kritik şans +%8',apply:p=>p.crit=Math.min(0.85,p.crit+0.08)},
-  {id:'side',name:'Yan Oklar',icon:'↔️',tag:'Yön',c:'#7af0ff',g:'rgba(122,240,255,.3)',desc:'İki yanına ok atar',once:true,apply:p=>p.side=true},
-  {id:'diag',name:'Çapraz Ok',icon:'✳️',tag:'Yön',c:'#7af0ff',g:'rgba(122,240,255,.3)',desc:'İki çapraz ok atar',once:true,apply:p=>p.diag=true},
-  {id:'rear',name:'Arka Ok',icon:'🔙',tag:'Yön',c:'#7af0ff',g:'rgba(122,240,255,.3)',desc:'Arkana 1 ok atar',once:true,apply:p=>p.rear=true},
+  /* Spec #5 "Mutually Exclusive Vectors": side/diag/rear birbirini dışlar — bir tane seçince
+     diğerleri rollUpgrades listesinden düşer. Tek build kimliği zorlanır. */
+  {id:'side',name:'Yan Oklar',icon:'↔️',tag:'Yön',c:'#7af0ff',g:'rgba(122,240,255,.3)',desc:'İki yanına ok atar',once:true,exclusive:'arrowDir',apply:p=>p.side=true},
+  {id:'diag',name:'Çapraz Ok',icon:'✳️',tag:'Yön',c:'#7af0ff',g:'rgba(122,240,255,.3)',desc:'İki çapraz ok atar',once:true,exclusive:'arrowDir',apply:p=>p.diag=true},
+  {id:'rear',name:'Arka Ok',icon:'🔙',tag:'Yön',c:'#7af0ff',g:'rgba(122,240,255,.3)',desc:'Arkana 1 ok atar',once:true,exclusive:'arrowDir',apply:p=>p.rear=true},
   {id:'pierce',name:'Delici Ok',icon:'🎯',tag:'Ok',c:'#b06bff',g:'rgba(176,107,255,.3)',cap:4,desc:'Oklar +1 düşman deler',apply:p=>p.pierce++},
-  {id:'bounce',name:'Sektiren Ok',icon:'🪃',tag:'Ok',c:'#b06bff',g:'rgba(176,107,255,.3)',cap:4,desc:'Oklar +1 düşmana sıçrar',apply:p=>p.bounce++},
+  {id:'bounce',name:'Zincir Atış',icon:'🪃',tag:'Ok',c:'#b06bff',g:'rgba(176,107,255,.3)',cap:4,exclusive:'arrowBounce',desc:'Oklar +1 düşmana sıçrar',apply:p=>p.chainBounce++},
+  {id:'ricochet',name:'Duvar Sektirici',icon:'🧱',tag:'Ok',c:'#9beaff',g:'rgba(155,234,255,.3)',cap:3,exclusive:'arrowBounce',desc:'Oklar +1 duvardan yansır',apply:p=>p.wallBounce++},
   {id:'big',name:'Ağır Ok',icon:'⭕',tag:'Ok',c:'#ff5ccd',g:'rgba(255,92,205,.3)',cap:3,desc:'Hasar +%15',apply:p=>p.dmg*=1.15},
   {id:'spd',name:'Hızlı Ok',icon:'💨',tag:'Ok',c:'#ff5ccd',g:'rgba(255,92,205,.3)',cap:3,desc:'Ok hızı +%20',apply:p=>p.arrowSpeed*=1.2},
   {id:'hp',name:'Can Kalkanı',icon:'🛡️',tag:'Dayanıklılık',c:'#4fe3ff',g:'rgba(79,227,255,.3)',cap:5,desc:'Maks. can +30, dolar',apply:p=>{p.maxHp+=30;p.hp+=30;}},
@@ -1342,8 +1634,8 @@ const UPGRADES=[
   {id:'titan',name:'Titan',icon:'🪨',tag:'Risk',c:'#9aa0b5',g:'rgba(154,160,181,.35)',cap:1,desc:'Maks. can +%55 (dolar) ama Hasar -%12',apply:p=>{const add=Math.round(p.maxHp*0.55);p.maxHp+=add;p.hp+=add;p.dmg*=0.88;}},
   // --- Sinerji (önceki seçime göre açılır) ---
   {id:'piercemaster',name:'★ Delici Usta',icon:'🎯',tag:'Sinerji',c:'#f5c451',g:'rgba(245,196,81,.4)',cap:2,desc:'Delme +1 ve Hasar +%10',req:p=>p.pierce>0,apply:p=>{p.pierce++;p.dmg*=1.10;}},
-  {id:'bouncemaster',name:'★ Sektirme Usta',icon:'🪃',tag:'Sinerji',c:'#f5c451',g:'rgba(245,196,81,.4)',cap:2,desc:'Sıçrama +1 ve Atış hızı +%12',req:p=>p.bounce>0,apply:p=>{p.bounce++;p.fireInterval*=0.88;}},
-  {id:'rain',name:'★ Ok Yağmuru',icon:'🏹',tag:'Sinerji',c:'#f5c451',g:'rgba(245,196,81,.4)',cap:2,desc:'Delme +1 ve Sıçrama +1',req:p=>p.front>=2,apply:p=>{p.pierce++;p.bounce++;}},
+  {id:'bouncemaster',name:'★ Zincir Ustası',icon:'🪃',tag:'Sinerji',c:'#f5c451',g:'rgba(245,196,81,.4)',cap:2,desc:'Sıçrama +1 ve Atış hızı +%12',req:p=>p.chainBounce>0,apply:p=>{p.chainBounce++;p.fireInterval*=0.88;}},
+  {id:'rain',name:'★ Ok Yağmuru',icon:'🏹',tag:'Sinerji',c:'#f5c451',g:'rgba(245,196,81,.4)',cap:2,desc:'Delme +1 ve Sıçrama +1',req:p=>p.front>=2,apply:p=>{p.pierce++;p.chainBounce++;}},
   {id:'deadly',name:'★ Ölümcül Darbe',icon:'💥',tag:'Sinerji',c:'#f5c451',g:'rgba(245,196,81,.4)',cap:2,desc:'Kritik hasar +%50',req:p=>p.crit>=0.2,apply:p=>{p.critDmg+=0.5;}},
   {id:'vampire',name:'★ Kan Emici',icon:'🩸',tag:'Sinerji',c:'#f5c451',g:'rgba(245,196,81,.4)',cap:1,rare:true,desc:'Öldürünce +2 can ve Hasar +%8',req:p=>p.healOnKill>0,apply:p=>{p.healOnKill+=2;p.dmg*=1.08;}},
   {id:'siege',name:'★ Çok Yönlü Usta',icon:'✳️',tag:'Sinerji',c:'#f5c451',g:'rgba(245,196,81,.4)',cap:2,desc:'Hasar +%18 (yan/çapraz/arka atışlara güç)',req:p=>p.side||p.diag||p.rear,apply:p=>{p.dmg*=1.18;}},
@@ -1362,8 +1654,8 @@ const FUSIONS=[
     {label:'Dayanıklılık',desc:'Maks. can +70 (dolar), Hareket +%6',apply:p=>{p.maxHp+=70;p.hp+=70;p.moveSpeed*=1.06;}},
     {label:'Çeviklik',desc:'Hareket +%16, Maks. can +30 (dolar)',apply:p=>{p.moveSpeed*=1.16;p.maxHp+=30;p.hp+=30;}}]},
   {id:'fz_arrow',need:['pierce','bounce'],icon:'🪃',name:'Ricochet',variants:[
-    {label:'Delme ağırlıklı',desc:'Delme +2, Sıçrama +1',apply:p=>{p.pierce+=2;p.bounce++;}},
-    {label:'Sıçrama ağırlıklı',desc:'Sıçrama +2, Delme +1',apply:p=>{p.bounce+=2;p.pierce++;}}]},
+    {label:'Delme ağırlıklı',desc:'Delme +2, Sıçrama +1',apply:p=>{p.pierce+=2;p.chainBounce++;}},
+    {label:'Sıçrama ağırlıklı',desc:'Sıçrama +2, Delme +1',apply:p=>{p.chainBounce+=2;p.pierce++;}}]},
   {id:'fz_melee',need:['palausta','hizlipala'],icon:'⚔️',name:'Kılıç Üstadı',variants:[
     {label:'Hasar ağırlıklı',desc:'Yakın hasar +%60, hız +%15',apply:p=>{p.meleeMul+=0.6;p.meleeInterval*=0.85;}},
     {label:'Hız ağırlıklı',desc:'Yakın hız +%35, hasar +%25',apply:p=>{p.meleeInterval*=0.65;p.meleeMul+=0.25;}}]},
@@ -1373,17 +1665,50 @@ const FUSIONS=[
   {id:'fz_inferno',need:['aura','light'],icon:'☄️',name:'İnferno',variants:[
     {label:'Aura ağırlıklı',desc:'+1 Aura ve +1 Yıldırım',apply:p=>{p.aura++;p.lightning++;}},
     {label:'Yıldırım ağırlıklı',desc:'+1 Yıldırım ve +1 Aura',apply:p=>{p.lightning++;p.aura++;}}]},
+  /* Spec #7 — A) Storm Volley: max AS + güç → 2.5s hareketsiz ateşte knockback şokdalgası. */
+  {id:'fz_storm_volley',need:['as','dmg'],icon:'🌪️',name:'Fırtına Yaylımı',variants:[
+    {label:'Yıkıcı şok',desc:'2.5s sabit kalınca ateşin şokdalgası fırlatır (boss hariç)',apply:p=>{p.stormVolley=1;p.stormCharge=0;}},
+    {label:'Hızlı şok',desc:'1.5s sabit kalınca ateşin küçük şokdalgası fırlatır',apply:p=>{p.stormVolley=2;p.stormCharge=0;}}]},
+  /* Spec #7 — B) Vampiric Shadow: crit + lifekill → chain ok kritikte can çalar (kısa süre max HP -%5). */
+  {id:'fz_vamp_shadow',need:['crit','lifekill'],icon:'🦇',name:'Kanlı Gölge',variants:[
+    {label:'Kan ağırlıklı',desc:'Kritik ok zinciri +5 can çalar (3s -%5 maks can)',apply:p=>{p.vampShadow=1;}},
+    {label:'Sessiz emici',desc:'Kritik ok +3 can çalar (penaltı yok)',apply:p=>{p.vampShadow=2;}}]},
+  /* Spec #7 — C) Incendiary Singularity: rear + aura → rear oklar gravity flare bırakır, slow alanı. */
+  {id:'fz_incendiary',need:['rear','aura'],icon:'🌋',name:'Alev Kapanı',variants:[
+    {label:'Daha çok alev',desc:'Arka oklar yere alev kapanı bırakır (alanda yavaşlatır)',apply:p=>{p.incendiary=1;}},
+    {label:'Daha büyük alan',desc:'Arka oklar geniş alanlı alev kapanı bırakır',apply:p=>{p.incendiary=2;}}]},
 ];
 function capOf(id){const u=UPGRADES.find(x=>x.id===id);return u?(u.cap||3):3;}
 function availableFusions(){
   if(!player)return[];
   return FUSIONS.filter(f=>!owned.has(f.id)&&f.need.every(id=>(player.picks[id]||0)>=capOf(id)));
 }
+/* Spec #4 + #5: exclusive grup kilidi — bir gruptan biri seçildiyse aynı grubun
+   diğer üyeleri level-up listesinden düşer. arrowBounce: chain vs ricochet,
+   arrowDir: side/diag/rear birbirini dışlar (spec #5 "Mutually Exclusive Vectors"). */
+function lockedExclusives(){
+  const locked=new Set();
+  for(const u of UPGRADES){
+    if(!u.exclusive)continue;
+    if((player.picks[u.id]||0)>0){
+      for(const o of UPGRADES)if(o.exclusive===u.exclusive&&o.id!==u.id)locked.add(o.id);
+    }
+  }
+  return locked;
+}
+/* Spec #5 hard cap: oyuncu en fazla MAX_SKILL_SLOTS farklı beceri seçebilir.
+   Slot dolduğunda yalnızca mevcut seçimlerin level-up'ları görünür (tactical depth). */
+const MAX_SKILL_SLOTS=5;
 function rollUpgrades(n){
+  const locked=lockedExclusives();
+  const slotCount=Object.keys(player.picks).length;
+  const slotFull=slotCount>=MAX_SKILL_SLOTS;
   const elig=UPGRADES.filter(u=>{
     if(u.once&&owned.has(u.id))return false;
     if((player.picks[u.id]||0)>=(u.cap||3))return false;
     if(u.req&&!u.req(player))return false;
+    if(locked.has(u.id))return false;
+    if(slotFull&&!player.picks[u.id])return false; // yeni slot açamaz
     return true;
   });
   const out=[];
@@ -1415,11 +1740,28 @@ function openLevelUp(){
   }else{
     for(const u of rollUpgrades(3))wrap.appendChild(cardEl(u,()=>chooseUpgrade(u)));
   }
+  /* Spec #8 Gambler's Choice: %9 ihtimalle ekstra kör kart — risk/ödül. */
+  if(chance(0.09)){
+    wrap.appendChild(cardEl({tag:'❓ KADER',icon:'🎲',name:'Kader Parası',desc:'%50 efsanevi/mitik ekipman düşer • %50 maks can -%40',c:'#c79bff',g:'rgba(199,155,255,.45)'},chooseGambler));
+  }
   $('levelup').classList.add('show');
 }
 function afterPick(){burst(player.x,player.y,'#7af0ff',16,200,0.5,4);pendingLevels--;$('levelup').classList.remove('show');if(pendingLevels>0)setTimeout(openLevelUp,120);else state=ST.PLAYING;}
 function chooseUpgrade(u){u.apply(player);owned.add(u.id);player.picks[u.id]=(player.picks[u.id]||0)+1;afterPick();}
 function chooseFusion(f,v){v.apply(player);owned.add(f.id);burst(player.x,player.y,'#ff5ccd',26,260,0.6,5);shake=Math.max(shake,8);afterPick();}
+function chooseGambler(){
+  if(chance(0.5)){
+    const r=chance(0.35)?'mythic':'legendary';
+    const it=makeItem(pick(SLOTS),r);addItem(it);persist();
+    burst(player.x,player.y,'#ffd166',40,320,0.7,5.5);sfx.win();sfx.coin();
+    dropPending=it;
+  }else{
+    player.maxHp=Math.max(20,Math.round(player.maxHp*0.6));
+    player.hp=Math.min(player.hp,player.maxHp);
+    burst(player.x,player.y,'#ff4d6d',32,300,0.6,4.5);shake=Math.max(shake,10);flashV=Math.max(flashV,0.5);sfx.hurt();
+  }
+  afterPick();
+}
 
 /* ============================ FLOW ============================ */
 function hideAllOverlays(){['hub','map','equip'].forEach(i=>$(i).classList.remove('show'));['levelup','pause','stageclear','gameover'].forEach(i=>$(i).classList.remove('show'));$('hud').style.display='none';$('miniBtns').classList.remove('show');}
@@ -1434,9 +1776,9 @@ function setupRoom(idx){ // configure a room WITHOUT touching player stats / run
   const ch=Math.floor(idx/5),st=idx%5;
   wave=ch*5+st*2+2; spawnBudget=10+ch*5+st*4; spawnedCount=0; spawnTimer=0.5;
   bossStage=(st===4); bossAlive=false; bossSpawned=false; biomeTint=BIOMES[ch];
-  enemies=[];pProj=[];eProj=[];parts=[];gems=[];dmgs=[];bolts=[];novas=[];
-  runTime=0;shake=0;flashV=0;
-  resize();generateObstacles();
+  enemies=[];pProj=[];eProj=[];parts=[];gems=[];dmgs=[];bolts=[];novas=[];pNovas=[];slowZones=[];hazards=[];
+  runTime=0;shake=0;flashV=0;resetEnrage();
+  resize();generateObstacles();generateHazards();
   player.x=W/2;player.y=H/2;player.invuln=0.6;player.fireTimer=0;
   $('hud').style.display='flex';$('miniBtns').classList.add('show');
   state=ST.PLAYING;updateHUD();
@@ -1457,8 +1799,8 @@ function startEndless(){
   audioInit();if(actx&&actx.state==='suspended')actx.resume();
   mode='endless';
   const L=computeLoadout();player=makePlayer(L);owned.clear();
-  enemies=[];pProj=[];eProj=[];parts=[];gems=[];dmgs=[];walls=[];waters=[];bolts=[];novas=[];endlessBossCount=0;
-  runTime=0;score=0;kills=0;pendingLevels=0;runGold=0;shake=0;flashV=0;bossAlive=false;bossSpawned=false;
+  enemies=[];pProj=[];eProj=[];parts=[];gems=[];dmgs=[];walls=[];waters=[];bolts=[];novas=[];pNovas=[];slowZones=[];hazards=[];endlessBossCount=0;
+  runTime=0;score=0;kills=0;pendingLevels=0;runGold=0;shake=0;flashV=0;bossAlive=false;bossSpawned=false;resetEnrage();
   wave=1;waveTime=0;spawnTimer=0.6;biomeTint=null;bossStage=false;
   resize();player.x=W/2;player.y=H/2;
   hideAllOverlays();$('hud').style.display='flex';$('miniBtns').classList.add('show');
@@ -1560,7 +1902,7 @@ function playChapter(ch){if(ch>save.chapterProgress)return;startChapter(ch);}
 let selectedUid=null;
 function renderEquip(){
   updateGoldDisplays();
-  $('chestRow').innerHTML=CHESTS.map(c=>{const dis=save.gold<c.cost?'disabled':'';return '<button class="chestBtn" '+dis+' style="border-color:'+c.c+'" onclick="openChest(\''+c.key+'\')"><div class="ci">'+c.icon+'</div><div class="cn">'+c.name+'</div><div class="cc">'+fmt(c.cost)+' 🪙</div></button>';}).join('');
+  $('chestRow').innerHTML=CHESTS.map(c=>{const cost=chestCost(c),dis=save.gold<cost?'disabled':'';return '<button class="chestBtn" '+dis+' style="border-color:'+c.c+'" onclick="openChest(\''+c.key+'\')"><div class="ci">'+c.icon+'</div><div class="cn">'+c.name+'</div><div class="cc">'+fmt(cost)+' 🪙</div></button>';}).join('');
   let sl='';
   for(const slot of SLOTS){const uid=save.equipped[slot],it=uid?findItem(uid):null,selCls=(selectedUid&&it&&it.uid===selectedUid)?' sel':'';
     if(it){const r=RARITY[rIdx(it.rarity)];sl+='<div class="slot'+selCls+'" style="border-color:'+r.c+'" onclick="selectItem(\''+it.uid+'\')">'+SLOT_META[slot].icon+'<span class="lv">'+it.level+'</span></div>';}
@@ -1596,7 +1938,7 @@ function doUnequip(){const it=findItem(selectedUid);if(!it)return;if(save.equipp
 function doSell(){const it=findItem(selectedUid);if(!it||isEquipped(it.uid))return;save.gold+=sellValue(it);save.inventory=save.inventory.filter(i=>i.uid!==it.uid);selectedUid=null;persist();sfx.coin();renderEquip();}
 function doUpgrade(){const it=findItem(selectedUid);if(!it)return;const cost=upgradeCost(it);if(save.gold<cost)return;save.gold-=cost;it.level++;persist();sfx.level();renderEquip();}
 function doMerge(){const it=findItem(selectedUid);if(!canMerge(it))return;const grp=mergeGroup(it).slice(0,3),ids=grp.map(g=>g.uid);save.inventory=save.inventory.filter(x=>!ids.includes(x.uid));const nr=RARITY[rIdx(it.rarity)+1].key;const ni=makeItem(it.slot,nr,it.variant);addItem(ni);selectedUid=ni.uid;persist();sfx.win();renderEquip();}
-function openChest(key){const c=CHESTS.find(x=>x.key===key)||CHESTS[0];if(save.gold<c.cost)return;save.gold-=c.cost;const it=makeItem(pick(SLOTS),rollRarityW(c.w));addItem(it);selectedUid=it.uid;persist();sfx.win();renderEquip();}
+function openChest(key){const c=CHESTS.find(x=>x.key===key)||CHESTS[0];const cost=chestCost(c);if(save.gold<cost)return;save.gold-=cost;const it=makeItem(pick(SLOTS),rollRarityW(c.w));addItem(it);selectedUid=it.uid;persist();sfx.win();renderEquip();}
 
 /* ============================ WIRE ============================ */
 $('goMapBtn').onclick=goMap;
