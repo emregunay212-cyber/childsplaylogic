@@ -1772,8 +1772,10 @@ function openLevelUp(){
   }else{
     for(const u of rollUpgrades(3))wrap.appendChild(cardEl(u,()=>chooseUpgrade(u)));
   }
-  /* Spec #8 Gambler's Choice: %9 ihtimalle ekstra kör kart — risk/ödül. */
-  if(chance(0.09)){
+  /* Spec #8 Gambler's Choice: %9 ihtimalle ekstra kör kart — risk/ödül.
+     Kader Çarkı YALNIZ Bölüm 1 tamamlandıktan sonra (chapterProgress>=1): erken oyunda
+     tek başlangıç item'ini kaybedip bölümü geçemez hale gelmesin. */
+  if(chance(0.09)&&(save.chapterProgress||0)>=1){
     wrap.appendChild(cardEl({tag:'❓ KADER',icon:'🎲',name:'Kader Çarkı',desc:'Çarkı çevir — çok küçük şans efsanevi/mitik, ama büyük risk: bir itemini kaybedebilirsin',c:'#c79bff',g:'rgba(199,155,255,.45)'},openWheel));
   }
   if(!wrap.children.length){ /* emniyet: havuz boşsa oyun donmasın — garanti bonus kart */
