@@ -313,6 +313,7 @@
 <!-- Level up -->
 <div class="overlay" id="levelup">
   <h2 id="luTitle">SEVİYE ATLADIN!</h2><div id="luSub">Bir güç seç</div><div id="cards"></div>
+  <button class="btn ghost" id="luReroll" style="margin-top:14px;display:none">🔄 Yenile (1 hak)</button>
 </div>
 
 <!-- Kader Çarkı -->
@@ -695,9 +696,9 @@ function makePlayer(L){return{x:W/2,y:H/2,r:15,hp:L.maxHp,maxHp:L.maxHp,moveSpee
   chainBounce:0,wallBounce:0,
   healOnKill:L.healOnKill,crit:L.crit,critDmg:L.critDmg,
   def:L.def,goldBonus:L.goldBonus,xpBonus:L.xpBonus,invuln:0,hitFlash:0,
-  meleeTimer:0,meleeInterval:0.5,meleeRange:42,meleeMul:1.2,meleeFx:0,
+  meleeTimer:0,meleeInterval:0.5,meleeRange:42,meleeMul:1.2,meleeFx:0,shootFx:0,
   orbs:0,orbAng:0,lightning:0,lightTimer:1,aura:0,auraTick:0,_auraR:0,
-  picks:{},magnetR:130,lifestealCd:0,
+  picks:{},magnetR:130,
   /* Spec #7 fusion state'leri: stormVolley/vampShadow/incendiary FUSIONS apply'larıyla set edilir. */
   stormVolley:0,stormCharge:0,stillTimer:0,
   vampShadow:0,
@@ -787,13 +788,15 @@ function spawnLogic(dt){
 function nearestEnemy(){let b=null,bd=1e9;for(const e of enemies){const d=dist(e.x,e.y,player.x,player.y);if(d<bd){bd=d;b=e;}}return b;}
 function fire(){
   const t=nearestEnemy();if(!t)return;
-  aimAngle=Math.atan2(t.y-player.y,t.x-player.x);
-  const angles=[],n=player.front;
-  if(n===1)angles.push(0);
-  else{const sp=(n-1)*0.14;for(let i=0;i<n;i++)angles.push(-sp/2+sp*(i/(n-1)));}
-  if(player.side){angles.push(Math.PI/2);angles.push(-Math.PI/2);}
-  if(player.diag){angles.push(Math.PI/4);angles.push(-Math.PI/4);}
-  if(player.rear)angles.push(Math.PI);
+  aimAngle=Math.atan2(t.y-player.y,t.x-player.x);player.shootFx=0.16; /* sprite ok-atma tetiği */
+  const shots=[],n=player.front;
+  /* öne çoklu ok: YANA AÇILMAZ — aynı yönde önlü-arkalı (tek hatta peş peşe) dizilir.
+     Her ok aimAngle yönünde; 'back' ile aim ekseninde geriye/ileriye kaydırılır. */
+  const LINE_STEP=20;
+  for(let i=0;i<n;i++)shots.push({off:0,back:(i-(n-1)/2)*LINE_STEP});
+  if(player.side){shots.push({off:Math.PI/2,back:0});shots.push({off:-Math.PI/2,back:0});}
+  if(player.diag){shots.push({off:Math.PI/4,back:0});shots.push({off:-Math.PI/4,back:0});}
+  if(player.rear)shots.push({off:Math.PI,back:0});
   /* Spec #7 incendiary: rear ok atılıyorsa oyuncunun arkasına alev kapanı bırak.
      Cooldown ile spam'i engelle. variant 1 dar, variant 2 geniş alan. */
   if(player.rear&&player.incendiary&&player.incendiaryCd<=0){
@@ -806,20 +809,21 @@ function fire(){
      - 4-5 ok: alpha 0.85, size ×0.92
      - 6+ ok: alpha 0.7, size ×0.82, dmg ×1.08 (yoğunluk telafisi)
      - 8+ ok: enerji volley modu — sprite "wave", combined multi-hit, life kısa */
-  const cnt=angles.length;
+  const cnt=shots.length;
   const wave=cnt>=8;
   const sizeMul=wave?1.6:(cnt>=6?0.82:cnt>=4?0.92:1);
   const alpha=wave?0.95:(cnt>=6?0.7:cnt>=4?0.85:1);
   const dmgMul=wave?1.18:(cnt>=6?1.08:1);
   const lowHp=(player.lastStand&&player.hp<player.maxHp*0.35)?player.lastStand:1; /* Son Nefes pasifi */
-  for(const off of angles){const a=aimAngle+off;
-    pProj.push({x:player.x+Math.cos(a)*player.r,y:player.y+Math.sin(a)*player.r,
+  const muzY=archerReady?-SPR.ch*SPR.scale*0.13:0; /* oklar yaydan/gövdeden çıksın, ayaktan değil */
+  for(const s of shots){const a=aimAngle+s.off, sd=player.r-s.back;
+    pProj.push({x:player.x+Math.cos(a)*sd,y:player.y+Math.sin(a)*sd+muzY,
       vx:Math.cos(a)*player.arrowSpeed,vy:Math.sin(a)*player.arrowSpeed,
       r:Math.min(14,player.arrowSize*sizeMul),dmg:player.dmg*dmgMul*lowHp,
       pierce:player.pierce+(wave?2:0),
       chainBounce:player.chainBounce||0,wallBounce:player.wallBounce||0,
       ang:a,life:wave?1.1:1.6,hits:new Set(),alpha,wave});}
-  burst(player.x+Math.cos(aimAngle)*player.r,player.y+Math.sin(aimAngle)*player.r,wave?'#9beaff':'#ffe08a',wave?5:3,wave?220:160,0.25,wave?3.5:2.5);
+  burst(player.x+Math.cos(aimAngle)*player.r,player.y+Math.sin(aimAngle)*player.r+muzY,wave?'#9beaff':'#ffe08a',wave?5:3,wave?220:160,0.25,wave?3.5:2.5);
   sfx.shoot();
 }
 
@@ -846,7 +850,8 @@ function killEnemy(e){
   burst(e.x,e.y,e.color,e.type==='boss'?40:randInt(8,14),e.type==='boss'?340:200,0.6,e.type==='boss'?5:3.5);
   const drops=e.type==='boss'?6:e.type==='tank'?2:1, val=e.type==='boss'?5:e.xp;
   for(let i=0;i<drops;i++)gems.push({x:e.x+rand(-14,14),y:e.y+rand(-14,14),vx:rand(-40,40),vy:rand(-40,40),val,r:5,pulse:rand(0,TAU)});
-  if(player.healOnKill&&player.lifestealCd<=0){player.hp=Math.min(player.maxHp,player.hp+player.healOnKill);player.lifestealCd=0.4;}
+  if(e.type!=='boss'&&chance(0.09))gems.push({x:e.x,y:e.y,vx:rand(-30,30),vy:rand(-30,30),heal:Math.max(6,Math.round(player.maxHp*0.07)),r:6,pulse:rand(0,TAU)}); /* ara ara can küresi */
+  /* can çalma kaldırıldı — iyileşme yalnız düşmanların ara ara düşürdüğü can küresinden */
   if(e.type==='boss'){bossAlive=false;shake=16;flashV=Math.max(flashV,0.5);
     /* Boss bonusu da log clamp'li (spec #1): 90 + 60*log2(wave+1) ≈ erken 90-150, geç 350-450 */
     const bossBonus=90+60*Math.log2(Math.max(1,wave)+1);
@@ -923,8 +928,8 @@ function update(dt){
     if(enrageTickCd<=0){enrageTickCd=ENRAGE_STACK_S;enrageStacks=Math.min(20,enrageStacks+1);}
   }
   const p=player;
-  p.invuln=Math.max(0,p.invuln-dt);p.hitFlash=Math.max(0,p.hitFlash-dt);p.lifestealCd=Math.max(0,p.lifestealCd-dt);
-  p.meleeTimer=Math.max(0,p.meleeTimer-dt);p.meleeFx=Math.max(0,p.meleeFx-dt);
+  p.invuln=Math.max(0,p.invuln-dt);p.hitFlash=Math.max(0,p.hitFlash-dt);
+  p.meleeTimer=Math.max(0,p.meleeTimer-dt);p.meleeFx=Math.max(0,p.meleeFx-dt);p.shootFx=Math.max(0,p.shootFx-dt);
 
   p.anim+=dt;
   stepEntity(p,inputDir.x*p.moveSpeed,inputDir.y*p.moveSpeed,dt,false);
@@ -1197,7 +1202,7 @@ function update(dt){
     g.pulse+=dt*4;const d=dist(g.x,g.y,p.x,p.y);
     if(d<mr){const a=Math.atan2(p.y-g.y,p.x-g.x),pull=lerp(440,90,clamp(d/mr,0,1));g.x+=Math.cos(a)*pull*dt;g.y+=Math.sin(a)*pull*dt;}
     else{g.x+=g.vx*dt;g.y+=g.vy*dt;g.vx*=0.92;g.vy*=0.92;}
-    if(d<p.r+10){g.dead=true;gainXP(g.val);}
+    if(d<p.r+10){g.dead=true;if(g.heal){player.hp=Math.min(player.maxHp,player.hp+g.heal);sfx.coin();}else gainXP(g.val);}
   }
   gems=gems.filter(g=>!g.dead);
 
@@ -1351,7 +1356,10 @@ function drawHazards(){
     ctx.restore();
   }
 }
-function drawGems(){ctx.save();ctx.shadowColor='#4fe3ff';ctx.shadowBlur=12;for(const g of gems){const s=g.r*(1+Math.sin(g.pulse)*0.15);ctx.fillStyle='#7af0ff';ctx.save();ctx.translate(g.x,g.y);ctx.rotate(Math.PI/4);ctx.fillRect(-s,-s,s*2,s*2);ctx.restore();}ctx.restore();}
+function drawGems(){ctx.save();for(const g of gems){const s=g.r*(1+Math.sin(g.pulse)*0.15);ctx.save();ctx.translate(g.x,g.y);
+  if(g.heal){ctx.shadowColor='#ff5d7a';ctx.shadowBlur=12;ctx.fillStyle='#ff5d7a';ctx.beginPath();ctx.arc(0,0,s,0,TAU);ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(-s*0.46,-s*0.16,s*0.92,s*0.32);ctx.fillRect(-s*0.16,-s*0.46,s*0.32,s*0.92);}
+  else{ctx.shadowColor='#4fe3ff';ctx.shadowBlur=12;ctx.fillStyle='#7af0ff';ctx.rotate(Math.PI/4);ctx.fillRect(-s,-s,s*2,s*2);}
+  ctx.restore();}ctx.restore();}
 function drawEProj(){ctx.save();ctx.shadowBlur=10;for(const pr of eProj){ctx.shadowColor=pr.color;ctx.fillStyle=pr.color;ctx.beginPath();ctx.arc(pr.x,pr.y,pr.r,0,TAU);ctx.fill();ctx.fillStyle='rgba(255,255,255,.7)';ctx.beginPath();ctx.arc(pr.x,pr.y,pr.r*0.4,0,TAU);ctx.fill();}ctx.restore();}
 function spikeShape(r,n,inner){ctx.beginPath();for(let i=0;i<n*2;i++){const rr=i%2?r*inner:r,a=i*Math.PI/n,px=Math.cos(a)*rr,py=Math.sin(a)*rr;i?ctx.lineTo(px,py):ctx.moveTo(px,py);}ctx.closePath();}
 function polyShape(r,n){ctx.beginPath();for(let i=0;i<n;i++){const a=i*TAU/n-Math.PI/2,px=Math.cos(a)*r,py=Math.sin(a)*r;i?ctx.lineTo(px,py):ctx.moveTo(px,py);}ctx.closePath();}
@@ -1526,7 +1534,37 @@ function drawSerpent(e,fl){
   // slit pupils
   ctx.fillStyle='#1a3a1a';ctx.fillRect(-r*0.29,-r*0.45,r*0.06,r*0.2);ctx.fillRect(r*0.23,-r*0.45,r*0.06,r*0.2);
 }
+/* === Sprite karakter (kapüşonlu ranger) — assets/archer.png, 4 satır: idle/walk/draw/shoot === */
+const archerImg=new Image(); let archerReady=false, archerWhite=null;
+/* foot = ayak konumu (sprite yüksekliğinin oranı, merkez ALTI). 0.40 → karakter hitbox'a ortalı,
+   yay merkeze yakın (oklar gövdeden çıkar), gövde hitbox'la örtüşür (saldırılar ıskalamaz). */
+const SPR={cw:168,ch:173,scale:0.32,foot:0.40,
+  anims:{idle:{row:0,n:4,fps:6},walk:{row:1,n:8,fps:14},draw:{row:2,n:6},shoot:{row:3,n:7}}};
+archerImg.onload=function(){archerReady=true;const c=document.createElement('canvas');c.width=archerImg.width;c.height=archerImg.height;const cx=c.getContext('2d');cx.drawImage(archerImg,0,0);cx.globalCompositeOperation='source-atop';cx.fillStyle='#fff';cx.fillRect(0,0,c.width,c.height);archerWhite=c;};
+archerImg.src='assets/archer.png';
 function drawPlayer(){
+  const p=player;if(!p)return;
+  if(!archerReady){drawPlayerVector();return;}
+  const r=p.r, moving=inputDir.mag>0.2;
+  const faceL=Math.cos(moving?lastMoveAng:aimAngle)<0;
+  const flash=p.hitFlash>0||(p.invuln>0&&Math.floor(runTime*20)%2===0);
+  ctx.save();ctx.translate(p.x,p.y);
+  const dw=SPR.cw*SPR.scale,dh=SPR.ch*SPR.scale,footY=dh*SPR.foot,dx=-dw/2,dy=footY-dh;
+  shadowEllipse(dw*0.32,footY);
+  if(p.meleeFx>0){const t=1-p.meleeFx/0.22;ctx.save();ctx.globalAlpha=(1-t)*0.8;ctx.strokeStyle='#fff3d0';ctx.lineWidth=3.5;ctx.shadowColor='#ffe08a';ctx.shadowBlur=10;ctx.beginPath();ctx.arc(0,0,p.meleeRange*lerp(0.45,1.05,t),0,TAU);ctx.stroke();ctx.restore();}
+  let a,frame;
+  if(moving){a=SPR.anims.walk;frame=Math.floor(p.anim*a.fps)%a.n;}
+  else if(p.shootFx>0){a=SPR.anims.shoot;frame=Math.min(a.n-1,Math.floor((1-p.shootFx/0.16)*a.n));}
+  else if(enemies.length){a=SPR.anims.draw;const prog=clamp(p.fireTimer/p.fireInterval,0,1);frame=prog<0.85?Math.min(a.n-1,Math.floor(prog/0.85*a.n)):a.n-1;}
+  else{a=SPR.anims.idle;frame=Math.floor(p.anim*a.fps)%a.n;}
+  ctx.save();ctx.scale(faceL?-1:1,1);
+  ctx.drawImage(archerImg,frame*SPR.cw,a.row*SPR.ch,SPR.cw,SPR.ch,dx,dy,dw,dh);
+  if(flash&&archerWhite){ctx.globalAlpha=0.85;ctx.drawImage(archerWhite,frame*SPR.cw,a.row*SPR.ch,SPR.cw,SPR.ch,dx,dy,dw,dh);ctx.globalAlpha=1;}
+  ctx.restore();
+  ctx.restore();
+}
+/* === eski prosedürel çizim: sprite yüklenmezse yedek === */
+function drawPlayerVector(){
   const p=player;if(!p)return;
   const faceLeft=Math.cos(aimAngle)<0;
   const flashing=p.hitFlash>0||(p.invuln>0&&Math.floor(runTime*20)%2===0);
@@ -1633,7 +1671,8 @@ const UPGRADES=[
   {id:'hp',name:'Can Kalkanı',icon:'🛡️',tag:'Dayanıklılık',c:'#4fe3ff',g:'rgba(79,227,255,.3)',cap:5,desc:'Maks. can +30, dolar',apply:p=>{p.maxHp+=30;p.hp+=30;}},
   {id:'heal',name:'Şifa',icon:'💚',tag:'Dayanıklılık',c:'#5dff8f',g:'rgba(93,255,143,.3)',cap:99,desc:'Canının %50si dolar',apply:p=>p.hp=Math.min(p.maxHp,p.hp+p.maxHp*0.5)},
   {id:'move',name:'Atik Adım',icon:'👟',tag:'Dayanıklılık',c:'#5dff8f',g:'rgba(93,255,143,.3)',cap:4,desc:'Hareket hızı +%12',apply:p=>p.moveSpeed*=1.12},
-  {id:'lifekill',name:'Can Çalan',icon:'🩸',tag:'Dayanıklılık',c:'#ff4d6d',g:'rgba(255,77,109,.3)',cap:2,rare:true,desc:'Her öldürmede +1 can',apply:p=>p.healOnKill+=1},
+  /* lifekill (Can Çalan) KALDIRILDI — can çalma mekaniği tamamen çıkarıldı; iyileşme artık can küresinden.
+     Bağımlı 'vampire' (req healOnKill>0) ve 'fz_vamp_shadow' (need lifekill) otomatik devre dışı. */
   {id:'magnet',name:'Cevher Mıknatısı',icon:'🧲',tag:'Beceri',c:'#9ad0ff',g:'rgba(154,208,255,.4)',cap:3,desc:'Cevherleri daha uzaktan çeker',apply:p=>p.magnetR+=95},
   {id:'palausta',name:'Pala Ustası',icon:'🗡️',tag:'Yakın',c:'#ff9f43',g:'rgba(255,159,67,.3)',cap:3,desc:'Yakın saldırı hasarı +%50 ve menzili artar',apply:p=>{p.meleeMul+=0.5;p.meleeRange+=12;}},
   {id:'hizlipala',name:'Çevik Pala',icon:'⚔️',tag:'Yakın',c:'#ffd166',g:'rgba(255,209,102,.3)',cap:3,desc:'Yakın saldırı hızı +%30',apply:p=>p.meleeInterval*=0.7},
@@ -1719,11 +1758,11 @@ function lockedExclusives(){
    Slot dolduğunda yalnızca mevcut seçimlerin level-up'ları görünür (tactical depth). */
 const MAX_SKILL_SLOTS=5;
 /* Aktif skiller (slot kaplar, füzyon düğümü/mekanik); geri kalan UPGRADES pasif (slotsuz). */
-const ACTIVE_IDS=new Set(['dmg','as','multi','crit','side','diag','rear','pierce','bounce','ricochet','hp','move','lifekill','palausta','hizlipala','orb','light','aura']);
+const ACTIVE_IDS=new Set(['dmg','as','multi','crit','side','diag','rear','pierce','bounce','ricochet','hp','move','palausta','hizlipala','orb','light','aura']);
 const fusedAway=new Set(); // füzyona harcanmış temel skiller — bir daha gelmez
 function isActiveId(id){ return ACTIVE_IDS.has(id)||FUSIONS.some(f=>f.id===id); }
 function activeSlotCount(){ return Object.keys(player.picks).filter(isActiveId).length; }
-function rollUpgrades(n){
+function rollUpgrades(n,kind){
   const locked=lockedExclusives();
   const slotFull=activeSlotCount()>=MAX_SKILL_SLOTS;
   // füzyon partner önceliği: sahip olunan aktiflerin füzyon eşlerini öne çıkar (kombinasyona ulaşılsın)
@@ -1735,6 +1774,8 @@ function rollUpgrades(n){
   const elig=UPGRADES.filter(u=>{
     if(u.once&&owned.has(u.id))return false;
     if(fusedAway.has(u.id))return false;
+    if(kind==='active'&&!ACTIVE_IDS.has(u.id))return false;
+    if(kind==='passive'&&ACTIVE_IDS.has(u.id))return false;
     if((player.picks[u.id]||0)>=(u.cap||3))return false;
     if(u.req&&!u.req(player))return false;
     if(locked.has(u.id))return false;
@@ -1758,29 +1799,32 @@ function cardEl(opt,onClick){
   card.innerHTML='<div class="cardTag">'+opt.tag+'</div>'+kb+'<div class="cardIcon">'+opt.icon+'</div><div class="cardName">'+opt.name+'</div><div class="cardDesc">'+opt.desc+'</div>';
   card.onclick=onClick;return card;
 }
-function openLevelUp(){
-  state=ST.LEVELUP;sfx.level();
-  const wrap=$('cards');wrap.innerHTML='';
+let rerollUsed=false;
+function renderLevelCards(){
+  const wrap=$('cards');while(wrap.firstChild)wrap.removeChild(wrap.firstChild);
   const fus=availableFusions();
   if(fus.length){
     const f=fus[0];
-    for(const v of f.variants){
-      wrap.appendChild(cardEl({tag:'⚡ BİRLEŞİM',icon:f.icon,name:f.name+' — '+v.label,desc:v.desc,c:'#ff5ccd',g:'rgba(255,92,205,.5)'},()=>chooseFusion(f,v)));
-    }
-    const extra=rollUpgrades(1);
-    if(extra.length)wrap.appendChild(cardEl(extra[0],()=>chooseUpgrade(extra[0])));
+    for(const v of f.variants)wrap.appendChild(cardEl({tag:'⚡ BİRLEŞİM',icon:f.icon,name:f.name+' — '+v.label,desc:v.desc,c:'#ff5ccd',g:'rgba(255,92,205,.5)'},()=>chooseFusion(f,v)));
+    const extra=rollUpgrades(1);if(extra.length)wrap.appendChild(cardEl(extra[0],()=>chooseUpgrade(extra[0])));
   }else{
-    for(const u of rollUpgrades(3))wrap.appendChild(cardEl(u,()=>chooseUpgrade(u)));
+    /* garanti karışım: en az 1 AKTİF + 1 PASİF (hepsi aktif olmasın) */
+    const picked=[],A=rollUpgrades(1,'active'),P=rollUpgrades(1,'passive');
+    if(A[0])picked.push(A[0]);if(P[0])picked.push(P[0]);
+    for(const u of rollUpgrades(3)){if(picked.length>=3)break;if(picked.indexOf(u)<0)picked.push(u);}
+    for(const u of picked.slice(0,3))wrap.appendChild(cardEl(u,()=>chooseUpgrade(u)));
   }
-  /* Spec #8 Gambler's Choice: %9 ihtimalle ekstra kör kart — risk/ödül.
-     Kader Çarkı YALNIZ Bölüm 1 tamamlandıktan sonra (chapterProgress>=1): erken oyunda
-     tek başlangıç item'ini kaybedip bölümü geçemez hale gelmesin. */
-  if(chance(0.09)&&(save.chapterProgress||0)>=1){
+  if(chance(0.09)&&(save.chapterProgress||0)>=1)
     wrap.appendChild(cardEl({tag:'❓ KADER',icon:'🎲',name:'Kader Çarkı',desc:'Çarkı çevir — çok küçük şans efsanevi/mitik, ama büyük risk: bir itemini kaybedebilirsin',c:'#c79bff',g:'rgba(199,155,255,.45)'},openWheel));
-  }
-  if(!wrap.children.length){ /* emniyet: havuz boşsa oyun donmasın — garanti bonus kart */
+  if(!wrap.firstChild)
     wrap.appendChild(cardEl({tag:'💠 BONUS',icon:'💚',name:'Toparlan',desc:'Canın %40 dolar ve +40 altın',c:'#5dff8f',g:'rgba(93,255,143,.4)'},chooseFallback));
-  }
+  const rb=$('luReroll');if(rb){rb.style.display=(rerollUsed||fus.length)?'none':'';rb.onclick=rerollCards;}
+}
+function rerollCards(){if(rerollUsed)return;rerollUsed=true;renderLevelCards();}
+function openLevelUp(){
+  state=ST.LEVELUP;sfx.level();rerollUsed=false;
+  const wrap=$('cards');wrap.innerHTML='';
+  renderLevelCards();
   $('levelup').classList.add('show');
 }
 function afterPick(){burst(player.x,player.y,'#7af0ff',16,200,0.5,4);pendingLevels--;$('levelup').classList.remove('show');if(pendingLevels>0)setTimeout(openLevelUp,120);else state=ST.PLAYING;}
