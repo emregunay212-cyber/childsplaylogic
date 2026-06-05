@@ -315,6 +315,25 @@
   <h2 id="luTitle">SEVİYE ATLADIN!</h2><div id="luSub">Bir güç seç</div><div id="cards"></div>
 </div>
 
+<!-- Kader Çarkı -->
+<style>
+#wheelWrap{position:relative;width:min(72vw,290px);height:min(72vw,290px);margin:14px auto 8px;}
+#wheelDisc{width:100%;height:100%;border-radius:50%;border:6px solid #2a2440;box-shadow:0 0 0 4px rgba(199,155,255,.35),0 12px 40px #0009;transition:transform 3.6s cubic-bezier(.16,.84,.3,1);}
+#wheelHub{position:absolute;inset:0;margin:auto;width:46px;height:46px;border-radius:50%;background:#15101f;border:3px solid #c79bff;display:flex;align-items:center;justify-content:center;font-size:22px;z-index:2;}
+#wheelPtr{position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-top:24px solid #ffd166;z-index:3;filter:drop-shadow(0 2px 3px rgba(0,0,0,.65));}
+#wheelResult{min-height:44px;font-weight:800;font-size:18px;margin-top:6px;text-align:center;}
+</style>
+<div class="overlay" id="wheel">
+  <h2 class="title" style="font-size:clamp(26px,7vw,44px);color:#c79bff;text-shadow:0 0 28px rgba(199,155,255,.5)">KADER ÇARKI</h2>
+  <div style="color:#ff9aa0;font-size:13px;letter-spacing:1px">Bir itemini kaybetmeyi göze al…</div>
+  <div id="wheelWrap"><div id="wheelPtr"></div><div id="wheelDisc"></div><div id="wheelHub">🎲</div></div>
+  <div id="wheelLegend" style="font-size:11px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+    <span style="color:#ff4d6d">● Mitik</span><span style="color:#ff8a3a">● Efsanevi</span><span style="color:#e0b84a">● Altın</span><span style="color:#922f4d">● Item Kaybı</span>
+  </div>
+  <div id="wheelResult"></div>
+  <button class="btn" id="wheelGo" style="display:none">DEVAM</button>
+</div>
+
 <!-- Pause -->
 <div class="overlay" id="pause">
   <h2 class="title" style="font-size:clamp(30px,8vw,52px)">DURAKLADI</h2>
@@ -720,9 +739,9 @@ function spawnEnemy(type,pos,opt){
     if(type==='boss'){hp*=1+t*0.16+t*t*0.009;dmg*=1+t*0.07;}
     else{hp*=1+t*0.30+t*t*0.024;dmg*=1+t*0.09;speed*=1+Math.min(0.55,t*0.018);}
   }else{ // sahne (bölüm) modu — bölüm ve oda ilerledikçe sertleşir
-    const ch=Math.floor(stageIndex/5), st=stageIndex%5, k=ch*0.35+st*0.30;
-    if(type==='boss'){hp*=1+k*0.6;dmg*=1+k*0.22;}
-    else{hp*=1+k;dmg*=1+k*0.28;}
+    const ch=Math.floor(stageIndex/5), st=stageIndex%5, k=0.22+ch*0.40+st*0.30; /* zorluk knob (orta artış): taban 0.22 + bölüm + sahne — Bölüm 1 maxlanmış item + iyi dizilim ister */
+    if(type==='boss'){hp*=1+k*0.65;dmg*=1+k*0.24;}
+    else{hp*=1+k;dmg*=1+k*0.30;}
   }
   enemies.push({type,x:p.x,y:p.y,r:s.r,hp,maxHp:hp,speed,dmg,xp:s.xp,color:s.color,fly,
     bossKind:(opt&&opt.bossKind)||'demon',enraged:false,
@@ -1755,7 +1774,7 @@ function openLevelUp(){
   }
   /* Spec #8 Gambler's Choice: %9 ihtimalle ekstra kör kart — risk/ödül. */
   if(chance(0.09)){
-    wrap.appendChild(cardEl({tag:'❓ KADER',icon:'🎲',name:'Kader Parası',desc:'%50 efsanevi/mitik ekipman düşer • %50 maks can -%40',c:'#c79bff',g:'rgba(199,155,255,.45)'},chooseGambler));
+    wrap.appendChild(cardEl({tag:'❓ KADER',icon:'🎲',name:'Kader Çarkı',desc:'Çarkı çevir — çok küçük şans efsanevi/mitik, ama büyük risk: bir itemini kaybedebilirsin',c:'#c79bff',g:'rgba(199,155,255,.45)'},openWheel));
   }
   if(!wrap.children.length){ /* emniyet: havuz boşsa oyun donmasın — garanti bonus kart */
     wrap.appendChild(cardEl({tag:'💠 BONUS',icon:'💚',name:'Toparlan',desc:'Canın %40 dolar ve +40 altın',c:'#5dff8f',g:'rgba(93,255,143,.4)'},chooseFallback));
@@ -1766,19 +1785,57 @@ function afterPick(){burst(player.x,player.y,'#7af0ff',16,200,0.5,4);pendingLeve
 function chooseFallback(){player.hp=Math.min(player.maxHp,player.hp+player.maxHp*0.4);runGold+=40;afterPick();}
 function chooseUpgrade(u){u.apply(player);owned.add(u.id);player.picks[u.id]=(player.picks[u.id]||0)+1;afterPick();}
 function chooseFusion(f,v){v.apply(player);owned.add(f.id);for(const id of f.need){delete player.picks[id];fusedAway.add(id);}player.picks[f.id]=1;/* 2 temel aktif slottan kalkar, füzyon 1 slot → net -1 */burst(player.x,player.y,'#ff5ccd',26,260,0.6,5);shake=Math.max(shake,8);afterPick();}
-function chooseGambler(){
-  if(chance(0.5)){
-    const r=chance(0.35)?'mythic':'legendary';
-    const it=makeItem(pick(SLOTS),r);addItem(it);persist();
-    burst(player.x,player.y,'#ffd166',40,320,0.7,5.5);sfx.win();sfx.coin();
-    dropPending=it;
-  }else{
-    player.maxHp=Math.max(20,Math.round(player.maxHp*0.6));
-    player.hp=Math.min(player.hp,player.maxHp);
-    burst(player.x,player.y,'#ff4d6d',32,300,0.6,4.5);shake=Math.max(shake,10);flashV=Math.max(flashV,0.5);sfx.hurt();
-  }
-  afterPick();
+/* ===== Kader Çarkı: gambler kartı → dönen risk/ödül çarkı =====
+   Mitik %3 · Efsanevi %8 · Item kaybı %44 · Altın %45 (kullanıcı: "Dengeli risk") */
+const WHEEL_SEGS=[
+  {type:'gold',w:15,col:'#caa23a'},
+  {type:'lose',w:15,col:'#7a2740'},
+  {type:'gold',w:15,col:'#e0b84a'},
+  {type:'lose',w:14.5,col:'#922f4d'},
+  {type:'gold',w:15,col:'#caa23a'},
+  {type:'lose',w:14.5,col:'#7a2740'},
+  {type:'legendary',w:8,col:'#ff8a3a'},
+  {type:'mythic',w:3,col:'#ff4d6d'},
+];
+function buildWheelDisc(){
+  let a=0,stops=[];
+  for(const s of WHEEL_SEGS){const a2=a+s.w*3.6;stops.push(s.col+' '+a.toFixed(2)+'deg '+a2.toFixed(2)+'deg');a=a2;}
+  $('wheelDisc').style.background='conic-gradient(from 0deg,'+stops.join(',')+')';
 }
+function openWheel(){
+  state=ST.LEVELUP; $('levelup').classList.remove('show');
+  $('wheelGo').onclick=closeWheel; $('wheelGo').style.display='none'; $('wheelResult').textContent='';
+  buildWheelDisc(); $('wheel').classList.add('show');
+  const tot=WHEEL_SEGS.reduce((s,x)=>s+x.w,0);let rr=Math.random()*tot,idx=0,acc=0;
+  for(let i=0;i<WHEEL_SEGS.length;i++){acc+=WHEEL_SEGS[i].w;if(rr<=acc){idx=i;break;}}
+  let a=0;for(let i=0;i<idx;i++)a+=WHEEL_SEGS[i].w*3.6;const arc=WHEEL_SEGS[idx].w*3.6,mid=a+arc/2;
+  const R=360*6-mid+(Math.random()-0.5)*arc*0.6;
+  const disc=$('wheelDisc');
+  disc.style.transition='none';disc.style.transform='rotate(0deg)';void disc.offsetWidth;disc.style.transition='transform 3.6s cubic-bezier(.16,.84,.3,1)';
+  setTimeout(function(){disc.style.transform='rotate('+R.toFixed(2)+'deg)';},60);
+  setTimeout(function(){resolveWheel(WHEEL_SEGS[idx].type);},3800);
+}
+function resolveWheel(type){
+  const res=$('wheelResult');
+  if(type==='mythic'||type==='legendary'){
+    const it=makeItem(pick(SLOTS),type);addItem(it);persist();
+    res.style.color=type==='mythic'?'#ff4d6d':'#ff8a3a';res.textContent=(type==='mythic'?'🎉 MİTİK':'🎉 EFSANEVİ')+' ekipman kazandın!';
+    burst(player.x,player.y,'#ffd166',44,340,0.8,6);sfx.win();sfx.coin();shake=Math.max(shake,9);
+  }else if(type==='gold'){
+    runGold+=80;res.style.color='var(--gold)';res.textContent='💰 +80 altın';sfx.coin();
+  }else{
+    if(save.inventory.length){
+      const li=Math.floor(Math.random()*save.inventory.length),lost=save.inventory[li];
+      save.inventory.splice(li,1);
+      for(const sl in save.equipped)if(save.equipped[sl]===lost.uid)save.equipped[sl]=null;
+      persist();
+      res.style.color='#ff4d6d';res.textContent='💔 '+lost.name+' kayboldu!';
+      burst(player.x,player.y,'#ff4d6d',30,300,0.6,4.5);sfx.hurt();shake=Math.max(shake,10);flashV=Math.max(flashV,0.4);
+    }else{runGold+=50;res.style.color='var(--gold)';res.textContent='💰 +50 altın (kaybedilecek item yok)';sfx.coin();}
+  }
+  $('wheelGo').style.display='';
+}
+function closeWheel(){$('wheel').classList.remove('show');afterPick();}
 
 /* ============================ FLOW ============================ */
 function hideAllOverlays(){['hub','map','equip'].forEach(i=>$(i).classList.remove('show'));['levelup','pause','stageclear','gameover'].forEach(i=>$(i).classList.remove('show'));$('hud').style.display='none';$('miniBtns').classList.remove('show');}
@@ -1835,7 +1892,7 @@ function roomClear(){
   const ch=Math.floor(stageIndex/5),st=stageIndex%5, last=(st===STAGES_PER_CH-1);
   runGold+=8+ch*6+st*4;
   dropPending=null;
-  if(last||chance(0.5)){const bias=ch*0.12+(last?0.18:0);dropPending=generateItem(null,bias);addItem(dropPending);persist();}
+  if(last){const bias=ch*0.12+0.22;dropPending=generateItem(null,bias);addItem(dropPending);persist();} /* eşya YALNIZ boss (son sahne) ölünce düşer — ara odalarda düşmez */
   if(last){ // chapter complete → commit gold, unlock next chapter
     sfx.win();
     save.gold+=Math.round(runGold);
