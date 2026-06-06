@@ -142,37 +142,105 @@ const Auth = (() => {
         }
     }
 
+    // SVG ikon yardımcısı (innerHTML yok → güvenli)
+    function svgIcon(d) {
+        const ns = 'http://www.w3.org/2000/svg';
+        const s = document.createElementNS(ns, 'svg');
+        s.setAttribute('viewBox', '0 0 24 24');
+        s.setAttribute('fill', 'currentColor');
+        s.setAttribute('aria-hidden', 'true');
+        const p = document.createElementNS(ns, 'path');
+        p.setAttribute('d', d);
+        s.appendChild(p);
+        return s;
+    }
+
+    // ── Hesap menüsü (aç/kapa) — mobilde de çıkış erişilebilir olsun diye ──
+    function closeMenu() {
+        const menu = document.querySelector('#user-chip .user-menu');
+        if (menu) menu.classList.add('hidden');
+        const tog = document.querySelector('#user-chip .user-toggle');
+        if (tog) tog.setAttribute('aria-expanded', 'false');
+        document.removeEventListener('click', onDocClick, true);
+        document.removeEventListener('keydown', onEscKey);
+    }
+    function onDocClick(e) {
+        const chip = $('user-chip');
+        if (chip && !chip.contains(e.target)) closeMenu();
+    }
+    function onEscKey(e) { if (e.key === 'Escape') closeMenu(); }
+    function toggleMenu(e) {
+        e.stopPropagation();
+        const menu = document.querySelector('#user-chip .user-menu');
+        const tog = document.querySelector('#user-chip .user-toggle');
+        if (!menu) return;
+        const willOpen = menu.classList.contains('hidden');
+        menu.classList.toggle('hidden', !willOpen);
+        if (tog) tog.setAttribute('aria-expanded', String(willOpen));
+        if (willOpen) {
+            document.addEventListener('click', onDocClick, true);
+            document.addEventListener('keydown', onEscKey);
+        } else {
+            document.removeEventListener('click', onDocClick, true);
+            document.removeEventListener('keydown', onEscKey);
+        }
+    }
+
     function renderUserChip(user) {
         const chip = $('user-chip');
         if (!chip) return;
+        closeMenu();
         while (chip.firstChild) chip.removeChild(chip.firstChild);
-        if (user) {
-            if (user.photoURL) {
-                const img = document.createElement('img');
-                img.className = 'user-avatar';
-                img.src = user.photoURL;
-                img.alt = '';
-                img.referrerPolicy = 'no-referrer';   // Google foto bazen referrer'la 403 verir
-                chip.appendChild(img);
-            }
-            const name = document.createElement('span');
-            name.className = 'user-name';
-            name.textContent = user.displayName || 'Oyuncu';
-            chip.appendChild(name);
+
+        // Tek kompakt buton (avatar / kişi ikonu) → tıklayınca menü
+        const tog = document.createElement('button');
+        tog.className = 'user-toggle';
+        tog.type = 'button';
+        tog.title = user ? (user.displayName || 'Hesap') : 'Misafir';
+        tog.setAttribute('aria-haspopup', 'true');
+        tog.setAttribute('aria-expanded', 'false');
+        tog.setAttribute('aria-label', 'Hesap menüsü');
+        if (user && user.photoURL) {
+            const img = document.createElement('img');
+            img.className = 'user-avatar';
+            img.src = user.photoURL;
+            img.alt = '';
+            img.referrerPolicy = 'no-referrer';   // Google foto bazen referrer'la 403 verir
+            tog.appendChild(img);
         } else {
-            const badge = document.createElement('span');
-            badge.className = 'user-name user-guest';
-            badge.textContent = 'Misafir';
-            chip.appendChild(badge);
+            tog.appendChild(svgIcon('M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'));
+        }
+        tog.addEventListener('click', toggleMenu);
+        chip.appendChild(tog);
+
+        // Açılır menü: ad (+ e-posta) + Çıkış yap
+        const menu = document.createElement('div');
+        menu.className = 'user-menu hidden';
+        const nm = document.createElement('div');
+        nm.className = 'user-menu-name';
+        nm.textContent = user ? (user.displayName || 'Oyuncu') : 'Misafir';
+        menu.appendChild(nm);
+        if (user && user.email) {
+            const em = document.createElement('div');
+            em.className = 'user-menu-email';
+            em.textContent = user.email;
+            menu.appendChild(em);
+        } else if (!user) {
+            const hint = document.createElement('div');
+            hint.className = 'user-menu-email';
+            hint.textContent = 'Kayıt tutulmuyor';
+            menu.appendChild(hint);
         }
         const out = document.createElement('button');
-        out.className = 'user-signout';
+        out.className = 'user-menu-signout';
         out.type = 'button';
-        out.title = 'Çıkış yap';
-        out.setAttribute('aria-label', 'Çıkış yap');
-        out.textContent = 'Çıkış';
-        out.addEventListener('click', signOut);
-        chip.appendChild(out);
+        out.appendChild(svgIcon('M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5-5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z'));
+        const sl = document.createElement('span');
+        sl.textContent = 'Çıkış yap';
+        out.appendChild(sl);
+        out.addEventListener('click', () => { closeMenu(); signOut(); });
+        menu.appendChild(out);
+        chip.appendChild(menu);
     }
 
     // ── Hata gösterimi ──

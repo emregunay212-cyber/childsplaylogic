@@ -316,44 +316,92 @@ button {
     margin-bottom: 14px;
 }
 
-/* ── Üst bar kullanıcı çipi ── */
+/* ── Üst bar hesap çipi (avatar/ikon → açılır menü) ── */
 .user-chip {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 6px;
 }
 .user-chip:empty { display: none; }
-.user-avatar {
-    width: 30px;
-    height: 30px;
+.user-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.22);
+    color: var(--text-light, #fff);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.12s ease;
+}
+.user-toggle:active { transform: scale(0.94); }
+.user-toggle svg { width: 22px; height: 22px; display: block; }
+.user-toggle .user-avatar {
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid rgba(255, 255, 255, 0.7);
 }
-.user-name {
+.user-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 180px;
+    max-width: 240px;
+    background: #fff;
+    color: #2d3436;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+    padding: 12px;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    animation: fadeInUp 0.18s ease both;
+}
+.user-menu.hidden { display: none; }
+.user-menu-name {
     font-family: 'Fredoka', sans-serif;
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: var(--text-light, #fff);
-    max-width: 110px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #2d3436;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-.user-signout {
-    background: rgba(255, 255, 255, 0.22);
-    color: var(--text-light, #fff);
-    border: none;
-    border-radius: 12px;
-    padding: 5px 10px;
-    font-family: 'Fredoka', sans-serif;
-    font-size: 0.8rem;
-    font-weight: 700;
-    cursor: pointer;
+.user-menu-email {
+    font-size: 0.78rem;
+    color: #9099a3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
-.user-signout:active { transform: translateY(1px); }
+.user-menu-signout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+    background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+    cursor: pointer;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+.user-menu-signout svg { width: 18px; height: 18px; }
+.user-menu-signout:active { transform: translateY(1px); }
 @media (max-width: 640px) {
-    .user-name { display: none; }
+    /* üst barda yer aç → hesap çipi her zaman görünür kalır.
+       .top-bar öneki: temel .top-title{display:flex} kuralını özgüllükle yener */
+    .top-bar .top-title { display: none; }
 }
 
 .splash-clouds {
