@@ -289,6 +289,7 @@
     <button class="btn ghost" id="goEndlessBtn">♾️ Sonsuz Savaş</button>
   </div>
   <div class="helptxt"><b>Hareket etmeyi bırakınca otomatik ateş edersin.</b> Dibine giren düşmana otomatik yakın saldırı yaparsın. Hareket için ekrana dokun ve sürükle. Masaüstü: WASD.<br><span id="bestLine"></span></div>
+  <button class="btn ghost" id="resetProgBtn" style="margin-top:12px;font-size:12px;padding:8px 16px;opacity:.7">🗑️ İlerlemeyi Sıfırla</button>
 </div>
 
 <!-- MAP -->
@@ -2064,9 +2065,14 @@ function doMerge(){const it=findItem(selectedUid);if(!canMerge(it))return;const 
 function openChest(key){const c=CHESTS.find(x=>x.key===key)||CHESTS[0];if((save.chapterProgress||0)<c.reqCh)return;const cost=chestCost(c);if(save.gold<cost)return;save.gold-=cost;const it=makeItem(pick(SLOTS),rollRarityW(c.w));addItem(it);selectedUid=it.uid;persist();sfx.win();renderEquip();}
 
 /* ============================ WIRE ============================ */
+function resetProgress(){
+  if(!confirm('Tüm ilerleme (altın, ekipman, bölüm) silinip baştan başlayacaksın. Emin misin?'))return;
+  save=defaultSave();ensureStarter();persist();renderHub();
+}
 $('goMapBtn').onclick=goMap;
 $('goEquipBtn').onclick=goEquip;
 $('goEndlessBtn').onclick=startEndless;
+$('resetProgBtn').onclick=resetProgress;
 $('mapBack').onclick=goHub;
 $('eqBack').onclick=goHub;
 $('resumeBtn').onclick=doResume;

@@ -16,7 +16,53 @@ const Auth = (() => {
     let pushTimer = null;
     let wired = false;
 
+    // Oyun-içi kayıtlar (Progress blob'undan AYRI; oyunların kendi localStorage anahtarları):
+    // Zindan Okçusu bölüm/altın/ekipman + yüksek skorlar + seviye editörü kayıtları.
+    // Google kullanıcısında users/{uid}/gameSaves altında senkronlanır.
+    const GAME_SAVE_KEYS = ['zindan_okcusu_save_v1', 'tetris-best', 'egim-best', 'bk-highscore', 'menuLevels', 'menuLevelsPath'];
+    const lastGameSave = {};   // key -> son buluta yazılan değer (gereksiz yazımı önler)
+    let gsTimer = null;
+    let gsWired = false;
+
     function cloudRef(uid) { return db.ref('users/' + uid + '/progress'); }
+    function gameSavesRef(uid) { return db.ref('users/' + uid + '/gameSaves'); }
+
+    // Oyun kayıtlarını buluta yansıt (yalnız değişen anahtarlar; debounced) — yalnız Google
+    function pushGameSaves() {
+        if (mode !== 'google' || !currentUser) return;
+        const updates = {};
+        for (const k of GAME_SAVE_KEYS) {
+            let v = null;
+            try { v = localStorage.getItem(k); } catch (e) {}
+            const prev = (lastGameSave[k] === undefined) ? null : lastGameSave[k];
+            if (v !== prev) { updates[k] = v; lastGameSave[k] = v; }   // null → Firebase anahtarı siler
+        }
+        if (!Object.keys(updates).length) return;
+        try { gameSavesRef(currentUser.uid).update(updates); } catch (e) {}
+    }
+    function scheduleGameSavePush() { clearTimeout(gsTimer); gsTimer = setTimeout(pushGameSaves, 1000); }
+
+    // Çıkış/misafir: yerel oyun kayıtlarını temizle (paylaşımlı cihazda başkasının kaydı görünmesin)
+    function clearGameSaves() {
+        for (const k of GAME_SAVE_KEYS) {
+            try { localStorage.removeItem(k); } catch (e) {}
+            lastGameSave[k] = null;
+        }
+    }
+
+    // Oyunların localStorage yazımlarını yakala: iframe oyunları (Zindan) parent pencereye
+    // 'storage' eventi yollar (anlık); aynı-pencere oyunları + kapanış için visibility/pagehide.
+    function wireGameSaveSync() {
+        if (gsWired) return;
+        gsWired = true;
+        window.addEventListener('storage', (e) => {
+            if (e && e.key && GAME_SAVE_KEYS.indexOf(e.key) !== -1) scheduleGameSavePush();
+        });
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') pushGameSaves();
+        });
+        window.addEventListener('pagehide', pushGameSaves);
+    }
 
     // ── Buluta yaz (debounced) — yalnız Google modunda ──
     function pushProgress(data) {
@@ -41,6 +87,26 @@ const Auth = (() => {
             Progress.setSyncHook(pushProgress);
             Progress.resetAll();            // save → pushProgress → bulut seed
         }
+
+        // ── Oyun-içi kayıtlar (Zindan vb.) ──
+        let gsSnap = null;
+        try { gsSnap = await gameSavesRef(uid).once('value'); } catch (e) {}
+        const gs = (gsSnap && gsSnap.val()) || {};
+        const seed = {};
+        for (const k of GAME_SAVE_KEYS) {
+            if (gs[k] != null) {
+                // Bulutta var → yereli onunla değiştir (kaldığı yerden / başka cihazdan devam)
+                try { localStorage.setItem(k, gs[k]); } catch (e) {}
+                lastGameSave[k] = gs[k];
+            } else {
+                // Bulutta yok → mevcut yerel ilerlemeyi KORU ve bulutu tohumla (ilk giriş)
+                let local = null;
+                try { local = localStorage.getItem(k); } catch (e) {}
+                if (local != null) { seed[k] = local; lastGameSave[k] = local; }
+                else { lastGameSave[k] = null; }
+            }
+        }
+        if (Object.keys(seed).length) { try { gameSavesRef(uid).update(seed); } catch (e) {} }
     }
 
     function applyGoogle(user) {
@@ -58,6 +124,7 @@ const Auth = (() => {
         currentUser = null;
         Progress.setSyncHook(null);
         Progress.resetAll();                // her misafir girişinde 0 yıldız
+        clearGameSaves();                   // misafir: oyun kayıtları da efemer
         try { sessionStorage.setItem(GUEST_KEY, '1'); } catch (e) {}
         hideLoginScreen();
         renderUserChip(null);
@@ -77,6 +144,7 @@ const Auth = (() => {
     function init(readyCb) {
         onReady = readyCb;
         wireButtons();
+        wireGameSaveSync();
         auth.onAuthStateChanged((user) => {
             if (user && !user.isAnonymous) {
                 // Token yenilemesi vb. → aynı kullanıcıysa yeniden yükleme yapma
@@ -133,6 +201,7 @@ const Auth = (() => {
         try { sessionStorage.removeItem(GUEST_KEY); } catch (e) {}
         Progress.setSyncHook(null);
         Progress.resetAll();                // paylaşımlı cihaz: yereli temizle
+        clearGameSaves();                   // oyun kayıtlarını da temizle
         const wasGoogle = (mode === 'google');
         mode = null; currentUser = null;
         if (wasGoogle) {
@@ -266,5 +335,6 @@ const Auth = (() => {
         getMode: () => mode,
         isGuest: () => mode === 'guest',
         getUser: () => currentUser,
+        flushGameSaves: pushGameSaves,   // app.js oyundan çıkışta çağırır
     };
 })();

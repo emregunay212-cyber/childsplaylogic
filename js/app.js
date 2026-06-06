@@ -732,6 +732,8 @@ const App = (() => {
     }
 
     function navigateToHub() {
+        // Oyun-içi kayıtları (Zindan vb.) çıkışta buluta yansıt (Google kullanıcısı)
+        try { if (typeof Auth !== 'undefined' && Auth.flushGameSaves) Auth.flushGameSaves(); } catch (e) {}
         AudioManager.play('whoosh');
         // Tam ekrandan çık (oyundan ayrılırken)
         if (document.fullscreenElement || document.webkitFullscreenElement) {
