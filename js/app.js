@@ -337,10 +337,6 @@ const App = (() => {
             if (enabled) AudioManager.play('tap');
         });
 
-        document.getElementById('btn-settings')?.addEventListener('click', () => {
-            showParentControls();
-        });
-
         // Oyun toolbar
         document.getElementById('game-home')?.addEventListener('click', () => {
             navigateToHub();
@@ -786,80 +782,6 @@ const App = (() => {
         else if (adminConfig.sound === 'on') { AudioManager.setEnabled(true); document.getElementById('btn-sound')?.classList.remove('muted'); }
         updateStarCounter();
         if (currentView === 'hub') renderHubGrid();
-    }
-
-    function showParentControls() {
-        // Basit matematik PIN
-        const a = 2 + Math.floor(Math.random() * 7);
-        const b = 2 + Math.floor(Math.random() * 7);
-        const answer = prompt(`Ebeveyn kontrolü\n\n${a} + ${b} = ?`);
-        if (parseInt(answer) !== a + b) return;
-
-        const action = prompt(
-            'Ebeveyn / Öğretmen Ayarları:\n\n' +
-            '1 - İlerlemeyi Sıfırla\n' +
-            '2 - Tüm Kilitleri Aç\n' +
-            '3 - Kilitleri Sıfırla (tekrar kilitle)\n' +
-            '4 - Oyun Kilidini Tek Tek Yönet\n' +
-            '5 - Kapat\n\n' +
-            'Seçiminiz:'
-        );
-
-        const refresh = () => {
-            updateStarCounter();
-            if (currentView === 'hub') renderHubGrid();
-        };
-
-        if (action === '1') {
-            if (confirm('Tüm ilerleme silinecek. Emin misiniz?')) {
-                Progress.resetAll();
-                refresh();
-                alert('İlerleme sıfırlandı!');
-            }
-        } else if (action === '2') {
-            [...gameRegistry, ...mpGamesList].forEach((e) => { if (LOCK_STARS_BY_KEY[lockKey(e)]) Progress.setTeacherUnlock(lockKey(e), true); });
-            refresh();
-            alert('Tüm oyunların kilidi açıldı!');
-        } else if (action === '3') {
-            Progress.clearTeacherUnlocks();
-            refresh();
-            alert('Kilitler sıfırlandı. Oyunlar yıldız eşiğine göre yeniden kilitlendi.');
-        } else if (action === '4') {
-            manageGameLocks();
-            refresh();
-        }
-    }
-
-    // Kilitlenebilir oyunları tek tek öğretmen izniyle aç/kapat (toggle)
-    function manageGameLocks() {
-        const lockables = [...gameRegistry, ...mpGamesList]
-            .filter((e) => LOCK_STARS_BY_KEY[lockKey(e)])
-            .sort((a, b) => LOCK_STARS_BY_KEY[lockKey(a)] - LOCK_STARS_BY_KEY[lockKey(b)]);
-        if (!lockables.length) { alert('Kilitlenebilir oyun yok.'); return; }
-        while (true) {
-            const lines = lockables.map((e, i) => {
-                const key = lockKey(e);
-                const need = LOCK_STARS_BY_KEY[key];
-                let st;
-                if (Progress.isTeacherUnlocked(key)) st = 'ÖĞRETMEN AÇTI';
-                else if (Progress.getTotalStars() >= need) st = 'YILDIZLA AÇIK';
-                else st = 'KİLİTLİ (' + need + ' yıldız)';
-                return `${i + 1} - ${TR.games[entryId(e)]} [${st}]`;
-            });
-            const sel = prompt(
-                'Oyun kilidini değiştir (numara gir):\n\n' +
-                lines.join('\n') +
-                '\n\n0 - Geri\n\nSeçiminiz:'
-            );
-            if (sel === null) return;
-            const t = sel.trim();
-            if (t === '' || t === '0') return;
-            const idx = parseInt(t, 10) - 1;
-            if (idx >= 0 && idx < lockables.length) {
-                const key = lockKey(lockables[idx]);
-                Progress.setTeacherUnlock(key, !Progress.isTeacherUnlocked(key));
-            }
-        }
     }
 
     return { init, updateStarCounter, showHub };
