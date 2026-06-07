@@ -1852,13 +1852,28 @@ const WHEEL_SEGS=[
   {type:'mythic',w:3,col:'#ff4d6d'},
 ];
 const WHEEL_SYM={gold:'💰',lose:'💔',legendary:'⚔️',mythic:'💎'};
+let curWheelSegs=WHEEL_SEGS;
+// Kuşanılı ekipman gücü (nadirlik×seviye toplamı) — çark ödül şansını buna bağlarız.
+function wheelGearPow(){
+  let sum=0;
+  for(const slot of SLOTS){const uid=save.equipped[slot];if(!uid)continue;const it=findItem(uid);if(!it)continue;sum+=RARITY[rIdx(it.rarity)].mult*(1+0.15*((it.level||1)-1));}
+  return sum;
+}
+// Efsanevi/Mitik ağırlığını güce göre ölçekle: zayıf/kalitesiz gear → düşük şans
+// (kötü eşya kuşanıp risksiz çark çevirme istismarını engeller). q: gear-pow 2→20 arası 0..1.
+function buildWheelSegs(){
+  const q=Math.max(0,Math.min(1,(wheelGearPow()-2)/18));
+  const legW=0.6+7.4*q,mytW=0.25+2.75*q;
+  return WHEEL_SEGS.map(s=>s.type==='legendary'?Object.assign({},s,{w:legW}):(s.type==='mythic'?Object.assign({},s,{w:mytW}):s));
+}
 function buildWheelDisc(){
   const disc=$('wheelDisc');disc.style.position='relative';
   while(disc.firstChild)disc.removeChild(disc.firstChild);
   const R=(disc.offsetWidth||280)*0.36; // sembolü yarıçapın ~%72'sine koy
+  const segs=curWheelSegs,tot=segs.reduce((x,s)=>x+s.w,0),deg=360/tot; // ağırlık toplamı 100 değilse 360'a normalize
   let a=0,stops=[];
-  for(const s of WHEEL_SEGS){
-    const a2=a+s.w*3.6,mid=(a+a2)/2;
+  for(const s of segs){
+    const a2=a+s.w*deg,mid=(a+a2)/2;
     stops.push(s.col+' '+a.toFixed(2)+'deg '+a2.toFixed(2)+'deg');
     const lab=document.createElement('span');
     lab.textContent=WHEEL_SYM[s.type]||'';
@@ -1871,6 +1886,7 @@ function buildWheelDisc(){
 function openWheel(){
   state=ST.LEVELUP; $('levelup').classList.remove('show');
   $('wheelGo').onclick=closeWheel; $('wheelGo').style.display='none';
+  curWheelSegs=buildWheelSegs();              // efsanevi/mitik şansı = kuşanılı ekipman gücüne bağlı
   $('wheel').classList.add('show');           // önce göster → ölçüler doğru + oyuncu dilimleri görsün
   buildWheelDisc();
   const disc=$('wheelDisc');disc.style.transition='none';disc.style.transform='rotate(0deg)';
@@ -1881,14 +1897,14 @@ function openWheel(){
 }
 function spinWheel(){
   $('wheelResult').textContent='';
-  const tot=WHEEL_SEGS.reduce((s,x)=>s+x.w,0);let rr=Math.random()*tot,idx=0,acc=0;
-  for(let i=0;i<WHEEL_SEGS.length;i++){acc+=WHEEL_SEGS[i].w;if(rr<=acc){idx=i;break;}}
-  let a=0;for(let i=0;i<idx;i++)a+=WHEEL_SEGS[i].w*3.6;const arc=WHEEL_SEGS[idx].w*3.6,mid=a+arc/2;
+  const segs=curWheelSegs,tot=segs.reduce((s,x)=>s+x.w,0),deg=360/tot;let rr=Math.random()*tot,idx=0,acc=0;
+  for(let i=0;i<segs.length;i++){acc+=segs[i].w;if(rr<=acc){idx=i;break;}}
+  let a=0;for(let i=0;i<idx;i++)a+=segs[i].w*deg;const arc=segs[idx].w*deg,mid=a+arc/2;
   const R=360*6-mid+(Math.random()-0.5)*arc*0.6;
   const disc=$('wheelDisc');
   disc.style.transition='none';disc.style.transform='rotate(0deg)';void disc.offsetWidth;disc.style.transition='transform 3.6s cubic-bezier(.16,.84,.3,1)';
   setTimeout(function(){disc.style.transform='rotate('+R.toFixed(2)+'deg)';},60);
-  setTimeout(function(){resolveWheel(WHEEL_SEGS[idx].type);},3800);
+  setTimeout(function(){resolveWheel(segs[idx].type);},3800);
 }
 function resolveWheel(type){
   const res=$('wheelResult');
