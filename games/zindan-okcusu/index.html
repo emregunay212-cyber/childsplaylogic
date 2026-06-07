@@ -2089,7 +2089,9 @@ let last=performance.now();
 function loop(t){let dt=(t-last)/1000;last=t;if(dt>0.05)dt=0.05;if(!document.hidden)update(dt);render();requestAnimationFrame(loop);}
 resize();
 state=ST.HUB;
-ensureStarter();renderHub();$('hub').classList.add('show');
+renderHub();$('hub').classList.add('show');
+// ÖNCE kaydı yükle, SONRA ensureStarter — aksi halde ensureStarter varsayılan kaydı
+// persist edip gerçek kaydı (altın/ekipman/bölüm) eziyordu (boot yarışı → ilerleme sıfırlanması).
 loadSave().then(()=>{ensureStarter();if(state===ST.HUB)renderHub();});
 requestAnimationFrame(loop);
 </script>
