@@ -308,9 +308,11 @@ const App = (() => {
         if (!sp && !mp) return false;            // bilinmeyen slug → normal splash akışı
         try { AudioManager.init(); } catch (e) {}
         try { hideSplash(); } catch (e) {}
-        showHub();                               // kilitliyse hub'da kalır, bilgi penceresi gösterir
-        if (sp && isGameUnlocked(sp)) startGame(sp.game);
-        else if (mp && isGameUnlocked(mp)) startMultiplayerGame(mp.game);
+        showHub();
+        // Landing/deep-link (?oyun=) ile gelen ziyaretçi kilidi ATLAR (SEO → doğrudan oyna).
+        // Uygulama içi kart tıklamaları kilide tabi kalır (guard yalnız bypassLock=true ile atlanır).
+        if (sp) startGame(sp.game, 1, true);
+        else if (mp) startMultiplayerGame(mp.game, true);
         return true;
     }
 
@@ -673,10 +675,10 @@ const App = (() => {
         }
     }
 
-    function startMultiplayerGame(game) {
-        // Kilitli online oyun guard'ı
+    function startMultiplayerGame(game, bypassLock = false) {
+        // Kilitli online oyun guard'ı (bypassLock=true: landing/deep-link ziyaretçisi atlar)
         const entry = mpGamesList.find(e => e.game === game);
-        if (entry && !isGameUnlocked(entry)) { try { AudioManager.play('tap'); } catch (e) {} return; }
+        if (entry && !bypassLock && !isGameUnlocked(entry)) { try { AudioManager.play('tap'); } catch (e) {} return; }
         cleanupActiveMpGame();
         currentView = 'game';
         document.getElementById('hub').classList.add('hidden');
@@ -702,10 +704,11 @@ const App = (() => {
         });
     }
 
-    function startGame(game, level = 1) {
-        // Kilitli oyun guard'ı — kartı bypass eden tüm yollar için tek koruma noktası
+    function startGame(game, level = 1, bypassLock = false) {
+        // Kilitli oyun guard'ı — kartı bypass eden tüm yollar için tek koruma noktası.
+        // bypassLock=true: landing/deep-link ile gelen ziyaretçi kilidi atlar.
         const entry = gameRegistry.find(e => e.game.id === game.id);
-        if (entry && !isGameUnlocked(entry)) {
+        if (entry && !bypassLock && !isGameUnlocked(entry)) {
             try { AudioManager.play('tap'); } catch (e) {}
             return;
         }
