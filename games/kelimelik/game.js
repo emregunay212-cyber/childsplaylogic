@@ -12,7 +12,7 @@ const KelimelikGame = (() => {
   const uid = () => 'k' + (++uidC);
   const myId = () => NET ? NET.myId() : 'me';
 
-  function init(r) { root = r; uidC = 0; try { if (NET) NET.init(); } catch (e) {} showMenu(); }
+  function init(r) { root = r; uidC = 0; try { D.load(); } catch (e) {} try { if (NET) NET.init(); } catch (e) {} showMenu(); }
 
   function tileEl(letter, opts) {
     const t = document.createElement('div');

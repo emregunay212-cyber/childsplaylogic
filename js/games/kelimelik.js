@@ -16,7 +16,7 @@ const Kelimelik = (() => {
     container = gameArea;
     clear(gameArea);
     iframe = document.createElement('iframe');
-    iframe.src = 'games/kelimelik/index.html?v=2';
+    iframe.src = 'games/kelimelik/index.html?v=3';
     iframe.className = 'zo-iframe';   // tam-boy iframe stili (Zindan ile ortak)
     iframe.setAttribute('allow', 'fullscreen');
     iframe.setAttribute('tabindex', '0');

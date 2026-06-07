@@ -1,39 +1,86 @@
 /* ============================================
    KELİMELİK — Sözlük (MODÜLER / DEĞİŞTİRİLEBİLİR)
-   Şimdilik test için ~90 kelimelik mock liste. İleride gerçek bir sözlük
-   API'si (TDK vb.) veya daha büyük bir kelime dosyası ile değiştirilebilir:
-   yalnız KelimelikDict.isValid(word) imzasını koru.
-   Not: harfler Türkçe BÜYÜK harf (İ ≠ I) ve torbadaki harf setiyle uyumlu olmalı.
+   words.txt: ~68k Türkçe kök (TDK imla kılavuzu, CanNuhlar/Turkce-Kelime-Listesi
+   + fiil kökleri türetildi). Tembel yüklenir, önbelleğe alınır.
+   Çekimli kelimeler (kitaplar, evler, geldim...) Türkçe EK-SOYMA + ünsüz yumuşaması
+   ile köke indirgenip doğrulanır — böylece tüm liste devasa olmadan geniş kapsam.
+   İleride: words.txt'i daha büyük/resmi bir liste veya API ile değiştir; isValid imzasını koru.
    ============================================ */
 const KelimelikDict = (() => {
-  const WORDS = [
-    // 2-3 harf
-    'AT','EV','EL','SU','AY','UN','OT','EK','İP','GÜL','GÖZ','KOL','KAR','KUM','TAŞ',
-    'DAĞ','GÖL','GÖK','SÜT','BAL','YAĞ','TUZ','ET','BUZ','KÖY','YOL','SAÇ','DİŞ','KAŞ',
-    'TOP','TÜY','KÖK','DAL','NAR','ARI','KEL','SAĞ','SOL','BİR','İKİ','ÜÇ','ON',
-    // 4-5 harf
-    'KEDİ','OKUL','MASA','KAPI','ELMA','ARMUT','ÇİÇEK','AĞAÇ','ORMAN','DENİZ','NEHİR',
-    'GÜNEŞ','BULUT','KALEM','KİTAP','DEFTER','SİLGİ','ÇANTA','OYUN','ARABA','UÇAK',
-    'TREN','GEMİ','EKMEK','PEYNİR','ŞEKER','DOMATES','BİBER','SOĞAN','HAVUÇ','MARUL',
-    'KUŞ','BALIK','ASLAN','KAPLAN','TAVŞAN','KURT','TİLKİ','İNEK','KOYUN','KEÇİ',
-    'TAVUK','HOROZ','ÖRDEK','ANNE','BABA','ÇOCUK','BEBEK','DEDE','NİNE','TEYZE',
-    'AMCA','DAYI','HALA','DERS','SINIF','TAHTA','MAVİ','SARI','YEŞİL','SİYAH',
-    'BEYAZ','MOR','PEMBE','GÜZEL','BÜYÜK','KÜÇÜK','UZUN','KISA','SICAK','SOĞUK',
-    'YENİ','ESKİ','İYİ','HIZLI','YAVAŞ','MUTLU','EVET','KAR','YILDIZ','RÜZGAR',
-    'YAĞMUR','TOPRAK','ATEŞ','HAVA','MEYVE','SEBZE','ÇORBA','PİLAV','SALATA'
+  // Yüklenene kadar kullanılacak küçük yedek liste (offline / fetch başarısız)
+  const MOCK = ['AT','EV','EL','SU','AY','UN','OT','GÜL','GÖZ','KOL','KAR','KUM','TAŞ','DAĞ','GÖL',
+    'SÜT','BAL','YAĞ','TUZ','BUZ','YOL','TOP','NAR','KEDİ','OKUL','MASA','KAPI','ELMA','ÇİÇEK','AĞAÇ',
+    'ORMAN','DENİZ','GÜNEŞ','KALEM','KİTAP','OYUN','ARABA','EKMEK','ŞEKER','KUŞ','BALIK','ANNE','BABA',
+    'ÇOCUK','MAVİ','SARI','YEŞİL','BÜYÜK','KÜÇÜK','GÜZEL','YENİ','ESKİ','MUTLU','SU','AŞK','DİL'];
+  let SET = new Set(MOCK);
+  let loaded = false, loading = null;
+
+  // ünsüz yumuşaması geri-alma: kitabı→kitab→(B→P)→kitap
+  const MUT = { 'B': 'P', 'C': 'Ç', 'D': 'T', 'Ğ': 'K', 'G': 'K' };
+  // Türkçe çekim ekleri (iteratif soyma; ünlü uyumu varyantları). Uzundan kısaya sıralanır.
+  let SUF = [
+    'LAR','LER',
+    'IMIZ','İMİZ','UMUZ','ÜMÜZ','INIZ','İNİZ','UNUZ','ÜNÜZ','MIZ','MİZ','MUZ','MÜZ','NIZ','NİZ','NUZ','NÜZ',
+    'LARIN','LERİN','LARI','LERİ','LARA','LERE','LARDA','LERDE','LARDAN','LERDEN','LARLA','LERLE',
+    'NIN','NİN','NUN','NÜN','NDAN','NDEN','NDA','NDE','NLA','NLE','YLA','YLE','LA','LE',
+    'DAN','DEN','TAN','TEN','DA','DE','TA','TE','YA','YE','NA','NE','A','E',
+    'YI','Yİ','YU','YÜ','NI','Nİ','NU','NÜ','SI','Sİ','SU','SÜ',
+    'IN','İN','UN','ÜN','IM','İM','UM','ÜM','I','İ','U','Ü',
+    'IYORUM','İYORUM','UYORUM','ÜYORUM','IYORSUN','İYORSUN','IYOR','İYOR','UYOR','ÜYOR',
+    'YORUM','YORSUN','YORUZ','YORSUNUZ','YORLAR','YOR',
+    'ACAĞIM','ECEĞİM','ACAKSIN','ECEKSİN','ACAĞIZ','ECEĞİZ','ACAK','ECEK',
+    'DILAR','DİLER','DULAR','DÜLER','TILAR','TİLER','DINIZ','DİNİZ','DUNUZ','DÜNÜZ',
+    'DIM','DİM','DUM','DÜM','TIM','TİM','TUM','TÜM','DIN','DİN','DUN','DÜN','TIN','TİN','TUN','TÜN',
+    'DIK','DİK','DUK','DÜK','TIK','TİK','TUK','TÜK','DI','Dİ','DU','DÜ','TI','Tİ','TU','TÜ',
+    'MIŞIM','MİŞİM','MIŞSIN','MİŞSİN','MIŞ','MİŞ','MUŞ','MÜŞ',
+    'MAYACAK','MEYECEK','MIYOR','MİYOR','MUYOR','MÜYOR','MAZ','MEZ','MAK','MEK','MA','ME',
+    'SAM','SEM','SAN','SEN','SA','SE','KEN',
+    'AR','ER','IR','İR','UR','ÜR','SIN','SİN','SUN','SÜN','SINIZ','SİNİZ','IZ','İZ','UZ','ÜZ'
   ];
-  const SET = new Set(WORDS);
+  SUF.sort((a, b) => b.length - a.length);
 
-  // Türkçe büyük harfe çevir (i→İ, ı→I doğru) + boşlukları temizle
   function normalize(w) {
-    return String(w || '')
-      .replace(/i/g, 'İ').replace(/ı/g, 'I')
-      .toUpperCase()
-      .replace(/[^A-ZÇĞİÖŞÜ]/g, '');
+    return String(w || '').replace(/i/g, 'İ').replace(/ı/g, 'I').toUpperCase().replace(/[^A-ZÇĞİÖŞÜ]/g, '');
   }
-  function isValid(word) { return SET.has(normalize(word)); }
+  function rootOk(r) {
+    if (r.length < 2) return false;
+    if (SET.has(r)) return true;
+    const m = MUT[r[r.length - 1]];
+    return !!(m && SET.has(r.slice(0, -1) + m));
+  }
+  function strip(w, d) {
+    if (d > 4 || w.length < 3) return false;
+    for (const s of SUF) {
+      if (w.length >= s.length + 2 && w.endsWith(s)) {
+        const r = w.slice(0, -s.length);
+        if (rootOk(r) || strip(r, d + 1)) return true;
+      }
+    }
+    return false;
+  }
+  function isValid(word) {
+    const W = normalize(word);
+    if (W.length < 2) return false;
+    if (rootOk(W)) return true;
+    return strip(W, 0);
+  }
 
-  return { isValid, normalize, _set: SET, _words: WORDS };
+  function load(url) {
+    if (loaded) return Promise.resolve(true);
+    if (loading) return loading;
+    loading = fetch(url || 'words.txt?v=1')
+      .then(r => { if (!r.ok) throw 0; return r.text(); })
+      .then(txt => {
+        const s = new Set();
+        for (const ln of txt.split('\n')) { const w = ln.trim(); if (w) s.add(w); }
+        if (s.size > 1000) { SET = s; loaded = true; }
+        return loaded;
+      })
+      .catch(() => false);
+    return loading;
+  }
+
+  return { isValid, normalize, load, isLoaded: () => loaded, size: () => SET.size };
 })();
 
 if (typeof module !== 'undefined' && module.exports) module.exports = KelimelikDict;
