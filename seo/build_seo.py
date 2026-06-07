@@ -11,7 +11,7 @@ import os, html, datetime
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = "https://bilnetoyun.com"
-TODAY = "2026-06-05"  # Date.now() ortamda yok; elle guncellenir
+TODAY = "2026-06-07"  # Date.now() ortamda yok; elle guncellenir
 
 # slug = SPA oyun id'si (derin-link app.js'te ?oyun=<slug> ile eslenir)
 # cat: kategori etiketi · age: yas · players: kac kisilik · teaches: ne kazandirir
@@ -88,15 +88,15 @@ GAMES = [
        teaches="Refleks, strateji ve karar verme",
        short="Okçunla zindanda hayatta kal, beceri ve ekipman geliştir.",
        about="Zindan Okçusu, dalga dalga gelen yaratıklara karşı okçunla hayatta kaldığın bir aksiyon-hayatta kalma oyunudur. Seviye atladıkça aktif/pasif beceriler seçer, ekipman geliştirir ve bölümleri geçersin. Refleks, strateji ve hızlı karar verme gelişir. Ücretsiz."),
-  dict(slug="kelime-tahmin", name="Kelime Tahmin", cat="Online / Kelime", age="7-10", players="Online çok oyunculu",
+  dict(slug="kelime-tahmin", name="Kelime Tahmin", cat="Kelime", age="7-10", players="Online çok oyunculu",
        teaches="Kelime bilgisi ve tümdengelim",
        short="Wordle tarzı: gizli kelimeyi arkadaşınla yarışarak bul.",
        about="Kelime Tahmin, Wordle tarzında gizli kelimeyi tahmin etmeye çalıştığın online bir kelime oyunudur. Arkadaşınla aynı anda yarışır, kelime dağarcığını ve mantıksal çıkarımı geliştirirsin. Ücretsiz, üyeliksiz online çok oyunculu."),
-  dict(slug="harf-tahmin", name="Harf Tahmin", cat="Online / Kelime", age="7-10", players="Online çok oyunculu",
+  dict(slug="harf-tahmin", name="Harf Tahmin", cat="Kelime", age="7-10", players="Online çok oyunculu",
        teaches="Kelime bilgisi ve tahmin",
        short="Adam asmaca tarzı: harf tahmin ederek kelimeyi çöz.",
        about="Harf Tahmin, adam asmaca mantığıyla harfleri tahmin ederek gizli kelimeyi bulduğun online bir oyundur. Kelime bilgisi ve tahmin stratejisini geliştirir. Arkadaşlarınla ücretsiz oyna."),
-  dict(slug="altin-avi", name="Altın Avı", cat="Online / Bilgi", age="7-10", players="Online (5-30 kişi)",
+  dict(slug="altin-avi", name="Altın Avı", cat="Bilgi", age="7-10", players="Online (5-30 kişi)",
        teaches="Genel kültür ve hızlı düşünme",
        short="5-30 kişilik bilgi yarışı: sorularla altın topla, geliştir.",
        about="Altın Avı, 5-30 kişinin aynı anda katıldığı online bir bilgi yarışı oyunudur. Sorulara doğru cevap vererek altın toplar, saldırı/savunma geliştirir ve lider tablosunda yükselirsin. Genel kültür ve hızlı düşünmeyi geliştiren ücretsiz çok oyunculu oyun."),
@@ -104,6 +104,38 @@ GAMES = [
        teaches="İş birliği ve koordinasyon",
        short="İki karakteri yönet, engelleri birlikte aş.",
        about="Ateş ve Buz, iki karakteri (ateş ve buz) birlikte yönlendirerek engelleri aştığın bir iş birliği oyunudur. Eş güdüm ve birlikte problem çözmeyi geliştirir. Ücretsiz oynanır."),
+  dict(slug="tetris", name="Tetris", cat="Bulmaca", age="6-10", players="Tek kişilik",
+       teaches="Mekânsal düşünme ve hızlı planlama",
+       short="Blokları döndür, satırları doldur ve temizle.",
+       about="Tetris, düşen blokları döndürüp yerleştirerek satırları tamamladığın klasik bir bulmaca-arcade oyunudur. Hız arttıkça mekânsal düşünme, planlama ve refleks gelişir. Tarayıcıda ücretsiz, üyeliksiz oynanır."),
+  dict(slug="buz-kulesi", name="Buz Kulesi", cat="Arcade", age="6-10", players="Tek kişilik",
+       teaches="Zamanlama, refleks ve denge",
+       short="Platformdan platforma zıpla, düşmeden yüksel.",
+       about="Buz Kulesi, Icy Tower tarzı dikey bir zıplama oyunudur; platformdan platforma sıçrayarak mümkün olduğunca yükselirsin. Zamanlama, refleks ve el-göz koordinasyonunu geliştirir. Ücretsiz, üyeliksiz, telefon ve tablette oynanır."),
+  dict(slug="zipla-topla", name="Zıpla Topla", cat="Platform", age="5-10", players="Tek kişilik",
+       teaches="Zamanlama, refleks ve koordinasyon",
+       short="Mario tarzı platformlarda zıpla, topla ve ilerle.",
+       about="Zıpla Topla, Mario tarzı 2 boyutlu bir platform macera oyunudur; engelleri aşar, eşyaları toplar ve bölümleri geçersin. Zamanlama, refleks ve el-göz koordinasyonunu geliştirir. Tarayıcıda ücretsiz oynanır."),
+  dict(slug="egim", name="Eğim", cat="Arcade", age="6-10", players="Tek kişilik",
+       teaches="Hızlı refleks ve odak",
+       short="Eğimli sonsuz yolda topu yönet, engellerden kaç.",
+       about="Eğim (Slope Ball), hız kazanan bir topu eğimli sonsuz bir yolda yönlendirerek engellerden kaçtığın bir refleks-arcade oyunudur. Hızlı tepki, odak ve el-göz koordinasyonunu geliştirir. Ücretsiz, üyeliksiz."),
+  dict(slug="space-waves", name="SpaceWaves", cat="Arcade", age="6-10", players="Tek kişilik",
+       teaches="Refleks ve odaklanma",
+       short="Uzayda dalgalar ve geçitler arasından çarpmadan süzül.",
+       about="SpaceWaves (Uzay Dalgaları), dar geçitler ve engel dalgaları arasından aracını çarpmadan süzdüğün hızlı bir refleks-arcade oyunudur. Odak, zamanlama ve hızlı tepkiyi geliştirir. Tarayıcıda ücretsiz oynanır."),
+  dict(slug="sayilarla-boyama", name="Sayılarla Boyama", cat="Sanat", age="4-9", players="Tek kişilik",
+       teaches="Sayı tanıma, dikkat ve ince motor beceri",
+       short="Numarayı seç, aynı numaralı kutuları boya, resmi ortaya çıkar.",
+       about="Sayılarla Boyama, her numaraya karşılık gelen kutuları boyayarak gizli resmi ortaya çıkardığın bir sanat ve sayı oyunudur. Sayı tanıma, dikkat ve ince motor becerisini geliştirir. Çocuklar için ücretsiz, üyeliksiz."),
+  dict(slug="emoji-yapici", name="Emoji Yapıcı", cat="Sanat", age="4-10", players="Tek kişilik",
+       teaches="Yaratıcılık ve görsel tasarım",
+       short="Parçaları seç, kendi emoji yüzünü yarat.",
+       about="Emoji Yapıcı, göz, ağız ve aksesuar parçalarını birleştirerek kendi emoji yüzünü tasarladığın yaratıcı bir oyundur. Yaratıcılık ve görsel tasarımı geliştirir. Tarayıcıda ücretsiz, üyeliksiz."),
+  dict(slug="penalti-mp", name="Penaltı Online", cat="Spor", age="6-10", players="Online 2 kişilik",
+       teaches="Zamanlama, refleks ve rekabet",
+       short="Arkadaşınla online penaltı düellosu: at ve kurtar.",
+       about="Penaltı Online, bir arkadaşınla aynı anda oynadığın çevrim içi penaltı düellosudur; sırayla şut çeker ve kaleyi korursun. Zamanlama, refleks ve rekabet duygusunu geliştirir. Üyeliksiz, ücretsiz online oynanır."),
 ]
 
 PAGE_TMPL = """<!DOCTYPE html>
@@ -198,7 +230,9 @@ def jsonld_for(g, url):
 
 def build_page(g):
     url = f"{SITE}/oyunlar/{g['slug']}/"
-    title = f"{g['name']} Oyna – Ücretsiz Online {g['cat']} | Bilnet Oyun"
+    # cat zaten "Online" iceriyorsa "Online" on-ekini ekleme (cift "Online" olmasin)
+    online_pre = "" if "nline" in g['cat'].lower() else "Online "
+    title = f"{g['name']} Oyna – Ücretsiz {online_pre}{g['cat']} | Bilnet Oyun"
     desc = f"{g['short']} {g['name']} — {g['age']} yaş çocuklar için ücretsiz eğitici oyun. Üyeliksiz, telefon/tablet/bilgisayarda oynanır. {g['teaches']}."
     kw = f"{g['name'].lower()}, {g['name'].lower()} oyna, {g['name'].lower()} ücretsiz, online {g['cat'].lower()} oyunu, çocuk oyunu, eğitici oyun, bilnet oyun"
     return PAGE_TMPL.format(
