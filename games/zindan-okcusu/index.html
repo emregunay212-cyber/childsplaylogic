@@ -1907,8 +1907,21 @@ function resolveWheel(type){
       const lost=findItem(lostUid);
       for(const sl in save.equipped)if(save.equipped[sl]===lostUid)save.equipped[sl]=null;
       save.inventory=save.inventory.filter(i=>i.uid!==lostUid);
+      // Silah kaybedildiyse silahsız kalma: envanterdeki EN İYİ silahı (kalite→seviye, eşitlikte
+      // rastgele) otomatik kuşan; hiç silah yoksa başlangıç silahı ver.
+      let replName='';
+      if(lost&&lost.slot==='silah'&&!save.equipped.silah){
+        let repl;const weapons=save.inventory.filter(i=>i.slot==='silah');
+        if(weapons.length){
+          const sc=w=>rIdx(w.rarity)*100+(w.level||1);
+          const top=Math.max.apply(null,weapons.map(sc));
+          const best=weapons.filter(w=>sc(w)===top);
+          repl=best[Math.floor(Math.random()*best.length)];
+        }else{repl=makeItem('silah','common');addItem(repl);}
+        save.equipped.silah=repl.uid;replName=repl.name;
+      }
       persist();
-      res.style.color='#ff4d6d';res.textContent='💔 '+(lost?lost.name:'Ekipman')+' kayboldu!';
+      res.style.color='#ff4d6d';res.textContent='💔 '+(lost?lost.name:'Ekipman')+' kayboldu!'+(replName?('  ⚔️ '+replName+' kuşanıldı'):'');
       burst(player.x,player.y,'#ff4d6d',30,300,0.6,4.5);sfx.hurt();shake=Math.max(shake,10);flashV=Math.max(flashV,0.4);
     }else{runGold+=50;res.style.color='var(--gold)';res.textContent='💰 +50 altın (kuşanılı ekipman yok)';sfx.coin();}
   }
