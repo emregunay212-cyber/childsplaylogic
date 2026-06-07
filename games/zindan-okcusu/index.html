@@ -843,10 +843,14 @@ function damageEnemy(e,d,fx,fy,crit){
 /* Gold drop log scaling (spec #1): erken aşamada baz değer, ileri stage/wave'lerde
    log2(stage+1) çarpanı ama MAX_GOLD_PER_KILL clamp ile patlamayı önler. */
 const MAX_GOLD_PER_KILL=85;
+// Sonsuz Savaş bir skor/meydan-okuma modu — sınırsız altın faucet'i (hızlı kasılma) olmasın
+// diye buradaki altın belirgin şekilde kısılır. Harita/hikaye modu (asıl ilerleme) etkilenmez.
+const ENDLESS_GOLD_MULT=0.3;
 function goldDrop(baseVal){
   const stageDepth=mode==='endless'?wave:(Math.floor(stageIndex/5)*5+(stageIndex%5)+1);
   const scaled=baseVal*Math.log2(Math.max(1,stageDepth)+1);
-  return Math.min(scaled*(1+player.goldBonus),MAX_GOLD_PER_KILL*(1+player.goldBonus));
+  const g=Math.min(scaled*(1+player.goldBonus),MAX_GOLD_PER_KILL*(1+player.goldBonus));
+  return mode==='endless'?g*ENDLESS_GOLD_MULT:g;
 }
 function killEnemy(e){
   e.dead=true;kills++;score+=e.xp*15+5;
@@ -859,7 +863,7 @@ function killEnemy(e){
   if(e.type==='boss'){bossAlive=false;shake=16;flashV=Math.max(flashV,0.5);
     /* Boss bonusu da log clamp'li (spec #1): 90 + 60*log2(wave+1) ≈ erken 90-150, geç 350-450 */
     const bossBonus=90+60*Math.log2(Math.max(1,wave)+1);
-    const bonus=Math.round(Math.min(bossBonus,520)*(1+player.goldBonus));runGold+=bonus;score+=400;
+    const bonus=Math.round(Math.min(bossBonus,520)*(1+player.goldBonus)*(mode==='endless'?ENDLESS_GOLD_MULT:1));runGold+=bonus;score+=400;
     for(let i=0;i<16;i++)gems.push({x:e.x+rand(-26,26),y:e.y+rand(-26,26),vx:rand(-70,70),vy:rand(-70,70),val:8,r:6,pulse:rand(0,TAU)});
     player.hp=Math.min(player.maxHp,player.hp+player.maxHp*0.12);
     burst(e.x,e.y,'#ffd166',46,360,0.8,6);sfx.win();sfx.coin();}
