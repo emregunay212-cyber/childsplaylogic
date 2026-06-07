@@ -1851,15 +1851,36 @@ const WHEEL_SEGS=[
   {type:'legendary',w:8,col:'#ff8a3a'},
   {type:'mythic',w:3,col:'#ff4d6d'},
 ];
+const WHEEL_SYM={gold:'💰',lose:'💔',legendary:'⚔️',mythic:'💎'};
 function buildWheelDisc(){
+  const disc=$('wheelDisc');disc.style.position='relative';
+  while(disc.firstChild)disc.removeChild(disc.firstChild);
+  const R=(disc.offsetWidth||280)*0.36; // sembolü yarıçapın ~%72'sine koy
   let a=0,stops=[];
-  for(const s of WHEEL_SEGS){const a2=a+s.w*3.6;stops.push(s.col+' '+a.toFixed(2)+'deg '+a2.toFixed(2)+'deg');a=a2;}
-  $('wheelDisc').style.background='conic-gradient(from 0deg,'+stops.join(',')+')';
+  for(const s of WHEEL_SEGS){
+    const a2=a+s.w*3.6,mid=(a+a2)/2;
+    stops.push(s.col+' '+a.toFixed(2)+'deg '+a2.toFixed(2)+'deg');
+    const lab=document.createElement('span');
+    lab.textContent=WHEEL_SYM[s.type]||'';
+    lab.style.cssText='position:absolute;left:50%;top:50%;font-size:17px;line-height:1;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.85);transform:translate(-50%,-50%) rotate('+mid.toFixed(2)+'deg) translateY(-'+R.toFixed(1)+'px) rotate('+(-mid).toFixed(2)+'deg);';
+    disc.appendChild(lab);
+    a=a2;
+  }
+  disc.style.background='conic-gradient(from 0deg,'+stops.join(',')+')';
 }
 function openWheel(){
   state=ST.LEVELUP; $('levelup').classList.remove('show');
-  $('wheelGo').onclick=closeWheel; $('wheelGo').style.display='none'; $('wheelResult').textContent='';
-  buildWheelDisc(); $('wheel').classList.add('show');
+  $('wheelGo').onclick=closeWheel; $('wheelGo').style.display='none';
+  $('wheel').classList.add('show');           // önce göster → ölçüler doğru + oyuncu dilimleri görsün
+  buildWheelDisc();
+  const disc=$('wheelDisc');disc.style.transition='none';disc.style.transform='rotate(0deg)';
+  $('wheelResult').style.color='#c79bff';$('wheelResult').textContent='👆 Çevirmek için çarka dokun';
+  // 2 adım: UI/dilimler görünsün, oyuncu çarka dokununca dönmeye başlasın
+  const wrap=$('wheelWrap');wrap.style.cursor='pointer';
+  wrap.onclick=function(){wrap.onclick=null;wrap.style.cursor='default';spinWheel();};
+}
+function spinWheel(){
+  $('wheelResult').textContent='';
   const tot=WHEEL_SEGS.reduce((s,x)=>s+x.w,0);let rr=Math.random()*tot,idx=0,acc=0;
   for(let i=0;i<WHEEL_SEGS.length;i++){acc+=WHEEL_SEGS[i].w;if(rr<=acc){idx=i;break;}}
   let a=0;for(let i=0;i<idx;i++)a+=WHEEL_SEGS[i].w*3.6;const arc=WHEEL_SEGS[idx].w*3.6,mid=a+arc/2;
@@ -1878,14 +1899,18 @@ function resolveWheel(type){
   }else if(type==='gold'){
     runGold+=80;res.style.color='var(--gold)';res.textContent='💰 +80 altın';sfx.coin();
   }else{
-    if(save.inventory.length){
-      const li=Math.floor(Math.random()*save.inventory.length),lost=save.inventory[li];
-      save.inventory.splice(li,1);
-      for(const sl in save.equipped)if(save.equipped[sl]===lost.uid)save.equipped[sl]=null;
+    // KAYIP: kuşanılmış (üzerindeki) ekipmanlardan birini götür — gerçek risk.
+    // (Envanter yığınından rastgele biri gitse risk çok düşük olurdu; kullanıcı isteği.)
+    const equippedUids=Object.values(save.equipped).filter(Boolean);
+    if(equippedUids.length){
+      const lostUid=equippedUids[Math.floor(Math.random()*equippedUids.length)];
+      const lost=findItem(lostUid);
+      for(const sl in save.equipped)if(save.equipped[sl]===lostUid)save.equipped[sl]=null;
+      save.inventory=save.inventory.filter(i=>i.uid!==lostUid);
       persist();
-      res.style.color='#ff4d6d';res.textContent='💔 '+lost.name+' kayboldu!';
+      res.style.color='#ff4d6d';res.textContent='💔 '+(lost?lost.name:'Ekipman')+' kayboldu!';
       burst(player.x,player.y,'#ff4d6d',30,300,0.6,4.5);sfx.hurt();shake=Math.max(shake,10);flashV=Math.max(flashV,0.4);
-    }else{runGold+=50;res.style.color='var(--gold)';res.textContent='💰 +50 altın (kaybedilecek item yok)';sfx.coin();}
+    }else{runGold+=50;res.style.color='var(--gold)';res.textContent='💰 +50 altın (kuşanılı ekipman yok)';sfx.coin();}
   }
   $('wheelGo').style.display='';
 }

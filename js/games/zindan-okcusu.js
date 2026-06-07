@@ -25,7 +25,7 @@ const ZindanOkcusu = (() => {
         clear(gameArea);
 
         iframe = document.createElement('iframe');
-        iframe.src = 'games/zindan-okcusu/index.html?v=4';
+        iframe.src = 'games/zindan-okcusu/index.html?v=5';
         iframe.className = 'zo-iframe';
         iframe.setAttribute('allow', 'fullscreen; autoplay');
         iframe.setAttribute('tabindex', '0');
