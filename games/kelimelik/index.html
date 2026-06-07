@@ -6,12 +6,33 @@
 <meta name="theme-color" content="#16202f">
 <title>Kelimelik</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=2">
+<!-- Online 1v1 için Firebase (iframe kendi bağlantısını kurar; standalone da çalışır) -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+<script>
+(function () {
+  try {
+    var cfg = {
+      apiKey: "AIzaSyBFF2v3Rm0vwvwQwtApmXgjQa6DYM_HDAw",
+      authDomain: "childsplaylogic.firebaseapp.com",
+      databaseURL: "https://childsplaylogic-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "childsplaylogic",
+      storageBucket: "childsplaylogic.firebasestorage.app",
+      messagingSenderId: "27619900067",
+      appId: "1:27619900067:web:bf0f3aa99670b6a9dfdd16"
+    };
+    if (window.firebase && firebase.apps && !firebase.apps.length) firebase.initializeApp(cfg);
+    window.KL_DB = (window.firebase && firebase.database) ? firebase.database() : null;
+  } catch (e) { window.KL_DB = null; }
+})();
+</script>
 </head>
 <body>
 <div id="kl-root"></div>
-<script src="dict.js"></script>
-<script src="engine.js"></script>
-<script src="game.js"></script>
+<script src="dict.js?v=2"></script>
+<script src="engine.js?v=2"></script>
+<script src="net.js?v=1"></script>
+<script src="game.js?v=2"></script>
 </body>
 </html>

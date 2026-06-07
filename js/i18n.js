@@ -38,6 +38,7 @@ const TR = {
         'altin-avi': 'Altın Avı',
         'buz-kulesi': 'Buz Kulesi',
         'tetris': 'Tetris',
+        'kelimelik': 'Kelimelik',
         'zindan-okcusu': 'Zindan Okçusu',
     },
 
@@ -132,6 +133,7 @@ const TR = {
         'emoji-yapici': 'Parçaları seç, kendi emoji yüzünü yarat!',
         'altin-avi': 'Soruyu cevapla, akıllı seç, en çok altın topla!',
         'tetris': 'Blokları döndür, satırları doldur ve temizle!',
+        'kelimelik': 'Arkadaşınla 1v1: harfleri diz, kelime kur, en çok puanı topla!',
         'zindan-okcusu': 'Ok at, düşmanları yen, ekipman topla, zindanı temizle!',
     },
 

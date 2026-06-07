@@ -136,6 +136,10 @@ GAMES = [
        teaches="Zamanlama, refleks ve rekabet",
        short="Arkadaşınla online penaltı düellosu: at ve kurtar.",
        about="Penaltı Online, bir arkadaşınla aynı anda oynadığın çevrim içi penaltı düellosudur; sırayla şut çeker ve kaleyi korursun. Zamanlama, refleks ve rekabet duygusunu geliştirir. Üyeliksiz, ücretsiz online oynanır."),
+  dict(slug="kelimelik", name="Kelimelik", cat="Kelime", age="7-10", players="Online 2 kişilik",
+       teaches="Kelime bilgisi, strateji ve Türkçe yazım",
+       short="Arkadaşınla 1v1 Türkçe kelime oyunu: harfleri diz, kelime kur, puan topla.",
+       about="Kelimelik, Scrabble tarzında 1v1 oynanan online Türkçe kelime oyunudur. 15x15 tahtada harf taşlarını dizerek kelimeler kurar, harf ve kelime çarpanlı özel karelerle puan toplar, arkadaşına karşı yarışırsın. Kelime dağarcığı, strateji ve Türkçe yazımı geliştiren ücretsiz, üyeliksiz online çok oyunculu bir oyun."),
 ]
 
 PAGE_TMPL = """<!DOCTYPE html>

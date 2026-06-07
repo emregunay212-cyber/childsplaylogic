@@ -256,6 +256,7 @@ const App = (() => {
         { id: 'penalti-mp', game: PenaltiMP },
         { id: 'ates-buz', game: AtesBuz },
         { id: 'altin-avi', game: AltinAvi },
+        { id: 'kelimelik', game: Kelimelik },
     ];
 
     let currentView = 'splash';
@@ -689,8 +690,8 @@ const App = (() => {
         const gameArea = document.getElementById('game-area');
         gameArea.innerHTML = '';
 
-        // Altın Avı kendi lobisini yönetir (5-30 kişilik, 1v1 Lobby uygun değil)
-        if (game.id === 'altin-avi') {
+        // Altın Avı ve Kelimelik kendi lobilerini/odalarını yönetir (paylaşılan Lobby kullanmaz)
+        if (game.id === 'altin-avi' || game.id === 'kelimelik') {
             activeMpGame = game;
             game.init(gameArea, {});
             return;

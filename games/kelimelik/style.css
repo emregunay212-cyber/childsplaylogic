@@ -88,3 +88,21 @@ body {
 .kl-btn:disabled { opacity: .45; cursor: default; }
 
 @media (max-width: 380px) { .kl-btn { font-size: .8rem; padding: 10px 4px; } .kl-stat { min-width: 54px; padding: 5px 8px; } }
+
+/* ── Menü / Eşleşme / Sonuç ── */
+.kl-menu { width: min(94vw, 420px); margin: 5vh auto 0; display: flex; flex-direction: column; gap: 12px; text-align: center; }
+.kl-title { font-size: clamp(28px, 9vw, 48px); font-weight: 900; letter-spacing: 3px; margin: 0; color: #ffd56b; text-shadow: 0 3px 0 #b07a1e, 0 6px 18px rgba(0,0,0,.5); }
+.kl-sub { margin: -4px 0 8px; color: #9fb0c8; }
+.kl-mbtn { padding: 15px; border-radius: 14px; border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.1); color: #fff; font-family: inherit; font-weight: 800; font-size: 1.05rem; cursor: pointer; }
+.kl-mbtn:active { transform: translateY(2px); }
+.kl-mbtn.primary { background: linear-gradient(180deg, #36d07a, #1f9d57); border-color: #1f9d57; }
+.kl-joinrow { display: flex; gap: 8px; }
+.kl-code { flex: 1; min-width: 0; padding: 13px; border-radius: 12px; border: 2px solid rgba(255,255,255,.2); background: rgba(0,0,0,.25); color: #fff; font-family: inherit; font-weight: 800; font-size: 1.05rem; text-align: center; letter-spacing: 4px; text-transform: uppercase; }
+.kl-joinrow .kl-mbtn { flex: 0 0 auto; padding: 13px 18px; }
+.kl-or { color: #6b7c96; font-size: .85rem; margin: 4px 0; }
+.kl-warn { color: #ffb86b; font-size: .9rem; }
+.kl-menuerr { color: #ff8a9c; min-height: 18px; font-weight: 700; font-size: .9rem; }
+.kl-bigcode { font-size: clamp(40px, 15vw, 76px); font-weight: 900; letter-spacing: 10px; color: #ffd56b; background: rgba(0,0,0,.25); border-radius: 16px; padding: 12px; }
+.kl-exit { margin-top: 6px; background: none; border: none; color: #9fb0c8; font-family: inherit; font-size: .9rem; cursor: pointer; align-self: center; }
+.kl-board.locked { opacity: .82; }
+.kl-board.locked .kl-cell { cursor: default; }
