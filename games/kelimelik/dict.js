@@ -64,6 +64,13 @@ const KelimelikDict = (() => {
     if (rootOk(W)) return true;
     return strip(W, 0);
   }
+  // Birebir sözlük eşleşmesi — mutation ve ek-soyma uygulanmaz. Tahta üstü kelime doğrulaması için.
+  // Türkçe fonolojiği gereği sesli harf zorunludur; kısaltmalar (CR, NR vb.) reddedilir.
+  const TR_VOWELS = /[AEIİOÖUÜ]/;
+  function isExact(word) {
+    const W = normalize(word);
+    return W.length >= 2 && TR_VOWELS.test(W) && SET.has(W);
+  }
 
   function load(url) {
     if (loaded) return Promise.resolve(true);
@@ -80,7 +87,7 @@ const KelimelikDict = (() => {
     return loading;
   }
 
-  return { isValid, normalize, load, isLoaded: () => loaded, size: () => SET.size, words: () => SET };
+  return { isValid, isExact, normalize, load, isLoaded: () => loaded, size: () => SET.size, words: () => SET };
 })();
 
 if (typeof module !== 'undefined' && module.exports) module.exports = KelimelikDict;

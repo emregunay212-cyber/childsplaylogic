@@ -31,7 +31,7 @@ const KelimelikAI = (() => {
           const placed = tryFit(board, word, r, c, true, rackLetters);
           if (!placed) continue;
           const res = E.evaluateMove(board, placed);
-          if (res.ok && res.words.every(w => D.isValid(w.word))) {
+          if (res.ok && res.words.every(w => D.isExact(w.word))) {
             candidates.push({ placed, score: res.score, words: res.words });
           }
         }
@@ -44,7 +44,7 @@ const KelimelikAI = (() => {
           const placed = tryFit(board, word, r, c, false, rackLetters);
           if (!placed) continue;
           const res = E.evaluateMove(board, placed);
-          if (res.ok && res.words.every(w => D.isValid(w.word))) {
+          if (res.ok && res.words.every(w => D.isExact(w.word))) {
             candidates.push({ placed, score: res.score, words: res.words });
           }
         }
