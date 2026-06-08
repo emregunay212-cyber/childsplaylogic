@@ -1,4 +1,4 @@
-import { Player } from "./player.js";
+import { Player } from "./player.js?v=2";
 import { Sprite } from "./sprite.js";
 import { levels } from "./collisionBlocks.js";
 import { createObjectsFromArray } from "./collisions.js";
@@ -40,7 +40,7 @@ import {
     broadcastGuestInput,
     setOnHostState,
     setOnGuestInput,
-} from "./network.js";
+} from "./network.js?v=2";
 
 // Host-authoritative state
 let latestHostState = null;
@@ -318,8 +318,43 @@ function startGame() {
     // ayrı callback'e gerek yok.
 }
 
+let touchControlsBuilt = false;
+// Mobil/dokunmatik kontroller: ekran butonları mevcut klavye mantığını yeniden kullanmak için
+// sentetik ok-tuşu olayları yayınlar (host=ateş, guest=buz; keydown'daki isMyPlayer filtresi aynen geçerli).
+// Yalnızca dokunmatik cihazlarda görünür (CSS @media (pointer: coarse)).
+function setupTouchControls() {
+    if (touchControlsBuilt) return;
+    touchControlsBuilt = true;
+    const fire = (type, key) => window.dispatchEvent(new KeyboardEvent(type, { key, bubbles: true }));
+    const mk = (label, key) => {
+        const b = document.createElement("button");
+        b.className = "ab-touch-btn";
+        b.textContent = label;
+        b.setAttribute("aria-label", key);
+        const down = (e) => { e.preventDefault(); e.stopPropagation(); if (b.dataset.on) return; b.dataset.on = "1"; b.classList.add("active"); fire("keydown", key); };
+        const up = (e) => { e.preventDefault(); e.stopPropagation(); if (!b.dataset.on) return; delete b.dataset.on; b.classList.remove("active"); fire("keyup", key); };
+        b.addEventListener("pointerdown", down);
+        b.addEventListener("pointerup", up);
+        b.addEventListener("pointercancel", up);
+        b.addEventListener("pointerleave", up);
+        b.addEventListener("contextmenu", (e) => e.preventDefault());
+        return b;
+    };
+    const wrap = document.createElement("div");
+    wrap.className = "ab-touch";
+    const left = document.createElement("div"); left.className = "ab-touch-side";
+    left.appendChild(mk("◀", "ArrowLeft"));
+    left.appendChild(mk("▶", "ArrowRight"));
+    const right = document.createElement("div"); right.className = "ab-touch-side";
+    right.appendChild(mk("▲", "ArrowUp"));
+    wrap.appendChild(left);
+    wrap.appendChild(right);
+    document.body.appendChild(wrap);
+}
+
 function playGame() {
     drawMenu();
+    setupTouchControls();
 
     let now;
     let delta;
@@ -335,6 +370,11 @@ function playGame() {
 
         if (delta > interval) {
             then = now - (delta % interval);
+
+            // Tek bir kare içindeki beklenmedik istisna TÜM döngüyü kalıcı durdurup oyunu
+            // dondurmasın (ve tuşları ölü göstermesin) diye kareyi try/catch'e al. Hata loglanır,
+            // döngü en alttaki requestAnimationFrame ile devam eder. (Kasıtlı 'return'ler etkilenmez.)
+            try {
 
             // ── Host-authoritative: guest uzak state'i her frame uygular ──
             if (isOnline() && getMyRole() === 'guest' && latestHostState) {
@@ -647,6 +687,8 @@ function playGame() {
                 drawMenuAnimation(menuActive, "up");
                 return;
             }
+
+            } catch (e) { console.error('[Ateş&Buz] kare hatası (döngü devam ediyor):', e); }
         }
         requestAnimationFrame(animation);
     }

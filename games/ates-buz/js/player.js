@@ -1158,6 +1158,7 @@ export class Player extends Sprite {
                         this.hitbox.position.y + this.hitbox.height <=
                             block.hitbox.position.y + block.hitbox.height &&
                         !(
+                            blocks[i + 1] &&
                             blocks[i + 1].shape == "pondTriangle" &&
                             this.hitbox.legs.position.x + this.hitbox.legs.width >
                                 blocks[i + 1].hitbox.position.x

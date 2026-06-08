@@ -23,12 +23,30 @@
         width: auto;
         display: block;
       }
+      /* Mobil dokunmatik kontroller — yalnızca dokunmatik (coarse pointer) cihazlarda görünür */
+      .ab-touch {
+        position: fixed; left: 0; right: 0; bottom: 0;
+        display: none; justify-content: space-between;
+        padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+        pointer-events: none; z-index: 10;
+      }
+      .ab-touch-side { display: flex; gap: 14px; pointer-events: none; }
+      .ab-touch-btn {
+        pointer-events: auto; width: 66px; height: 66px; border-radius: 50%;
+        border: 2px solid rgba(255,255,255,0.55); background: rgba(20,24,40,0.45);
+        color: #fff; font-size: 28px; line-height: 1;
+        display: flex; align-items: center; justify-content: center;
+        touch-action: none; user-select: none; -webkit-user-select: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .ab-touch-btn.active { background: rgba(80,120,220,0.7); }
+      @media (pointer: coarse) { .ab-touch { display: flex; } }
     </style>
 </head>
 <body>
     <canvas id="canvas"></canvas>
     <script type="module">
-      import { start } from './js/main.js';
+      import { start } from './js/main.js?v=2';
       start().catch(err => console.error('Ateş & Buz başlatılamadı:', err));
     </script>
 </body>

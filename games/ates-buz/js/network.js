@@ -63,69 +63,10 @@ function initNetwork() {
         abRef.child('started').set(true);
     }
 
-    // Opponent karakterini dinle
-    const opField = myRole === 'host' ? 'iceState' : 'fireState';
-    const opListener = abRef.child(opField).on('value', snap => {
-        const v = snap.val();
-        if (v && onRemotePlayer) onRemotePlayer(v);
-    });
-    remoteListenerRefs.push({ ref: abRef.child(opField), listener: opListener });
-
-    // Butonlar
-    const buttonListener = abRef.child('buttons').on('value', snap => {
-        const v = snap.val();
-        if (v && onRemoteButtons) onRemoteButtons(v);
-    });
-    remoteListenerRefs.push({ ref: abRef.child('buttons'), listener: buttonListener });
-
-    // Elmaslar (toplanmış index listesi)
-    const diamondListener = abRef.child('diamondsCollected').on('value', snap => {
-        const v = snap.val();
-        if (v && onRemoteDiamonds) onRemoteDiamonds(v);
-    });
-    remoteListenerRefs.push({ ref: abRef.child('diamondsCollected'), listener: diamondListener });
-
-    // Kapı state
-    const doorListener = abRef.child('doors').on('value', snap => {
-        const v = snap.val();
-        if (v && onRemoteDoors) onRemoteDoors(v);
-    });
-    remoteListenerRefs.push({ ref: abRef.child('doors'), listener: doorListener });
-
-    // Seviye değişimi (host kontrolü)
-    const levelListener = abRef.child('level').on('value', snap => {
-        const v = snap.val();
-        if (typeof v === 'number' && onLevelChanged) onLevelChanged(v);
-    });
-    remoteListenerRefs.push({ ref: abRef.child('level'), listener: levelListener });
-
-    // Opponent ölüm bildirimi (respawn için)
-    const deathListener = abRef.child(opField + 'Death').on('value', snap => {
-        const v = snap.val();
-        if (v && onRemoteDeath) onRemoteDeath(v);
-    });
-    remoteListenerRefs.push({ ref: abRef.child(opField + 'Death'), listener: deathListener });
-
-    // Buton array sync (paylaşılan state)
-    const btnArrListener = abRef.child('buttonsArray').on('value', snap => {
-        const v = snap.val();
-        if (v && onRemoteButtonsArray) onRemoteButtonsArray(v);
-    });
-    remoteListenerRefs.push({ ref: abRef.child('buttonsArray'), listener: btnArrListener });
-
-    // Levye array sync
-    const leverArrListener = abRef.child('leversArray').on('value', snap => {
-        const v = snap.val();
-        if (v && onRemoteLeversArray) onRemoteLeversArray(v);
-    });
-    remoteListenerRefs.push({ ref: abRef.child('leversArray'), listener: leverArrListener });
-
-    // Küp array sync (sadece host yazar, guest okur)
-    const cubeArrListener = abRef.child('cubesArray').on('value', snap => {
-        const v = snap.val();
-        if (v && onRemoteCubesArray) onRemoteCubesArray(v);
-    });
-    remoteListenerRefs.push({ ref: abRef.child('cubesArray'), listener: cubeArrListener });
+    // NOT: Eski oyuncu-bazlı senkron kanalları (iceState/fireState, buttons, diamondsCollected,
+    // doors, level, *Death, buttonsArray, leversArray, cubesArray) KALDIRILDI — game.js artık
+    // yalnızca host-otoriter modeli kullanıyor (hostState + guestInput). O dinleyiciler hiçbir
+    // callback'e bağlı olmadığından boşa Firebase aboneliği oluşturuyordu.
 
     // Host-authoritative: host tam state yazar, guest okur
     if (myRole === 'guest') {
