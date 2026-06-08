@@ -465,5 +465,293 @@
             },
             "type": "final"
         }
+    ],
+    "7": [
+        {
+            "position": {
+                "x": 144,
+                "y": 828
+            },
+            "type": "fire"
+        },
+        {
+            "position": {
+                "x": 324,
+                "y": 720
+            },
+            "type": "fire"
+        },
+        {
+            "position": {
+                "x": 144,
+                "y": 612
+            },
+            "type": "fire"
+        },
+        {
+            "position": {
+                "x": 324,
+                "y": 504
+            },
+            "type": "fire"
+        },
+        {
+            "position": {
+                "x": 1188,
+                "y": 828
+            },
+            "type": "water"
+        },
+        {
+            "position": {
+                "x": 1008,
+                "y": 720
+            },
+            "type": "water"
+        },
+        {
+            "position": {
+                "x": 1188,
+                "y": 612
+            },
+            "type": "water"
+        },
+        {
+            "position": {
+                "x": 1008,
+                "y": 504
+            },
+            "type": "water"
+        }
+    ],
+    "8": [
+        {
+            "position": {
+                "x": 144,
+                "y": 828
+            },
+            "type": "fire"
+        },
+        {
+            "position": {
+                "x": 324,
+                "y": 720
+            },
+            "type": "fire"
+        },
+        {
+            "position": {
+                "x": 144,
+                "y": 612
+            },
+            "type": "fire"
+        },
+        {
+            "position": {
+                "x": 324,
+                "y": 504
+            },
+            "type": "fire"
+        },
+        {
+            "position": {
+                "x": 144,
+                "y": 396
+            },
+            "type": "fire"
+        },
+        {
+            "position": {
+                "x": 1188,
+                "y": 828
+            },
+            "type": "water"
+        },
+        {
+            "position": {
+                "x": 1008,
+                "y": 720
+            },
+            "type": "water"
+        },
+        {
+            "position": {
+                "x": 1188,
+                "y": 612
+            },
+            "type": "water"
+        },
+        {
+            "position": {
+                "x": 1008,
+                "y": 504
+            },
+            "type": "water"
+        },
+        {
+            "position": {
+                "x": 1188,
+                "y": 396
+            },
+            "type": "water"
+        }
+    ],
+    "9": [
+        {
+            "position": {
+                "x": 144,
+                "y": 828
+            },
+            "type": "fire"
+        },
+        {
+            "position": {
+                "x": 324,
+                "y": 720
+            },
+            "type": "fire"
+        },
+        {
+            "position": {
+                "x": 144,
+                "y": 612
+            },
+            "type": "fire"
+        },
+        {
+            "position": {
+                "x": 324,
+                "y": 504
+            },
+            "type": "fire"
+        },
+        {
+            "position": {
+                "x": 144,
+                "y": 396
+            },
+            "type": "fire"
+        },
+        {
+            "position": {
+                "x": 1188,
+                "y": 828
+            },
+            "type": "water"
+        },
+        {
+            "position": {
+                "x": 1008,
+                "y": 720
+            },
+            "type": "water"
+        },
+        {
+            "position": {
+                "x": 1188,
+                "y": 612
+            },
+            "type": "water"
+        },
+        {
+            "position": {
+                "x": 1008,
+                "y": 504
+            },
+            "type": "water"
+        },
+        {
+            "position": {
+                "x": 1188,
+                "y": 396
+            },
+            "type": "water"
+        }
+    ],
+    "10": [
+        {
+            "position": {
+                "x": 144,
+                "y": 828
+            },
+            "type": "fire"
+        },
+        {
+            "position": {
+                "x": 324,
+                "y": 720
+            },
+            "type": "fire"
+        },
+        {
+            "position": {
+                "x": 144,
+                "y": 612
+            },
+            "type": "fire"
+        },
+        {
+            "position": {
+                "x": 324,
+                "y": 504
+            },
+            "type": "fire"
+        },
+        {
+            "position": {
+                "x": 144,
+                "y": 396
+            },
+            "type": "fire"
+        },
+        {
+            "position": {
+                "x": 324,
+                "y": 288
+            },
+            "type": "fire"
+        },
+        {
+            "position": {
+                "x": 1188,
+                "y": 828
+            },
+            "type": "water"
+        },
+        {
+            "position": {
+                "x": 1008,
+                "y": 720
+            },
+            "type": "water"
+        },
+        {
+            "position": {
+                "x": 1188,
+                "y": 612
+            },
+            "type": "water"
+        },
+        {
+            "position": {
+                "x": 1008,
+                "y": 504
+            },
+            "type": "water"
+        },
+        {
+            "position": {
+                "x": 1188,
+                "y": 396
+            },
+            "type": "water"
+        },
+        {
+            "position": {
+                "x": 1008,
+                "y": 288
+            },
+            "type": "water"
+        }
     ]
 }

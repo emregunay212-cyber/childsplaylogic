@@ -1,6 +1,6 @@
 import { Sprite } from "../sprite.js";
 import { canvas, ctx, setContinueAnimation, setEndGame, setMenuActive } from "../helpers.js";
-import { drawMenu, resetProgress, unlockAllDiamonds } from "./menus.js";
+import { drawMenu, resetProgress, unlockAllDiamonds } from "./menus.js?v=3";
 
 //check collision for button in menu
 function checkButtonCollision(pos, button) {

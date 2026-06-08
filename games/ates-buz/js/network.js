@@ -20,6 +20,7 @@ let onHostState = null;
 let onGuestInput = null;
 
 let remoteListenerRefs = [];
+let presenceRef = null;
 
 function parseURLParams() {
     const params = new URLSearchParams(window.location.search);
@@ -85,6 +86,21 @@ function initNetwork() {
         });
         remoteListenerRefs.push({ ref: abRef.child('guestInput'), listener: guestInputListener });
     }
+
+    // Presence: kendi varlığını yaz; bağlantı koparsa Firebase otomatik siler
+    presenceRef = abRef.child('presence/' + myRole);
+    presenceRef.set(true);
+    presenceRef.onDisconnect().remove();
+
+    // Rakibin presence'ını dinle; kaybolursa onOpponentLeft'i çağır.
+    // opponentEverSeen: ilk null'u (rakip henüz bağlanmadı) gerçek ayrılıştan ayırır.
+    const opponentRole = myRole === 'host' ? 'guest' : 'host';
+    let opponentEverSeen = false;
+    const oppPresenceListener = abRef.child('presence/' + opponentRole).on('value', snap => {
+        if (snap.val()) { opponentEverSeen = true; }
+        else if (opponentEverSeen && onOpponentLeft) { onOpponentLeft(); }
+    });
+    remoteListenerRefs.push({ ref: abRef.child('presence/' + opponentRole), listener: oppPresenceListener });
 
     console.log('[AB Network] Bağlandı, rol:', myRole, 'lobby:', lobbyId);
     return true;
@@ -199,7 +215,7 @@ function broadcastFullState(state) {
 
 // Guest input: guest kendi keys.pressed durumunu host'a gönderir
 let lastInputBroadcast = 0;
-const INPUT_BROADCAST_MS = 16;  // 60Hz — input gecikmesini azalt
+const INPUT_BROADCAST_MS = 50;  // 20Hz — Firebase RTDB throttle sınırı için güvenli
 
 function broadcastGuestInput(keys) {
     if (!abRef || myRole !== 'guest') return;
@@ -221,6 +237,7 @@ function clearLevelState() {
 }
 
 function disconnectNetwork() {
+    if (presenceRef) { try { presenceRef.onDisconnect().cancel(); presenceRef.remove(); } catch (e) {} presenceRef = null; }
     for (const { ref, listener } of remoteListenerRefs) {
         try { ref.off('value', listener); } catch (e) {}
     }
@@ -240,6 +257,7 @@ function setOnRemoteLeversArray(fn) { onRemoteLeversArray = fn; }
 function setOnRemoteCubesArray(fn) { onRemoteCubesArray = fn; }
 function setOnHostState(fn) { onHostState = fn; }
 function setOnGuestInput(fn) { onGuestInput = fn; }
+function setOnOpponentLeft(fn) { onOpponentLeft = fn; }
 
 export {
     initNetwork,
@@ -270,4 +288,5 @@ export {
     setOnRemoteCubesArray,
     setOnHostState,
     setOnGuestInput,
+    setOnOpponentLeft,
 };

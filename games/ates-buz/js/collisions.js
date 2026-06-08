@@ -1,5 +1,5 @@
 import { Sprite } from "./sprite.js";
-import * as Blocks from "./collisionBlocks.js";
+import * as Blocks from "./collisionBlocks.js?v=3";
 import { GAME_SIZE, ctx } from "./helpers.js";
 
 class CollisionBlock {

@@ -200,136 +200,39 @@ function resetProgress() {
     drawMenu();
 }
 
-let menuLevelX = canvas.width * 0.48;
+// 10 bölüm: dikey merdiven 10 düğüme sığmadığı için 2 sütunlu ZIGZAG düzen.
+// Düğümler alt (L1) -> üst (L10) tırmanır; tek numaralar sol, çift sağ sütun.
+const menuColLeft = canvas.width * 0.4;
+const menuColRight = canvas.width * 0.56;
+const menuNodeYs = [0.9, 0.809, 0.718, 0.627, 0.536, 0.445, 0.354, 0.263, 0.172, 0.081];
 
-setMenuLevels({
-    1: new MenuLevel({
+const menuNodes = {};
+for (let i = 1; i <= 10; i++) {
+    menuNodes[i] = new MenuLevel({
         position: {
-            x: menuLevelX,
-            y: canvas.height * 0.9,
+            x: i % 2 === 1 ? menuColLeft : menuColRight,
+            y: canvas.height * menuNodeYs[i - 1],
         },
         questsStatus: 0,
-        unlocked: true,
-        pathUnlocking: [1],
-        levelsUnlocking: [2],
-        quests: [quests.levelCompleted, quests.allDiamonds],
-    }),
-    2: new MenuLevel({
-        position: {
-            x: menuLevelX,
-            y: canvas.height * 0.75,
-        },
-        questsStatus: 0,
-        unlocked: false,
-        pathUnlocking: [2],
-        levelsUnlocking: [3],
-        quests: [quests.levelCompleted, quests.allDiamonds],
-    }),
-    3: new MenuLevel({
-        position: {
-            x: menuLevelX,
-            y: canvas.height * 0.6,
-        },
-        questsStatus: 0,
-        unlocked: false,
-        pathUnlocking: [3],
-        levelsUnlocking: [4],
-        quests: [quests.levelCompleted, quests.allDiamonds],
-    }),
-    4: new MenuLevel({
-        position: {
-            x: menuLevelX,
-            y: canvas.height * 0.45,
-        },
-        questsStatus: 0,
-        unlocked: false,
-        pathUnlocking: [4],
-        levelsUnlocking: [5],
-        quests: [quests.levelCompleted, quests.allDiamonds],
-    }),
-    5: new MenuLevel({
-        position: {
-            x: menuLevelX,
-            y: canvas.height * 0.3,
-        },
-        questsStatus: 0,
-        unlocked: false,
-        pathUnlocking: [5],
-        levelsUnlocking: [6],
-        quests: [quests.levelCompleted, quests.allDiamonds],
-    }),
-    6: new MenuLevel({
-        position: {
-            x: menuLevelX,
-            y: canvas.height * 0.15,
-        },
-        questsStatus: 0,
-        unlocked: false,
-        pathUnlocking: [],
-        levelsUnlocking: [],
-        quests: [quests.finalDiamond],
-    }),
-});
+        unlocked: i === 1,
+        pathUnlocking: i < 10 ? [i] : [],
+        levelsUnlocking: i < 10 ? [i + 1] : [],
+        // 6. bölüm "final elması" görevini korur; diğerleri standart.
+        quests: i === 6 ? [quests.finalDiamond] : [quests.levelCompleted, quests.allDiamonds],
+    });
+}
+setMenuLevels(menuNodes);
 
-let menuLevelPathX = 691;
-
-setMenuLevelsPath({
-    1: {
-        position: {
-            x: menuLevelPathX,
-            y: canvas.height * 0.9,
-        },
-        finalPosition: {
-            x: menuLevelPathX,
-            y: canvas.height * 0.81,
-        },
+// Yollar düğüm merkezlerini birbirine bağlar (zigzag çapraz şeritler).
+const menuPaths = {};
+for (let i = 1; i <= 9; i++) {
+    menuPaths[i] = {
+        position: { x: menuNodes[i].position.x + 29, y: menuNodes[i].position.y + 40 },
+        finalPosition: { x: menuNodes[i + 1].position.x + 29, y: menuNodes[i + 1].position.y + 40 },
         unlocked: false,
-    },
-    2: {
-        position: {
-            x: menuLevelPathX,
-            y: canvas.height * 0.75,
-        },
-        finalPosition: {
-            x: menuLevelPathX,
-            y: canvas.height * 0.66,
-        },
-        unlocked: false,
-    },
-    3: {
-        position: {
-            x: menuLevelPathX,
-            y: canvas.height * 0.6,
-        },
-        finalPosition: {
-            x: menuLevelPathX,
-            y: canvas.height * 0.51,
-        },
-        unlocked: false,
-    },
-    4: {
-        position: {
-            x: menuLevelPathX,
-            y: canvas.height * 0.45,
-        },
-        finalPosition: {
-            x: menuLevelPathX,
-            y: canvas.height * 0.36,
-        },
-        unlocked: false,
-    },
-    5: {
-        position: {
-            x: menuLevelPathX,
-            y: canvas.height * 0.3,
-        },
-        finalPosition: {
-            x: menuLevelPathX,
-            y: canvas.height * 0.21,
-        },
-        unlocked: false,
-    },
-});
+    };
+}
+setMenuLevelsPath(menuPaths);
 
 export {
     drawMenu,

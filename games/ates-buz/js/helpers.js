@@ -84,7 +84,7 @@ async function loadData() {
     try {
         // Bilnetoyun fix: tüm promise'leri bekle (Promise.all), orijinal kodda async map bekletilmiyordu
         await Promise.all(jsonsFiles.map(async (jsonFile) => {
-            const file = await fetch(`./data/${jsonFile}.json`);
+            const file = await fetch(`./data/${jsonFile}.json?v=3`);
             const data = await file.json();
             gameData[jsonFile] = data;
         }));

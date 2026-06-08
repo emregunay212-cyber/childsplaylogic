@@ -1,6 +1,6 @@
-import { Player } from "./player.js?v=2";
+import { Player } from "./player.js?v=3";
 import { Sprite } from "./sprite.js";
-import { levels } from "./collisionBlocks.js";
+import { levels } from "./collisionBlocks.js?v=3";
 import { createObjectsFromArray } from "./collisions.js";
 import { Diamond } from "./ingameAssets/diamond.js";
 import { Button } from "./ingameAssets/button.js";
@@ -25,7 +25,7 @@ import {
     menuLevelsPath,
     saveDataToLocalStorage,
 } from "./helpers.js";
-import { drawInGameMenu, drawMenu, checkMenuDiamondsCollision } from "./menu/menus.js";
+import { drawInGameMenu, drawMenu, checkMenuDiamondsCollision } from "./menu/menus.js?v=3";
 import { Lever } from "./ingameAssets/lever.js";
 import { Cube } from "./ingameAssets/cube.js";
 import { Door } from "./ingameAssets/door.js";
@@ -40,7 +40,8 @@ import {
     broadcastGuestInput,
     setOnHostState,
     setOnGuestInput,
-} from "./network.js?v=2";
+    setOnOpponentLeft,
+} from "./network.js?v=3";
 
 // Host-authoritative state
 let latestHostState = null;
@@ -778,7 +779,7 @@ function playGame() {
                 if (isOnline()) {
                     if (getMyRole() === 'host') {
                         const nextLevel = currentLevel + 1;
-                        if (nextLevel <= 6) {
+                        if (nextLevel <= Object.keys(levels).length) {
                             setCurrentLevel(nextLevel);
                             setLevelCompleted(false);
                             setMenuActive(null);
@@ -986,7 +987,7 @@ function playGame() {
     function applyHostState(st) {
         if (!st) return;
         // Level değişimi: host yeni seviyeye geçtiyse guest de yüklesin
-        if (typeof st.levelIdx === 'number' && st.levelIdx !== currentLevel && st.levelIdx >= 1 && st.levelIdx <= 6) {
+        if (typeof st.levelIdx === 'number' && st.levelIdx !== currentLevel && st.levelIdx >= 1 && st.levelIdx <= Object.keys(levels).length) {
             setCurrentLevel(st.levelIdx);
             setLevelCompleted(false);
             setMenuActive(null);
@@ -1103,6 +1104,14 @@ function playGame() {
                 right: !!(input && input.right),
                 up: !!(input && input.up),
             };
+        });
+
+        setOnOpponentLeft(() => {
+            setContinueAnimation(false);
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:9999;color:#fff;font-size:22px;font-family:sans-serif;text-align:center;';
+            overlay.textContent = 'Rakip bağlantısı kesildi.';
+            document.body.appendChild(overlay);
         });
 
         // Auto-start: level 1'den başla, menüyü atla

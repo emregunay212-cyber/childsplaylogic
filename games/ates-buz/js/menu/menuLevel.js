@@ -1,5 +1,5 @@
 import { ctx } from "../helpers.js";
-import { menuDiamondsBorderColor } from "./menus.js";
+import { menuDiamondsBorderColor } from "./menus.js?v=3";
 import { Sprite } from "../sprite.js";
 
 export class MenuLevel extends Sprite {
