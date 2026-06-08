@@ -115,14 +115,14 @@
         {
             "position": {
                 "x": 648,
-                "y": 144
+                "y": 216
             },
             "element": "fire"
         },
         {
             "position": {
                 "x": 756,
-                "y": 144
+                "y": 216
             },
             "element": "water"
         }
@@ -130,15 +130,15 @@
     "9": [
         {
             "position": {
-                "x": 648,
-                "y": 324
+                "x": 1188,
+                "y": 108
             },
             "element": "fire"
         },
         {
             "position": {
-                "x": 756,
-                "y": 324
+                "x": 1260,
+                "y": 108
             },
             "element": "water"
         }
@@ -146,15 +146,15 @@
     "10": [
         {
             "position": {
-                "x": 648,
-                "y": 324
+                "x": 72,
+                "y": 108
             },
             "element": "fire"
         },
         {
             "position": {
-                "x": 756,
-                "y": 324
+                "x": 180,
+                "y": 108
             },
             "element": "water"
         }

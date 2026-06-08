@@ -270,6 +270,21 @@ def R(interior):
     return "#" + interior.ljust(GW - 2, ".") + "#"
 
 
+def lay(*spans):
+    """37 karakterlik IC satir (col 1..37) uretir. spans: (c_start, c_end[, ch])
+    kapsayici, MUTLAK kolon (1..37). ch verilmezse '#'. col c -> index c-1.
+    Boş çağrı (lay()) tüm satırı nokta yapar. make_level zaten R() ile sarar."""
+    row = ["."] * (GW - 2)            # 37 hücre: col1..col37
+    for sp in spans:
+        a, b = sp[0], sp[1]
+        ch = sp[2] if len(sp) > 2 else "#"
+        for c in range(a, b + 1):
+            if not (1 <= c <= GW - 2):
+                raise ValueError(f"lay: kolon {c} aralik disi (1..{GW-2})")
+            row[c - 1] = ch
+    return "".join(row)
+
+
 # Zigzag bant rafleri — REACHABILITY GARANTILI:
 # Sol bant c2-12, sag bant c26-36. Raflar her 3 satirda bir SA<->SB arasinda
 # degisir (yatay ortusme c7 / c31) -> her raf bir alttakinden 3 hucre yukarida
@@ -308,60 +323,106 @@ LEVEL7 = make_level([
     E, E,                           # r25-26
 ], "#" * 16 + "a" * 7 + "#" * 14)   # r27 sol zemin c1-16 (kaldirac+start), ACID c17-23, sag c24-37
 
-# ---- BOLUM 8: "Kule" — DIKEY tirmanis + KUP basamak bulmacasi, orta ----
-# Ikisi sagda baslar; KUP'u sola itip r22 sahanligi (zeminden 5 hucre, ziplanamaz)
-# altina koyar, ustune cikip cikar -> tirmanis baslar. Kup OLMADAN cikis yok.
-# r22'den merkeze dogru zigzag tirmanip ust-merkez ORTAK kapilara ulasir.
+# ---- BOLUM 8: "Kule" — DIKEY zigzag tirmanis, orta ----
+# Her basamak 3 hücre + GENIS (≥4 hücre) örtüşmeli zigzag -> kolay yan-sıçrayış,
+# baş-çarpması yok. İlk basamak (r24) zeminden 3 hücre = doğrudan ulaşılır (mekanik
+# gerekmez). Köşelerde ATEŞ/SU havuzu (tema + elmas); ana yol ortada güvenli.
+# Aşamalı zorluk: uzun dikey tırmanış. Çözülebilirlik = her adım <=3 hücre.
 LEVEL8 = make_level([
-    E, E, E, E, E, E,               # r1-6
-    DOOR_MID,                       # r7  ORTAK kapi platformu (c15-24)
-    E, E,                           # r8-9
-    "." * 15 + "#" * 8,             # r10 sahanlik c16-23
-    E, E,                           # r11-12
-    "." * 11 + "#" * 8,             # r13 sahanlik c12-19
-    E, E,                           # r14-15
-    "." * 19 + "#" * 8,             # r16 sahanlik c20-27
-    E, E,                           # r17-18
-    "." * 10 + "#" * 8,             # r19 sahanlik c11-18
-    E, E,                           # r20-21
-    "." + "#" * 8,                  # r22 sahanlik c2-9  [KUP basamak gecidi]
-    E, E, E, E,                     # r23-26
-], "#" * 37)   # r27 tam zemin (kup itme alani)
+    lay(),                # r1
+    lay(),                # r2
+    lay(),                # r3
+    lay(),                # r4
+    lay(),                # r5
+    lay(),                # r6
+    lay(),                # r7
+    lay(),                # r8
+    lay((17, 22)),        # r9  PIRAMIT TEPESI — ORTAK kapı platformu (zirve)
+    lay((17, 22)),        # r10
+    lay((17, 22)),        # r11
+    lay((15, 24)),        # r12
+    lay((15, 24)),        # r13
+    lay((15, 24)),        # r14
+    lay((13, 26)),        # r15
+    lay((13, 26)),        # r16
+    lay((13, 26)),        # r17
+    lay((11, 28)),        # r18
+    lay((11, 28)),        # r19
+    lay((11, 28)),        # r20
+    lay((9, 30)),         # r21
+    lay((9, 30)),         # r22
+    lay((9, 30)),         # r23
+    lay((7, 32)),         # r24
+    lay((7, 32)),         # r25
+    lay((7, 32)),         # r26
+], lay((1, 37, "#")))     # r27 zemin — KATI PIRAMIT (ateş sol yüzü, su sağ yüzü tırmanır;
+                          # her basamak altına kadar dolu -> "duvara yürü + zıpla" güvenilir)
 
-# ---- BOLUM 9: "Kopru ve Top" — zor ----
-# Koselerde baslar; zeminde FIRE (sol) ve WATER (sag) havuzlari ayirici.
-# Bantlarda iki havuz rafi. ORTAK kapi ust-merkez. KOPRU + TOP+BUTON bonus.
+# ---- BOLUM 9: "Tirmanis" — KATI MERDIVEN (sağa çıkış), zor ----
+# Tek yönlü katı merdiven: sol-alttan sağ-üst kapıya. Her basamak 3 hücre + altına
+# kadar dolu (tam temaslı yüzler) -> "duvara yürü + zıpla" güvenilir. İki oyuncu
+# birlikte tırmanır. Aşamalı zorluk: L8'den daha uzun/dik. Tehlike yok.
 LEVEL9 = make_level([
-    E, E, E, E, E, E, E, E, E, E, E,  # r1-11
-    DOOR_MID,                         # r12 ORTAK kapi platformu (c15-24)
-    E, E,                             # r13-14
-    "." * 11 + "#" * 8,               # r15 sahanlik c12-19
-    E, E,                             # r16-17
-    "." * 19 + "#" * 8,               # r18 sahanlik c20-27
-    E, E,                             # r19-20
-    "." * 13 + "#" * 8,               # r21 sahanlik c14-21
-    E, E,                             # r22-23
-    E, E,                             # r24-25 (BUTON-rampasi r24'te belirir - JSON)
-    "." * 19 + "#",                   # r26 kup-durdurucu duvar c20 (kup butona c18 oturur)
-], "#" * 4 + "w" * 4 + "#" * 20 + "f" * 4 + "#" * 5)   # r27 su c5-8 (kopru), fire c29-32 (kopru)
+    lay(),                # r1
+    lay(),                # r2
+    lay(),                # r3
+    lay(),                # r4
+    lay(),                # r5
+    lay((32, 37)),        # r6  en üst basamak (kapılar) sağ-üst
+    lay((32, 37)),        # r7
+    lay((32, 37)),        # r8
+    lay((28, 37)),        # r9
+    lay((28, 37)),        # r10
+    lay((28, 37)),        # r11
+    lay((24, 37)),        # r12
+    lay((24, 37)),        # r13
+    lay((24, 37)),        # r14
+    lay((20, 37)),        # r15
+    lay((20, 37)),        # r16
+    lay((20, 37)),        # r17
+    lay((16, 37)),        # r18
+    lay((16, 37)),        # r19
+    lay((16, 37)),        # r20
+    lay((12, 37)),        # r21
+    lay((12, 37)),        # r22
+    lay((12, 37)),        # r23
+    lay((8, 37)),         # r24
+    lay((8, 37)),         # r25
+    lay((8, 37)),         # r26
+], lay((1, 37, "#")))     # r27 zemin (sol c1-7 başlangıç düzlüğü)
 
-# ---- BOLUM 10: "Doruk" — en zor ----
-# Koselerde baslar; zeminde UC havuz: FIRE(sol) ACID(merkez) WATER(sag).
-# En yogun bant: cok sayida havuz rafi. ORTAK kapi en-ust merkez.
-# Tum mekanikler bonus olarak (JSON): kaldirac, buton, kup.
+# ---- BOLUM 10: "Doruk" — KATI MERDIVEN (sola çıkış) + KALDIRAÇ-ASİT köprüsü, en zor ----
+# Sağ-altta başlar; bir ASİT hendeği (c25-30) başlangıcı merdivenden ayırır. KALDIRAÇ
+# çekilince rampa hendeği zemin seviyesinde kalıcı köprüler (L7 deseni, güvenilir).
+# Sonra sola-çıkan katı merdivenle sol-üst kapılara. Kaldıraç ZORUNLU + uzun tırmanış.
 LEVEL10 = make_level([
-    E, E, E, E, E, E, E, E, E, E, E,  # r1-11
-    DOOR_MID,                         # r12 ORTAK kapi platformu (c15-24)
-    E, E,                             # r13-14
-    "." * 15 + "#" * 8,               # r15 sahanlik c16-23
-    E, E,                             # r16-17
-    "." * 11 + "#" * 8,               # r18 sahanlik c12-19
-    E, E,                             # r19-20
-    "." * 17 + "#" * 8,               # r21 sahanlik c18-25
-    E, E,                             # r22-23
-    E, E,                             # r24-25 (KUP-BUTON rampasi r24'te belirir)
-    "." * 31 + "#",                   # r26 kup-durdurucu duvar c32
-], "#" * 11 + "a" * 6 + "w" * 4 + "#" * 16)   # r27 ACID c12-17 (kaldirac-kopru), WATER c18-21 (kopru), sag c22-37
+    lay(),                # r1
+    lay(),                # r2
+    lay(),                # r3
+    lay(),                # r4
+    lay(),                # r5
+    lay((1, 6)),          # r6  en üst basamak (kapılar) sol-üst
+    lay((1, 6)),          # r7
+    lay((1, 6)),          # r8
+    lay((1, 9)),          # r9
+    lay((1, 9)),          # r10
+    lay((1, 9)),          # r11
+    lay((1, 12)),         # r12
+    lay((1, 12)),         # r13
+    lay((1, 12)),         # r14
+    lay((1, 15)),         # r15
+    lay((1, 15)),         # r16
+    lay((1, 15)),         # r17
+    lay((1, 18)),         # r18
+    lay((1, 18)),         # r19
+    lay((1, 18)),         # r20
+    lay((1, 21)),         # r21
+    lay((1, 21)),         # r22
+    lay((1, 21)),         # r23
+    lay((1, 24)),         # r24  taban (zeminden 3 hücre)
+    lay((1, 24)),         # r25
+    lay((1, 24)),         # r26
+], lay((1, 24, "#"), (25, 29, "a"), (30, 37, "#")))   # r27 merdiven tabanı c1-24, ASİT c25-29, başlangıç c30-37
 
 LEVELS = {7: LEVEL7, 8: LEVEL8, 9: LEVEL9, 10: LEVEL10}
 
@@ -389,52 +450,35 @@ OBJECTS = {
         ],
     },
     8: {
-        "players": {"fire": (16, 27), "water": (18, 27)},   # sagda, kupun sagi
-        "doors": {"fire": (18, 7), "water": (21, 7)},        # ust-merkez ortak platform
+        "players": {"fire": (4, 27), "water": (34, 27)},     # zemin köşeleri (piramit tabanı dışı)
+        "doors": {"fire": (18, 9), "water": (21, 9)},        # piramit zirvesi ORTAK platform (r9)
         "diamonds": [
-            (4, 21, "fire"), (23, 15, "fire"), (19, 9, "fire"), (24, 26, "fire"), (2, 26, "fire"),
-            (13, 18, "water"), (15, 12, "water"), (20, 9, "water"), (8, 26, "water"), (30, 26, "water"),
+            (8, 23, "fire"), (10, 20, "fire"), (12, 17, "fire"), (14, 14, "fire"), (16, 11, "fire"),
+            (31, 23, "water"), (29, 20, "water"), (27, 17, "water"), (25, 14, "water"), (23, 11, "water"),
         ],
-        # KUP: sola itilip r22 sahanligi (c2-9) altina, ustune cikilarak tirmanis baslar.
-        "cubes": [(12, 25)],
     },
     9: {
-        "players": {"fire": (2, 27), "water": (35, 27)},
-        "doors": {"fire": (18, 12), "water": (21, 12)},
+        "players": {"fire": (3, 27), "water": (5, 27)},      # sol-alt başlangıç düzlüğü
+        "doors": {"fire": (33, 6), "water": (35, 6)},        # sağ-üst en üst basamak
         "diamonds": [
-            (2, 26, "fire"), (6, 26, "fire"), (15, 20, "fire"), (24, 17, "fire"), (13, 14, "fire"), (18, 11, "fire"),
-            (35, 26, "water"), (31, 26, "water"), (20, 20, "water"), (22, 17, "water"), (15, 14, "water"), (21, 11, "water"),
+            (9, 23, "fire"), (13, 20, "fire"), (17, 17, "fire"), (21, 14, "fire"), (25, 11, "fire"),
+            (10, 23, "water"), (14, 20, "water"), (18, 17, "water"), (22, 14, "water"), (29, 8, "water"),
         ],
-        # KUP butona itilir -> rampa r24'te basamak olur (climb gecidi). KOPRU'ler havuz gecisleri.
-        "buttons": [
-            {"buttons": [(18, 26)],
-             "ramp": {"pos": (13, 11), "final": (13, 24), "boxCount": 4, "rotated": False,
-                      "color": "#0a7d4a", "finalColor": "#10c878"}},
-        ],
-        "cubes": [(14, 25)],
-        "bridges": [(5, 26, 2), (29, 26, 2)],
     },
     10: {
-        "players": {"fire": (8, 27), "water": (10, 27)},     # start c1-11 (kaldirac c3'un sagi)
-        "doors": {"fire": (18, 12), "water": (21, 12)},       # ust-merkez ortak platform
+        "players": {"fire": (33, 27), "water": (35, 27)},    # sağ-alt başlangıç (asit hendeğinin sağı)
+        "doors": {"fire": (2, 6), "water": (5, 6)},          # sol-üst en üst basamak
         "diamonds": [
-            (2, 26, "fire"), (8, 26, "fire"), (24, 26, "fire"), (19, 20, "fire"), (14, 17, "fire"), (17, 11, "fire"),
-            (10, 26, "water"), (28, 26, "water"), (23, 20, "water"), (17, 17, "water"), (20, 14, "water"), (22, 11, "water"),
+            (23, 23, "fire"), (20, 20, "fire"), (17, 17, "fire"), (14, 14, "fire"), (8, 8, "fire"),
+            (22, 23, "water"), (19, 20, "water"), (16, 17, "water"), (11, 11, "water"), (5, 5, "water"),
         ],
-        # DORUK: (1) KALDIRAC (c3, sola yaklasilir) -> ACID koprusu c12-17.
-        # (2) KOPRU su-havuzu (c18-21) gecisi. (3) KUP-BUTON -> climb basamagi r24.
+        # KALDIRAC (c31, sola yaklaşılır) -> rampa ASİT hendeğini (c25-29) zemin
+        # seviyesinde kalıcı köprüler (L7 deseni). İki oyuncu da geçer, sola tırmanır.
         "levers": [
-            {"lever": (3, 26),
-             "ramp": {"pos": (12, 23), "final": (12, 27), "boxCount": 6, "rotated": False,
+            {"lever": (31, 26),
+             "ramp": {"pos": (25, 23), "final": (25, 27), "boxCount": 5, "rotated": False,
                       "color": "#b8b800", "finalColor": "#ffff33"}},
         ],
-        "bridges": [(18, 26, 2)],
-        "buttons": [
-            {"buttons": [(30, 26)],
-             "ramp": {"pos": (24, 11), "final": (24, 24), "boxCount": 4, "rotated": False,
-                      "color": "#0a7d4a", "finalColor": "#10c878"}},
-        ],
-        "cubes": [(26, 25)],
     },
 }
 

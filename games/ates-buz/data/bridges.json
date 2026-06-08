@@ -14,30 +14,5 @@
             },
             "chainsCount": 2
         }
-    ],
-    "9": [
-        {
-            "position": {
-                "x": 180,
-                "y": 936
-            },
-            "chainsCount": 2
-        },
-        {
-            "position": {
-                "x": 1044,
-                "y": 936
-            },
-            "chainsCount": 2
-        }
-    ],
-    "10": [
-        {
-            "position": {
-                "x": 648,
-                "y": 936
-            },
-            "chainsCount": 2
-        }
     ]
 }

@@ -167,19 +167,19 @@
         {
             "lever": {
                 "position": {
-                    "x": 108,
+                    "x": 1116,
                     "y": 936
                 }
             },
             "ramp": {
                 "position": {
-                    "x": 432,
+                    "x": 900,
                     "y": 828
                 },
-                "boxCount": 6,
+                "boxCount": 5,
                 "color": "#b8b800",
                 "finalPosition": {
-                    "x": 432,
+                    "x": 900,
                     "y": 972
                 },
                 "finalColor": "#ffff33",
