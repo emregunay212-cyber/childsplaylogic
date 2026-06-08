@@ -435,9 +435,9 @@ const App = (() => {
     function renderCategoryNav() {
         const nav = document.getElementById('hub-nav-scroll');
         const cats = [
-            { id: 'all', icon: categoryIcons.home, label: 'Tümü' },
-            ...gameCategories.map((c, i) => ({ id: 'cat-' + i, icon: c.icon, label: c.title })),
-            { id: 'mp', icon: categoryIcons.online, label: 'Online' },
+            { id: 'all', icon: categoryIcons.home, label: 'Tümü', short: 'Tümü' },
+            ...gameCategories.map((c, i) => ({ id: 'cat-' + i, icon: c.icon, label: c.title, short: c.title.split(' & ')[0] })),
+            { id: 'mp', icon: categoryIcons.online, label: 'Online', short: 'Online' },
         ];
 
         nav.innerHTML = '';
@@ -453,7 +453,14 @@ const App = (() => {
             btn.appendChild(img);
             const lbl = document.createElement('span');
             lbl.className = 'chip-label';
-            lbl.textContent = c.label;
+            const lblFull = document.createElement('span');
+            lblFull.className = 'chip-lbl-full';
+            lblFull.textContent = c.label;
+            const lblShort = document.createElement('span');
+            lblShort.className = 'chip-lbl-short';
+            lblShort.textContent = c.short || c.label;
+            lbl.appendChild(lblFull);
+            lbl.appendChild(lblShort);
             btn.appendChild(lbl);
             nav.appendChild(btn);
         });

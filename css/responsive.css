@@ -226,3 +226,47 @@
     .hub { padding-top: calc(74px + env(safe-area-inset-top)); }
     .game-area { bottom: env(safe-area-inset-bottom); }
 }
+
+/* Kategori çip etiketi: varsayılan (masaüstü/tablet) UZUN etiket gösterir */
+.chip-lbl-short { display: none; }
+
+/* ── Mobil: kategori barını kendi TAM-GENİŞLİK satırına indir ──────────
+   Sorun: üst bar tek satırda (ev tuşu + yıldız/ses/yönetim/hesap) kategori
+   barını ~150px'e sıkıştırıyordu → çipler küçük, uzun kategori adları ekrana
+   sığmadan kırpılıyordu. Çözüm: mobilde üst barı sarmala, kategori barı
+   ikinci tam-genişlik satıra insin; etiketler KISA + tam okunur, çipler rahat. */
+@media (max-width: 640px) {
+    .top-bar {
+        flex-wrap: wrap;
+        height: auto;
+        min-height: 60px;
+        row-gap: 4px;
+        padding-top: calc(6px + env(safe-area-inset-top, 0px));
+        padding-bottom: 6px;
+    }
+    .home-btn { order: 1; }
+    .top-right { order: 2; margin-left: auto; }
+    #hub-nav.hub-nav {
+        order: 3;
+        flex: 0 0 100%;
+        max-width: 100%;
+        min-width: 0;
+        overflow: hidden;
+    }
+    .hub-nav-scroll { padding: 2px 0 3px; gap: 6px; }
+
+    /* Sözcükler artık tam görünür: ≤380px gizleme kuralını ez, kısa etiket göster */
+    .chip-label { display: inline; }
+    .chip-lbl-full { display: none; }
+    .chip-lbl-short { display: inline; }
+    .hub-nav-chip {
+        min-height: 38px;
+        padding: 7px 15px;
+        font-size: 0.9rem;
+        gap: 6px;
+    }
+    .chip-icon { width: 20px; height: 20px; }
+
+    /* İçerik artık 2 satırlı üst barın altından başlamalı */
+    .hub { padding-top: calc(116px + env(safe-area-inset-top, 0px)); }
+}
