@@ -97,6 +97,7 @@ body {
 .kl-mbtn:active { transform: translateY(2px); }
 .kl-mbtn.primary { background: linear-gradient(180deg, #36d07a, #1f9d57); border-color: #1f9d57; }
 .kl-mbtn.ai { background: linear-gradient(180deg, #8b6cfc, #6340e8); border-color: #6340e8; }
+.kl-mbtn.hard { background: linear-gradient(180deg, #e8523f, #c93b28); border-color: #c93b28; }
 .kl-joinrow { display: flex; gap: 8px; }
 .kl-code { flex: 1; min-width: 0; padding: 13px; border-radius: 12px; border: 2px solid rgba(255,255,255,.2); background: rgba(0,0,0,.25); color: #fff; font-family: inherit; font-weight: 800; font-size: 1.05rem; text-align: center; letter-spacing: 4px; text-transform: uppercase; }
 .kl-joinrow .kl-mbtn { flex: 0 0 auto; padding: 13px 18px; }

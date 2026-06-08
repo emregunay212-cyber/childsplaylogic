@@ -6,16 +6,21 @@
 const KelimelikAI = (() => {
 
   // Ana fonksiyon: mevcut tahta ve raf için en iyi hamleyi bul
-  function findBestMove(board, rackLetters) {
+  // difficulty: 'kolay' | 'orta' | 'zor'
+  function findBestMove(board, rackLetters, difficulty) {
+    const diff = difficulty || 'orta';
+    const maxLen = diff === 'kolay' ? 4 : diff === 'orta' ? 6 : 7;
+    const topN   = diff === 'kolay' ? Infinity : diff === 'orta' ? 10 : 3;
+
     const E = KelimelikEngine, D = KelimelikDict;
     if (!D.isLoaded()) return null;
 
     const isEmpty = !board.some(row => row.some(c => c));
     const candidates = [];
 
-    // Sözlükten rafla oluşturulabilecek kelimeleri topla
+    // Sözlükten rafla oluşturulabilecek kelimeleri topla (zorluk limitiyle)
     const wordSet = new Set();
-    collectWords(rackLetters, wordSet, D);
+    collectWords(rackLetters, wordSet, D, maxLen);
 
     const words = [...wordSet];
     if (!words.length) return null;
@@ -53,20 +58,21 @@ const KelimelikAI = (() => {
 
     if (!candidates.length) return null;
 
-    // En yüksek puanlı 3 arasından rastgele seç (hafif çeşitlilik)
     candidates.sort((a, b) => b.score - a.score);
-    return candidates[Math.floor(Math.random() * Math.min(3, candidates.length))];
+    const pool = Math.min(topN, candidates.length);
+    return candidates[Math.floor(Math.random() * pool)];
   }
 
   // Sözlükteki kelimeleri tara; raftan oluşturulabilecekleri wordSet'e ekle.
-  // Joker ('*') gereken eksik harfleri karşılar.
-  function collectWords(rackLetters, wordSet, D) {
+  // Joker ('*') gereken eksik harfleri karşılar. maxLen zorluk limitidir.
+  function collectWords(rackLetters, wordSet, D, maxLen) {
+    const lim = maxLen || 7;
     const rackMap = {};
     for (const l of rackLetters) rackMap[l] = (rackMap[l] || 0) + 1;
     const jokers = rackMap['*'] || 0;
 
     for (const word of D.words()) {
-      if (word.length < 2 || word.length > 7) continue;
+      if (word.length < 2 || word.length > lim) continue;
       if (canForm(word, rackMap, jokers)) wordSet.add(word);
     }
   }

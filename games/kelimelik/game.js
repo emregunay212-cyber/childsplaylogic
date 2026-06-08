@@ -6,7 +6,7 @@
 const KelimelikGame = (() => {
   const E = KelimelikEngine, D = KelimelikDict, NET = (typeof KelimelikNet !== 'undefined' ? KelimelikNet : null);
   let root, mode, board, myRack, placed, selId, soloScore, bag, room, lastRackKey, cellEls, ui, uidC;
-  let aiMode = false, aiTurn = false, aiRack = [], aiScore = 0, consecutivePasses = 0;
+  let aiMode = false, aiTurn = false, aiRack = [], aiScore = 0, consecutivePasses = 0, aiDifficulty = 'orta';
 
   const $ = id => document.getElementById(id);
   const clear = el => { while (el && el.firstChild) el.removeChild(el.firstChild); };
@@ -42,7 +42,7 @@ const KelimelikGame = (() => {
       const wn = document.createElement('p'); wn.className = 'kl-warn'; wn.textContent = 'Online bağlantı kurulamadı — yalnız alıştırma modu.'; w.appendChild(wn);
     }
     const or = document.createElement('div'); or.className = 'kl-or'; or.textContent = '— veya —'; w.appendChild(or);
-    w.appendChild(mk('🤖 Yapay Zekaya Karşı', 'ai', startAI));
+    w.appendChild(mk('🤖 Yapay Zekaya Karşı', 'ai', showAIDiff));
     w.appendChild(mk('🎯 Tek Başına Alıştır', null, startSolo));
     const er = document.createElement('p'); er.className = 'kl-menuerr'; er.id = 'kl-menuerr'; w.appendChild(er);
     root.appendChild(w);
@@ -180,13 +180,28 @@ const KelimelikGame = (() => {
     renderBoard(); renderRack(); renderHud(); setMsg('İlk kelimeyi ortadaki ★ kareye koy.', 'info');
   }
 
-  function startAI() {
+  function showAIDiff() {
+    clear(root);
+    const w = document.createElement('div'); w.className = 'kl-menu';
+    const h = document.createElement('h1'); h.className = 'kl-title'; h.textContent = 'KELİMELİK'; w.appendChild(h);
+    const sub = document.createElement('p'); sub.className = 'kl-sub'; sub.textContent = 'Zorluk seç'; w.appendChild(sub);
+    const mkd = (label, cls, diff) => { const b = document.createElement('button'); b.className = 'kl-mbtn ' + cls; b.textContent = label; b.addEventListener('click', () => startAI(diff)); return b; };
+    w.appendChild(mkd('Kolay', 'primary', 'kolay'));
+    w.appendChild(mkd('Orta', 'ai', 'orta'));
+    w.appendChild(mkd('Zor', 'hard', 'zor'));
+    const back = document.createElement('button'); back.className = 'kl-exit'; back.textContent = '← Geri'; back.addEventListener('click', showMenu); w.appendChild(back);
+    root.appendChild(w);
+  }
+
+  function startAI(diff) {
+    aiDifficulty = diff || 'orta';
     aiMode = true; aiTurn = false; mode = 'solo'; buildGameUI();
     board = E.newBoard(); bag = E.newBag();
     myRack = E.draw(bag, 7).map(l => ({ id: uid(), letter: l }));
     aiRack = E.draw(bag, 7);
     placed = []; selId = null; soloScore = 0; aiScore = 0; consecutivePasses = 0;
-    $('kl-opp-l').textContent = 'BOT';
+    const label = { kolay: 'KOLAY', orta: 'ORTA', zor: 'ZOR' }[aiDifficulty];
+    $('kl-opp-l').textContent = label;
     renderBoard(); renderRack(); renderHud(); setMsg('İlk kelimeyi ortadaki ★ kareye koy.', 'info');
   }
 
@@ -247,7 +262,7 @@ const KelimelikGame = (() => {
       if (!checkSoloEnd()) setMsg('Yapay zeka pas geçti. Sıra sende.', 'info');
       return;
     }
-    const move = KelimelikAI.findBestMove(board, aiRack);
+    const move = KelimelikAI.findBestMove(board, aiRack, aiDifficulty);
     if (move) {
       consecutivePasses = 0;
       for (const p of move.placed) board[p.r][p.c] = { letter: p.letter };
