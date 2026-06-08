@@ -290,93 +290,78 @@ def make_level(rows27, floor):
     return [BORDER] + body + [BORDER]
 
 
-# ---- BOLUM 7: "Ates ve Buz Yollari" — nazik kooperatif giris ----
-# Ikisi ORTA tabanda baslar. Sol yol FIRE havuzundan (ates gecer, su olur),
-# sag yol WATER havuzundan (su gecer, ates olur) gecer -> ayrilmak ZORUNLU.
-# Her biri kendi yan bandini tirmanip kendi kapisina ulasir (ates sol-ust,
-# su sag-ust). Iki kapi da ayni anda acilinca biter. 8 elmas.
+# ---- BOLUM 7: "Gecit" — YATAY, kaldirac kopru bulmacasi, kolay ----
+# Ikisi ortada baslar (c7-14 zemini). Merkezde ACID hendegi (c15-21) gecisi keser.
+# ATES sola gidip FIRE-pond'u (c4-6) gecer, c1-3 cebindeki KALDIRACi ceker ->
+# rampa hendegi zemin seviyesinde kopruler (kalici). Ikisi de saga gecip
+# r24 sag-kenardaki kapilara ulasir. Su, fire-pond'u gecemez -> ates ZORUNLU.
+# Sol taraf (kaldirac cebi c1-3 + fire-pond c4-6) USTU bos: su yukaridan havuza
+# dusup gecidi atlayamasin. Raflar/kapi YALNIZ sagda (su+ates ortak, kopru sonrasi).
 LEVEL7 = make_level([
-    E, E, E, E, E,                  # r1-5
-    DOOR_SIDE,                      # r6  ates kapisi sol (c2-9), su kapisi sag (c29-36)
-    E, E,                           # r7-8
-    SB,                             # r9
-    E, E,                           # r10-11
-    SA,                             # r12
-    E, E,                           # r13-14
-    SB,                             # r15
-    E, E,                           # r16-17
-    SA,                             # r18
+    E, E, E, E, E, E, E, E,         # r1-8
+    E, E, E, E, E, E, E, E, E,      # r9-17
+    "." * 25 + "#" * 6,             # r18 sag raf c26-31 (su elmasi)
     E, E,                           # r19-20
-    SB,                             # r21
+    "." * 30 + "#" * 6,             # r21 sag raf c31-36 (su elmasi)
     E, E,                           # r22-23
-    SA,                             # r24
+    "." * 28 + "#" * 9,             # r24 KAPI sahanligi sag c29-37
     E, E,                           # r25-26
-], "#" * 9 + "f" * 5 + "#" * 9 + "w" * 5 + "#" * 9)   # r27 fire c10-14, water c24-28
+], "#" * 16 + "a" * 7 + "#" * 14)   # r27 sol zemin c1-16 (kaldirac+start), ACID c17-23, sag c24-37
 
-# ---- BOLUM 8: "Itme ve Kaldirac" — orta ----
-# Koselerde baslar (ates sol, su sag); merkezde genis ACID ucurumu ayirir.
-# Her biri kendi bandini tirmanip ORTAK kapi platformuna (ust-merkez) ulasir.
-# r15'te havuz rafi tema katar. KUP ve KALDIRAC bonus elmaslari acar (JSON).
+# ---- BOLUM 8: "Kule" — DIKEY tirmanis + KUP basamak bulmacasi, orta ----
+# Ikisi sagda baslar; KUP'u sola itip r22 sahanligi (zeminden 5 hucre, ziplanamaz)
+# altina koyar, ustune cikip cikar -> tirmanis baslar. Kup OLMADAN cikis yok.
+# r22'den merkeze dogru zigzag tirmanip ust-merkez ORTAK kapilara ulasir.
 LEVEL8 = make_level([
-    E, E, E, E, E,                  # r1-5
-    DOOR_MID,                       # r6  ortak kapi platformu (c15-24)
-    E, E,                           # r7-8
-    SB,                             # r9  bant tepe
-    E, E,                           # r10-11
-    SA,                             # r12
-    E, E,                           # r13-14
-    SBf,                            # r15 havuz rafi (sol fire / sag water)
-    E, E,                           # r16-17
-    SA,                             # r18
-    E, E,                           # r19-20
-    SB,                             # r21
-    E, E,                           # r22-23
-    SA,                             # r24
-    E, E,                           # r25-26
-], "#" * 12 + "a" * 14 + "#" * 11)   # r27 merkez ACID ucurum c13-26
+    E, E, E, E, E, E,               # r1-6
+    DOOR_MID,                       # r7  ORTAK kapi platformu (c15-24)
+    E, E,                           # r8-9
+    "." * 15 + "#" * 8,             # r10 sahanlik c16-23
+    E, E,                           # r11-12
+    "." * 11 + "#" * 8,             # r13 sahanlik c12-19
+    E, E,                           # r14-15
+    "." * 19 + "#" * 8,             # r16 sahanlik c20-27
+    E, E,                           # r17-18
+    "." * 10 + "#" * 8,             # r19 sahanlik c11-18
+    E, E,                           # r20-21
+    "." + "#" * 8,                  # r22 sahanlik c2-9  [KUP basamak gecidi]
+    E, E, E, E,                     # r23-26
+], "#" * 37)   # r27 tam zemin (kup itme alani)
 
 # ---- BOLUM 9: "Kopru ve Top" — zor ----
 # Koselerde baslar; zeminde FIRE (sol) ve WATER (sag) havuzlari ayirici.
 # Bantlarda iki havuz rafi. ORTAK kapi ust-merkez. KOPRU + TOP+BUTON bonus.
 LEVEL9 = make_level([
-    E, E, E, E, E,                  # r1-5
-    DOOR_MID,                       # r6
-    E, E,                           # r7-8
-    SB,                             # r9
-    E, E,                           # r10-11
-    SAf,                            # r12 havuz rafi
-    E, E,                           # r13-14
-    SB,                             # r15
-    E, E,                           # r16-17
-    SA,                             # r18
-    E, E,                           # r19-20
-    SBf,                            # r21 havuz rafi
-    E, E,                           # r22-23
-    SA,                             # r24
-    E, E,                           # r25-26
-], "#" * 7 + "f" * 5 + "#" * 13 + "w" * 5 + "#" * 7)   # r27 fire c8-12, water c26-30
+    E, E, E, E, E, E, E, E, E, E, E,  # r1-11
+    DOOR_MID,                         # r12 ORTAK kapi platformu (c15-24)
+    E, E,                             # r13-14
+    "." * 11 + "#" * 8,               # r15 sahanlik c12-19
+    E, E,                             # r16-17
+    "." * 19 + "#" * 8,               # r18 sahanlik c20-27
+    E, E,                             # r19-20
+    "." * 13 + "#" * 8,               # r21 sahanlik c14-21
+    E, E,                             # r22-23
+    E, E,                             # r24-25 (BUTON-rampasi r24'te belirir - JSON)
+    "." * 19 + "#",                   # r26 kup-durdurucu duvar c20 (kup butona c18 oturur)
+], "#" * 4 + "w" * 4 + "#" * 20 + "f" * 4 + "#" * 5)   # r27 su c5-8 (kopru), fire c29-32 (kopru)
 
 # ---- BOLUM 10: "Doruk" — en zor ----
 # Koselerde baslar; zeminde UC havuz: FIRE(sol) ACID(merkez) WATER(sag).
 # En yogun bant: cok sayida havuz rafi. ORTAK kapi en-ust merkez.
 # Tum mekanikler bonus olarak (JSON): kaldirac, buton, kup.
 LEVEL10 = make_level([
-    E, E, E, E, E,                  # r1-5
-    DOOR_MID,                       # r6
-    E, E,                           # r7-8
-    SBf,                            # r9  havuz rafi
-    E, E,                           # r10-11
-    SA,                             # r12
-    E, E,                           # r13-14
-    SBf,                            # r15 havuz rafi
-    E, E,                           # r16-17
-    SAf,                            # r18 havuz rafi
-    E, E,                           # r19-20
-    SB,                             # r21
-    E, E,                           # r22-23
-    SAf,                            # r24 havuz rafi
-    E, E,                           # r25-26
-], "#" * 6 + "f" * 5 + "#" * 5 + "a" * 5 + "#" * 5 + "w" * 5 + "#" * 6)   # r27 fire c7-11, acid c17-21, water c27-31
+    E, E, E, E, E, E, E, E, E, E, E,  # r1-11
+    DOOR_MID,                         # r12 ORTAK kapi platformu (c15-24)
+    E, E,                             # r13-14
+    "." * 15 + "#" * 8,               # r15 sahanlik c16-23
+    E, E,                             # r16-17
+    "." * 11 + "#" * 8,               # r18 sahanlik c12-19
+    E, E,                             # r19-20
+    "." * 17 + "#" * 8,               # r21 sahanlik c18-25
+    E, E,                             # r22-23
+    E, E,                             # r24-25 (KUP-BUTON rampasi r24'te belirir)
+    "." * 31 + "#",                   # r26 kup-durdurucu duvar c32
+], "#" * 11 + "a" * 6 + "w" * 4 + "#" * 16)   # r27 ACID c12-17 (kaldirac-kopru), WATER c18-21 (kopru), sag c22-37
 
 LEVELS = {7: LEVEL7, 8: LEVEL8, 9: LEVEL9, 10: LEVEL10}
 
@@ -389,36 +374,67 @@ LEVELS = {7: LEVEL7, 8: LEVEL8, 9: LEVEL9, 10: LEVEL10}
 # diamonds: (col, row, "fire"|"water") -> piksel (col*36, row*36)
 OBJECTS = {
     7: {
-        "players": {"fire": (16, 27), "water": (22, 27)},
-        "doors": {"fire": (4, 6), "water": (33, 6)},
+        "players": {"fire": (10, 27), "water": (12, 27)},   # sol zeminde (c1-16)
+        "doors": {"fire": (30, 24), "water": (34, 24)},      # r24 sag kapi sahanligi
         "diamonds": [
-            (4, 23, "fire"), (9, 20, "fire"), (4, 17, "fire"), (9, 14, "fire"),
-            (33, 23, "water"), (28, 20, "water"), (33, 17, "water"), (28, 14, "water"),
+            (2, 26, "fire"), (7, 26, "fire"), (15, 26, "fire"), (26, 26, "fire"),
+            (13, 26, "water"), (28, 17, "water"), (33, 20, "water"), (35, 23, "water"),
+        ],
+        # KALDIRAC (paylasimli, temiz zeminde c4): cekilince rampa ACID hendegini
+        # (c17-23) zemin seviyesinde kalici kopruler -> ikisi de saga gecer.
+        "levers": [
+            {"lever": (4, 26),
+             "ramp": {"pos": (17, 23), "final": (17, 27), "boxCount": 7, "rotated": False,
+                      "color": "#b8b800", "finalColor": "#ffff33"}},
         ],
     },
     8: {
-        "players": {"fire": (3, 27), "water": (34, 27)},
-        "doors": {"fire": (17, 6), "water": (21, 6)},
+        "players": {"fire": (16, 27), "water": (18, 27)},   # sagda, kupun sagi
+        "doors": {"fire": (18, 7), "water": (21, 7)},        # ust-merkez ortak platform
         "diamonds": [
-            (4, 23, "fire"), (9, 20, "fire"), (4, 17, "fire"), (9, 14, "fire"), (4, 11, "fire"),
-            (33, 23, "water"), (28, 20, "water"), (33, 17, "water"), (28, 14, "water"), (33, 11, "water"),
+            (4, 21, "fire"), (23, 15, "fire"), (19, 9, "fire"), (24, 26, "fire"), (2, 26, "fire"),
+            (13, 18, "water"), (15, 12, "water"), (20, 9, "water"), (8, 26, "water"), (30, 26, "water"),
         ],
+        # KUP: sola itilip r22 sahanligi (c2-9) altina, ustune cikilarak tirmanis baslar.
+        "cubes": [(12, 25)],
     },
     9: {
-        "players": {"fire": (3, 27), "water": (34, 27)},
-        "doors": {"fire": (17, 6), "water": (21, 6)},
+        "players": {"fire": (2, 27), "water": (35, 27)},
+        "doors": {"fire": (18, 12), "water": (21, 12)},
         "diamonds": [
-            (4, 23, "fire"), (9, 20, "fire"), (4, 17, "fire"), (9, 14, "fire"), (4, 11, "fire"),
-            (33, 23, "water"), (28, 20, "water"), (33, 17, "water"), (28, 14, "water"), (33, 11, "water"),
+            (2, 26, "fire"), (6, 26, "fire"), (15, 20, "fire"), (24, 17, "fire"), (13, 14, "fire"), (18, 11, "fire"),
+            (35, 26, "water"), (31, 26, "water"), (20, 20, "water"), (22, 17, "water"), (15, 14, "water"), (21, 11, "water"),
         ],
+        # KUP butona itilir -> rampa r24'te basamak olur (climb gecidi). KOPRU'ler havuz gecisleri.
+        "buttons": [
+            {"buttons": [(18, 26)],
+             "ramp": {"pos": (13, 11), "final": (13, 24), "boxCount": 4, "rotated": False,
+                      "color": "#0a7d4a", "finalColor": "#10c878"}},
+        ],
+        "cubes": [(14, 25)],
+        "bridges": [(5, 26, 2), (29, 26, 2)],
     },
     10: {
-        "players": {"fire": (3, 27), "water": (34, 27)},
-        "doors": {"fire": (17, 6), "water": (21, 6)},
+        "players": {"fire": (8, 27), "water": (10, 27)},     # start c1-11 (kaldirac c3'un sagi)
+        "doors": {"fire": (18, 12), "water": (21, 12)},       # ust-merkez ortak platform
         "diamonds": [
-            (4, 23, "fire"), (9, 20, "fire"), (4, 17, "fire"), (9, 14, "fire"), (4, 11, "fire"), (9, 8, "fire"),
-            (33, 23, "water"), (28, 20, "water"), (33, 17, "water"), (28, 14, "water"), (33, 11, "water"), (28, 8, "water"),
+            (2, 26, "fire"), (8, 26, "fire"), (24, 26, "fire"), (19, 20, "fire"), (14, 17, "fire"), (17, 11, "fire"),
+            (10, 26, "water"), (28, 26, "water"), (23, 20, "water"), (17, 17, "water"), (20, 14, "water"), (22, 11, "water"),
         ],
+        # DORUK: (1) KALDIRAC (c3, sola yaklasilir) -> ACID koprusu c12-17.
+        # (2) KOPRU su-havuzu (c18-21) gecisi. (3) KUP-BUTON -> climb basamagi r24.
+        "levers": [
+            {"lever": (3, 26),
+             "ramp": {"pos": (12, 23), "final": (12, 27), "boxCount": 6, "rotated": False,
+                      "color": "#b8b800", "finalColor": "#ffff33"}},
+        ],
+        "bridges": [(18, 26, 2)],
+        "buttons": [
+            {"buttons": [(30, 26)],
+             "ramp": {"pos": (24, 11), "final": (24, 24), "boxCount": 4, "rotated": False,
+                      "color": "#0a7d4a", "finalColor": "#10c878"}},
+        ],
+        "cubes": [(26, 25)],
     },
 }
 
@@ -436,36 +452,85 @@ def _save_json(name, data):
         f.write("\n")
 
 
+def _gpx(cr):
+    """grid (col,row) -> piksel {x,y} (sol-ust). Rampa/kup/top/kopru/buton/lever
+    konumlari icin. Hizalama oyun-icinde ince ayar edilir."""
+    return {"x": cr[0] * B, "y": cr[1] * B}
+
+
+def _ramp_json(r):
+    """OBJECTS ramp dict {pos:(c,r), final:(c,r), boxCount, rotated, color, finalColor}
+    -> oyunun bekledigi ramp JSON'u."""
+    return {
+        "position": _gpx(r["pos"]),
+        "boxCount": r["boxCount"],
+        "color": r.get("color", "#7a4fb0"),
+        "finalPosition": _gpx(r["final"]),
+        "finalColor": r.get("finalColor", "#b06fe0"),
+        "rotated": r.get("rotated", False),
+    }
+
+
 def cmd_json():
-    """players/diamonds/doors.json dosyalarina 7-10 anahtarlarini yazar
-    (1-6 korunur). Idempotent."""
+    """8 veri dosyasina 7-10 anahtarlarini yazar (1-6 korunur). Idempotent:
+    bir bolum bir mekanigi kullanmiyorsa o dosyadan 7-10 anahtari SILINIR."""
     players = _load_json("players.json")
     diamonds = _load_json("diamonds.json")
     doors = _load_json("doors.json")
+    buttons = _load_json("buttons.json")
+    levers = _load_json("levers.json")
+    cubes = _load_json("cubes.json")
+    bridges = _load_json("bridges.json")
+    balls = _load_json("balls.json")
 
     for n, obj in OBJECTS.items():
         k = str(n)
+        # --- players ---
         fx, fr = obj["players"]["fire"]
         wx, wr = obj["players"]["water"]
         players["fireboy"][k] = {"position": {"x": fx * B, "y": fr * B - 72}}
         players["watergirl"][k] = {"position": {"x": wx * B, "y": wr * B - 72}}
-
-        diamonds[k] = [
-            {"position": {"x": c * B, "y": r * B}, "type": t}
-            for (c, r, t) in obj["diamonds"]
-        ]
-
+        # --- diamonds ---
+        diamonds[k] = [{"position": {"x": c * B, "y": r * B}, "type": t}
+                       for (c, r, t) in obj["diamonds"]]
+        # --- doors ---
         dfx, dfr = obj["doors"]["fire"]
         dwx, dwr = obj["doors"]["water"]
         doors[k] = [
             {"position": {"x": dfx * B, "y": dfr * B - 108}, "element": "fire"},
             {"position": {"x": dwx * B, "y": dwr * B - 108}, "element": "water"},
         ]
+        # --- mekanikler (opsiyonel; yoksa anahtari sil) ---
+        if obj.get("buttons"):
+            buttons[k] = [{"buttons": [{"position": _gpx(b)} for b in g["buttons"]],
+                           "ramp": _ramp_json(g["ramp"])} for g in obj["buttons"]]
+        else:
+            buttons.pop(k, None)
+        if obj.get("levers"):
+            levers[k] = [{"lever": {"position": _gpx(g["lever"])}, "ramp": _ramp_json(g["ramp"])}
+                         for g in obj["levers"]]
+        else:
+            levers.pop(k, None)
+        if obj.get("cubes"):
+            cubes[k] = [{"position": _gpx(c)} for c in obj["cubes"]]
+        else:
+            cubes.pop(k, None)
+        if obj.get("bridges"):
+            bridges[k] = [{"position": _gpx((c[0], c[1])), "chainsCount": c[2]}
+                          for c in obj["bridges"]]
+        else:
+            bridges.pop(k, None)
+        if obj.get("balls"):
+            balls[k] = [{"position": _gpx(b)} for b in obj["balls"]]
+        else:
+            balls.pop(k, None)
 
-    _save_json("players.json", players)
-    _save_json("diamonds.json", diamonds)
-    _save_json("doors.json", doors)
-    print("JSON guncellendi: players, diamonds, doors (7-10)")
+    for name, data in [("players.json", players), ("diamonds.json", diamonds),
+                       ("doors.json", doors), ("buttons.json", buttons),
+                       ("levers.json", levers), ("cubes.json", cubes),
+                       ("bridges.json", bridges), ("balls.json", balls)]:
+        _save_json(name, data)
+    print("JSON guncellendi (8 dosya, 7-10): players/diamonds/doors + buttons/levers/cubes/bridges/balls")
 
 
 if __name__ == "__main__":

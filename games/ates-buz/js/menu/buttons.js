@@ -140,7 +140,7 @@ let menuButtons = {
             width: 300,
             height: canvas.height * 0.1,
             yOffset: canvas.height * 0.4,
-            text: "menu",
+            text: "menü",
             runCode: () => {
                 setMenuActive("mainMenu");
                 drawMenu();
@@ -155,7 +155,7 @@ let menuButtons = {
             width: 300,
             height: canvas.height * 0.1,
             yOffset: canvas.height * 0.4,
-            text: "retry",
+            text: "tekrar",
             runCode: () => {
                 setEndGame(true);
             },
@@ -171,7 +171,7 @@ let menuButtons = {
             width: 300,
             height: canvas.height * 0.1,
             yOffset: canvas.height * 0.3,
-            text: "end",
+            text: "çıkış",
             runCode: () => {
                 setMenuActive("mainMenu");
                 drawMenu();
@@ -186,7 +186,7 @@ let menuButtons = {
             width: 300,
             height: canvas.height * 0.1,
             yOffset: canvas.height * 0.3,
-            text: "retry",
+            text: "tekrar",
             runCode: () => {
                 setEndGame(true);
             },
@@ -200,7 +200,7 @@ let menuButtons = {
             width: 300,
             height: canvas.height * 0.1,
             yOffset: canvas.height * 0.45,
-            text: "resume",
+            text: "devam",
             runCode: () => {
                 setContinueAnimation(true);
             },
@@ -216,7 +216,7 @@ let menuButtons = {
             width: 450,
             height: canvas.height * 0.1,
             yOffset: canvas.height * 0.43,
-            text: "continue",
+            text: "devam",
             runCode: () => {
                 setMenuActive("mainMenu");
                 drawMenu();

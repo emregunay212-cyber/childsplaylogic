@@ -28,25 +28,31 @@ const menuDiamondsBorderColor = {
 
 const menusTexts = {
     lost: () => {
+        const t = "OYUN BİTTİ";
         ctx.font = "120px Cinzel";
+        const x = (canvas.width - ctx.measureText(t).width) / 2;
+        const y = menuBg.position.y + canvas.height * 0.25;
         ctx.lineWidth = 7;
         ctx.strokeStyle = "black";
-        ctx.strokeText("Game Over", canvas.width * 0.25, menuBg.position.y + canvas.height * 0.25);
+        ctx.strokeText(t, x, y);
 
         ctx.fillStyle = "yellow";
-        ctx.fillText("Game Over", canvas.width * 0.25, menuBg.position.y + canvas.height * 0.25);
+        ctx.fillText(t, x, y);
     },
     paused: () => {
+        const t = "DURAKLADI";
         ctx.font = "120px Cinzel";
+        const x = (canvas.width - ctx.measureText(t).width) / 2;
+        const y = menuBg.position.y + canvas.height * 0.25;
         ctx.lineWidth = 7;
         ctx.strokeStyle = "black";
-        ctx.strokeText("Paused", canvas.width * 0.35, menuBg.position.y + canvas.height * 0.25);
+        ctx.strokeText(t, x, y);
 
         ctx.fillStyle = "yellow";
-        ctx.fillText("Paused", canvas.width * 0.35, menuBg.position.y + canvas.height * 0.25);
+        ctx.fillText(t, x, y);
     },
     won: () => {
-        const fullText = `Time : ${levelTime.minutes}:${levelTime.seconds}`;
+        const fullText = `Süre : ${levelTime.minutes}:${levelTime.seconds}`;
         //time
         ctx.font = "50px Cinzel";
         ctx.lineWidth = 7;

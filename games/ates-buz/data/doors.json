@@ -98,15 +98,15 @@
     "7": [
         {
             "position": {
-                "x": 144,
-                "y": 108
+                "x": 1080,
+                "y": 756
             },
             "element": "fire"
         },
         {
             "position": {
-                "x": 1188,
-                "y": 108
+                "x": 1224,
+                "y": 756
             },
             "element": "water"
         }
@@ -114,15 +114,15 @@
     "8": [
         {
             "position": {
-                "x": 612,
-                "y": 108
+                "x": 648,
+                "y": 144
             },
             "element": "fire"
         },
         {
             "position": {
                 "x": 756,
-                "y": 108
+                "y": 144
             },
             "element": "water"
         }
@@ -130,15 +130,15 @@
     "9": [
         {
             "position": {
-                "x": 612,
-                "y": 108
+                "x": 648,
+                "y": 324
             },
             "element": "fire"
         },
         {
             "position": {
                 "x": 756,
-                "y": 108
+                "y": 324
             },
             "element": "water"
         }
@@ -146,15 +146,15 @@
     "10": [
         {
             "position": {
-                "x": 612,
-                "y": 108
+                "x": 648,
+                "y": 324
             },
             "element": "fire"
         },
         {
             "position": {
                 "x": 756,
-                "y": 108
+                "y": 324
             },
             "element": "water"
         }

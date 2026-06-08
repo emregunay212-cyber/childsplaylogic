@@ -47,8 +47,8 @@ import {
 let latestHostState = null;
 let latestGuestInput = { left: false, right: false, up: false };
 
-// Bilnetoyun ayarı: hız (orijinal 2.0 / -4.35)
-const MOVE_SPEED = 2.4;
+// Bilnetoyun ayarı: hız (orijinal 2.0 / -4.35; "daha hızlı hareket" için 2.4 -> 3.0)
+const MOVE_SPEED = 3.0;
 const JUMP_VELOCITY = -4.35;
 
 let bgBlocks, died, menuButtonPressed, pauseGame, collisionBlocks, ponds;
