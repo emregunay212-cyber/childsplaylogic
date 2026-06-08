@@ -518,89 +518,81 @@ const Multiplayer = (() => {
   }
 
   async function resolvePenalty(ref) {
-    const snap = await ref.once('value');
-    const lobby = snap.val();
-    if (!lobby || !lobby.pendingShot || !lobby.pendingKeeper) return;
+    // Transaction: sadece bir istemci sonucu yazar; aynı anda iki çağrı olsa bile ikincisi
+    // pendingShot/pendingKeeper null olduğunu görüp işlemi iptal eder.
+    await ref.transaction(lobby => {
+      if (!lobby || !lobby.pendingShot || !lobby.pendingKeeper) return; // iptal
 
-    const shotZone = lobby.pendingShot.zone;
-    const keeperZone = lobby.pendingKeeper.zone;
-    const isGoal = shotZone !== keeperZone;
-    const shooter = lobby.currentShooter;
+      const shotZone = lobby.pendingShot.zone;
+      const keeperZone = lobby.pendingKeeper.zone;
+      const isGoal = shotZone !== keeperZone;
+      const shooter = lobby.currentShooter;
 
-    const hostShots = lobby.hostShots || [];
-    const guestShots = lobby.guestShots || [];
-    let hostScore = lobby.hostScore || 0;
-    let guestScore = lobby.guestScore || 0;
+      const hostShots = (lobby.hostShots || []).slice();
+      const guestShots = (lobby.guestShots || []).slice();
+      let hostScore = lobby.hostScore || 0;
+      let guestScore = lobby.guestScore || 0;
 
-    const shotRecord = { zone: shotZone, keeperZone, goal: isGoal };
+      const shotRecord = { zone: shotZone, keeperZone, goal: isGoal };
 
-    if (shooter === 'host') {
-      hostShots.push(shotRecord);
-      if (isGoal) hostScore++;
-    } else {
-      guestShots.push(shotRecord);
-      if (isGoal) guestScore++;
-    }
+      if (shooter === 'host') {
+        hostShots.push(shotRecord);
+        if (isGoal) hostScore++;
+      } else {
+        guestShots.push(shotRecord);
+        if (isGoal) guestScore++;
+      }
 
-    // Sonraki atış kimin?
-    const nextShooter = shooter === 'host' ? 'guest' : 'host';
-    // Mevcut round: host attıysa aynı round, guest attıysa sonraki round
-    const nextRound = shooter === 'guest' ? (lobby.currentRound || 1) + 1 : (lobby.currentRound || 1);
-    const isSuddenDeath = lobby.isSuddenDeath || false;
+      const nextShooter = shooter === 'host' ? 'guest' : 'host';
+      const nextRound = shooter === 'guest' ? (lobby.currentRound || 1) + 1 : (lobby.currentRound || 1);
+      const isSuddenDeath = lobby.isSuddenDeath || false;
 
-    const updates = {
-      hostShots, guestShots, hostScore, guestScore,
-      pendingShot: null, pendingKeeper: null,
-      currentShooter: nextShooter,
-      currentRound: nextRound,
-      // Sonuç bilgisi (client animasyon için)
-      lastResult: { shotZone, keeperZone, goal: isGoal, shooter, round: lobby.currentRound, isSuddenDeath }
-    };
+      const result = Object.assign({}, lobby, {
+        hostShots, guestShots, hostScore, guestScore,
+        pendingShot: null, pendingKeeper: null,
+        currentShooter: nextShooter,
+        currentRound: nextRound,
+        lastResult: { shotZone, keeperZone, goal: isGoal, shooter, round: lobby.currentRound, isSuddenDeath }
+      });
 
-    // Oyun bitti mi kontrol et
-    const totalNormal = 5;
-    const hostDone = hostShots.length;
-    const guestDone = guestShots.length;
+      const totalNormal = 5;
+      const hostDone = hostShots.length;
+      const guestDone = guestShots.length;
 
-    if (!isSuddenDeath) {
-      // Normal 5 atış - her iki taraf da 5 atış yaptıysa
-      if (hostDone >= totalNormal && guestDone >= totalNormal) {
-        if (hostScore !== guestScore) {
-          updates.state = 'FINISHED';
-          updates.winner = hostScore > guestScore ? 'host' : 'guest';
+      if (!isSuddenDeath) {
+        if (hostDone >= totalNormal && guestDone >= totalNormal) {
+          if (hostScore !== guestScore) {
+            result.state = 'FINISHED';
+            result.winner = hostScore > guestScore ? 'host' : 'guest';
+          } else {
+            result.isSuddenDeath = true;
+          }
         } else {
-          // Eşitlik → sudden death
-          updates.isSuddenDeath = true;
+          const hostRemaining = totalNormal - hostDone;
+          const guestRemaining = totalNormal - guestDone;
+          if (hostDone >= 1 && guestDone >= 1) {
+            if (hostScore + hostRemaining < guestScore && guestRemaining === 0) {
+              result.state = 'FINISHED';
+              result.winner = 'guest';
+            } else if (guestScore + guestRemaining < hostScore && hostRemaining === 0) {
+              result.state = 'FINISHED';
+              result.winner = 'host';
+            }
+          }
         }
       } else {
-        // Erken sonuç: geri kalan atışlarla yetişilemeyecekse
-        const hostRemaining = totalNormal - hostDone;
-        const guestRemaining = totalNormal - guestDone;
-        // Host tüm kalan atışları atsa bile guest'e yetişemezse
-        if (hostDone >= 1 && guestDone >= 1) {
-          if (hostScore + hostRemaining < guestScore && guestRemaining === 0) {
-            updates.state = 'FINISHED';
-            updates.winner = 'guest';
-          } else if (guestScore + guestRemaining < hostScore && hostRemaining === 0) {
-            updates.state = 'FINISHED';
-            updates.winner = 'host';
+        if (hostDone === guestDone && hostDone > totalNormal) {
+          const lastHost = hostShots[hostShots.length - 1];
+          const lastGuest = guestShots[guestShots.length - 1];
+          if (lastHost.goal !== lastGuest.goal) {
+            result.state = 'FINISHED';
+            result.winner = lastHost.goal ? 'host' : 'guest';
           }
         }
       }
-    } else {
-      // Sudden death: her ikisi de attıktan sonra (çift sayıda toplam atış)
-      if (hostDone === guestDone && hostDone > totalNormal) {
-        // Bu turda biri attı diğeri kaçırdıysa (son atışlara bak)
-        const lastHost = hostShots[hostShots.length - 1];
-        const lastGuest = guestShots[guestShots.length - 1];
-        if (lastHost.goal !== lastGuest.goal) {
-          updates.state = 'FINISHED';
-          updates.winner = lastHost.goal ? 'host' : 'guest';
-        }
-      }
-    }
 
-    await ref.update(updates);
+      return result;
+    });
   }
 
   // ── Kod Macerası ──

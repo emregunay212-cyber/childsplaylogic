@@ -5,7 +5,7 @@
    rakip dinleyip yeniden çizer. Torba RTDB'de; sıra dönüşümlü olduğu için tutarlı.
    ============================================ */
 const KelimelikNet = (() => {
-  let db = null, myId = null, myName = 'Oyuncu', roomCode = null, roomRef = null, cb = null, dcRef = null;
+  let db = null, myId = null, myName = 'Oyuncu', roomCode = null, roomRef = null, cb = null, dcRef = null, roomListener = null;
 
   function ready() { db = db || window.KL_DB || null; return !!db; }
   function genId() { return 'p' + Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4); }
@@ -64,7 +64,10 @@ const KelimelikNet = (() => {
 
   function subscribe(fn) {
     cb = fn;
-    if (roomRef) roomRef.on('value', s => { try { cb(s.val()); } catch (e) {} });
+    if (!roomRef) return;
+    if (roomListener) roomRef.off('value', roomListener);
+    roomListener = s => { try { cb(s.val()); } catch (e) {} };
+    roomRef.on('value', roomListener);
   }
   function update(patch) { if (roomRef) return roomRef.update(patch); }
 
@@ -81,7 +84,7 @@ const KelimelikNet = (() => {
         }).catch(() => {});
       }
     } catch (e) {}
-    roomRef = null; roomCode = null; cb = null;
+    roomRef = null; roomCode = null; cb = null; roomListener = null;
   }
 
   return {

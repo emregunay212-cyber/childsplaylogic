@@ -6,6 +6,7 @@
 const KelimelikGame = (() => {
   const E = KelimelikEngine, D = KelimelikDict, NET = (typeof KelimelikNet !== 'undefined' ? KelimelikNet : null);
   let root, mode, board, myRack, placed, selId, soloScore, bag, room, lastRackKey, cellEls, ui, uidC;
+  let aiMode = false, aiTurn = false, aiRack = [], aiScore = 0, consecutivePasses = 0;
 
   const $ = id => document.getElementById(id);
   const clear = el => { while (el && el.firstChild) el.removeChild(el.firstChild); };
@@ -25,7 +26,7 @@ const KelimelikGame = (() => {
   /* ---------------- MENÜ ---------------- */
   function showMenu() {
     cleanupNet();
-    clear(root); mode = null;
+    clear(root); mode = null; aiMode = false; aiTurn = false;
     const w = document.createElement('div'); w.className = 'kl-menu';
     const h = document.createElement('h1'); h.className = 'kl-title'; h.textContent = 'KELİMELİK'; w.appendChild(h);
     const sub = document.createElement('p'); sub.className = 'kl-sub'; sub.textContent = 'Türkçe Kelime Oyunu'; w.appendChild(sub);
@@ -41,6 +42,7 @@ const KelimelikGame = (() => {
       const wn = document.createElement('p'); wn.className = 'kl-warn'; wn.textContent = 'Online bağlantı kurulamadı — yalnız alıştırma modu.'; w.appendChild(wn);
     }
     const or = document.createElement('div'); or.className = 'kl-or'; or.textContent = '— veya —'; w.appendChild(or);
+    w.appendChild(mk('🤖 Yapay Zekaya Karşı', 'ai', startAI));
     w.appendChild(mk('🎯 Tek Başına Alıştır', null, startSolo));
     const er = document.createElement('p'); er.className = 'kl-menuerr'; er.id = 'kl-menuerr'; w.appendChild(er);
     root.appendChild(w);
@@ -126,7 +128,10 @@ const KelimelikGame = (() => {
   }
 
   /* ---------------- GİRDİ ---------------- */
-  function canPlay() { return mode === 'solo' || (room && room.state === 'PLAYING' && room.turn === myId() && !room.leftBy); }
+  function canPlay() {
+    if (mode === 'solo') return !aiTurn;
+    return !!(room && room.state === 'PLAYING' && room.turn === myId() && !room.leftBy);
+  }
   function canDrop(r, c) { return canPlay() && !committedBoard()[r][c] && !provAt(r, c) && selId; }
   function placeSel(r, c) { const t = myRack.find(x => x.id === selId); if (!t) return; placed.push({ r, c, id: t.id, letter: t.letter }); selId = null; renderBoard(); renderRack(); renderHud(); }
   function onCell(r, c) {
@@ -143,9 +148,16 @@ const KelimelikGame = (() => {
       $('kl-me').textContent = soloScore; $('kl-me-l').textContent = 'PUAN';
       $('kl-bag').textContent = bag.length;
       let mv = 0; if (placed.length) { const res = E.evaluateMove(committedBoard(), placed.map(p => ({ r: p.r, c: p.c, letter: p.letter }))); mv = res.ok ? res.score : 0; }
-      $('kl-opp').textContent = mv; $('kl-opp-l').textContent = 'HAMLE';
-      ui.play.disabled = placed.length === 0;
-      ui.undo.disabled = ui.pass.disabled = ui.shuf.disabled = false;
+      if (aiMode) {
+        $('kl-opp').textContent = aiScore; $('kl-opp-l').textContent = 'BOT';
+        const myTurn = !aiTurn;
+        ui.play.disabled = placed.length === 0 || !myTurn;
+        ui.undo.disabled = ui.pass.disabled = ui.shuf.disabled = !myTurn;
+      } else {
+        $('kl-opp').textContent = mv; $('kl-opp-l').textContent = 'HAMLE';
+        ui.play.disabled = placed.length === 0;
+        ui.undo.disabled = ui.pass.disabled = ui.shuf.disabled = false;
+      }
       return;
     }
     // online
@@ -161,10 +173,20 @@ const KelimelikGame = (() => {
 
   /* ---------------- SOLO ---------------- */
   function startSolo() {
-    mode = 'solo'; buildGameUI();
+    aiMode = false; mode = 'solo'; buildGameUI();
     board = E.newBoard(); bag = E.newBag(); myRack = E.draw(bag, 7).map(l => ({ id: uid(), letter: l }));
     placed = []; selId = null; soloScore = 0;
     $('kl-me-l').textContent = 'PUAN'; $('kl-opp-l').textContent = 'HAMLE';
+    renderBoard(); renderRack(); renderHud(); setMsg('İlk kelimeyi ortadaki ★ kareye koy.', 'info');
+  }
+
+  function startAI() {
+    aiMode = true; aiTurn = false; mode = 'solo'; buildGameUI();
+    board = E.newBoard(); bag = E.newBag();
+    myRack = E.draw(bag, 7).map(l => ({ id: uid(), letter: l }));
+    aiRack = E.draw(bag, 7);
+    placed = []; selId = null; soloScore = 0; aiScore = 0; consecutivePasses = 0;
+    $('kl-opp-l').textContent = 'BOT';
     renderBoard(); renderRack(); renderHud(); setMsg('İlk kelimeyi ortadaki ★ kareye koy.', 'info');
   }
 
@@ -187,14 +209,86 @@ const KelimelikGame = (() => {
     const ids = new Set(placed.map(p => p.id));
     myRack = myRack.filter(t => !ids.has(t.id));
     E.draw(bag, 7 - myRack.length).forEach(l => myRack.push({ id: uid(), letter: l }));
-    placed = []; selId = null; renderBoard(); renderRack(); renderHud();
+    placed = []; selId = null;
+    if (aiMode) consecutivePasses = 0;
+    renderBoard(); renderRack(); renderHud();
     setMsg('+' + ev.res.score + ' puan! (' + ev.res.words.map(w => w.word).join(', ') + ')', 'ok');
+    if (aiMode && !checkSoloEnd()) triggerAI();
   }
   function soloPass() {
     placed = []; selId = null;
-    for (const t of myRack) bag.push(t.letter); E.shuffle(bag);
-    myRack = E.draw(bag, 7).map(l => ({ id: uid(), letter: l }));
-    renderBoard(); renderRack(); renderHud(); setMsg('Harfler değiştirildi.', 'info');
+    if (aiMode) {
+      consecutivePasses++;
+      if (bag.length >= 7) {
+        for (const t of myRack) bag.push(t.letter); E.shuffle(bag);
+        myRack = E.draw(bag, 7).map(l => ({ id: uid(), letter: l }));
+      }
+      renderBoard(); renderRack(); renderHud(); setMsg('Pas geçildi.', 'info');
+      if (!checkSoloEnd()) triggerAI();
+    } else {
+      for (const t of myRack) bag.push(t.letter); E.shuffle(bag);
+      myRack = E.draw(bag, 7).map(l => ({ id: uid(), letter: l }));
+      renderBoard(); renderRack(); renderHud(); setMsg('Harfler değiştirildi.', 'info');
+    }
+  }
+
+  /* ---------------- YAPAY ZEKA ---------------- */
+  function triggerAI() {
+    aiTurn = true; renderHud();
+    setMsg('Yapay zeka düşünüyor...', 'info');
+    setTimeout(doAIMove, 900 + Math.random() * 600);
+  }
+
+  function doAIMove() {
+    if (!aiMode || mode !== 'solo') return;
+    if (typeof KelimelikAI === 'undefined' || !KelimelikDict.isLoaded()) {
+      consecutivePasses++;
+      aiTurn = false; renderHud();
+      if (!checkSoloEnd()) setMsg('Yapay zeka pas geçti. Sıra sende.', 'info');
+      return;
+    }
+    const move = KelimelikAI.findBestMove(board, aiRack);
+    if (move) {
+      consecutivePasses = 0;
+      for (const p of move.placed) board[p.r][p.c] = { letter: p.letter };
+      aiScore += move.score;
+      aiRack = KelimelikAI.removeFromRack(aiRack, move.placed.map(p => p.letter));
+      aiRack = aiRack.concat(E.draw(bag, 7 - aiRack.length));
+      aiTurn = false; renderBoard(); renderRack(); renderHud();
+      if (!checkSoloEnd()) {
+        const wNames = move.words.map(w => w.word).join(', ');
+        setMsg('Yapay Zeka +' + move.score + ' puan (' + wNames + '). Sıra sende.', 'info');
+      }
+    } else {
+      consecutivePasses++;
+      if (bag.length >= 7) {
+        for (const l of aiRack) bag.push(l); E.shuffle(bag);
+        aiRack = E.draw(bag, 7);
+      }
+      aiTurn = false; renderBoard(); renderRack(); renderHud();
+      if (!checkSoloEnd()) setMsg('Yapay Zeka pas geçti. Sıra sende.', 'info');
+    }
+  }
+
+  function checkSoloEnd() {
+    if (!aiMode) return false;
+    const bothEmpty = myRack.length === 0 && aiRack.length === 0 && bag.length === 0;
+    if (!bothEmpty && consecutivePasses < 4) return false;
+    showSoloResult(); return true;
+  }
+
+  function showSoloResult() {
+    mode = null; aiMode = false;
+    clear(root);
+    const w = document.createElement('div'); w.className = 'kl-menu';
+    const h = document.createElement('h1'); h.className = 'kl-title'; h.textContent = 'OYUN BİTTİ'; w.appendChild(h);
+    const txt = soloScore > aiScore ? '🏆 Kazandın!' : soloScore < aiScore ? '🤖 Yapay Zeka kazandı.' : '🤝 Berabere!';
+    const res = document.createElement('p'); res.className = 'kl-sub'; res.textContent = txt; w.appendChild(res);
+    const sc = document.createElement('p'); sc.className = 'kl-sub';
+    sc.textContent = 'Sen: ' + soloScore + '  •  Yapay Zeka: ' + aiScore; w.appendChild(sc);
+    const b = document.createElement('button'); b.className = 'kl-mbtn primary'; b.textContent = 'Yeni Oyun';
+    b.addEventListener('click', showMenu); w.appendChild(b);
+    root.appendChild(w);
   }
 
   /* ---------------- ONLINE ---------------- */
