@@ -80,7 +80,7 @@ const KelimelikDict = (() => {
     return loading;
   }
 
-  return { isValid, normalize, load, isLoaded: () => loaded, size: () => SET.size };
+  return { isValid, normalize, load, isLoaded: () => loaded, size: () => SET.size, words: () => SET };
 })();
 
 if (typeof module !== 'undefined' && module.exports) module.exports = KelimelikDict;

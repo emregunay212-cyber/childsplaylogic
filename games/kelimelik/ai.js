@@ -1,11 +1,9 @@
 /* ============================================
    KELİMELİK — Yapay Zeka Rakibi
-   Strateji: raftan tüm permütasyonları üret (2-7 harf),
-   sözlükte geçerlileri tahtada dene, en yüksek puanı seç.
-   Jokerler: yaygın Türkçe harflerle ikame edilir.
+   Strateji: sözlükteki kelimelerden rafla oluşturulabilecekleri filtrele,
+   tahtada dene, en yüksek puanı seç.
    ============================================ */
 const KelimelikAI = (() => {
-  const TR_COMMON = ['A','E','İ','K','R','T','L','N','M','S','D','U','Y','I','O','B','Ç','H','G','Z'];
 
   // Ana fonksiyon: mevcut tahta ve raf için en iyi hamleyi bul
   function findBestMove(board, rackLetters) {
@@ -15,12 +13,9 @@ const KelimelikAI = (() => {
     const isEmpty = !board.some(row => row.some(c => c));
     const candidates = [];
 
-    // Joker içeren raf için varyantlar üret
-    const racks = buildRackVariants(rackLetters);
-
-    // Tüm varyantlardan geçerli kelimeleri topla
+    // Sözlükten rafla oluşturulabilecek kelimeleri topla
     const wordSet = new Set();
-    for (const rack of racks) collectWords(rack, wordSet, D);
+    collectWords(rackLetters, wordSet, D);
 
     const words = [...wordSet];
     if (!words.length) return null;
@@ -63,29 +58,28 @@ const KelimelikAI = (() => {
     return candidates[Math.floor(Math.random() * Math.min(3, candidates.length))];
   }
 
-  // Joker ('*') için yaygın harflerle ikame varyantları üret
-  function buildRackVariants(rackLetters) {
-    const base = rackLetters.filter(l => l !== '*');
-    const jokers = rackLetters.length - base.length;
-    if (jokers === 0) return [base];
-    // Tek ya da çift joker: her yaygın harf için bir varyant (ikincisi tryFit'e bırakılır)
-    return TR_COMMON.map(sub => [...base, sub]);
+  // Sözlükteki kelimeleri tara; raftan oluşturulabilecekleri wordSet'e ekle.
+  // Joker ('*') gereken eksik harfleri karşılar.
+  function collectWords(rackLetters, wordSet, D) {
+    const rackMap = {};
+    for (const l of rackLetters) rackMap[l] = (rackMap[l] || 0) + 1;
+    const jokers = rackMap['*'] || 0;
+
+    for (const word of D.words()) {
+      if (word.length < 2 || word.length > 7) continue;
+      if (canForm(word, rackMap, jokers)) wordSet.add(word);
+    }
   }
 
-  // Permütasyon: raftaki harflerden oluşan sözlükte geçerli tüm kelimeleri topla
-  function collectWords(rack, wordSet, D) {
-    function go(rem, cur) {
-      if (cur.length >= 2 && D.isValid(cur.join(''))) wordSet.add(cur.join(''));
-      if (cur.length >= 7 || !rem.length) return;
-      const seen = new Set();
-      for (let i = 0; i < rem.length; i++) {
-        if (seen.has(rem[i])) continue;
-        seen.add(rem[i]);
-        const next = rem.slice(); next.splice(i, 1);
-        go(next, [...cur, rem[i]]);
-      }
+  function canForm(word, rackMap, jokers) {
+    let extra = 0;
+    const need = {};
+    for (const l of word) need[l] = (need[l] || 0) + 1;
+    for (const l of Object.keys(need)) {
+      const deficit = need[l] - (rackMap[l] || 0);
+      if (deficit > 0) extra += deficit;
     }
-    go(rack, []);
+    return extra <= jokers;
   }
 
   // Yerleşim, mevcut taşlarla bağlantılı olabilir mi? (gereksiz evaluateMove'u azaltır)
