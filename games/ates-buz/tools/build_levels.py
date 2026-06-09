@@ -305,23 +305,41 @@ def make_level(rows27, floor):
     return [BORDER] + body + [BORDER]
 
 
-# ---- BOLUM 7: "Gecit" — YATAY, kaldirac kopru bulmacasi, kolay ----
-# Ikisi ortada baslar (c7-14 zemini). Merkezde ACID hendegi (c15-21) gecisi keser.
-# ATES sola gidip FIRE-pond'u (c4-6) gecer, c1-3 cebindeki KALDIRACi ceker ->
-# rampa hendegi zemin seviyesinde kopruler (kalici). Ikisi de saga gecip
-# r24 sag-kenardaki kapilara ulasir. Su, fire-pond'u gecemez -> ates ZORUNLU.
-# Sol taraf (kaldirac cebi c1-3 + fire-pond c4-6) USTU bos: su yukaridan havuza
-# dusup gecidi atlayamasin. Raflar/kapi YALNIZ sagda (su+ates ortak, kopru sonrasi).
+# ---- BOLUM 7: "Kopru Gecidi" — YATAY, 2-BUTON ROLE koprusu, kolay-orta ----
+# Ikisi solda baslar (c1-13 zemin). Merkezde GENIS ASIT hendegi (c14-25 = 12 hucre,
+# ZIPLANAMAZ, ikisini de oldurur) sagdaki kapilardan ayirir. Tek paylasilan rampa-kopru
+# iki butona (sol c11 / sag c27) bagli (OR): biri butonda DURURKEN rampa asidi zemin
+# seviyesinde kopruler. ASIMETRIK RELE: A sol butonu tutar -> B kopruden gecer -> B sag
+# butonu tutar -> A gecer. Tek oyuncu yapamaz (hem basip hem gecemez); asit ziplanamaz
+# -> dumduz gecmek IMKANSIZ. (Level 1/4 asimetrik buton-rampa idiomu.)
 LEVEL7 = make_level([
-    E, E, E, E, E, E, E, E,         # r1-8
-    E, E, E, E, E, E, E, E, E,      # r9-17
-    "." * 25 + "#" * 6,             # r18 sag raf c26-31 (su elmasi)
-    E, E,                           # r19-20
-    "." * 30 + "#" * 6,             # r21 sag raf c31-36 (su elmasi)
-    E, E,                           # r22-23
-    "." * 28 + "#" * 9,             # r24 KAPI sahanligi sag c29-37
-    E, E,                           # r25-26
-], "#" * 16 + "a" * 7 + "#" * 14)   # r27 sol zemin c1-16 (kaldirac+start), ACID c17-23, sag c24-37
+    lay(),                # r1
+    lay(),                # r2
+    lay(),                # r3
+    lay(),                # r4
+    lay(),                # r5
+    lay(),                # r6
+    lay(),                # r7
+    lay(),                # r8
+    lay(),                # r9
+    lay(),                # r10
+    lay(),                # r11
+    lay(),                # r12
+    lay(),                # r13
+    lay(),                # r14
+    lay(),                # r15
+    lay(),                # r16
+    lay(),                # r17
+    lay(),                # r18
+    lay(),                # r19
+    lay(),                # r20
+    lay(),                # r21
+    lay(),                # r22
+    lay(),                # r23
+    lay((29, 37)),        # r24  KAPI sahanligi (sag-ust)
+    lay(),                # r25
+    lay(),                # r26
+], lay((1, 13, "#"), (14, 25, "a"), (26, 37, "#")))   # r27: sol zemin / ASIT c14-25 / sag zemin
 
 # ---- BOLUM 8: "Kule" — DIKEY zigzag tirmanis, orta ----
 # Her basamak 3 hücre + GENIS (≥4 hücre) örtüşmeli zigzag -> kolay yan-sıçrayış,
@@ -435,18 +453,19 @@ LEVELS = {7: LEVEL7, 8: LEVEL8, 9: LEVEL9, 10: LEVEL10}
 # diamonds: (col, row, "fire"|"water") -> piksel (col*36, row*36)
 OBJECTS = {
     7: {
-        "players": {"fire": (10, 27), "water": (12, 27)},   # sol zeminde (c1-16)
-        "doors": {"fire": (30, 24), "water": (34, 24)},      # r24 sag kapi sahanligi
+        "players": {"fire": (4, 27), "water": (7, 27)},      # sol zeminde
+        "doors": {"fire": (31, 24), "water": (34, 24)},      # r24 sag kapi sahanligi
         "diamonds": [
-            (2, 26, "fire"), (7, 26, "fire"), (15, 26, "fire"), (26, 26, "fire"),
-            (13, 26, "water"), (28, 17, "water"), (33, 20, "water"), (35, 23, "water"),
+            (2, 26, "fire"), (10, 26, "fire"), (30, 26, "fire"), (33, 23, "fire"),
+            (5, 26, "water"), (12, 26, "water"), (32, 26, "water"), (35, 23, "water"),
         ],
-        # KALDIRAC (paylasimli, temiz zeminde c4): cekilince rampa ACID hendegini
-        # (c17-23) zemin seviyesinde kalici kopruler -> ikisi de saga gecer.
-        "levers": [
-            {"lever": (4, 26),
-             "ramp": {"pos": (17, 23), "final": (17, 27), "boxCount": 7, "rotated": False,
-                      "color": "#b8b800", "finalColor": "#ffff33"}},
+        # 2-BUTON ROLE KOPRUSU: paylasilan rampa-kopru iki butona bagli (OR). Biri (sol c11
+        # VEYA sag c27) basili tutuldukca rampa ASIT hendegini (c14-25) zemin seviyesinde
+        # kopruler. A sol butonu tutar->B gecer->B sag butonu tutar->A gecer. ASIMETRIK RELE.
+        "buttons": [
+            {"buttons": [(11, 26), (27, 26)],
+             "ramp": {"pos": (14, 23), "final": (14, 27), "finalY": 967, "boxCount": 12, "rotated": False,
+                      "color": "#0a7d4a", "finalColor": "#10c878"}},
         ],
     },
     8: {
@@ -504,12 +523,19 @@ def _gpx(cr):
 
 def _ramp_json(r):
     """OBJECTS ramp dict {pos:(c,r), final:(c,r), boxCount, rotated, color, finalColor}
-    -> oyunun bekledigi ramp JSON'u."""
+    -> oyunun bekledigi ramp JSON'u. Opsiyonel posY/finalY = PIKSEL y override (rampa
+    hitbox'i +5 offsetli oldugu icin zemine TAM HIZALAMAK gerektiginde: finalY=zemin_top-5)."""
+    pos = _gpx(r["pos"])
+    final = _gpx(r["final"])
+    if "posY" in r:
+        pos["y"] = r["posY"]
+    if "finalY" in r:
+        final["y"] = r["finalY"]
     return {
-        "position": _gpx(r["pos"]),
+        "position": pos,
         "boxCount": r["boxCount"],
         "color": r.get("color", "#7a4fb0"),
-        "finalPosition": _gpx(r["final"]),
+        "finalPosition": final,
         "finalColor": r.get("finalColor", "#b06fe0"),
         "rotated": r.get("rotated", False),
     }

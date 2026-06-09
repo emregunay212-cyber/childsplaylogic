@@ -272,5 +272,37 @@
                 "rotated": true
             }
         }
+    ],
+    "7": [
+        {
+            "buttons": [
+                {
+                    "position": {
+                        "x": 396,
+                        "y": 936
+                    }
+                },
+                {
+                    "position": {
+                        "x": 972,
+                        "y": 936
+                    }
+                }
+            ],
+            "ramp": {
+                "position": {
+                    "x": 504,
+                    "y": 828
+                },
+                "boxCount": 12,
+                "color": "#0a7d4a",
+                "finalPosition": {
+                    "x": 504,
+                    "y": 967
+                },
+                "finalColor": "#10c878",
+                "rotated": false
+            }
+        }
     ]
 }
