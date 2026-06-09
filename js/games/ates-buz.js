@@ -38,14 +38,30 @@ const AtesBuz = (() => {
     }
   }
 
+  // Metin alanına yazarken (ör. başka oyunun isim/kod input'u) WASD'yi yutma.
+  function isEditableTarget(e) {
+    const el = (e && e.target) || document.activeElement;
+    if (!el || !el.tagName) return false;
+    const tag = el.tagName;
+    return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable;
+  }
+
   function setupKeyForwarding() {
+    // Idempotent: init birden fazla kez çağrılırsa (lobby onGameStart çift-tetikleyebilir)
+    // eski dinleyiciyi her zaman kaldır — aksi halde yetim bir handler WASD'yi global
+    // olarak preventDefault edip Altın Avı gibi oyunların isim alanına yazmayı engelliyordu.
+    teardownKeyForwarding();
     parentKeyHandler = (e) => {
+      if (!iframe || !iframe.contentWindow) return;  // iframe yoksa hiçbir tuşu engelleme
+      if (isEditableTarget(e)) return;               // metin alanında yazmaya karışma
       if (FORWARDED_KEYS.has(e.key)) {
         e.preventDefault();
         forwardKeyEvent('keydown', e);
       }
     };
     parentKeyUpHandler = (e) => {
+      if (!iframe || !iframe.contentWindow) return;
+      if (isEditableTarget(e)) return;
       if (FORWARDED_KEYS.has(e.key)) {
         e.preventDefault();
         forwardKeyEvent('keyup', e);

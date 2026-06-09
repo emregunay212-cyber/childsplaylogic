@@ -13,6 +13,7 @@ let onRemoteDoors = null;
 let onLevelChanged = null;
 let onRemoteDeath = null;
 let onOpponentLeft = null;
+let onOpponentReturned = null;
 let onRemoteButtonsArray = null;
 let onRemoteLeversArray = null;
 let onRemoteCubesArray = null;
@@ -21,6 +22,13 @@ let onGuestInput = null;
 
 let remoteListenerRefs = [];
 let presenceRef = null;
+let oppGoneTimer = null;
+let cleanupBound = false;
+
+// Rakip presence'ı kaybolunca hemen "ayrıldı" deme — bu kadar süre yokluğunu bekle.
+// Kısa ağ kesintilerinde (mobil/wifi blip, sekme throttle) Firebase onDisconnect
+// presence'ı bir an siler; bu pencerede yanlış "bağlantı koptu" göstermeyi engeller.
+const OPPONENT_GRACE_MS = 6000;
 
 function parseURLParams() {
     const params = new URLSearchParams(window.location.search);
@@ -87,20 +95,63 @@ function initNetwork() {
         remoteListenerRefs.push({ ref: abRef.child('guestInput'), listener: guestInputListener });
     }
 
-    // Presence: kendi varlığını yaz; bağlantı koparsa Firebase otomatik siler
+    // Presence: bağlantı her kurulduğunda (ilk açılış + HER yeniden bağlanma) kendi
+    // varlığını yaz ve onDisconnect'i yeniden kur. Tek-sefer set() yetmiyordu: kısa bir
+    // ağ kesintisinde Firebase onDisconnect'i tetikleyip presence'ı siliyor, istemci
+    // yeniden bağlanıyor ama presence bir daha yazılmadığından rakip bizi kalıcı olarak
+    // "ayrıldı" görüyordu. .info/connected ile her reconnect'te yeniden arm ediyoruz.
     presenceRef = abRef.child('presence/' + myRole);
-    presenceRef.set(true);
-    presenceRef.onDisconnect().remove();
+    try {
+        const connectedRef = parentWin.firebase.database().ref('.info/connected');
+        const connectedListener = connectedRef.on('value', snap => {
+            if (snap.val() === true && presenceRef) {
+                presenceRef.onDisconnect().remove();
+                presenceRef.set(true);
+            }
+        });
+        remoteListenerRefs.push({ ref: connectedRef, listener: connectedListener });
+    } catch (e) {
+        // .info/connected erişilemezse en azından bir kez yaz
+        presenceRef.set(true);
+        presenceRef.onDisconnect().remove();
+    }
 
     // Rakibin presence'ını dinle; kaybolursa onOpponentLeft'i çağır.
     // opponentEverSeen: ilk null'u (rakip henüz bağlanmadı) gerçek ayrılıştan ayırır.
+    // GRACE: presence kısa kesintilerde de bir an silinebildiğinden hemen "ayrıldı" deme —
+    // OPPONENT_GRACE_MS bekle; bu sürede geri gelirse timer'ı iptal et (yanlış-pozitif fix).
     const opponentRole = myRole === 'host' ? 'guest' : 'host';
     let opponentEverSeen = false;
+    let oppDeclaredLeft = false;
     const oppPresenceListener = abRef.child('presence/' + opponentRole).on('value', snap => {
-        if (snap.val()) { opponentEverSeen = true; }
-        else if (opponentEverSeen && onOpponentLeft) { onOpponentLeft(); }
+        if (snap.val()) {
+            opponentEverSeen = true;
+            if (oppGoneTimer) { clearTimeout(oppGoneTimer); oppGoneTimer = null; }
+            if (oppDeclaredLeft) {
+                // Rakip grace sonrası "ayrıldı" denmişti ama geri geldi → ekranı kaldır, devam et.
+                oppDeclaredLeft = false;
+                if (onOpponentReturned) onOpponentReturned();
+            }
+        } else if (opponentEverSeen && !oppGoneTimer) {
+            oppGoneTimer = setTimeout(() => {
+                oppGoneTimer = null;
+                oppDeclaredLeft = true;
+                if (onOpponentLeft) onOpponentLeft();
+            }, OPPONENT_GRACE_MS);
+        }
     });
     remoteListenerRefs.push({ ref: abRef.child('presence/' + opponentRole), listener: oppPresenceListener });
+
+    // İframe DOM'dan kaldırıldığında (oyundan çıkış) kendini temizle: presence'ı sil,
+    // grace timer'ı durdur ve TÜM Firebase dinleyicilerini kapat. disconnectNetwork
+    // başka yerden çağrılmıyordu (parent→iframe köprüsü yok), bu yüzden parent'ın
+    // Firebase'ine kayıtlı dinleyiciler her oyun sonrası sızıyordu. pagehide iframe
+    // kaldırılırken senkron tetiklenir; disconnectNetwork idempotent (çift çağrı güvenli).
+    if (!cleanupBound) {
+        cleanupBound = true;
+        window.addEventListener('pagehide', disconnectNetwork);
+        window.addEventListener('unload', disconnectNetwork);
+    }
 
     console.log('[AB Network] Bağlandı, rol:', myRole, 'lobby:', lobbyId);
     return true;
@@ -237,6 +288,7 @@ function clearLevelState() {
 }
 
 function disconnectNetwork() {
+    if (oppGoneTimer) { clearTimeout(oppGoneTimer); oppGoneTimer = null; }
     if (presenceRef) { try { presenceRef.onDisconnect().cancel(); presenceRef.remove(); } catch (e) {} presenceRef = null; }
     for (const { ref, listener } of remoteListenerRefs) {
         try { ref.off('value', listener); } catch (e) {}
@@ -258,6 +310,7 @@ function setOnRemoteCubesArray(fn) { onRemoteCubesArray = fn; }
 function setOnHostState(fn) { onHostState = fn; }
 function setOnGuestInput(fn) { onGuestInput = fn; }
 function setOnOpponentLeft(fn) { onOpponentLeft = fn; }
+function setOnOpponentReturned(fn) { onOpponentReturned = fn; }
 
 export {
     initNetwork,
@@ -289,4 +342,5 @@ export {
     setOnHostState,
     setOnGuestInput,
     setOnOpponentLeft,
+    setOnOpponentReturned,
 };

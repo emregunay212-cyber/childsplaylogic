@@ -476,50 +476,106 @@
         },
         {
             "position": {
-                "x": 360,
-                "y": 936
-            },
-            "type": "fire"
-        },
-        {
-            "position": {
-                "x": 1080,
-                "y": 936
-            },
-            "type": "fire"
-        },
-        {
-            "position": {
-                "x": 1188,
+                "x": 828,
                 "y": 828
             },
             "type": "fire"
         },
         {
             "position": {
-                "x": 180,
-                "y": 936
+                "x": 972,
+                "y": 612
             },
-            "type": "water"
+            "type": "fire"
         },
         {
             "position": {
-                "x": 432,
-                "y": 936
+                "x": 1116,
+                "y": 396
             },
-            "type": "water"
+            "type": "fire"
+        },
+        {
+            "position": {
+                "x": 864,
+                "y": 720
+            },
+            "type": "fire"
+        },
+        {
+            "position": {
+                "x": 1008,
+                "y": 504
+            },
+            "type": "fire"
         },
         {
             "position": {
                 "x": 1152,
+                "y": 288
+            },
+            "type": "fire"
+        },
+        {
+            "position": {
+                "x": 1260,
+                "y": 180
+            },
+            "type": "fire"
+        },
+        {
+            "position": {
+                "x": 144,
                 "y": 936
             },
             "type": "water"
         },
         {
             "position": {
-                "x": 1260,
+                "x": 900,
                 "y": 828
+            },
+            "type": "water"
+        },
+        {
+            "position": {
+                "x": 1044,
+                "y": 612
+            },
+            "type": "water"
+        },
+        {
+            "position": {
+                "x": 1188,
+                "y": 396
+            },
+            "type": "water"
+        },
+        {
+            "position": {
+                "x": 936,
+                "y": 720
+            },
+            "type": "water"
+        },
+        {
+            "position": {
+                "x": 1080,
+                "y": 504
+            },
+            "type": "water"
+        },
+        {
+            "position": {
+                "x": 1188,
+                "y": 288
+            },
+            "type": "water"
+        },
+        {
+            "position": {
+                "x": 1224,
+                "y": 180
             },
             "type": "water"
         }

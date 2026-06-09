@@ -41,7 +41,8 @@ import {
     setOnHostState,
     setOnGuestInput,
     setOnOpponentLeft,
-} from "./network.js?v=3";
+    setOnOpponentReturned,
+} from "./network.js?v=4";
 
 // Host-authoritative state
 let latestHostState = null;
@@ -371,6 +372,9 @@ function playGame() {
 
         if (delta > interval) {
             then = now - (delta % interval);
+
+            // __AB DEBUG (geçici): manuel kare-adımlamada gerçek döngü karışmasın diye duraklat
+            if (window.__AB_PAUSE) { requestAnimationFrame(animation); return; }
 
             // Tek bir kare içindeki beklenmedik istisna TÜM döngüyü kalıcı durdurup oyunu
             // dondurmasın (ve tuşları ölü göstermesin) diye kareyi try/catch'e al. Hata loglanır,
@@ -1106,12 +1110,19 @@ function playGame() {
             };
         });
 
+        let abDiscOverlay = null;
         setOnOpponentLeft(() => {
             setContinueAnimation(false);
-            const overlay = document.createElement('div');
-            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:9999;color:#fff;font-size:22px;font-family:sans-serif;text-align:center;';
-            overlay.textContent = 'Rakip bağlantısı kesildi.';
-            document.body.appendChild(overlay);
+            if (abDiscOverlay) return; // zaten gösteriliyor
+            abDiscOverlay = document.createElement('div');
+            abDiscOverlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:9999;color:#fff;font-size:22px;font-family:sans-serif;text-align:center;padding:20px;';
+            abDiscOverlay.textContent = 'Rakip bağlantısı kesildi. Yeniden bağlanması bekleniyor…';
+            document.body.appendChild(abDiscOverlay);
+        });
+        // Rakip grace sonrası geri gelirse: ekranı kaldır ve oyuna devam et.
+        setOnOpponentReturned(() => {
+            if (abDiscOverlay) { abDiscOverlay.remove(); abDiscOverlay = null; }
+            setContinueAnimation(true);
         });
 
         // Auto-start: level 1'den başla, menüyü atla
@@ -1120,6 +1131,31 @@ function playGame() {
         startGame();
         animation();
     }
+
+    // === __AB DEBUG (geçici test kancası — commit'ten önce kaldırılacak) ===
+    window.__AB = {
+        load(n) {
+            setCurrentLevel(n); setMenuActive(null); setLevelCompleted(false);
+            window.__AB_PAUSE = true; startGame(); animation(); window.__AB.sync(); return window.__AB.snap();
+        },
+        sync() {
+            const A = window.__AB;
+            A.players = allPlayers; A.cubes = allCubes; A.buttons = allButtons; A.levers = allLevers;
+            A.ramps = allRamps; A.balls = allBalls; A.bridges = allBridges; A.doors = allDoors;
+            A.diamonds = allDiamonds; A.assets = allAssets; A.collisionBlocks = collisionBlocks; A.ponds = ponds;
+            A.JUMP_VELOCITY = JUMP_VELOCITY; A.MOVE_SPEED = MOVE_SPEED;
+        },
+        snap() {
+            const p = {};
+            allPlayers.forEach((pl) => { p[pl.element] = { x:Math.round(pl.position.x), y:Math.round(pl.position.y), hx:Math.round(pl.hitbox.position.x), hy:Math.round(pl.hitbox.position.y), onBlock:pl.isOnBlock, died:pl.died }; });
+            return {
+                level: currentLevel, players: p,
+                doors: allDoors.map((d) => ({ el:d.element, pressed:d.pressed, opened:d.opened })),
+                diamonds: allDiamonds.map((d) => ({ x:Math.round(d.position.x), y:Math.round(d.position.y), collected:d.collected, type:d.type })),
+                ramps: allRamps.map((r) => ({ x:Math.round(r.position.x), y:Math.round(r.position.y) })),
+            };
+        },
+    };
 }
 
 export { playGame };

@@ -54,6 +54,21 @@ const AltinAvi = (() => {
   let myChoice = null;
   let lastRenderedPhase = null;
   let timerRafId = null;
+  let coalesceRaf = null;
+  let pendingCoalesced = null;
+
+  // 30 kişilik odada her oyuncunun yazımı herkeste bir 'value' event tetikler. O(N) maliyetli
+  // yeniden-çizimleri (lobi ızgarası / liderlik tablosu) kare başına TEK çizime indir: bir
+  // patlama gelse de en fazla 60fps'te bir çizilir, en güncel roomData ile (kayıpsız).
+  function scheduleCoalesced(fn) {
+    pendingCoalesced = fn;
+    if (coalesceRaf) return;
+    coalesceRaf = requestAnimationFrame(() => {
+      coalesceRaf = null;
+      const f = pendingCoalesced; pendingCoalesced = null;
+      if (f) f();
+    });
+  }
 
   // ── DOM helper (XSS-güvenli, sadece textContent kullanır) ──
   function h(tag, props, ...children) {
@@ -109,6 +124,8 @@ const AltinAvi = (() => {
     }
     if (hostTickInterval) { clearInterval(hostTickInterval); hostTickInterval = null; }
     if (timerRafId) { cancelAnimationFrame(timerRafId); timerRafId = null; }
+    if (coalesceRaf) { cancelAnimationFrame(coalesceRaf); coalesceRaf = null; }
+    pendingCoalesced = null;
     if (myRoomCode && myId) {
       try { db.ref('rooms/altin-avi/' + myRoomCode + '/players/' + myId).remove(); } catch (e) {}
     }
@@ -509,10 +526,12 @@ const AltinAvi = (() => {
       else if (phase === 'CHOICE') renderChoicePhase();
       else if (phase === 'REVEAL') renderRevealPhase();
     } else {
-      if (state === 'WAITING') updateWaitingPlayers();
+      // WAITING ızgarası ve REVEAL tablosu O(N) çizim → kare-başına-tek'e indir (kalabalıkta
+      // çok sayıda eşzamanlı 'value' event'i tek çizimde topla). PREP/CHOICE zaten hafif.
+      if (state === 'WAITING') scheduleCoalesced(updateWaitingPlayers);
       else if (phase === 'PREP') updatePrepPhase();
       else if (phase === 'CHOICE') updateChoicePhase();
-      else if (phase === 'REVEAL') updateLeaderboardOnly();
+      else if (phase === 'REVEAL') scheduleCoalesced(updateLeaderboardOnly);
     }
 
     // Tick'i artık yalnız host değil HERKES çalıştırır: host donarsa/arka plana

@@ -10,6 +10,13 @@ const Multiplayer = (() => {
   let lobbyListener = null;
   let messagesRef = null;
   let messagesListener = null;
+  // Lobi-içi presence: rakibin GRACEFUL ayrılışı değil, ÇÖKME/sekme-kapama tespiti için.
+  let connectedRef = null;
+  let connectedListener = null;
+  let myPresenceRef = null;
+  let oppEverSeen = false;
+  let oppGoneTimer = null;
+  const LOBBY_GRACE_MS = 10000; // rakip presence'ı bu kadar süre yoksa "ayrıldı" (kısa blip'leri tolere et)
 
   // Benzersiz oyuncu ID oluştur
   function generatePlayerId() {
@@ -170,6 +177,13 @@ const Multiplayer = (() => {
         buttons: {},
         createdAt: firebase.database.ServerValue.TIMESTAMP
       };
+    } else if (gameType === 'zipla-topla-coop') {
+      lobbyData = {
+        id: lobbyId, gameType,
+        hostId: playerId, hostName: playerName, guestId: null, guestName: null,
+        state: 'WAITING', level: 1,
+        createdAt: firebase.database.ServerValue.TIMESTAMP
+      };
     } else if (gameType === 'satranc') {
       const hostColor = opts.hostColor || (Math.random() < 0.5 ? 'white' : 'black');
       lobbyData = {
@@ -266,6 +280,14 @@ const Multiplayer = (() => {
         yourRole: 'guest', opponentName: lobby.hostName,
         gameType: 'ates-buz', lobbyId, level: lobby.level || 1
       });
+    } else if (lobby.gameType === 'zipla-topla-coop') {
+      await ref.update({ guestId: playerId, guestName: playerName, state: 'PLAYING' });
+      listenToLobby(lobbyId);
+      emit('PLAYER_JOINED', { opponentName: lobby.hostName, role: 'guest' });
+      emit('GAME_START', {
+        yourRole: 'guest', opponentName: lobby.hostName,
+        gameType: 'zipla-topla-coop', lobbyId, level: lobby.level || 1
+      });
     } else if (lobby.gameType === 'kod-macerasi') {
       await ref.update({ guestId: playerId, guestName: playerName, state: 'PLAYING' });
       listenToLobby(lobbyId);
@@ -315,6 +337,8 @@ const Multiplayer = (() => {
       const defaults = gameType === 'penalti-mp'
         ? { gameType }
         : gameType === 'ates-buz'
+        ? { gameType }
+        : gameType === 'zipla-topla-coop'
         ? { gameType }
         : gameType === 'kod-macerasi'
         ? { gameType, gridSize: 6 }
@@ -704,9 +728,26 @@ const Multiplayer = (() => {
 
   // ── Lobi Dinleyici ──
 
+  // Kendi presence'ımı lobiye yaz + HER (re)connect'te yeniden kur. onDisconnect ile
+  // çökünce/sekme kapanınca Firebase otomatik siler → rakip bunu görüp grace sonrası ayrılır.
+  // Tek-sefer set() yetmez: kısa kopmada Firebase siler, reconnect'te geri yazmazsak
+  // rakip bizi kalıcı "ayrıldı" görür (ates-buz'da yaşanan sahte-kopma sınıfı).
+  function attachLobbyPresence(role) {
+    if (!currentLobbyId || !role) return;
+    myPresenceRef = db.ref('lobbies/' + currentLobbyId + '/presence/' + role);
+    connectedRef = db.ref('.info/connected');
+    connectedListener = connectedRef.on('value', (snap) => {
+      if (snap.val() === true && myPresenceRef) {
+        myPresenceRef.onDisconnect().remove();
+        myPresenceRef.set(true);
+      }
+    });
+  }
+
   function listenToLobby(lobbyId) {
     stopListening();
     lobbyRef = db.ref('lobbies/' + lobbyId);
+    attachLobbyPresence(currentRole);
     let prevState = null;
     let prevHostWord = null;
     let prevGuestWord = null;
@@ -721,6 +762,22 @@ const Multiplayer = (() => {
         emit('OPPONENT_LEFT', { reason: 'lobby_deleted' });
         stopListening();
         return;
+      }
+
+      // Rakip-kopma tespiti (graceful leave DEĞİL; çökme/sekme-kapama). Rakip presence'ı
+      // bir kez görülüp sonra kaybolursa LOBBY_GRACE_MS bekle; bu sürede geri gelirse iptal
+      // (kısa blip'te yanlış "ayrıldı" deme). presence yazmayan eski istemcilerde oppEverSeen
+      // hiç true olmaz → asla yanlış-pozitif (geriye dönük uyumlu).
+      const oppRole = currentRole === 'host' ? 'guest' : 'host';
+      if (lobby.presence && lobby.presence[oppRole]) {
+        oppEverSeen = true;
+        if (oppGoneTimer) { clearTimeout(oppGoneTimer); oppGoneTimer = null; }
+      } else if (oppEverSeen && !oppGoneTimer) {
+        oppGoneTimer = setTimeout(() => {
+          oppGoneTimer = null;
+          emit('OPPONENT_LEFT', { reason: 'presence_lost' });
+          stopListening();
+        }, LOBBY_GRACE_MS);
       }
 
       // Misafir katıldı (host için)
@@ -1033,8 +1090,20 @@ const Multiplayer = (() => {
     if (lobbyRef && lobbyListener) {
       lobbyRef.off('value', lobbyListener);
     }
+    if (connectedRef && connectedListener) {
+      connectedRef.off('value', connectedListener);
+    }
+    if (oppGoneTimer) { clearTimeout(oppGoneTimer); oppGoneTimer = null; }
+    if (myPresenceRef) {
+      // Graceful çıkış: onDisconnect'i iptal et + presence'ı sil (rakip doğru görsün).
+      try { myPresenceRef.onDisconnect().cancel(); myPresenceRef.remove(); } catch (e) {}
+      myPresenceRef = null;
+    }
     lobbyRef = null;
     lobbyListener = null;
+    connectedRef = null;
+    connectedListener = null;
+    oppEverSeen = false;
   }
 
   async function leaveLobby() {

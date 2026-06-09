@@ -1,6 +1,6 @@
-import { playGame } from "./game.js?v=3";
+import { playGame } from "./game.js?v=4";
 import { loadData, loadDataFromLocalStorage, setCurrentLevel, setMenuActive } from "./helpers.js";
-import { initNetwork, isOnline, getMyRole } from "./network.js?v=3";
+import { initNetwork, isOnline, getMyRole } from "./network.js?v=4";
 
 // Bilnetoyun entegrasyonu: online 2 oyuncu, iframe içinde çalışır
 export async function start() {

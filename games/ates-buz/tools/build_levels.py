@@ -318,28 +318,28 @@ LEVEL7 = make_level([
     lay(),                # r3
     lay(),                # r4
     lay(),                # r5
-    lay(),                # r6
-    lay(),                # r7
-    lay(),                # r8
-    lay(),                # r9
-    lay(),                # r10
-    lay(),                # r11
-    lay(),                # r12
-    lay(),                # r13
-    lay(),                # r14
-    lay(),                # r15
-    lay(),                # r16
-    lay(),                # r17
-    lay(),                # r18
-    lay(),                # r19
-    lay(),                # r20
-    lay(),                # r21
-    lay(),                # r22
-    lay(),                # r23
-    lay((29, 37)),        # r24  KAPI sahanligi (sag-ust)
-    lay(),                # r25
-    lay(),                # r26
-], lay((1, 13, "#"), (14, 25, "a"), (26, 37, "#")))   # r27: sol zemin / ASIT c14-25 / sag zemin
+    lay((34, 37)),        # r6  KAPI basamağı (en üst-sağ)
+    lay((34, 37)),        # r7
+    lay((34, 37)),        # r8
+    lay((32, 37)),        # r9
+    lay((32, 37)),        # r10
+    lay((32, 37)),        # r11
+    lay((30, 37)),        # r12
+    lay((30, 37)),        # r13
+    lay((30, 37)),        # r14
+    lay((28, 37)),        # r15
+    lay((28, 37)),        # r16
+    lay((28, 37)),        # r17
+    lay((26, 37)),        # r18
+    lay((26, 37)),        # r19
+    lay((26, 37)),        # r20
+    lay((24, 37)),        # r21
+    lay((24, 37)),        # r22
+    lay((24, 37)),        # r23
+    lay((22, 37)),        # r24  merdiven tabanı (kenar-tırmanışla çıkılır)
+    lay((22, 37)),        # r25
+    lay((22, 37)),        # r26
+], lay((1, 5, "#"), (6, 17, "a"), (18, 37, "#")))     # r27 zemin: başlangıç c1-5 / GENİŞ ASİT c6-17 (röle) / sahanlık+merdiven c18-37
 
 # ---- BOLUM 8: "Kule" — DIKEY zigzag tirmanis, orta ----
 # Her basamak 3 hücre + GENIS (≥4 hücre) örtüşmeli zigzag -> kolay yan-sıçrayış,
@@ -453,18 +453,25 @@ LEVELS = {7: LEVEL7, 8: LEVEL8, 9: LEVEL9, 10: LEVEL10}
 # diamonds: (col, row, "fire"|"water") -> piksel (col*36, row*36)
 OBJECTS = {
     7: {
-        "players": {"fire": (4, 27), "water": (7, 27)},      # sol zeminde
-        "doors": {"fire": (31, 24), "water": (34, 24)},      # r24 sag kapi sahanligi
+        # YOĞUN: tabanda 2-BUTON RÖLE köprüsü (geniş asit c6-17 üstü, asimetrik co-op) ->
+        # ardından KATI-BASAMAK MERDIVEN (sağa-yukarı kenar-tırmanış) -> üst-sağ kapılar.
+        # İki oyuncu solda başlar, röleyle asidi geçer, birlikte merdiveni tırmanır.
+        "players": {"fire": (2, 27), "water": (3, 27)},
+        "doors": {"fire": (34, 6), "water": (36, 6)},
         "diamonds": [
-            (2, 26, "fire"), (10, 26, "fire"), (30, 26, "fire"), (33, 23, "fire"),
-            (5, 26, "water"), (12, 26, "water"), (32, 26, "water"), (35, 23, "water"),
+            (2, 26, "fire"), (23, 23, "fire"), (27, 17, "fire"), (31, 11, "fire"),
+            (24, 20, "fire"), (28, 14, "fire"), (32, 8, "fire"), (35, 5, "fire"),
+            (4, 26, "water"), (25, 23, "water"), (29, 17, "water"), (33, 11, "water"),
+            (26, 20, "water"), (30, 14, "water"), (33, 8, "water"), (34, 5, "water"),
         ],
-        # 2-BUTON ROLE KOPRUSU: paylasilan rampa-kopru iki butona bagli (OR). Biri (sol c11
-        # VEYA sag c27) basili tutuldukca rampa ASIT hendegini (c14-25) zemin seviyesinde
-        # kopruler. A sol butonu tutar->B gecer->B sag butonu tutar->A gecer. ASIMETRIK RELE.
+        # 2-BUTON RÖLE (OR): paylaşılan rampa-köprü iki butona bağlı (sol c3 / sağ c19).
+        # Biri butonu tutar -> rampa asidi (c6-17) zemin seviyesinde köprüler -> diğeri geçer ->
+        # karşı butonu tutar -> ilki geçer. Asit 12 hücre = zıplanamaz -> dümdüz İMKANSIZ.
+        # KRİTİK: butonlar rampanın x-aralığından (c6-17) UZAK; yoksa butonu tutan oyuncu inen
+        # rampayı engeller (c5'te bu olmuştu). Sol buton c3 (rampa solu), sağ c19 (sahanlık).
         "buttons": [
-            {"buttons": [(11, 26), (27, 26)],
-             "ramp": {"pos": (14, 23), "final": (14, 27), "finalY": 967, "boxCount": 12, "rotated": False,
+            {"buttons": [(1, 26), (19, 26)],
+             "ramp": {"pos": (6, 23), "final": (6, 27), "finalY": 967, "boxCount": 12, "rotated": False,
                       "color": "#0a7d4a", "finalColor": "#10c878"}},
         ],
     },
