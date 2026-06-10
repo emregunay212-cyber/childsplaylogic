@@ -1,0 +1,33 @@
+{
+  "id": "zindan-okcusu",
+  "type": "singlefile",
+  "titles": { "tr": "Zindan Okçusu" },
+  "slug": { "tr": "zindan-okcusu" },
+  "langs": ["tr"],
+  "assets": {
+    "games/zindan-okcusu/assets/archer.png": 128,
+    "games/zindan-okcusu/assets/enemy/bat_fly.png": 64,
+    "games/zindan-okcusu/assets/enemy/slime_walk.png": 64,
+    "games/zindan-okcusu/assets/enemy/rat_run.png": 64,
+    "games/zindan-okcusu/assets/enemy/mimic_walk.png": 64,
+    "games/zindan-okcusu/assets/enemy/goblin_run.png": 64,
+    "games/zindan-okcusu/assets/enemy/mushroom_run.png": 64,
+    "games/zindan-okcusu/assets/enemy/flyeye_flight.png": 64,
+    "games/zindan-okcusu/assets/enemy/evilwizard_move.png": 64,
+    "games/zindan-okcusu/assets/enemy/fireworm_walk.png": 64,
+    "games/zindan-okcusu/assets/enemy/skeleton_walk.png": 64
+  },
+  "assetLiterals": {
+    "games/zindan-okcusu/assets/archer.png": "assets/archer.png",
+    "games/zindan-okcusu/assets/enemy/bat_fly.png": "assets/enemy/bat_fly.png",
+    "games/zindan-okcusu/assets/enemy/slime_walk.png": "assets/enemy/slime_walk.png",
+    "games/zindan-okcusu/assets/enemy/rat_run.png": "assets/enemy/rat_run.png",
+    "games/zindan-okcusu/assets/enemy/mimic_walk.png": "assets/enemy/mimic_walk.png",
+    "games/zindan-okcusu/assets/enemy/goblin_run.png": "assets/enemy/goblin_run.png",
+    "games/zindan-okcusu/assets/enemy/mushroom_run.png": "assets/enemy/mushroom_run.png",
+    "games/zindan-okcusu/assets/enemy/flyeye_flight.png": "assets/enemy/flyeye_flight.png",
+    "games/zindan-okcusu/assets/enemy/evilwizard_move.png": "assets/enemy/evilwizard_move.png",
+    "games/zindan-okcusu/assets/enemy/fireworm_walk.png": "assets/enemy/fireworm_walk.png",
+    "games/zindan-okcusu/assets/enemy/skeleton_walk.png": "assets/enemy/skeleton_walk.png"
+  }
+}
