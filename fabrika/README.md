@@ -13,8 +13,8 @@ tarayıcı kalıcı deposu yok → SDK_STORAGE soyutlaması, SDK soketleri, TR+E
 | Blok Yağmuru | `blok-yagmuru-tr.html` | `block-rain-en.html` | 66 KB | Solo sonsuz |
 | Penaltı | `penalti-tr.html` | `penalty-hero-en.html` | 55 KB | 9 bölüm |
 | Zıpla Topla | `zipla-topla-tr.html` | `hop-and-grab-en.html` | 100 KB | 12 bölüm, solo + yerel 2P |
-| Zindan Okçusu | `zindan-okcusu-tr.html` | — (EN çevirisi bekliyor) | 470 KB | Roguelite |
-| Ateş & Buz | `ates-buz-tr.html` | — | 556 KB | Yerel 2P co-op, 10 bölüm |
+| Zindan Okçusu | `zindan-okcusu-tr.html` | `dungeon-archer-en.html` | 470 KB | Roguelite |
+| Ateş & Buz | `ates-buz-tr.html` | — (oyun-içi metin azdır) | 544 KB | Yerel 2P co-op, 10 bölüm |
 
 ## Kullanım
 
@@ -52,16 +52,20 @@ Bu klasör canlıya çıkmaz: `firebase.json` hosting.ignore + `.vercelignore` i
 - [x] Bölüm-seçimi/yıldız/kilit akışı (Penaltı, Zıpla Topla), mod geçişi (Zıpla Topla 2P → 5 can)
 - [x] Hub koduna dokunulmadı (yalnız fabrika/ + deploy-ignore dosyaları değişti)
 
-## Kalan manuel adımlar (görünür pencere/fiziksel cihaz gerektirir)
+## Ek otomasyon (tamamlandı)
 
-1. **Ekran görüntüleri**: oyun başına 5 adet 1280×720 → `dist/<oyun>/screenshots/`
-   (önerilen kareler: menü, erken oynanış, aksiyon anı, özel an, bölüm-sonu).
-   Arka plandaki otomasyon penceresinde rAF durduğundan otomatik alınamadı.
-2. **10 dakikalık FPS oturumu** (orta seviye Android'de) — fabrika checklist maddesi.
-3. **Gerçek dokunmatik cihaz testi** (pointer:coarse medya dalları emülatörsüz doğrulanmalı).
-4. **Ateş & Buz 2P oynanış turu** (iki el klavyede 1-2 bölüm).
-5. Zindan Okçusu **EN string tablosu** (~200 metin) — ayrı iş olarak planlandı.
-6. Ateş & Buz **sprite reskini** — geniş dağıtımlı lisans öncesi (pitch.md'de işaretli).
+- [x] **Ekran görüntüleri**: 7 oyun × 5 kare 1280×720 → `dist/<oyun>/screenshots/`
+      (`python fabrika/tools/shoot.py [oyun]` — Playwright headless; yerel sunucu :8000 gerekir)
+- [x] **Zindan Okçusu EN**: `dungeon-archer-en.html` — `src/zindan-okcusu/translate-en.json`
+      (~250 giriş; builder bağlam-güvenli değişim: `'…'`, `"…"`, `>…<`, `~`=ham)
+- [x] **Ateş & Buz reskini**: özgün geometrik karakterler (baklava "Kor" + altıgen "Buz
+      Kristali") — `tools/gen_ab_sprites.py` üretir; menüdeki markalı başlık da kaldırıldı.
+
+## Kalan manuel adımlar (fiziksel cihaz/insan gerektirir)
+
+1. **10 dakikalık FPS oturumu** (orta seviye Android'de) — fabrika checklist maddesi.
+2. **Gerçek dokunmatik cihaz testi** (pointer:coarse medya dalları emülatörsüz doğrulanmalı).
+3. **Ateş & Buz 2P oynanış turu** (iki el klavyede 1-2 bölüm; bölüm geçişi/elmas/kapı akışı).
 
 ## Portal yükleme sırası (PARA-KAZANMA-PLANI.md ile)
 

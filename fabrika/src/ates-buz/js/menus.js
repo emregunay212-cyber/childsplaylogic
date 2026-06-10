@@ -101,26 +101,27 @@ function drawMenu() {
     ctx.fillStyle = "#5c4614";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    let fullText = "Fireboy";
-    ctx.font = "70px Cinzel";
+    // Fabrika: özgün oyun adı (markalı "Fireboy and Watergirl" başlığı kaldırıldı)
+    let fullText = "Ateş";
+    ctx.font = "70px Georgia";
     ctx.lineWidth = 7;
     ctx.strokeStyle = "black";
-    ctx.strokeText(fullText, canvas.width * 0.23, canvas.height * 0.1);
+    ctx.strokeText(fullText, canvas.width * 0.30, canvas.height * 0.1);
 
     ctx.fillStyle = "red";
-    ctx.fillText(fullText, canvas.width * 0.23, canvas.height * 0.1);
+    ctx.fillText(fullText, canvas.width * 0.30, canvas.height * 0.1);
 
-    fullText = "and";
-    ctx.font = "70px Cinzel";
+    fullText = "&";
+    ctx.font = "70px Georgia";
     ctx.lineWidth = 7;
     ctx.strokeStyle = "black";
-    ctx.strokeText(fullText, canvas.width * 0.44, canvas.height * 0.1);
+    ctx.strokeText(fullText, canvas.width * 0.475, canvas.height * 0.1);
 
     ctx.fillStyle = "yellow";
-    ctx.fillText(fullText, canvas.width * 0.44, canvas.height * 0.1);
+    ctx.fillText(fullText, canvas.width * 0.475, canvas.height * 0.1);
 
-    fullText = "Watergirl";
-    ctx.font = "70px Cinzel";
+    fullText = "Buz";
+    ctx.font = "70px Georgia";
     ctx.lineWidth = 7;
     ctx.strokeStyle = "black";
     ctx.strokeText(fullText, canvas.width * 0.56, canvas.height * 0.1);

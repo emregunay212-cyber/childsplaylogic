@@ -20,6 +20,6 @@ Two-character co-op puzzle-platformer across 10 handcrafted levels with buttons,
 | Kontroller | Ateş: ok tuşları · Su: A/D/W |
 | SDK | Soketler hazır, SDK'sız sessiz çalışır |
 
-## Notlar (dürüst)
-- ⚠ Karakter sprite'ları bilinen "iki elementli co-op" türünün görsel diline yakındır; **geniş dağıtımlı lisans öncesi sprite reskini önerilir** (tek kesişim noktasından tüm görseller değiştirilebilir — reskin maliyeti düşüktür).
+## Notlar
+- Karakterler **özgün tasarımdır**: baklava formlu "Kor" ve altıgen "Buz Kristali" (üçüncü taraf oyunların karakter/adlarıyla görsel benzerlik bilinçli olarak kaldırılmıştır).
 - En iyi deneyim fiziksel klavyeyle; mobil kontroller iki çocuğun tablet paylaşmasına izin verir.
