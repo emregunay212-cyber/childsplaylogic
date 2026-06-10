@@ -292,7 +292,7 @@ window.storage = {
   <div id="stageLabel"></div>
 </div>
 <div id="qBand"></div>
-<div id="miniBtns"><div class="mini" id="muteBtn">🔊</div><div class="mini" id="pauseBtn">❚❚</div></div>
+<div id="miniBtns"><div class="mini" id="fireModeBtn" title="Atış modu (F)">🎯</div><div class="mini" id="muteBtn">🔊</div><div class="mini" id="pauseBtn">❚❚</div></div>
 
 <!-- HUB -->
 <div class="screen" id="hub">
@@ -301,6 +301,7 @@ window.storage = {
   <h1 class="title">MATEMATİK OKÇUSU</h1>
   <div class="subtitle">Sorularla Güçlen!</div>
   <div id="topicRow" style="margin-top:10px"></div>
+  <div id="fireModeRow" style="margin-top:8px"></div>
   <div class="charPanel" style="margin-top:20px">
     <div class="slotRow" id="hubSlots"></div>
     <div class="statGrid" id="hubStats"></div>
@@ -313,7 +314,7 @@ window.storage = {
     <button class="btn alt" id="goTalentsBtn" onclick="goTalents()">🌟 Yetenekler</button>
     <button class="btn ghost" id="goEndlessBtn">♾️ Sonsuz Savaş</button>
   </div>
-  <div class="helptxt"><b>BASILI TUT = ATEŞ!</b> Fareyle (veya ikinci parmağınla) basılı tut, ok işaret ettiğin yöne gider — doğru şıklı düşmanı SEÇ ve vur. Hareket: ekrana dokun-sürükle / WASD.<br><span id="bestLine"></span></div>
+  <div class="helptxt"><b>BASILI TUT = ATEŞ!</b> Fareyle (veya ikinci parmağınla) basılı tut, ok işaret ettiğin yöne gider — doğru şıklı düşmanı SEÇ ve vur. İstersen 🅰 ile otomatik atışa geç (F). Hareket: ekrana dokun-sürükle / WASD.<br><span id="bestLine"></span></div>
   <button class="btn ghost" id="resetProgBtn" style="margin-top:12px;font-size:12px;padding:8px 16px;opacity:.7">🗑️ İlerlemeyi Sıfırla</button>
 </div>
 
@@ -464,6 +465,18 @@ const $=id=>document.getElementById(id);
 /*___SORU_BANKASI___*/
 let maTopic='';                                   // ''=karışık; Storage 'ma.konu'
 try{ maTopic=Storage.get('ma.konu')||''; }catch(e){}
+/* Atış modu: 'manual' = basılı tut + işaret yönü · 'auto' = dururken en yakına.
+   Otomatik moddayken bile basılı tutarsan SENİN nişanın kazanır (soru dalgası için). */
+let fireMode='manual';
+try{ if(Storage.get('ma.fireMode')==='auto')fireMode='auto'; }catch(e){}
+function updateFireModeBtn(){const b=$('fireModeBtn');if(b)b.textContent=fireMode==='auto'?'🅰':'🎯';}
+function toggleFireMode(){
+  fireMode=fireMode==='auto'?'manual':'auto';
+  try{Storage.set('ma.fireMode',fireMode);}catch(e){}
+  updateFireModeBtn();
+  if(typeof renderFireMode==='function')renderFireMode();
+  qBandShow(fireMode==='auto'?'🅰 Otomatik atış: dururken en yakına':'🎯 Nişan modu: BASILI TUT = ateş','',1700);
+}
 function maZorluk(){
   if(mode==='endless') return wave<=10?1:wave<=25?2:3;     // spec: 1-10/11-25/26+
   const ch=Math.floor(stageIndex/5); return ch<=0?1:ch<=2?2:3;
@@ -802,6 +815,7 @@ addEventListener('keydown',e=>{
   const k=e.key.toLowerCase();keys[k]=true;
   if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
   if(k==='p'||k==='escape'){if(state===ST.PLAYING)doPause();else if(state===ST.PAUSED)doResume();}
+  if(k==='f'&&isCombat())toggleFireMode();   /* MATH ARCHER: atış modu kısayolu */
 });
 addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
 cv.addEventListener('touchstart',e=>{
@@ -967,8 +981,13 @@ function aimAssistAngle(){
   }
   return best?Math.atan2(best.y-player.y,best.x-player.x):ang;
 }
-function fire(){
-  aimAngle=aimAssistAngle();   /* yön daima oyuncunun işaretinden (basılı tutulan nokta) */
+function fire(manual){
+  if(manual){
+    aimAngle=aimAssistAngle();   /* yön oyuncunun işaretinden (basılı tutulan nokta) */
+  }else{
+    const t=nearestEnemy();if(!t)return;   /* 🅰 otomatik: en yakın düşman */
+    aimAngle=Math.atan2(t.y-player.y,t.x-player.x);
+  }
   player.shootFx=0.16; /* sprite ok-atma tetiği */
   const shots=[],n=player.front;
   /* öne çoklu ok: YANA AÇILMAZ — aynı yönde önlü-arkalı (tek hatta peş peşe) dizilir.
@@ -1164,9 +1183,12 @@ function update(dt){
   if(p.berserkActive>0){
     p.berserkActive-=dt;
     p.berserkFireTimer-=dt;
-    if(p.berserkFireTimer<=0&&fireAllowed()){   /* MATH ARCHER: berserk de basılıyken, işaret yönüne */
+    if(p.berserkFireTimer<=0&&(fireAllowed()||(fireMode==='auto'&&enemies.length))){
       p.berserkFireTimer=0.22;
-      const a=aimAssistAngle();aimAngle=a;
+      let a;
+      if(fireAllowed())a=aimAssistAngle();
+      else{const t=nearestEnemy();a=t?Math.atan2(t.y-p.y,t.x-p.x):lastMoveAng;}
+      aimAngle=a;
       pProj.push({x:p.x+Math.cos(a)*p.r,y:p.y+Math.sin(a)*p.r,
         vx:Math.cos(a)*p.arrowSpeed*1.4,vy:Math.sin(a)*p.arrowSpeed*1.4,
         r:18,dmg:p.dmg*3.2,pierce:99,
@@ -1174,8 +1196,11 @@ function update(dt){
         hits:new Set(),alpha:1,wave:true,hyper:true});
       burst(p.x+Math.cos(a)*p.r,p.y+Math.sin(a)*p.r,'#ff3060',6,260,0.3,4);sfx.zap();
     }
-  }else if(fireAllowed()&&p.fireTimer>=p.fireInterval){
-    p.fireTimer=0;fire();   /* MATH ARCHER: ateş YALNIZ basılıyken — yön işaretten, yürürken serbest */
+  }else if(p.fireTimer>=p.fireInterval&&
+           (fireAllowed()||(fireMode==='auto'&&!moving&&enemies.length))){
+    /* MATH ARCHER: 🎯 basılıyken işaret yönüne (yürürken serbest) ·
+       🅰 otomatikte dururken en yakına; basılı tutuş her modda önceliklidir */
+    p.fireTimer=0;fire(fireAllowed());
     if(p.stormVolley){
       const need=p.stormVolley===1?2.5:1.5;
       if(p.stillTimer>=need){
@@ -2565,6 +2590,26 @@ function renderTopics(){
     row.appendChild(b);
   }
   wrap.appendChild(row);
+  renderFireMode();
+}
+/* MATH ARCHER — hub'da atış modu seçici (savaş içinde 🎯/🅰 mini butonu ya da F) */
+function renderFireMode(){
+  const wrap=$('fireModeRow');if(!wrap)return;
+  while(wrap.firstChild)wrap.removeChild(wrap.firstChild);
+  const lbl=document.createElement('span');
+  lbl.style.cssText='color:var(--muted);font-size:11px;letter-spacing:2px;font-weight:700;margin-right:8px';
+  lbl.textContent='🏹 ATIŞ';
+  wrap.appendChild(lbl);
+  const opts=[['manual','🎯 Nişanla (basılı tut)'],['auto','🅰 Otomatik']];
+  for(const[mode,txt]of opts){
+    const b=document.createElement('button');
+    b.className='btn ghost';
+    const on=fireMode===mode;
+    b.style.cssText='padding:7px 13px;font-size:12px'+(on?';border-color:var(--gold);color:var(--gold);box-shadow:0 0 12px rgba(245,196,81,.25)':'');
+    b.textContent=(on?'✓ ':'')+txt;
+    b.onclick=()=>{if(fireMode!==mode)toggleFireMode();};
+    wrap.appendChild(b);
+  }
 }
 function renderMap(){
   updateGoldDisplays();
@@ -2644,6 +2689,7 @@ $('scMap').onclick=goMap;
 $('goHomeBtn').onclick=goHub;
 $('pauseBtn').onclick=()=>state===ST.PLAYING?doPause():doResume();
 $('muteBtn').onclick=()=>{muted=!muted;$('muteBtn').textContent=muted?'🔇':'🔊';};
+$('fireModeBtn').onclick=toggleFireMode;updateFireModeBtn();
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&state===ST.PLAYING)doPause();});
 window.playChapter=playChapter;window.selectItem=selectItem;window.doEquip=doEquip;window.doUnequip=doUnequip;window.doSell=doSell;window.doUpgrade=doUpgrade;window.goEquip=goEquip;window.goHub=goHub;window.goTalents=goTalents;window.buyTalent=buyTalent;
 
