@@ -251,13 +251,15 @@
   .chip:active{transform:scale(.94);}
   .chip.on{color:var(--gold);border-color:var(--gold);background:rgba(245,196,81,.10);}
 
-  #qBand{position:fixed;left:50%;transform:translateX(-50%) translateY(-140%);top:84px;z-index:40;
+  /* Gizli konum top:84px'i de aşmalı — yalnız -%140 kutuyu ekranda bırakıyordu (kalıcı-band bug'ı) */
+  #qBand{position:fixed;left:50%;transform:translateX(-50%) translateY(calc(-100% - 100px));top:84px;z-index:40;
+    visibility:hidden;
     max-width:min(92vw,560px);padding:9px 22px;border-radius:14px;text-align:center;
     background:linear-gradient(180deg,rgba(34,27,54,.96),rgba(18,14,30,.96));
     border:2px solid var(--gold);box-shadow:0 8px 30px rgba(0,0,0,.5),0 0 18px rgba(245,196,81,.25);
     font-family:Georgia,serif;font-weight:700;font-size:clamp(17px,4.5vw,24px);color:#ffe9b3;
     letter-spacing:.5px;transition:transform .25s ease;pointer-events:none;}
-  #qBand.show{transform:translateX(-50%) translateY(0);}
+  #qBand.show{transform:translateX(-50%) translateY(0);visibility:visible;}
   #qBand.ok{border-color:#5dff8f;color:#bdffd4;box-shadow:0 8px 30px rgba(0,0,0,.5),0 0 18px rgba(93,255,143,.35);}
   #chestq .cqCard{max-width:min(92vw,470px);width:100%;background:var(--panel);
     border:2px solid var(--gold);border-radius:18px;padding:18px 16px;box-shadow:0 18px 60px rgba(0,0,0,.55);}
@@ -542,7 +544,8 @@ function toggleFireMode(){
   try{Storage.set('ma.fireMode',fireMode);}catch(e){}
   updateFireModeBtn();
   if(typeof renderFireMode==='function')renderFireMode();
-  qBandShow(fireMode==='auto'?'🅰 Otomatik atış: dururken en yakına':'🎯 Nişan modu: BASILI TUT = ateş','',1700);
+  /* soru dalgası bandı açıkken üstüne yazma — soru metni ve kapanış zinciri bozulmasın */
+  if(!qWave)qBandShow(fireMode==='auto'?'🅰 Otomatik atış: dururken en yakına':'🎯 Nişan modu: BASILI TUT = ateş','',1700);
 }
 function maZorluk(){
   if(mode==='endless') return wave<=10?1:wave<=25?2:3;     // spec: 1-10/11-25/26+
@@ -558,13 +561,15 @@ function pickQuestion(){
 /* — Soru dalgası durumu — */
 const QWAVE_DUR=14, QBUFF_DUR=12, QBUFF_MUL=1.3;
 let qWave=null, qBuffT=0, qRoomPending=false, qBandTo=null;
-/* autoMs verilirse band GERÇEK zamanda kendiliğinden kapanır — levelup/pause gibi
-   oyun-döngüsünü durduran ekranlar açıkken bile asılı kalmaz. */
+/* Band GERÇEK zamanda kendiliğinden kapanır — levelup/pause/ölüm gibi oyun-döngüsünü
+   durduran ekranlar açıkken bile asılı kalamaz. autoMs verilmezse güvenlik tavanı
+   devreye girer (soru dalgası 14sn; normalde endQuestionWave erken kapatır). */
+const QBAND_MAX_MS=16000;
 function qBandShow(txt,cls,autoMs){
   const b=$('qBand');if(!b)return;
   if(qBandTo){clearTimeout(qBandTo);qBandTo=null;}
   b.textContent=txt;b.className='show'+(cls?' '+cls:'');
-  if(autoMs)qBandTo=setTimeout(()=>{qBandTo=null;qBandHide();},autoMs);
+  qBandTo=setTimeout(()=>{qBandTo=null;qBandHide();},autoMs||QBAND_MAX_MS);
 }
 function qBandHide(){const b=$('qBand');if(b)b.className='';if(qBandTo){clearTimeout(qBandTo);qBandTo=null;}}
 function startQuestionWave(){
@@ -2455,7 +2460,8 @@ function renderTalents(){
     const nm=document.createElement('div');nm.style.fontWeight='700';nm.textContent=t.name+'  ·  Sv '+l+'/'+t.cap;
     const ds=document.createElement('div');ds.style.cssText='color:#9aa0c8;font-size:12px';ds.textContent=t.desc(max?t.cap:l+1);
     mid.appendChild(nm);mid.appendChild(ds);
-    const btn=document.createElement('button');btn.className='btn ghost';btn.style.cssText='padding:8px 12px;font-size:13px;min-width:84px';
+    const btn=document.createElement('button');btn.className='btn ghost';
+    btn.style.cssText='padding:8px 12px;font-size:13px;min-width:84px;width:auto;flex:0 0 auto;white-space:nowrap';
     btn.textContent=max?'MAKS':('🪙 '+fmt(cost));btn.disabled=!can;btn.onclick=()=>buyTalent(t.id);
     row.appendChild(ic);row.appendChild(mid);row.appendChild(btn);
     wrap.appendChild(row);
@@ -2605,6 +2611,7 @@ function showRoomClear(last,ch,st){
   $('stageclear').classList.add('show');
 }
 function gameOver(){
+  if(qWave)endQuestionWave();   /* MATH ARCHER: ölümde soru dalgası + bandı temizle */
   state=ST.GAMEOVER;SDK.gameplayStop();sfx.die();save.gold+=Math.round(runGold);
   if(mode==='endless'&&score>save.bestEndless)save.bestEndless=score;
   persist();
