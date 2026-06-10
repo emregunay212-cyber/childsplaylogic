@@ -1,0 +1,12520 @@
+{
+ "meta": {
+  "oyun": "Matematik Okçusu / Math Archer",
+  "ders": "matematik",
+  "hedef_yas": "8-12",
+  "surum": "1.0",
+  "diller": [
+   "tr",
+   "en"
+  ],
+  "toplam_soru": 892
+ },
+ "konular": [
+  {
+   "kod": "carpim",
+   "ad_tr": "Çarpım Tablosu",
+   "ad_en": "Multiplication"
+  },
+  {
+   "kod": "dort_islem",
+   "ad_tr": "Dört İşlem",
+   "ad_en": "Four Operations"
+  },
+  {
+   "kod": "kesirler",
+   "ad_tr": "Kesirler",
+   "ad_en": "Fractions"
+  }
+ ],
+ "sorular": [
+  {
+   "id": "car001t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "3 × 2 = ?",
+   "secenekler": [
+    "3",
+    "7",
+    "16",
+    "6"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car001e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "3 × 2 = ?",
+   "secenekler": [
+    "3",
+    "7",
+    "16",
+    "6"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car002t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "2 × 2 = ?",
+   "secenekler": [
+    "4",
+    "14",
+    "5",
+    "6"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car002e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "2 × 2 = ?",
+   "secenekler": [
+    "4",
+    "14",
+    "5",
+    "6"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car003t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "5 × 9 = ?",
+   "secenekler": [
+    "40",
+    "55",
+    "45",
+    "50"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car003e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "5 × 9 = ?",
+   "secenekler": [
+    "40",
+    "55",
+    "45",
+    "50"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car004t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "3 × 3 = ?",
+   "secenekler": [
+    "8",
+    "19",
+    "9",
+    "10"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car004e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "3 × 3 = ?",
+   "secenekler": [
+    "8",
+    "19",
+    "9",
+    "10"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car005t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "3 × 8 = ?",
+   "secenekler": [
+    "27",
+    "32",
+    "16",
+    "24"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car005e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "3 × 8 = ?",
+   "secenekler": [
+    "27",
+    "32",
+    "16",
+    "24"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car006t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "6 × 3 = ?",
+   "secenekler": [
+    "18",
+    "19",
+    "12",
+    "21"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car006e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "6 × 3 = ?",
+   "secenekler": [
+    "18",
+    "19",
+    "12",
+    "21"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car007t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "5 × 6 = ?",
+   "secenekler": [
+    "20",
+    "30",
+    "40",
+    "35"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car007e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "5 × 6 = ?",
+   "secenekler": [
+    "20",
+    "30",
+    "40",
+    "35"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car008t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "7 × 2 = ?",
+   "secenekler": [
+    "14",
+    "7",
+    "16",
+    "15"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car008e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "7 × 2 = ?",
+   "secenekler": [
+    "14",
+    "7",
+    "16",
+    "15"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car009t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "8 × 9 = ?",
+   "secenekler": [
+    "81",
+    "72",
+    "64",
+    "80"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car009e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "8 × 9 = ?",
+   "secenekler": [
+    "81",
+    "72",
+    "64",
+    "80"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car010t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "4 × 9 = ?",
+   "secenekler": [
+    "40",
+    "36",
+    "45",
+    "37"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car010e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "4 × 9 = ?",
+   "secenekler": [
+    "40",
+    "36",
+    "45",
+    "37"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car011t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "8 × 8 = ?",
+   "secenekler": [
+    "63",
+    "72",
+    "65",
+    "64"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car011e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "8 × 8 = ?",
+   "secenekler": [
+    "63",
+    "72",
+    "65",
+    "64"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car012t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "7 × 3 = ?",
+   "secenekler": [
+    "18",
+    "21",
+    "24",
+    "31"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car012e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "7 × 3 = ?",
+   "secenekler": [
+    "18",
+    "21",
+    "24",
+    "31"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car013t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "6 × 5 = ?",
+   "secenekler": [
+    "20",
+    "25",
+    "30",
+    "29"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car013e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "6 × 5 = ?",
+   "secenekler": [
+    "20",
+    "25",
+    "30",
+    "29"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car014t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "7 × 6 = ?",
+   "secenekler": [
+    "36",
+    "52",
+    "48",
+    "42"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car014e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "7 × 6 = ?",
+   "secenekler": [
+    "36",
+    "52",
+    "48",
+    "42"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car015t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "4 × 6 = ?",
+   "secenekler": [
+    "24",
+    "34",
+    "20",
+    "25"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car015e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "4 × 6 = ?",
+   "secenekler": [
+    "24",
+    "34",
+    "20",
+    "25"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car016t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "3 × 5 = ?",
+   "secenekler": [
+    "25",
+    "16",
+    "18",
+    "15"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car016e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "3 × 5 = ?",
+   "secenekler": [
+    "25",
+    "16",
+    "18",
+    "15"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car017t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "5 × 3 = ?",
+   "secenekler": [
+    "14",
+    "15",
+    "18",
+    "16"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car017e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "5 × 3 = ?",
+   "secenekler": [
+    "14",
+    "15",
+    "18",
+    "16"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car018t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "9 × 5 = ?",
+   "secenekler": [
+    "45",
+    "50",
+    "40",
+    "46"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car018e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "9 × 5 = ?",
+   "secenekler": [
+    "45",
+    "50",
+    "40",
+    "46"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car019t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "9 × 2 = ?",
+   "secenekler": [
+    "18",
+    "20",
+    "19",
+    "28"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car019e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "9 × 2 = ?",
+   "secenekler": [
+    "18",
+    "20",
+    "19",
+    "28"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car020t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "4 × 8 = ?",
+   "secenekler": [
+    "28",
+    "22",
+    "24",
+    "32"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car020e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "4 × 8 = ?",
+   "secenekler": [
+    "28",
+    "22",
+    "24",
+    "32"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car021t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "9 × 9 = ?",
+   "secenekler": [
+    "90",
+    "91",
+    "80",
+    "81"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car021e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "9 × 9 = ?",
+   "secenekler": [
+    "90",
+    "91",
+    "80",
+    "81"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car022t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "9 × 6 = ?",
+   "secenekler": [
+    "44",
+    "64",
+    "54",
+    "45"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car022e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "9 × 6 = ?",
+   "secenekler": [
+    "44",
+    "64",
+    "54",
+    "45"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car023t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "2 × 7 = ?",
+   "secenekler": [
+    "21",
+    "12",
+    "14",
+    "16"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car023e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "2 × 7 = ?",
+   "secenekler": [
+    "21",
+    "12",
+    "14",
+    "16"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car024t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "5 × 8 = ?",
+   "secenekler": [
+    "40",
+    "48",
+    "41",
+    "39"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car024e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "5 × 8 = ?",
+   "secenekler": [
+    "40",
+    "48",
+    "41",
+    "39"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car025t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "7 × 5 = ?",
+   "secenekler": [
+    "34",
+    "25",
+    "30",
+    "35"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car025e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "7 × 5 = ?",
+   "secenekler": [
+    "34",
+    "25",
+    "30",
+    "35"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car026t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "6 × 4 = ?",
+   "secenekler": [
+    "20",
+    "24",
+    "28",
+    "30"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car026e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "6 × 4 = ?",
+   "secenekler": [
+    "20",
+    "24",
+    "28",
+    "30"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car027t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "6 × 9 = ?",
+   "secenekler": [
+    "63",
+    "44",
+    "45",
+    "54"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car027e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "6 × 9 = ?",
+   "secenekler": [
+    "63",
+    "44",
+    "45",
+    "54"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car028t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "9 × 8 = ?",
+   "secenekler": [
+    "73",
+    "80",
+    "72",
+    "81"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car028e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "9 × 8 = ?",
+   "secenekler": [
+    "73",
+    "80",
+    "72",
+    "81"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car029t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "6 × 7 = ?",
+   "secenekler": [
+    "43",
+    "49",
+    "42",
+    "41"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car029e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "6 × 7 = ?",
+   "secenekler": [
+    "43",
+    "49",
+    "42",
+    "41"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car030t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "2 × 4 = ?",
+   "secenekler": [
+    "4",
+    "10",
+    "18",
+    "8"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car030e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "2 × 4 = ?",
+   "secenekler": [
+    "4",
+    "10",
+    "18",
+    "8"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car031t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "5 × 5 = ?",
+   "secenekler": [
+    "26",
+    "20",
+    "30",
+    "25"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car031e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "5 × 5 = ?",
+   "secenekler": [
+    "26",
+    "20",
+    "30",
+    "25"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car032t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "8 × 7 = ?",
+   "secenekler": [
+    "56",
+    "48",
+    "49",
+    "57"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car032e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "8 × 7 = ?",
+   "secenekler": [
+    "56",
+    "48",
+    "49",
+    "57"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car033t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "8 × 3 = ?",
+   "secenekler": [
+    "16",
+    "27",
+    "23",
+    "24"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car033e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "8 × 3 = ?",
+   "secenekler": [
+    "16",
+    "27",
+    "23",
+    "24"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car034t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "7 × 8 = ?",
+   "secenekler": [
+    "56",
+    "63",
+    "48",
+    "64"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car034e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "7 × 8 = ?",
+   "secenekler": [
+    "56",
+    "63",
+    "48",
+    "64"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car035t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "8 × 6 = ?",
+   "secenekler": [
+    "38",
+    "48",
+    "49",
+    "58"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car035e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "8 × 6 = ?",
+   "secenekler": [
+    "38",
+    "48",
+    "49",
+    "58"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car036t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "6 × 6 = ?",
+   "secenekler": [
+    "35",
+    "36",
+    "26",
+    "30"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car036e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "6 × 6 = ?",
+   "secenekler": [
+    "35",
+    "36",
+    "26",
+    "30"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car037t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "9 × 4 = ?",
+   "secenekler": [
+    "27",
+    "32",
+    "36",
+    "40"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car037e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "9 × 4 = ?",
+   "secenekler": [
+    "27",
+    "32",
+    "36",
+    "40"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car038t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "4 × 2 = ?",
+   "secenekler": [
+    "8",
+    "12",
+    "7",
+    "10"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car038e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "4 × 2 = ?",
+   "secenekler": [
+    "8",
+    "12",
+    "7",
+    "10"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car039t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "5 × 4 = ?",
+   "secenekler": [
+    "16",
+    "24",
+    "21",
+    "20"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car039e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "5 × 4 = ?",
+   "secenekler": [
+    "16",
+    "24",
+    "21",
+    "20"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car040t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "3 × 9 = ?",
+   "secenekler": [
+    "26",
+    "36",
+    "27",
+    "37"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car040e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "3 × 9 = ?",
+   "secenekler": [
+    "26",
+    "36",
+    "27",
+    "37"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car041t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "3 × 6 = ?",
+   "secenekler": [
+    "19",
+    "18",
+    "28",
+    "12"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car041e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "3 × 6 = ?",
+   "secenekler": [
+    "19",
+    "18",
+    "28",
+    "12"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car042t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "7 × 9 = ?",
+   "secenekler": [
+    "62",
+    "63",
+    "54",
+    "72"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car042e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "7 × 9 = ?",
+   "secenekler": [
+    "62",
+    "63",
+    "54",
+    "72"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car043t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "2 × 8 = ?",
+   "secenekler": [
+    "6",
+    "17",
+    "14",
+    "16"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car043e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "2 × 8 = ?",
+   "secenekler": [
+    "6",
+    "17",
+    "14",
+    "16"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car044t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "6 × 8 = ?",
+   "secenekler": [
+    "58",
+    "48",
+    "38",
+    "56"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car044e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "6 × 8 = ?",
+   "secenekler": [
+    "58",
+    "48",
+    "38",
+    "56"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car045t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "9 × 3 = ?",
+   "secenekler": [
+    "28",
+    "27",
+    "36",
+    "37"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car045e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "9 × 3 = ?",
+   "secenekler": [
+    "28",
+    "27",
+    "36",
+    "37"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car046t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "2 × 6 = ?",
+   "secenekler": [
+    "10",
+    "13",
+    "22",
+    "12"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car046e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "2 × 6 = ?",
+   "secenekler": [
+    "10",
+    "13",
+    "22",
+    "12"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car047t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "9 × 7 = ?",
+   "secenekler": [
+    "64",
+    "63",
+    "54",
+    "56"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car047e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "9 × 7 = ?",
+   "secenekler": [
+    "64",
+    "63",
+    "54",
+    "56"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car048t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "7 × 7 = ?",
+   "secenekler": [
+    "42",
+    "56",
+    "49",
+    "39"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car048e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "7 × 7 = ?",
+   "secenekler": [
+    "42",
+    "56",
+    "49",
+    "39"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car049t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "4 × 5 = ?",
+   "secenekler": [
+    "10",
+    "15",
+    "20",
+    "25"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car049e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "4 × 5 = ?",
+   "secenekler": [
+    "10",
+    "15",
+    "20",
+    "25"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car050t",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "6 × 2 = ?",
+   "secenekler": [
+    "12",
+    "22",
+    "18",
+    "14"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car050e",
+   "konu": "carpim",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "6 × 2 = ?",
+   "secenekler": [
+    "12",
+    "22",
+    "18",
+    "14"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car051t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "9 × 8 = ?",
+   "secenekler": [
+    "82",
+    "71",
+    "72",
+    "81"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car051e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "9 × 8 = ?",
+   "secenekler": [
+    "82",
+    "71",
+    "72",
+    "81"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car052t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "7 × 7 = ?",
+   "secenekler": [
+    "42",
+    "49",
+    "59",
+    "50"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car052e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "7 × 7 = ?",
+   "secenekler": [
+    "42",
+    "49",
+    "59",
+    "50"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car053t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "12 × 10 = ?",
+   "secenekler": [
+    "130",
+    "120",
+    "132",
+    "108"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car053e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "12 × 10 = ?",
+   "secenekler": [
+    "130",
+    "120",
+    "132",
+    "108"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car054t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "10 × 11 = ?",
+   "secenekler": [
+    "111",
+    "121",
+    "110",
+    "109"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car054e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "10 × 11 = ?",
+   "secenekler": [
+    "111",
+    "121",
+    "110",
+    "109"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car055t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "10 × 6 = ?",
+   "secenekler": [
+    "59",
+    "61",
+    "60",
+    "50"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car055e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "10 × 6 = ?",
+   "secenekler": [
+    "59",
+    "61",
+    "60",
+    "50"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car056t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "8 × 11 = ?",
+   "secenekler": [
+    "99",
+    "89",
+    "88",
+    "87"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car056e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "8 × 11 = ?",
+   "secenekler": [
+    "99",
+    "89",
+    "88",
+    "87"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car057t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "11 × 7 = ?",
+   "secenekler": [
+    "76",
+    "77",
+    "70",
+    "84"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car057e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "11 × 7 = ?",
+   "secenekler": [
+    "76",
+    "77",
+    "70",
+    "84"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car058t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "9 × 11 = ?",
+   "secenekler": [
+    "100",
+    "98",
+    "90",
+    "99"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car058e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "9 × 11 = ?",
+   "secenekler": [
+    "100",
+    "98",
+    "90",
+    "99"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car059t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "10 × 8 = ?",
+   "secenekler": [
+    "81",
+    "80",
+    "79",
+    "88"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car059e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "10 × 8 = ?",
+   "secenekler": [
+    "81",
+    "80",
+    "79",
+    "88"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car060t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "12 × 12 = ?",
+   "secenekler": [
+    "144",
+    "143",
+    "132",
+    "156"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car060e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "12 × 12 = ?",
+   "secenekler": [
+    "144",
+    "143",
+    "132",
+    "156"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car061t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "6 × 9 = ?",
+   "secenekler": [
+    "54",
+    "53",
+    "44",
+    "60"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car061e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "6 × 9 = ?",
+   "secenekler": [
+    "54",
+    "53",
+    "44",
+    "60"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car062t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "9 × 12 = ?",
+   "secenekler": [
+    "118",
+    "108",
+    "117",
+    "98"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car062e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "9 × 12 = ?",
+   "secenekler": [
+    "118",
+    "108",
+    "117",
+    "98"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car063t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "11 × 12 = ?",
+   "secenekler": [
+    "120",
+    "144",
+    "132",
+    "121"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car063e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "11 × 12 = ?",
+   "secenekler": [
+    "120",
+    "144",
+    "132",
+    "121"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car064t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "8 × 10 = ?",
+   "secenekler": [
+    "70",
+    "90",
+    "88",
+    "80"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car064e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "8 × 10 = ?",
+   "secenekler": [
+    "70",
+    "90",
+    "88",
+    "80"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car065t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "6 × 10 = ?",
+   "secenekler": [
+    "50",
+    "59",
+    "61",
+    "60"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car065e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "6 × 10 = ?",
+   "secenekler": [
+    "50",
+    "59",
+    "61",
+    "60"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car066t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "11 × 8 = ?",
+   "secenekler": [
+    "99",
+    "96",
+    "88",
+    "78"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car066e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "11 × 8 = ?",
+   "secenekler": [
+    "99",
+    "96",
+    "88",
+    "78"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car067t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "12 × 6 = ?",
+   "secenekler": [
+    "72",
+    "84",
+    "66",
+    "71"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car067e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "12 × 6 = ?",
+   "secenekler": [
+    "72",
+    "84",
+    "66",
+    "71"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car068t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "12 × 7 = ?",
+   "secenekler": [
+    "72",
+    "84",
+    "96",
+    "85"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car068e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "12 × 7 = ?",
+   "secenekler": [
+    "72",
+    "84",
+    "96",
+    "85"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car069t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "10 × 9 = ?",
+   "secenekler": [
+    "80",
+    "90",
+    "89",
+    "91"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car069e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "10 × 9 = ?",
+   "secenekler": [
+    "80",
+    "90",
+    "89",
+    "91"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car070t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "9 × 6 = ?",
+   "secenekler": [
+    "55",
+    "48",
+    "54",
+    "44"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car070e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "9 × 6 = ?",
+   "secenekler": [
+    "55",
+    "48",
+    "54",
+    "44"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car071t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "12 × 8 = ?",
+   "secenekler": [
+    "96",
+    "88",
+    "104",
+    "106"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car071e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "12 × 8 = ?",
+   "secenekler": [
+    "96",
+    "88",
+    "104",
+    "106"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car072t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "6 × 7 = ?",
+   "secenekler": [
+    "36",
+    "49",
+    "42",
+    "52"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car072e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "6 × 7 = ?",
+   "secenekler": [
+    "36",
+    "49",
+    "42",
+    "52"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car073t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "6 × 6 = ?",
+   "secenekler": [
+    "26",
+    "46",
+    "36",
+    "37"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car073e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "6 × 6 = ?",
+   "secenekler": [
+    "26",
+    "46",
+    "36",
+    "37"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car074t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "12 × 9 = ?",
+   "secenekler": [
+    "99",
+    "108",
+    "96",
+    "118"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car074e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "12 × 9 = ?",
+   "secenekler": [
+    "99",
+    "108",
+    "96",
+    "118"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car075t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "10 × 7 = ?",
+   "secenekler": [
+    "70",
+    "63",
+    "71",
+    "60"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car075e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "10 × 7 = ?",
+   "secenekler": [
+    "70",
+    "63",
+    "71",
+    "60"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car076t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "8 × 7 = ?",
+   "secenekler": [
+    "56",
+    "49",
+    "55",
+    "46"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car076e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "8 × 7 = ?",
+   "secenekler": [
+    "56",
+    "49",
+    "55",
+    "46"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car077t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "6 × 12 = ?",
+   "secenekler": [
+    "62",
+    "78",
+    "72",
+    "71"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car077e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "6 × 12 = ?",
+   "secenekler": [
+    "62",
+    "78",
+    "72",
+    "71"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car078t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "7 × 11 = ?",
+   "secenekler": [
+    "84",
+    "77",
+    "87",
+    "88"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car078e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "7 × 11 = ?",
+   "secenekler": [
+    "84",
+    "77",
+    "87",
+    "88"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car079t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "6 × 8 = ?",
+   "secenekler": [
+    "38",
+    "42",
+    "48",
+    "56"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car079e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "6 × 8 = ?",
+   "secenekler": [
+    "38",
+    "42",
+    "48",
+    "56"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car080t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "8 × 12 = ?",
+   "secenekler": [
+    "106",
+    "86",
+    "96",
+    "88"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car080e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "8 × 12 = ?",
+   "secenekler": [
+    "106",
+    "86",
+    "96",
+    "88"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car081t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "11 × 11 = ?",
+   "secenekler": [
+    "131",
+    "120",
+    "132",
+    "121"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car081e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "11 × 11 = ?",
+   "secenekler": [
+    "131",
+    "120",
+    "132",
+    "121"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car082t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "10 × 10 = ?",
+   "secenekler": [
+    "110",
+    "99",
+    "90",
+    "100"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car082e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "10 × 10 = ?",
+   "secenekler": [
+    "110",
+    "99",
+    "90",
+    "100"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car083t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "11 × 9 = ?",
+   "secenekler": [
+    "109",
+    "110",
+    "89",
+    "99"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car083e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "11 × 9 = ?",
+   "secenekler": [
+    "109",
+    "110",
+    "89",
+    "99"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car084t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "9 × 9 = ?",
+   "secenekler": [
+    "72",
+    "81",
+    "71",
+    "91"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car084e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "9 × 9 = ?",
+   "secenekler": [
+    "72",
+    "81",
+    "71",
+    "91"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car085t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "8 × 6 = ?",
+   "secenekler": [
+    "48",
+    "42",
+    "49",
+    "38"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car085e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "8 × 6 = ?",
+   "secenekler": [
+    "48",
+    "42",
+    "49",
+    "38"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car086t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "6 × 11 = ?",
+   "secenekler": [
+    "60",
+    "67",
+    "66",
+    "72"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car086e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "6 × 11 = ?",
+   "secenekler": [
+    "60",
+    "67",
+    "66",
+    "72"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car087t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "7 × 10 = ?",
+   "secenekler": [
+    "60",
+    "69",
+    "70",
+    "80"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car087e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "7 × 10 = ?",
+   "secenekler": [
+    "60",
+    "69",
+    "70",
+    "80"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car088t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "7 × 6 = ?",
+   "secenekler": [
+    "52",
+    "32",
+    "42",
+    "41"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car088e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "7 × 6 = ?",
+   "secenekler": [
+    "52",
+    "32",
+    "42",
+    "41"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car089t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "11 × 6 = ?",
+   "secenekler": [
+    "67",
+    "55",
+    "56",
+    "66"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car089e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "11 × 6 = ?",
+   "secenekler": [
+    "67",
+    "55",
+    "56",
+    "66"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car090t",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "11 × 10 = ?",
+   "secenekler": [
+    "110",
+    "99",
+    "100",
+    "121"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car090e",
+   "konu": "carpim",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "11 × 10 = ?",
+   "secenekler": [
+    "110",
+    "99",
+    "100",
+    "121"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car091t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "12 × 9 = ?",
+   "secenekler": [
+    "108",
+    "99",
+    "107",
+    "96"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car091e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "12 × 9 = ?",
+   "secenekler": [
+    "108",
+    "99",
+    "107",
+    "96"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car092t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "18 × 6 = ?",
+   "secenekler": [
+    "102",
+    "126",
+    "108",
+    "114"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car092e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "18 × 6 = ?",
+   "secenekler": [
+    "102",
+    "126",
+    "108",
+    "114"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car093t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "12 × 3 = ?",
+   "secenekler": [
+    "26",
+    "36",
+    "46",
+    "48"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car093e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "12 × 3 = ?",
+   "secenekler": [
+    "26",
+    "36",
+    "46",
+    "48"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car094t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "17 × 5 = ?",
+   "secenekler": [
+    "84",
+    "80",
+    "85",
+    "102"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car094e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "17 × 5 = ?",
+   "secenekler": [
+    "84",
+    "80",
+    "85",
+    "102"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car095t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "13 × 8 = ?",
+   "secenekler": [
+    "91",
+    "104",
+    "117",
+    "112"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car095e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "13 × 8 = ?",
+   "secenekler": [
+    "91",
+    "104",
+    "117",
+    "112"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car096t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "15 × 3 = ?",
+   "secenekler": [
+    "35",
+    "42",
+    "45",
+    "46"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car096e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "15 × 3 = ?",
+   "secenekler": [
+    "35",
+    "42",
+    "45",
+    "46"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car097t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "12 × 4 = ?",
+   "secenekler": [
+    "44",
+    "48",
+    "58",
+    "47"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car097e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "12 × 4 = ?",
+   "secenekler": [
+    "44",
+    "48",
+    "58",
+    "47"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car098t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "16 × 5 = ?",
+   "secenekler": [
+    "75",
+    "80",
+    "70",
+    "64"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car098e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "16 × 5 = ?",
+   "secenekler": [
+    "75",
+    "80",
+    "70",
+    "64"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car099t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "12 × 5 = ?",
+   "secenekler": [
+    "70",
+    "60",
+    "72",
+    "65"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car099e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "12 × 5 = ?",
+   "secenekler": [
+    "70",
+    "60",
+    "72",
+    "65"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car100t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "16 × 6 = ?",
+   "secenekler": [
+    "95",
+    "97",
+    "90",
+    "96"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car100e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "16 × 6 = ?",
+   "secenekler": [
+    "95",
+    "97",
+    "90",
+    "96"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car101t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "11 × 3 = ?",
+   "secenekler": [
+    "30",
+    "32",
+    "44",
+    "33"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car101e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "11 × 3 = ?",
+   "secenekler": [
+    "30",
+    "32",
+    "44",
+    "33"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car102t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "17 × 4 = ?",
+   "secenekler": [
+    "51",
+    "64",
+    "85",
+    "68"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car102e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "17 × 4 = ?",
+   "secenekler": [
+    "51",
+    "64",
+    "85",
+    "68"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car103t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "18 × 3 = ?",
+   "secenekler": [
+    "72",
+    "64",
+    "54",
+    "36"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car103e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "18 × 3 = ?",
+   "secenekler": [
+    "72",
+    "64",
+    "54",
+    "36"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car104t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "11 × 5 = ?",
+   "secenekler": [
+    "66",
+    "54",
+    "65",
+    "55"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car104e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "11 × 5 = ?",
+   "secenekler": [
+    "66",
+    "54",
+    "65",
+    "55"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car105t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "17 × 7 = ?",
+   "secenekler": [
+    "112",
+    "120",
+    "129",
+    "119"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car105e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "17 × 7 = ?",
+   "secenekler": [
+    "112",
+    "120",
+    "129",
+    "119"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car106t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "19 × 7 = ?",
+   "secenekler": [
+    "114",
+    "133",
+    "132",
+    "126"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car106e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "19 × 7 = ?",
+   "secenekler": [
+    "114",
+    "133",
+    "132",
+    "126"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car107t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "13 × 7 = ?",
+   "secenekler": [
+    "91",
+    "81",
+    "78",
+    "92"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car107e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "13 × 7 = ?",
+   "secenekler": [
+    "91",
+    "81",
+    "78",
+    "92"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car108t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "16 × 9 = ?",
+   "secenekler": [
+    "143",
+    "144",
+    "153",
+    "134"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car108e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "16 × 9 = ?",
+   "secenekler": [
+    "143",
+    "144",
+    "153",
+    "134"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car109t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "16 × 7 = ?",
+   "secenekler": [
+    "119",
+    "111",
+    "112",
+    "122"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car109e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "16 × 7 = ?",
+   "secenekler": [
+    "119",
+    "111",
+    "112",
+    "122"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car110t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "19 × 6 = ?",
+   "secenekler": [
+    "114",
+    "104",
+    "108",
+    "120"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car110e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "19 × 6 = ?",
+   "secenekler": [
+    "114",
+    "104",
+    "108",
+    "120"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car111t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "19 × 4 = ?",
+   "secenekler": [
+    "57",
+    "72",
+    "80",
+    "76"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car111e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "19 × 4 = ?",
+   "secenekler": [
+    "57",
+    "72",
+    "80",
+    "76"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car112t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "18 × 7 = ?",
+   "secenekler": [
+    "136",
+    "133",
+    "116",
+    "126"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car112e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "18 × 7 = ?",
+   "secenekler": [
+    "136",
+    "133",
+    "116",
+    "126"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car113t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "12 × 7 = ?",
+   "secenekler": [
+    "84",
+    "96",
+    "77",
+    "85"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car113e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "12 × 7 = ?",
+   "secenekler": [
+    "84",
+    "96",
+    "77",
+    "85"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car114t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "19 × 3 = ?",
+   "secenekler": [
+    "57",
+    "60",
+    "38",
+    "47"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car114e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "19 × 3 = ?",
+   "secenekler": [
+    "57",
+    "60",
+    "38",
+    "47"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car115t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "14 × 4 = ?",
+   "secenekler": [
+    "57",
+    "56",
+    "52",
+    "46"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car115e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "14 × 4 = ?",
+   "secenekler": [
+    "57",
+    "56",
+    "52",
+    "46"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car116t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "13 × 4 = ?",
+   "secenekler": [
+    "52",
+    "62",
+    "51",
+    "39"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car116e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "13 × 4 = ?",
+   "secenekler": [
+    "52",
+    "62",
+    "51",
+    "39"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car117t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "18 × 4 = ?",
+   "secenekler": [
+    "72",
+    "82",
+    "68",
+    "54"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car117e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "18 × 4 = ?",
+   "secenekler": [
+    "72",
+    "82",
+    "68",
+    "54"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car118t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "14 × 9 = ?",
+   "secenekler": [
+    "116",
+    "136",
+    "117",
+    "126"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car118e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "14 × 9 = ?",
+   "secenekler": [
+    "116",
+    "136",
+    "117",
+    "126"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car119t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "13 × 5 = ?",
+   "secenekler": [
+    "55",
+    "70",
+    "65",
+    "52"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car119e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "13 × 5 = ?",
+   "secenekler": [
+    "55",
+    "70",
+    "65",
+    "52"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car120t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "11 × 6 = ?",
+   "secenekler": [
+    "77",
+    "56",
+    "66",
+    "60"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car120e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "11 × 6 = ?",
+   "secenekler": [
+    "77",
+    "56",
+    "66",
+    "60"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car121t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "18 × 8 = ?",
+   "secenekler": [
+    "162",
+    "134",
+    "126",
+    "144"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car121e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "18 × 8 = ?",
+   "secenekler": [
+    "162",
+    "134",
+    "126",
+    "144"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car122t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "15 × 4 = ?",
+   "secenekler": [
+    "61",
+    "56",
+    "75",
+    "60"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car122e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "15 × 4 = ?",
+   "secenekler": [
+    "61",
+    "56",
+    "75",
+    "60"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car123t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "14 × 8 = ?",
+   "secenekler": [
+    "113",
+    "112",
+    "102",
+    "120"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car123e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "14 × 8 = ?",
+   "secenekler": [
+    "113",
+    "112",
+    "102",
+    "120"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car124t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "19 × 5 = ?",
+   "secenekler": [
+    "94",
+    "76",
+    "105",
+    "95"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car124e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "19 × 5 = ?",
+   "secenekler": [
+    "94",
+    "76",
+    "105",
+    "95"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car125t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "16 × 4 = ?",
+   "secenekler": [
+    "63",
+    "64",
+    "80",
+    "54"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car125e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "16 × 4 = ?",
+   "secenekler": [
+    "63",
+    "64",
+    "80",
+    "54"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car126t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "13 × 3 = ?",
+   "secenekler": [
+    "39",
+    "42",
+    "49",
+    "52"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car126e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "13 × 3 = ?",
+   "secenekler": [
+    "39",
+    "42",
+    "49",
+    "52"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car127t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "14 × 5 = ?",
+   "secenekler": [
+    "70",
+    "69",
+    "75",
+    "60"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car127e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "14 × 5 = ?",
+   "secenekler": [
+    "70",
+    "69",
+    "75",
+    "60"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car128t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "13 × 6 = ?",
+   "secenekler": [
+    "68",
+    "84",
+    "77",
+    "78"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car128e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "13 × 6 = ?",
+   "secenekler": [
+    "68",
+    "84",
+    "77",
+    "78"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car129t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "16 × 3 = ?",
+   "secenekler": [
+    "48",
+    "58",
+    "45",
+    "64"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car129e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "16 × 3 = ?",
+   "secenekler": [
+    "48",
+    "58",
+    "45",
+    "64"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car130t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "11 × 8 = ?",
+   "secenekler": [
+    "87",
+    "88",
+    "89",
+    "98"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car130e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "11 × 8 = ?",
+   "secenekler": [
+    "87",
+    "88",
+    "89",
+    "98"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car131t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "11 × 4 = ?",
+   "secenekler": [
+    "40",
+    "44",
+    "45",
+    "43"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car131e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "11 × 4 = ?",
+   "secenekler": [
+    "40",
+    "44",
+    "45",
+    "43"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car132t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "18 × 5 = ?",
+   "secenekler": [
+    "90",
+    "91",
+    "95",
+    "108"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car132e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "18 × 5 = ?",
+   "secenekler": [
+    "90",
+    "91",
+    "95",
+    "108"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car133t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "14 × 3 = ?",
+   "secenekler": [
+    "42",
+    "41",
+    "56",
+    "28"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car133e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "14 × 3 = ?",
+   "secenekler": [
+    "42",
+    "41",
+    "56",
+    "28"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car134t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "14 × 7 = ?",
+   "secenekler": [
+    "105",
+    "91",
+    "98",
+    "88"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car134e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "14 × 7 = ?",
+   "secenekler": [
+    "105",
+    "91",
+    "98",
+    "88"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car135t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "16 × 8 = ?",
+   "secenekler": [
+    "120",
+    "128",
+    "136",
+    "144"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car135e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "16 × 8 = ?",
+   "secenekler": [
+    "120",
+    "128",
+    "136",
+    "144"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car136t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "15 × 6 = ?",
+   "secenekler": [
+    "89",
+    "100",
+    "105",
+    "90"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car136e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "15 × 6 = ?",
+   "secenekler": [
+    "89",
+    "100",
+    "105",
+    "90"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car137t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "13 × 9 = ?",
+   "secenekler": [
+    "118",
+    "116",
+    "117",
+    "127"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car137e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "13 × 9 = ?",
+   "secenekler": [
+    "118",
+    "116",
+    "117",
+    "127"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car138t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "15 × 7 = ?",
+   "secenekler": [
+    "106",
+    "112",
+    "98",
+    "105"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car138e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "15 × 7 = ?",
+   "secenekler": [
+    "106",
+    "112",
+    "98",
+    "105"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car139t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "15 × 8 = ?",
+   "secenekler": [
+    "130",
+    "120",
+    "112",
+    "135"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car139e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "15 × 8 = ?",
+   "secenekler": [
+    "130",
+    "120",
+    "112",
+    "135"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car140t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "12 × 6 = ?",
+   "secenekler": [
+    "72",
+    "66",
+    "84",
+    "78"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car140e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "12 × 6 = ?",
+   "secenekler": [
+    "72",
+    "66",
+    "84",
+    "78"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car141t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "11 × 9 = ?",
+   "secenekler": [
+    "89",
+    "88",
+    "98",
+    "99"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car141e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "11 × 9 = ?",
+   "secenekler": [
+    "89",
+    "88",
+    "98",
+    "99"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "car142t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "18 × 9 = ?",
+   "secenekler": [
+    "162",
+    "171",
+    "163",
+    "172"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car142e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "18 × 9 = ?",
+   "secenekler": [
+    "162",
+    "171",
+    "163",
+    "172"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car143t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "15 × 9 = ?",
+   "secenekler": [
+    "126",
+    "120",
+    "135",
+    "125"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car143e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "15 × 9 = ?",
+   "secenekler": [
+    "126",
+    "120",
+    "135",
+    "125"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "car144t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "14 × 6 = ?",
+   "secenekler": [
+    "84",
+    "78",
+    "74",
+    "83"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car144e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "14 × 6 = ?",
+   "secenekler": [
+    "84",
+    "78",
+    "74",
+    "83"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "car145t",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "19 × 9 = ?",
+   "secenekler": [
+    "152",
+    "171",
+    "162",
+    "181"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "car145e",
+   "konu": "carpim",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "19 × 9 = ?",
+   "secenekler": [
+    "152",
+    "171",
+    "162",
+    "181"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor146t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "47 + 21 = ?",
+   "secenekler": [
+    "58",
+    "66",
+    "68",
+    "73"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor146e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "47 + 21 = ?",
+   "secenekler": [
+    "58",
+    "66",
+    "68",
+    "73"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor147t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "89 + 86 = ?",
+   "secenekler": [
+    "175",
+    "173",
+    "174",
+    "185"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor147e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "89 + 86 = ?",
+   "secenekler": [
+    "175",
+    "173",
+    "174",
+    "185"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor148t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "23 + 28 = ?",
+   "secenekler": [
+    "51",
+    "61",
+    "46",
+    "41"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor148e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "23 + 28 = ?",
+   "secenekler": [
+    "51",
+    "61",
+    "46",
+    "41"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor149t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "22 − 18 = ?",
+   "secenekler": [
+    "14",
+    "6",
+    "4",
+    "5"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor149e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "22 − 18 = ?",
+   "secenekler": [
+    "14",
+    "6",
+    "4",
+    "5"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor150t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "74 − 34 = ?",
+   "secenekler": [
+    "40",
+    "41",
+    "30",
+    "38"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor150e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "74 − 34 = ?",
+   "secenekler": [
+    "40",
+    "41",
+    "30",
+    "38"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor151t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "28 + 75 = ?",
+   "secenekler": [
+    "108",
+    "103",
+    "105",
+    "93"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor151e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "28 + 75 = ?",
+   "secenekler": [
+    "108",
+    "103",
+    "105",
+    "93"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor152t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "54 − 12 = ?",
+   "secenekler": [
+    "47",
+    "40",
+    "32",
+    "42"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor152e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "54 − 12 = ?",
+   "secenekler": [
+    "47",
+    "40",
+    "32",
+    "42"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor153t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "34 + 28 = ?",
+   "secenekler": [
+    "57",
+    "62",
+    "61",
+    "60"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor153e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "34 + 28 = ?",
+   "secenekler": [
+    "57",
+    "62",
+    "61",
+    "60"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor154t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "57 − 44 = ?",
+   "secenekler": [
+    "14",
+    "13",
+    "18",
+    "8"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor154e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "57 − 44 = ?",
+   "secenekler": [
+    "14",
+    "13",
+    "18",
+    "8"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor155t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "58 − 48 = ?",
+   "secenekler": [
+    "10",
+    "5",
+    "9",
+    "12"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor155e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "58 − 48 = ?",
+   "secenekler": [
+    "10",
+    "5",
+    "9",
+    "12"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor156t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "79 − 38 = ?",
+   "secenekler": [
+    "31",
+    "36",
+    "46",
+    "41"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor156e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "79 − 38 = ?",
+   "secenekler": [
+    "31",
+    "36",
+    "46",
+    "41"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor157t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "84 + 79 = ?",
+   "secenekler": [
+    "158",
+    "162",
+    "163",
+    "164"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor157e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "84 + 79 = ?",
+   "secenekler": [
+    "158",
+    "162",
+    "163",
+    "164"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor158t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "18 + 69 = ?",
+   "secenekler": [
+    "82",
+    "77",
+    "88",
+    "87"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor158e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "18 + 69 = ?",
+   "secenekler": [
+    "82",
+    "77",
+    "88",
+    "87"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor159t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "38 − 11 = ?",
+   "secenekler": [
+    "28",
+    "37",
+    "26",
+    "27"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor159e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "38 − 11 = ?",
+   "secenekler": [
+    "28",
+    "37",
+    "26",
+    "27"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor160t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "34 − 28 = ?",
+   "secenekler": [
+    "8",
+    "6",
+    "1",
+    "4"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor160e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "34 − 28 = ?",
+   "secenekler": [
+    "8",
+    "6",
+    "1",
+    "4"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor161t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "80 − 28 = ?",
+   "secenekler": [
+    "50",
+    "57",
+    "52",
+    "62"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor161e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "80 − 28 = ?",
+   "secenekler": [
+    "50",
+    "57",
+    "52",
+    "62"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor162t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "70 − 49 = ?",
+   "secenekler": [
+    "19",
+    "21",
+    "23",
+    "11"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor162e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "70 − 49 = ?",
+   "secenekler": [
+    "19",
+    "21",
+    "23",
+    "11"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor163t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "25 − 15 = ?",
+   "secenekler": [
+    "20",
+    "15",
+    "9",
+    "10"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor163e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "25 − 15 = ?",
+   "secenekler": [
+    "20",
+    "15",
+    "9",
+    "10"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor164t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "87 − 68 = ?",
+   "secenekler": [
+    "24",
+    "20",
+    "19",
+    "17"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor164e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "87 − 68 = ?",
+   "secenekler": [
+    "24",
+    "20",
+    "19",
+    "17"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor165t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "75 + 48 = ?",
+   "secenekler": [
+    "123",
+    "128",
+    "118",
+    "125"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor165e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "75 + 48 = ?",
+   "secenekler": [
+    "123",
+    "128",
+    "118",
+    "125"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor166t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "46 − 18 = ?",
+   "secenekler": [
+    "28",
+    "30",
+    "38",
+    "33"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor166e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "46 − 18 = ?",
+   "secenekler": [
+    "28",
+    "30",
+    "38",
+    "33"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor167t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "64 + 63 = ?",
+   "secenekler": [
+    "122",
+    "127",
+    "128",
+    "132"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor167e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "64 + 63 = ?",
+   "secenekler": [
+    "122",
+    "127",
+    "128",
+    "132"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor168t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "82 − 63 = ?",
+   "secenekler": [
+    "9",
+    "19",
+    "20",
+    "24"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor168e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "82 − 63 = ?",
+   "secenekler": [
+    "9",
+    "19",
+    "20",
+    "24"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor169t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "79 + 35 = ?",
+   "secenekler": [
+    "112",
+    "114",
+    "113",
+    "109"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor169e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "79 + 35 = ?",
+   "secenekler": [
+    "112",
+    "114",
+    "113",
+    "109"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor170t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "53 − 49 = ?",
+   "secenekler": [
+    "6",
+    "14",
+    "4",
+    "5"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor170e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "53 − 49 = ?",
+   "secenekler": [
+    "6",
+    "14",
+    "4",
+    "5"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor171t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "61 − 41 = ?",
+   "secenekler": [
+    "20",
+    "10",
+    "15",
+    "22"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor171e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "61 − 41 = ?",
+   "secenekler": [
+    "20",
+    "10",
+    "15",
+    "22"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor172t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "70 − 23 = ?",
+   "secenekler": [
+    "37",
+    "48",
+    "46",
+    "47"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor172e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "70 − 23 = ?",
+   "secenekler": [
+    "37",
+    "48",
+    "46",
+    "47"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor173t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "29 + 13 = ?",
+   "secenekler": [
+    "42",
+    "43",
+    "32",
+    "41"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor173e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "29 + 13 = ?",
+   "secenekler": [
+    "42",
+    "43",
+    "32",
+    "41"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor174t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "73 − 43 = ?",
+   "secenekler": [
+    "32",
+    "30",
+    "29",
+    "25"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor174e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "73 − 43 = ?",
+   "secenekler": [
+    "32",
+    "30",
+    "29",
+    "25"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor175t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "78 − 15 = ?",
+   "secenekler": [
+    "62",
+    "73",
+    "63",
+    "68"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor175e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "78 − 15 = ?",
+   "secenekler": [
+    "62",
+    "73",
+    "63",
+    "68"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor176t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "38 − 12 = ?",
+   "secenekler": [
+    "16",
+    "28",
+    "21",
+    "26"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor176e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "38 − 12 = ?",
+   "secenekler": [
+    "16",
+    "28",
+    "21",
+    "26"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor177t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "13 − 12 = ?",
+   "secenekler": [
+    "11",
+    "2",
+    "3",
+    "1"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor177e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "13 − 12 = ?",
+   "secenekler": [
+    "11",
+    "2",
+    "3",
+    "1"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor178t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "33 − 24 = ?",
+   "secenekler": [
+    "9",
+    "8",
+    "4",
+    "10"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor178e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "33 − 24 = ?",
+   "secenekler": [
+    "9",
+    "8",
+    "4",
+    "10"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor179t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "58 − 21 = ?",
+   "secenekler": [
+    "32",
+    "47",
+    "38",
+    "37"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor179e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "58 − 21 = ?",
+   "secenekler": [
+    "32",
+    "47",
+    "38",
+    "37"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor180t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "18 − 12 = ?",
+   "secenekler": [
+    "4",
+    "16",
+    "8",
+    "6"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor180e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "18 − 12 = ?",
+   "secenekler": [
+    "4",
+    "16",
+    "8",
+    "6"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor181t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "83 + 71 = ?",
+   "secenekler": [
+    "156",
+    "159",
+    "152",
+    "154"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor181e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "83 + 71 = ?",
+   "secenekler": [
+    "156",
+    "159",
+    "152",
+    "154"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor182t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "61 + 20 = ?",
+   "secenekler": [
+    "76",
+    "83",
+    "71",
+    "81"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor182e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "61 + 20 = ?",
+   "secenekler": [
+    "76",
+    "83",
+    "71",
+    "81"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor183t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "17 + 23 = ?",
+   "secenekler": [
+    "40",
+    "30",
+    "50",
+    "35"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor183e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "17 + 23 = ?",
+   "secenekler": [
+    "40",
+    "30",
+    "50",
+    "35"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor184t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "56 − 40 = ?",
+   "secenekler": [
+    "6",
+    "16",
+    "18",
+    "14"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor184e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "56 − 40 = ?",
+   "secenekler": [
+    "6",
+    "16",
+    "18",
+    "14"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor185t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "21 + 45 = ?",
+   "secenekler": [
+    "64",
+    "56",
+    "65",
+    "66"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor185e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "21 + 45 = ?",
+   "secenekler": [
+    "64",
+    "56",
+    "65",
+    "66"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor186t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "57 + 45 = ?",
+   "secenekler": [
+    "101",
+    "97",
+    "112",
+    "102"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor186e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "57 + 45 = ?",
+   "secenekler": [
+    "101",
+    "97",
+    "112",
+    "102"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor187t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "60 + 12 = ?",
+   "secenekler": [
+    "73",
+    "77",
+    "72",
+    "71"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor187e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "60 + 12 = ?",
+   "secenekler": [
+    "73",
+    "77",
+    "72",
+    "71"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor188t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "45 + 49 = ?",
+   "secenekler": [
+    "89",
+    "93",
+    "94",
+    "92"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor188e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "45 + 49 = ?",
+   "secenekler": [
+    "89",
+    "93",
+    "94",
+    "92"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor189t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "43 − 42 = ?",
+   "secenekler": [
+    "3",
+    "2",
+    "1",
+    "6"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor189e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "43 − 42 = ?",
+   "secenekler": [
+    "3",
+    "2",
+    "1",
+    "6"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor190t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "49 − 11 = ?",
+   "secenekler": [
+    "33",
+    "38",
+    "28",
+    "36"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor190e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "49 − 11 = ?",
+   "secenekler": [
+    "33",
+    "38",
+    "28",
+    "36"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor191t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "52 − 49 = ?",
+   "secenekler": [
+    "3",
+    "1",
+    "4",
+    "8"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor191e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "52 − 49 = ?",
+   "secenekler": [
+    "3",
+    "1",
+    "4",
+    "8"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor192t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "84 − 73 = ?",
+   "secenekler": [
+    "1",
+    "11",
+    "12",
+    "6"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor192e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "84 − 73 = ?",
+   "secenekler": [
+    "1",
+    "11",
+    "12",
+    "6"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor193t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "70 + 37 = ?",
+   "secenekler": [
+    "107",
+    "105",
+    "102",
+    "117"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor193e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "70 + 37 = ?",
+   "secenekler": [
+    "107",
+    "105",
+    "102",
+    "117"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor194t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "43 − 41 = ?",
+   "secenekler": [
+    "2",
+    "4",
+    "3",
+    "1"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor194e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "43 − 41 = ?",
+   "secenekler": [
+    "2",
+    "4",
+    "3",
+    "1"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor195t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "79 − 75 = ?",
+   "secenekler": [
+    "9",
+    "5",
+    "3",
+    "4"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor195e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "79 − 75 = ?",
+   "secenekler": [
+    "9",
+    "5",
+    "3",
+    "4"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor196t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "32 + 89 = ?",
+   "secenekler": [
+    "111",
+    "120",
+    "121",
+    "122"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor196e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "32 + 89 = ?",
+   "secenekler": [
+    "111",
+    "120",
+    "121",
+    "122"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor197t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "68 + 58 = ?",
+   "secenekler": [
+    "121",
+    "125",
+    "131",
+    "126"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor197e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "68 + 58 = ?",
+   "secenekler": [
+    "121",
+    "125",
+    "131",
+    "126"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor198t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "55 + 50 = ?",
+   "secenekler": [
+    "103",
+    "105",
+    "115",
+    "100"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor198e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "55 + 50 = ?",
+   "secenekler": [
+    "103",
+    "105",
+    "115",
+    "100"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor199t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "49 − 16 = ?",
+   "secenekler": [
+    "23",
+    "33",
+    "43",
+    "38"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor199e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "49 − 16 = ?",
+   "secenekler": [
+    "23",
+    "33",
+    "43",
+    "38"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor200t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "53 + 82 = ?",
+   "secenekler": [
+    "130",
+    "140",
+    "135",
+    "134"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor200e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "53 + 82 = ?",
+   "secenekler": [
+    "130",
+    "140",
+    "135",
+    "134"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor201t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "68 + 86 = ?",
+   "secenekler": [
+    "153",
+    "152",
+    "159",
+    "154"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor201e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "68 + 86 = ?",
+   "secenekler": [
+    "153",
+    "152",
+    "159",
+    "154"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor202t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "57 + 52 = ?",
+   "secenekler": [
+    "99",
+    "109",
+    "119",
+    "110"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor202e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "57 + 52 = ?",
+   "secenekler": [
+    "99",
+    "109",
+    "119",
+    "110"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor203t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "56 − 55 = ?",
+   "secenekler": [
+    "2",
+    "6",
+    "11",
+    "1"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor203e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "56 − 55 = ?",
+   "secenekler": [
+    "2",
+    "6",
+    "11",
+    "1"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor204t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "51 + 26 = ?",
+   "secenekler": [
+    "67",
+    "77",
+    "79",
+    "78"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor204e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "51 + 26 = ?",
+   "secenekler": [
+    "67",
+    "77",
+    "79",
+    "78"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor205t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "79 − 73 = ?",
+   "secenekler": [
+    "5",
+    "7",
+    "6",
+    "1"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor205e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "79 − 73 = ?",
+   "secenekler": [
+    "5",
+    "7",
+    "6",
+    "1"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor206t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "68 − 17 = ?",
+   "secenekler": [
+    "51",
+    "61",
+    "52",
+    "49"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor206e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "68 − 17 = ?",
+   "secenekler": [
+    "51",
+    "61",
+    "52",
+    "49"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor207t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "64 + 67 = ?",
+   "secenekler": [
+    "131",
+    "141",
+    "121",
+    "133"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor207e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "64 + 67 = ?",
+   "secenekler": [
+    "131",
+    "141",
+    "121",
+    "133"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor208t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "69 − 32 = ?",
+   "secenekler": [
+    "35",
+    "38",
+    "36",
+    "37"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor208e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "69 − 32 = ?",
+   "secenekler": [
+    "35",
+    "38",
+    "36",
+    "37"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor209t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "80 − 38 = ?",
+   "secenekler": [
+    "32",
+    "42",
+    "41",
+    "43"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor209e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "80 − 38 = ?",
+   "secenekler": [
+    "32",
+    "42",
+    "41",
+    "43"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor210t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "67 − 26 = ?",
+   "secenekler": [
+    "31",
+    "41",
+    "51",
+    "36"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor210e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "67 − 26 = ?",
+   "secenekler": [
+    "31",
+    "41",
+    "51",
+    "36"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor211t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "83 − 55 = ?",
+   "secenekler": [
+    "38",
+    "33",
+    "23",
+    "28"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor211e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "83 − 55 = ?",
+   "secenekler": [
+    "38",
+    "33",
+    "23",
+    "28"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor212t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "27 + 27 = ?",
+   "secenekler": [
+    "54",
+    "59",
+    "49",
+    "64"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor212e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "27 + 27 = ?",
+   "secenekler": [
+    "54",
+    "59",
+    "49",
+    "64"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor213t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "20 + 22 = ?",
+   "secenekler": [
+    "37",
+    "47",
+    "32",
+    "42"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor213e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "20 + 22 = ?",
+   "secenekler": [
+    "37",
+    "47",
+    "32",
+    "42"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor214t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "56 − 19 = ?",
+   "secenekler": [
+    "39",
+    "37",
+    "32",
+    "36"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor214e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "56 − 19 = ?",
+   "secenekler": [
+    "39",
+    "37",
+    "32",
+    "36"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor215t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "83 − 73 = ?",
+   "secenekler": [
+    "11",
+    "8",
+    "9",
+    "10"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor215e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "83 − 73 = ?",
+   "secenekler": [
+    "11",
+    "8",
+    "9",
+    "10"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor216t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "67 + 69 = ?",
+   "secenekler": [
+    "131",
+    "137",
+    "138",
+    "136"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor216e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "67 + 69 = ?",
+   "secenekler": [
+    "131",
+    "137",
+    "138",
+    "136"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor217t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "43 + 21 = ?",
+   "secenekler": [
+    "54",
+    "62",
+    "59",
+    "64"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor217e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "43 + 21 = ?",
+   "secenekler": [
+    "54",
+    "62",
+    "59",
+    "64"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor218t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "72 + 20 = ?",
+   "secenekler": [
+    "102",
+    "93",
+    "82",
+    "92"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor218e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "72 + 20 = ?",
+   "secenekler": [
+    "102",
+    "93",
+    "82",
+    "92"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor219t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "22 + 24 = ?",
+   "secenekler": [
+    "47",
+    "51",
+    "36",
+    "46"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor219e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "22 + 24 = ?",
+   "secenekler": [
+    "47",
+    "51",
+    "36",
+    "46"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor220t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "89 + 32 = ?",
+   "secenekler": [
+    "116",
+    "120",
+    "121",
+    "131"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor220e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "89 + 32 = ?",
+   "secenekler": [
+    "116",
+    "120",
+    "121",
+    "131"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor221t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "28 − 26 = ?",
+   "secenekler": [
+    "12",
+    "3",
+    "2",
+    "1"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor221e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "28 − 26 = ?",
+   "secenekler": [
+    "12",
+    "3",
+    "2",
+    "1"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor222t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "42 − 21 = ?",
+   "secenekler": [
+    "20",
+    "21",
+    "16",
+    "31"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor222e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "42 − 21 = ?",
+   "secenekler": [
+    "20",
+    "21",
+    "16",
+    "31"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor223t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "41 + 74 = ?",
+   "secenekler": [
+    "113",
+    "115",
+    "110",
+    "120"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor223e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "41 + 74 = ?",
+   "secenekler": [
+    "113",
+    "115",
+    "110",
+    "120"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor224t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "60 + 83 = ?",
+   "secenekler": [
+    "145",
+    "153",
+    "138",
+    "143"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor224e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "60 + 83 = ?",
+   "secenekler": [
+    "145",
+    "153",
+    "138",
+    "143"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor225t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "18 − 16 = ?",
+   "secenekler": [
+    "2",
+    "1",
+    "3",
+    "12"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor225e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "18 − 16 = ?",
+   "secenekler": [
+    "2",
+    "1",
+    "3",
+    "12"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor226t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "79 − 21 = ?",
+   "secenekler": [
+    "58",
+    "57",
+    "56",
+    "48"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor226e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "79 − 21 = ?",
+   "secenekler": [
+    "58",
+    "57",
+    "56",
+    "48"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor227t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "86 − 61 = ?",
+   "secenekler": [
+    "27",
+    "35",
+    "24",
+    "25"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor227e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "86 − 61 = ?",
+   "secenekler": [
+    "27",
+    "35",
+    "24",
+    "25"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor228t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "89 − 69 = ?",
+   "secenekler": [
+    "18",
+    "30",
+    "19",
+    "20"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor228e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "89 − 69 = ?",
+   "secenekler": [
+    "18",
+    "30",
+    "19",
+    "20"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor229t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "77 − 55 = ?",
+   "secenekler": [
+    "20",
+    "32",
+    "27",
+    "22"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor229e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "77 − 55 = ?",
+   "secenekler": [
+    "20",
+    "32",
+    "27",
+    "22"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor230t",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "45 + 78 = ?",
+   "secenekler": [
+    "125",
+    "123",
+    "128",
+    "122"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor230e",
+   "konu": "dort_islem",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "45 + 78 = ?",
+   "secenekler": [
+    "125",
+    "123",
+    "128",
+    "122"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor231t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "36 + 16 − 23 = ?",
+   "secenekler": [
+    "19",
+    "24",
+    "29",
+    "30"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor231e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "36 + 16 − 23 = ?",
+   "secenekler": [
+    "19",
+    "24",
+    "29",
+    "30"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor232t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "43 + 34 − 9 = ?",
+   "secenekler": [
+    "68",
+    "67",
+    "78",
+    "63"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor232e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "43 + 34 − 9 = ?",
+   "secenekler": [
+    "68",
+    "67",
+    "78",
+    "63"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor233t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "37 + 14 − 23 = ?",
+   "secenekler": [
+    "18",
+    "23",
+    "28",
+    "30"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor233e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "37 + 14 − 23 = ?",
+   "secenekler": [
+    "18",
+    "23",
+    "28",
+    "30"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor234t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "75 + 28 − 29 = ?",
+   "secenekler": [
+    "74",
+    "69",
+    "76",
+    "79"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor234e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "75 + 28 − 29 = ?",
+   "secenekler": [
+    "74",
+    "69",
+    "76",
+    "79"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor235t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "67 + 49 − 12 = ?",
+   "secenekler": [
+    "99",
+    "114",
+    "104",
+    "109"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor235e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "67 + 49 − 12 = ?",
+   "secenekler": [
+    "99",
+    "114",
+    "104",
+    "109"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor236t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "21 + 24 − 22 = ?",
+   "secenekler": [
+    "21",
+    "22",
+    "23",
+    "13"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor236e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "21 + 24 − 22 = ?",
+   "secenekler": [
+    "21",
+    "22",
+    "23",
+    "13"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor237t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "53 + 25 − 18 = ?",
+   "secenekler": [
+    "60",
+    "59",
+    "58",
+    "55"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor237e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "53 + 25 − 18 = ?",
+   "secenekler": [
+    "60",
+    "59",
+    "58",
+    "55"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor238t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "49 + 15 − 23 = ?",
+   "secenekler": [
+    "46",
+    "41",
+    "51",
+    "40"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor238e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "49 + 15 − 23 = ?",
+   "secenekler": [
+    "46",
+    "41",
+    "51",
+    "40"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor239t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "35 + 28 − 13 = ?",
+   "secenekler": [
+    "45",
+    "60",
+    "50",
+    "40"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor239e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "35 + 28 − 13 = ?",
+   "secenekler": [
+    "45",
+    "60",
+    "50",
+    "40"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor240t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "28 + 47 − 8 = ?",
+   "secenekler": [
+    "77",
+    "57",
+    "62",
+    "67"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor240e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "28 + 47 − 8 = ?",
+   "secenekler": [
+    "77",
+    "57",
+    "62",
+    "67"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor241t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "69 + 23 − 19 = ?",
+   "secenekler": [
+    "71",
+    "78",
+    "83",
+    "73"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor241e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "69 + 23 − 19 = ?",
+   "secenekler": [
+    "71",
+    "78",
+    "83",
+    "73"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor242t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "29 + 15 − 27 = ?",
+   "secenekler": [
+    "19",
+    "22",
+    "17",
+    "12"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor242e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "29 + 15 − 27 = ?",
+   "secenekler": [
+    "19",
+    "22",
+    "17",
+    "12"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor243t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "80 + 35 − 19 = ?",
+   "secenekler": [
+    "91",
+    "101",
+    "86",
+    "96"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor243e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "80 + 35 − 19 = ?",
+   "secenekler": [
+    "91",
+    "101",
+    "86",
+    "96"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor244t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "32 + 35 − 16 = ?",
+   "secenekler": [
+    "51",
+    "50",
+    "53",
+    "61"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor244e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "32 + 35 − 16 = ?",
+   "secenekler": [
+    "51",
+    "50",
+    "53",
+    "61"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor245t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "71 + 18 − 7 = ?",
+   "secenekler": [
+    "77",
+    "82",
+    "80",
+    "83"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor245e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "71 + 18 − 7 = ?",
+   "secenekler": [
+    "77",
+    "82",
+    "80",
+    "83"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor246t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "44 + 37 − 10 = ?",
+   "secenekler": [
+    "72",
+    "61",
+    "66",
+    "71"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor246e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "44 + 37 − 10 = ?",
+   "secenekler": [
+    "72",
+    "61",
+    "66",
+    "71"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor247t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "61 + 28 − 20 = ?",
+   "secenekler": [
+    "68",
+    "69",
+    "67",
+    "74"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor247e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "61 + 28 − 20 = ?",
+   "secenekler": [
+    "68",
+    "69",
+    "67",
+    "74"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor248t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "61 + 43 − 12 = ?",
+   "secenekler": [
+    "92",
+    "94",
+    "90",
+    "102"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor248e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "61 + 43 − 12 = ?",
+   "secenekler": [
+    "92",
+    "94",
+    "90",
+    "102"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor249t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "44 + 27 − 10 = ?",
+   "secenekler": [
+    "61",
+    "62",
+    "56",
+    "60"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor249e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "44 + 27 − 10 = ?",
+   "secenekler": [
+    "61",
+    "62",
+    "56",
+    "60"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor250t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "69 + 47 − 12 = ?",
+   "secenekler": [
+    "104",
+    "105",
+    "114",
+    "106"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor250e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "69 + 47 − 12 = ?",
+   "secenekler": [
+    "104",
+    "105",
+    "114",
+    "106"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor251t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "42 + 21 − 10 = ?",
+   "secenekler": [
+    "58",
+    "53",
+    "48",
+    "63"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor251e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "42 + 21 − 10 = ?",
+   "secenekler": [
+    "58",
+    "53",
+    "48",
+    "63"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor252t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "73 + 41 − 22 = ?",
+   "secenekler": [
+    "82",
+    "91",
+    "92",
+    "93"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor252e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "73 + 41 − 22 = ?",
+   "secenekler": [
+    "82",
+    "91",
+    "92",
+    "93"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor253t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "20 + 31 − 24 = ?",
+   "secenekler": [
+    "25",
+    "32",
+    "29",
+    "27"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor253e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "20 + 31 − 24 = ?",
+   "secenekler": [
+    "25",
+    "32",
+    "29",
+    "27"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor254t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "69 + 17 − 21 = ?",
+   "secenekler": [
+    "75",
+    "66",
+    "65",
+    "63"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor254e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "69 + 17 − 21 = ?",
+   "secenekler": [
+    "75",
+    "66",
+    "65",
+    "63"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor255t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "66 + 37 − 30 = ?",
+   "secenekler": [
+    "73",
+    "74",
+    "75",
+    "68"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor255e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "66 + 37 − 30 = ?",
+   "secenekler": [
+    "73",
+    "74",
+    "75",
+    "68"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor256t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "28 + 21 − 28 = ?",
+   "secenekler": [
+    "26",
+    "21",
+    "16",
+    "19"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor256e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "28 + 21 − 28 = ?",
+   "secenekler": [
+    "26",
+    "21",
+    "16",
+    "19"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor257t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "79 + 41 − 9 = ?",
+   "secenekler": [
+    "112",
+    "110",
+    "116",
+    "111"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor257e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "79 + 41 − 9 = ?",
+   "secenekler": [
+    "112",
+    "110",
+    "116",
+    "111"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor258t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "48 + 10 − 13 = ?",
+   "secenekler": [
+    "46",
+    "55",
+    "50",
+    "45"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor258e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "48 + 10 − 13 = ?",
+   "secenekler": [
+    "46",
+    "55",
+    "50",
+    "45"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor259t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "48 + 36 − 10 = ?",
+   "secenekler": [
+    "69",
+    "64",
+    "74",
+    "75"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor259e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "48 + 36 − 10 = ?",
+   "secenekler": [
+    "69",
+    "64",
+    "74",
+    "75"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor260t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "24 + 12 − 14 = ?",
+   "secenekler": [
+    "23",
+    "20",
+    "22",
+    "12"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor260e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "24 + 12 − 14 = ?",
+   "secenekler": [
+    "23",
+    "20",
+    "22",
+    "12"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor261t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "55 + 15 − 15 = ?",
+   "secenekler": [
+    "50",
+    "54",
+    "55",
+    "57"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor261e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "55 + 15 − 15 = ?",
+   "secenekler": [
+    "50",
+    "54",
+    "55",
+    "57"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor262t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "41 + 23 − 11 = ?",
+   "secenekler": [
+    "43",
+    "52",
+    "53",
+    "48"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor262e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "41 + 23 − 11 = ?",
+   "secenekler": [
+    "43",
+    "52",
+    "53",
+    "48"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor263t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "23 + 35 − 23 = ?",
+   "secenekler": [
+    "35",
+    "40",
+    "25",
+    "37"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor263e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "23 + 35 − 23 = ?",
+   "secenekler": [
+    "35",
+    "40",
+    "25",
+    "37"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor264t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "32 + 16 − 5 = ?",
+   "secenekler": [
+    "43",
+    "48",
+    "44",
+    "53"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor264e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "32 + 16 − 5 = ?",
+   "secenekler": [
+    "43",
+    "48",
+    "44",
+    "53"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor265t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "51 + 26 − 7 = ?",
+   "secenekler": [
+    "65",
+    "60",
+    "72",
+    "70"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor265e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "51 + 26 − 7 = ?",
+   "secenekler": [
+    "65",
+    "60",
+    "72",
+    "70"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor266t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "49 + 26 − 12 = ?",
+   "secenekler": [
+    "68",
+    "63",
+    "61",
+    "73"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor266e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "49 + 26 − 12 = ?",
+   "secenekler": [
+    "68",
+    "63",
+    "61",
+    "73"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor267t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "55 + 13 − 17 = ?",
+   "secenekler": [
+    "49",
+    "61",
+    "41",
+    "51"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor267e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "55 + 13 − 17 = ?",
+   "secenekler": [
+    "49",
+    "61",
+    "41",
+    "51"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor268t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "52 + 46 − 21 = ?",
+   "secenekler": [
+    "87",
+    "82",
+    "77",
+    "79"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor268e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "52 + 46 − 21 = ?",
+   "secenekler": [
+    "87",
+    "82",
+    "77",
+    "79"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor269t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "25 + 37 − 11 = ?",
+   "secenekler": [
+    "50",
+    "41",
+    "46",
+    "51"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor269e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "25 + 37 − 11 = ?",
+   "secenekler": [
+    "50",
+    "41",
+    "46",
+    "51"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor270t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "55 + 30 − 13 = ?",
+   "secenekler": [
+    "77",
+    "70",
+    "72",
+    "71"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor270e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "55 + 30 − 13 = ?",
+   "secenekler": [
+    "77",
+    "70",
+    "72",
+    "71"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor271t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "79 + 16 − 23 = ?",
+   "secenekler": [
+    "72",
+    "67",
+    "73",
+    "62"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor271e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "79 + 16 − 23 = ?",
+   "secenekler": [
+    "72",
+    "67",
+    "73",
+    "62"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor272t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "56 + 48 − 20 = ?",
+   "secenekler": [
+    "86",
+    "85",
+    "94",
+    "84"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor272e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "56 + 48 − 20 = ?",
+   "secenekler": [
+    "86",
+    "85",
+    "94",
+    "84"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor273t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "64 + 25 − 6 = ?",
+   "secenekler": [
+    "78",
+    "83",
+    "84",
+    "82"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor273e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "64 + 25 − 6 = ?",
+   "secenekler": [
+    "78",
+    "83",
+    "84",
+    "82"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor274t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "75 + 24 − 9 = ?",
+   "secenekler": [
+    "80",
+    "100",
+    "92",
+    "90"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor274e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "75 + 24 − 9 = ?",
+   "secenekler": [
+    "80",
+    "100",
+    "92",
+    "90"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor275t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "33 + 36 − 28 = ?",
+   "secenekler": [
+    "46",
+    "42",
+    "39",
+    "41"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor275e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "33 + 36 − 28 = ?",
+   "secenekler": [
+    "46",
+    "42",
+    "39",
+    "41"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor276t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "28 + 43 − 23 = ?",
+   "secenekler": [
+    "46",
+    "49",
+    "48",
+    "47"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor276e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "28 + 43 − 23 = ?",
+   "secenekler": [
+    "46",
+    "49",
+    "48",
+    "47"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor277t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "65 + 22 − 13 = ?",
+   "secenekler": [
+    "64",
+    "69",
+    "72",
+    "74"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor277e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "65 + 22 − 13 = ?",
+   "secenekler": [
+    "64",
+    "69",
+    "72",
+    "74"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor278t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "51 + 48 − 19 = ?",
+   "secenekler": [
+    "82",
+    "80",
+    "75",
+    "70"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor278e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "51 + 48 − 19 = ?",
+   "secenekler": [
+    "82",
+    "80",
+    "75",
+    "70"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor279t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "38 + 11 − 17 = ?",
+   "secenekler": [
+    "32",
+    "31",
+    "37",
+    "42"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor279e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "38 + 11 − 17 = ?",
+   "secenekler": [
+    "32",
+    "31",
+    "37",
+    "42"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor280t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "52 + 11 − 29 = ?",
+   "secenekler": [
+    "34",
+    "35",
+    "24",
+    "39"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor280e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "52 + 11 − 29 = ?",
+   "secenekler": [
+    "34",
+    "35",
+    "24",
+    "39"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor281t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "47 + 34 − 16 = ?",
+   "secenekler": [
+    "55",
+    "64",
+    "75",
+    "65"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor281e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "47 + 34 − 16 = ?",
+   "secenekler": [
+    "55",
+    "64",
+    "75",
+    "65"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor282t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "55 + 48 − 24 = ?",
+   "secenekler": [
+    "79",
+    "84",
+    "89",
+    "74"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor282e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "55 + 48 − 24 = ?",
+   "secenekler": [
+    "79",
+    "84",
+    "89",
+    "74"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor283t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "75 + 27 − 13 = ?",
+   "secenekler": [
+    "84",
+    "89",
+    "99",
+    "87"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor283e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "75 + 27 − 13 = ?",
+   "secenekler": [
+    "84",
+    "89",
+    "99",
+    "87"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor284t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "66 + 11 − 25 = ?",
+   "secenekler": [
+    "42",
+    "52",
+    "47",
+    "54"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor284e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "66 + 11 − 25 = ?",
+   "secenekler": [
+    "42",
+    "52",
+    "47",
+    "54"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor285t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "63 + 44 − 25 = ?",
+   "secenekler": [
+    "72",
+    "77",
+    "82",
+    "81"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor285e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "63 + 44 − 25 = ?",
+   "secenekler": [
+    "72",
+    "77",
+    "82",
+    "81"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor286t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "28 + 26 − 28 = ?",
+   "secenekler": [
+    "26",
+    "24",
+    "28",
+    "25"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor286e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "28 + 26 − 28 = ?",
+   "secenekler": [
+    "26",
+    "24",
+    "28",
+    "25"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor287t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "43 + 26 − 23 = ?",
+   "secenekler": [
+    "41",
+    "56",
+    "46",
+    "44"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor287e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "43 + 26 − 23 = ?",
+   "secenekler": [
+    "41",
+    "56",
+    "46",
+    "44"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor288t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "75 + 34 − 21 = ?",
+   "secenekler": [
+    "88",
+    "83",
+    "90",
+    "89"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor288e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "75 + 34 − 21 = ?",
+   "secenekler": [
+    "88",
+    "83",
+    "90",
+    "89"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor289t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "29 + 30 − 27 = ?",
+   "secenekler": [
+    "34",
+    "32",
+    "22",
+    "27"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor289e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "29 + 30 − 27 = ?",
+   "secenekler": [
+    "34",
+    "32",
+    "22",
+    "27"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor290t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "20 + 38 − 13 = ?",
+   "secenekler": [
+    "45",
+    "55",
+    "35",
+    "43"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor290e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "20 + 38 − 13 = ?",
+   "secenekler": [
+    "45",
+    "55",
+    "35",
+    "43"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor291t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "60 + 37 − 17 = ?",
+   "secenekler": [
+    "78",
+    "75",
+    "80",
+    "82"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor291e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "60 + 37 − 17 = ?",
+   "secenekler": [
+    "78",
+    "75",
+    "80",
+    "82"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor292t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "68 + 43 − 11 = ?",
+   "secenekler": [
+    "90",
+    "101",
+    "100",
+    "102"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor292e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "68 + 43 − 11 = ?",
+   "secenekler": [
+    "90",
+    "101",
+    "100",
+    "102"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor293t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "44 + 42 − 23 = ?",
+   "secenekler": [
+    "61",
+    "63",
+    "62",
+    "73"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor293e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "44 + 42 − 23 = ?",
+   "secenekler": [
+    "61",
+    "63",
+    "62",
+    "73"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor294t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "41 + 41 − 16 = ?",
+   "secenekler": [
+    "71",
+    "66",
+    "67",
+    "76"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor294e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "41 + 41 − 16 = ?",
+   "secenekler": [
+    "71",
+    "66",
+    "67",
+    "76"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor295t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "57 + 42 − 10 = ?",
+   "secenekler": [
+    "88",
+    "91",
+    "94",
+    "89"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor295e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "57 + 42 − 10 = ?",
+   "secenekler": [
+    "88",
+    "91",
+    "94",
+    "89"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor296t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "62 + 16 − 25 = ?",
+   "secenekler": [
+    "48",
+    "54",
+    "51",
+    "53"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor296e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "62 + 16 − 25 = ?",
+   "secenekler": [
+    "48",
+    "54",
+    "51",
+    "53"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor297t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "50 + 19 − 11 = ?",
+   "secenekler": [
+    "48",
+    "57",
+    "58",
+    "59"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor297e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "50 + 19 − 11 = ?",
+   "secenekler": [
+    "48",
+    "57",
+    "58",
+    "59"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor298t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "38 + 17 − 30 = ?",
+   "secenekler": [
+    "25",
+    "20",
+    "27",
+    "35"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor298e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "38 + 17 − 30 = ?",
+   "secenekler": [
+    "25",
+    "20",
+    "27",
+    "35"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor299t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "38 + 20 − 6 = ?",
+   "secenekler": [
+    "57",
+    "42",
+    "53",
+    "52"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor299e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "38 + 20 − 6 = ?",
+   "secenekler": [
+    "57",
+    "42",
+    "53",
+    "52"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor300t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "78 + 17 − 23 = ?",
+   "secenekler": [
+    "82",
+    "72",
+    "71",
+    "73"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor300e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "78 + 17 − 23 = ?",
+   "secenekler": [
+    "82",
+    "72",
+    "71",
+    "73"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor301t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "49 + 28 − 13 = ?",
+   "secenekler": [
+    "54",
+    "64",
+    "74",
+    "69"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor301e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "49 + 28 − 13 = ?",
+   "secenekler": [
+    "54",
+    "64",
+    "74",
+    "69"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor302t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "26 + 12 − 5 = ?",
+   "secenekler": [
+    "32",
+    "33",
+    "43",
+    "38"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor302e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "26 + 12 − 5 = ?",
+   "secenekler": [
+    "32",
+    "33",
+    "43",
+    "38"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor303t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "43 + 31 − 10 = ?",
+   "secenekler": [
+    "65",
+    "64",
+    "54",
+    "63"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor303e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "43 + 31 − 10 = ?",
+   "secenekler": [
+    "65",
+    "64",
+    "54",
+    "63"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor304t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "27 + 18 − 27 = ?",
+   "secenekler": [
+    "20",
+    "19",
+    "18",
+    "16"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor304e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "27 + 18 − 27 = ?",
+   "secenekler": [
+    "20",
+    "19",
+    "18",
+    "16"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor305t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "69 + 32 − 24 = ?",
+   "secenekler": [
+    "87",
+    "77",
+    "75",
+    "78"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor305e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "69 + 32 − 24 = ?",
+   "secenekler": [
+    "87",
+    "77",
+    "75",
+    "78"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor306t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "24 + 26 − 25 = ?",
+   "secenekler": [
+    "23",
+    "20",
+    "27",
+    "25"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor306e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "24 + 26 − 25 = ?",
+   "secenekler": [
+    "23",
+    "20",
+    "27",
+    "25"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor307t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "50 + 32 − 26 = ?",
+   "secenekler": [
+    "51",
+    "56",
+    "61",
+    "54"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor307e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "50 + 32 − 26 = ?",
+   "secenekler": [
+    "51",
+    "56",
+    "61",
+    "54"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor308t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "24 + 41 − 15 = ?",
+   "secenekler": [
+    "51",
+    "60",
+    "50",
+    "52"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor308e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "24 + 41 − 15 = ?",
+   "secenekler": [
+    "51",
+    "60",
+    "50",
+    "52"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor309t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "49 + 38 − 30 = ?",
+   "secenekler": [
+    "47",
+    "56",
+    "59",
+    "57"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor309e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "49 + 38 − 30 = ?",
+   "secenekler": [
+    "47",
+    "56",
+    "59",
+    "57"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor310t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "46 + 12 − 22 = ?",
+   "secenekler": [
+    "36",
+    "46",
+    "35",
+    "38"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor310e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "46 + 12 − 22 = ?",
+   "secenekler": [
+    "36",
+    "46",
+    "35",
+    "38"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor311t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "72 + 13 − 12 = ?",
+   "secenekler": [
+    "68",
+    "71",
+    "73",
+    "83"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor311e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "72 + 13 − 12 = ?",
+   "secenekler": [
+    "68",
+    "71",
+    "73",
+    "83"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor312t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "68 + 24 − 5 = ?",
+   "secenekler": [
+    "97",
+    "77",
+    "85",
+    "87"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor312e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "68 + 24 − 5 = ?",
+   "secenekler": [
+    "97",
+    "77",
+    "85",
+    "87"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor313t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "28 + 36 − 8 = ?",
+   "secenekler": [
+    "54",
+    "51",
+    "56",
+    "58"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor313e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "28 + 36 − 8 = ?",
+   "secenekler": [
+    "54",
+    "51",
+    "56",
+    "58"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor314t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "26 + 36 − 6 = ?",
+   "secenekler": [
+    "55",
+    "51",
+    "66",
+    "56"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor314e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "26 + 36 − 6 = ?",
+   "secenekler": [
+    "55",
+    "51",
+    "66",
+    "56"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor315t",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "73 + 47 − 20 = ?",
+   "secenekler": [
+    "100",
+    "95",
+    "98",
+    "102"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor315e",
+   "konu": "dort_islem",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "73 + 47 − 20 = ?",
+   "secenekler": [
+    "100",
+    "95",
+    "98",
+    "102"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor316t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "6 × 7 + 39 = ?",
+   "secenekler": [
+    "81",
+    "71",
+    "76",
+    "83"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor316e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "6 × 7 + 39 = ?",
+   "secenekler": [
+    "81",
+    "71",
+    "76",
+    "83"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor317t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "9 × 8 + 27 = ?",
+   "secenekler": [
+    "99",
+    "101",
+    "97",
+    "100"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor317e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "9 × 8 + 27 = ?",
+   "secenekler": [
+    "99",
+    "101",
+    "97",
+    "100"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor318t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "8 × 4 + 32 = ?",
+   "secenekler": [
+    "64",
+    "74",
+    "59",
+    "66"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor318e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "8 × 4 + 32 = ?",
+   "secenekler": [
+    "64",
+    "74",
+    "59",
+    "66"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor319t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "9 × 6 + 35 = ?",
+   "secenekler": [
+    "84",
+    "79",
+    "91",
+    "89"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor319e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "9 × 6 + 35 = ?",
+   "secenekler": [
+    "84",
+    "79",
+    "91",
+    "89"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor320t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "9 × 9 + 15 = ?",
+   "secenekler": [
+    "94",
+    "96",
+    "95",
+    "106"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor320e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "9 × 9 + 15 = ?",
+   "secenekler": [
+    "94",
+    "96",
+    "95",
+    "106"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor321t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "5 × 9 + 24 = ?",
+   "secenekler": [
+    "69",
+    "68",
+    "70",
+    "64"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor321e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "5 × 9 + 24 = ?",
+   "secenekler": [
+    "69",
+    "68",
+    "70",
+    "64"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor322t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "8 × 8 + 11 = ?",
+   "secenekler": [
+    "75",
+    "77",
+    "70",
+    "76"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor322e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "8 × 8 + 11 = ?",
+   "secenekler": [
+    "75",
+    "77",
+    "70",
+    "76"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor323t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "9 × 4 + 39 = ?",
+   "secenekler": [
+    "73",
+    "75",
+    "74",
+    "65"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor323e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "9 × 4 + 39 = ?",
+   "secenekler": [
+    "73",
+    "75",
+    "74",
+    "65"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor324t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "8 × 3 + 15 = ?",
+   "secenekler": [
+    "39",
+    "29",
+    "49",
+    "37"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor324e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "8 × 3 + 15 = ?",
+   "secenekler": [
+    "39",
+    "29",
+    "49",
+    "37"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor325t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "4 × 4 + 28 = ?",
+   "secenekler": [
+    "54",
+    "44",
+    "49",
+    "46"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor325e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "4 × 4 + 28 = ?",
+   "secenekler": [
+    "54",
+    "44",
+    "49",
+    "46"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor326t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "9 × 8 + 29 = ?",
+   "secenekler": [
+    "96",
+    "99",
+    "101",
+    "111"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor326e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "9 × 8 + 29 = ?",
+   "secenekler": [
+    "96",
+    "99",
+    "101",
+    "111"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor327t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "9 × 7 + 15 = ?",
+   "secenekler": [
+    "78",
+    "73",
+    "80",
+    "76"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor327e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "9 × 7 + 15 = ?",
+   "secenekler": [
+    "78",
+    "73",
+    "80",
+    "76"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor328t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "5 × 5 + 19 = ?",
+   "secenekler": [
+    "42",
+    "39",
+    "34",
+    "44"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor328e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "5 × 5 + 19 = ?",
+   "secenekler": [
+    "42",
+    "39",
+    "34",
+    "44"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor329t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "6 × 4 + 38 = ?",
+   "secenekler": [
+    "62",
+    "57",
+    "61",
+    "67"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor329e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "6 × 4 + 38 = ?",
+   "secenekler": [
+    "62",
+    "57",
+    "61",
+    "67"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor330t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "3 × 7 + 36 = ?",
+   "secenekler": [
+    "47",
+    "57",
+    "67",
+    "52"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor330e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "3 × 7 + 36 = ?",
+   "secenekler": [
+    "47",
+    "57",
+    "67",
+    "52"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor331t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "3 × 4 + 40 = ?",
+   "secenekler": [
+    "51",
+    "57",
+    "50",
+    "52"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor331e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "3 × 4 + 40 = ?",
+   "secenekler": [
+    "51",
+    "57",
+    "50",
+    "52"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor332t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "8 × 9 + 40 = ?",
+   "secenekler": [
+    "111",
+    "110",
+    "113",
+    "112"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor332e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "8 × 9 + 40 = ?",
+   "secenekler": [
+    "111",
+    "110",
+    "113",
+    "112"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor333t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "3 × 4 + 35 = ?",
+   "secenekler": [
+    "47",
+    "45",
+    "49",
+    "46"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor333e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "3 × 4 + 35 = ?",
+   "secenekler": [
+    "47",
+    "45",
+    "49",
+    "46"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor334t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "6 × 5 + 10 = ?",
+   "secenekler": [
+    "38",
+    "39",
+    "41",
+    "40"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor334e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "6 × 5 + 10 = ?",
+   "secenekler": [
+    "38",
+    "39",
+    "41",
+    "40"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor335t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "5 × 7 + 13 = ?",
+   "secenekler": [
+    "58",
+    "48",
+    "47",
+    "43"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor335e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "5 × 7 + 13 = ?",
+   "secenekler": [
+    "58",
+    "48",
+    "47",
+    "43"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor336t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "6 × 4 + 27 = ?",
+   "secenekler": [
+    "51",
+    "56",
+    "52",
+    "41"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor336e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "6 × 4 + 27 = ?",
+   "secenekler": [
+    "51",
+    "56",
+    "52",
+    "41"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor337t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "3 × 7 + 37 = ?",
+   "secenekler": [
+    "63",
+    "48",
+    "58",
+    "57"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor337e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "3 × 7 + 37 = ?",
+   "secenekler": [
+    "63",
+    "48",
+    "58",
+    "57"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor338t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "4 × 6 + 38 = ?",
+   "secenekler": [
+    "64",
+    "62",
+    "52",
+    "57"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor338e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "4 × 6 + 38 = ?",
+   "secenekler": [
+    "64",
+    "62",
+    "52",
+    "57"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor339t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "9 × 9 + 39 = ?",
+   "secenekler": [
+    "110",
+    "118",
+    "120",
+    "122"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor339e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "9 × 9 + 39 = ?",
+   "secenekler": [
+    "110",
+    "118",
+    "120",
+    "122"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor340t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "8 × 7 + 25 = ?",
+   "secenekler": [
+    "81",
+    "80",
+    "82",
+    "86"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor340e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "8 × 7 + 25 = ?",
+   "secenekler": [
+    "81",
+    "80",
+    "82",
+    "86"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor341t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "6 × 5 + 29 = ?",
+   "secenekler": [
+    "54",
+    "60",
+    "59",
+    "64"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor341e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "6 × 5 + 29 = ?",
+   "secenekler": [
+    "54",
+    "60",
+    "59",
+    "64"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor342t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "4 × 9 + 17 = ?",
+   "secenekler": [
+    "53",
+    "52",
+    "43",
+    "54"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor342e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "4 × 9 + 17 = ?",
+   "secenekler": [
+    "53",
+    "52",
+    "43",
+    "54"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor343t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "6 × 7 + 13 = ?",
+   "secenekler": [
+    "45",
+    "55",
+    "57",
+    "53"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor343e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "6 × 7 + 13 = ?",
+   "secenekler": [
+    "45",
+    "55",
+    "57",
+    "53"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor344t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "8 × 3 + 38 = ?",
+   "secenekler": [
+    "72",
+    "67",
+    "60",
+    "62"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor344e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "8 × 3 + 38 = ?",
+   "secenekler": [
+    "72",
+    "67",
+    "60",
+    "62"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor345t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "7 × 7 + 25 = ?",
+   "secenekler": [
+    "64",
+    "75",
+    "76",
+    "74"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor345e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "7 × 7 + 25 = ?",
+   "secenekler": [
+    "64",
+    "75",
+    "76",
+    "74"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor346t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "7 × 3 + 31 = ?",
+   "secenekler": [
+    "62",
+    "52",
+    "42",
+    "50"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor346e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "7 × 3 + 31 = ?",
+   "secenekler": [
+    "62",
+    "52",
+    "42",
+    "50"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor347t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "8 × 8 + 25 = ?",
+   "secenekler": [
+    "84",
+    "91",
+    "89",
+    "88"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor347e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "8 × 8 + 25 = ?",
+   "secenekler": [
+    "84",
+    "91",
+    "89",
+    "88"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor348t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "8 × 4 + 26 = ?",
+   "secenekler": [
+    "57",
+    "53",
+    "48",
+    "58"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor348e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "8 × 4 + 26 = ?",
+   "secenekler": [
+    "57",
+    "53",
+    "48",
+    "58"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor349t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "9 × 8 + 18 = ?",
+   "secenekler": [
+    "89",
+    "90",
+    "80",
+    "100"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor349e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "9 × 8 + 18 = ?",
+   "secenekler": [
+    "89",
+    "90",
+    "80",
+    "100"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor350t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "7 × 6 + 21 = ?",
+   "secenekler": [
+    "65",
+    "62",
+    "63",
+    "68"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor350e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "7 × 6 + 21 = ?",
+   "secenekler": [
+    "65",
+    "62",
+    "63",
+    "68"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor351t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "3 × 7 + 30 = ?",
+   "secenekler": [
+    "51",
+    "41",
+    "50",
+    "49"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor351e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "3 × 7 + 30 = ?",
+   "secenekler": [
+    "51",
+    "41",
+    "50",
+    "49"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor352t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "8 × 3 + 25 = ?",
+   "secenekler": [
+    "39",
+    "54",
+    "47",
+    "49"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor352e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "8 × 3 + 25 = ?",
+   "secenekler": [
+    "39",
+    "54",
+    "47",
+    "49"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor353t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "4 × 7 + 28 = ?",
+   "secenekler": [
+    "54",
+    "58",
+    "61",
+    "56"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor353e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "4 × 7 + 28 = ?",
+   "secenekler": [
+    "54",
+    "58",
+    "61",
+    "56"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor354t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "4 × 7 + 40 = ?",
+   "secenekler": [
+    "68",
+    "67",
+    "70",
+    "78"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor354e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "4 × 7 + 40 = ?",
+   "secenekler": [
+    "68",
+    "67",
+    "70",
+    "78"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor355t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "9 × 6 + 15 = ?",
+   "secenekler": [
+    "68",
+    "74",
+    "69",
+    "64"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor355e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "9 × 6 + 15 = ?",
+   "secenekler": [
+    "68",
+    "74",
+    "69",
+    "64"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor356t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "6 × 7 + 28 = ?",
+   "secenekler": [
+    "70",
+    "65",
+    "69",
+    "72"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor356e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "6 × 7 + 28 = ?",
+   "secenekler": [
+    "70",
+    "65",
+    "69",
+    "72"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor357t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "9 × 4 + 29 = ?",
+   "secenekler": [
+    "55",
+    "67",
+    "60",
+    "65"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor357e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "9 × 4 + 29 = ?",
+   "secenekler": [
+    "55",
+    "67",
+    "60",
+    "65"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor358t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "7 × 7 + 36 = ?",
+   "secenekler": [
+    "95",
+    "83",
+    "85",
+    "80"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor358e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "7 × 7 + 36 = ?",
+   "secenekler": [
+    "95",
+    "83",
+    "85",
+    "80"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor359t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "9 × 9 + 22 = ?",
+   "secenekler": [
+    "101",
+    "103",
+    "102",
+    "104"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor359e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "9 × 9 + 22 = ?",
+   "secenekler": [
+    "101",
+    "103",
+    "102",
+    "104"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor360t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "9 × 3 + 19 = ?",
+   "secenekler": [
+    "45",
+    "56",
+    "48",
+    "46"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor360e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "9 × 3 + 19 = ?",
+   "secenekler": [
+    "45",
+    "56",
+    "48",
+    "46"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor361t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "8 × 9 + 20 = ?",
+   "secenekler": [
+    "92",
+    "91",
+    "94",
+    "90"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor361e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "8 × 9 + 20 = ?",
+   "secenekler": [
+    "92",
+    "91",
+    "94",
+    "90"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor362t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "7 × 5 + 29 = ?",
+   "secenekler": [
+    "64",
+    "63",
+    "69",
+    "65"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor362e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "7 × 5 + 29 = ?",
+   "secenekler": [
+    "64",
+    "63",
+    "69",
+    "65"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor363t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "5 × 5 + 28 = ?",
+   "secenekler": [
+    "43",
+    "53",
+    "51",
+    "54"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor363e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "5 × 5 + 28 = ?",
+   "secenekler": [
+    "43",
+    "53",
+    "51",
+    "54"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor364t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "3 × 4 + 26 = ?",
+   "secenekler": [
+    "43",
+    "36",
+    "39",
+    "38"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor364e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "3 × 4 + 26 = ?",
+   "secenekler": [
+    "43",
+    "36",
+    "39",
+    "38"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor365t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "6 × 7 + 23 = ?",
+   "secenekler": [
+    "65",
+    "70",
+    "75",
+    "60"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor365e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "6 × 7 + 23 = ?",
+   "secenekler": [
+    "65",
+    "70",
+    "75",
+    "60"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor366t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "8 × 7 + 11 = ?",
+   "secenekler": [
+    "72",
+    "66",
+    "67",
+    "62"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor366e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "8 × 7 + 11 = ?",
+   "secenekler": [
+    "72",
+    "66",
+    "67",
+    "62"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor367t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "7 × 4 + 31 = ?",
+   "secenekler": [
+    "59",
+    "54",
+    "60",
+    "57"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor367e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "7 × 4 + 31 = ?",
+   "secenekler": [
+    "59",
+    "54",
+    "60",
+    "57"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor368t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "6 × 7 + 16 = ?",
+   "secenekler": [
+    "58",
+    "53",
+    "56",
+    "48"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor368e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "6 × 7 + 16 = ?",
+   "secenekler": [
+    "58",
+    "53",
+    "56",
+    "48"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor369t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "4 × 6 + 39 = ?",
+   "secenekler": [
+    "73",
+    "62",
+    "58",
+    "63"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor369e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "4 × 6 + 39 = ?",
+   "secenekler": [
+    "73",
+    "62",
+    "58",
+    "63"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor370t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "5 × 3 + 35 = ?",
+   "secenekler": [
+    "50",
+    "52",
+    "45",
+    "40"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor370e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "5 × 3 + 35 = ?",
+   "secenekler": [
+    "50",
+    "52",
+    "45",
+    "40"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor371t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "8 × 6 + 38 = ?",
+   "secenekler": [
+    "86",
+    "88",
+    "76",
+    "85"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor371e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "8 × 6 + 38 = ?",
+   "secenekler": [
+    "86",
+    "88",
+    "76",
+    "85"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor372t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "5 × 7 + 27 = ?",
+   "secenekler": [
+    "52",
+    "63",
+    "62",
+    "57"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor372e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "5 × 7 + 27 = ?",
+   "secenekler": [
+    "52",
+    "63",
+    "62",
+    "57"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor373t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "6 × 5 + 21 = ?",
+   "secenekler": [
+    "61",
+    "51",
+    "41",
+    "53"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor373e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "6 × 5 + 21 = ?",
+   "secenekler": [
+    "61",
+    "51",
+    "41",
+    "53"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor374t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "9 × 5 + 16 = ?",
+   "secenekler": [
+    "63",
+    "60",
+    "66",
+    "61"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor374e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "9 × 5 + 16 = ?",
+   "secenekler": [
+    "63",
+    "60",
+    "66",
+    "61"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor375t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "7 × 3 + 34 = ?",
+   "secenekler": [
+    "56",
+    "60",
+    "55",
+    "45"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor375e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "7 × 3 + 34 = ?",
+   "secenekler": [
+    "56",
+    "60",
+    "55",
+    "45"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor376t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "6 × 4 + 34 = ?",
+   "secenekler": [
+    "63",
+    "58",
+    "48",
+    "60"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor376e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "6 × 4 + 34 = ?",
+   "secenekler": [
+    "63",
+    "58",
+    "48",
+    "60"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor377t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "6 × 3 + 32 = ?",
+   "secenekler": [
+    "45",
+    "50",
+    "49",
+    "55"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor377e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "6 × 3 + 32 = ?",
+   "secenekler": [
+    "45",
+    "50",
+    "49",
+    "55"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor378t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "5 × 5 + 29 = ?",
+   "secenekler": [
+    "52",
+    "54",
+    "64",
+    "55"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor378e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "5 × 5 + 29 = ?",
+   "secenekler": [
+    "52",
+    "54",
+    "64",
+    "55"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor379t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "6 × 6 + 16 = ?",
+   "secenekler": [
+    "47",
+    "52",
+    "53",
+    "42"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor379e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "6 × 6 + 16 = ?",
+   "secenekler": [
+    "47",
+    "52",
+    "53",
+    "42"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor380t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "7 × 8 + 17 = ?",
+   "secenekler": [
+    "75",
+    "73",
+    "68",
+    "83"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor380e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "7 × 8 + 17 = ?",
+   "secenekler": [
+    "75",
+    "73",
+    "68",
+    "83"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor381t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "6 × 9 + 10 = ?",
+   "secenekler": [
+    "65",
+    "64",
+    "54",
+    "59"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor381e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "6 × 9 + 10 = ?",
+   "secenekler": [
+    "65",
+    "64",
+    "54",
+    "59"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor382t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "4 × 3 + 16 = ?",
+   "secenekler": [
+    "28",
+    "18",
+    "30",
+    "38"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor382e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "4 × 3 + 16 = ?",
+   "secenekler": [
+    "28",
+    "18",
+    "30",
+    "38"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor383t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "7 × 7 + 39 = ?",
+   "secenekler": [
+    "88",
+    "93",
+    "78",
+    "90"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor383e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "7 × 7 + 39 = ?",
+   "secenekler": [
+    "88",
+    "93",
+    "78",
+    "90"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor384t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "5 × 8 + 26 = ?",
+   "secenekler": [
+    "71",
+    "66",
+    "67",
+    "65"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor384e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "5 × 8 + 26 = ?",
+   "secenekler": [
+    "71",
+    "66",
+    "67",
+    "65"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor385t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "9 × 4 + 30 = ?",
+   "secenekler": [
+    "67",
+    "66",
+    "64",
+    "65"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor385e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "9 × 4 + 30 = ?",
+   "secenekler": [
+    "67",
+    "66",
+    "64",
+    "65"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor386t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "5 × 5 + 30 = ?",
+   "secenekler": [
+    "55",
+    "65",
+    "45",
+    "57"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor386e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "5 × 5 + 30 = ?",
+   "secenekler": [
+    "55",
+    "65",
+    "45",
+    "57"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor387t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "6 × 4 + 15 = ?",
+   "secenekler": [
+    "29",
+    "40",
+    "39",
+    "41"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor387e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "6 × 4 + 15 = ?",
+   "secenekler": [
+    "29",
+    "40",
+    "39",
+    "41"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor388t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "3 × 3 + 12 = ?",
+   "secenekler": [
+    "26",
+    "19",
+    "16",
+    "21"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor388e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "3 × 3 + 12 = ?",
+   "secenekler": [
+    "26",
+    "19",
+    "16",
+    "21"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor389t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "3 × 8 + 39 = ?",
+   "secenekler": [
+    "53",
+    "63",
+    "64",
+    "73"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor389e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "3 × 8 + 39 = ?",
+   "secenekler": [
+    "53",
+    "63",
+    "64",
+    "73"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "dor390t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "3 × 3 + 31 = ?",
+   "secenekler": [
+    "35",
+    "38",
+    "40",
+    "30"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor390e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "3 × 3 + 31 = ?",
+   "secenekler": [
+    "35",
+    "38",
+    "40",
+    "30"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor391t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "7 × 7 + 24 = ?",
+   "secenekler": [
+    "74",
+    "71",
+    "73",
+    "68"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor391e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "7 × 7 + 24 = ?",
+   "secenekler": [
+    "74",
+    "71",
+    "73",
+    "68"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor392t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "5 × 5 + 23 = ?",
+   "secenekler": [
+    "48",
+    "50",
+    "53",
+    "47"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor392e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "5 × 5 + 23 = ?",
+   "secenekler": [
+    "48",
+    "50",
+    "53",
+    "47"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "dor393t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "7 × 3 + 32 = ?",
+   "secenekler": [
+    "54",
+    "48",
+    "53",
+    "55"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor393e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "7 × 3 + 32 = ?",
+   "secenekler": [
+    "54",
+    "48",
+    "53",
+    "55"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor394t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "7 × 6 + 22 = ?",
+   "secenekler": [
+    "62",
+    "65",
+    "69",
+    "64"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor394e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "7 × 6 + 22 = ?",
+   "secenekler": [
+    "62",
+    "65",
+    "69",
+    "64"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor395t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "7 × 9 + 35 = ?",
+   "secenekler": [
+    "100",
+    "96",
+    "97",
+    "98"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor395e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "7 × 9 + 35 = ?",
+   "secenekler": [
+    "100",
+    "96",
+    "97",
+    "98"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor396t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "5 × 3 + 30 = ?",
+   "secenekler": [
+    "50",
+    "40",
+    "35",
+    "45"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor396e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "5 × 3 + 30 = ?",
+   "secenekler": [
+    "50",
+    "40",
+    "35",
+    "45"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor397t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "7 × 3 + 15 = ?",
+   "secenekler": [
+    "46",
+    "34",
+    "36",
+    "41"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor397e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "7 × 3 + 15 = ?",
+   "secenekler": [
+    "46",
+    "34",
+    "36",
+    "41"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor398t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "3 × 6 + 16 = ?",
+   "secenekler": [
+    "39",
+    "33",
+    "34",
+    "32"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor398e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "3 × 6 + 16 = ?",
+   "secenekler": [
+    "39",
+    "33",
+    "34",
+    "32"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor399t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "3 × 5 + 34 = ?",
+   "secenekler": [
+    "47",
+    "51",
+    "49",
+    "59"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor399e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "3 × 5 + 34 = ?",
+   "secenekler": [
+    "47",
+    "51",
+    "49",
+    "59"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "dor400t",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "9 × 8 + 17 = ?",
+   "secenekler": [
+    "84",
+    "90",
+    "88",
+    "89"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "dor400e",
+   "konu": "dort_islem",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "9 × 8 + 17 = ?",
+   "secenekler": [
+    "84",
+    "90",
+    "88",
+    "89"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kes401t",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "4/6 + 1/6 = ?",
+   "secenekler": [
+    "1/1",
+    "6/7",
+    "5/12",
+    "5/6"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kes401e",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "4/6 + 1/6 = ?",
+   "secenekler": [
+    "1/1",
+    "6/7",
+    "5/12",
+    "5/6"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kes402t",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "2/5 + 1/5 = ?",
+   "secenekler": [
+    "4/6",
+    "4/5",
+    "3/10",
+    "3/5"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kes402e",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "2/5 + 1/5 = ?",
+   "secenekler": [
+    "4/6",
+    "4/5",
+    "3/10",
+    "3/5"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kes403t",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "1/3 + 1/3 = ?",
+   "secenekler": [
+    "2/6",
+    "2/3",
+    "1/1",
+    "3/4"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes403e",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "1/3 + 1/3 = ?",
+   "secenekler": [
+    "2/6",
+    "2/3",
+    "1/1",
+    "3/4"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes404t",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "2/6 + 1/6 = ?",
+   "secenekler": [
+    "2/3",
+    "1/2",
+    "1/1",
+    "3/12"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes404e",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "2/6 + 1/6 = ?",
+   "secenekler": [
+    "2/3",
+    "1/2",
+    "1/1",
+    "3/12"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes405t",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "1/5 + 1/5 = ?",
+   "secenekler": [
+    "1/5",
+    "3/6",
+    "3/5",
+    "2/5"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kes405e",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "1/5 + 1/5 = ?",
+   "secenekler": [
+    "1/5",
+    "3/6",
+    "3/5",
+    "2/5"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kes406t",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "1/10 + 1/10 = ?",
+   "secenekler": [
+    "2/20",
+    "1/5",
+    "2/5",
+    "2/6"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes406e",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "1/10 + 1/10 = ?",
+   "secenekler": [
+    "2/20",
+    "1/5",
+    "2/5",
+    "2/6"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes407t",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "2/4 + 1/4 = ?",
+   "secenekler": [
+    "4/5",
+    "3/4",
+    "1/2",
+    "3/8"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes407e",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "2/4 + 1/4 = ?",
+   "secenekler": [
+    "4/5",
+    "3/4",
+    "1/2",
+    "3/8"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes408t",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "3/5 + 1/5 = ?",
+   "secenekler": [
+    "4/5",
+    "4/10",
+    "5/6",
+    "3/5"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes408e",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "3/5 + 1/5 = ?",
+   "secenekler": [
+    "4/5",
+    "4/10",
+    "5/6",
+    "3/5"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes409t",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "3/8 + 1/8 = ?",
+   "secenekler": [
+    "4/16",
+    "1/2",
+    "1/1",
+    "2/3"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes409e",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "3/8 + 1/8 = ?",
+   "secenekler": [
+    "4/16",
+    "1/2",
+    "1/1",
+    "2/3"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes410t",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "3/6 + 1/6 = ?",
+   "secenekler": [
+    "2/3",
+    "3/4",
+    "1/3",
+    "4/12"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes410e",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "3/6 + 1/6 = ?",
+   "secenekler": [
+    "2/3",
+    "3/4",
+    "1/3",
+    "4/12"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes411t",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "1/6 + 1/6 = ?",
+   "secenekler": [
+    "2/4",
+    "2/12",
+    "1/3",
+    "2/3"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "kes411e",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "1/6 + 1/6 = ?",
+   "secenekler": [
+    "2/4",
+    "2/12",
+    "1/3",
+    "2/3"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "kes412t",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "2/8 + 1/8 = ?",
+   "secenekler": [
+    "3/16",
+    "1/4",
+    "3/8",
+    "1/2"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "kes412e",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "2/8 + 1/8 = ?",
+   "secenekler": [
+    "3/16",
+    "1/4",
+    "3/8",
+    "1/2"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "kes413t",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "6/10 + 1/10 = ?",
+   "secenekler": [
+    "8/11",
+    "7/20",
+    "3/5",
+    "7/10"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kes413e",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "6/10 + 1/10 = ?",
+   "secenekler": [
+    "8/11",
+    "7/20",
+    "3/5",
+    "7/10"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kes414t",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "1/4 + 1/4 = ?",
+   "secenekler": [
+    "1/2",
+    "2/8",
+    "1/1",
+    "2/3"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes414e",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "1/4 + 1/4 = ?",
+   "secenekler": [
+    "1/2",
+    "2/8",
+    "1/1",
+    "2/3"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes415t",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "8/10 + 1/10 = ?",
+   "secenekler": [
+    "9/10",
+    "1/1",
+    "9/20",
+    "10/11"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes415e",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "8/10 + 1/10 = ?",
+   "secenekler": [
+    "9/10",
+    "1/1",
+    "9/20",
+    "10/11"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes416t",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "1/8 + 1/8 = ?",
+   "secenekler": [
+    "1/2",
+    "2/16",
+    "1/4",
+    "2/5"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "kes416e",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "1/8 + 1/8 = ?",
+   "secenekler": [
+    "1/2",
+    "2/16",
+    "1/4",
+    "2/5"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "kes417t",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "4/8 + 1/8 = ?",
+   "secenekler": [
+    "5/8",
+    "5/16",
+    "3/4",
+    "6/9"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes417e",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "4/8 + 1/8 = ?",
+   "secenekler": [
+    "5/8",
+    "5/16",
+    "3/4",
+    "6/9"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes418t",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "2/10 + 1/10 = ?",
+   "secenekler": [
+    "1/5",
+    "2/5",
+    "3/10",
+    "4/11"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "kes418e",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "2/10 + 1/10 = ?",
+   "secenekler": [
+    "1/5",
+    "2/5",
+    "3/10",
+    "4/11"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "kes419t",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "3/10 + 1/10 = ?",
+   "secenekler": [
+    "2/5",
+    "4/20",
+    "1/5",
+    "3/6"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes419e",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "3/10 + 1/10 = ?",
+   "secenekler": [
+    "2/5",
+    "4/20",
+    "1/5",
+    "3/6"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes420t",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "7/10 + 1/10 = ?",
+   "secenekler": [
+    "4/5",
+    "5/6",
+    "3/5",
+    "8/20"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes420e",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "7/10 + 1/10 = ?",
+   "secenekler": [
+    "4/5",
+    "5/6",
+    "3/5",
+    "8/20"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes421t",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "5/8 + 1/8 = ?",
+   "secenekler": [
+    "1/1",
+    "3/4",
+    "1/2",
+    "4/5"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes421e",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "5/8 + 1/8 = ?",
+   "secenekler": [
+    "1/1",
+    "3/4",
+    "1/2",
+    "4/5"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes422t",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "6/8 + 1/8 = ?",
+   "secenekler": [
+    "1/1",
+    "8/9",
+    "7/16",
+    "7/8"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kes422e",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "6/8 + 1/8 = ?",
+   "secenekler": [
+    "1/1",
+    "8/9",
+    "7/16",
+    "7/8"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kes423t",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "4/10 + 1/10 = ?",
+   "secenekler": [
+    "1/1",
+    "1/2",
+    "5/20",
+    "2/3"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes423e",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "4/10 + 1/10 = ?",
+   "secenekler": [
+    "1/1",
+    "1/2",
+    "5/20",
+    "2/3"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes424t",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "5/10 + 1/10 = ?",
+   "secenekler": [
+    "3/5",
+    "2/5",
+    "4/5",
+    "6/20"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes424e",
+   "konu": "kesirler",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "5/10 + 1/10 = ?",
+   "secenekler": [
+    "3/5",
+    "2/5",
+    "4/5",
+    "6/20"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes425t",
+   "konu": "kesirler",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "1/2 + 1/6 = ?",
+   "secenekler": [
+    "2/8",
+    "1/1",
+    "2/1",
+    "2/2"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes425e",
+   "konu": "kesirler",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "1/2 + 1/6 = ?",
+   "secenekler": [
+    "2/8",
+    "1/1",
+    "2/1",
+    "2/2"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes426t",
+   "konu": "kesirler",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "1/2 + 1/8 = ?",
+   "secenekler": [
+    "5/8",
+    "2/10",
+    "6/9",
+    "3/4"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes426e",
+   "konu": "kesirler",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "1/2 + 1/8 = ?",
+   "secenekler": [
+    "5/8",
+    "2/10",
+    "6/9",
+    "3/4"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes427t",
+   "konu": "kesirler",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "1/2 + 1/4 = ?",
+   "secenekler": [
+    "2/2",
+    "1/1",
+    "2/1",
+    "2/6"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes427e",
+   "konu": "kesirler",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "1/2 + 1/4 = ?",
+   "secenekler": [
+    "2/2",
+    "1/1",
+    "2/1",
+    "2/6"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes428t",
+   "konu": "kesirler",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "1/2 + 3/8 = ?",
+   "secenekler": [
+    "1/1",
+    "3/4",
+    "7/8",
+    "8/9"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "kes428e",
+   "konu": "kesirler",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "1/2 + 3/8 = ?",
+   "secenekler": [
+    "1/1",
+    "3/4",
+    "7/8",
+    "8/9"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "kes429t",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "5/10 kesrinin en sade hali?",
+   "secenekler": [
+    "1/2",
+    "5/9",
+    "1/1",
+    "2/3"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes429e",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Simplify 5/10",
+   "secenekler": [
+    "1/2",
+    "5/9",
+    "1/1",
+    "2/3"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes430t",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "2/10 kesrinin en sade hali?",
+   "secenekler": [
+    "2/5",
+    "1/5",
+    "2/6",
+    "2/9"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes430e",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Simplify 2/10",
+   "secenekler": [
+    "2/5",
+    "1/5",
+    "2/6",
+    "2/9"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes431t",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "2/8 kesrinin en sade hali?",
+   "secenekler": [
+    "2/7",
+    "1/2",
+    "2/5",
+    "1/4"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kes431e",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Simplify 2/8",
+   "secenekler": [
+    "2/7",
+    "1/2",
+    "2/5",
+    "1/4"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kes432t",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "3/6 kesrinin en sade hali?",
+   "secenekler": [
+    "2/3",
+    "1/2",
+    "1/1",
+    "3/5"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes432e",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Simplify 3/6",
+   "secenekler": [
+    "2/3",
+    "1/2",
+    "1/1",
+    "3/5"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes433t",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "4/6 kesrinin en sade hali?",
+   "secenekler": [
+    "1/3",
+    "4/5",
+    "2/3",
+    "1/1"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "kes433e",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Simplify 4/6",
+   "secenekler": [
+    "1/3",
+    "4/5",
+    "2/3",
+    "1/1"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "kes434t",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "6/10 kesrinin en sade hali?",
+   "secenekler": [
+    "3/5",
+    "4/5",
+    "6/9",
+    "2/5"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes434e",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Simplify 6/10",
+   "secenekler": [
+    "3/5",
+    "4/5",
+    "6/9",
+    "2/5"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes435t",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "6/8 kesrinin en sade hali?",
+   "secenekler": [
+    "1/1",
+    "3/4",
+    "4/5",
+    "1/2"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes435e",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Simplify 6/8",
+   "secenekler": [
+    "1/1",
+    "3/4",
+    "4/5",
+    "1/2"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes436t",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "4/12 kesrinin en sade hali?",
+   "secenekler": [
+    "4/11",
+    "2/4",
+    "1/3",
+    "2/3"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "kes436e",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Simplify 4/12",
+   "secenekler": [
+    "4/11",
+    "2/4",
+    "1/3",
+    "2/3"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "kes437t",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "8/10 kesrinin en sade hali?",
+   "secenekler": [
+    "1/1",
+    "5/6",
+    "3/5",
+    "4/5"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kes437e",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Simplify 8/10",
+   "secenekler": [
+    "1/1",
+    "5/6",
+    "3/5",
+    "4/5"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kes438t",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "6/12 kesrinin en sade hali?",
+   "secenekler": [
+    "2/3",
+    "6/11",
+    "1/2",
+    "1/1"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "kes438e",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Simplify 6/12",
+   "secenekler": [
+    "2/3",
+    "6/11",
+    "1/2",
+    "1/1"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "kes439t",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "9/12 kesrinin en sade hali?",
+   "secenekler": [
+    "1/2",
+    "1/1",
+    "9/11",
+    "3/4"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kes439e",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Simplify 9/12",
+   "secenekler": [
+    "1/2",
+    "1/1",
+    "9/11",
+    "3/4"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kes440t",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "3/12 kesrinin en sade hali?",
+   "secenekler": [
+    "1/2",
+    "3/11",
+    "1/4",
+    "2/5"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "kes440e",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Simplify 3/12",
+   "secenekler": [
+    "1/2",
+    "3/11",
+    "1/4",
+    "2/5"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "kes441t",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "4/8 kesrinin en sade hali?",
+   "secenekler": [
+    "2/3",
+    "1/2",
+    "4/7",
+    "1/1"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes441e",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Simplify 4/8",
+   "secenekler": [
+    "2/3",
+    "1/2",
+    "4/7",
+    "1/1"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kes442t",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "4/10 kesrinin en sade hali?",
+   "secenekler": [
+    "2/5",
+    "3/5",
+    "1/5",
+    "3/6"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes442e",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Simplify 4/10",
+   "secenekler": [
+    "2/5",
+    "3/5",
+    "1/5",
+    "3/6"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes443t",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "8/12 kesrinin en sade hali?",
+   "secenekler": [
+    "2/3",
+    "8/11",
+    "3/4",
+    "1/3"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes443e",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Simplify 8/12",
+   "secenekler": [
+    "2/3",
+    "8/11",
+    "3/4",
+    "1/3"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes444t",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "10/12 kesrinin en sade hali?",
+   "secenekler": [
+    "2/3",
+    "6/7",
+    "10/11",
+    "5/6"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kes444e",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Simplify 10/12",
+   "secenekler": [
+    "2/3",
+    "6/7",
+    "10/11",
+    "5/6"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kes445t",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "2/6 kesrinin en sade hali?",
+   "secenekler": [
+    "1/3",
+    "2/3",
+    "2/4",
+    "2/5"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes445e",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Simplify 2/6",
+   "secenekler": [
+    "1/3",
+    "2/3",
+    "2/4",
+    "2/5"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kes446t",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "2/12 kesrinin en sade hali?",
+   "secenekler": [
+    "2/7",
+    "2/11",
+    "1/6",
+    "1/3"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "kes446e",
+   "konu": "kesirler",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Simplify 2/12",
+   "secenekler": [
+    "2/7",
+    "2/11",
+    "1/6",
+    "1/3"
+   ],
+   "dogru_index": 2
+  }
+ ]
+}

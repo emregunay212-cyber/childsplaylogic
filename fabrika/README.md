@@ -14,6 +14,7 @@ tarayıcı kalıcı deposu yok → SDK_STORAGE soyutlaması, SDK soketleri, TR+E
 | Penaltı | `penalti-tr.html` | `penalty-hero-en.html` | 55 KB | 9 bölüm |
 | Zıpla Topla | `zipla-topla-tr.html` | `hop-and-grab-en.html` | 100 KB | 12 bölüm, solo + yerel 2P |
 | Zindan Okçusu | `zindan-okcusu-tr.html` | `dungeon-archer-en.html` | 470 KB | Roguelite |
+| **Matematik Okçusu** 🎓 | `matematik-okcusu-tr.html` | `math-archer-en.html` | 534 KB | Roguelite + 446 soru/dil (EĞİTSEL ürün #1) |
 | Ateş & Buz | `ates-buz-tr.html` | — (oyun-içi metin azdır) | 544 KB | Yerel 2P co-op, 10 bölüm |
 
 ## Kullanım

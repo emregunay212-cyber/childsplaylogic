@@ -1,0 +1,3198 @@
+{
+ "meta": {
+  "oyun": "Kelime Okçusu / Word Archer",
+  "ders": "dil",
+  "hedef_yas": "8-12",
+  "surum": "1.0",
+  "diller": [
+   "tr",
+   "en"
+  ],
+  "toplam_soru": 225,
+  "not": "TR konular: es_anlamli, zit_anlamli, yazim. EN: synonym, antonym, spelling."
+ },
+ "konular": [
+  {
+   "kod": "es_anlamli",
+   "ad_tr": "Eş Anlamlı",
+   "ad_en": "Synonyms"
+  },
+  {
+   "kod": "zit_anlamli",
+   "ad_tr": "Zıt Anlamlı",
+   "ad_en": "Antonyms"
+  },
+  {
+   "kod": "yazim",
+   "ad_tr": "Doğru Yazım",
+   "ad_en": "Spelling"
+  },
+  {
+   "kod": "synonym",
+   "ad_tr": "Synonyms",
+   "ad_en": "Synonyms"
+  },
+  {
+   "kod": "antonym",
+   "ad_tr": "Antonyms",
+   "ad_en": "Antonyms"
+  },
+  {
+   "kod": "spelling",
+   "ad_tr": "Spelling",
+   "ad_en": "Spelling"
+  }
+ ],
+ "sorular": [
+  {
+   "id": "es_001t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'okul' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "deniz",
+    "bahçe",
+    "mektep",
+    "kalem"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "es_002t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'ev' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "yol",
+    "ağaç",
+    "bulut",
+    "konut"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "es_003t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'yıl' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "gün",
+    "sene",
+    "an",
+    "saat"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "es_004t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'kelime' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "harf",
+    "hece",
+    "sözcük",
+    "cümle"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "es_005t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'hekim' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "hasta",
+    "doktor",
+    "hemşire",
+    "ilaç"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "es_006t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'misafir' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "yabancı",
+    "dost",
+    "konuk",
+    "komşu"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "es_007t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'siyah' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "beyaz",
+    "gri",
+    "mavi",
+    "kara"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "es_008t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'ihtiyar' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "bebek",
+    "yaşlı",
+    "çocuk",
+    "genç"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "es_009t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'vatan' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "şehir",
+    "köy",
+    "yurt",
+    "ülke"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "es_010t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'cevap' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "soru",
+    "ödev",
+    "sınav",
+    "yanıt"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "es_011t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'armağan' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "kupa",
+    "hediye",
+    "para",
+    "ödül"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "es_012t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'fakir' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "cömert",
+    "zengin",
+    "varlıklı",
+    "yoksul"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "es_013t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'öğrenci' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "ders",
+    "okul",
+    "talebe",
+    "öğretmen"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "es_014t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'rüzgar' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "yağmur",
+    "fırtına",
+    "yel",
+    "kar"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "es_015t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'ak' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "kara",
+    "sarı",
+    "mavi",
+    "beyaz"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "es_016t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'al' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "kırmızı",
+    "yeşil",
+    "mor",
+    "turuncu"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "es_017t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'uzak' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "ırak",
+    "dar",
+    "yakın",
+    "kısa"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "es_018t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'hikaye' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "masal",
+    "öykü",
+    "şiir",
+    "roman"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "es_019t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'şehir' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "mahalle",
+    "kent",
+    "kasaba",
+    "köy"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "es_020t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'savaş' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "ordu",
+    "barış",
+    "zafer",
+    "harp"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "es_021t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'barış' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "sulh",
+    "kavga",
+    "savaş",
+    "öfke"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "es_022t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'duygu' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "düşünce",
+    "his",
+    "akıl",
+    "fikir"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "es_023t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'amaç' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "sebep",
+    "yol",
+    "araç",
+    "hedef"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "es_024t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'ünlü' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "sakin",
+    "meşhur",
+    "gizli",
+    "sessiz"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "es_025t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'anı' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "hayal",
+    "hatıra",
+    "rüya",
+    "plan"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "es_026t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'özgürlük' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "yasa",
+    "esaret",
+    "kural",
+    "hürriyet"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "es_027t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'sonbahar' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "güz",
+    "ilkbahar",
+    "kış",
+    "yaz"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "es_028t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'ilave' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "ek",
+    "çıkarma",
+    "azaltma",
+    "eksik"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "es_029t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'kalp' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "akciğer",
+    "beyin",
+    "mide",
+    "yürek"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "es_030t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'ezgi' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "ses",
+    "melodi",
+    "gürültü",
+    "söz"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "es_031t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'ödül' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "görev",
+    "ceza",
+    "borç",
+    "mükafat"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "es_032t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'tutsak' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "esir",
+    "asker",
+    "özgür",
+    "komutan"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "es_033t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'ad' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "unvan",
+    "soyad",
+    "isim",
+    "lakap"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "es_034t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'görev' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "tatil",
+    "eğlence",
+    "vazife",
+    "oyun"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "es_035t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'uyarı' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "övgü",
+    "teşekkür",
+    "ikaz",
+    "selam"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "es_036t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'değer' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "fiyat",
+    "ücret",
+    "kıymet",
+    "para"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "es_037t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'doğa' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "tabiat",
+    "bina",
+    "şehir",
+    "fabrika"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "es_038t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'yetenek' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "şans",
+    "tembellik",
+    "güç",
+    "kabiliyet"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "es_039t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'imkan' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "olanak",
+    "engel",
+    "sorun",
+    "zorluk"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "es_040t",
+   "konu": "es_anlamli",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "'zaman' kelimesinin eş anlamlısı?",
+   "secenekler": [
+    "vakit",
+    "takvim",
+    "gün",
+    "saat"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "zit041t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'büyük' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "küçük",
+    "uzun",
+    "geniş",
+    "kalın"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "zit042t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'açık' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "boş",
+    "temiz",
+    "kapalı",
+    "geniş"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "zit043t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'hızlı' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "atik",
+    "seri",
+    "yavaş",
+    "çabuk"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "zit044t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'ileri' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "üst",
+    "alt",
+    "geri",
+    "yan"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "zit045t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'dolu' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "boş",
+    "hafif",
+    "tam",
+    "ağır"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "zit046t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'güzel' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "hofif",
+    "hoş",
+    "şirin",
+    "çirkin"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "zit047t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'sıcak' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "soğuk",
+    "ılık",
+    "yumuşak",
+    "serin"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "zit048t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'doğru' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "kıvrık",
+    "yanlış",
+    "eğri",
+    "düz"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "zit049t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'erken' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "geç",
+    "çabuk",
+    "acele",
+    "hemen"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "zit050t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'aydınlık' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "karanlık",
+    "ışıklı",
+    "parlak",
+    "berrak"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "zit051t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'cesur' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "güçlü",
+    "atılgan",
+    "yiğit",
+    "korkak"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "zit052t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'tatlı' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "tuzlu",
+    "ekşi",
+    "mayhoş",
+    "acı"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "zit053t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'uzun' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "geniş",
+    "kısa",
+    "dar",
+    "ince"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "zit054t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'ağır' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "ince",
+    "yoğun",
+    "kalın",
+    "hafif"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "zit055t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'zengin' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "cömert",
+    "cimri",
+    "tutumlu",
+    "fakir"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "zit056t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'temiz' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "düzenli",
+    "yeni",
+    "parlak",
+    "kirli"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "zit057t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'kolay' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "rahat",
+    "basit",
+    "hafif",
+    "zor"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "zit058t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'genç' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "yaşlı",
+    "ufak",
+    "bebek",
+    "çocuk"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "zit059t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'gece' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "gündüz",
+    "akşam",
+    "öğle",
+    "sabah"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "zit060t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'ucuz' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "bedava",
+    "indirimli",
+    "pahalı",
+    "değerli"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "zit061t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'sert' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "yumuşak",
+    "kalın",
+    "katı",
+    "güçlü"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "zit062t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'ıslak' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "sulu",
+    "kuru",
+    "nemli",
+    "yaş"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "zit063t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'kalın' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "büyük",
+    "şişman",
+    "ince",
+    "geniş"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "zit064t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'eski' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "kullanılmış",
+    "yeni",
+    "antika",
+    "tarihi"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "zit065t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'var' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "çok",
+    "az",
+    "bol",
+    "yok"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "zit066t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'alçak' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "derin",
+    "yüksek",
+    "eğik",
+    "düz"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "zit067t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'ağlamak' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "üzülmek",
+    "gülmek",
+    "bakmak",
+    "susmak"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "zit068t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'almak' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "vermek",
+    "tutmak",
+    "getirmek",
+    "taşımak"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "zit069t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'inmek' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "koşmak",
+    "çıkmak",
+    "durmak",
+    "yürümek"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "zit070t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'savaş' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "kavga",
+    "barış",
+    "yarış",
+    "mücadele"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "zit071t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'soru' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "test",
+    "ödev",
+    "cevap",
+    "sınav"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "zit072t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'başlangıç' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "ara",
+    "devam",
+    "son",
+    "orta"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "zit073t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'unutmak' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "bilmek",
+    "hatırlamak",
+    "anlamak",
+    "düşünmek"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "zit074t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'birleşmek' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "katılmak",
+    "toplanmak",
+    "buluşmak",
+    "ayrılmak"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "zit075t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'şişman' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "geniş",
+    "iri",
+    "zayıf",
+    "uzun"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "zit076t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'cömert' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "cimri",
+    "zengin",
+    "iyi",
+    "nazik"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "zit077t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'acemi' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "çırak",
+    "yeni",
+    "usta",
+    "öğrenci"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "zit078t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'yarar' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "fayda",
+    "kazanç",
+    "destek",
+    "zarar"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "zit079t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'ödül' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "armağan",
+    "ceza",
+    "kupa",
+    "hediye"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "zit080t",
+   "konu": "zit_anlamli",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "'ön' kelimesinin zıt anlamlısı?",
+   "secenekler": [
+    "yan",
+    "arka",
+    "üst",
+    "iç"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "yaz081t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "herkes",
+    "herkez",
+    "her kez",
+    "herkers"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "yaz082t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "yanliş",
+    "yannış",
+    "yalnış",
+    "yanlış"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "yaz083t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "yanlız",
+    "yalnız",
+    "yalniz",
+    "yallnız"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "yaz084t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "şofor",
+    "şöför",
+    "şoför",
+    "şöfor"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "yaz085t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "kitabcı",
+    "kitabçı",
+    "kitapçı",
+    "kitapcı"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "yaz086t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "eczhane",
+    "eczane",
+    "ezcane",
+    "ecane"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "yaz087t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "sirpriz",
+    "sürpiriz",
+    "sürpriz",
+    "süpriz"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "yaz088t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "mekine",
+    "makina",
+    "makinne",
+    "makine"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "yaz089t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "kayıt",
+    "kayt",
+    "kaıt",
+    "kayıd"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "yaz090t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "müşde",
+    "müjjde",
+    "müjde",
+    "mücde"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "yaz091t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "dinazor",
+    "dinozaur",
+    "dinasor",
+    "dinozor"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "yaz092t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "kirpink",
+    "kirpik",
+    "kirbik",
+    "kiprik"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "yaz093t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "kibrid",
+    "kıbrit",
+    "kibrit",
+    "kirbit"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "yaz094t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "orijinel",
+    "orijinal",
+    "orcinal",
+    "orjinal"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "yaz095t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "egzersiz",
+    "eksersiz",
+    "ekzersiz",
+    "egzesiz"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "yaz096t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "pontolon",
+    "pantolan",
+    "pantolon",
+    "pantalon"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "yaz097t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "traş olmak yanlış, doğrusu tıraş",
+    "tıraş yanlış, traş doğru",
+    "ikisi de yanlış",
+    "ikisi de doğru"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "yaz098t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "yahutta",
+    "ya da",
+    "ya-da",
+    "yada"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "yaz099t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "hicbir",
+    "hiçbi",
+    "hiç bir",
+    "hiçbir"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "yaz100t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "bir çok",
+    "birçog",
+    "bircok",
+    "birçok"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "yaz101t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "dersane",
+    "dershane",
+    "dershene",
+    "desane"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "yaz102t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "öğretmin",
+    "öğretmenn",
+    "öretmen",
+    "öğretmen"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "yaz103t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "kütüpane",
+    "kütübane",
+    "kütüphene",
+    "kütüphane"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "yaz104t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "meve",
+    "meyva",
+    "meyve",
+    "mevye"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "yaz105t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "sanviç",
+    "sandöviç",
+    "sandviz",
+    "sandviç"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "yaz106t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "çikulata",
+    "çukulata",
+    "çokolata",
+    "çikolata"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "yaz107t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "domatez",
+    "domates",
+    "domades",
+    "tomates"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "yaz108t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "anten",
+    "enten",
+    "anten yanlış antenna doğru",
+    "antena"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "yaz109t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "kravat",
+    "karavat",
+    "krevat",
+    "kıravat"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "yaz110t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "ispor",
+    "spor",
+    "sport",
+    "sipor"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "yaz111t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "treyn",
+    "tiren",
+    "tren",
+    "tirenn"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "yaz112t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "porgram",
+    "program",
+    "proğram",
+    "progrem"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "yaz113t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "eletrik",
+    "elektrik",
+    "elektrig",
+    "elektirik"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "yaz114t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "santral",
+    "santrall",
+    "sentral",
+    "santıral"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "yaz115t",
+   "konu": "yazim",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi doğru yazılmıştır?",
+   "secenekler": [
+    "kontorol",
+    "kontröl",
+    "kontrul",
+    "kontrol"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "syn116e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'happy'?",
+   "secenekler": [
+    "tired",
+    "joyful",
+    "hungry",
+    "angry"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "syn117e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'big'?",
+   "secenekler": [
+    "small",
+    "thin",
+    "large",
+    "short"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "syn118e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'fast'?",
+   "secenekler": [
+    "heavy",
+    "quick",
+    "slow",
+    "late"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "syn119e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'smart'?",
+   "secenekler": [
+    "dull",
+    "weak",
+    "clever",
+    "lazy"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "syn120e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'begin'?",
+   "secenekler": [
+    "start",
+    "end",
+    "stop",
+    "close"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "syn121e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'help'?",
+   "secenekler": [
+    "assist",
+    "block",
+    "leave",
+    "harm"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "syn122e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'happy'?",
+   "secenekler": [
+    "bored",
+    "sad",
+    "sleepy",
+    "glad"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "syn123e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'cold'?",
+   "secenekler": [
+    "mild",
+    "hot",
+    "warm",
+    "chilly"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "syn124e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'brave'?",
+   "secenekler": [
+    "scared",
+    "bold",
+    "shy",
+    "weak"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "syn125e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'tiny'?",
+   "secenekler": [
+    "small",
+    "tall",
+    "huge",
+    "wide"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "syn126e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'rich'?",
+   "secenekler": [
+    "poor",
+    "cheap",
+    "broke",
+    "wealthy"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "syn127e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'pretty'?",
+   "secenekler": [
+    "plain",
+    "ugly",
+    "dull",
+    "beautiful"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "syn128e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'angry'?",
+   "secenekler": [
+    "calm",
+    "kind",
+    "mad",
+    "happy"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "syn129e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'easy'?",
+   "secenekler": [
+    "deep",
+    "hard",
+    "simple",
+    "tough"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "syn130e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'hard'?",
+   "secenekler": [
+    "light",
+    "difficult",
+    "easy",
+    "soft"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "syn131e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'funny'?",
+   "secenekler": [
+    "amusing",
+    "boring",
+    "sad",
+    "dull"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "syn132e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'scared'?",
+   "secenekler": [
+    "calm",
+    "bold",
+    "brave",
+    "afraid"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "syn133e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'strange'?",
+   "secenekler": [
+    "usual",
+    "weird",
+    "plain",
+    "normal"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "syn134e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'loud'?",
+   "secenekler": [
+    "quiet",
+    "calm",
+    "noisy",
+    "silent"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "syn135e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'quiet'?",
+   "secenekler": [
+    "loud",
+    "busy",
+    "silent",
+    "noisy"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "syn136e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'end'?",
+   "secenekler": [
+    "open",
+    "begin",
+    "start",
+    "finish"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "syn137e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'speak'?",
+   "secenekler": [
+    "hear",
+    "listen",
+    "talk",
+    "watch"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "syn138e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'look'?",
+   "secenekler": [
+    "smell",
+    "watch",
+    "hear",
+    "touch"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "syn139e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'jump'?",
+   "secenekler": [
+    "crawl",
+    "sit",
+    "walk",
+    "leap"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "syn140e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'shout'?",
+   "secenekler": [
+    "hum",
+    "whisper",
+    "sigh",
+    "yell"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "syn141e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'street'?",
+   "secenekler": [
+    "house",
+    "park",
+    "river",
+    "road"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "syn142e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'kid'?",
+   "secenekler": [
+    "child",
+    "adult",
+    "teacher",
+    "parent"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "syn143e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'gift'?",
+   "secenekler": [
+    "present",
+    "card",
+    "bill",
+    "letter"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "syn144e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'error'?",
+   "secenekler": [
+    "mistake",
+    "success",
+    "score",
+    "answer"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "syn145e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'trash'?",
+   "secenekler": [
+    "gold",
+    "toy",
+    "treasure",
+    "garbage"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "syn146e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'ill'?",
+   "secenekler": [
+    "healthy",
+    "strong",
+    "fit",
+    "sick"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "syn147e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'tired'?",
+   "secenekler": [
+    "fresh",
+    "awake",
+    "sleepy",
+    "lively"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "syn148e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'sad'?",
+   "secenekler": [
+    "joyful",
+    "glad",
+    "merry",
+    "unhappy"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "syn149e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'real'?",
+   "secenekler": [
+    "true",
+    "fake",
+    "false",
+    "unreal"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "syn150e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'smell'?",
+   "secenekler": [
+    "sound",
+    "odor",
+    "color",
+    "taste"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "syn151e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'choose'?",
+   "secenekler": [
+    "throw",
+    "pick",
+    "lose",
+    "drop"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "syn152e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'repair'?",
+   "secenekler": [
+    "fix",
+    "ruin",
+    "smash",
+    "break"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "syn153e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'close'?",
+   "secenekler": [
+    "open",
+    "lift",
+    "raise",
+    "shut"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "syn154e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'rush'?",
+   "secenekler": [
+    "relax",
+    "wait",
+    "rest",
+    "hurry"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "syn155e",
+   "konu": "synonym",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which word means the same as 'under'?",
+   "secenekler": [
+    "above",
+    "over",
+    "below",
+    "upon"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "ant156e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'hot'?",
+   "secenekler": [
+    "boiling",
+    "warm",
+    "mild",
+    "cold"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "ant157e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'up'?",
+   "secenekler": [
+    "side",
+    "down",
+    "over",
+    "top"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "ant158e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'open'?",
+   "secenekler": [
+    "empty",
+    "wide",
+    "closed",
+    "clear"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "ant159e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'day'?",
+   "secenekler": [
+    "dawn",
+    "dusk",
+    "night",
+    "noon"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "ant160e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'full'?",
+   "secenekler": [
+    "light",
+    "heavy",
+    "empty",
+    "half"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "ant161e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'happy'?",
+   "secenekler": [
+    "sad",
+    "cheerful",
+    "glad",
+    "merry"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "ant162e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'fast'?",
+   "secenekler": [
+    "rapid",
+    "swift",
+    "slow",
+    "quick"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "ant163e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'old'?",
+   "secenekler": [
+    "ancient",
+    "young",
+    "elder",
+    "aged"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "ant164e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'light'?",
+   "secenekler": [
+    "clear",
+    "shiny",
+    "bright",
+    "dark"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "ant165e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'win'?",
+   "secenekler": [
+    "score",
+    "earn",
+    "gain",
+    "lose"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "ant166e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'buy'?",
+   "secenekler": [
+    "trade",
+    "shop",
+    "sell",
+    "pay"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "ant167e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'true'?",
+   "secenekler": [
+    "sure",
+    "exact",
+    "real",
+    "false"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "ant168e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'big'?",
+   "secenekler": [
+    "giant",
+    "small",
+    "wide",
+    "huge"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "ant169e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'long'?",
+   "secenekler": [
+    "wide",
+    "tall",
+    "short",
+    "far"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "ant170e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'strong'?",
+   "secenekler": [
+    "tough",
+    "weak",
+    "firm",
+    "hard"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "ant171e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'clean'?",
+   "secenekler": [
+    "neat",
+    "fresh",
+    "tidy",
+    "dirty"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "ant172e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'early'?",
+   "secenekler": [
+    "late",
+    "first",
+    "soon",
+    "quick"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "ant173e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'easy'?",
+   "secenekler": [
+    "light",
+    "hard",
+    "clear",
+    "simple"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "ant174e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'loud'?",
+   "secenekler": [
+    "strong",
+    "noisy",
+    "big",
+    "quiet"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "ant175e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'wet'?",
+   "secenekler": [
+    "soaked",
+    "dry",
+    "moist",
+    "damp"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "ant176e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'rich'?",
+   "secenekler": [
+    "lucky",
+    "famous",
+    "poor",
+    "wealthy"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "ant177e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'begin'?",
+   "secenekler": [
+    "open",
+    "start",
+    "launch",
+    "end"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "ant178e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'push'?",
+   "secenekler": [
+    "move",
+    "shove",
+    "press",
+    "pull"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "ant179e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'give'?",
+   "secenekler": [
+    "send",
+    "share",
+    "offer",
+    "take"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "ant180e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'laugh'?",
+   "secenekler": [
+    "cry",
+    "grin",
+    "giggle",
+    "smile"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "ant181e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'remember'?",
+   "secenekler": [
+    "learn",
+    "think",
+    "know",
+    "forget"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "ant182e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'arrive'?",
+   "secenekler": [
+    "come",
+    "enter",
+    "reach",
+    "leave"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "ant183e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'inside'?",
+   "secenekler": [
+    "indoor",
+    "outside",
+    "within",
+    "near"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "ant184e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'before'?",
+   "secenekler": [
+    "during",
+    "when",
+    "after",
+    "while"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "ant185e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'always'?",
+   "secenekler": [
+    "never",
+    "usually",
+    "sometimes",
+    "often"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "ant186e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'first'?",
+   "secenekler": [
+    "next",
+    "last",
+    "second",
+    "early"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "ant187e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'question'?",
+   "secenekler": [
+    "answer",
+    "quiz",
+    "test",
+    "exam"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "ant188e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'teacher'?",
+   "secenekler": [
+    "doctor",
+    "coach",
+    "parent",
+    "student"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "ant189e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'friend'?",
+   "secenekler": [
+    "buddy",
+    "mate",
+    "pal",
+    "enemy"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "ant190e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'safe'?",
+   "secenekler": [
+    "dangerous",
+    "guarded",
+    "secure",
+    "calm"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "ant191e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'smooth'?",
+   "secenekler": [
+    "flat",
+    "silky",
+    "rough",
+    "soft"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "ant192e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'thick'?",
+   "secenekler": [
+    "heavy",
+    "fat",
+    "wide",
+    "thin"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "ant193e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'brave'?",
+   "secenekler": [
+    "bold",
+    "fearless",
+    "daring",
+    "cowardly"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "ant194e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'noisy'?",
+   "secenekler": [
+    "silent",
+    "rowdy",
+    "loud",
+    "busy"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "ant195e",
+   "konu": "antonym",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which is the opposite of 'expensive'?",
+   "secenekler": [
+    "cheap",
+    "pricey",
+    "costly",
+    "valuable"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "spe196e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "becouse",
+    "becose",
+    "becuase",
+    "because"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "spe197e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "friand",
+    "freind",
+    "friend",
+    "frend"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "spe198e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "schoool",
+    "shool",
+    "scool",
+    "school"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "spe199e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "beatiful",
+    "beutiful",
+    "beautifull",
+    "beautiful"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "spe200e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "tommorrow",
+    "tomorrow",
+    "tommorow",
+    "tomorow"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "spe201e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "reseive",
+    "receve",
+    "receive",
+    "recieve"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "spe202e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "which",
+    "whitch",
+    "witch",
+    "wich"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "spe203e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "popule",
+    "peple",
+    "people",
+    "peeple"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "spe204e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "bilieve",
+    "beleive",
+    "belive",
+    "believe"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "spe205e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "favorite",
+    "favorit",
+    "favrite",
+    "favourate"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "spe206e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "diferent",
+    "diffrent",
+    "different",
+    "differant"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "spe207e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "intersting",
+    "interestin",
+    "intresting",
+    "interesting"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "spe208e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "liberry",
+    "library",
+    "libary",
+    "librery"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "spe209e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "February",
+    "Februery",
+    "Febuary",
+    "Feburary"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "spe210e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "Wednessday",
+    "Wendsday",
+    "Wednesday",
+    "Wensday"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "spe211e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "delishous",
+    "delisious",
+    "delicous",
+    "delicious"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "spe212e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "vegtable",
+    "vegetible",
+    "vegetable",
+    "vegateble"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "spe213e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "chockolate",
+    "choclate",
+    "chocolat",
+    "chocolate"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "spe214e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "supprise",
+    "surprise",
+    "suprise",
+    "surprize"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "spe215e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "addres",
+    "address",
+    "adress",
+    "adres"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "spe216e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "calendar",
+    "calander",
+    "calender",
+    "calandar"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "spe217e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "anmal",
+    "aminal",
+    "animel",
+    "animal"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "spe218e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "antil",
+    "untill",
+    "untile",
+    "until"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "spe219e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "reely",
+    "rilly",
+    "really",
+    "realy"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "spe220e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "writing",
+    "writting",
+    "wrighting",
+    "riting"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "spe221e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "again",
+    "agen",
+    "agein",
+    "agian"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "spe222e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "minete",
+    "minit",
+    "minuit",
+    "minute"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "spe223e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "ailand",
+    "island",
+    "ısland",
+    "iland"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "spe224e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "spesial",
+    "speciel",
+    "speshal",
+    "special"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "spe225e",
+   "konu": "spelling",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which is spelled correctly?",
+   "secenekler": [
+    "dauter",
+    "daughter",
+    "doughter",
+    "dauhter"
+   ],
+   "dogru_index": 1
+  }
+ ]
+}

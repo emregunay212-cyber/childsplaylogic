@@ -194,7 +194,32 @@ def sc_ates_buz(page):
     shot(page, g, '5-progress')
 
 
+def sc_math_archer(page):
+    g = 'math-archer'
+    open_game(page, 'matematik-okcusu-tr')
+    page.wait_for_timeout(700)
+    shot(page, g, '1-hub')
+    page.evaluate("startEndless();")
+    page.wait_for_timeout(2200)
+    hold_keys(page, None, 2, pattern=[(['d'], 0.5), (['w'], 0.3)])
+    page.evaluate("wave=3; startQuestionWave();")
+    page.wait_for_timeout(600)
+    shot(page, g, '2-soru-dalgasi')
+    page.evaluate(
+        "killEnemy(qWave.carriers.find(c=>c.qIdx===qWave.q.dogru_index));")
+    page.wait_for_timeout(350)
+    shot(page, g, '3-dogru')
+    page.evaluate(
+        "mode='stage'; stageIndex=4; dropPending=makeItem('silah','rare'); openChestQuestion(true,0,4);")
+    page.wait_for_timeout(500)
+    shot(page, g, '4-sandik')
+    page.evaluate("answerChestQ(chestQ.q.dogru_index);")
+    page.wait_for_timeout(700)
+    shot(page, g, '5-sandik-dogru')
+
+
 SCENARIOS = {
+    'math-archer': sc_math_archer,
     'buz-kulesi': sc_buz_kulesi,
     'egim': sc_egim,
     'blok-yagmuru': sc_blok_yagmuru,

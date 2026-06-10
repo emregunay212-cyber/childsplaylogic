@@ -1,0 +1,1494 @@
+{
+ "meta": {
+  "oyun": "Fen Okçusu / Science Blaster",
+  "ders": "fen",
+  "hedef_yas": "8-12",
+  "surum": "1.0",
+  "diller": [
+   "tr",
+   "en"
+  ],
+  "toplam_soru": 104,
+  "not": "El ile küratörlü; doğruluk önceliklidir. Genişletilebilir."
+ },
+ "konular": [
+  {
+   "kod": "canlilar",
+   "ad_tr": "Canlılar",
+   "ad_en": "Living Things"
+  },
+  {
+   "kod": "madde",
+   "ad_tr": "Madde",
+   "ad_en": "Matter"
+  },
+  {
+   "kod": "uzay",
+   "ad_tr": "Uzay",
+   "ad_en": "Space"
+  },
+  {
+   "kod": "kuvvet",
+   "ad_tr": "Kuvvet ve Enerji",
+   "ad_en": "Force & Energy"
+  }
+ ],
+ "sorular": [
+  {
+   "id": "can001t",
+   "konu": "canlilar",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "Hangisi canlıdır?",
+   "secenekler": [
+    "Ağaç",
+    "Taş",
+    "Su",
+    "Bulut"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "can002e",
+   "konu": "canlilar",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which one is living?",
+   "secenekler": [
+    "Rock",
+    "Tree",
+    "Water",
+    "Cloud"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "can003t",
+   "konu": "canlilar",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "Bitkiler hangi gazı üretir?",
+   "secenekler": [
+    "Oksijen",
+    "Helyum",
+    "Azot",
+    "Karbondioksit"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "can004e",
+   "konu": "canlilar",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which gas do plants produce?",
+   "secenekler": [
+    "Nitrogen",
+    "Helium",
+    "Oxygen",
+    "Carbon dioxide"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "can005t",
+   "konu": "canlilar",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "İnsan hangi organla nefes alır?",
+   "secenekler": [
+    "Mide",
+    "Kalp",
+    "Akciğer",
+    "Böbrek"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "can006e",
+   "konu": "canlilar",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which organ do humans breathe with?",
+   "secenekler": [
+    "Heart",
+    "Stomach",
+    "Kidney",
+    "Lungs"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "can007t",
+   "konu": "canlilar",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "Fotosentez için gerekli olan nedir?",
+   "secenekler": [
+    "Karanlık",
+    "Güneş ışığı",
+    "Buz",
+    "Tuz"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "can008e",
+   "konu": "canlilar",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "What is needed for photosynthesis?",
+   "secenekler": [
+    "Darkness",
+    "Salt",
+    "Ice",
+    "Sunlight"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "can009t",
+   "konu": "canlilar",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "Kelebek hangi evreden geçer?",
+   "secenekler": [
+    "Yumurtadan direkt",
+    "Tohum",
+    "Kabuk",
+    "Koza"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "can010e",
+   "konu": "canlilar",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which stage does a butterfly pass through?",
+   "secenekler": [
+    "Shell",
+    "Cocoon",
+    "Seed",
+    "Straight from egg"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "can011t",
+   "konu": "canlilar",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Besin zincirinde üreticiler kimlerdir?",
+   "secenekler": [
+    "Bitkiler",
+    "Kartallar",
+    "Aslanlar",
+    "Mantarlar"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "can012e",
+   "konu": "canlilar",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Who are the producers in a food chain?",
+   "secenekler": [
+    "Fungi",
+    "Plants",
+    "Eagles",
+    "Lions"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "mad013t",
+   "konu": "madde",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "Buz eriyince ne olur?",
+   "secenekler": [
+    "Şeker",
+    "Su",
+    "Buhar",
+    "Tuz"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "mad014e",
+   "konu": "madde",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "What does ice become when it melts?",
+   "secenekler": [
+    "Sugar",
+    "Salt",
+    "Steam",
+    "Water"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "mad015t",
+   "konu": "madde",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "Hangisi sıvıdır?",
+   "secenekler": [
+    "Taş",
+    "Süt",
+    "Tahta",
+    "Demir"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "mad016e",
+   "konu": "madde",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which one is a liquid?",
+   "secenekler": [
+    "Iron",
+    "Milk",
+    "Stone",
+    "Wood"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "mad017t",
+   "konu": "madde",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "Suyun kaynama sıcaklığı kaç derecedir?",
+   "secenekler": [
+    "0°C",
+    "200°C",
+    "100°C",
+    "50°C"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "mad018e",
+   "konu": "madde",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "What is the boiling point of water?",
+   "secenekler": [
+    "50°C",
+    "200°C",
+    "0°C",
+    "100°C"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "mad019t",
+   "konu": "madde",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "Suyun donma sıcaklığı kaç derecedir?",
+   "secenekler": [
+    "-100°C",
+    "0°C",
+    "100°C",
+    "10°C"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "mad020e",
+   "konu": "madde",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "What is the freezing point of water?",
+   "secenekler": [
+    "100°C",
+    "-100°C",
+    "10°C",
+    "0°C"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "mad021t",
+   "konu": "madde",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Gaz halinden sıvıya geçişe ne denir?",
+   "secenekler": [
+    "Donma",
+    "Buharlaşma",
+    "Yoğuşma",
+    "Erime"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "mad022e",
+   "konu": "madde",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "What is the change from gas to liquid called?",
+   "secenekler": [
+    "Condensation",
+    "Evaporation",
+    "Melting",
+    "Freezing"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "mad023t",
+   "konu": "madde",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi karışımdır?",
+   "secenekler": [
+    "Saf su",
+    "Altın",
+    "Tuzlu su",
+    "Oksijen"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "mad024e",
+   "konu": "madde",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which one is a mixture?",
+   "secenekler": [
+    "Oxygen",
+    "Salt water",
+    "Pure water",
+    "Gold"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "uza025t",
+   "konu": "uzay",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "Güneş sistemimizin merkezinde ne vardır?",
+   "secenekler": [
+    "Mars",
+    "Güneş",
+    "Dünya",
+    "Ay"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "uza026e",
+   "konu": "uzay",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "What is at the center of our solar system?",
+   "secenekler": [
+    "Earth",
+    "The Moon",
+    "The Sun",
+    "Mars"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "uza027t",
+   "konu": "uzay",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "Dünya'nın uydusu hangisidir?",
+   "secenekler": [
+    "Venüs",
+    "Ay",
+    "Mars",
+    "Güneş"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "uza028e",
+   "konu": "uzay",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "What is Earth's moon called?",
+   "secenekler": [
+    "Mars",
+    "The Sun",
+    "Venus",
+    "The Moon"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "uza029t",
+   "konu": "uzay",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "Gökyüzü gündüz neden mavidir?",
+   "secenekler": [
+    "Deniz yüzünden",
+    "Boya",
+    "Işığın saçılması",
+    "Bulutlar"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "uza030e",
+   "konu": "uzay",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Why is the sky blue in daytime?",
+   "secenekler": [
+    "Because of the sea",
+    "Light scattering",
+    "Paint",
+    "Clouds"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "uza031t",
+   "konu": "uzay",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "Hangisi gezegendir?",
+   "secenekler": [
+    "Jüpiter",
+    "Ay",
+    "Yıldız",
+    "Güneş"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "uza032e",
+   "konu": "uzay",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which one is a planet?",
+   "secenekler": [
+    "A star",
+    "The Moon",
+    "The Sun",
+    "Jupiter"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "uza033t",
+   "konu": "uzay",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "Dünya kendi etrafında bir turunu kaç saatte tamamlar?",
+   "secenekler": [
+    "365 saat",
+    "12 saat",
+    "24 saat",
+    "1 saat"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "uza034e",
+   "konu": "uzay",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "How long does Earth take to rotate once?",
+   "secenekler": [
+    "1 hour",
+    "12 hours",
+    "24 hours",
+    "365 hours"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "uza035t",
+   "konu": "uzay",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Mevsimler neden oluşur?",
+   "secenekler": [
+    "Ay",
+    "Eksen eğikliği",
+    "Rüzgar",
+    "Güneşe uzaklık"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "uza036e",
+   "konu": "uzay",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Why do seasons occur?",
+   "secenekler": [
+    "Distance to Sun",
+    "The Moon",
+    "Wind",
+    "Axial tilt"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kuv037t",
+   "konu": "kuvvet",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "Cisimleri yere çeken kuvvet nedir?",
+   "secenekler": [
+    "Işık",
+    "Yer çekimi",
+    "Rüzgar",
+    "Ses"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kuv038e",
+   "konu": "kuvvet",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "What force pulls objects to the ground?",
+   "secenekler": [
+    "Gravity",
+    "Sound",
+    "Wind",
+    "Light"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kuv039t",
+   "konu": "kuvvet",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "Mıknatıs neyi çeker?",
+   "secenekler": [
+    "Tahta",
+    "Plastik",
+    "Cam",
+    "Demir"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kuv040e",
+   "konu": "kuvvet",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "What does a magnet attract?",
+   "secenekler": [
+    "Glass",
+    "Iron",
+    "Plastic",
+    "Wood"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kuv041t",
+   "konu": "kuvvet",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "Sürtünme kuvveti hareketi nasıl etkiler?",
+   "secenekler": [
+    "Durdurmaz",
+    "Hızlandırır",
+    "Etkilemez",
+    "Yavaşlatır"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kuv042e",
+   "konu": "kuvvet",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "How does friction affect motion?",
+   "secenekler": [
+    "Slows it down",
+    "Speeds it up",
+    "Never stops it",
+    "No effect"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kuv043t",
+   "konu": "kuvvet",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "Hangisi enerji kaynağıdır?",
+   "secenekler": [
+    "Güneş",
+    "Cam",
+    "Kum",
+    "Taş"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kuv044e",
+   "konu": "kuvvet",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which one is an energy source?",
+   "secenekler": [
+    "Sand",
+    "The Sun",
+    "Glass",
+    "Stone"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kuv045t",
+   "konu": "kuvvet",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Ses neyin içinde yayılmaz?",
+   "secenekler": [
+    "Suda",
+    "Boşlukta",
+    "Demirde",
+    "Havada"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kuv046e",
+   "konu": "kuvvet",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Where does sound NOT travel?",
+   "secenekler": [
+    "In iron",
+    "In a vacuum",
+    "In water",
+    "In air"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kuv047t",
+   "konu": "kuvvet",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Işık hangi ortamda en hızlı yayılır?",
+   "secenekler": [
+    "Havada",
+    "Boşlukta",
+    "Camda",
+    "Suda"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kuv048e",
+   "konu": "kuvvet",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Where does light travel fastest?",
+   "secenekler": [
+    "In glass",
+    "In a vacuum",
+    "In water",
+    "In air"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "can049t",
+   "konu": "canlilar",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "Hangisi memeli hayvandır?",
+   "secenekler": [
+    "Yılan",
+    "Kurbağa",
+    "Yarasa",
+    "Balık"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "can050e",
+   "konu": "canlilar",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which is a mammal?",
+   "secenekler": [
+    "Frog",
+    "Snake",
+    "Fish",
+    "Bat"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "can051t",
+   "konu": "canlilar",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "Bitkinin kökü ne işe yarar?",
+   "secenekler": [
+    "Su ve mineral alır",
+    "Tohum üretir",
+    "Çiçek açar",
+    "Fotosentez yapar"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "can052e",
+   "konu": "canlilar",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "What does a plant root do?",
+   "secenekler": [
+    "Absorbs water and minerals",
+    "Makes seeds",
+    "Does photosynthesis",
+    "Blooms"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "can053t",
+   "konu": "canlilar",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "Hangisi soğukkanlı hayvandır?",
+   "secenekler": [
+    "Köpek",
+    "Kertenkele",
+    "İnek",
+    "Kedi"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "can054e",
+   "konu": "canlilar",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Which animal is cold-blooded?",
+   "secenekler": [
+    "Dog",
+    "Cat",
+    "Cow",
+    "Lizard"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "can055t",
+   "konu": "canlilar",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "Mantarlar hangi gruba girer?",
+   "secenekler": [
+    "Bitki",
+    "Ne bitki ne hayvan",
+    "Hayvan",
+    "Mineral"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "can056e",
+   "konu": "canlilar",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Fungi belong to which group?",
+   "secenekler": [
+    "Plant",
+    "Mineral",
+    "Neither plant nor animal",
+    "Animal"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "can057t",
+   "konu": "canlilar",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hücrenin enerji üreten yapısı hangisidir?",
+   "secenekler": [
+    "Hücre zarı",
+    "Çekirdek",
+    "Ribozom",
+    "Mitokondri"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "can058e",
+   "konu": "canlilar",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which organelle produces energy in a cell?",
+   "secenekler": [
+    "Cell membrane",
+    "Mitochondria",
+    "Nucleus",
+    "Ribosome"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "can059t",
+   "konu": "canlilar",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Bitkilerde fotosentez nerede gerçekleşir?",
+   "secenekler": [
+    "Kök",
+    "Tohum",
+    "Mitokondri",
+    "Kloroplast"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "can060e",
+   "konu": "canlilar",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Where does photosynthesis happen in plants?",
+   "secenekler": [
+    "Mitochondria",
+    "Chloroplast",
+    "Root",
+    "Seed"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "can061t",
+   "konu": "canlilar",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "Balıklar nefes almak için neyi kullanır?",
+   "secenekler": [
+    "Deri",
+    "Burun",
+    "Akciğer",
+    "Solungaç"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "can062e",
+   "konu": "canlilar",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "What do fish use to breathe?",
+   "secenekler": [
+    "Skin",
+    "Gills",
+    "Lungs",
+    "Nose"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "can063t",
+   "konu": "canlilar",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "Besin zincirinde otçullar neyle beslenir?",
+   "secenekler": [
+    "Taşla",
+    "Etle",
+    "Suyla",
+    "Bitkilerle"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "can064e",
+   "konu": "canlilar",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "What do herbivores eat in a food chain?",
+   "secenekler": [
+    "Plants",
+    "Meat",
+    "Water",
+    "Rocks"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "mad065t",
+   "konu": "madde",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "Hangisi gaz halindedir?",
+   "secenekler": [
+    "Buz",
+    "Demir",
+    "Tahta",
+    "Hava"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "mad066e",
+   "konu": "madde",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which one is a gas?",
+   "secenekler": [
+    "Iron",
+    "Ice",
+    "Air",
+    "Wood"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "mad067t",
+   "konu": "madde",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "Şeker suda ne olur?",
+   "secenekler": [
+    "Donar",
+    "Patlar",
+    "Çözünür",
+    "Yanar"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "mad068e",
+   "konu": "madde",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "What happens to sugar in water?",
+   "secenekler": [
+    "It explodes",
+    "It burns",
+    "It freezes",
+    "It dissolves"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "mad069t",
+   "konu": "madde",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "Maddenin ısı alınca hacmi ne olur?",
+   "secenekler": [
+    "Küçülür",
+    "Kaybolur",
+    "Değişmez",
+    "Genişler"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "mad070e",
+   "konu": "madde",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "What happens to a material's volume when heated?",
+   "secenekler": [
+    "It vanishes",
+    "It expands",
+    "It shrinks",
+    "No change"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "mad071t",
+   "konu": "madde",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "Sıvı halden gaz haline geçişe ne denir?",
+   "secenekler": [
+    "Erime",
+    "Donma",
+    "Buharlaşma",
+    "Yoğuşma"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "mad072e",
+   "konu": "madde",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "What is the change from liquid to gas called?",
+   "secenekler": [
+    "Melting",
+    "Condensation",
+    "Freezing",
+    "Evaporation"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "mad073t",
+   "konu": "madde",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi saf maddedir?",
+   "secenekler": [
+    "Hava",
+    "Altın",
+    "Tuzlu su",
+    "Çay"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "mad074e",
+   "konu": "madde",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which one is a pure substance?",
+   "secenekler": [
+    "Salt water",
+    "Air",
+    "Tea",
+    "Gold"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "mad075t",
+   "konu": "madde",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Bir maddenin kütlesi her yerde ne olur?",
+   "secenekler": [
+    "İkiye katlanır",
+    "Sıfırlanır",
+    "Değişir",
+    "Aynı kalır"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "mad076e",
+   "konu": "madde",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "What happens to a material's mass everywhere?",
+   "secenekler": [
+    "Stays the same",
+    "Doubles",
+    "Changes",
+    "Becomes zero"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "mad077t",
+   "konu": "madde",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "Hangisi katı maddedir?",
+   "secenekler": [
+    "Süt",
+    "Buz",
+    "Su",
+    "Hava"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "mad078e",
+   "konu": "madde",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Which one is a solid?",
+   "secenekler": [
+    "Milk",
+    "Air",
+    "Water",
+    "Ice"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "uza079t",
+   "konu": "uzay",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "Bir günde kaç saat vardır?",
+   "secenekler": [
+    "12",
+    "60",
+    "24",
+    "365"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "uza080e",
+   "konu": "uzay",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "How many hours are in a day?",
+   "secenekler": [
+    "365",
+    "60",
+    "12",
+    "24"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "uza081t",
+   "konu": "uzay",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "Geceleri gökyüzünde parlayan nedir?",
+   "secenekler": [
+    "Yağmur",
+    "Güneş",
+    "Yıldızlar",
+    "Bulutlar"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "uza082e",
+   "konu": "uzay",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "What shines in the sky at night?",
+   "secenekler": [
+    "The Sun",
+    "Rain",
+    "Stars",
+    "Clouds"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "uza083t",
+   "konu": "uzay",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "Dünya Güneş etrafında bir turunu kaç günde tamamlar?",
+   "secenekler": [
+    "365 gün",
+    "24 gün",
+    "100 gün",
+    "30 gün"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "uza084e",
+   "konu": "uzay",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "How long does Earth take to orbit the Sun?",
+   "secenekler": [
+    "24 days",
+    "30 days",
+    "365 days",
+    "100 days"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "uza085t",
+   "konu": "uzay",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "Ay'ın evreleri neden olur?",
+   "secenekler": [
+    "Güneş ışığını yansıtması",
+    "Bulutlar",
+    "Yağmur",
+    "Rüzgar"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "uza086e",
+   "konu": "uzay",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Why does the Moon have phases?",
+   "secenekler": [
+    "It reflects sunlight",
+    "Wind",
+    "Rain",
+    "Clouds"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "uza087t",
+   "konu": "uzay",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Güneş bir nedir?",
+   "secenekler": [
+    "Uydu",
+    "Kuyruklu yıldız",
+    "Yıldız",
+    "Gezegen"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "uza088e",
+   "konu": "uzay",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "What is the Sun?",
+   "secenekler": [
+    "A star",
+    "A comet",
+    "A moon",
+    "A planet"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "uza089t",
+   "konu": "uzay",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hangisi Güneş'e en yakın gezegendir?",
+   "secenekler": [
+    "Mars",
+    "Dünya",
+    "Merkür",
+    "Venüs"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "uza090e",
+   "konu": "uzay",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "Which planet is closest to the Sun?",
+   "secenekler": [
+    "Earth",
+    "Mercury",
+    "Venus",
+    "Mars"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kuv091t",
+   "konu": "kuvvet",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "İtme ve çekme nedir?",
+   "secenekler": [
+    "Ses",
+    "Koku",
+    "Renk",
+    "Kuvvet"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kuv092e",
+   "konu": "kuvvet",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "What are pushing and pulling?",
+   "secenekler": [
+    "Smell",
+    "Sound",
+    "Color",
+    "Force"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kuv093t",
+   "konu": "kuvvet",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "Top yokuş aşağı neden yuvarlanır?",
+   "secenekler": [
+    "Işık",
+    "Rüzgar",
+    "Yer çekimi",
+    "Mıknatıs"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "kuv094e",
+   "konu": "kuvvet",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "Why does a ball roll downhill?",
+   "secenekler": [
+    "Gravity",
+    "Wind",
+    "Magnet",
+    "Light"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kuv095t",
+   "konu": "kuvvet",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "Buz üzerinde kaymak neden kolaydır?",
+   "secenekler": [
+    "Sürtünme az",
+    "Sürtünme çok",
+    "Hava sıcak",
+    "Yer çekimi yok"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kuv096e",
+   "konu": "kuvvet",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "Why is it easy to slide on ice?",
+   "secenekler": [
+    "High friction",
+    "Hot air",
+    "Low friction",
+    "No gravity"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "kuv097t",
+   "konu": "kuvvet",
+   "zorluk": 2,
+   "dil": "tr",
+   "soru": "Pil hangi enerjiyi depolar?",
+   "secenekler": [
+    "Ses enerjisi",
+    "Kimyasal enerji",
+    "Rüzgar enerjisi",
+    "Işık enerjisi"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kuv098e",
+   "konu": "kuvvet",
+   "zorluk": 2,
+   "dil": "en",
+   "soru": "What energy does a battery store?",
+   "secenekler": [
+    "Chemical energy",
+    "Sound energy",
+    "Wind energy",
+    "Light energy"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kuv099t",
+   "konu": "kuvvet",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Hareketli bir cismin sahip olduğu enerji nedir?",
+   "secenekler": [
+    "Potansiyel enerji",
+    "Kinetik enerji",
+    "Işık enerjisi",
+    "Isı enerjisi"
+   ],
+   "dogru_index": 1
+  },
+  {
+   "id": "kuv100e",
+   "konu": "kuvvet",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "What energy does a moving object have?",
+   "secenekler": [
+    "Kinetic energy",
+    "Heat energy",
+    "Light energy",
+    "Potential energy"
+   ],
+   "dogru_index": 0
+  },
+  {
+   "id": "kuv101t",
+   "konu": "kuvvet",
+   "zorluk": 3,
+   "dil": "tr",
+   "soru": "Güneş enerjisini elektriğe çeviren panel nedir?",
+   "secenekler": [
+    "Pil",
+    "Jeneratör",
+    "Güneş paneli",
+    "Rüzgar türbini"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "kuv102e",
+   "konu": "kuvvet",
+   "zorluk": 3,
+   "dil": "en",
+   "soru": "What panel turns sunlight into electricity?",
+   "secenekler": [
+    "Generator",
+    "Battery",
+    "Solar panel",
+    "Wind turbine"
+   ],
+   "dogru_index": 2
+  },
+  {
+   "id": "kuv103t",
+   "konu": "kuvvet",
+   "zorluk": 1,
+   "dil": "tr",
+   "soru": "Lamba hangi enerjiyi ışığa çevirir?",
+   "secenekler": [
+    "Su",
+    "Rüzgar",
+    "Ses",
+    "Elektrik"
+   ],
+   "dogru_index": 3
+  },
+  {
+   "id": "kuv104e",
+   "konu": "kuvvet",
+   "zorluk": 1,
+   "dil": "en",
+   "soru": "What energy does a lamp turn into light?",
+   "secenekler": [
+    "Sound",
+    "Wind",
+    "Electricity",
+    "Water"
+   ],
+   "dogru_index": 2
+  }
+ ]
+}

@@ -125,11 +125,33 @@ def build_singlefile(cfg, src_dir):
         out_html = (html
                     .replace('___LANG___', lang)
                     .replace('___TITLE___', cfg['titles'][lang]))
+        out_html = inject_question_bank(out_html, cfg, lang)
         out_html = apply_translation(out_html, src_dir, cfg, lang)
         out = BUILD_DIR / f"{cfg['slug'][lang]}-{lang}.html"
         out.write_text(out_html, encoding='utf-8')
         outs.append(out)
     return outs
+
+
+def inject_question_bank(html, cfg, lang):
+    """config.questionBank varsa /*___SORU_BANKASI___*/ yerine dil-filtreli
+    soru bankasını göm: {konular:[{kod,ad}], sorular:[...]} (yalnız o dilin soruları)."""
+    qb = cfg.get('questionBank')
+    if not qb:
+        return html
+    bank = json.loads(read(REPO / qb))
+    sorular = [
+        {'konu': q['konu'], 'zorluk': q['zorluk'], 'soru': q['soru'],
+         'secenekler': q['secenekler'], 'dogru_index': q['dogru_index']}
+        for q in bank['sorular'] if q.get('dil') == lang
+    ]
+    konular = [{'kod': k['kod'], 'ad': k.get('ad_' + lang, k.get('ad_tr', k['kod']))}
+               for k in bank.get('konular', [])]
+    payload = json.dumps({'konular': konular, 'sorular': sorular}, ensure_ascii=False)
+    guard_script_safe('soru-bankasi', payload)
+    print(f'   soru bankası ({lang}): {len(sorular)} soru, {len(konular)} konu')
+    return html.replace('/*___SORU_BANKASI___*/',
+                        'const SORU_BANKASI = ' + payload + ';')
 
 
 def apply_translation(html, src_dir, cfg, lang):
