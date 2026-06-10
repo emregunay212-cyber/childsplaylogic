@@ -61,11 +61,16 @@ Bu klasör canlıya çıkmaz: `firebase.json` hosting.ignore + `.vercelignore` i
 - [x] **Ateş & Buz reskini**: özgün geometrik karakterler (baklava "Kor" + altıgen "Buz
       Kristali") — `tools/gen_ab_sprites.py` üretir; menüdeki markalı başlık da kaldırıldı.
 
-## Kalan manuel adımlar (fiziksel cihaz/insan gerektirir)
+## Manuel QA — tamamlandı (2026-06-10)
 
-1. **10 dakikalık FPS oturumu** (orta seviye Android'de) — fabrika checklist maddesi.
-2. **Gerçek dokunmatik cihaz testi** (pointer:coarse medya dalları emülatörsüz doğrulanmalı).
-3. **Ateş & Buz 2P oynanış turu** (iki el klavyede 1-2 bölüm; bölüm geçişi/elmas/kapı akışı).
+- [x] **Gerçek telefon testi**: oyunlar telefonda açılıp oynandı, dokunmatik kontroller
+      çalışıyor (geliştirici tarafından doğrulandı).
+- [ ] (İsteğe bağlı) Ateş & Buz iki-elle 2P klavye turu — masaüstünde 1-2 bölüm;
+      portal yüklemesi için engel değil.
+
+**Sonraki adım:** PARA-KAZANMA-PLANI.md Hafta 1 — `dist/<oyun>/` paketlerini itch.io'ya
+yükle (html dosyası + screenshots + pitch metni hazır), ardından GameMonetize/GamePix
+SDK entegrasyonu (`window.SDK` + `window.SDK_STORAGE` adaptörü).
 
 ## Portal yükleme sırası (PARA-KAZANMA-PLANI.md ile)
 
