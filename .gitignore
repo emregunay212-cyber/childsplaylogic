@@ -3,3 +3,4 @@ logs/
 .claude/
 *.log
 .firebase/
+__pycache__/
