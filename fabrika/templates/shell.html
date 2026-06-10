@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="___LANG___" data-lang="___LANG___">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>___TITLE___</title>
+<style>
+/* ── Fabrika kabuk stilleri ── */
+:root {
+    --theme: ___THEME___;
+    --shell-bg1: #141b33;
+    --shell-bg2: #0d1226;
+    --shell-text: #f3f5ff;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+body {
+    font-family: system-ui, 'Segoe UI', -apple-system, Roboto, sans-serif;
+    background: linear-gradient(160deg, var(--shell-bg1), var(--shell-bg2));
+    color: var(--shell-text);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+}
+#particles-canvas {
+    position: fixed; inset: 0; z-index: 900; pointer-events: none;
+}
+#game-container { position: fixed; inset: 0; display: none; }
+#game-container.active { display: block; }
+.game-area {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 8px; overflow: hidden;
+}
+.hidden { display: none !important; }
+
+/* Overlay'ler (menü / bölümler / bölüm-sonu) */
+.shell-screen {
+    position: fixed; inset: 0; z-index: 800;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 18px; padding: 24px; text-align: center;
+    background: linear-gradient(160deg, var(--shell-bg1), var(--shell-bg2));
+}
+.shell-screen.overlay { background: rgba(10, 14, 30, 0.88); }
+.shell-title {
+    font-size: clamp(34px, 8vw, 60px); font-weight: 800;
+    letter-spacing: 1px;
+    background: linear-gradient(135deg, var(--theme), #fff);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 14px rgba(0,0,0,.45));
+}
+.shell-sub { font-size: clamp(14px, 3.4vw, 18px); opacity: .82; max-width: 520px; line-height: 1.55; }
+.shell-btn {
+    font: inherit; font-size: clamp(17px, 4vw, 22px); font-weight: 700;
+    color: #fff; background: var(--theme);
+    border: none; border-radius: 16px;
+    padding: 14px 44px; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0,0,0,.35), inset 0 -3px 0 rgba(0,0,0,.22);
+    transition: transform .12s ease;
+}
+.shell-btn:active { transform: scale(.95); }
+.shell-btn.secondary { background: #2c3558; font-size: clamp(14px, 3.2vw, 17px); padding: 11px 28px; }
+.shell-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+#shell-sound { position: fixed; top: 12px; right: 12px; z-index: 850;
+    width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer;
+    background: rgba(255,255,255,.12); color: #fff; font-size: 20px; }
+#shell-back { position: fixed; top: 12px; left: 12px; z-index: 850;
+    width: auto; height: 46px; border-radius: 23px; border: none; cursor: pointer;
+    background: rgba(255,255,255,.12); color: #fff; font-size: 15px; font-weight: 700;
+    padding: 0 18px; display: none; }
+#shell-back.visible { display: block; }
+
+/* Bölüm seçimi */
+.shell-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(76px, 76px));
+    gap: 12px; justify-content: center; max-width: 560px;
+}
+.shell-lv {
+    width: 76px; height: 76px; border-radius: 16px; border: none; cursor: pointer;
+    background: #2c3558; color: #fff; font: inherit; font-size: 22px; font-weight: 800;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,.25);
+}
+.shell-lv .lv-stars { font-size: 11px; letter-spacing: 1px; color: #ffd700; }
+.shell-lv.locked { opacity: .38; cursor: default; }
+.shell-lv.done { background: var(--theme); }
+
+/* Bölüm-sonu yıldızları */
+.shell-stars { display: flex; gap: 10px; }
+.shell-stars svg { width: 54px; height: 54px; fill: #3a4368; }
+.shell-stars svg.earned { fill: #ffd700; filter: drop-shadow(0 2px 10px rgba(255,215,0,.5)); }
+
+/* Oyun kodu uyumluluğu: hub'ın body.game-active kilidi */
+body.game-active { overflow: hidden; }
+/* Hub'a-dön türü gizli uyumluluk düğmesi */
+#btn-home { display: none; }
+
+/* ── Oyun CSS ── */
+___GAME_CSS___
+</style>
+</head>
+<body class="game-active">
+
+<canvas id="particles-canvas"></canvas>
+
+<!-- Ana menü -->
+<div id="shell-menu" class="shell-screen">
+    <div class="shell-title">___TITLE___</div>
+    <div class="shell-sub" id="shell-instructions"></div>
+    <button class="shell-btn" id="shell-play"></button>
+</div>
+
+<!-- Bölüm seçimi (levels modunda) -->
+<div id="shell-levels" class="shell-screen hidden">
+    <div class="shell-title" style="font-size:clamp(24px,6vw,40px)" id="shell-levels-title"></div>
+    <div class="shell-grid" id="shell-levels-grid"></div>
+</div>
+
+<!-- Oyun alanı -->
+<div id="game-container">
+    <div class="game-area" id="game-area"></div>
+</div>
+
+<!-- Bölüm sonu -->
+<div id="level-complete" class="shell-screen overlay hidden">
+    <div class="shell-title" style="font-size:clamp(26px,6vw,42px)" id="complete-title"></div>
+    <div class="shell-stars" id="complete-stars"></div>
+    <div class="shell-row">
+        <button class="shell-btn secondary" id="btn-replay"></button>
+        <button class="shell-btn" id="btn-next"></button>
+        <button class="shell-btn secondary" id="btn-menu"></button>
+    </div>
+</div>
+
+<button id="shell-sound">🔊</button>
+<button id="shell-back"></button>
+<button id="btn-home" aria-hidden="true"></button>
+
+<script>
+/* ── Çekirdek (SDK + Storage + i18n) ── */
+___CORE_JS___
+
+/* ── Hub kütüphaneleri (audio, particles, mobile-utils) ── */
+___LIBS_JS___
+
+/* Ses ton alias'ları — oyun kodundaki tanımsız ton adları için */
+(() => {
+    const _play = AudioManager.play;
+    const ALIAS = { levelComplete: 'complete', wrong: 'error' };
+    AudioManager.play = (n) => _play(ALIAS[n] || n);
+})();
+
+/* ── Kabuk yapılandırması ── */
+const SHELL = ___SHELL_CONFIG___;
+
+/* ── Mini-engine: hub GameEngine sözleşmesinin standalone karşılığı ── */
+const GameEngine = (() => {
+    let currentLevel = 1;
+    let state = 'IDLE';
+    let score = { correct: 0, wrong: 0, total: 0 };
+
+    function levelStarsKey(lv) { return SHELL.id + '.stars.' + lv; }
+    function getLevelStars(lv) { return parseInt(Storage.get(levelStarsKey(lv)) || '0', 10) || 0; }
+    function setLevelStars(lv, s) {
+        if (s > getLevelStars(lv)) Storage.set(levelStarsKey(lv), String(s));
+    }
+
+    function startGame(level) {
+        currentLevel = level || 1;
+        state = 'PLAYING';
+        score = { correct: 0, wrong: 0, total: 0 };
+        const gameArea = document.getElementById('game-area');
+        while (gameArea.firstChild) gameArea.removeChild(gameArea.firstChild);
+        Shell.showGame();
+        SDK.gameplayStart();
+        GAME.init(gameArea, currentLevel, { onCorrect, onWrong, onComplete });
+    }
+
+    function onCorrect() { score.correct++; AudioManager.play('success'); }
+    function onWrong() { score.wrong++; AudioManager.play('error'); }
+
+    function calculateStars() {
+        if (score.total === 0) return 3;
+        const acc = score.correct / score.total;
+        if (acc >= 0.95) return 3;
+        if (acc >= 0.7) return 2;
+        return 1;
+    }
+
+    function onComplete(customStars) {
+        if (state !== 'PLAYING') return;
+        state = 'COMPLETED';
+        SDK.gameplayStop();
+        const stars = customStars !== undefined ? customStars : calculateStars();
+        setLevelStars(currentLevel, stars);
+        if (stars >= 3) SDK.happyMoment();
+        setTimeout(() => {
+            AudioManager.play('complete');
+            Particles.celebrate();
+            showLevelComplete(stars);
+        }, 400);
+    }
+
+    function showLevelComplete(stars) {
+        const titleEl = document.getElementById('complete-title');
+        titleEl.textContent = stars === 3 ? T('shell.perfect') : stars === 2 ? T('shell.great') : T('shell.good');
+        const starsEl = document.getElementById('complete-stars');
+        while (starsEl.firstChild) starsEl.removeChild(starsEl.firstChild);
+        for (let i = 0; i < 3; i++) {
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('viewBox', '0 0 24 24');
+            if (i < stars) svg.classList.add('earned');
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z');
+            svg.appendChild(path);
+            starsEl.appendChild(svg);
+        }
+        document.getElementById('btn-next').classList.toggle('hidden', currentLevel >= SHELL.levelCount);
+        document.getElementById('level-complete').classList.remove('hidden');
+    }
+
+    function hideLevelComplete() { document.getElementById('level-complete').classList.add('hidden'); }
+    function replay() { destroyGame(); hideLevelComplete(); startGame(currentLevel); }
+    function nextLevel() { destroyGame(); hideLevelComplete(); if (currentLevel < SHELL.levelCount) startGame(currentLevel + 1); }
+    function destroyGame() { try { if (GAME.destroy) GAME.destroy(); } catch (e) {} state = 'IDLE'; }
+
+    function setTotal(n) { score.total = n; }
+    function getCurrentLevel() { return currentLevel; }
+
+    return { startGame, replay, nextLevel, hideLevelComplete, setTotal, getCurrentLevel, getLevelStars, destroyGame, calculateStars };
+})();
+
+/* Hub uyumluluk stub'ları */
+const App = { showHub() { Shell.showMenu(); }, updateStarCounter() {} };
+const Progress = {
+    getLevelStars: (id, lv) => GameEngine.getLevelStars(lv),
+    setLevelStars: () => {},
+    getTotalStars: () => 0,
+};
+
+/* ── Kabuk ekran yönetimi ── */
+const Shell = (() => {
+    const menuEl = () => document.getElementById('shell-menu');
+    const levelsEl = () => document.getElementById('shell-levels');
+    const gameEl = () => document.getElementById('game-container');
+    const backEl = () => document.getElementById('shell-back');
+
+    function showMenu() {
+        GameEngine.destroyGame();
+        GameEngine.hideLevelComplete();
+        SDK.gameplayStop();
+        menuEl().classList.remove('hidden');
+        levelsEl().classList.add('hidden');
+        gameEl().classList.remove('active');
+        backEl().classList.remove('visible');
+    }
+
+    function showLevels() {
+        GameEngine.destroyGame();
+        GameEngine.hideLevelComplete();
+        menuEl().classList.add('hidden');
+        gameEl().classList.remove('active');
+        levelsEl().classList.remove('hidden');
+        backEl().classList.add('visible');
+        renderLevelGrid();
+    }
+
+    function showGame() {
+        menuEl().classList.add('hidden');
+        levelsEl().classList.add('hidden');
+        gameEl().classList.add('active');
+        backEl().classList.add('visible');
+    }
+
+    function renderLevelGrid() {
+        const grid = document.getElementById('shell-levels-grid');
+        while (grid.firstChild) grid.removeChild(grid.firstChild);
+        let maxUnlocked = 1;
+        for (let i = 1; i <= SHELL.levelCount; i++) {
+            if (GameEngine.getLevelStars(i) > 0) maxUnlocked = Math.max(maxUnlocked, i + 1);
+        }
+        for (let i = 1; i <= SHELL.levelCount; i++) {
+            const stars = GameEngine.getLevelStars(i);
+            const locked = i > maxUnlocked;
+            const btn = document.createElement('button');
+            btn.className = 'shell-lv' + (stars > 0 ? ' done' : '') + (locked ? ' locked' : '');
+            const num = document.createElement('span');
+            num.textContent = i;
+            const starsSpan = document.createElement('span');
+            starsSpan.className = 'lv-stars';
+            starsSpan.textContent = stars > 0 ? '★'.repeat(stars) : (locked ? '🔒' : '');
+            btn.appendChild(num);
+            btn.appendChild(starsSpan);
+            if (!locked) {
+                btn.addEventListener('click', () => { AudioManager.play('tap'); GameEngine.startGame(i); });
+            }
+            grid.appendChild(btn);
+        }
+    }
+
+    function boot() {
+        document.getElementById('shell-instructions').textContent = T('game.instructions');
+        document.getElementById('shell-play').textContent = T('shell.play');
+        document.getElementById('shell-levels-title').textContent = T('shell.levels');
+        document.getElementById('btn-replay').textContent = T('shell.replay');
+        document.getElementById('btn-next').textContent = T('shell.next');
+        document.getElementById('btn-menu').textContent = T('shell.menu');
+        document.getElementById('shell-back').textContent = '← ' + T('shell.menu');
+
+        document.getElementById('shell-play').addEventListener('click', () => {
+            AudioManager.play('tap');
+            if (SHELL.mode === 'levels') showLevels();
+            else GameEngine.startGame(1);
+        });
+        document.getElementById('btn-replay').addEventListener('click', () => GameEngine.replay());
+        document.getElementById('btn-next').addEventListener('click', () => GameEngine.nextLevel());
+        document.getElementById('btn-menu').addEventListener('click', () => {
+            if (SHELL.mode === 'levels') showLevels(); else showMenu();
+        });
+        document.getElementById('shell-back').addEventListener('click', () => showMenu());
+        document.getElementById('btn-home').addEventListener('click', () => showMenu());
+        document.getElementById('shell-sound').addEventListener('click', (e) => {
+            const on = AudioManager.toggle();
+            e.currentTarget.textContent = on ? '🔊' : '🔇';
+        });
+
+        MobileUtils.attachGlobalAudioUnlock();
+        Particles.init();
+        SDK.gameLoadingFinished();
+    }
+
+    return { showMenu, showLevels, showGame, boot };
+})();
+
+SDK.gameLoadingStart();
+
+/* ── Oyun kodu ── */
+___GAME_JS___
+
+/* GAME: kabuğun başlatacağı modül */
+const GAME = ___GAME_VAR___;
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => Shell.boot());
+} else {
+    Shell.boot();
+}
+</script>
+</body>
+</html>
