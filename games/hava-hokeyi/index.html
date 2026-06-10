@@ -91,11 +91,12 @@
   let phase = PH_COUNTDOWN, countdown = 3, lastScorer = null, winner = null;
   let phaseTimer = 0;         // frame sayacı (host)
 
-  // ── Guest tarafı: disk LOKAL simüle edilir (kendi vuruşu anında), host reconcile eder ──
-  const puckR = { x: CENTER_X, y: CENTER_Y, vx: 0, vy: 0 };   // guest'in lokal diski
-  const malOpR = { x: CENTER_X, y: H - 140, px: CENTER_X, py: H - 140, vx: 0, vy: 0 };  // rakip(host) tokmağı
-  // Guest kendi tokmağı (host koordinatında üst yarı) — hızı diske momentum aktarır
-  const malGuestLocal = { x: CENTER_X, y: 140, px: CENTER_X, py: 140, vx: 0, vy: 0 };
+  // ── Guest tarafı: SNAPSHOT INTERPOLATION — disk + rakip tokmağı, host'un gönderdiği
+  // İKİ pozisyon arasında zaman-tabanlı LERP ile çizilir (tek otorite=host, tahmin/
+  // reconcile YOK → titreme yok). Disk ~INTERP_MS geriden gelir ama PÜRÜZSÜZ. ──
+  const INTERP_MS = 80;                  // render bu kadar geriden (ağ jitter tamponu)
+  let snapPrev = null, snapCurr = null;  // host pozisyon damgaları {px,py,hx,hy,t}
+  const malGuestLocal = { x: CENTER_X, y: 140 };  // kendi tokmağı — anlık (gecikmesiz)
 
   // Pointer hedefi (kendi tokmağım için, host koordinatında)
   let pointerTarget = isHost ? { x: malH.x, y: malH.y } : { x: malGuestLocal.x, y: malGuestLocal.y };
@@ -198,16 +199,10 @@
     scoreH = v.sh; scoreG = v.sg;
     phase = v.ph; countdown = v.cd; lastScorer = v.ls || null;
     winner = v.ph === PH_OVER ? (v.sh >= WIN_SCORE ? 'host' : 'guest') : null;
-    // Disk reconciliation: host OTORİTER. Lokal tahmini host'a doğru HAFİFÇE çek;
-    // büyük sapma (gol/servis/ıskalanan çarpışma) → tam snap. Düşük katsayı = akıcı,
-    // host sadece sürüklenmeyi düzeltir; kendi vuruşun lokal simülasyondan anında gelir.
-    const ddx = v.px - puckR.x, ddy = v.py - puckR.y;
-    if (Math.hypot(ddx, ddy) > 90) {
-      puckR.x = v.px; puckR.y = v.py; puckR.vx = v.pvx; puckR.vy = v.pvy;
-    } else {
-      puckR.x += ddx * 0.15; puckR.y += ddy * 0.15;
-      puckR.vx += (v.pvx - puckR.vx) * 0.2; puckR.vy += (v.pvy - puckR.vy) * 0.2;
-    }
+    // Snapshot buffer'a ekle — render'da iki snapshot arası LERP edilir (titremesiz)
+    snapPrev = snapCurr;
+    snapCurr = { px: v.px, py: v.py, hx: v.hx, hy: v.hy, t: performance.now() };
+    if (!snapPrev) snapPrev = snapCurr;
   }
 
   function sendHostState(now) {
@@ -339,19 +334,21 @@
     }
   }
 
-  // Guest: diski LOKAL simüle et — host fiziğinin gol'süz kopyası (otorite + gol host'ta).
-  function stepGuestPuck() {
-    puckR.vx *= FRICTION; puckR.vy *= FRICTION;
-    const sp = Math.hypot(puckR.vx, puckR.vy);
-    if (sp > PUCK_MAX) { puckR.vx = puckR.vx / sp * PUCK_MAX; puckR.vy = puckR.vy / sp * PUCK_MAX; }
-    puckR.x += puckR.vx; puckR.y += puckR.vy;
-    if (puckR.x - PUCK_R < WALL) { puckR.x = WALL + PUCK_R; puckR.vx = Math.abs(puckR.vx) * REST; }
-    else if (puckR.x + PUCK_R > W - WALL) { puckR.x = W - WALL - PUCK_R; puckR.vx = -Math.abs(puckR.vx) * REST; }
-    const inGoalX = puckR.x > GOAL_X0 && puckR.x < GOAL_X1;
-    if (puckR.y - PUCK_R < WALL && !inGoalX) { puckR.y = WALL + PUCK_R; puckR.vy = Math.abs(puckR.vy) * REST; }
-    else if (puckR.y + PUCK_R > H - WALL && !inGoalX) { puckR.y = H - WALL - PUCK_R; puckR.vy = -Math.abs(puckR.vy) * REST; }
-    malletCollision(puckR, malGuestLocal);
-    malletCollision(puckR, malOpR);
+  // Guest: çizilecek disk + rakip-tokmağı pozisyonunu iki host snapshot'ı arası LERP ile bul.
+  // renderT = now - INTERP_MS → her zaman iki gerçek pozisyon arasında kalırız (extrapolasyon
+  // yok). Bu yüzden disk asla "geçip geri sıçramaz"; host yörüngesini pürüzsüz takip eder.
+  function guestRenderState() {
+    if (!snapCurr) return { px: CENTER_X, py: CENTER_Y, hx: CENTER_X, hy: H - 140 };
+    const renderT = performance.now() - INTERP_MS;
+    const span = snapCurr.t - snapPrev.t;
+    let a = span > 0 ? (renderT - snapPrev.t) / span : 1;
+    a = a < 0 ? 0 : a > 1 ? 1 : a;
+    return {
+      px: snapPrev.px + (snapCurr.px - snapPrev.px) * a,
+      py: snapPrev.py + (snapCurr.py - snapPrev.py) * a,
+      hx: snapPrev.hx + (snapCurr.hx - snapPrev.hx) * a,
+      hy: snapPrev.hy + (snapCurr.hy - snapPrev.hy) * a,
+    };
   }
 
   // ════════════════════════════════════════════
@@ -515,19 +512,13 @@
       // render(disk, RAKİP tokmağı, BENİM tokmağım): host için rakip=malG, benim=malH
       render(puck.x, puck.y, malG.x, malG.y, malH.x, malH.y);
     } else {
-      // Kendi tokmağım parmağı ANLIK takip eder (updateMallet hızı da hesaplar → diske vuruş)
-      updateMallet(malGuestLocal, pointerTarget.x, pointerTarget.y);
+      // Kendi tokmağım parmağı ANLIK takip eder (gecikmesiz)
+      malGuestLocal.x = pointerTarget.x;
+      malGuestLocal.y = pointerTarget.y;
       sendGuestInput(now);
-      // Rakip(host) tokmağını host pozisyonuna interpole et (hız hesabıyla → çarpışmaya girer)
-      if (latestHostState) {
-        const tx = malOpR.x + (latestHostState.hx - malOpR.x) * 0.5;
-        const ty = malOpR.y + (latestHostState.hy - malOpR.y) * 0.5;
-        updateMallet(malOpR, tx, ty);
-      }
-      // Diski LOKAL simüle et — kendi vuruşun ANINDA hissedilir; host onHostState'te
-      // otoriter reconcile eder (içinden-geçme + gecikmeli-sekiş giderildi).
-      if (phase === PH_PLAY) stepGuestPuck();
-      render(puckR.x, puckR.y, malOpR.x, malOpR.y, malGuestLocal.x, malGuestLocal.y);
+      // Disk + rakip tokmağı: host'un iki pozisyonu arası zaman-tabanlı LERP (titremesiz)
+      const s = guestRenderState();
+      render(s.px, s.py, s.hx, s.hy, malGuestLocal.x, malGuestLocal.y);
     }
   }
 
