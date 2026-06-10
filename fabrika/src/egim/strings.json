@@ -1,0 +1,40 @@
+{
+  "tr": {
+    "game.instructions": "Top sürekli ileri yuvarlanır! ◀ ▶ ile yönel, BOŞLUK ile zıpla. Neon engellere çarpma — ne kadar uzağa gidersen o kadar puan!",
+    "shell.play": "OYNA",
+    "shell.levels": "BÖLÜMLER",
+    "shell.replay": "↻ Tekrar",
+    "shell.next": "Sonraki ▶",
+    "shell.menu": "Ana Menü",
+    "shell.perfect": "Mükemmel! 🌟",
+    "shell.great": "Harika! 🎉",
+    "shell.good": "Güzel! 👍",
+    "eg.score": "Skor",
+    "eg.distance": "Mesafe",
+    "eg.record": "Rekor",
+    "eg.hint_keys": "◀ ▶ ile yönel • Boşluk ile zıpla",
+    "eg.hint_touch": "Alttaki tuşlarla yönel ve zıpla",
+    "eg.gameover": "🎯 Oyun Bitti",
+    "eg.retry": "🔁 Tekrar Oyna",
+    "eg.home": "🏠 Ana Menü"
+  },
+  "en": {
+    "game.instructions": "The ball rolls forward on its own! Steer with ◀ ▶, jump with SPACE. Dodge the neon blocks — the farther you go, the higher your score!",
+    "shell.play": "PLAY",
+    "shell.levels": "LEVELS",
+    "shell.replay": "↻ Replay",
+    "shell.next": "Next ▶",
+    "shell.menu": "Main Menu",
+    "shell.perfect": "Perfect! 🌟",
+    "shell.great": "Great! 🎉",
+    "shell.good": "Nice! 👍",
+    "eg.score": "Score",
+    "eg.distance": "Distance",
+    "eg.record": "Best",
+    "eg.hint_keys": "Steer with ◀ ▶ • Jump with Space",
+    "eg.hint_touch": "Use the buttons below to steer and jump",
+    "eg.gameover": "🎯 Game Over",
+    "eg.retry": "🔁 Play Again",
+    "eg.home": "🏠 Main Menu"
+  }
+}

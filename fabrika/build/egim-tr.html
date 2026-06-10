@@ -1,0 +1,2069 @@
+<!DOCTYPE html>
+<html lang="tr" data-lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Eğim</title>
+<style>
+/* ── Fabrika kabuk stilleri ── */
+:root {
+    --theme: #ff2a8a;
+    --shell-bg1: #141b33;
+    --shell-bg2: #0d1226;
+    --shell-text: #f3f5ff;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+body {
+    font-family: system-ui, 'Segoe UI', -apple-system, Roboto, sans-serif;
+    background: linear-gradient(160deg, var(--shell-bg1), var(--shell-bg2));
+    color: var(--shell-text);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+}
+#particles-canvas {
+    position: fixed; inset: 0; z-index: 900; pointer-events: none;
+}
+#game-container { position: fixed; inset: 0; display: none; }
+#game-container.active { display: block; }
+.game-area {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 8px; overflow: hidden;
+}
+.hidden { display: none !important; }
+
+/* Overlay'ler (menü / bölümler / bölüm-sonu) */
+.shell-screen {
+    position: fixed; inset: 0; z-index: 800;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 18px; padding: 24px; text-align: center;
+    background: linear-gradient(160deg, var(--shell-bg1), var(--shell-bg2));
+}
+.shell-screen.overlay { background: rgba(10, 14, 30, 0.88); }
+.shell-title {
+    font-size: clamp(34px, 8vw, 60px); font-weight: 800;
+    letter-spacing: 1px;
+    background: linear-gradient(135deg, var(--theme), #fff);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 14px rgba(0,0,0,.45));
+}
+.shell-sub { font-size: clamp(14px, 3.4vw, 18px); opacity: .82; max-width: 520px; line-height: 1.55; }
+.shell-btn {
+    font: inherit; font-size: clamp(17px, 4vw, 22px); font-weight: 700;
+    color: #fff; background: var(--theme);
+    border: none; border-radius: 16px;
+    padding: 14px 44px; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0,0,0,.35), inset 0 -3px 0 rgba(0,0,0,.22);
+    transition: transform .12s ease;
+}
+.shell-btn:active { transform: scale(.95); }
+.shell-btn.secondary { background: #2c3558; font-size: clamp(14px, 3.2vw, 17px); padding: 11px 28px; }
+.shell-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+#shell-sound { position: fixed; top: 12px; right: 12px; z-index: 850;
+    width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer;
+    background: rgba(255,255,255,.12); color: #fff; font-size: 20px; }
+#shell-back { position: fixed; top: 12px; left: 12px; z-index: 850;
+    width: auto; height: 46px; border-radius: 23px; border: none; cursor: pointer;
+    background: rgba(255,255,255,.12); color: #fff; font-size: 15px; font-weight: 700;
+    padding: 0 18px; display: none; }
+#shell-back.visible { display: block; }
+
+/* Bölüm seçimi */
+.shell-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(76px, 76px));
+    gap: 12px; justify-content: center; max-width: 560px;
+}
+.shell-lv {
+    width: 76px; height: 76px; border-radius: 16px; border: none; cursor: pointer;
+    background: #2c3558; color: #fff; font: inherit; font-size: 22px; font-weight: 800;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,.25);
+}
+.shell-lv .lv-stars { font-size: 11px; letter-spacing: 1px; color: #ffd700; }
+.shell-lv.locked { opacity: .38; cursor: default; }
+.shell-lv.done { background: var(--theme); }
+
+/* Bölüm-sonu yıldızları */
+.shell-stars { display: flex; gap: 10px; }
+.shell-stars svg { width: 54px; height: 54px; fill: #3a4368; }
+.shell-stars svg.earned { fill: #ffd700; filter: drop-shadow(0 2px 10px rgba(255,215,0,.5)); }
+
+/* Oyun kodu uyumluluğu: hub'ın body.game-active kilidi */
+body.game-active { overflow: hidden; }
+/* Hub'a-dön türü gizli uyumluluk düğmesi */
+#btn-home { display: none; }
+
+/* ── Oyun CSS ── */
+/* ============================================
+   Eğim — Oyun Stilleri
+   ============================================ */
+
+.eg-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  aspect-ratio: 800 / 500;
+  background: #02000a;
+  border-radius: 18px;
+  box-shadow:
+    0 0 0 2px rgba(0, 255, 208, 0.5),
+    0 0 40px rgba(255, 42, 138, 0.45),
+    0 20px 60px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.eg-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.eg-ui-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.eg-ui-layer > * { pointer-events: auto; }
+
+/* ---- HUD ---- */
+.eg-hud {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  gap: 8px;
+  font-family: 'Comic Sans MS', 'Baloo', system-ui, sans-serif;
+}
+
+.eg-hud-box {
+  background: rgba(10, 0, 30, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(0, 255, 208, 0.55);
+  border-radius: 10px;
+  padding: 6px 12px;
+  color: #e0fffa;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  box-shadow:
+    inset 0 0 8px rgba(0, 255, 208, 0.15),
+    0 0 16px rgba(0, 255, 208, 0.35);
+  text-shadow: 0 0 8px rgba(0, 255, 208, 0.6);
+}
+
+.eg-hud-box span:not(.eg-hud-label) {
+  color: #00ffd0;
+  font-variant-numeric: tabular-nums;
+}
+
+.eg-hud-label {
+  font-size: 11px;
+  opacity: 0.75;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-right: 4px;
+}
+
+.eg-score, .eg-dist, .eg-best { margin-left: auto; }
+.eg-dist, .eg-best { margin-left: 0; }
+
+.eg-hint {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(10, 0, 30, 0.8);
+  color: #ff2a8a;
+  padding: 6px 16px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-family: 'Orbitron', 'Arial Black', system-ui, sans-serif;
+  border: 1px solid rgba(255, 42, 138, 0.5);
+  box-shadow: 0 0 14px rgba(255, 42, 138, 0.4);
+  text-shadow: 0 0 6px rgba(255, 42, 138, 0.7);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ---- Mobil ---- */
+.eg-mobile {
+  position: absolute;
+  bottom: 60px;
+  left: 12px;
+  right: 12px;
+  display: none;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 10px;
+  pointer-events: none;
+}
+.eg-mbtn {
+  pointer-events: auto;
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  background: rgba(10, 0, 30, 0.7);
+  border: 2px solid rgba(0, 255, 208, 0.7);
+  color: #00ffd0;
+  font-size: 24px;
+  font-weight: 900;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 0 18px rgba(0, 255, 208, 0.4), inset 0 0 10px rgba(0, 255, 208, 0.15);
+  text-shadow: 0 0 10px rgba(0, 255, 208, 0.8);
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.eg-mbtn:active { background: rgba(0, 255, 208, 0.25); transform: scale(0.95); box-shadow: 0 0 24px rgba(0, 255, 208, 0.7); }
+.eg-mjump { margin: 0 auto; }
+
+@media (pointer: coarse), (hover: none), (max-width: 820px) {
+  .eg-mobile { display: flex; }
+  .eg-hint { display: none; }
+}
+
+@media (orientation: landscape) and (max-width: 820px) {
+  .eg-mobile { bottom: 20px; padding: 0 max(12px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left)); }
+}
+
+@media (max-width: 420px) {
+  .eg-mbtn { width: 54px; height: 54px; font-size: 20px; border-radius: 12px; }
+  .eg-hud-box { padding: 4px 8px; font-size: 12px; }
+  .eg-hud-label { font-size: 9px; }
+  .eg-mobile { bottom: 40px; }
+}
+
+/* ---- Modal ---- */
+.eg-modal {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 2, 20, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: egFadeIn 0.3s ease;
+}
+@keyframes egFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.eg-modal-card {
+  background: linear-gradient(145deg, #10002a 0%, #1a003a 60%, #2a0048 100%);
+  border: 2px solid rgba(0, 255, 208, 0.45);
+  border-radius: 14px;
+  padding: 24px 28px;
+  min-width: 320px;
+  max-width: 90%;
+  max-height: 90%;
+  overflow-y: auto;
+  box-shadow:
+    0 0 40px rgba(255, 42, 138, 0.4),
+    0 0 0 1px rgba(0, 255, 208, 0.3) inset,
+    0 25px 80px rgba(0,0,0,0.8);
+  color: #e0fffa;
+  font-family: 'Orbitron', 'Arial Black', system-ui, sans-serif;
+}
+
+.eg-gameover-title {
+  font-size: 28px;
+  font-weight: 900;
+  text-align: center;
+  margin-bottom: 18px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #ff2a8a;
+  text-shadow:
+    0 0 12px rgba(255, 42, 138, 0.9),
+    0 0 24px rgba(255, 42, 138, 0.5);
+}
+
+.eg-gameover-score {
+  background: rgba(10, 5, 25, 0.5);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+.eg-go-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.eg-go-row:last-child { border-bottom: none; }
+.eg-go-row b {
+  color: #00ffd0;
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 8px rgba(0, 255, 208, 0.7);
+}
+
+.eg-gameover-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.eg-btn {
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  border: none;
+  font-family: inherit;
+}
+.eg-btn:hover { transform: translateY(-2px); }
+.eg-btn:active { transform: translateY(0); }
+.eg-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.eg-btn-primary {
+  background: linear-gradient(135deg, #ff2a8a, #a00060);
+  color: #fff;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  box-shadow: 0 0 20px rgba(255, 42, 138, 0.6), inset 0 1px 0 rgba(255,255,255,0.2);
+  text-shadow: 0 0 8px rgba(255, 42, 138, 0.8);
+}
+.eg-btn-secondary {
+  background: rgba(10, 0, 30, 0.6);
+  color: #e0fffa;
+  border: 1.5px solid rgba(0, 255, 208, 0.5);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  box-shadow: inset 0 0 12px rgba(0, 255, 208, 0.1);
+}
+.eg-btn-accent {
+  background: linear-gradient(135deg, #00ffd0, #00a080);
+  color: #05010f;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 900;
+  box-shadow: 0 0 22px rgba(0, 255, 208, 0.6);
+}
+.eg-btn-ghost {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+/* ---- Save & Leaderboard ---- */
+.eg-save-area { margin-top: 14px; }
+.eg-save-form {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.eg-save-form input {
+  flex: 1;
+  min-width: 160px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(0, 255, 208, 0.45);
+  background: rgba(5, 0, 15, 0.7);
+  color: #e0fffa;
+  font-size: 15px;
+  letter-spacing: 1px;
+  font-family: 'Orbitron', 'Arial Black', system-ui, sans-serif;
+  box-shadow: inset 0 0 10px rgba(0, 255, 208, 0.1);
+}
+.eg-save-form input:focus {
+  outline: none;
+  border-color: #00ffd0;
+  box-shadow: 0 0 14px rgba(0, 255, 208, 0.5), inset 0 0 10px rgba(0, 255, 208, 0.2);
+}
+.eg-shake { animation: egShake 0.4s ease; }
+@keyframes egShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+.eg-save-ok { color: #2ecc71; font-weight: 700; text-align: center; padding: 8px; }
+.eg-error { color: #ff6a6a; font-weight: 700; text-align: center; padding: 8px; }
+
+.eg-leaderboard-area { margin-top: 16px; }
+.eg-lb-loading { text-align: center; padding: 14px; color: #ffd54a; }
+.eg-lb-title {
+  font-size: 14px;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #00ffd0;
+  text-shadow: 0 0 10px rgba(0, 255, 208, 0.6);
+}
+.eg-lb-table {
+  background: rgba(10, 5, 25, 0.5);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.eg-lb-head, .eg-lb-row {
+  display: grid;
+  grid-template-columns: 50px 1fr 80px;
+  padding: 8px 12px;
+  align-items: center;
+  font-size: 14px;
+}
+.eg-lb-head {
+  background: rgba(255, 42, 138, 0.18);
+  font-weight: 800;
+  color: #ff2a8a;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.eg-lb-row { border-bottom: 1px solid rgba(255,255,255,0.06); }
+.eg-lb-row:last-child { border-bottom: none; }
+.eg-lb-row.eg-lb-me {
+  background: linear-gradient(90deg, rgba(0, 255, 208, 0.15), rgba(255, 42, 138, 0.15));
+  font-weight: 800;
+  box-shadow: inset 0 0 12px rgba(0, 255, 208, 0.1);
+}
+.eg-lb-rank { color: #ff2a8a; font-weight: 800; }
+.eg-lb-score { text-align: right; color: #00ffd0; font-weight: 800; font-variant-numeric: tabular-nums; }
+.eg-lb-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  gap: 8px;
+}
+.eg-lb-pageinfo { color: rgba(255,255,255,0.7); font-size: 12px; }
+.eg-lb-out {
+  text-align: center;
+  padding: 18px;
+  background: rgba(10, 5, 25, 0.5);
+  border-radius: 12px;
+}
+.eg-lb-rank-big {
+  font-size: 56px;
+  font-weight: 900;
+  color: #00ffd0;
+  margin: 10px 0;
+  letter-spacing: 4px;
+  text-shadow:
+    0 0 14px rgba(0, 255, 208, 0.9),
+    0 0 28px rgba(0, 255, 208, 0.4);
+}
+.eg-lb-msg { color: rgba(255,255,255,0.8); font-size: 13px; }
+
+</style>
+</head>
+<body class="game-active">
+
+<canvas id="particles-canvas"></canvas>
+
+<!-- Ana menü -->
+<div id="shell-menu" class="shell-screen">
+    <div class="shell-title">Eğim</div>
+    <div class="shell-sub" id="shell-instructions"></div>
+    <button class="shell-btn" id="shell-play"></button>
+</div>
+
+<!-- Bölüm seçimi (levels modunda) -->
+<div id="shell-levels" class="shell-screen hidden">
+    <div class="shell-title" style="font-size:clamp(24px,6vw,40px)" id="shell-levels-title"></div>
+    <div class="shell-grid" id="shell-levels-grid"></div>
+</div>
+
+<!-- Oyun alanı -->
+<div id="game-container">
+    <div class="game-area" id="game-area"></div>
+</div>
+
+<!-- Bölüm sonu -->
+<div id="level-complete" class="shell-screen overlay hidden">
+    <div class="shell-title" style="font-size:clamp(26px,6vw,42px)" id="complete-title"></div>
+    <div class="shell-stars" id="complete-stars"></div>
+    <div class="shell-row">
+        <button class="shell-btn secondary" id="btn-replay"></button>
+        <button class="shell-btn" id="btn-next"></button>
+        <button class="shell-btn secondary" id="btn-menu"></button>
+    </div>
+</div>
+
+<button id="shell-sound">🔊</button>
+<button id="shell-back"></button>
+<button id="btn-home" aria-hidden="true"></button>
+
+<script>
+/* ── Çekirdek (SDK + Storage + i18n) ── */
+/* ============================================
+   FABRİKA ÇEKİRDEK — SDK soketleri + Storage + i18n
+   Portal spesifikasyonu: EGITSEL-OYUN-FABRIKASI/CLAUDE.md
+   Tarayıcı kalıcı deposu kullanılmaz; SDK_STORAGE → in-memory fallback.
+   ============================================ */
+
+const _mem = {};
+const Storage = {
+    get(k) {
+        try {
+            const v = window.SDK_STORAGE ? window.SDK_STORAGE.get(k) : undefined;
+            return (v !== undefined && v !== null) ? v : (_mem[k] !== undefined ? _mem[k] : null);
+        } catch (e) { return _mem[k] !== undefined ? _mem[k] : null; }
+    },
+    set(k, v) {
+        try { if (window.SDK_STORAGE) window.SDK_STORAGE.set(k, v); } catch (e) {}
+        _mem[k] = v;
+    },
+    clear() { for (const k in _mem) delete _mem[k]; },
+};
+
+/* Portal SDK soketleri — portal entegrasyonunda doldurulur, yokken sessiz no-op. */
+const SDK = window.SDK || {
+    gameLoadingStart() {},
+    gameLoadingFinished() {},
+    gameplayStart() {},
+    gameplayStop() {},
+    showRewardedAd(onSuccess) { try { onSuccess && onSuccess(); } catch (e) {} },
+    happyMoment() {},
+};
+window.SDK = SDK;
+
+/* i18n — öncelik: ?lang > <html data-lang> (build varsayılanı) > navigator.language */
+const STRINGS = {"tr": {"game.instructions": "Top sürekli ileri yuvarlanır! ◀ ▶ ile yönel, BOŞLUK ile zıpla. Neon engellere çarpma — ne kadar uzağa gidersen o kadar puan!", "shell.play": "OYNA", "shell.levels": "BÖLÜMLER", "shell.replay": "↻ Tekrar", "shell.next": "Sonraki ▶", "shell.menu": "Ana Menü", "shell.perfect": "Mükemmel! 🌟", "shell.great": "Harika! 🎉", "shell.good": "Güzel! 👍", "eg.score": "Skor", "eg.distance": "Mesafe", "eg.record": "Rekor", "eg.hint_keys": "◀ ▶ ile yönel • Boşluk ile zıpla", "eg.hint_touch": "Alttaki tuşlarla yönel ve zıpla", "eg.gameover": "🎯 Oyun Bitti", "eg.retry": "🔁 Tekrar Oyna", "eg.home": "🏠 Ana Menü"}, "en": {"game.instructions": "The ball rolls forward on its own! Steer with ◀ ▶, jump with SPACE. Dodge the neon blocks — the farther you go, the higher your score!", "shell.play": "PLAY", "shell.levels": "LEVELS", "shell.replay": "↻ Replay", "shell.next": "Next ▶", "shell.menu": "Main Menu", "shell.perfect": "Perfect! 🌟", "shell.great": "Great! 🎉", "shell.good": "Nice! 👍", "eg.score": "Score", "eg.distance": "Distance", "eg.record": "Best", "eg.hint_keys": "Steer with ◀ ▶ • Jump with Space", "eg.hint_touch": "Use the buttons below to steer and jump", "eg.gameover": "🎯 Game Over", "eg.retry": "🔁 Play Again", "eg.home": "🏠 Main Menu"}};
+const LANG = (() => {
+    try {
+        const q = new URLSearchParams(location.search).get('lang');
+        if (q && STRINGS[q]) return q;
+    } catch (e) {}
+    const d = document.documentElement.dataset.lang;
+    if (d && STRINGS[d]) return d;
+    return (navigator.language || 'en').toLowerCase().indexOf('tr') === 0 ? 'tr' : 'en';
+})();
+function T(key, vars) {
+    let s = (STRINGS[LANG] && STRINGS[LANG][key] !== undefined) ? STRINGS[LANG][key]
+        : (STRINGS.tr && STRINGS.tr[key] !== undefined) ? STRINGS.tr[key] : key;
+    if (vars) for (const v in vars) s = s.split('{' + v + '}').join(vars[v]);
+    return s;
+}
+
+
+/* ── Hub kütüphaneleri (audio, particles, mobile-utils) ── */
+/* ============================================
+   OYUN BAHÇESİ - Ses Yöneticisi
+   ============================================ */
+
+const AudioManager = (() => {
+    let ctx = null;
+    let enabled = true;
+    let initialized = false;
+    const buffers = {};
+
+    // Basit ses efektleri üretici (Web Audio API ile)
+    const tones = {
+        tap: { freq: 600, duration: 0.08, type: 'sine', gain: 0.15 },
+        success: { freq: 880, duration: 0.25, type: 'sine', gain: 0.2, seq: [523, 659, 784] },
+        error: { freq: 200, duration: 0.2, type: 'triangle', gain: 0.12 },
+        star: { freq: 1200, duration: 0.4, type: 'sine', gain: 0.15, seq: [784, 988, 1175] },
+        complete: { freq: 523, duration: 0.6, type: 'sine', gain: 0.2, seq: [523, 659, 784, 1047] },
+        pop: { freq: 400, duration: 0.1, type: 'sine', gain: 0.12 },
+        whoosh: { freq: 300, duration: 0.15, type: 'sawtooth', gain: 0.06 },
+        flip: { freq: 500, duration: 0.12, type: 'sine', gain: 0.1 },
+    };
+
+    function init() {
+        if (initialized) return;
+        try {
+            ctx = new (window.AudioContext || window.webkitAudioContext)();
+            initialized = true;
+        } catch (e) {
+            console.warn('Web Audio API desteklenmiyor');
+        }
+    }
+
+    function playTone(name) {
+        if (!enabled || !ctx) return;
+        if (ctx.state === 'suspended') ctx.resume();
+
+        const tone = tones[name];
+        if (!tone) return;
+
+        if (tone.seq) {
+            // Sıralı notalar
+            tone.seq.forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = tone.type;
+                osc.frequency.value = freq;
+                gain.gain.value = tone.gain;
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (i + 1) * 0.15);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(ctx.currentTime + i * 0.12);
+                osc.stop(ctx.currentTime + (i + 1) * 0.15 + 0.05);
+            });
+        } else {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = tone.type;
+            osc.frequency.value = tone.freq;
+            gain.gain.value = tone.gain;
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + tone.duration);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + tone.duration + 0.05);
+        }
+    }
+
+    function play(name) {
+        if (!enabled) return;
+        init();
+        playTone(name);
+    }
+
+    function toggle() {
+        enabled = !enabled;
+        return enabled;
+    }
+
+    function isEnabled() {
+        return enabled;
+    }
+
+    function setEnabled(val) {
+        enabled = val;
+    }
+
+    return { init, play, toggle, isEnabled, setEnabled };
+})();
+
+
+/* ============================================
+   OYUN BAHÇESİ - Parçacık Efektleri
+   ============================================ */
+
+const Particles = (() => {
+    let canvas, ctx;
+    let particles = [];
+    let animId = null;
+
+    const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#F7B731', '#A55EEA', '#FF78C4', '#26DE81', '#FFD700'];
+
+    function init() {
+        canvas = document.getElementById('particles-canvas');
+        if (!canvas) return;
+        ctx = canvas.getContext('2d');
+        resize();
+        window.addEventListener('resize', resize);
+    }
+
+    function resize() {
+        if (!canvas) return;
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    function animate() {
+        if (!ctx) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        particles = particles.filter(p => p.life > 0);
+
+        particles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += p.gravity;
+            p.life -= p.decay;
+            p.rotation += p.rotSpeed;
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rotation);
+            ctx.globalAlpha = Math.max(0, p.life);
+
+            if (p.type === 'confetti') {
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+            } else if (p.type === 'star') {
+                drawStar(ctx, 0, 0, 5, p.size, p.size / 2, p.color);
+            } else if (p.type === 'sparkle') {
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(0, 0, p.size * p.life, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.restore();
+        });
+
+        if (particles.length > 0) {
+            animId = requestAnimationFrame(animate);
+        } else {
+            animId = null;
+        }
+    }
+
+    function drawStar(ctx, cx, cy, spikes, outerR, innerR, color) {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        let rot = Math.PI / 2 * 3;
+        let step = Math.PI / spikes;
+        ctx.moveTo(cx, cy - outerR);
+        for (let i = 0; i < spikes; i++) {
+            ctx.lineTo(cx + Math.cos(rot) * outerR, cy + Math.sin(rot) * outerR);
+            rot += step;
+            ctx.lineTo(cx + Math.cos(rot) * innerR, cy + Math.sin(rot) * innerR);
+            rot += step;
+        }
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    function spawn(type, x, y, count) {
+        for (let i = 0; i < count; i++) {
+            const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.5;
+            const speed = 2 + Math.random() * 6;
+
+            particles.push({
+                type,
+                x,
+                y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed - 3,
+                gravity: type === 'sparkle' ? 0 : 0.12,
+                life: 1,
+                decay: 0.012 + Math.random() * 0.01,
+                size: type === 'confetti' ? 8 + Math.random() * 6 : 4 + Math.random() * 4,
+                color: COLORS[Math.floor(Math.random() * COLORS.length)],
+                rotation: Math.random() * Math.PI * 2,
+                rotSpeed: (Math.random() - 0.5) * 0.15,
+            });
+        }
+
+        if (!animId) {
+            animId = requestAnimationFrame(animate);
+        }
+    }
+
+    function confetti(x, y, count = 50) {
+        if (!ctx) init();
+        spawn('confetti', x || canvas.width / 2, y || canvas.height / 3, count);
+    }
+
+    function stars(x, y, count = 15) {
+        if (!ctx) init();
+        spawn('star', x || canvas.width / 2, y || canvas.height / 3, count);
+    }
+
+    function sparkle(x, y, count = 10) {
+        if (!ctx) init();
+        spawn('sparkle', x, y, count);
+    }
+
+    function celebrate() {
+        if (!ctx) init();
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 3;
+        confetti(cx, cy, 60);
+        setTimeout(() => stars(cx, cy, 20), 200);
+        setTimeout(() => confetti(cx - 100, cy, 30), 300);
+        setTimeout(() => confetti(cx + 100, cy, 30), 400);
+    }
+
+    return { init, confetti, stars, sparkle, celebrate };
+})();
+
+
+/* ============================================
+   Mobile Utils — Canvas DPR + Touch Yardımcıları
+   ============================================ */
+
+const MobileUtils = (() => {
+  const MAX_DPR = 2;
+
+  function getDPR() {
+    return Math.min(window.devicePixelRatio || 1, MAX_DPR);
+  }
+
+  function isTouchDevice() {
+    if ('ontouchstart' in window) return true;
+    if (navigator.maxTouchPoints && navigator.maxTouchPoints > 0) return true;
+    if (navigator.msMaxTouchPoints && navigator.msMaxTouchPoints > 0) return true;
+    if (window.matchMedia) {
+      if (window.matchMedia('(pointer: coarse)').matches) return true;
+      if (window.matchMedia('(hover: none)').matches) return true;
+      if (window.matchMedia('(any-pointer: coarse)').matches) return true;
+    }
+    return false;
+  }
+
+  function setupHiDPICanvas(canvas, ctx, logicalW, logicalH, opts) {
+    const options = opts || {};
+    const dpr = options.forceIntegerDpr
+      ? Math.max(1, Math.floor(getDPR()))
+      : getDPR();
+    canvas.width = Math.round(logicalW * dpr);
+    canvas.height = Math.round(logicalH * dpr);
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return dpr;
+  }
+
+  // Canvas'ı GÖRÜNTÜLENEN boyutuna (CSS px × DPR) göre boyutlandırır ve çizim
+  // koordinatlarını mantıksal (logicalW×logicalH) sisteme ölçekler. Oyun büyüdükçe
+  // (örn. tam ekran) iç çözünürlük de büyür → bulanıklaşma olmaz. ResizeObserver ile
+  // boyut değişiminde otomatik yeniden ayarlanır. Oyun her karede mantıksal
+  // koordinatlarda çizmeye devam eder.
+  function attachResponsiveCanvas(canvas, ctx, logicalW, logicalH) {
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    const fit = () => {
+      const dpr = getDPR();
+      const w = canvas.clientWidth || logicalW;
+      const h = canvas.clientHeight || logicalH;
+      canvas.width = Math.max(1, Math.round(w * dpr));
+      canvas.height = Math.max(1, Math.round(h * dpr));
+      // Mantıksal koordinat sistemini iç çözünürlüğe ölçekle (en-boy oranı
+      // korunduğunda x/y aynı faktör → bozulma olmaz).
+      ctx.setTransform(canvas.width / logicalW, 0, 0, canvas.height / logicalH, 0, 0);
+    };
+    fit();
+    let ro = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(fit);
+      ro.observe(canvas);
+    }
+    // ResizeObserver bazı durumlarda (ör. tam ekran geçişi) tetiklenmeyebildiği için
+    // window resize olayını da dinle — tam ekran butonu bu olayı tetikler.
+    window.addEventListener('resize', fit);
+    return {
+      refit: fit,
+      disconnect() { if (ro) ro.disconnect(); window.removeEventListener('resize', fit); }
+    };
+  }
+
+  function lockBodyScroll() {
+    document.body.classList.add('game-active');
+  }
+
+  function unlockBodyScroll() {
+    document.body.classList.remove('game-active');
+  }
+
+  function unlockAudio() {
+    try {
+      if (typeof AudioManager === 'undefined' || !AudioManager) return;
+      if (typeof AudioManager.unlock === 'function') AudioManager.unlock();
+      const ctx = AudioManager.context || AudioManager.audioContext || null;
+      if (ctx && ctx.state === 'suspended' && typeof ctx.resume === 'function') {
+        ctx.resume();
+      }
+    } catch (e) {}
+  }
+
+  let audioUnlockAttached = false;
+  function attachGlobalAudioUnlock() {
+    if (audioUnlockAttached) return;
+    audioUnlockAttached = true;
+    const once = () => {
+      unlockAudio();
+      document.removeEventListener('touchstart', once, true);
+      document.removeEventListener('mousedown', once, true);
+      document.removeEventListener('keydown', once, true);
+    };
+    document.addEventListener('touchstart', once, true);
+    document.addEventListener('mousedown', once, true);
+    document.addEventListener('keydown', once, true);
+  }
+
+  function bindHoldButton(el, onPress, onRelease) {
+    if (!el) return;
+    el.style.touchAction = 'none';
+    let activeTouchId = null;
+    const press = () => { if (onPress) onPress(); };
+    const release = () => { if (onRelease) onRelease(); };
+
+    el.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      if (activeTouchId === null && e.changedTouches && e.changedTouches[0]) {
+        activeTouchId = e.changedTouches[0].identifier;
+      }
+      press();
+    }, { passive: false });
+
+    const touchEndLike = (e) => {
+      if (activeTouchId === null) return;
+      if (e.changedTouches) {
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === activeTouchId) {
+            activeTouchId = null;
+            release();
+            return;
+          }
+        }
+      } else {
+        activeTouchId = null;
+        release();
+      }
+    };
+
+    el.addEventListener('touchend', (e) => { e.preventDefault(); touchEndLike(e); }, { passive: false });
+    el.addEventListener('touchcancel', (e) => { touchEndLike(e); });
+
+    el.addEventListener('mousedown', (e) => { e.preventDefault(); press(); });
+    el.addEventListener('mouseup', release);
+    el.addEventListener('mouseleave', release);
+
+    document.addEventListener('mouseup', release);
+  }
+
+  return {
+    getDPR,
+    isTouchDevice,
+    setupHiDPICanvas,
+    attachResponsiveCanvas,
+    lockBodyScroll,
+    unlockBodyScroll,
+    attachGlobalAudioUnlock,
+    unlockAudio,
+    bindHoldButton,
+  };
+})();
+
+
+/* Ses ton alias'ları — oyun kodundaki tanımsız ton adları için */
+(() => {
+    const _play = AudioManager.play;
+    const ALIAS = { levelComplete: 'complete', wrong: 'error' };
+    AudioManager.play = (n) => _play(ALIAS[n] || n);
+})();
+
+/* ── Kabuk yapılandırması ── */
+const SHELL = {"id": "egim", "mode": "endless", "levelCount": 1};
+
+/* ── Mini-engine: hub GameEngine sözleşmesinin standalone karşılığı ── */
+const GameEngine = (() => {
+    let currentLevel = 1;
+    let state = 'IDLE';
+    let score = { correct: 0, wrong: 0, total: 0 };
+
+    function levelStarsKey(lv) { return SHELL.id + '.stars.' + lv; }
+    function getLevelStars(lv) { return parseInt(Storage.get(levelStarsKey(lv)) || '0', 10) || 0; }
+    function setLevelStars(lv, s) {
+        if (s > getLevelStars(lv)) Storage.set(levelStarsKey(lv), String(s));
+    }
+
+    function startGame(level) {
+        currentLevel = level || 1;
+        state = 'PLAYING';
+        score = { correct: 0, wrong: 0, total: 0 };
+        const gameArea = document.getElementById('game-area');
+        while (gameArea.firstChild) gameArea.removeChild(gameArea.firstChild);
+        Shell.showGame();
+        SDK.gameplayStart();
+        GAME.init(gameArea, currentLevel, { onCorrect, onWrong, onComplete });
+    }
+
+    function onCorrect() { score.correct++; AudioManager.play('success'); }
+    function onWrong() { score.wrong++; AudioManager.play('error'); }
+
+    function calculateStars() {
+        if (score.total === 0) return 3;
+        const acc = score.correct / score.total;
+        if (acc >= 0.95) return 3;
+        if (acc >= 0.7) return 2;
+        return 1;
+    }
+
+    function onComplete(customStars) {
+        if (state !== 'PLAYING') return;
+        state = 'COMPLETED';
+        SDK.gameplayStop();
+        const stars = customStars !== undefined ? customStars : calculateStars();
+        setLevelStars(currentLevel, stars);
+        if (stars >= 3) SDK.happyMoment();
+        setTimeout(() => {
+            AudioManager.play('complete');
+            Particles.celebrate();
+            showLevelComplete(stars);
+        }, 400);
+    }
+
+    function showLevelComplete(stars) {
+        const titleEl = document.getElementById('complete-title');
+        titleEl.textContent = stars === 3 ? T('shell.perfect') : stars === 2 ? T('shell.great') : T('shell.good');
+        const starsEl = document.getElementById('complete-stars');
+        while (starsEl.firstChild) starsEl.removeChild(starsEl.firstChild);
+        for (let i = 0; i < 3; i++) {
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('viewBox', '0 0 24 24');
+            if (i < stars) svg.classList.add('earned');
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z');
+            svg.appendChild(path);
+            starsEl.appendChild(svg);
+        }
+        document.getElementById('btn-next').classList.toggle('hidden', currentLevel >= SHELL.levelCount);
+        document.getElementById('level-complete').classList.remove('hidden');
+    }
+
+    function hideLevelComplete() { document.getElementById('level-complete').classList.add('hidden'); }
+    function replay() { destroyGame(); hideLevelComplete(); startGame(currentLevel); }
+    function nextLevel() { destroyGame(); hideLevelComplete(); if (currentLevel < SHELL.levelCount) startGame(currentLevel + 1); }
+    function destroyGame() { try { if (GAME.destroy) GAME.destroy(); } catch (e) {} state = 'IDLE'; }
+
+    function setTotal(n) { score.total = n; }
+    function getCurrentLevel() { return currentLevel; }
+
+    return { startGame, replay, nextLevel, hideLevelComplete, setTotal, getCurrentLevel, getLevelStars, destroyGame, calculateStars };
+})();
+
+/* Hub uyumluluk stub'ları */
+const App = { showHub() { Shell.showMenu(); }, updateStarCounter() {} };
+const Progress = {
+    getLevelStars: (id, lv) => GameEngine.getLevelStars(lv),
+    setLevelStars: () => {},
+    getTotalStars: () => 0,
+};
+
+/* ── Kabuk ekran yönetimi ── */
+const Shell = (() => {
+    const menuEl = () => document.getElementById('shell-menu');
+    const levelsEl = () => document.getElementById('shell-levels');
+    const gameEl = () => document.getElementById('game-container');
+    const backEl = () => document.getElementById('shell-back');
+
+    function showMenu() {
+        GameEngine.destroyGame();
+        GameEngine.hideLevelComplete();
+        SDK.gameplayStop();
+        menuEl().classList.remove('hidden');
+        levelsEl().classList.add('hidden');
+        gameEl().classList.remove('active');
+        backEl().classList.remove('visible');
+    }
+
+    function showLevels() {
+        GameEngine.destroyGame();
+        GameEngine.hideLevelComplete();
+        menuEl().classList.add('hidden');
+        gameEl().classList.remove('active');
+        levelsEl().classList.remove('hidden');
+        backEl().classList.add('visible');
+        renderLevelGrid();
+    }
+
+    function showGame() {
+        menuEl().classList.add('hidden');
+        levelsEl().classList.add('hidden');
+        gameEl().classList.add('active');
+        backEl().classList.add('visible');
+    }
+
+    function renderLevelGrid() {
+        const grid = document.getElementById('shell-levels-grid');
+        while (grid.firstChild) grid.removeChild(grid.firstChild);
+        let maxUnlocked = 1;
+        for (let i = 1; i <= SHELL.levelCount; i++) {
+            if (GameEngine.getLevelStars(i) > 0) maxUnlocked = Math.max(maxUnlocked, i + 1);
+        }
+        for (let i = 1; i <= SHELL.levelCount; i++) {
+            const stars = GameEngine.getLevelStars(i);
+            const locked = i > maxUnlocked;
+            const btn = document.createElement('button');
+            btn.className = 'shell-lv' + (stars > 0 ? ' done' : '') + (locked ? ' locked' : '');
+            const num = document.createElement('span');
+            num.textContent = i;
+            const starsSpan = document.createElement('span');
+            starsSpan.className = 'lv-stars';
+            starsSpan.textContent = stars > 0 ? '★'.repeat(stars) : (locked ? '🔒' : '');
+            btn.appendChild(num);
+            btn.appendChild(starsSpan);
+            if (!locked) {
+                btn.addEventListener('click', () => { AudioManager.play('tap'); GameEngine.startGame(i); });
+            }
+            grid.appendChild(btn);
+        }
+    }
+
+    function boot() {
+        document.getElementById('shell-instructions').textContent = T('game.instructions');
+        document.getElementById('shell-play').textContent = T('shell.play');
+        document.getElementById('shell-levels-title').textContent = T('shell.levels');
+        document.getElementById('btn-replay').textContent = T('shell.replay');
+        document.getElementById('btn-next').textContent = T('shell.next');
+        document.getElementById('btn-menu').textContent = T('shell.menu');
+        document.getElementById('shell-back').textContent = '← ' + T('shell.menu');
+
+        document.getElementById('shell-play').addEventListener('click', () => {
+            AudioManager.play('tap');
+            if (SHELL.mode === 'levels') showLevels();
+            else GameEngine.startGame(1);
+        });
+        document.getElementById('btn-replay').addEventListener('click', () => GameEngine.replay());
+        document.getElementById('btn-next').addEventListener('click', () => GameEngine.nextLevel());
+        document.getElementById('btn-menu').addEventListener('click', () => {
+            if (SHELL.mode === 'levels') showLevels(); else showMenu();
+        });
+        document.getElementById('shell-back').addEventListener('click', () => showMenu());
+        document.getElementById('btn-home').addEventListener('click', () => showMenu());
+        document.getElementById('shell-sound').addEventListener('click', (e) => {
+            const on = AudioManager.toggle();
+            e.currentTarget.textContent = on ? '🔊' : '🔇';
+        });
+
+        MobileUtils.attachGlobalAudioUnlock();
+        Particles.init();
+        SDK.gameLoadingFinished();
+    }
+
+    return { showMenu, showLevels, showGame, boot };
+})();
+
+SDK.gameLoadingStart();
+
+/* ── Oyun kodu ── */
+/* ============================================
+   OYUN: Eğim — Slope Ball
+   Pseudo-3D canvas, top sürekli ileri yuvarlanır,
+   sol/sağ ile yönelir, kırmızı bloklara değerse veya
+   kenardan düşerse oyun biter. Tek can.
+   ============================================ */
+
+const Egim = (() => {
+    const id = 'egim';
+    const levels = [{}];
+
+    // ---- Sabitler ----
+    const GAME_W = 800, GAME_H = 500;
+    const FPS = 60, STEP = 1 / FPS;
+
+    // Track
+    const TRACK_HALF_WIDTH = 3.0;         // dünya birimleri (±x)
+    const HORIZON_Y = 140;                 // ufuk çizgisi ekran y
+    const CAMERA_Y = 2.5;                  // kamera yerden yüksekliği
+    const CAMERA_Z_OFFSET = 4.0;           // kamera topun arkasında
+    const FOV_SCALE = 300;                 // perspektif ölçek
+    const VIEW_DIST = 140;                 // kaç birim ileriyi çiziyoruz
+    const WALL_HEIGHT = 1.3;               // kenar duvarı yüksekliği (dünya birimi)
+
+    // Ball
+    const BALL_RADIUS = 0.55;
+    const BASE_SPEED = 14;                 // birim/saniye
+    const MAX_SPEED = 38;
+    const SPEED_RAMP_SECONDS = 45;         // bu sürede max'a çıkar
+    const LATERAL_SPEED = 11;
+    const BALL_GRAVITY = 60;
+    const BALL_JUMP_V = 18;
+
+    // Obstacles
+    const OBSTACLE_MIN_GAP = 8;
+    const OBSTACLE_MAX_GAP = 18;
+    const OBSTACLE_W = 1.3;
+    const OBSTACLE_H = 1.1;
+
+    // ---- Durum ----
+    let container, callbacks;
+    let canvas, ctx, canvasFit;
+    let uiLayer;
+    let hudEl, scoreEl, distanceEl, bestEl;
+    let ball;
+    let obstacles, particles;
+    let cameraZ;                           // kameranın ileride takip ettiği z
+    let runTime;
+    let currentSpeed;
+    let score, distanceScore, bestScore;
+    let state;
+    let lastTime, accum, animFrameId;
+    let finalScore;
+    let keyDownHandler, keyUpHandler, touchStartHandler, touchEndHandler, touchMoveHandler;
+    let keys;
+    let nextObstacleZ;
+    let countdownEndAt, countdownSec;
+    let trackStripeOffset;
+
+    // ---- Yardımcılar ----
+    function nowMs() { return performance.now(); }
+    function rand(a, b) { return a + Math.random() * (b - a); }
+    function randInt(a, b) { return Math.floor(rand(a, b + 1)); }
+    function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+    // Perspektif: dünya (x,y,z-cameraZ) → ekran (sx,sy,scale)
+    function project(wx, wy, wz) {
+        const dz = wz - cameraZ + CAMERA_Z_OFFSET;
+        if (dz <= 0.1) return null;
+        const scale = FOV_SCALE / dz;
+        const sx = GAME_W / 2 + wx * scale;
+        const sy = HORIZON_Y + (CAMERA_Y - wy) * scale;
+        return { sx, sy, scale };
+    }
+
+    // ---- Init / Destroy ----
+    function init(gameArea, level, cbs) {
+        container = gameArea;
+        callbacks = cbs || {};
+        bestScore = parseInt(Storage.get('egim-best') || '0', 10) || 0;
+        buildDOM();
+        bindInput();
+        resetRun();
+        lastTime = nowMs(); accum = 0;
+        gameLoop();
+    }
+
+    function destroy() {
+        state = 'destroyed';
+        if (animFrameId) cancelAnimationFrame(animFrameId);
+        if (canvasFit) { canvasFit.disconnect(); canvasFit = null; }
+        unbindInput();
+        if (container) container.innerHTML = '';
+    }
+
+    function resetRun() {
+        SDK.gameplayStart();
+        runTime = 0;
+        cameraZ = 0;
+        currentSpeed = 0;
+        score = 0;
+        distanceScore = 0;
+        obstacles = [];
+        particles = [];
+        nextObstacleZ = 12;
+        finalScore = 0;
+        keys = { left: false, right: false, jump: false };
+        trackStripeOffset = 0;
+
+        ball = {
+            x: 0,
+            y: 0,              // zeminden yükseklik
+            z: 0,              // ileri pozisyon
+            vy: 0,
+            onGround: true,
+            rollAngle: 0,
+        };
+
+        // İlk spawn'lar
+        for (let z = 14; z < 90; z += rand(OBSTACLE_MIN_GAP, OBSTACLE_MAX_GAP)) {
+            spawnObstacle(z);
+            nextObstacleZ = z;
+        }
+        nextObstacleZ += rand(OBSTACLE_MIN_GAP, OBSTACLE_MAX_GAP);
+
+        state = 'countdown';
+        countdownEndAt = nowMs() + 3000;
+        countdownSec = 3;
+        renderHUD();
+    }
+
+    // ---- DOM ----
+    function buildDOM() {
+        container.innerHTML = '';
+        const wrap = document.createElement('div');
+        wrap.className = 'eg-wrap';
+
+        canvas = document.createElement('canvas');
+        canvas.className = 'eg-canvas';
+        ctx = canvas.getContext('2d');
+        try { canvasFit = MobileUtils.attachResponsiveCanvas(canvas, ctx, GAME_W, GAME_H); }
+        catch (e) { canvas.width = GAME_W; canvas.height = GAME_H; }
+        canvas.style.touchAction = 'none';
+        wrap.appendChild(canvas);
+
+        uiLayer = document.createElement('div');
+        uiLayer.className = 'eg-ui-layer';
+        wrap.appendChild(uiLayer);
+
+        hudEl = document.createElement('div');
+        hudEl.className = 'eg-hud';
+        const mkHudBox = (boxCls, labelKey, valueId) => {
+            const box = document.createElement('div');
+            box.className = 'eg-hud-box ' + boxCls;
+            const label = document.createElement('span');
+            label.className = 'eg-hud-label';
+            label.textContent = T(labelKey);
+            const val = document.createElement('span');
+            val.id = valueId;
+            val.textContent = '0';
+            box.appendChild(label);
+            box.appendChild(val);
+            return box;
+        };
+        hudEl.appendChild(mkHudBox('eg-score', 'eg.score', 'eg-score'));
+        hudEl.appendChild(mkHudBox('eg-dist', 'eg.distance', 'eg-distance'));
+        hudEl.appendChild(mkHudBox('eg-best', 'eg.record', 'eg-best'));
+        uiLayer.appendChild(hudEl);
+
+        const hint = document.createElement('div');
+        hint.className = 'eg-hint';
+        const hintSpan = document.createElement('span');
+        hintSpan.textContent = T('eg.hint_keys');
+        hint.appendChild(hintSpan);
+        uiLayer.appendChild(hint);
+
+        // Mobil touch alanları
+        const mobile = document.createElement('div');
+        mobile.className = 'eg-mobile';
+        mobile.innerHTML =
+            '<button class="eg-mbtn eg-mleft" data-dir="left">◀</button>' +
+            '<button class="eg-mbtn eg-mjump" data-dir="jump">↑</button>' +
+            '<button class="eg-mbtn eg-mright" data-dir="right">▶</button>';
+        uiLayer.appendChild(mobile);
+
+        container.appendChild(wrap);
+
+        scoreEl = document.getElementById('eg-score');
+        distanceEl = document.getElementById('eg-distance');
+        bestEl = document.getElementById('eg-best');
+    }
+
+    // ---- Input ----
+    function bindInput() {
+        keyDownHandler = (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { keys.left = true; e.preventDefault(); }
+            else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { keys.right = true; e.preventDefault(); }
+            else if (e.key === ' ' || e.code === 'Space' || e.key === 'ArrowUp') { keys.jump = true; e.preventDefault(); }
+        };
+        keyUpHandler = (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = false;
+            else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = false;
+            else if (e.key === ' ' || e.code === 'Space' || e.key === 'ArrowUp') keys.jump = false;
+        };
+        document.addEventListener('keydown', keyDownHandler);
+        document.addEventListener('keyup', keyUpHandler);
+
+        // Mobil — her butona ayrı dinleyici bağla (MobileUtils.bindHoldButton ile)
+        const setDir = (dir, val) => {
+            if (dir === 'left') keys.left = val;
+            else if (dir === 'right') keys.right = val;
+            else if (dir === 'jump') keys.jump = val;
+        };
+        if (uiLayer) {
+            const buttons = uiLayer.querySelectorAll('.eg-mbtn');
+            buttons.forEach((btn) => {
+                const dir = btn.dataset.dir;
+                if (typeof MobileUtils !== 'undefined' && MobileUtils.bindHoldButton) {
+                    MobileUtils.bindHoldButton(btn, () => setDir(dir, true), () => setDir(dir, false));
+                } else {
+                    btn.addEventListener('touchstart', (e) => { e.preventDefault(); setDir(dir, true); }, { passive: false });
+                    btn.addEventListener('touchend', (e) => { e.preventDefault(); setDir(dir, false); }, { passive: false });
+                    btn.addEventListener('touchcancel', () => setDir(dir, false));
+                    btn.addEventListener('mousedown', (e) => { e.preventDefault(); setDir(dir, true); });
+                    btn.addEventListener('mouseup', () => setDir(dir, false));
+                    btn.addEventListener('mouseleave', () => setDir(dir, false));
+                }
+            });
+        }
+    }
+
+    function unbindInput() {
+        document.removeEventListener('keydown', keyDownHandler);
+        document.removeEventListener('keyup', keyUpHandler);
+    }
+
+    // ---- Döngü ----
+    function gameLoop() {
+        if (state === 'destroyed') return;
+        const t = nowMs();
+        const dt = Math.min(0.05, (t - lastTime) / 1000);
+        lastTime = t;
+
+        if (state === 'playing') {
+            accum += dt;
+            while (accum >= STEP) {
+                accum -= STEP;
+                update(STEP);
+            }
+        } else if (state === 'countdown') {
+            updateCountdown();
+        }
+        draw();
+        animFrameId = requestAnimationFrame(gameLoop);
+    }
+
+    function updateCountdown() {
+        const remainMs = countdownEndAt - nowMs();
+        if (remainMs <= 0) {
+            state = 'playing';
+            lastTime = nowMs(); accum = 0;
+            try { AudioManager.play('whoosh'); } catch (e) {}
+            return;
+        }
+        const newSec = Math.ceil(remainMs / 1000);
+        if (newSec !== countdownSec) {
+            countdownSec = newSec;
+            try { AudioManager.play('pop'); } catch (e) {}
+        }
+    }
+
+    // ---- Update ----
+    function update(dt) {
+        runTime += dt;
+
+        // Hız rampası
+        const t = clamp(runTime / SPEED_RAMP_SECONDS, 0, 1);
+        currentSpeed = BASE_SPEED + (MAX_SPEED - BASE_SPEED) * t;
+
+        // Top ileri hareket
+        ball.z += currentSpeed * dt;
+        cameraZ = ball.z;
+
+        // Yanal kontrol
+        if (keys.left) ball.x -= LATERAL_SPEED * dt;
+        if (keys.right) ball.x += LATERAL_SPEED * dt;
+
+        // Zıplama
+        if (keys.jump && ball.onGround) {
+            ball.vy = BALL_JUMP_V;
+            ball.onGround = false;
+            try { AudioManager.play('pop'); } catch (e) {}
+        }
+
+        // Yerçekimi
+        ball.vy -= BALL_GRAVITY * dt;
+        ball.y += ball.vy * dt;
+        if (ball.y <= 0) {
+            ball.y = 0;
+            ball.vy = 0;
+            ball.onGround = true;
+        }
+
+        // Yuvarlanma animasyonu
+        ball.rollAngle += currentSpeed * dt * 0.8;
+
+        // Pist çizgileri
+        trackStripeOffset = (trackStripeOffset + currentSpeed * dt) % 4;
+
+        // Kenar duvarları — top duvarı geçemez (clamp). Topun kenarı (merkez +
+        // yarıçap) duvarın iç yüzünde durur; %1 bile taşmaz. Düşme yok.
+        const wallLimit = TRACK_HALF_WIDTH - BALL_RADIUS;
+        if (ball.x > wallLimit) ball.x = wallLimit;
+        else if (ball.x < -wallLimit) ball.x = -wallLimit;
+
+        // Engel spawn
+        while (nextObstacleZ < cameraZ + VIEW_DIST) {
+            spawnObstacle(nextObstacleZ);
+            nextObstacleZ += rand(OBSTACLE_MIN_GAP, OBSTACLE_MAX_GAP);
+        }
+
+        // Eski engelleri temizle
+        obstacles = obstacles.filter(o => o.z > cameraZ - 5);
+
+        // Çarpışma
+        if (ball.y < OBSTACLE_H) {
+            for (const o of obstacles) {
+                const dz = o.z - ball.z;
+                if (dz < -1 || dz > 2) continue;
+                const dx = Math.abs(o.x - ball.x);
+                if (dz > -OBSTACLE_W * 0.5 && dz < OBSTACLE_W * 0.5 &&
+                    dx < OBSTACLE_W * 0.5 + BALL_RADIUS * 0.8) {
+                    triggerGameOver('hit');
+                    return;
+                }
+            }
+        }
+
+        // Partiküller (iz bırakan toz)
+        for (const p of particles) {
+            p.life -= dt;
+            p.z -= p.vz * dt;   // geriye kalır (kamera ileri gider)
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+            p.vy -= 30 * dt;
+        }
+        particles = particles.filter(p => p.life > 0);
+
+        // Skor
+        distanceScore = Math.floor(ball.z);
+        score = distanceScore;
+        renderHUD();
+    }
+
+    function spawnObstacle(z) {
+        // Engeller, topun duvarlar arasında ulaşabildiği TÜM bölgeyi kapsar ve
+        // bir kısmı bilinçli olarak kenarlara yerleştirilir; böylece top kenarda
+        // duvara yaslanıp beklese bile kenar engelleri onu yakalar.
+        const EDGE = TRACK_HALF_WIDTH - OBSTACLE_W * 0.5;   // 2.35 — engel yol içinde kalır
+        let x;
+        if (Math.random() < 0.45) {
+            const side = Math.random() < 0.5 ? -1 : 1;
+            x = side * rand(EDGE * 0.55, EDGE);              // kenar bandı (±1.3–2.35)
+        } else {
+            x = rand(-EDGE, EDGE);                           // tüm yol
+        }
+        obstacles.push({ x, z });
+    }
+
+    // ---- Game Over ----
+    function triggerGameOver(reason) {
+        if (state !== 'playing') return;
+        state = 'gameover';
+        SDK.gameplayStop();
+        finalScore = score;
+        if (finalScore > bestScore) {
+            bestScore = finalScore;
+            SDK.happyMoment();
+            try { Storage.set('egim-best', String(bestScore)); } catch (e) {}
+        }
+        // Patlama efekti
+        spawnExplosion(ball.x, ball.y + 0.5, ball.z);
+        try { AudioManager.play('error'); } catch (e) {}
+        setTimeout(showGameOverModal, 500);
+    }
+
+    function spawnExplosion(wx, wy, wz) {
+        for (let i = 0; i < 30; i++) {
+            particles.push({
+                x: wx, y: wy, z: wz,
+                vx: rand(-3, 3), vy: rand(1, 6), vz: rand(-3, 3),
+                life: 0.6 + Math.random() * 0.5,
+                color: 'hsl(' + randInt(0, 45) + ', 100%, ' + randInt(55, 70) + '%)',
+                r: 0.08 + Math.random() * 0.08
+            });
+        }
+    }
+
+    function showGameOverModal() {
+        const modal = document.createElement('div');
+        modal.className = 'eg-modal eg-gameover-modal';
+        modal.innerHTML =
+            '<div class="eg-modal-card eg-gameover-card">' +
+                '<div class="eg-gameover-title">' + T('eg.gameover') + '</div>' +
+                '<div class="eg-gameover-score">' +
+                    '<div class="eg-go-row"><span>' + T('eg.score') + '</span><b>' + finalScore + '</b></div>' +
+                    '<div class="eg-go-row"><span>' + T('eg.distance') + '</span><b>' + distanceScore + '</b></div>' +
+                    '<div class="eg-go-row"><span>' + T('eg.record') + '</span><b>' + bestScore + '</b></div>' +
+                '</div>' +
+                '<div class="eg-gameover-buttons">' +
+                    '<button class="eg-btn eg-btn-primary" id="eg-btn-restart">' + T('eg.retry') + '</button>' +
+                    '<button class="eg-btn eg-btn-secondary" id="eg-btn-home">' + T('eg.home') + '</button>' +
+                '</div>' +
+            '</div>';
+        uiLayer.appendChild(modal);
+
+        modal.querySelector('#eg-btn-restart').addEventListener('click', () => {
+            modal.remove();
+            resetRun();
+            lastTime = nowMs(); accum = 0;
+        });
+        modal.querySelector('#eg-btn-home').addEventListener('click', () => {
+            const h = document.getElementById('btn-home');
+            if (h) h.click();
+        });
+    }
+
+    // ---- HUD ----
+    function renderHUD() {
+        if (scoreEl) scoreEl.textContent = score;
+        if (distanceEl) distanceEl.textContent = distanceScore;
+        if (bestEl) bestEl.textContent = bestScore;
+    }
+
+    // ---- Draw ----
+    function draw() {
+        // Synthwave gökyüzü — derin lacivert → magenta → sıcak pembe
+        const g = ctx.createLinearGradient(0, 0, 0, HORIZON_Y);
+        g.addColorStop(0, '#05010f');
+        g.addColorStop(0.45, '#1a0340');
+        g.addColorStop(0.8, '#ff2a8a');
+        g.addColorStop(1, '#ff8a4a');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, GAME_W, HORIZON_Y);
+
+        // Neon güneş
+        drawNeonSun();
+
+        // Alt void — derin siyah-mor
+        const bg = ctx.createLinearGradient(0, HORIZON_Y, 0, GAME_H);
+        bg.addColorStop(0, '#0a021a');
+        bg.addColorStop(1, '#02000a');
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, HORIZON_Y, GAME_W, GAME_H - HORIZON_Y);
+
+        // Retrowave grid — ufuk çizgisi altında
+        drawRetroGrid();
+
+        // Pist
+        drawTrack();
+
+        // Kenar duvarları (top bunları geçemez)
+        drawWalls();
+
+        // Engelleri, topu, partikülleri z sırasına göre çiz (uzak → yakın)
+        const drawables = [];
+        for (const o of obstacles) {
+            if (o.z > cameraZ - 2 && o.z < cameraZ + VIEW_DIST) {
+                drawables.push({ type: 'obs', z: o.z, ref: o });
+            }
+        }
+        for (const p of particles) {
+            if (p.z > cameraZ - 2 && p.z < cameraZ + VIEW_DIST) {
+                drawables.push({ type: 'par', z: p.z, ref: p });
+            }
+        }
+        drawables.push({ type: 'ball', z: ball.z, ref: ball });
+        drawables.sort((a, b) => b.z - a.z);
+
+        for (const d of drawables) {
+            if (d.type === 'obs') drawObstacle(d.ref);
+            else if (d.type === 'par') drawParticle(d.ref);
+            else if (d.type === 'ball') drawBall(d.ref);
+        }
+
+        // Tarama hattı (CRT efekti)
+        drawScanlines();
+
+        // Hız vinyet — neon magenta
+        const speedPct = (currentSpeed - BASE_SPEED) / (MAX_SPEED - BASE_SPEED);
+        if (speedPct > 0.3) {
+            ctx.globalAlpha = clamp(speedPct * 0.45, 0, 0.45);
+            const vg = ctx.createRadialGradient(GAME_W / 2, GAME_H / 2, GAME_H / 3, GAME_W / 2, GAME_H / 2, GAME_W / 1.6);
+            vg.addColorStop(0, 'rgba(255, 42, 138, 0)');
+            vg.addColorStop(1, 'rgba(255, 42, 138, 0.9)');
+            ctx.fillStyle = vg;
+            ctx.fillRect(0, 0, GAME_W, GAME_H);
+            ctx.globalAlpha = 1;
+        }
+
+        if (state === 'countdown') drawCountdownOverlay();
+    }
+
+    function drawNeonSun() {
+        const cx = GAME_W / 2;
+        const cy = HORIZON_Y + 10;
+        const r = 70;
+        // Halo
+        const halo = ctx.createRadialGradient(cx, cy, r * 0.3, cx, cy, r * 2.4);
+        halo.addColorStop(0, 'rgba(255, 180, 80, 0.55)');
+        halo.addColorStop(0.5, 'rgba(255, 80, 140, 0.25)');
+        halo.addColorStop(1, 'rgba(255, 80, 140, 0)');
+        ctx.fillStyle = halo;
+        ctx.fillRect(0, 0, GAME_W, HORIZON_Y + 30);
+        // Güneş diski (ufuk üstünde yarım)
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(0, 0, GAME_W, HORIZON_Y);
+        ctx.clip();
+        const sg = ctx.createLinearGradient(cx, cy - r, cx, cy + r);
+        sg.addColorStop(0, '#fff2a0');
+        sg.addColorStop(0.5, '#ff9a3a');
+        sg.addColorStop(1, '#ff2a8a');
+        ctx.fillStyle = sg;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.fill();
+        // Yatay kesim çizgileri (synthwave klasik)
+        ctx.fillStyle = '#05010f';
+        for (let i = 0; i < 8; i++) {
+            const y = cy - r + (i / 8) * r * 1.1 + 18;
+            const h = 2 + i * 0.8;
+            ctx.globalAlpha = 0.85 - i * 0.05;
+            ctx.fillRect(cx - r, y, r * 2, h);
+        }
+        ctx.globalAlpha = 1;
+        ctx.restore();
+    }
+
+    function drawRetroGrid() {
+        // Ufuk çizgisi altındaki zeminde perspektif grid (pist dışı alan)
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255, 42, 138, 0.5)';
+        ctx.lineWidth = 1;
+        ctx.shadowColor = '#ff2a8a';
+        ctx.shadowBlur = 6;
+
+        // Dikey çizgiler — ufuktan dışa doğru yayılan
+        const vanishX = GAME_W / 2;
+        const lineCount = 18;
+        for (let i = -lineCount; i <= lineCount; i++) {
+            if (Math.abs(i) < 3) continue; // pist alanını atla
+            const endX = vanishX + i * (GAME_W / 2.5);
+            ctx.beginPath();
+            ctx.moveTo(vanishX, HORIZON_Y);
+            ctx.lineTo(endX, GAME_H);
+            ctx.stroke();
+        }
+
+        // Yatay çizgiler — uzaklaştıkça sıklaşan
+        const offset = (trackStripeOffset * 22) % 40;
+        for (let i = 0; i < 12; i++) {
+            const t = i / 12;
+            const y = HORIZON_Y + Math.pow(t, 2.2) * (GAME_H - HORIZON_Y) + offset * (1 - t) * 0.5;
+            if (y > GAME_H) continue;
+            ctx.globalAlpha = 0.25 + t * 0.4;
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(GAME_W, y);
+            ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+        ctx.restore();
+    }
+
+    function drawScanlines() {
+        ctx.save();
+        ctx.globalAlpha = 0.08;
+        ctx.fillStyle = '#000';
+        for (let y = 0; y < GAME_H; y += 3) {
+            ctx.fillRect(0, y, GAME_W, 1);
+        }
+        ctx.restore();
+    }
+
+    function drawTrack() {
+        const nearLeft = project(-TRACK_HALF_WIDTH, 0, cameraZ + 0.5);
+        const nearRight = project(TRACK_HALF_WIDTH, 0, cameraZ + 0.5);
+        const farLeft = project(-TRACK_HALF_WIDTH, 0, cameraZ + VIEW_DIST);
+        const farRight = project(TRACK_HALF_WIDTH, 0, cameraZ + VIEW_DIST);
+        if (!nearLeft || !farLeft) return;
+
+        // Pist zemini — koyu temel
+        ctx.fillStyle = '#0a0220';
+        ctx.beginPath();
+        ctx.moveTo(farLeft.sx, farLeft.sy);
+        ctx.lineTo(farRight.sx, farRight.sy);
+        ctx.lineTo(nearRight.sx, nearRight.sy);
+        ctx.lineTo(nearLeft.sx, nearLeft.sy);
+        ctx.closePath();
+        ctx.fill();
+
+        // Satranç tahtası panelleri — alternatif koyu/biraz açık
+        const stripeSize = 4;
+        for (let dz = -trackStripeOffset; dz < VIEW_DIST; dz += stripeSize) {
+            const z0 = cameraZ + dz + 0.5;
+            const z1 = cameraZ + dz + stripeSize + 0.5;
+            const l0 = project(-TRACK_HALF_WIDTH, 0, z0);
+            const r0 = project(TRACK_HALF_WIDTH, 0, z0);
+            const l1 = project(-TRACK_HALF_WIDTH, 0, z1);
+            const r1 = project(TRACK_HALF_WIDTH, 0, z1);
+            if (!l0 || !l1) continue;
+
+            const stripeIdx = Math.floor((cameraZ + dz) / stripeSize);
+            const isDark = stripeIdx % 2 === 0;
+            const alpha = clamp(1 - dz / VIEW_DIST, 0, 1);
+            ctx.fillStyle = isDark
+                ? `rgba(30, 10, 60, ${alpha * 0.85})`
+                : `rgba(80, 20, 120, ${alpha * 0.7})`;
+            ctx.beginPath();
+            ctx.moveTo(l1.sx, l1.sy);
+            ctx.lineTo(r1.sx, r1.sy);
+            ctx.lineTo(r0.sx, r0.sy);
+            ctx.lineTo(l0.sx, l0.sy);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // Merkez şerit çizgileri (yakın — uzak, solarak)
+        ctx.save();
+        ctx.shadowColor = '#00ffff';
+        ctx.shadowBlur = 8;
+        ctx.strokeStyle = 'rgba(0, 255, 255, 0.35)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        const midFar = project(0, 0, cameraZ + VIEW_DIST);
+        const midNear = project(0, 0, cameraZ + 0.5);
+        if (midFar && midNear) {
+            ctx.moveTo(midFar.sx, midFar.sy);
+            ctx.lineTo(midNear.sx, midNear.sy);
+            ctx.stroke();
+        }
+        ctx.restore();
+
+        // Neon kenar çizgileri — cyan glow
+        ctx.save();
+        ctx.shadowColor = '#00ffff';
+        ctx.shadowBlur = 18;
+        ctx.strokeStyle = '#00ffff';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(farLeft.sx, farLeft.sy);
+        ctx.lineTo(nearLeft.sx, nearLeft.sy);
+        ctx.moveTo(farRight.sx, farRight.sy);
+        ctx.lineTo(nearRight.sx, nearRight.sy);
+        ctx.stroke();
+        // Ek iç çizgi (daha parlak)
+        ctx.shadowBlur = 6;
+        ctx.strokeStyle = 'rgba(220, 255, 255, 0.9)';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    function drawWalls() {
+        // Uzaktan yakına çiz (painter's algorithm) — yakın segmentler öne gelsin
+        const seg = 4;
+        for (let dz = VIEW_DIST - seg; dz >= -trackStripeOffset; dz -= seg) {
+            const z0 = cameraZ + dz + 0.5;
+            const z1 = cameraZ + dz + seg + 0.5;
+            const alpha = clamp(1 - dz / VIEW_DIST, 0, 1);
+            drawWallSeg(-TRACK_HALF_WIDTH, z0, z1, alpha);
+            drawWallSeg(TRACK_HALF_WIDTH, z0, z1, alpha);
+        }
+    }
+
+    function drawWallSeg(x, z0, z1, alpha) {
+        const b0 = project(x, 0, z0);
+        const b1 = project(x, 0, z1);
+        const t0 = project(x, WALL_HEIGHT, z0);
+        const t1 = project(x, WALL_HEIGHT, z1);
+        if (!b0 || !b1 || !t0 || !t1) return;
+        // Duvar yüzü — koyu taban → neon cyan üst dikey gradyan
+        const grad = ctx.createLinearGradient(b0.sx, b0.sy, t0.sx, t0.sy);
+        grad.addColorStop(0, `rgba(12, 6, 32, ${alpha * 0.88})`);
+        grad.addColorStop(1, `rgba(0, 220, 255, ${alpha * 0.30})`);
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.moveTo(b0.sx, b0.sy);
+        ctx.lineTo(b1.sx, b1.sy);
+        ctx.lineTo(t1.sx, t1.sy);
+        ctx.lineTo(t0.sx, t0.sy);
+        ctx.closePath();
+        ctx.fill();
+        // Üst neon kenar çizgisi — cyan glow
+        ctx.save();
+        ctx.strokeStyle = `rgba(150, 255, 255, ${alpha})`;
+        ctx.lineWidth = 2;
+        ctx.shadowColor = '#00ffff';
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.moveTo(t0.sx, t0.sy);
+        ctx.lineTo(t1.sx, t1.sy);
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    function drawObstacle(o) {
+        const hx = OBSTACLE_W / 2;
+        const hz = OBSTACLE_W / 2;
+        const h = OBSTACLE_H;
+        const corners = [
+            project(o.x - hx, 0, o.z - hz),      // 0 alt-sol-ön
+            project(o.x + hx, 0, o.z - hz),      // 1 alt-sağ-ön
+            project(o.x + hx, 0, o.z + hz),      // 2 alt-sağ-arka
+            project(o.x - hx, 0, o.z + hz),      // 3 alt-sol-arka
+            project(o.x - hx, h, o.z - hz),      // 4 üst-sol-ön
+            project(o.x + hx, h, o.z - hz),      // 5 üst-sağ-ön
+            project(o.x + hx, h, o.z + hz),      // 6 üst-sağ-arka
+            project(o.x - hx, h, o.z + hz),      // 7 üst-sol-arka
+        ];
+        if (corners.some(c => c === null)) return;
+
+        // Derin siyah gövde — neon neon efekti için
+        ctx.fillStyle = '#1a0008';
+        // Ön yüz
+        ctx.beginPath();
+        ctx.moveTo(corners[0].sx, corners[0].sy);
+        ctx.lineTo(corners[1].sx, corners[1].sy);
+        ctx.lineTo(corners[5].sx, corners[5].sy);
+        ctx.lineTo(corners[4].sx, corners[4].sy);
+        ctx.closePath();
+        ctx.fill();
+        // Üst
+        const topGrad = ctx.createLinearGradient(corners[4].sx, corners[4].sy, corners[6].sx, corners[6].sy);
+        topGrad.addColorStop(0, '#ff2040');
+        topGrad.addColorStop(1, '#8a001a');
+        ctx.fillStyle = topGrad;
+        ctx.beginPath();
+        ctx.moveTo(corners[4].sx, corners[4].sy);
+        ctx.lineTo(corners[5].sx, corners[5].sy);
+        ctx.lineTo(corners[6].sx, corners[6].sy);
+        ctx.lineTo(corners[7].sx, corners[7].sy);
+        ctx.closePath();
+        ctx.fill();
+        // Yan
+        const visible = ball.x < o.x ? 'right' : 'left';
+        ctx.fillStyle = '#2a0010';
+        ctx.beginPath();
+        if (visible === 'right') {
+            ctx.moveTo(corners[1].sx, corners[1].sy);
+            ctx.lineTo(corners[2].sx, corners[2].sy);
+            ctx.lineTo(corners[6].sx, corners[6].sy);
+            ctx.lineTo(corners[5].sx, corners[5].sy);
+        } else {
+            ctx.moveTo(corners[3].sx, corners[3].sy);
+            ctx.lineTo(corners[0].sx, corners[0].sy);
+            ctx.lineTo(corners[4].sx, corners[4].sy);
+            ctx.lineTo(corners[7].sx, corners[7].sy);
+        }
+        ctx.closePath();
+        ctx.fill();
+
+        // NEON KENAR ÇİZGİLERİ — tüm küp iskeleti
+        ctx.save();
+        ctx.shadowColor = '#ff0050';
+        ctx.shadowBlur = 16;
+        ctx.strokeStyle = '#ff2060';
+        ctx.lineWidth = 2.5;
+        const edges = [
+            [0,1],[1,2],[2,3],[3,0],        // alt kare
+            [4,5],[5,6],[6,7],[7,4],        // üst kare
+            [0,4],[1,5],[2,6],[3,7],        // dikey
+        ];
+        ctx.beginPath();
+        for (const [a, b] of edges) {
+            ctx.moveTo(corners[a].sx, corners[a].sy);
+            ctx.lineTo(corners[b].sx, corners[b].sy);
+        }
+        ctx.stroke();
+        // İç parlak çizgi
+        ctx.shadowBlur = 4;
+        ctx.strokeStyle = '#ffb0c0';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    function drawBall(b) {
+        const p = project(b.x, b.y + BALL_RADIUS, b.z);
+        if (!p) return;
+        const r = BALL_RADIUS * p.scale;
+
+        // Gölge — neon cyan ışık izi
+        const shadow = project(b.x, 0.01, b.z);
+        if (shadow) {
+            ctx.save();
+            ctx.shadowColor = '#00ffd0';
+            ctx.shadowBlur = 12;
+            ctx.fillStyle = 'rgba(0, 255, 208, 0.35)';
+            ctx.beginPath();
+            ctx.ellipse(shadow.sx, shadow.sy, r * 1.1, r * 0.35, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // Dış neon glow
+        ctx.save();
+        ctx.shadowColor = '#00ffd0';
+        ctx.shadowBlur = 25;
+        ctx.fillStyle = 'rgba(0, 255, 208, 0.3)';
+        ctx.beginPath();
+        ctx.arc(p.sx, p.sy, r * 1.15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Chrome gövde - koyu → neon cyan
+        const bg = ctx.createRadialGradient(p.sx - r * 0.4, p.sy - r * 0.4, r * 0.05, p.sx, p.sy, r);
+        bg.addColorStop(0, '#ffffff');
+        bg.addColorStop(0.25, '#b0fff0');
+        bg.addColorStop(0.6, '#00e8c0');
+        bg.addColorStop(1, '#002a28');
+        ctx.fillStyle = bg;
+        ctx.beginPath();
+        ctx.arc(p.sx, p.sy, r, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Yuvarlanma — neon çizgi
+        ctx.save();
+        ctx.translate(p.sx, p.sy);
+        ctx.rotate(b.rollAngle);
+        ctx.shadowColor = '#00ffd0';
+        ctx.shadowBlur = 4;
+        ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, r * 0.85, r * 0.3, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.strokeStyle = 'rgba(0, 255, 208, 0.7)';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, r * 0.35, r * 0.8, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+
+        // Parlak nokta
+        ctx.fillStyle = 'rgba(255,255,255,0.95)';
+        ctx.beginPath();
+        ctx.arc(p.sx - r * 0.4, p.sy - r * 0.45, r * 0.18, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Neon kenar
+        ctx.save();
+        ctx.shadowColor = '#00ffd0';
+        ctx.shadowBlur = 10;
+        ctx.strokeStyle = '#00ffd0';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.arc(p.sx, p.sy, r, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    function drawParticle(p) {
+        const pr = project(p.x, p.y, p.z);
+        if (!pr) return;
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(pr.sx, pr.sy, Math.max(1, p.r * pr.scale), 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+    }
+
+    function drawCountdownOverlay() {
+        ctx.fillStyle = 'rgba(5, 2, 20, 0.5)';
+        ctx.fillRect(0, 0, GAME_W, GAME_H);
+
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const remainMs = countdownEndAt - nowMs();
+        const secF = remainMs / 1000;
+        const pulse = 1 - (secF - Math.floor(secF));
+        const scale = 1 + pulse * 0.5;
+        const label = countdownSec > 0 ? String(countdownSec) : 'GO!';
+
+        ctx.translate(GAME_W / 2, GAME_H / 2);
+        ctx.scale(scale, scale);
+        ctx.font = 'bold 96px "Orbitron", "Arial Black", system-ui, sans-serif';
+        ctx.shadowColor = countdownSec > 0 ? '#ff2a8a' : '#00ffd0';
+        ctx.shadowBlur = 32;
+        ctx.fillStyle = countdownSec > 0 ? '#ff2a8a' : '#00ffd0';
+        ctx.fillText(label, 0, 0);
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = 'rgba(0,0,0,0.6)';
+        ctx.lineWidth = 3;
+        ctx.strokeText(label, 0, 0);
+        ctx.restore();
+
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 18px "Comic Sans MS", system-ui, sans-serif';
+        ctx.shadowColor = 'rgba(0,0,0,0.8)';
+        ctx.shadowBlur = 6;
+        const isTouch = (typeof MobileUtils !== 'undefined' && MobileUtils.isTouchDevice());
+        ctx.fillText(isTouch ? T('eg.hint_touch') : T('eg.hint_keys'), GAME_W / 2, GAME_H - 40);
+        ctx.restore();
+    }
+
+    return { id, levels, init, destroy };
+})();
+
+
+/* GAME: kabuğun başlatacağı modül */
+const GAME = Egim;
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => Shell.boot());
+} else {
+    Shell.boot();
+}
+</script>
+</body>
+</html>

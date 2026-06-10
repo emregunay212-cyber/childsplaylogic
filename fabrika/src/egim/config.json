@@ -1,0 +1,13 @@
+{
+  "id": "egim",
+  "type": "shellA",
+  "titles": { "tr": "Eğim", "en": "Rolling Rush" },
+  "slug": { "tr": "egim", "en": "rolling-rush" },
+  "langs": ["tr", "en"],
+  "themeColor": "#ff2a8a",
+  "mode": "endless",
+  "levelCount": 1,
+  "gameVar": "Egim",
+  "sources": ["game.js"],
+  "css": ["game.css"]
+}
