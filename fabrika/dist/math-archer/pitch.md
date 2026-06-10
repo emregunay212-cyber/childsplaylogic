@@ -24,7 +24,7 @@ Zorluk eğrisi otomatik: dalga 1-10 → kolay, 11-25 → orta, 26+ → zor (sahn
 | Dosya | `matematik-okcusu-tr.html` / `math-archer-en.html` — tek dosya |
 | Boyut | 534 KB (sprite'lar + 446 soru gömülü) |
 | Çevrimdışı | Evet — harici istek sıfır |
-| Platform | Mobil (sanal joystick + otomatik atış) + masaüstü (WASD/oklar) |
+| Platform | Mobil (joystick + **ikinci parmakla nişan**) + masaüstü (WASD + **fareyle nişan**); nişan alınmazsa otomatik atış |
 | Diller | TR + EN (sorular dahil) |
 | SDK | GameMonetize-tarzı soketler hazır, SDK'sız sessiz çalışır |
 | İçerik | 4 bölüm + Sonsuz mod, 10+ düşman, 3 boss, ekipman/yetenek ağacı meta-ilerlemesi |

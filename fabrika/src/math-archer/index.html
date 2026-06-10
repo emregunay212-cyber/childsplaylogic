@@ -313,7 +313,7 @@ window.storage = {
     <button class="btn alt" id="goTalentsBtn" onclick="goTalents()">🌟 Yetenekler</button>
     <button class="btn ghost" id="goEndlessBtn">♾️ Sonsuz Savaş</button>
   </div>
-  <div class="helptxt"><b>Hareket etmeyi bırakınca otomatik ateş edersin.</b> Dibine giren düşmana otomatik yakın saldırı yaparsın. Hareket için ekrana dokun ve sürükle. Masaüstü: WASD.<br><span id="bestLine"></span></div>
+  <div class="helptxt"><b>Fareyle (veya ikinci parmağınla) nişan al — doğru şıklı düşmanı SEÇ ve vur!</b> Nişan almazsan en yakına otomatik ateş edersin. Hareket: ekrana dokun-sürükle / WASD.<br><span id="bestLine"></span></div>
   <button class="btn ghost" id="resetProgBtn" style="margin-top:12px;font-size:12px;padding:8px 16px;opacity:.7">🗑️ İlerlemeyi Sıfırla</button>
 </div>
 
@@ -775,6 +775,18 @@ function generateHazards(){
 const keys={};
 const moveJoy={active:false,id:null,bx:0,by:0,cx:0,cy:0};
 let inputDir={x:0,y:0,mag:0};
+/* MATH ARCHER — manuel nişan (twin-stick): fare yönü ya da İKİNCİ parmak.
+   Soru dalgasında doğru şıklı düşmanı SEÇEREK vurmak için şart; nişan yokken
+   otomatik (en yakın düşman) nişan aynen sürer. */
+const aim={active:false,id:null,x:0,y:0,t:0};
+const AIM_FRESH_MS=2500;                       // fare bu süre içinde oynadıysa nişanı yönetir
+const aimManual=()=>aim.active||(performance.now()-aim.t)<AIM_FRESH_MS;
+function angDiff(a,b){return ((a-b+Math.PI*3)%TAU)-Math.PI;}
+cv.addEventListener('mousemove',e=>{
+  if(!isCombat())return;
+  aim.x=e.clientX;aim.y=e.clientY;aim.t=performance.now();
+});
+cv.addEventListener('mouseleave',()=>{aim.t=0;});
 addEventListener('keydown',e=>{
   const k=e.key.toLowerCase();keys[k]=true;
   if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
@@ -785,10 +797,11 @@ cv.addEventListener('touchstart',e=>{
   if(!isCombat())return; e.preventDefault();
   for(const t of e.changedTouches){
     if(moveJoy.id===null){moveJoy.id=t.identifier;moveJoy.active=true;moveJoy.bx=t.clientX;moveJoy.by=t.clientY;moveJoy.cx=t.clientX;moveJoy.cy=t.clientY;}
+    else if(aim.id===null){aim.id=t.identifier;aim.active=true;aim.x=t.clientX;aim.y=t.clientY;}  /* ikinci parmak = nişan */
   }
 },{passive:false});
-cv.addEventListener('touchmove',e=>{e.preventDefault();for(const t of e.changedTouches)if(t.identifier===moveJoy.id){moveJoy.cx=t.clientX;moveJoy.cy=t.clientY;}},{passive:false});
-function endTouch(e){for(const t of e.changedTouches)if(t.identifier===moveJoy.id){moveJoy.id=null;moveJoy.active=false;}}
+cv.addEventListener('touchmove',e=>{e.preventDefault();for(const t of e.changedTouches){if(t.identifier===moveJoy.id){moveJoy.cx=t.clientX;moveJoy.cy=t.clientY;}else if(t.identifier===aim.id){aim.x=t.clientX;aim.y=t.clientY;}}},{passive:false});
+function endTouch(e){for(const t of e.changedTouches){if(t.identifier===moveJoy.id){moveJoy.id=null;moveJoy.active=false;}else if(t.identifier===aim.id){aim.id=null;aim.active=false;aim.t=0;}}}
 cv.addEventListener('touchend',e=>{e.preventDefault();endTouch(e);},{passive:false});
 cv.addEventListener('touchcancel',e=>{e.preventDefault();endTouch(e);},{passive:false});
 function readInput(){
@@ -934,8 +947,22 @@ function spawnLogic(dt){
 /* ============================ FIRE ============================ */
 function nearestEnemy(){let b=null,bd=1e9;for(const e of enemies){const d=dist(e.x,e.y,player.x,player.y);if(d<bd){bd=d;b=e;}}return b;}
 function fire(){
-  const t=nearestEnemy();if(!t)return;
-  aimAngle=Math.atan2(t.y-player.y,t.x-player.x);player.shootFx=0.16; /* sprite ok-atma tetiği */
+  /* MATH ARCHER: manuel nişan (fare / ikinci parmak) öncelikli; yoksa otomatik en-yakın.
+     Manuelde hafif nişan yardımı: işaret yönüne ±0.25 rad içindeki düşmana kilitlenir. */
+  if(aimManual()){
+    let ang=Math.atan2(aim.y-player.y,aim.x-player.x);
+    let best=null,bd=0.25;
+    for(const e of enemies){
+      const d=Math.abs(angDiff(Math.atan2(e.y-player.y,e.x-player.x),ang));
+      if(d<bd){bd=d;best=e;}
+    }
+    if(best)ang=Math.atan2(best.y-player.y,best.x-player.x);
+    aimAngle=ang;
+  }else{
+    const t=nearestEnemy();if(!t)return;
+    aimAngle=Math.atan2(t.y-player.y,t.x-player.x);
+  }
+  player.shootFx=0.16; /* sprite ok-atma tetiği */
   const shots=[],n=player.front;
   /* öne çoklu ok: YANA AÇILMAZ — aynı yönde önlü-arkalı (tek hatta peş peşe) dizilir.
      Her ok aimAngle yönünde; 'back' ile aim ekseninde geriye/ileriye kaydırılır. */
@@ -1142,8 +1169,8 @@ function update(dt){
         burst(p.x+Math.cos(a)*p.r,p.y+Math.sin(a)*p.r,'#ff3060',6,260,0.3,4);sfx.zap();
       }
     }
-  }else if(!moving&&enemies.length&&p.fireTimer>=p.fireInterval){
-    p.fireTimer=0;fire();
+  }else if((!moving||aimManual())&&enemies.length&&p.fireTimer>=p.fireInterval){
+    p.fireTimer=0;fire();   /* MATH ARCHER: manuel nişanda yürürken de ateş (twin-stick) */
     if(p.stormVolley){
       const need=p.stormVolley===1?2.5:1.5;
       if(p.stillTimer>=need){
@@ -1456,6 +1483,7 @@ function render(){
     ctx.save();ctx.translate(sx,sy);
     drawFloor();drawObstacles();drawHazards();drawSlowZones();drawAura();drawNovas();drawPNovas();drawGems();drawEProj();drawEnemies();drawQBadges();drawPlayer();drawOrbs();drawBolts();drawPProj();drawParticles();drawDmg();
     ctx.restore();
+    drawAim();
     drawJoystick();
   }
   drawVignette();
@@ -1929,6 +1957,19 @@ function drawPProj(){
 }
 function drawParticles(){for(const pt of parts){const a=clamp(pt.life/pt.max,0,1);ctx.globalAlpha=a;ctx.fillStyle=pt.color;ctx.beginPath();ctx.arc(pt.x,pt.y,pt.size*a+0.5,0,TAU);ctx.fill();}ctx.globalAlpha=1;}
 function drawDmg(){ctx.save();ctx.textAlign='center';ctx.font='700 16px system-ui';for(const dn of dmgs){const a=clamp(dn.life/0.7,0,1);ctx.globalAlpha=a;ctx.fillStyle=dn.color;ctx.save();ctx.translate(dn.x,dn.y);ctx.scale(dn.scale,dn.scale);ctx.fillText(dn.val,0,0);ctx.restore();}ctx.globalAlpha=1;ctx.restore();}
+/* MATH ARCHER: manuel nişan göstergesi — oyuncudan işaret noktasına kesik çizgi + halka */
+function drawAim(){
+  if(!aimManual()||state!==ST.PLAYING)return;
+  ctx.save();
+  ctx.strokeStyle='rgba(245,196,81,.45)';ctx.lineWidth=2;ctx.setLineDash([7,8]);
+  ctx.beginPath();ctx.moveTo(player.x,player.y);ctx.lineTo(aim.x,aim.y);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.shadowColor='#f5c451';ctx.shadowBlur=10;
+  ctx.strokeStyle='rgba(245,196,81,.85)';ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.arc(aim.x,aim.y,13,0,TAU);ctx.stroke();
+  ctx.beginPath();ctx.arc(aim.x,aim.y,2.5,0,TAU);ctx.fillStyle='rgba(245,196,81,.85)';ctx.fill();
+  ctx.restore();
+}
 function drawJoystick(){if(!moveJoy.active)return;ctx.save();ctx.strokeStyle='rgba(255,255,255,.18)';ctx.lineWidth=3;ctx.beginPath();ctx.arc(moveJoy.bx,moveJoy.by,58,0,TAU);ctx.stroke();const dx=moveJoy.cx-moveJoy.bx,dy=moveJoy.cy-moveJoy.by,d=Math.min(Math.hypot(dx,dy),58),a=Math.atan2(dy,dx),kx=moveJoy.bx+Math.cos(a)*d,ky=moveJoy.by+Math.sin(a)*d;ctx.fillStyle='rgba(245,196,81,.55)';ctx.shadowColor='#ffb347';ctx.shadowBlur=16;ctx.beginPath();ctx.arc(kx,ky,24,0,TAU);ctx.fill();ctx.restore();}
 function drawVignette(){const v=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*0.35,W/2,H/2,Math.max(W,H)*0.75);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,0.55)');ctx.fillStyle=v;ctx.fillRect(0,0,W,H);if(isCombat()&&player&&player.hp/player.maxHp<0.3){const pulse=0.12+Math.sin(runTime*6)*0.06,r=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*0.2,W/2,H/2,Math.max(W,H)*0.7);r.addColorStop(0,'rgba(255,0,40,0)');r.addColorStop(1,'rgba(255,0,40,'+pulse+')');ctx.fillStyle=r;ctx.fillRect(0,0,W,H);}}
 
@@ -2330,7 +2371,8 @@ function setupRoom(idx){ // configure a room WITHOUT touching player stats / run
   bossStage=(st===4); bossAlive=false; bossSpawned=false; biomeTint=BIOMES[ch];
   enemies=[];pProj=[];eProj=[];parts=[];gems=[];dmgs=[];bolts=[];novas=[];pNovas=[];slowZones=[];hazards=[];
   runTime=0;shake=0;flashV=0;resetEnrage();
-  qWave=null;qBandMsgT=0;qBandHide();qRoomPending=!bossStage;chestQ=null;  /* MATH ARCHER */
+  qWave=null;qBandMsgT=0;qBandHide();qRoomPending=!bossStage;chestQ=null;
+  aim.active=false;aim.id=null;aim.t=0;  /* MATH ARCHER */
   resize();generateObstacles();generateHazards();
   player.x=W/2;player.y=H/2;player.invuln=0.6;player.fireTimer=0;
   $('hud').style.display='flex';$('miniBtns').classList.add('show');
@@ -2355,7 +2397,8 @@ function startEndless(){
   enemies=[];pProj=[];eProj=[];parts=[];gems=[];dmgs=[];walls=[];waters=[];bolts=[];novas=[];pNovas=[];slowZones=[];hazards=[];endlessBossCount=0;
   runTime=0;score=0;kills=0;pendingLevels=0;runGold=0;shake=0;flashV=0;bossAlive=false;bossSpawned=false;resetEnrage();
   wave=1;waveTime=0;spawnTimer=0.6;biomeTint=null;bossStage=false;
-  qWave=null;qBuffT=0;qBandMsgT=0;qBandHide();qRoomPending=false;chestQ=null;  /* MATH ARCHER */
+  qWave=null;qBuffT=0;qBandMsgT=0;qBandHide();qRoomPending=false;chestQ=null;
+  aim.active=false;aim.id=null;aim.t=0;  /* MATH ARCHER */
   resize();player.x=W/2;player.y=H/2;
   hideAllOverlays();$('hud').style.display='flex';$('miniBtns').classList.add('show');
   state=ST.PLAYING;SDK.gameplayStart();updateHUD();

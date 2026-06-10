@@ -204,6 +204,10 @@ def sc_math_archer(page):
     hold_keys(page, None, 2, pattern=[(['d'], 0.5), (['w'], 0.3)])
     page.evaluate("wave=3; startQuestionWave();")
     page.wait_for_timeout(600)
+    page.evaluate(
+        "const c=qWave.carriers.find(c=>c.qIdx===qWave.q.dogru_index);"
+        "aim.x=c.x; aim.y=c.y; aim.t=performance.now();")  # nişan göstergesi karede görünsün
+    page.wait_for_timeout(250)
     shot(page, g, '2-soru-dalgasi')
     page.evaluate(
         "killEnemy(qWave.carriers.find(c=>c.qIdx===qWave.q.dogru_index));")
