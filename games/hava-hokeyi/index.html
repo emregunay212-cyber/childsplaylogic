@@ -92,7 +92,7 @@
   let phaseTimer = 0;         // frame sayacı (host)
 
   // ── Guest tarafı render durumu (yumuşatma + ölü-hesap) ──
-  const puckR = { x: CENTER_X, y: CENTER_Y, vx: 0, vy: 0 };  // guest'in çizdiği disk
+  const puckR = { x: CENTER_X, y: CENTER_Y };  // guest'in çizdiği disk (host state'ine interpole)
   const malOpR = { x: CENTER_X, y: H - 140 };                // guest'in çizdiği rakip(host) tokmağı
   // Guest kendi tokmağını yerel (anlık) tutar — host koordinatında üst yarı
   const malGuestLocal = { x: CENTER_X, y: 140 };
@@ -195,10 +195,6 @@
 
   function onHostState(v) {
     latestHostState = v;
-    // Disk hedefini yumuşak yakala + ölü-hesap için hız güncelle
-    puckR.vx = v.pvx; puckR.vy = v.pvy;
-    puckR.x += (v.px - puckR.x) * 0.35;
-    puckR.y += (v.py - puckR.y) * 0.35;
     scoreH = v.sh; scoreG = v.sg;
     phase = v.ph; countdown = v.cd; lastScorer = v.ls || null;
     winner = v.ph === PH_OVER ? (v.sh >= WIN_SCORE ? 'host' : 'guest') : null;
@@ -488,21 +484,22 @@
     if (isHost) {
       updatePhysics();
       sendHostState(now);
-      render(puck.x, puck.y, malH.x, malH.y, malG.x, malG.y);
+      // render(disk, RAKİP tokmağı, BENİM tokmağım): host için rakip=malG, benim=malH
+      render(puck.x, puck.y, malG.x, malG.y, malH.x, malH.y);
     } else {
-      // Guest: kendi tokmağını anlık yakala + gönder
-      malGuestLocal.x += (pointerTarget.x - malGuestLocal.x) * 0.5;
-      malGuestLocal.y += (pointerTarget.y - malGuestLocal.y) * 0.5;
+      // Guest: kendi tokmağı parmağı ANLIK takip etsin (çarpışma host-otoriter)
+      malGuestLocal.x = pointerTarget.x;
+      malGuestLocal.y = pointerTarget.y;
       sendGuestInput(now);
-      // Rakip(host) tokmağını yumuşat
+      // Disk ve rakip tokmağını AYNI host state'inden, AYNI oranla yumuşat — göreli
+      // konumları host'taki gibi kalır, disk tokmağın içine girip "ping" yapmaz.
+      // (Ölü-hesap/extrapolasyon kaldırıldı: çarpışmada diski tokmağın içine sokuyordu.)
       if (latestHostState) {
-        malOpR.x += (latestHostState.hx - malOpR.x) * 0.4;
-        malOpR.y += (latestHostState.hy - malOpR.y) * 0.4;
-      }
-      // Disk ölü-hesap (state aralarında akıcı hareket)
-      if (phase === PH_PLAY) {
-        puckR.x += puckR.vx; puckR.y += puckR.vy;
-        puckR.vx *= FRICTION; puckR.vy *= FRICTION;
+        const k = 0.5;
+        malOpR.x += (latestHostState.hx - malOpR.x) * k;
+        malOpR.y += (latestHostState.hy - malOpR.y) * k;
+        puckR.x  += (latestHostState.px - puckR.x) * k;
+        puckR.y  += (latestHostState.py - puckR.y) * k;
       }
       render(puckR.x, puckR.y, malOpR.x, malOpR.y, malGuestLocal.x, malGuestLocal.y);
     }
