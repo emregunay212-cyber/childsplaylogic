@@ -1,0 +1,38 @@
+{
+  "tr": {
+    "game.instructions": "Kalede 9 bölgeden birine tıklayıp şutunu çek! 5 atışta en az 3 gol at, bölümü geç. Seviye yükseldikçe kaleci ustalaşır.",
+    "shell.play": "OYNA",
+    "shell.levels": "BÖLÜMLER",
+    "shell.replay": "↻ Tekrar",
+    "shell.next": "Sonraki ▶",
+    "shell.menu": "Ana Menü",
+    "shell.perfect": "Mükemmel! 🌟",
+    "shell.great": "Harika! 🎉",
+    "shell.good": "Güzel! 👍",
+    "pen.shot": "Atış {n}/{m}",
+    "pen.goals": "⚽ {n} Gol",
+    "pen.saved": "KURTARDI!",
+    "pen.goal": "GOL!",
+    "pen.lose_title": "Yeterli Gol Yok!",
+    "pen.lose_sub": "{n}/{m} gol attın. En az 3 gol gerekli!",
+    "pen.retry": "Tekrar Dene"
+  },
+  "en": {
+    "game.instructions": "Click one of the 9 goal zones and take your shot! Score at least 3 of 5 to clear the level. The keeper gets better every level.",
+    "shell.play": "PLAY",
+    "shell.levels": "LEVELS",
+    "shell.replay": "↻ Replay",
+    "shell.next": "Next ▶",
+    "shell.menu": "Main Menu",
+    "shell.perfect": "Perfect! 🌟",
+    "shell.great": "Great! 🎉",
+    "shell.good": "Nice! 👍",
+    "pen.shot": "Shot {n}/{m}",
+    "pen.goals": "⚽ {n} Goals",
+    "pen.saved": "SAVED!",
+    "pen.goal": "GOAL!",
+    "pen.lose_title": "Not Enough Goals!",
+    "pen.lose_sub": "You scored {n}/{m}. You need at least 3!",
+    "pen.retry": "Try Again"
+  }
+}

@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="tr" data-lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Penaltı</title>
+<style>
+/* ── Fabrika kabuk stilleri ── */
+:root {
+    --theme: #4CAF50;
+    --shell-bg1: #141b33;
+    --shell-bg2: #0d1226;
+    --shell-text: #f3f5ff;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+body {
+    font-family: system-ui, 'Segoe UI', -apple-system, Roboto, sans-serif;
+    background: linear-gradient(160deg, var(--shell-bg1), var(--shell-bg2));
+    color: var(--shell-text);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+}
+#particles-canvas {
+    position: fixed; inset: 0; z-index: 900; pointer-events: none;
+}
+#game-container { position: fixed; inset: 0; display: none; }
+#game-container.active { display: block; }
+.game-area {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 8px; overflow: hidden;
+}
+.hidden { display: none !important; }
+
+/* Overlay'ler (menü / bölümler / bölüm-sonu) */
+.shell-screen {
+    position: fixed; inset: 0; z-index: 800;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 18px; padding: 24px; text-align: center;
+    background: linear-gradient(160deg, var(--shell-bg1), var(--shell-bg2));
+}
+.shell-screen.overlay { background: rgba(10, 14, 30, 0.88); }
+.shell-title {
+    font-size: clamp(34px, 8vw, 60px); font-weight: 800;
+    letter-spacing: 1px;
+    background: linear-gradient(135deg, var(--theme), #fff);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 14px rgba(0,0,0,.45));
+}
+.shell-sub { font-size: clamp(14px, 3.4vw, 18px); opacity: .82; max-width: 520px; line-height: 1.55; }
+.shell-btn {
+    font: inherit; font-size: clamp(17px, 4vw, 22px); font-weight: 700;
+    color: #fff; background: var(--theme);
+    border: none; border-radius: 16px;
+    padding: 14px 44px; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0,0,0,.35), inset 0 -3px 0 rgba(0,0,0,.22);
+    transition: transform .12s ease;
+}
+.shell-btn:active { transform: scale(.95); }
+.shell-btn.secondary { background: #2c3558; font-size: clamp(14px, 3.2vw, 17px); padding: 11px 28px; }
+.shell-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+#shell-sound { position: fixed; top: 12px; right: 12px; z-index: 850;
+    width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer;
+    background: rgba(255,255,255,.12); color: #fff; font-size: 20px; }
+#shell-back { position: fixed; top: 12px; left: 12px; z-index: 850;
+    width: auto; height: 46px; border-radius: 23px; border: none; cursor: pointer;
+    background: rgba(255,255,255,.12); color: #fff; font-size: 15px; font-weight: 700;
+    padding: 0 18px; display: none; }
+#shell-back.visible { display: block; }
+
+/* Bölüm seçimi */
+.shell-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(76px, 76px));
+    gap: 12px; justify-content: center; max-width: 560px;
+}
+.shell-lv {
+    width: 76px; height: 76px; border-radius: 16px; border: none; cursor: pointer;
+    background: #2c3558; color: #fff; font: inherit; font-size: 22px; font-weight: 800;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,.25);
+}
+.shell-lv .lv-stars { font-size: 11px; letter-spacing: 1px; color: #ffd700; }
+.shell-lv.locked { opacity: .38; cursor: default; }
+.shell-lv.done { background: var(--theme); }
+
+/* Bölüm-sonu yıldızları */
+.shell-stars { display: flex; gap: 10px; }
+.shell-stars svg { width: 54px; height: 54px; fill: #3a4368; }
+.shell-stars svg.earned { fill: #ffd700; filter: drop-shadow(0 2px 10px rgba(255,215,0,.5)); }
+
+/* Oyun kodu uyumluluğu: hub'ın body.game-active kilidi */
+body.game-active { overflow: hidden; }
+/* Hub'a-dön türü gizli uyumluluk düğmesi */
+#btn-home { display: none; }
+
+/* ── Oyun CSS ── */
+/* Penaltı Oyunu - Büyük Sahne */
+
+.pen-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 1.2rem;
+    max-width: min(700px, 95vw);
+    margin: 0 auto;
+}
+.pen-shot-info {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #555;
+    background: rgba(255,255,255,0.9);
+    padding: 6px 16px;
+    border-radius: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.pen-score-info {
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: #2E7D32;
+    background: #E8F5E9;
+    padding: 6px 18px;
+    border-radius: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.pen-scene-wrap {
+    max-width: min(700px, 95vw);
+    width: 95vw;
+    margin: 0.3rem auto;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+}
+
+.penalti-scene {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.penalti-scene .pen-target {
+    cursor: pointer;
+    transition: fill 0.15s;
+}
+.penalti-scene .pen-target:hover {
+    fill: rgba(255,255,255,0.2) !important;
+}
+
+.penalti-scene #pen-ball {
+    transition: transform 0.5s cubic-bezier(0.2, 0, 0.2, 1);
+}
+.penalti-scene #pen-keeper {
+    transition: transform 0.4s cubic-bezier(0.3, 0, 0.2, 1);
+}
+
+.pen-history {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    padding: 0.5rem;
+    font-size: 1.4rem;
+}
+.pen-dot {
+    transition: transform 0.3s;
+}
+.pen-dot.current {
+    animation: dotBounce 1s ease-in-out infinite;
+}
+.pen-dot.goal { filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2)); }
+
+@keyframes dotBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+/* ── Penaltı MP Stilleri ── */
+
+.pen-mp-game {
+    max-width: min(700px, 95vw);
+    margin: 0 auto;
+}
+
+.pen-mp-role-badge {
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 6px 14px;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+.pen-mp-role-badge.shooter {
+    background: linear-gradient(135deg, #FF6348, #ff7979);
+    color: white;
+    box-shadow: 0 2px 8px rgba(255,99,72,0.3);
+}
+.pen-mp-role-badge.keeper {
+    background: linear-gradient(135deg, #4CAF50, #81C784);
+    color: white;
+    box-shadow: 0 2px 8px rgba(76,175,80,0.3);
+}
+
+/* Skor Tablosu */
+.pen-mp-scoreboard {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    margin: 0.3rem auto;
+    max-width: min(600px, 92vw);
+    background: rgba(255,255,255,0.95);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+.pen-mp-team {
+    flex: 1;
+    text-align: center;
+    padding: 0.4rem;
+    border-radius: 12px;
+    transition: background 0.3s;
+}
+.pen-mp-team.pen-mp-me {
+    background: rgba(46,204,113,0.1);
+    border: 2px solid rgba(46,204,113,0.3);
+}
+
+.pen-mp-name {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #555;
+    margin-bottom: 2px;
+}
+
+.pen-mp-score {
+    display: block;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #2d3436;
+    line-height: 1.1;
+}
+
+.pen-mp-dots {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+.pen-mp-dot {
+    font-size: 0.9rem;
+    transition: transform 0.3s;
+}
+.pen-mp-dot.goal { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2)); }
+.pen-mp-dot.miss { opacity: 0.7; }
+
+.pen-mp-vs {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 0 0.4rem;
+}
+.pen-mp-vs-text {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #E74C3C;
+}
+.pen-mp-round {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #888;
+    white-space: nowrap;
+}
+
+/* Status / Hint */
+.pen-mp-status {
+    text-align: center;
+    padding: 0.5rem;
+    min-height: 2rem;
+}
+.pen-mp-hint {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #636e72;
+    animation: fadeInHint 0.5s ease;
+}
+.pen-mp-waiting {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #e17055;
+}
+
+@keyframes fadeInHint {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Game Over Final Score */
+.pen-mp-final-score {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+.pen-mp-final-team {
+    text-align: center;
+}
+.pen-mp-final-name {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 4px;
+}
+.pen-mp-final-num {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: white;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.pen-mp-final-dash {
+    font-size: 2rem;
+    font-weight: 800;
+    color: rgba(255,255,255,0.5);
+}
+
+/* Mobil uyumluluk */
+@media (max-width: 480px) {
+    .pen-mp-scoreboard { gap: 0.3rem; padding: 0.4rem 0.6rem; }
+    .pen-mp-score { font-size: 1.6rem; }
+    .pen-mp-name { font-size: 0.7rem; }
+    .pen-mp-dot { font-size: 0.75rem; }
+    .pen-mp-role-badge { font-size: 0.75rem; padding: 4px 10px; }
+}
+
+
+/* ── Hub'dan taşınan paylaşılan kurallar (kod-macerasi.css'ten game-over kartı) ── */
+.kod-gameover {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 70vh;
+    padding: 1rem;
+    animation: fadeIn 0.6s ease;
+}
+.kod-gameover-card {
+    border-radius: 24px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    max-width: 380px;
+    width: 100%;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.kod-gameover-icon {
+    font-size: 4rem;
+    margin-bottom: 0.3rem;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+    animation: penBounce 1s ease infinite;
+}
+@keyframes penBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+.kod-gameover-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0.3rem 0;
+    text-shadow: 0 2px 4px rgba(255,255,255,0.3);
+}
+.kod-gameover-sub {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin: 0 0 1.2rem;
+    color: rgba(0,0,0,0.5);
+}
+.kod-gameover-btn {
+    margin-top: 1rem;
+    padding: 0.8rem 2rem;
+    border: none;
+    border-radius: 50px;
+    background: rgba(255,255,255,0.9);
+    color: #333;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.kod-gameover-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+.kod-gameover-btn:active {
+    transform: scale(0.95);
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes popIn {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+}
+
+/* responsive.css'ten penaltı mobil kuralları */
+@media (max-width: 480px) {
+    .pen-topbar { padding: 0.3rem 0.5rem; }
+    .pen-shot-info { font-size: 0.85rem; padding: 4px 10px; }
+    .pen-score-info { font-size: 0.9rem; padding: 4px 12px; }
+}
+
+</style>
+</head>
+<body class="game-active">
+
+<canvas id="particles-canvas"></canvas>
+
+<!-- Ana menü -->
+<div id="shell-menu" class="shell-screen">
+    <div class="shell-title">Penaltı</div>
+    <div class="shell-sub" id="shell-instructions"></div>
+    <button class="shell-btn" id="shell-play"></button>
+</div>
+
+<!-- Bölüm seçimi (levels modunda) -->
+<div id="shell-levels" class="shell-screen hidden">
+    <div class="shell-title" style="font-size:clamp(24px,6vw,40px)" id="shell-levels-title"></div>
+    <div class="shell-grid" id="shell-levels-grid"></div>
+</div>
+
+<!-- Oyun alanı -->
+<div id="game-container">
+    <div class="game-area" id="game-area"></div>
+</div>
+
+<!-- Bölüm sonu -->
+<div id="level-complete" class="shell-screen overlay hidden">
+    <div class="shell-title" style="font-size:clamp(26px,6vw,42px)" id="complete-title"></div>
+    <div class="shell-stars" id="complete-stars"></div>
+    <div class="shell-row">
+        <button class="shell-btn secondary" id="btn-replay"></button>
+        <button class="shell-btn" id="btn-next"></button>
+        <button class="shell-btn secondary" id="btn-menu"></button>
+    </div>
+</div>
+
+<button id="shell-sound">🔊</button>
+<button id="shell-back"></button>
+<button id="btn-home" aria-hidden="true"></button>
+
+<script>
+/* ── Çekirdek (SDK + Storage + i18n) ── */
+/* ============================================
+   FABRİKA ÇEKİRDEK — SDK soketleri + Storage + i18n
+   Portal spesifikasyonu: EGITSEL-OYUN-FABRIKASI/CLAUDE.md
+   Tarayıcı kalıcı deposu kullanılmaz; SDK_STORAGE → in-memory fallback.
+   ============================================ */
+
+const _mem = {};
+const Storage = {
+    get(k) {
+        try {
+            const v = window.SDK_STORAGE ? window.SDK_STORAGE.get(k) : undefined;
+            return (v !== undefined && v !== null) ? v : (_mem[k] !== undefined ? _mem[k] : null);
+        } catch (e) { return _mem[k] !== undefined ? _mem[k] : null; }
+    },
+    set(k, v) {
+        try { if (window.SDK_STORAGE) window.SDK_STORAGE.set(k, v); } catch (e) {}
+        _mem[k] = v;
+    },
+    clear() { for (const k in _mem) delete _mem[k]; },
+};
+
+/* Portal SDK soketleri — portal entegrasyonunda doldurulur, yokken sessiz no-op. */
+const SDK = window.SDK || {
+    gameLoadingStart() {},
+    gameLoadingFinished() {},
+    gameplayStart() {},
+    gameplayStop() {},
+    showRewardedAd(onSuccess) { try { onSuccess && onSuccess(); } catch (e) {} },
+    happyMoment() {},
+};
+window.SDK = SDK;
+
+/* i18n — öncelik: ?lang > <html data-lang> (build varsayılanı) > navigator.language */
+const STRINGS = {"tr": {"game.instructions": "Kalede 9 bölgeden birine tıklayıp şutunu çek! 5 atışta en az 3 gol at, bölümü geç. Seviye yükseldikçe kaleci ustalaşır.", "shell.play": "OYNA", "shell.levels": "BÖLÜMLER", "shell.replay": "↻ Tekrar", "shell.next": "Sonraki ▶", "shell.menu": "Ana Menü", "shell.perfect": "Mükemmel! 🌟", "shell.great": "Harika! 🎉", "shell.good": "Güzel! 👍", "pen.shot": "Atış {n}/{m}", "pen.goals": "⚽ {n} Gol", "pen.saved": "KURTARDI!", "pen.goal": "GOL!", "pen.lose_title": "Yeterli Gol Yok!", "pen.lose_sub": "{n}/{m} gol attın. En az 3 gol gerekli!", "pen.retry": "Tekrar Dene"}, "en": {"game.instructions": "Click one of the 9 goal zones and take your shot! Score at least 3 of 5 to clear the level. The keeper gets better every level.", "shell.play": "PLAY", "shell.levels": "LEVELS", "shell.replay": "↻ Replay", "shell.next": "Next ▶", "shell.menu": "Main Menu", "shell.perfect": "Perfect! 🌟", "shell.great": "Great! 🎉", "shell.good": "Nice! 👍", "pen.shot": "Shot {n}/{m}", "pen.goals": "⚽ {n} Goals", "pen.saved": "SAVED!", "pen.goal": "GOAL!", "pen.lose_title": "Not Enough Goals!", "pen.lose_sub": "You scored {n}/{m}. You need at least 3!", "pen.retry": "Try Again"}};
+const LANG = (() => {
+    try {
+        const q = new URLSearchParams(location.search).get('lang');
+        if (q && STRINGS[q]) return q;
+    } catch (e) {}
+    const d = document.documentElement.dataset.lang;
+    if (d && STRINGS[d]) return d;
+    return (navigator.language || 'en').toLowerCase().indexOf('tr') === 0 ? 'tr' : 'en';
+})();
+function T(key, vars) {
+    let s = (STRINGS[LANG] && STRINGS[LANG][key] !== undefined) ? STRINGS[LANG][key]
+        : (STRINGS.tr && STRINGS.tr[key] !== undefined) ? STRINGS.tr[key] : key;
+    if (vars) for (const v in vars) s = s.split('{' + v + '}').join(vars[v]);
+    return s;
+}
+
+
+/* ── Hub kütüphaneleri (audio, particles, mobile-utils) ── */
+/* ============================================
+   OYUN BAHÇESİ - Ses Yöneticisi
+   ============================================ */
+
+const AudioManager = (() => {
+    let ctx = null;
+    let enabled = true;
+    let initialized = false;
+    const buffers = {};
+
+    // Basit ses efektleri üretici (Web Audio API ile)
+    const tones = {
+        tap: { freq: 600, duration: 0.08, type: 'sine', gain: 0.15 },
+        success: { freq: 880, duration: 0.25, type: 'sine', gain: 0.2, seq: [523, 659, 784] },
+        error: { freq: 200, duration: 0.2, type: 'triangle', gain: 0.12 },
+        star: { freq: 1200, duration: 0.4, type: 'sine', gain: 0.15, seq: [784, 988, 1175] },
+        complete: { freq: 523, duration: 0.6, type: 'sine', gain: 0.2, seq: [523, 659, 784, 1047] },
+        pop: { freq: 400, duration: 0.1, type: 'sine', gain: 0.12 },
+        whoosh: { freq: 300, duration: 0.15, type: 'sawtooth', gain: 0.06 },
+        flip: { freq: 500, duration: 0.12, type: 'sine', gain: 0.1 },
+    };
+
+    function init() {
+        if (initialized) return;
+        try {
+            ctx = new (window.AudioContext || window.webkitAudioContext)();
+            initialized = true;
+        } catch (e) {
+            console.warn('Web Audio API desteklenmiyor');
+        }
+    }
+
+    function playTone(name) {
+        if (!enabled || !ctx) return;
+        if (ctx.state === 'suspended') ctx.resume();
+
+        const tone = tones[name];
+        if (!tone) return;
+
+        if (tone.seq) {
+            // Sıralı notalar
+            tone.seq.forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = tone.type;
+                osc.frequency.value = freq;
+                gain.gain.value = tone.gain;
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (i + 1) * 0.15);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(ctx.currentTime + i * 0.12);
+                osc.stop(ctx.currentTime + (i + 1) * 0.15 + 0.05);
+            });
+        } else {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = tone.type;
+            osc.frequency.value = tone.freq;
+            gain.gain.value = tone.gain;
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + tone.duration);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + tone.duration + 0.05);
+        }
+    }
+
+    function play(name) {
+        if (!enabled) return;
+        init();
+        playTone(name);
+    }
+
+    function toggle() {
+        enabled = !enabled;
+        return enabled;
+    }
+
+    function isEnabled() {
+        return enabled;
+    }
+
+    function setEnabled(val) {
+        enabled = val;
+    }
+
+    return { init, play, toggle, isEnabled, setEnabled };
+})();
+
+
+/* ============================================
+   OYUN BAHÇESİ - Parçacık Efektleri
+   ============================================ */
+
+const Particles = (() => {
+    let canvas, ctx;
+    let particles = [];
+    let animId = null;
+
+    const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#F7B731', '#A55EEA', '#FF78C4', '#26DE81', '#FFD700'];
+
+    function init() {
+        canvas = document.getElementById('particles-canvas');
+        if (!canvas) return;
+        ctx = canvas.getContext('2d');
+        resize();
+        window.addEventListener('resize', resize);
+    }
+
+    function resize() {
+        if (!canvas) return;
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    function animate() {
+        if (!ctx) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        particles = particles.filter(p => p.life > 0);
+
+        particles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += p.gravity;
+            p.life -= p.decay;
+            p.rotation += p.rotSpeed;
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rotation);
+            ctx.globalAlpha = Math.max(0, p.life);
+
+            if (p.type === 'confetti') {
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+            } else if (p.type === 'star') {
+                drawStar(ctx, 0, 0, 5, p.size, p.size / 2, p.color);
+            } else if (p.type === 'sparkle') {
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(0, 0, p.size * p.life, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.restore();
+        });
+
+        if (particles.length > 0) {
+            animId = requestAnimationFrame(animate);
+        } else {
+            animId = null;
+        }
+    }
+
+    function drawStar(ctx, cx, cy, spikes, outerR, innerR, color) {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        let rot = Math.PI / 2 * 3;
+        let step = Math.PI / spikes;
+        ctx.moveTo(cx, cy - outerR);
+        for (let i = 0; i < spikes; i++) {
+            ctx.lineTo(cx + Math.cos(rot) * outerR, cy + Math.sin(rot) * outerR);
+            rot += step;
+            ctx.lineTo(cx + Math.cos(rot) * innerR, cy + Math.sin(rot) * innerR);
+            rot += step;
+        }
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    function spawn(type, x, y, count) {
+        for (let i = 0; i < count; i++) {
+            const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.5;
+            const speed = 2 + Math.random() * 6;
+
+            particles.push({
+                type,
+                x,
+                y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed - 3,
+                gravity: type === 'sparkle' ? 0 : 0.12,
+                life: 1,
+                decay: 0.012 + Math.random() * 0.01,
+                size: type === 'confetti' ? 8 + Math.random() * 6 : 4 + Math.random() * 4,
+                color: COLORS[Math.floor(Math.random() * COLORS.length)],
+                rotation: Math.random() * Math.PI * 2,
+                rotSpeed: (Math.random() - 0.5) * 0.15,
+            });
+        }
+
+        if (!animId) {
+            animId = requestAnimationFrame(animate);
+        }
+    }
+
+    function confetti(x, y, count = 50) {
+        if (!ctx) init();
+        spawn('confetti', x || canvas.width / 2, y || canvas.height / 3, count);
+    }
+
+    function stars(x, y, count = 15) {
+        if (!ctx) init();
+        spawn('star', x || canvas.width / 2, y || canvas.height / 3, count);
+    }
+
+    function sparkle(x, y, count = 10) {
+        if (!ctx) init();
+        spawn('sparkle', x, y, count);
+    }
+
+    function celebrate() {
+        if (!ctx) init();
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 3;
+        confetti(cx, cy, 60);
+        setTimeout(() => stars(cx, cy, 20), 200);
+        setTimeout(() => confetti(cx - 100, cy, 30), 300);
+        setTimeout(() => confetti(cx + 100, cy, 30), 400);
+    }
+
+    return { init, confetti, stars, sparkle, celebrate };
+})();
+
+
+/* ============================================
+   Mobile Utils — Canvas DPR + Touch Yardımcıları
+   ============================================ */
+
+const MobileUtils = (() => {
+  const MAX_DPR = 2;
+
+  function getDPR() {
+    return Math.min(window.devicePixelRatio || 1, MAX_DPR);
+  }
+
+  function isTouchDevice() {
+    if ('ontouchstart' in window) return true;
+    if (navigator.maxTouchPoints && navigator.maxTouchPoints > 0) return true;
+    if (navigator.msMaxTouchPoints && navigator.msMaxTouchPoints > 0) return true;
+    if (window.matchMedia) {
+      if (window.matchMedia('(pointer: coarse)').matches) return true;
+      if (window.matchMedia('(hover: none)').matches) return true;
+      if (window.matchMedia('(any-pointer: coarse)').matches) return true;
+    }
+    return false;
+  }
+
+  function setupHiDPICanvas(canvas, ctx, logicalW, logicalH, opts) {
+    const options = opts || {};
+    const dpr = options.forceIntegerDpr
+      ? Math.max(1, Math.floor(getDPR()))
+      : getDPR();
+    canvas.width = Math.round(logicalW * dpr);
+    canvas.height = Math.round(logicalH * dpr);
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return dpr;
+  }
+
+  // Canvas'ı GÖRÜNTÜLENEN boyutuna (CSS px × DPR) göre boyutlandırır ve çizim
+  // koordinatlarını mantıksal (logicalW×logicalH) sisteme ölçekler. Oyun büyüdükçe
+  // (örn. tam ekran) iç çözünürlük de büyür → bulanıklaşma olmaz. ResizeObserver ile
+  // boyut değişiminde otomatik yeniden ayarlanır. Oyun her karede mantıksal
+  // koordinatlarda çizmeye devam eder.
+  function attachResponsiveCanvas(canvas, ctx, logicalW, logicalH) {
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    const fit = () => {
+      const dpr = getDPR();
+      const w = canvas.clientWidth || logicalW;
+      const h = canvas.clientHeight || logicalH;
+      canvas.width = Math.max(1, Math.round(w * dpr));
+      canvas.height = Math.max(1, Math.round(h * dpr));
+      // Mantıksal koordinat sistemini iç çözünürlüğe ölçekle (en-boy oranı
+      // korunduğunda x/y aynı faktör → bozulma olmaz).
+      ctx.setTransform(canvas.width / logicalW, 0, 0, canvas.height / logicalH, 0, 0);
+    };
+    fit();
+    let ro = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(fit);
+      ro.observe(canvas);
+    }
+    // ResizeObserver bazı durumlarda (ör. tam ekran geçişi) tetiklenmeyebildiği için
+    // window resize olayını da dinle — tam ekran butonu bu olayı tetikler.
+    window.addEventListener('resize', fit);
+    return {
+      refit: fit,
+      disconnect() { if (ro) ro.disconnect(); window.removeEventListener('resize', fit); }
+    };
+  }
+
+  function lockBodyScroll() {
+    document.body.classList.add('game-active');
+  }
+
+  function unlockBodyScroll() {
+    document.body.classList.remove('game-active');
+  }
+
+  function unlockAudio() {
+    try {
+      if (typeof AudioManager === 'undefined' || !AudioManager) return;
+      if (typeof AudioManager.unlock === 'function') AudioManager.unlock();
+      const ctx = AudioManager.context || AudioManager.audioContext || null;
+      if (ctx && ctx.state === 'suspended' && typeof ctx.resume === 'function') {
+        ctx.resume();
+      }
+    } catch (e) {}
+  }
+
+  let audioUnlockAttached = false;
+  function attachGlobalAudioUnlock() {
+    if (audioUnlockAttached) return;
+    audioUnlockAttached = true;
+    const once = () => {
+      unlockAudio();
+      document.removeEventListener('touchstart', once, true);
+      document.removeEventListener('mousedown', once, true);
+      document.removeEventListener('keydown', once, true);
+    };
+    document.addEventListener('touchstart', once, true);
+    document.addEventListener('mousedown', once, true);
+    document.addEventListener('keydown', once, true);
+  }
+
+  function bindHoldButton(el, onPress, onRelease) {
+    if (!el) return;
+    el.style.touchAction = 'none';
+    let activeTouchId = null;
+    const press = () => { if (onPress) onPress(); };
+    const release = () => { if (onRelease) onRelease(); };
+
+    el.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      if (activeTouchId === null && e.changedTouches && e.changedTouches[0]) {
+        activeTouchId = e.changedTouches[0].identifier;
+      }
+      press();
+    }, { passive: false });
+
+    const touchEndLike = (e) => {
+      if (activeTouchId === null) return;
+      if (e.changedTouches) {
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === activeTouchId) {
+            activeTouchId = null;
+            release();
+            return;
+          }
+        }
+      } else {
+        activeTouchId = null;
+        release();
+      }
+    };
+
+    el.addEventListener('touchend', (e) => { e.preventDefault(); touchEndLike(e); }, { passive: false });
+    el.addEventListener('touchcancel', (e) => { touchEndLike(e); });
+
+    el.addEventListener('mousedown', (e) => { e.preventDefault(); press(); });
+    el.addEventListener('mouseup', release);
+    el.addEventListener('mouseleave', release);
+
+    document.addEventListener('mouseup', release);
+  }
+
+  return {
+    getDPR,
+    isTouchDevice,
+    setupHiDPICanvas,
+    attachResponsiveCanvas,
+    lockBodyScroll,
+    unlockBodyScroll,
+    attachGlobalAudioUnlock,
+    unlockAudio,
+    bindHoldButton,
+  };
+})();
+
+
+/* Ses ton alias'ları — oyun kodundaki tanımsız ton adları için */
+(() => {
+    const _play = AudioManager.play;
+    const ALIAS = { levelComplete: 'complete', wrong: 'error' };
+    AudioManager.play = (n) => _play(ALIAS[n] || n);
+})();
+
+/* ── Kabuk yapılandırması ── */
+const SHELL = {"id": "penalti", "mode": "levels", "levelCount": 9};
+
+/* ── Mini-engine: hub GameEngine sözleşmesinin standalone karşılığı ── */
+const GameEngine = (() => {
+    let currentLevel = 1;
+    let state = 'IDLE';
+    let score = { correct: 0, wrong: 0, total: 0 };
+
+    function levelStarsKey(lv) { return SHELL.id + '.stars.' + lv; }
+    function getLevelStars(lv) { return parseInt(Storage.get(levelStarsKey(lv)) || '0', 10) || 0; }
+    function setLevelStars(lv, s) {
+        if (s > getLevelStars(lv)) Storage.set(levelStarsKey(lv), String(s));
+    }
+
+    function startGame(level) {
+        currentLevel = level || 1;
+        state = 'PLAYING';
+        score = { correct: 0, wrong: 0, total: 0 };
+        const gameArea = document.getElementById('game-area');
+        while (gameArea.firstChild) gameArea.removeChild(gameArea.firstChild);
+        Shell.showGame();
+        SDK.gameplayStart();
+        GAME.init(gameArea, currentLevel, { onCorrect, onWrong, onComplete });
+    }
+
+    function onCorrect() { score.correct++; AudioManager.play('success'); }
+    function onWrong() { score.wrong++; AudioManager.play('error'); }
+
+    function calculateStars() {
+        if (score.total === 0) return 3;
+        const acc = score.correct / score.total;
+        if (acc >= 0.95) return 3;
+        if (acc >= 0.7) return 2;
+        return 1;
+    }
+
+    function onComplete(customStars) {
+        if (state !== 'PLAYING') return;
+        state = 'COMPLETED';
+        SDK.gameplayStop();
+        const stars = customStars !== undefined ? customStars : calculateStars();
+        setLevelStars(currentLevel, stars);
+        if (stars >= 3) SDK.happyMoment();
+        setTimeout(() => {
+            AudioManager.play('complete');
+            Particles.celebrate();
+            showLevelComplete(stars);
+        }, 400);
+    }
+
+    function showLevelComplete(stars) {
+        const titleEl = document.getElementById('complete-title');
+        titleEl.textContent = stars === 3 ? T('shell.perfect') : stars === 2 ? T('shell.great') : T('shell.good');
+        const starsEl = document.getElementById('complete-stars');
+        while (starsEl.firstChild) starsEl.removeChild(starsEl.firstChild);
+        for (let i = 0; i < 3; i++) {
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('viewBox', '0 0 24 24');
+            if (i < stars) svg.classList.add('earned');
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z');
+            svg.appendChild(path);
+            starsEl.appendChild(svg);
+        }
+        document.getElementById('btn-next').classList.toggle('hidden', currentLevel >= SHELL.levelCount);
+        document.getElementById('level-complete').classList.remove('hidden');
+    }
+
+    function hideLevelComplete() { document.getElementById('level-complete').classList.add('hidden'); }
+    function replay() { destroyGame(); hideLevelComplete(); startGame(currentLevel); }
+    function nextLevel() { destroyGame(); hideLevelComplete(); if (currentLevel < SHELL.levelCount) startGame(currentLevel + 1); }
+    function destroyGame() { try { if (GAME.destroy) GAME.destroy(); } catch (e) {} state = 'IDLE'; }
+
+    function setTotal(n) { score.total = n; }
+    function getCurrentLevel() { return currentLevel; }
+
+    return { startGame, replay, nextLevel, hideLevelComplete, setTotal, getCurrentLevel, getLevelStars, destroyGame, calculateStars };
+})();
+
+/* Hub uyumluluk stub'ları */
+const App = { showHub() { Shell.showMenu(); }, updateStarCounter() {} };
+const Progress = {
+    getLevelStars: (id, lv) => GameEngine.getLevelStars(lv),
+    setLevelStars: () => {},
+    getTotalStars: () => 0,
+};
+
+/* ── Kabuk ekran yönetimi ── */
+const Shell = (() => {
+    const menuEl = () => document.getElementById('shell-menu');
+    const levelsEl = () => document.getElementById('shell-levels');
+    const gameEl = () => document.getElementById('game-container');
+    const backEl = () => document.getElementById('shell-back');
+
+    function showMenu() {
+        GameEngine.destroyGame();
+        GameEngine.hideLevelComplete();
+        SDK.gameplayStop();
+        menuEl().classList.remove('hidden');
+        levelsEl().classList.add('hidden');
+        gameEl().classList.remove('active');
+        backEl().classList.remove('visible');
+    }
+
+    function showLevels() {
+        GameEngine.destroyGame();
+        GameEngine.hideLevelComplete();
+        menuEl().classList.add('hidden');
+        gameEl().classList.remove('active');
+        levelsEl().classList.remove('hidden');
+        backEl().classList.add('visible');
+        renderLevelGrid();
+    }
+
+    function showGame() {
+        menuEl().classList.add('hidden');
+        levelsEl().classList.add('hidden');
+        gameEl().classList.add('active');
+        backEl().classList.add('visible');
+    }
+
+    function renderLevelGrid() {
+        const grid = document.getElementById('shell-levels-grid');
+        while (grid.firstChild) grid.removeChild(grid.firstChild);
+        let maxUnlocked = 1;
+        for (let i = 1; i <= SHELL.levelCount; i++) {
+            if (GameEngine.getLevelStars(i) > 0) maxUnlocked = Math.max(maxUnlocked, i + 1);
+        }
+        for (let i = 1; i <= SHELL.levelCount; i++) {
+            const stars = GameEngine.getLevelStars(i);
+            const locked = i > maxUnlocked;
+            const btn = document.createElement('button');
+            btn.className = 'shell-lv' + (stars > 0 ? ' done' : '') + (locked ? ' locked' : '');
+            const num = document.createElement('span');
+            num.textContent = i;
+            const starsSpan = document.createElement('span');
+            starsSpan.className = 'lv-stars';
+            starsSpan.textContent = stars > 0 ? '★'.repeat(stars) : (locked ? '🔒' : '');
+            btn.appendChild(num);
+            btn.appendChild(starsSpan);
+            if (!locked) {
+                btn.addEventListener('click', () => { AudioManager.play('tap'); GameEngine.startGame(i); });
+            }
+            grid.appendChild(btn);
+        }
+    }
+
+    function boot() {
+        document.getElementById('shell-instructions').textContent = T('game.instructions');
+        document.getElementById('shell-play').textContent = T('shell.play');
+        document.getElementById('shell-levels-title').textContent = T('shell.levels');
+        document.getElementById('btn-replay').textContent = T('shell.replay');
+        document.getElementById('btn-next').textContent = T('shell.next');
+        document.getElementById('btn-menu').textContent = T('shell.menu');
+        document.getElementById('shell-back').textContent = '← ' + T('shell.menu');
+
+        document.getElementById('shell-play').addEventListener('click', () => {
+            AudioManager.play('tap');
+            if (SHELL.mode === 'levels') showLevels();
+            else GameEngine.startGame(1);
+        });
+        document.getElementById('btn-replay').addEventListener('click', () => GameEngine.replay());
+        document.getElementById('btn-next').addEventListener('click', () => GameEngine.nextLevel());
+        document.getElementById('btn-menu').addEventListener('click', () => {
+            if (SHELL.mode === 'levels') showLevels(); else showMenu();
+        });
+        document.getElementById('shell-back').addEventListener('click', () => showMenu());
+        document.getElementById('btn-home').addEventListener('click', () => showMenu());
+        document.getElementById('shell-sound').addEventListener('click', (e) => {
+            const on = AudioManager.toggle();
+            e.currentTarget.textContent = on ? '🔊' : '🔇';
+        });
+
+        MobileUtils.attachGlobalAudioUnlock();
+        Particles.init();
+        SDK.gameLoadingFinished();
+    }
+
+    return { showMenu, showLevels, showGame, boot };
+})();
+
+SDK.gameLoadingStart();
+
+/* ── Oyun kodu ── */
+/* ============================================
+   OYUN: Penaltı - Kaleye Şut Çek!
+   SVG sahne: yeşil çim, kale, kaleci kedi, top
+   ============================================ */
+
+const Penalti = (() => {
+    const id = 'penalti';
+    const levels = [
+        { saveChance: 0.10 }, { saveChance: 0.15 }, { saveChance: 0.20 },
+        { saveChance: 0.30 }, { saveChance: 0.40 }, { saveChance: 0.50 },
+        { saveChance: 0.60 }, { saveChance: 0.70 }, { saveChance: 0.80 },
+    ];
+
+    const TOTAL_SHOTS = 5;
+    // 3x3 kale bölgeleri (sol/orta/sağ × üst/orta/alt)
+    const ZONES = [
+        { label: 'Sol Üst',   tx: 70,  ty: 65 },
+        { label: 'Orta Üst',  tx: 200, ty: 55 },
+        { label: 'Sağ Üst',   tx: 330, ty: 65 },
+        { label: 'Sol Orta',  tx: 80,  ty: 120 },
+        { label: 'Orta',      tx: 200, ty: 115 },
+        { label: 'Sağ Orta',  tx: 320, ty: 120 },
+        { label: 'Sol Alt',   tx: 90,  ty: 170 },
+        { label: 'Orta Alt',  tx: 200, ty: 170 },
+        { label: 'Sağ Alt',   tx: 310, ty: 170 },
+    ];
+
+    let container, callbacks, saveChance, shotsTaken, goals, isAnimating, currentLevel;
+    let shotResults = []; // [{goal: true/false}]
+
+    function init(gameArea, level, cbs) {
+        container = gameArea;
+        callbacks = cbs;
+        currentLevel = level;
+        saveChance = levels[level - 1].saveChance;
+        shotsTaken = 0;
+        goals = 0;
+        isAnimating = false;
+        shotResults = [];
+        GameEngine.setTotal(TOTAL_SHOTS);
+        render();
+    }
+
+    // İnsan kaleci SVG pozları
+    const SKIN = '#FDDCB5';
+    const JERSEY = '#FFD600'; // sarı forma
+    const SHORTS = '#333';
+    const GLOVES = '#4CAF50';
+    const HAIR = '#5D4037';
+
+    function keeperSVG(pose) {
+        if (pose === 'dive-left') {
+            return `<!-- Sola uçuyor -->
+                <g transform="rotate(-25, 0, 10)">
+                    <!-- Bacaklar -->
+                    <rect x="5" y="28" width="8" height="22" rx="4" fill="${SKIN}"/>
+                    <rect x="-12" y="25" width="8" height="22" rx="4" fill="${SKIN}" transform="rotate(20,-8,25)"/>
+                    <!-- Kramponlar -->
+                    <ellipse cx="9" cy="52" rx="6" ry="4" fill="#222"/>
+                    <ellipse cx="-6" cy="50" rx="6" ry="4" fill="#222"/>
+                    <!-- Şort -->
+                    <rect x="-12" y="20" width="28" height="12" rx="4" fill="${SHORTS}"/>
+                    <!-- Gövde (forma) -->
+                    <rect x="-14" y="-2" width="30" height="24" rx="6" fill="${JERSEY}"/>
+                    <text x="1" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="#333">1</text>
+                    <!-- Kafa -->
+                    <circle cx="0" cy="-14" r="12" fill="${SKIN}"/>
+                    <!-- Saç -->
+                    <ellipse cx="0" cy="-22" rx="12" ry="6" fill="${HAIR}"/>
+                    <!-- Yüz -->
+                    <circle cx="-4" cy="-16" r="2" fill="#333"/>
+                    <circle cx="5" cy="-16" r="2" fill="#333"/>
+                    <path d="M-2,-10 Q1,-8 4,-10" fill="none" stroke="#333" stroke-width="1"/>
+                    <!-- Kollar (sola uzanmış) -->
+                    <rect x="-42" y="-8" width="30" height="8" rx="4" fill="${JERSEY}"/>
+                    <circle cx="-44" cy="-4" r="7" fill="${GLOVES}"/>
+                    <rect x="14" y="0" width="18" height="7" rx="3" fill="${JERSEY}"/>
+                    <circle cx="33" cy="3" r="6" fill="${GLOVES}"/>
+                </g>`;
+        }
+        if (pose === 'dive-right') {
+            return `<!-- Sağa uçuyor -->
+                <g transform="rotate(25, 0, 10)">
+                    <rect x="-12" y="28" width="8" height="22" rx="4" fill="${SKIN}"/>
+                    <rect x="5" y="25" width="8" height="22" rx="4" fill="${SKIN}" transform="rotate(-20,8,25)"/>
+                    <ellipse cx="-8" cy="52" rx="6" ry="4" fill="#222"/>
+                    <ellipse cx="9" cy="50" rx="6" ry="4" fill="#222"/>
+                    <rect x="-14" y="20" width="28" height="12" rx="4" fill="${SHORTS}"/>
+                    <rect x="-14" y="-2" width="30" height="24" rx="6" fill="${JERSEY}"/>
+                    <text x="1" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="#333">1</text>
+                    <circle cx="0" cy="-14" r="12" fill="${SKIN}"/>
+                    <ellipse cx="0" cy="-22" rx="12" ry="6" fill="${HAIR}"/>
+                    <circle cx="-4" cy="-16" r="2" fill="#333"/>
+                    <circle cx="5" cy="-16" r="2" fill="#333"/>
+                    <path d="M-2,-10 Q1,-8 4,-10" fill="none" stroke="#333" stroke-width="1"/>
+                    <!-- Kollar (sağa uzanmış) -->
+                    <rect x="14" y="-8" width="30" height="8" rx="4" fill="${JERSEY}"/>
+                    <circle cx="46" cy="-4" r="7" fill="${GLOVES}"/>
+                    <rect x="-30" y="0" width="18" height="7" rx="3" fill="${JERSEY}"/>
+                    <circle cx="-31" cy="3" r="6" fill="${GLOVES}"/>
+                </g>`;
+        }
+        if (pose === 'dive-up') {
+            return `<!-- Yukarı uzanıyor -->
+                <rect x="-5" y="30" width="8" height="22" rx="4" fill="${SKIN}"/>
+                <rect x="0" y="30" width="8" height="22" rx="4" fill="${SKIN}"/>
+                <ellipse cx="-1" cy="54" rx="6" ry="4" fill="#222"/>
+                <ellipse cx="4" cy="54" rx="6" ry="4" fill="#222"/>
+                <rect x="-10" y="22" width="24" height="12" rx="4" fill="${SHORTS}"/>
+                <rect x="-12" y="-2" width="28" height="26" rx="6" fill="${JERSEY}"/>
+                <text x="2" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="#333">1</text>
+                <circle cx="2" cy="-14" r="12" fill="${SKIN}"/>
+                <ellipse cx="2" cy="-22" rx="12" ry="6" fill="${HAIR}"/>
+                <circle cx="-2" cy="-16" r="2" fill="#333"/>
+                <circle cx="7" cy="-16" r="2" fill="#333"/>
+                <path d="M0,-10 Q3,-8 6,-10" fill="none" stroke="#333" stroke-width="1"/>
+                <!-- Kollar yukarı -->
+                <rect x="-18" y="-30" width="7" height="30" rx="3" fill="${JERSEY}"/>
+                <circle cx="-15" cy="-32" r="7" fill="${GLOVES}"/>
+                <rect x="15" y="-30" width="7" height="30" rx="3" fill="${JERSEY}"/>
+                <circle cx="18" cy="-32" r="7" fill="${GLOVES}"/>`;
+        }
+        // Ayakta duruyor
+        return `
+            <!-- Bacaklar -->
+            <rect x="-8" y="30" width="8" height="24" rx="4" fill="${SKIN}"/>
+            <rect x="3" y="30" width="8" height="24" rx="4" fill="${SKIN}"/>
+            <!-- Kramponlar -->
+            <ellipse cx="-4" cy="56" rx="7" ry="4" fill="#222"/>
+            <ellipse cx="7" cy="56" rx="7" ry="4" fill="#222"/>
+            <!-- Şort -->
+            <rect x="-12" y="22" width="28" height="14" rx="5" fill="${SHORTS}"/>
+            <!-- Gövde (sarı forma) -->
+            <rect x="-14" y="-4" width="32" height="28" rx="6" fill="${JERSEY}"/>
+            <text x="2" y="18" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">1</text>
+            <!-- Kafa -->
+            <circle cx="2" cy="-16" r="14" fill="${SKIN}"/>
+            <!-- Saç -->
+            <ellipse cx="2" cy="-26" rx="14" ry="7" fill="${HAIR}"/>
+            <!-- Yüz -->
+            <circle cx="-3" cy="-18" r="2.5" fill="#333"/>
+            <circle cx="7" cy="-18" r="2.5" fill="#333"/>
+            <path d="M-1,-12 Q2,-9 5,-12" fill="none" stroke="#333" stroke-width="1.2"/>
+            <!-- Kollar (iki yana açık, hazır) -->
+            <rect x="-36" y="-2" width="24" height="8" rx="4" fill="${JERSEY}"/>
+            <circle cx="-38" cy="2" r="7" fill="${GLOVES}"/>
+            <rect x="16" y="-2" width="24" height="8" rx="4" fill="${JERSEY}"/>
+            <circle cx="42" cy="2" r="7" fill="${GLOVES}"/>`;
+    }
+
+    function getKeeperPose(zoneIdx) {
+        if (zoneIdx === 0 || zoneIdx === 3 || zoneIdx === 6) return 'dive-left';
+        if (zoneIdx === 2 || zoneIdx === 5 || zoneIdx === 8) return 'dive-right';
+        if (zoneIdx === 1) return 'dive-up';
+        return 'stand';
+    }
+
+    // ── SVG Sahne ──
+    function buildScene() {
+        return `
+        <svg viewBox="0 0 400 300" class="penalti-scene" xmlns="http://www.w3.org/2000/svg">
+            <!-- Gökyüzü -->
+            <defs>
+                <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#87CEEB"/>
+                    <stop offset="100%" stop-color="#B8E6FF"/>
+                </linearGradient>
+                <linearGradient id="grassGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#4CAF50"/>
+                    <stop offset="100%" stop-color="#388E3C"/>
+                </linearGradient>
+            </defs>
+            <rect width="400" height="300" fill="url(#skyGrad)"/>
+
+            <!-- Bulutlar -->
+            <ellipse cx="80" cy="40" rx="40" ry="15" fill="white" opacity="0.7"/>
+            <ellipse cx="60" cy="35" rx="25" ry="12" fill="white" opacity="0.7"/>
+            <ellipse cx="320" cy="50" rx="35" ry="12" fill="white" opacity="0.6"/>
+
+            <!-- Çim -->
+            <rect x="0" y="185" width="400" height="115" fill="url(#grassGrad)"/>
+            <!-- Çim çizgileri -->
+            <line x1="0" y1="210" x2="400" y2="210" stroke="#43A047" stroke-width="1" opacity="0.4"/>
+            <line x1="0" y1="240" x2="400" y2="240" stroke="#43A047" stroke-width="1" opacity="0.3"/>
+
+            <!-- Kale direkleri -->
+            <rect x="40" y="45" width="6" height="155" rx="3" fill="#E0E0E0" stroke="#BDBDBD" stroke-width="1"/>
+            <rect x="354" y="45" width="6" height="155" rx="3" fill="#E0E0E0" stroke="#BDBDBD" stroke-width="1"/>
+            <rect x="38" y="40" width="324" height="8" rx="4" fill="#E0E0E0" stroke="#BDBDBD" stroke-width="1"/>
+
+            <!-- Ağ -->
+            <path d="M46,48 L46,198 L20,210 L20,55 Z" fill="none" stroke="#ccc" stroke-width="0.5" opacity="0.6"/>
+            <path d="M354,48 L354,198 L380,210 L380,55 Z" fill="none" stroke="#ccc" stroke-width="0.5" opacity="0.6"/>
+            <!-- Yatay ağ çizgileri -->
+            ${[70,95,120,145,170].map(y => `<line x1="46" y1="${y}" x2="354" y2="${y}" stroke="#ccc" stroke-width="0.5" opacity="0.3"/>`).join('')}
+            <!-- Dikey ağ çizgileri -->
+            ${[100,150,200,250,300].map(x => `<line x1="${x}" y1="48" x2="${x}" y2="198" stroke="#ccc" stroke-width="0.5" opacity="0.3"/>`).join('')}
+
+            <!-- 3x3 Tıklanabilir bölgeler (görünmez) -->
+            ${ZONES.map((z, i) => `
+                <rect class="pen-target" data-zone="${i}"
+                    x="${z.tx - 50}" y="${z.ty - 25}" width="100" height="50"
+                    fill="transparent" cursor="pointer" rx="8"/>
+            `).join('')}
+
+            <!-- Kaleci Kedi -->
+            <g id="pen-keeper" transform="translate(200, 140)">
+                ${keeperSVG('stand')}
+            </g>
+
+            <!-- Top -->
+            <g id="pen-ball" transform="translate(200, 260)">
+                <circle cx="0" cy="0" r="14" fill="white" stroke="#333" stroke-width="1.5"/>
+                <path d="M-5,-12 L5,-12 L8,-3 L0,4 L-8,-3 Z" fill="#333" opacity="0.8"/>
+                <path d="M-14,0 L-8,-3 L-8,6 L-12,4 Z" fill="#333" opacity="0.6"/>
+                <path d="M14,0 L8,-3 L8,6 L12,4 Z" fill="#333" opacity="0.6"/>
+                <circle cx="-3" cy="-4" r="3" fill="white" opacity="0.4"/>
+            </g>
+
+            <!-- Sonuç mesajı -->
+            <text id="pen-msg" x="200" y="260" text-anchor="middle" font-size="0" font-weight="bold" fill="white" stroke="#333" stroke-width="1"></text>
+        </svg>`;
+    }
+
+    function render() {
+        container.innerHTML = '';
+
+        // Skor + atış bilgisi
+        const topBar = document.createElement('div');
+        topBar.className = 'pen-topbar';
+        const shotInfo = document.createElement('span');
+        shotInfo.className = 'pen-shot-info';
+        shotInfo.textContent = T('pen.shot', { n: Math.min(shotsTaken + 1, TOTAL_SHOTS), m: TOTAL_SHOTS });
+        const scoreInfo = document.createElement('span');
+        scoreInfo.className = 'pen-score-info';
+        scoreInfo.textContent = T('pen.goals', { n: goals });
+        topBar.appendChild(shotInfo);
+        topBar.appendChild(scoreInfo);
+        container.appendChild(topBar);
+
+        // SVG Sahne
+        const sceneWrap = document.createElement('div');
+        sceneWrap.className = 'pen-scene-wrap';
+        sceneWrap.innerHTML = buildScene();
+        container.appendChild(sceneWrap);
+
+        // Hedef bölgelere tıklama
+        sceneWrap.querySelectorAll('.pen-target').forEach(target => {
+            target.addEventListener('click', () => {
+                if (isAnimating) return;
+                const zoneIdx = parseInt(target.dataset.zone);
+                takeShot(zoneIdx);
+            });
+            // Hover efekti
+            target.addEventListener('mouseenter', () => {
+                if (!isAnimating) target.setAttribute('fill', 'rgba(255,255,255,0.2)');
+            });
+            target.addEventListener('mouseleave', () => {
+                target.setAttribute('fill', 'transparent');
+            });
+        });
+
+        // Atış geçmişi
+        const history = document.createElement('div');
+        history.className = 'pen-history';
+        for (let i = 0; i < TOTAL_SHOTS; i++) {
+            const dot = document.createElement('span');
+            dot.className = 'pen-dot';
+            if (i < shotResults.length) {
+                dot.classList.add(shotResults[i].goal ? 'goal' : 'miss');
+                dot.textContent = shotResults[i].goal ? '⚽' : '❌';
+            } else if (i === shotsTaken) {
+                dot.classList.add('current');
+                dot.textContent = '🔵';
+            } else {
+                dot.textContent = '⚪';
+            }
+            history.appendChild(dot);
+        }
+        container.appendChild(history);
+    }
+
+    function takeShot(zoneIdx) {
+        isAnimating = true;
+        const zone = ZONES[zoneIdx];
+        const saved = Math.random() < saveChance;
+        const keeperZoneIdx = saved ? zoneIdx : getRandomZoneExcluding(zoneIdx);
+        const keeperZone = ZONES[keeperZoneIdx];
+
+        const svg = container.querySelector('.penalti-scene');
+        const ball = svg.querySelector('#pen-ball');
+        const keeper = svg.querySelector('#pen-keeper');
+        const msg = svg.querySelector('#pen-msg');
+
+        // 1) Top hedefe uçar
+        ball.style.transition = 'transform 0.5s cubic-bezier(0.2, 0, 0.2, 1)';
+        ball.setAttribute('transform', `translate(${zone.tx}, ${zone.ty}) scale(0.7)`);
+
+        // 2) Kaleci atlar + poz değişir
+        setTimeout(() => {
+            const kx = keeperZone.tx;
+            const ky = keeperZone.ty + 10;
+            const pose = getKeeperPose(keeperZoneIdx);
+            keeper.innerHTML = keeperSVG(pose);
+            keeper.style.transition = 'transform 0.35s ease-out';
+            keeper.setAttribute('transform', `translate(${kx}, ${ky}) scale(0.9)`);
+        }, 200);
+
+        // 3) Sonuç
+        setTimeout(() => {
+            shotsTaken++;
+
+            if (saved) {
+                shotResults.push({ goal: false });
+                msg.textContent = T('pen.saved');
+                msg.setAttribute('fill', '#F44336');
+                msg.setAttribute('font-size', '28');
+                AudioManager.play('error');
+            } else {
+                goals++;
+                shotResults.push({ goal: true });
+                callbacks.onCorrect();
+                msg.textContent = T('pen.goal');
+                msg.setAttribute('fill', '#4CAF50');
+                msg.setAttribute('font-size', '36');
+                AudioManager.play('success');
+                const rect = container.getBoundingClientRect();
+                Particles.sparkle(rect.left + rect.width * (zone.tx / 400), rect.top + rect.height * 0.3, 8);
+            }
+
+            // 4) Reset ve sonraki atış
+            setTimeout(() => {
+                isAnimating = false;
+                if (shotsTaken >= TOTAL_SHOTS) {
+                    const stars = goals >= 5 ? 3 : goals >= 4 ? 2 : goals >= 3 ? 1 : 0;
+                    if (stars > 0) {
+                        AudioManager.play('levelComplete');
+                        Particles.celebrate();
+                        setTimeout(() => callbacks.onComplete(stars), 500);
+                    } else {
+                        showLose();
+                    }
+                } else {
+                    render();
+                }
+            }, 1200);
+        }, 700);
+    }
+
+    function getRandomZoneExcluding(exclude) {
+        let idx;
+        do { idx = Math.floor(Math.random() * 9); } while (idx === exclude);
+        return idx;
+    }
+
+    function showLose() {
+        SDK.gameplayStop();
+        container.innerHTML = '';
+        const over = document.createElement('div');
+        over.className = 'kod-gameover';
+        const card = document.createElement('div');
+        card.className = 'kod-gameover-card';
+        card.style.background = 'linear-gradient(135deg, #fd79a8, #e17055)';
+        const icon = document.createElement('div');
+        icon.className = 'kod-gameover-icon';
+        icon.textContent = '😔';
+        const title = document.createElement('h2');
+        title.className = 'kod-gameover-title';
+        title.style.color = 'white';
+        title.textContent = T('pen.lose_title');
+        const sub = document.createElement('p');
+        sub.className = 'kod-gameover-sub';
+        sub.style.color = 'rgba(255,255,255,0.8)';
+        sub.textContent = T('pen.lose_sub', { n: goals, m: TOTAL_SHOTS });
+        const retry = document.createElement('button');
+        retry.className = 'kod-gameover-btn';
+        retry.textContent = T('pen.retry');
+        retry.onclick = () => {
+            SDK.gameplayStart();
+            init(container, currentLevel, callbacks);
+        };
+        card.appendChild(icon);
+        card.appendChild(title);
+        card.appendChild(sub);
+        card.appendChild(retry);
+        over.appendChild(card);
+        container.appendChild(over);
+    }
+
+    function destroy() {
+        if (container) container.innerHTML = '';
+        isAnimating = false;
+    }
+
+    return { id, levels, init, destroy };
+})();
+
+
+/* GAME: kabuğun başlatacağı modül */
+const GAME = Penalti;
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => Shell.boot());
+} else {
+    Shell.boot();
+}
+</script>
+</body>
+</html>

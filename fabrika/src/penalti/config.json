@@ -1,0 +1,13 @@
+{
+  "id": "penalti",
+  "type": "shellA",
+  "titles": { "tr": "Penaltı", "en": "Penalty Hero" },
+  "slug": { "tr": "penalti", "en": "penalty-hero" },
+  "langs": ["tr", "en"],
+  "themeColor": "#4CAF50",
+  "mode": "levels",
+  "levelCount": 9,
+  "gameVar": "Penalti",
+  "sources": ["game.js"],
+  "css": ["game.css"]
+}

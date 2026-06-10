@@ -1,0 +1,322 @@
+/* Penaltı Oyunu - Büyük Sahne */
+
+.pen-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 1.2rem;
+    max-width: min(700px, 95vw);
+    margin: 0 auto;
+}
+.pen-shot-info {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #555;
+    background: rgba(255,255,255,0.9);
+    padding: 6px 16px;
+    border-radius: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.pen-score-info {
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: #2E7D32;
+    background: #E8F5E9;
+    padding: 6px 18px;
+    border-radius: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.pen-scene-wrap {
+    max-width: min(700px, 95vw);
+    width: 95vw;
+    margin: 0.3rem auto;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+}
+
+.penalti-scene {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.penalti-scene .pen-target {
+    cursor: pointer;
+    transition: fill 0.15s;
+}
+.penalti-scene .pen-target:hover {
+    fill: rgba(255,255,255,0.2) !important;
+}
+
+.penalti-scene #pen-ball {
+    transition: transform 0.5s cubic-bezier(0.2, 0, 0.2, 1);
+}
+.penalti-scene #pen-keeper {
+    transition: transform 0.4s cubic-bezier(0.3, 0, 0.2, 1);
+}
+
+.pen-history {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    padding: 0.5rem;
+    font-size: 1.4rem;
+}
+.pen-dot {
+    transition: transform 0.3s;
+}
+.pen-dot.current {
+    animation: dotBounce 1s ease-in-out infinite;
+}
+.pen-dot.goal { filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2)); }
+
+@keyframes dotBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+/* ── Penaltı MP Stilleri ── */
+
+.pen-mp-game {
+    max-width: min(700px, 95vw);
+    margin: 0 auto;
+}
+
+.pen-mp-role-badge {
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 6px 14px;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+.pen-mp-role-badge.shooter {
+    background: linear-gradient(135deg, #FF6348, #ff7979);
+    color: white;
+    box-shadow: 0 2px 8px rgba(255,99,72,0.3);
+}
+.pen-mp-role-badge.keeper {
+    background: linear-gradient(135deg, #4CAF50, #81C784);
+    color: white;
+    box-shadow: 0 2px 8px rgba(76,175,80,0.3);
+}
+
+/* Skor Tablosu */
+.pen-mp-scoreboard {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    margin: 0.3rem auto;
+    max-width: min(600px, 92vw);
+    background: rgba(255,255,255,0.95);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+.pen-mp-team {
+    flex: 1;
+    text-align: center;
+    padding: 0.4rem;
+    border-radius: 12px;
+    transition: background 0.3s;
+}
+.pen-mp-team.pen-mp-me {
+    background: rgba(46,204,113,0.1);
+    border: 2px solid rgba(46,204,113,0.3);
+}
+
+.pen-mp-name {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #555;
+    margin-bottom: 2px;
+}
+
+.pen-mp-score {
+    display: block;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #2d3436;
+    line-height: 1.1;
+}
+
+.pen-mp-dots {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+.pen-mp-dot {
+    font-size: 0.9rem;
+    transition: transform 0.3s;
+}
+.pen-mp-dot.goal { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2)); }
+.pen-mp-dot.miss { opacity: 0.7; }
+
+.pen-mp-vs {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 0 0.4rem;
+}
+.pen-mp-vs-text {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #E74C3C;
+}
+.pen-mp-round {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #888;
+    white-space: nowrap;
+}
+
+/* Status / Hint */
+.pen-mp-status {
+    text-align: center;
+    padding: 0.5rem;
+    min-height: 2rem;
+}
+.pen-mp-hint {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #636e72;
+    animation: fadeInHint 0.5s ease;
+}
+.pen-mp-waiting {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #e17055;
+}
+
+@keyframes fadeInHint {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Game Over Final Score */
+.pen-mp-final-score {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+.pen-mp-final-team {
+    text-align: center;
+}
+.pen-mp-final-name {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 4px;
+}
+.pen-mp-final-num {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: white;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.pen-mp-final-dash {
+    font-size: 2rem;
+    font-weight: 800;
+    color: rgba(255,255,255,0.5);
+}
+
+/* Mobil uyumluluk */
+@media (max-width: 480px) {
+    .pen-mp-scoreboard { gap: 0.3rem; padding: 0.4rem 0.6rem; }
+    .pen-mp-score { font-size: 1.6rem; }
+    .pen-mp-name { font-size: 0.7rem; }
+    .pen-mp-dot { font-size: 0.75rem; }
+    .pen-mp-role-badge { font-size: 0.75rem; padding: 4px 10px; }
+}
+
+
+/* ── Hub'dan taşınan paylaşılan kurallar (kod-macerasi.css'ten game-over kartı) ── */
+.kod-gameover {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 70vh;
+    padding: 1rem;
+    animation: fadeIn 0.6s ease;
+}
+.kod-gameover-card {
+    border-radius: 24px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    max-width: 380px;
+    width: 100%;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.kod-gameover-icon {
+    font-size: 4rem;
+    margin-bottom: 0.3rem;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+    animation: penBounce 1s ease infinite;
+}
+@keyframes penBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+.kod-gameover-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0.3rem 0;
+    text-shadow: 0 2px 4px rgba(255,255,255,0.3);
+}
+.kod-gameover-sub {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin: 0 0 1.2rem;
+    color: rgba(0,0,0,0.5);
+}
+.kod-gameover-btn {
+    margin-top: 1rem;
+    padding: 0.8rem 2rem;
+    border: none;
+    border-radius: 50px;
+    background: rgba(255,255,255,0.9);
+    color: #333;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.kod-gameover-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+.kod-gameover-btn:active {
+    transform: scale(0.95);
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes popIn {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+}
+
+/* responsive.css'ten penaltı mobil kuralları */
+@media (max-width: 480px) {
+    .pen-topbar { padding: 0.3rem 0.5rem; }
+    .pen-shot-info { font-size: 0.85rem; padding: 4px 10px; }
+    .pen-score-info { font-size: 0.9rem; padding: 4px 12px; }
+}
