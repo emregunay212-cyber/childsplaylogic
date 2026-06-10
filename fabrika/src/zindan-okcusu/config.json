@@ -1,9 +1,9 @@
 {
   "id": "zindan-okcusu",
   "type": "singlefile",
-  "titles": { "tr": "Zindan Okçusu" },
-  "slug": { "tr": "zindan-okcusu" },
-  "langs": ["tr"],
+  "titles": { "tr": "Zindan Okçusu", "en": "Dungeon Archer" },
+  "slug": { "tr": "zindan-okcusu", "en": "dungeon-archer" },
+  "langs": ["tr", "en"],
   "assets": {
     "games/zindan-okcusu/assets/archer.png": 128,
     "games/zindan-okcusu/assets/enemy/bat_fly.png": 64,

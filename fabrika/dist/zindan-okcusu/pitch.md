@@ -1,4 +1,4 @@
-# Zindan Okçusu
+# Zindan Okçusu / Dungeon Archer
 
 Roguelite okçu arena oyunu: dalga dalga gelen sevimli-tehlikeli yaratıkları otomatik nişanla devir, seviye atladıkça 3 yetenekten birini seç, altın biriktir, ekipman aç/birleştir/güçlendir, bölüm patronlarını yen. Kalıcı ilerleme (ekipman + yetenek ağacı) + Sonsuz Savaş modu. Tur süresi 3-10 dk, derin meta-ilerleme.
 
@@ -8,16 +8,16 @@ Roguelite archer arena: auto-aim waves of quirky monsters, pick 1-of-3 upgrades 
 
 ## Lisans
 - Non-exclusive, branding opsiyonu var — $300-800 (içerik derinliği nedeniyle üst bant önerilir)
-- Şimdilik yalnız TR
+- TR ve EN ayrı dosyalar
 
 ## Teknik
 | | |
 |---|---|
-| Dosya | `zindan-okcusu-tr.html` — tek dosya |
+| Dosya | `zindan-okcusu-tr.html` / `dungeon-archer-en.html` — tek dosya |
 | Boyut | 470 KB (tüm sprite'lar gömülü) |
 | Çevrimdışı | Evet |
 | Platform | Mobil (sanal joystick + otomatik atış) + masaüstü (WASD/oklar) |
-| Diller | TR (EN sürümü hazırlanıyor — ~200 metin çevirisi planlandı) |
+| Diller | TR + EN |
 | SDK | Soketler hazır (`gameplayStart/Stop`, `happyMoment` boss/bölüm sonlarında), SDK'sız sessiz çalışır |
 
 ## Notlar

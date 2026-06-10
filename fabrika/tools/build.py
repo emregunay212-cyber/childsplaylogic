@@ -125,10 +125,47 @@ def build_singlefile(cfg, src_dir):
         out_html = (html
                     .replace('___LANG___', lang)
                     .replace('___TITLE___', cfg['titles'][lang]))
+        out_html = apply_translation(out_html, src_dir, cfg, lang)
         out = BUILD_DIR / f"{cfg['slug'][lang]}-{lang}.html"
         out.write_text(out_html, encoding='utf-8')
         outs.append(out)
     return outs
+
+
+def apply_translation(html, src_dir, cfg, lang):
+    """translate-<lang>.json varsa TR metinleri hedef dile çevir.
+    Güvenli bağlamlar: '...' / "..." (JS literal, tam içerik) ve >...< (HTML
+    metin düğümü, tam içerik). Kısmi/kelime-içi eşleşme yapılmaz."""
+    tfile = src_dir / f'translate-{lang}.json'
+    if not tfile.exists():
+        return html
+    table = json.loads(read(tfile))
+    # Uzun metinler önce — kısa bir metin uzunun parçasıysa önce uzun değişsin
+    missing = []
+    for key in sorted(table, key=len, reverse=True):
+        en = table[key]
+        # '~' öneki: bağlamsız düz değişim (açık uçlu parçalar için; anahtar
+        # benzersiz olacak kadar uzun seçilmeli)
+        if key.startswith('~'):
+            tr = key[1:]
+            if tr in html:
+                html = html.replace(tr, en)
+            else:
+                missing.append(tr)
+            continue
+        tr = key
+        hit = False
+        for pre, post in (("'", "'"), ('"', '"'), ('>', '<')):
+            old = pre + tr + post
+            if old in html:
+                html = html.replace(old, pre + en + post)
+                hit = True
+        if not hit:
+            missing.append(tr)
+    if missing:
+        print(f'   [çeviri] eşleşmeyen {len(missing)} giriş: '
+              + ' | '.join(m[:30] for m in missing[:5]))
+    return html
 
 
 def build_esm(cfg, src_dir):
