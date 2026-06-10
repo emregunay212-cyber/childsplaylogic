@@ -5,7 +5,10 @@ Kontroller: boyut < 2 MB, dış referans yok, firebase/localStorage yok.
 Kullanım: python validate.py <build.html> [...]  → hata varsa exit 1
 """
 import re
+import shutil
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 MAX_BYTES = 2 * 1024 * 1024
@@ -37,6 +40,32 @@ def validate(path):
         if m:
             line = text.count('\n', 0, m.start()) + 1
             errors.append(f'{desc} (satır {line}: {m.group(0)!r})')
+    errors.extend(check_script_syntax(text))
+    return errors
+
+
+def check_script_syntax(html):
+    """Gömülü <script> bloklarını node --check ile parse et (node yoksa sessiz atla)."""
+    if not shutil.which('node'):
+        return []
+    errors = []
+    for i, m in enumerate(re.finditer(r'<script>(.*?)</script>', html, re.DOTALL)):
+        # .cjs: node'un module-detection'ı 'export' görüp ESM sayamasın —
+        # inline <script> klasik script'tir, export/import orada hatadır.
+        with tempfile.NamedTemporaryFile('w', suffix='.cjs', delete=False,
+                                         encoding='utf-8') as f:
+            f.write(m.group(1))
+            tmp = f.name
+        try:
+            r = subprocess.run(['node', '--check', tmp],
+                               capture_output=True, text=True, timeout=30)
+            if r.returncode != 0:
+                first = (r.stderr or '').strip().splitlines()
+                errors.append(f'script #{i + 1} syntax hatası: {first[-1] if first else "?"}')
+        except Exception:
+            pass
+        finally:
+            Path(tmp).unlink(missing_ok=True)
     return errors
 
 

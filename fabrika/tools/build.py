@@ -144,15 +144,17 @@ def build_esm(cfg, src_dir):
     game_js = bundle(files, overrides)
     guard_script_safe('bundle', game_js)
 
-    # Veri JSON'ları
-    data_parts = []
-    for var, rel in cfg.get('dataFiles', {}).items():
-        data = json.loads(read(src_root / rel))
-        data_parts.append(f'const {var} = ' + json.dumps(data, ensure_ascii=False) + ';')
-    data_js = '\n'.join(data_parts)
+    # Veri JSON'ları → tek __GAMEDATA__ objesi (dataBundle: {anahtar: göreli dosya yolu})
+    data_obj = {}
+    for key, rel in cfg.get('dataBundle', {}).items():
+        data_obj[key] = json.loads(read(src_root / rel))
+    data_js = ('const __GAMEDATA__ = ' + json.dumps(data_obj, ensure_ascii=False) + ';') if data_obj else ''
 
+    # __ASSETS anahtarları oyunun kullandığı literal yollar (assetLiterals eşlemesi)
     assets = asset_map(cfg)
-    assets_js = 'const __ASSETS = ' + json.dumps(assets) + ';'
+    lit = cfg.get('assetLiterals', {})
+    assets_js = 'const __ASSETS = ' + json.dumps(
+        {lit.get(k, k): v for k, v in assets.items()}) + ';'
 
     strings = json.loads(read(src_dir / 'strings.json'))
     core = read(FABRIKA / 'shims' / 'core.js').replace(

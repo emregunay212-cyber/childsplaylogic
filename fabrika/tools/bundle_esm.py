@@ -9,9 +9,11 @@ import re
 import sys
 from pathlib import Path
 
-IMPORT_RE = re.compile(r'^\s*import\s+.*?;?\s*$', re.MULTILINE)
+# Tek VE çok satırlı import'lar: 'import' ile başlar, ilk ';'e kadar (import
+# ifadesi içinde ';' geçemez; [^;] karakter sınıfı newline'ları da kapsar).
+IMPORT_RE = re.compile(r'^[ \t]*import\s[^;]*;', re.MULTILINE)
 EXPORT_BLOCK_RE = re.compile(r'^\s*export\s*\{[^}]*\}\s*;?\s*$', re.MULTILINE)
-EXPORT_DECL_RE = re.compile(r'^(\s*)export\s+(const|let|var|function|class|default)\b', re.MULTILINE)
+EXPORT_DECL_RE = re.compile(r'^(\s*)export\s+(async\s+function|const|let|var|function|class|default)\b', re.MULTILINE)
 TOPLEVEL_DECL_RE = re.compile(r'^(?:export\s+)?(?:const|let|var|function|class)\s+([A-Za-z_$][\w$]*)', re.MULTILINE)
 
 

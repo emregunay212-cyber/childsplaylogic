@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="___LANG___" data-lang="___LANG___">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>___TITLE___</title>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: #1a1a2e;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      canvas {
+        background-color: white;
+      }
+      #canvas {
+        max-width: 100%;
+        max-height: 100vh;
+        height: auto;
+        width: auto;
+        display: block;
+      }
+      /* Mobil dokunmatik kontroller — yalnızca dokunmatik (coarse pointer) cihazlarda görünür */
+      .ab-touch {
+        position: fixed; left: 0; right: 0; bottom: 0;
+        display: none; justify-content: space-between;
+        padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+        pointer-events: none; z-index: 10;
+      }
+      .ab-touch-side { display: flex; gap: 14px; pointer-events: none; }
+      .ab-touch-btn {
+        pointer-events: auto; width: 62px; height: 62px; border-radius: 50%;
+        border: 2px solid rgba(255,255,255,0.55); background: rgba(20,24,40,0.45);
+        color: #fff; font-size: 26px; line-height: 1;
+        display: flex; align-items: center; justify-content: center;
+        touch-action: none; user-select: none; -webkit-user-select: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .ab-touch-btn.fire { border-color: rgba(255, 107, 107, 0.85); }
+      .ab-touch-btn.ice { border-color: rgba(107, 183, 255, 0.85); }
+      .ab-touch-btn.active { background: rgba(80,120,220,0.7); }
+      @media (pointer: coarse) { .ab-touch { display: flex; } }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+/*___FABRIKA_CORE___*/
+SDK.gameLoadingStart();
+/*___ASSETS___*/
+/*___GAMEDATA___*/
+/*___GAME_JS___*/
+SDK.gameLoadingFinished();
+    </script>
+</body>
+</html>
