@@ -1,0 +1,2603 @@
+<!DOCTYPE html>
+<html lang="tr" data-lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Zıpla Topla</title>
+<style>
+/* ── Fabrika kabuk stilleri ── */
+:root {
+    --theme: #f39c12;
+    --shell-bg1: #141b33;
+    --shell-bg2: #0d1226;
+    --shell-text: #f3f5ff;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+body {
+    font-family: system-ui, 'Segoe UI', -apple-system, Roboto, sans-serif;
+    background: linear-gradient(160deg, var(--shell-bg1), var(--shell-bg2));
+    color: var(--shell-text);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+}
+#particles-canvas {
+    position: fixed; inset: 0; z-index: 900; pointer-events: none;
+}
+#game-container { position: fixed; inset: 0; display: none; }
+#game-container.active { display: block; }
+.game-area {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 8px; overflow: hidden;
+}
+.hidden { display: none !important; }
+
+/* Overlay'ler (menü / bölümler / bölüm-sonu) */
+.shell-screen {
+    position: fixed; inset: 0; z-index: 800;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 18px; padding: 24px; text-align: center;
+    background: linear-gradient(160deg, var(--shell-bg1), var(--shell-bg2));
+}
+.shell-screen.overlay { background: rgba(10, 14, 30, 0.88); }
+.shell-title {
+    font-size: clamp(34px, 8vw, 60px); font-weight: 800;
+    letter-spacing: 1px;
+    background: linear-gradient(135deg, var(--theme), #fff);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 14px rgba(0,0,0,.45));
+}
+.shell-sub { font-size: clamp(14px, 3.4vw, 18px); opacity: .82; max-width: 520px; line-height: 1.55; }
+.shell-btn {
+    font: inherit; font-size: clamp(17px, 4vw, 22px); font-weight: 700;
+    color: #fff; background: var(--theme);
+    border: none; border-radius: 16px;
+    padding: 14px 44px; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0,0,0,.35), inset 0 -3px 0 rgba(0,0,0,.22);
+    transition: transform .12s ease;
+}
+.shell-btn:active { transform: scale(.95); }
+.shell-btn.secondary { background: #2c3558; font-size: clamp(14px, 3.2vw, 17px); padding: 11px 28px; }
+.shell-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+#shell-sound { position: fixed; top: 12px; right: 12px; z-index: 850;
+    width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer;
+    background: rgba(255,255,255,.12); color: #fff; font-size: 20px; }
+#shell-back { position: fixed; top: 12px; left: 12px; z-index: 850;
+    width: auto; height: 46px; border-radius: 23px; border: none; cursor: pointer;
+    background: rgba(255,255,255,.12); color: #fff; font-size: 15px; font-weight: 700;
+    padding: 0 18px; display: none; }
+#shell-back.visible { display: block; }
+
+/* Bölüm seçimi */
+.shell-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(76px, 76px));
+    gap: 12px; justify-content: center; max-width: 560px;
+}
+.shell-lv {
+    width: 76px; height: 76px; border-radius: 16px; border: none; cursor: pointer;
+    background: #2c3558; color: #fff; font: inherit; font-size: 22px; font-weight: 800;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,.25);
+}
+.shell-lv .lv-stars { font-size: 11px; letter-spacing: 1px; color: #ffd700; }
+.shell-lv.locked { opacity: .38; cursor: default; }
+.shell-lv.done { background: var(--theme); }
+
+/* Bölüm-sonu yıldızları */
+.shell-stars { display: flex; gap: 10px; }
+.shell-stars svg { width: 54px; height: 54px; fill: #3a4368; }
+.shell-stars svg.earned { fill: #ffd700; filter: drop-shadow(0 2px 10px rgba(255,215,0,.5)); }
+
+/* Oyun kodu uyumluluğu: hub'ın body.game-active kilidi */
+body.game-active { overflow: hidden; }
+/* Hub'a-dön türü gizli uyumluluk düğmesi */
+#btn-home { display: none; }
+
+/* ── Oyun CSS ── */
+/* ============================================
+   Zıpla Topla / Hop & Grab — platformer stilleri
+   ============================================ */
+
+.zt-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  background: #0a0820;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 4px #6b3b1f,
+    0 0 0 6px #2a1a10,
+    0 20px 40px rgba(0,0,0,0.4);
+  user-select: none;
+  touch-action: manipulation;
+  display: flex;
+  flex-direction: column;
+}
+
+.zt-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 800 / 360;
+  overflow: hidden;
+}
+
+.zt-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* ---- HUD ---- */
+.zt-hud {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  gap: 6px;
+  font-family: 'Comic Sans MS', 'Baloo', system-ui, sans-serif;
+  pointer-events: none;
+}
+
+.zt-hud-box {
+  background: rgba(15, 10, 30, 0.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 2px solid #ffcf3a;
+  border-radius: 8px;
+  padding: 4px 10px;
+  color: #fff;
+  font-weight: 800;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.6);
+}
+
+.zt-hud-label {
+  font-size: 10px;
+  opacity: 0.85;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.zt-hud-coins span:last-child,
+.zt-hud-level span:last-child {
+  color: #ffd54a;
+  font-variant-numeric: tabular-nums;
+}
+
+.zt-hud-lives { gap: 2px; padding: 4px 8px; }
+.zt-heart {
+  font-size: 18px;
+  transition: transform 0.2s, opacity 0.2s;
+  filter: drop-shadow(0 0 4px rgba(255, 0, 80, 0.5));
+}
+.zt-heart.on { color: #ff5470; }
+.zt-heart.off { color: #2a1830; filter: none; opacity: 0.4; }
+
+.zt-hud-coins, .zt-hud-level { margin-left: auto; }
+.zt-hud-level { margin-left: 0; }
+
+/* ---- Mod geçişi (1 KİŞİ / 2 KİŞİ) — yalnızca klavyeli cihazlarda enjekte edilir ---- */
+.zt-mode-toggle {
+  pointer-events: auto;
+  gap: 2px;
+  padding: 2px;
+}
+.zt-mode-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.72);
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.zt-mode-btn:hover { color: #fff; }
+.zt-mode-btn.active {
+  background: linear-gradient(135deg, #ffcf3a, #ff8a3a);
+  color: #2a1010;
+  box-shadow: 0 2px 6px rgba(255, 138, 58, 0.4);
+}
+
+/* ---- Mobile Controls (canvas altında ayrı bar) ---- */
+.zt-controls {
+  display: none;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, #1a0a2a 0%, #0a0820 100%);
+  border-top: 2px solid #6b3b1f;
+}
+
+.zt-ctrl-side {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.zt-btn {
+  pointer-events: auto;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: rgba(15, 10, 30, 0.75);
+  border: 2.5px solid #ffcf3a;
+  color: #ffcf3a;
+  font-size: 22px;
+  font-weight: 900;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 0 12px rgba(255, 207, 58, 0.15);
+  text-shadow: 0 0 6px rgba(255, 207, 58, 0.5);
+  transition: transform 0.08s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  flex-shrink: 0;
+  padding: 0;
+  line-height: 1;
+}
+.zt-btn:active {
+  background: rgba(255, 207, 58, 0.3);
+  transform: scale(0.92);
+}
+.zt-btn-jump {
+  width: 72px;
+  height: 72px;
+  border-color: #e74c3c;
+  color: #ff8070;
+  text-shadow: 0 0 8px rgba(231, 76, 60, 0.6);
+  box-shadow: 0 4px 14px rgba(231, 76, 60, 0.5), inset 0 0 12px rgba(231, 76, 60, 0.2);
+  font-size: 26px;
+}
+.zt-btn-jump:active { background: rgba(231, 76, 60, 0.4); }
+
+@media (pointer: coarse), (hover: none), (max-width: 900px) {
+  .zt-controls { display: flex; }
+}
+
+@media (max-width: 380px) {
+  .zt-btn { width: 52px; height: 52px; font-size: 19px; }
+  .zt-btn-jump { width: 64px; height: 64px; font-size: 22px; }
+  .zt-controls { padding: 8px 10px; gap: 8px; }
+  .zt-ctrl-side { gap: 8px; }
+  .zt-hud-box { padding: 3px 7px; font-size: 12px; }
+  .zt-hud-label { font-size: 9px; }
+}
+
+/* ---- Portrait rotate hint ---- */
+.zt-rotate-hint {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 2, 20, 0.85);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  padding: 20px;
+}
+.zt-rotate-card {
+  background: linear-gradient(145deg, #2a1a48, #4a2a70);
+  border: 2px solid #ffcf3a;
+  border-radius: 14px;
+  padding: 20px 22px;
+  max-width: 320px;
+  text-align: center;
+  color: #fff;
+  font-family: 'Comic Sans MS', system-ui, sans-serif;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+.zt-rotate-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+  animation: zt-rotate-anim 2.5s ease-in-out infinite;
+}
+@keyframes zt-rotate-anim {
+  0%, 40%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(90deg); }
+}
+.zt-rotate-title {
+  font-size: 18px;
+  font-weight: 900;
+  color: #ffd54a;
+  margin-bottom: 8px;
+}
+.zt-rotate-text {
+  font-size: 13px;
+  color: rgba(255,255,255,0.88);
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+.zt-rotate-btn {
+  background: linear-gradient(135deg, #ffcf3a, #ff8a3a);
+  color: #2a1010;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 4px 14px rgba(255, 138, 58, 0.4);
+}
+.zt-rotate-btn:active { transform: scale(0.96); }
+
+/* ---- Game Over Modal ---- */
+.zt-modal {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: ztFadeIn 0.3s ease;
+}
+@keyframes ztFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.zt-modal-card {
+  background: linear-gradient(145deg, #2a1a48, #4a2a70);
+  border: 3px solid #ffcf3a;
+  border-radius: 18px;
+  padding: 24px 28px;
+  max-width: 88%;
+  min-width: 300px;
+  color: #fff;
+  font-family: 'Comic Sans MS', system-ui, sans-serif;
+  box-shadow: 0 25px 80px rgba(0,0,0,0.6);
+  text-align: center;
+}
+
+.zt-modal-title {
+  font-size: 28px;
+  font-weight: 900;
+  margin-bottom: 10px;
+  color: #ff5470;
+  text-shadow: 0 4px 14px rgba(255, 84, 112, 0.5);
+}
+.zt-modal-sub {
+  font-size: 15px;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 14px;
+}
+.zt-modal-stats {
+  background: rgba(0,0,0,0.3);
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  font-size: 15px;
+}
+.zt-modal-stats b {
+  color: #ffd54a;
+  font-size: 17px;
+  text-shadow: 0 0 6px rgba(255, 213, 74, 0.6);
+}
+
+.zt-modal-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.zt-mbtn {
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  transition: transform 0.12s;
+}
+.zt-mbtn:hover { transform: translateY(-2px); }
+.zt-mbtn:active { transform: translateY(0); }
+.zt-mbtn-primary {
+  background: linear-gradient(135deg, #ffcf3a, #ff8a3a);
+  color: #2a1010;
+  box-shadow: 0 5px 18px rgba(255, 138, 58, 0.5);
+}
+.zt-mbtn-secondary {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.3);
+}
+
+</style>
+</head>
+<body class="game-active">
+
+<canvas id="particles-canvas"></canvas>
+
+<!-- Ana menü -->
+<div id="shell-menu" class="shell-screen">
+    <div class="shell-title">Zıpla Topla</div>
+    <div class="shell-sub" id="shell-instructions"></div>
+    <button class="shell-btn" id="shell-play"></button>
+</div>
+
+<!-- Bölüm seçimi (levels modunda) -->
+<div id="shell-levels" class="shell-screen hidden">
+    <div class="shell-title" style="font-size:clamp(24px,6vw,40px)" id="shell-levels-title"></div>
+    <div class="shell-grid" id="shell-levels-grid"></div>
+</div>
+
+<!-- Oyun alanı -->
+<div id="game-container">
+    <div class="game-area" id="game-area"></div>
+</div>
+
+<!-- Bölüm sonu -->
+<div id="level-complete" class="shell-screen overlay hidden">
+    <div class="shell-title" style="font-size:clamp(26px,6vw,42px)" id="complete-title"></div>
+    <div class="shell-stars" id="complete-stars"></div>
+    <div class="shell-row">
+        <button class="shell-btn secondary" id="btn-replay"></button>
+        <button class="shell-btn" id="btn-next"></button>
+        <button class="shell-btn secondary" id="btn-menu"></button>
+    </div>
+</div>
+
+<button id="shell-sound">🔊</button>
+<button id="shell-back"></button>
+<button id="btn-home" aria-hidden="true"></button>
+
+<script>
+/* ── Çekirdek (SDK + Storage + i18n) ── */
+/* ============================================
+   FABRİKA ÇEKİRDEK — SDK soketleri + Storage + i18n
+   Portal spesifikasyonu: EGITSEL-OYUN-FABRIKASI/CLAUDE.md
+   Tarayıcı kalıcı deposu kullanılmaz; SDK_STORAGE → in-memory fallback.
+   ============================================ */
+
+const _mem = {};
+const Storage = {
+    get(k) {
+        try {
+            const v = window.SDK_STORAGE ? window.SDK_STORAGE.get(k) : undefined;
+            return (v !== undefined && v !== null) ? v : (_mem[k] !== undefined ? _mem[k] : null);
+        } catch (e) { return _mem[k] !== undefined ? _mem[k] : null; }
+    },
+    set(k, v) {
+        try { if (window.SDK_STORAGE) window.SDK_STORAGE.set(k, v); } catch (e) {}
+        _mem[k] = v;
+    },
+    clear() { for (const k in _mem) delete _mem[k]; },
+};
+
+/* Portal SDK soketleri — portal entegrasyonunda doldurulur, yokken sessiz no-op. */
+const SDK = window.SDK || {
+    gameLoadingStart() {},
+    gameLoadingFinished() {},
+    gameplayStart() {},
+    gameplayStop() {},
+    showRewardedAd(onSuccess) { try { onSuccess && onSuccess(); } catch (e) {} },
+    happyMoment() {},
+};
+window.SDK = SDK;
+
+/* i18n — öncelik: ?lang > <html data-lang> (build varsayılanı) > navigator.language */
+const STRINGS = {"tr": {"game.instructions": "Paraları topla, düşmanların üstüne zıpla, kapıya ulaş! 12 bölüm, 3 tema. Tek başına oyna ya da arkadaşınla aynı klavyede: P1 ok tuşları, P2 = A/D/W.", "shell.play": "OYNA", "shell.levels": "BÖLÜMLER", "shell.replay": "↻ Tekrar", "shell.next": "Sonraki ▶", "shell.menu": "Ana Menü", "shell.perfect": "Mükemmel! 🌟", "shell.great": "Harika! 🎉", "shell.good": "Güzel! 👍", "zt.level": "Seviye", "zt.mode_solo": "1 KİŞİ", "zt.mode_coop": "2 KİŞİ", "zt.exit": "ÇIKIŞ", "zt.rotate_title": "Daha iyi deneyim için", "zt.rotate_text": "Telefonunu yan çevir — platform oyunları geniş ekranda çok daha eğlenceli!", "zt.rotate_dismiss": "Yine de oyna", "zt.gameover": "💥 Oyun Bitti", "zt.gameover_sub": "Tüm canlarını kaybettin!", "zt.coins_collected": "Topladığın para:", "zt.retry": "🔁 Tekrar Dene", "zt.home": "🏠 Ana Menü", "zt.banner_level": "Seviye {n}", "zt.theme_meadow": "Çayır", "zt.theme_cave": "Yeraltı", "zt.theme_sky": "Gökyüzü", "zt.banner_coop": "1. Oyuncu: ← →  ↑   ·   2. Oyuncu: A D  W", "zt.banner_solo": "Paraları topla, kapıya ulaş!"}, "en": {"game.instructions": "Grab the coins, stomp the enemies, reach the door! 12 levels, 3 themes. Play solo or share a keyboard with a friend: P1 arrows, P2 = A/D/W.", "shell.play": "PLAY", "shell.levels": "LEVELS", "shell.replay": "↻ Replay", "shell.next": "Next ▶", "shell.menu": "Main Menu", "shell.perfect": "Perfect! 🌟", "shell.great": "Great! 🎉", "shell.good": "Nice! 👍", "zt.level": "Level", "zt.mode_solo": "1 PLAYER", "zt.mode_coop": "2 PLAYERS", "zt.exit": "EXIT", "zt.rotate_title": "For a better experience", "zt.rotate_text": "Turn your phone sideways — platformers are way more fun in landscape!", "zt.rotate_dismiss": "Play anyway", "zt.gameover": "💥 Game Over", "zt.gameover_sub": "You lost all your lives!", "zt.coins_collected": "Coins collected:", "zt.retry": "🔁 Try Again", "zt.home": "🏠 Main Menu", "zt.banner_level": "Level {n}", "zt.theme_meadow": "Meadow", "zt.theme_cave": "Underground", "zt.theme_sky": "Sky", "zt.banner_coop": "Player 1: ← →  ↑   ·   Player 2: A D  W", "zt.banner_solo": "Grab the coins, reach the door!"}};
+const LANG = (() => {
+    try {
+        const q = new URLSearchParams(location.search).get('lang');
+        if (q && STRINGS[q]) return q;
+    } catch (e) {}
+    const d = document.documentElement.dataset.lang;
+    if (d && STRINGS[d]) return d;
+    return (navigator.language || 'en').toLowerCase().indexOf('tr') === 0 ? 'tr' : 'en';
+})();
+function T(key, vars) {
+    let s = (STRINGS[LANG] && STRINGS[LANG][key] !== undefined) ? STRINGS[LANG][key]
+        : (STRINGS.tr && STRINGS.tr[key] !== undefined) ? STRINGS.tr[key] : key;
+    if (vars) for (const v in vars) s = s.split('{' + v + '}').join(vars[v]);
+    return s;
+}
+
+
+/* ── Hub kütüphaneleri (audio, particles, mobile-utils) ── */
+/* ============================================
+   OYUN BAHÇESİ - Ses Yöneticisi
+   ============================================ */
+
+const AudioManager = (() => {
+    let ctx = null;
+    let enabled = true;
+    let initialized = false;
+    const buffers = {};
+
+    // Basit ses efektleri üretici (Web Audio API ile)
+    const tones = {
+        tap: { freq: 600, duration: 0.08, type: 'sine', gain: 0.15 },
+        success: { freq: 880, duration: 0.25, type: 'sine', gain: 0.2, seq: [523, 659, 784] },
+        error: { freq: 200, duration: 0.2, type: 'triangle', gain: 0.12 },
+        star: { freq: 1200, duration: 0.4, type: 'sine', gain: 0.15, seq: [784, 988, 1175] },
+        complete: { freq: 523, duration: 0.6, type: 'sine', gain: 0.2, seq: [523, 659, 784, 1047] },
+        pop: { freq: 400, duration: 0.1, type: 'sine', gain: 0.12 },
+        whoosh: { freq: 300, duration: 0.15, type: 'sawtooth', gain: 0.06 },
+        flip: { freq: 500, duration: 0.12, type: 'sine', gain: 0.1 },
+    };
+
+    function init() {
+        if (initialized) return;
+        try {
+            ctx = new (window.AudioContext || window.webkitAudioContext)();
+            initialized = true;
+        } catch (e) {
+            console.warn('Web Audio API desteklenmiyor');
+        }
+    }
+
+    function playTone(name) {
+        if (!enabled || !ctx) return;
+        if (ctx.state === 'suspended') ctx.resume();
+
+        const tone = tones[name];
+        if (!tone) return;
+
+        if (tone.seq) {
+            // Sıralı notalar
+            tone.seq.forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = tone.type;
+                osc.frequency.value = freq;
+                gain.gain.value = tone.gain;
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (i + 1) * 0.15);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(ctx.currentTime + i * 0.12);
+                osc.stop(ctx.currentTime + (i + 1) * 0.15 + 0.05);
+            });
+        } else {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = tone.type;
+            osc.frequency.value = tone.freq;
+            gain.gain.value = tone.gain;
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + tone.duration);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + tone.duration + 0.05);
+        }
+    }
+
+    function play(name) {
+        if (!enabled) return;
+        init();
+        playTone(name);
+    }
+
+    function toggle() {
+        enabled = !enabled;
+        return enabled;
+    }
+
+    function isEnabled() {
+        return enabled;
+    }
+
+    function setEnabled(val) {
+        enabled = val;
+    }
+
+    return { init, play, toggle, isEnabled, setEnabled };
+})();
+
+
+/* ============================================
+   OYUN BAHÇESİ - Parçacık Efektleri
+   ============================================ */
+
+const Particles = (() => {
+    let canvas, ctx;
+    let particles = [];
+    let animId = null;
+
+    const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#F7B731', '#A55EEA', '#FF78C4', '#26DE81', '#FFD700'];
+
+    function init() {
+        canvas = document.getElementById('particles-canvas');
+        if (!canvas) return;
+        ctx = canvas.getContext('2d');
+        resize();
+        window.addEventListener('resize', resize);
+    }
+
+    function resize() {
+        if (!canvas) return;
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    function animate() {
+        if (!ctx) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        particles = particles.filter(p => p.life > 0);
+
+        particles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += p.gravity;
+            p.life -= p.decay;
+            p.rotation += p.rotSpeed;
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rotation);
+            ctx.globalAlpha = Math.max(0, p.life);
+
+            if (p.type === 'confetti') {
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+            } else if (p.type === 'star') {
+                drawStar(ctx, 0, 0, 5, p.size, p.size / 2, p.color);
+            } else if (p.type === 'sparkle') {
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(0, 0, p.size * p.life, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.restore();
+        });
+
+        if (particles.length > 0) {
+            animId = requestAnimationFrame(animate);
+        } else {
+            animId = null;
+        }
+    }
+
+    function drawStar(ctx, cx, cy, spikes, outerR, innerR, color) {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        let rot = Math.PI / 2 * 3;
+        let step = Math.PI / spikes;
+        ctx.moveTo(cx, cy - outerR);
+        for (let i = 0; i < spikes; i++) {
+            ctx.lineTo(cx + Math.cos(rot) * outerR, cy + Math.sin(rot) * outerR);
+            rot += step;
+            ctx.lineTo(cx + Math.cos(rot) * innerR, cy + Math.sin(rot) * innerR);
+            rot += step;
+        }
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    function spawn(type, x, y, count) {
+        for (let i = 0; i < count; i++) {
+            const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.5;
+            const speed = 2 + Math.random() * 6;
+
+            particles.push({
+                type,
+                x,
+                y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed - 3,
+                gravity: type === 'sparkle' ? 0 : 0.12,
+                life: 1,
+                decay: 0.012 + Math.random() * 0.01,
+                size: type === 'confetti' ? 8 + Math.random() * 6 : 4 + Math.random() * 4,
+                color: COLORS[Math.floor(Math.random() * COLORS.length)],
+                rotation: Math.random() * Math.PI * 2,
+                rotSpeed: (Math.random() - 0.5) * 0.15,
+            });
+        }
+
+        if (!animId) {
+            animId = requestAnimationFrame(animate);
+        }
+    }
+
+    function confetti(x, y, count = 50) {
+        if (!ctx) init();
+        spawn('confetti', x || canvas.width / 2, y || canvas.height / 3, count);
+    }
+
+    function stars(x, y, count = 15) {
+        if (!ctx) init();
+        spawn('star', x || canvas.width / 2, y || canvas.height / 3, count);
+    }
+
+    function sparkle(x, y, count = 10) {
+        if (!ctx) init();
+        spawn('sparkle', x, y, count);
+    }
+
+    function celebrate() {
+        if (!ctx) init();
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 3;
+        confetti(cx, cy, 60);
+        setTimeout(() => stars(cx, cy, 20), 200);
+        setTimeout(() => confetti(cx - 100, cy, 30), 300);
+        setTimeout(() => confetti(cx + 100, cy, 30), 400);
+    }
+
+    return { init, confetti, stars, sparkle, celebrate };
+})();
+
+
+/* ============================================
+   Mobile Utils — Canvas DPR + Touch Yardımcıları
+   ============================================ */
+
+const MobileUtils = (() => {
+  const MAX_DPR = 2;
+
+  function getDPR() {
+    return Math.min(window.devicePixelRatio || 1, MAX_DPR);
+  }
+
+  function isTouchDevice() {
+    if ('ontouchstart' in window) return true;
+    if (navigator.maxTouchPoints && navigator.maxTouchPoints > 0) return true;
+    if (navigator.msMaxTouchPoints && navigator.msMaxTouchPoints > 0) return true;
+    if (window.matchMedia) {
+      if (window.matchMedia('(pointer: coarse)').matches) return true;
+      if (window.matchMedia('(hover: none)').matches) return true;
+      if (window.matchMedia('(any-pointer: coarse)').matches) return true;
+    }
+    return false;
+  }
+
+  function setupHiDPICanvas(canvas, ctx, logicalW, logicalH, opts) {
+    const options = opts || {};
+    const dpr = options.forceIntegerDpr
+      ? Math.max(1, Math.floor(getDPR()))
+      : getDPR();
+    canvas.width = Math.round(logicalW * dpr);
+    canvas.height = Math.round(logicalH * dpr);
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return dpr;
+  }
+
+  // Canvas'ı GÖRÜNTÜLENEN boyutuna (CSS px × DPR) göre boyutlandırır ve çizim
+  // koordinatlarını mantıksal (logicalW×logicalH) sisteme ölçekler. Oyun büyüdükçe
+  // (örn. tam ekran) iç çözünürlük de büyür → bulanıklaşma olmaz. ResizeObserver ile
+  // boyut değişiminde otomatik yeniden ayarlanır. Oyun her karede mantıksal
+  // koordinatlarda çizmeye devam eder.
+  function attachResponsiveCanvas(canvas, ctx, logicalW, logicalH) {
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    const fit = () => {
+      const dpr = getDPR();
+      const w = canvas.clientWidth || logicalW;
+      const h = canvas.clientHeight || logicalH;
+      canvas.width = Math.max(1, Math.round(w * dpr));
+      canvas.height = Math.max(1, Math.round(h * dpr));
+      // Mantıksal koordinat sistemini iç çözünürlüğe ölçekle (en-boy oranı
+      // korunduğunda x/y aynı faktör → bozulma olmaz).
+      ctx.setTransform(canvas.width / logicalW, 0, 0, canvas.height / logicalH, 0, 0);
+    };
+    fit();
+    let ro = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(fit);
+      ro.observe(canvas);
+    }
+    // ResizeObserver bazı durumlarda (ör. tam ekran geçişi) tetiklenmeyebildiği için
+    // window resize olayını da dinle — tam ekran butonu bu olayı tetikler.
+    window.addEventListener('resize', fit);
+    return {
+      refit: fit,
+      disconnect() { if (ro) ro.disconnect(); window.removeEventListener('resize', fit); }
+    };
+  }
+
+  function lockBodyScroll() {
+    document.body.classList.add('game-active');
+  }
+
+  function unlockBodyScroll() {
+    document.body.classList.remove('game-active');
+  }
+
+  function unlockAudio() {
+    try {
+      if (typeof AudioManager === 'undefined' || !AudioManager) return;
+      if (typeof AudioManager.unlock === 'function') AudioManager.unlock();
+      const ctx = AudioManager.context || AudioManager.audioContext || null;
+      if (ctx && ctx.state === 'suspended' && typeof ctx.resume === 'function') {
+        ctx.resume();
+      }
+    } catch (e) {}
+  }
+
+  let audioUnlockAttached = false;
+  function attachGlobalAudioUnlock() {
+    if (audioUnlockAttached) return;
+    audioUnlockAttached = true;
+    const once = () => {
+      unlockAudio();
+      document.removeEventListener('touchstart', once, true);
+      document.removeEventListener('mousedown', once, true);
+      document.removeEventListener('keydown', once, true);
+    };
+    document.addEventListener('touchstart', once, true);
+    document.addEventListener('mousedown', once, true);
+    document.addEventListener('keydown', once, true);
+  }
+
+  function bindHoldButton(el, onPress, onRelease) {
+    if (!el) return;
+    el.style.touchAction = 'none';
+    let activeTouchId = null;
+    const press = () => { if (onPress) onPress(); };
+    const release = () => { if (onRelease) onRelease(); };
+
+    el.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      if (activeTouchId === null && e.changedTouches && e.changedTouches[0]) {
+        activeTouchId = e.changedTouches[0].identifier;
+      }
+      press();
+    }, { passive: false });
+
+    const touchEndLike = (e) => {
+      if (activeTouchId === null) return;
+      if (e.changedTouches) {
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === activeTouchId) {
+            activeTouchId = null;
+            release();
+            return;
+          }
+        }
+      } else {
+        activeTouchId = null;
+        release();
+      }
+    };
+
+    el.addEventListener('touchend', (e) => { e.preventDefault(); touchEndLike(e); }, { passive: false });
+    el.addEventListener('touchcancel', (e) => { touchEndLike(e); });
+
+    el.addEventListener('mousedown', (e) => { e.preventDefault(); press(); });
+    el.addEventListener('mouseup', release);
+    el.addEventListener('mouseleave', release);
+
+    document.addEventListener('mouseup', release);
+  }
+
+  return {
+    getDPR,
+    isTouchDevice,
+    setupHiDPICanvas,
+    attachResponsiveCanvas,
+    lockBodyScroll,
+    unlockBodyScroll,
+    attachGlobalAudioUnlock,
+    unlockAudio,
+    bindHoldButton,
+  };
+})();
+
+
+/* Ses ton alias'ları — oyun kodundaki tanımsız ton adları için */
+(() => {
+    const _play = AudioManager.play;
+    const ALIAS = { levelComplete: 'complete', wrong: 'error' };
+    AudioManager.play = (n) => _play(ALIAS[n] || n);
+})();
+
+/* ── Kabuk yapılandırması ── */
+const SHELL = {"id": "zipla-topla", "mode": "levels", "levelCount": 12};
+
+/* ── Mini-engine: hub GameEngine sözleşmesinin standalone karşılığı ── */
+const GameEngine = (() => {
+    let currentLevel = 1;
+    let state = 'IDLE';
+    let score = { correct: 0, wrong: 0, total: 0 };
+
+    function levelStarsKey(lv) { return SHELL.id + '.stars.' + lv; }
+    function getLevelStars(lv) { return parseInt(Storage.get(levelStarsKey(lv)) || '0', 10) || 0; }
+    function setLevelStars(lv, s) {
+        if (s > getLevelStars(lv)) Storage.set(levelStarsKey(lv), String(s));
+    }
+
+    function startGame(level) {
+        currentLevel = level || 1;
+        state = 'PLAYING';
+        score = { correct: 0, wrong: 0, total: 0 };
+        const gameArea = document.getElementById('game-area');
+        while (gameArea.firstChild) gameArea.removeChild(gameArea.firstChild);
+        Shell.showGame();
+        SDK.gameplayStart();
+        GAME.init(gameArea, currentLevel, { onCorrect, onWrong, onComplete });
+    }
+
+    function onCorrect() { score.correct++; AudioManager.play('success'); }
+    function onWrong() { score.wrong++; AudioManager.play('error'); }
+
+    function calculateStars() {
+        if (score.total === 0) return 3;
+        const acc = score.correct / score.total;
+        if (acc >= 0.95) return 3;
+        if (acc >= 0.7) return 2;
+        return 1;
+    }
+
+    function onComplete(customStars) {
+        if (state !== 'PLAYING') return;
+        state = 'COMPLETED';
+        SDK.gameplayStop();
+        const stars = customStars !== undefined ? customStars : calculateStars();
+        setLevelStars(currentLevel, stars);
+        if (stars >= 3) SDK.happyMoment();
+        setTimeout(() => {
+            AudioManager.play('complete');
+            Particles.celebrate();
+            showLevelComplete(stars);
+        }, 400);
+    }
+
+    function showLevelComplete(stars) {
+        const titleEl = document.getElementById('complete-title');
+        titleEl.textContent = stars === 3 ? T('shell.perfect') : stars === 2 ? T('shell.great') : T('shell.good');
+        const starsEl = document.getElementById('complete-stars');
+        while (starsEl.firstChild) starsEl.removeChild(starsEl.firstChild);
+        for (let i = 0; i < 3; i++) {
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('viewBox', '0 0 24 24');
+            if (i < stars) svg.classList.add('earned');
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z');
+            svg.appendChild(path);
+            starsEl.appendChild(svg);
+        }
+        document.getElementById('btn-next').classList.toggle('hidden', currentLevel >= SHELL.levelCount);
+        document.getElementById('level-complete').classList.remove('hidden');
+    }
+
+    function hideLevelComplete() { document.getElementById('level-complete').classList.add('hidden'); }
+    function replay() { destroyGame(); hideLevelComplete(); startGame(currentLevel); }
+    function nextLevel() { destroyGame(); hideLevelComplete(); if (currentLevel < SHELL.levelCount) startGame(currentLevel + 1); }
+    function destroyGame() { try { if (GAME.destroy) GAME.destroy(); } catch (e) {} state = 'IDLE'; }
+
+    function setTotal(n) { score.total = n; }
+    function getCurrentLevel() { return currentLevel; }
+
+    return { startGame, replay, nextLevel, hideLevelComplete, setTotal, getCurrentLevel, getLevelStars, destroyGame, calculateStars };
+})();
+
+/* Hub uyumluluk stub'ları */
+const App = { showHub() { Shell.showMenu(); }, updateStarCounter() {} };
+const Progress = {
+    getLevelStars: (id, lv) => GameEngine.getLevelStars(lv),
+    setLevelStars: () => {},
+    getTotalStars: () => 0,
+};
+
+/* ── Kabuk ekran yönetimi ── */
+const Shell = (() => {
+    const menuEl = () => document.getElementById('shell-menu');
+    const levelsEl = () => document.getElementById('shell-levels');
+    const gameEl = () => document.getElementById('game-container');
+    const backEl = () => document.getElementById('shell-back');
+
+    function showMenu() {
+        GameEngine.destroyGame();
+        GameEngine.hideLevelComplete();
+        SDK.gameplayStop();
+        menuEl().classList.remove('hidden');
+        levelsEl().classList.add('hidden');
+        gameEl().classList.remove('active');
+        backEl().classList.remove('visible');
+    }
+
+    function showLevels() {
+        GameEngine.destroyGame();
+        GameEngine.hideLevelComplete();
+        menuEl().classList.add('hidden');
+        gameEl().classList.remove('active');
+        levelsEl().classList.remove('hidden');
+        backEl().classList.add('visible');
+        renderLevelGrid();
+    }
+
+    function showGame() {
+        menuEl().classList.add('hidden');
+        levelsEl().classList.add('hidden');
+        gameEl().classList.add('active');
+        backEl().classList.add('visible');
+    }
+
+    function renderLevelGrid() {
+        const grid = document.getElementById('shell-levels-grid');
+        while (grid.firstChild) grid.removeChild(grid.firstChild);
+        let maxUnlocked = 1;
+        for (let i = 1; i <= SHELL.levelCount; i++) {
+            if (GameEngine.getLevelStars(i) > 0) maxUnlocked = Math.max(maxUnlocked, i + 1);
+        }
+        for (let i = 1; i <= SHELL.levelCount; i++) {
+            const stars = GameEngine.getLevelStars(i);
+            const locked = i > maxUnlocked;
+            const btn = document.createElement('button');
+            btn.className = 'shell-lv' + (stars > 0 ? ' done' : '') + (locked ? ' locked' : '');
+            const num = document.createElement('span');
+            num.textContent = i;
+            const starsSpan = document.createElement('span');
+            starsSpan.className = 'lv-stars';
+            starsSpan.textContent = stars > 0 ? '★'.repeat(stars) : (locked ? '🔒' : '');
+            btn.appendChild(num);
+            btn.appendChild(starsSpan);
+            if (!locked) {
+                btn.addEventListener('click', () => { AudioManager.play('tap'); GameEngine.startGame(i); });
+            }
+            grid.appendChild(btn);
+        }
+    }
+
+    function boot() {
+        document.getElementById('shell-instructions').textContent = T('game.instructions');
+        document.getElementById('shell-play').textContent = T('shell.play');
+        document.getElementById('shell-levels-title').textContent = T('shell.levels');
+        document.getElementById('btn-replay').textContent = T('shell.replay');
+        document.getElementById('btn-next').textContent = T('shell.next');
+        document.getElementById('btn-menu').textContent = T('shell.menu');
+        document.getElementById('shell-back').textContent = '← ' + T('shell.menu');
+
+        document.getElementById('shell-play').addEventListener('click', () => {
+            AudioManager.play('tap');
+            if (SHELL.mode === 'levels') showLevels();
+            else GameEngine.startGame(1);
+        });
+        document.getElementById('btn-replay').addEventListener('click', () => GameEngine.replay());
+        document.getElementById('btn-next').addEventListener('click', () => GameEngine.nextLevel());
+        document.getElementById('btn-menu').addEventListener('click', () => {
+            if (SHELL.mode === 'levels') showLevels(); else showMenu();
+        });
+        document.getElementById('shell-back').addEventListener('click', () => showMenu());
+        document.getElementById('btn-home').addEventListener('click', () => showMenu());
+        document.getElementById('shell-sound').addEventListener('click', (e) => {
+            const on = AudioManager.toggle();
+            e.currentTarget.textContent = on ? '🔊' : '🔇';
+        });
+
+        MobileUtils.attachGlobalAudioUnlock();
+        Particles.init();
+        SDK.gameLoadingFinished();
+    }
+
+    return { showMenu, showLevels, showGame, boot };
+})();
+
+SDK.gameLoadingStart();
+
+/* ── Oyun kodu ── */
+/* Zıpla Topla — Seviye tanımları
+   12 seviye: 3 tema × 4 seviye (Çayır, Yeraltı, Gökyüzü) */
+
+window.ZIPLA_TOPLA_LEVELS = [
+    // === TEMA 1: ÇAYIR (Level 1-4) ===
+    {
+        theme: 'meadow', width: 1400,
+        ground: { y: 320, holes: [] },
+        platforms: [
+            { x: 200, y: 260, w: 140, h: 16 },
+            { x: 420, y: 220, w: 120, h: 16 },
+            { x: 620, y: 260, w: 140, h: 16 },
+            { x: 880, y: 220, w: 140, h: 16 },
+            { x: 1120, y: 260, w: 160, h: 16 },
+        ],
+        coins: [
+            { x: 220, y: 230 }, { x: 280, y: 230 },
+            { x: 440, y: 190 }, { x: 500, y: 190 },
+            { x: 640, y: 230 }, { x: 700, y: 230 },
+            { x: 900, y: 190 }, { x: 960, y: 190 }, { x: 1000, y: 190 },
+            { x: 1160, y: 230 }, { x: 1220, y: 230 },
+        ],
+        spikes: [], enemies: [], movingPlatforms: [],
+        start: { x: 40, y: 284 },
+        door: { x: 1320, y: 280 },
+    },
+    {
+        theme: 'meadow', width: 1800,
+        ground: { y: 320, holes: [{ x: 780, w: 120 }] },
+        platforms: [
+            { x: 200, y: 260, w: 120, h: 16 }, { x: 420, y: 220, w: 120, h: 16 },
+            { x: 580, y: 180, w: 100, h: 16 }, { x: 900, y: 240, w: 140, h: 16 },
+            { x: 1120, y: 200, w: 120, h: 16 }, { x: 1320, y: 260, w: 160, h: 16 },
+            { x: 1560, y: 220, w: 140, h: 16 },
+        ],
+        coins: [
+            { x: 230, y: 230 }, { x: 290, y: 230 }, { x: 450, y: 190 }, { x: 510, y: 190 },
+            { x: 610, y: 150 }, { x: 660, y: 150 }, { x: 930, y: 210 }, { x: 990, y: 210 },
+            { x: 1150, y: 170 }, { x: 1210, y: 170 }, { x: 1360, y: 230 }, { x: 1420, y: 230 },
+            { x: 1590, y: 190 }, { x: 1650, y: 190 },
+        ],
+        spikes: [{ x: 340, y: 304, w: 40 }],
+        enemies: [{ x: 700, y: 294, minX: 650, maxX: 770 }],
+        movingPlatforms: [],
+        start: { x: 40, y: 284 },
+        door: { x: 1730, y: 240 },
+    },
+    {
+        theme: 'meadow', width: 2200,
+        ground: { y: 320, holes: [{ x: 420, w: 140 }, { x: 1100, w: 160 }] },
+        platforms: [
+            { x: 180, y: 260, w: 120, h: 16 }, { x: 360, y: 220, w: 100, h: 16 },
+            { x: 600, y: 220, w: 140, h: 16 }, { x: 800, y: 180, w: 100, h: 16 },
+            { x: 980, y: 240, w: 120, h: 16 }, { x: 1300, y: 240, w: 140, h: 16 },
+            { x: 1520, y: 200, w: 120, h: 16 }, { x: 1720, y: 240, w: 140, h: 16 },
+            { x: 1940, y: 200, w: 140, h: 16 },
+        ],
+        coins: [
+            { x: 210, y: 230 }, { x: 270, y: 230 }, { x: 380, y: 190 }, { x: 440, y: 190 },
+            { x: 630, y: 190 }, { x: 690, y: 190 }, { x: 820, y: 150 }, { x: 860, y: 150 },
+            { x: 1010, y: 210 }, { x: 1070, y: 210 }, { x: 1330, y: 210 }, { x: 1390, y: 210 },
+            { x: 1550, y: 170 }, { x: 1610, y: 170 }, { x: 1970, y: 170 }, { x: 2030, y: 170 },
+        ],
+        spikes: [{ x: 720, y: 304, w: 40 }],
+        enemies: [
+            { x: 280, y: 294, minX: 220, maxX: 340 },
+            { x: 1400, y: 294, minX: 1300, maxX: 1480 },
+        ],
+        movingPlatforms: [{ x: 460, y: 240, w: 80, h: 14, minX: 450, maxX: 580, speed: 1.1 }],
+        start: { x: 40, y: 284 },
+        door: { x: 2100, y: 260 },
+    },
+    {
+        theme: 'meadow', width: 2600,
+        ground: { y: 320, holes: [{ x: 500, w: 160 }, { x: 1200, w: 180 }, { x: 1900, w: 140 }] },
+        platforms: [
+            { x: 180, y: 260, w: 140, h: 16 }, { x: 360, y: 220, w: 100, h: 16 },
+            { x: 680, y: 240, w: 120, h: 16 }, { x: 860, y: 200, w: 120, h: 16 },
+            { x: 1080, y: 240, w: 100, h: 16 }, { x: 1400, y: 240, w: 120, h: 16 },
+            { x: 1580, y: 180, w: 120, h: 16 }, { x: 1760, y: 240, w: 120, h: 16 },
+            { x: 2060, y: 240, w: 120, h: 16 }, { x: 2260, y: 200, w: 140, h: 16 },
+            { x: 2460, y: 260, w: 120, h: 16 },
+        ],
+        coins: [
+            { x: 200, y: 230 }, { x: 260, y: 230 }, { x: 380, y: 190 }, { x: 430, y: 190 },
+            { x: 700, y: 210 }, { x: 760, y: 210 }, { x: 880, y: 170 }, { x: 940, y: 170 },
+            { x: 1100, y: 210 }, { x: 1430, y: 210 }, { x: 1500, y: 210 },
+            { x: 1610, y: 150 }, { x: 1670, y: 150 },
+            { x: 1790, y: 210 }, { x: 2090, y: 210 }, { x: 2150, y: 210 },
+            { x: 2290, y: 170 }, { x: 2350, y: 170 }, { x: 2490, y: 230 }, { x: 2540, y: 230 },
+        ],
+        spikes: [{ x: 800, y: 304, w: 40 }, { x: 1540, y: 304, w: 40 }],
+        enemies: [
+            { x: 320, y: 294, minX: 180, maxX: 440 },
+            { x: 940, y: 174, minX: 870, maxX: 970 },
+            { x: 2160, y: 294, minX: 2060, maxX: 2240 },
+        ],
+        movingPlatforms: [
+            { x: 1240, y: 260, w: 90, h: 14, minX: 1220, maxX: 1380, speed: 1.3 },
+            { x: 1960, y: 240, w: 90, h: 14, minX: 1920, maxX: 2040, speed: 1.2 },
+        ],
+        start: { x: 40, y: 284 },
+        door: { x: 2540, y: 220 },
+    },
+
+    // === TEMA 2: YERALTI (Level 5-8) ===
+    {
+        theme: 'cave', width: 1800,
+        ground: { y: 320, holes: [{ x: 400, w: 90 }, { x: 900, w: 110 }] },
+        platforms: [
+            { x: 200, y: 250, w: 160, h: 16 }, { x: 600, y: 220, w: 140, h: 16 },
+            { x: 800, y: 180, w: 100, h: 16 }, { x: 1080, y: 240, w: 160, h: 16 },
+            { x: 1300, y: 200, w: 120, h: 16 }, { x: 1500, y: 260, w: 180, h: 16 },
+        ],
+        coins: [
+            { x: 230, y: 220 }, { x: 290, y: 220 }, { x: 630, y: 190 }, { x: 700, y: 190 },
+            { x: 830, y: 150 }, { x: 870, y: 150 },
+            { x: 1110, y: 210 }, { x: 1180, y: 210 }, { x: 1330, y: 170 }, { x: 1390, y: 170 },
+            { x: 1530, y: 230 }, { x: 1600, y: 230 },
+        ],
+        spikes: [{ x: 1240, y: 304, w: 40 }],
+        enemies: [
+            { x: 200, y: 294, minX: 140, maxX: 360 },
+            { x: 720, y: 194, minX: 620, maxX: 720 },
+        ],
+        movingPlatforms: [
+            { x: 410, y: 250, w: 80, h: 14, minX: 400, maxX: 500, speed: 1.2 },
+            { x: 940, y: 240, w: 90, h: 14, minX: 920, maxX: 1060, speed: 1.2 },
+        ],
+        start: { x: 40, y: 284 },
+        door: { x: 1720, y: 240 },
+    },
+    {
+        // Level 6: stepping-stone platform over hole 1, spikes moved away from hole edges
+        theme: 'cave', width: 2200,
+        ground: { y: 320, holes: [{ x: 380, w: 100 }, { x: 780, w: 110 }, { x: 1400, w: 130 }] },
+        platforms: [
+            { x: 180, y: 260, w: 120, h: 16 },
+            { x: 400, y: 240, w: 80, h: 14 },      // stepping stone over hole 1
+            { x: 580, y: 240, w: 120, h: 16 },
+            { x: 820, y: 220, w: 80, h: 14 },      // stepping stone over hole 2
+            { x: 940, y: 240, w: 120, h: 16 }, { x: 1160, y: 200, w: 120, h: 16 },
+            { x: 1430, y: 220, w: 80, h: 14 },     // stepping stone over hole 3
+            { x: 1600, y: 240, w: 120, h: 16 }, { x: 1780, y: 200, w: 120, h: 16 },
+            { x: 1980, y: 260, w: 160, h: 16 },
+        ],
+        coins: [
+            { x: 210, y: 230 }, { x: 270, y: 230 }, { x: 610, y: 210 }, { x: 670, y: 210 },
+            { x: 970, y: 210 }, { x: 1030, y: 210 }, { x: 1190, y: 170 }, { x: 1250, y: 170 },
+            { x: 1630, y: 210 }, { x: 1690, y: 210 }, { x: 1810, y: 170 }, { x: 1870, y: 170 },
+            { x: 2010, y: 230 }, { x: 2070, y: 230 },
+        ],
+        spikes: [
+            { x: 220, y: 304, w: 40 },             // safe middle of first ground segment
+            { x: 1300, y: 304, w: 40 },
+        ],
+        enemies: [
+            { x: 640, y: 214, minX: 580, maxX: 700 },
+            { x: 1200, y: 174, minX: 1160, maxX: 1280 },
+            { x: 1820, y: 174, minX: 1780, maxX: 1900 },
+        ],
+        movingPlatforms: [{ x: 1050, y: 220, w: 80, h: 14, minY: 180, maxY: 260, vertical: true, speed: 1 }],
+        start: { x: 40, y: 284 },
+        door: { x: 2120, y: 240 },
+    },
+    {
+        theme: 'cave', width: 2500,
+        ground: { y: 320, holes: [{ x: 300, w: 120 }, { x: 780, w: 120 }, { x: 1280, w: 130 }, { x: 1900, w: 140 }] },
+        platforms: [
+            { x: 180, y: 240, w: 120, h: 16 }, { x: 500, y: 220, w: 140, h: 16 },
+            { x: 940, y: 240, w: 140, h: 16 }, { x: 1140, y: 200, w: 100, h: 16 },
+            { x: 1440, y: 240, w: 120, h: 16 }, { x: 1620, y: 200, w: 120, h: 16 },
+            { x: 1780, y: 240, w: 120, h: 16 }, { x: 2080, y: 240, w: 120, h: 16 },
+            { x: 2280, y: 200, w: 140, h: 16 },
+        ],
+        coins: [
+            { x: 210, y: 210 }, { x: 270, y: 210 }, { x: 530, y: 190 }, { x: 600, y: 190 },
+            { x: 960, y: 210 }, { x: 1020, y: 210 }, { x: 1160, y: 170 }, { x: 1210, y: 170 },
+            { x: 1470, y: 210 }, { x: 1530, y: 210 },
+            { x: 1650, y: 170 }, { x: 1710, y: 170 },
+            { x: 1810, y: 210 }, { x: 2110, y: 210 },
+            { x: 2310, y: 170 }, { x: 2370, y: 170 },
+        ],
+        spikes: [
+            { x: 440, y: 304, w: 40 }, { x: 720, y: 304, w: 40 },
+            { x: 1580, y: 304, w: 40 }, { x: 2160, y: 304, w: 40 },
+        ],
+        enemies: [
+            { x: 240, y: 214, minX: 180, maxX: 300 },
+            { x: 1000, y: 214, minX: 940, maxX: 1080 },
+            { x: 1840, y: 214, minX: 1780, maxX: 1900 },
+            { x: 2340, y: 174, minX: 2280, maxX: 2420 },
+        ],
+        movingPlatforms: [
+            { x: 680, y: 260, w: 90, h: 14, minX: 660, maxX: 800, speed: 1.4 },
+            { x: 1300, y: 260, w: 90, h: 14, minX: 1280, maxX: 1420, speed: 1.3 },
+        ],
+        start: { x: 40, y: 284 },
+        door: { x: 2380, y: 160 },
+    },
+    {
+        theme: 'cave', width: 2900,
+        ground: { y: 320, holes: [{ x: 320, w: 130 }, { x: 720, w: 140 }, { x: 1180, w: 140 }, { x: 1720, w: 150 }, { x: 2260, w: 140 }] },
+        platforms: [
+            { x: 160, y: 240, w: 120, h: 16 }, { x: 500, y: 220, w: 160, h: 16 },
+            { x: 880, y: 240, w: 140, h: 16 }, { x: 1060, y: 180, w: 100, h: 16 },
+            { x: 1380, y: 240, w: 140, h: 16 }, { x: 1560, y: 200, w: 120, h: 16 },
+            { x: 1940, y: 240, w: 140, h: 16 }, { x: 2120, y: 200, w: 100, h: 16 },
+            { x: 2440, y: 240, w: 140, h: 16 }, { x: 2640, y: 180, w: 160, h: 16 },
+        ],
+        coins: [
+            { x: 200, y: 210 }, { x: 250, y: 210 }, { x: 530, y: 190 }, { x: 600, y: 190 },
+            { x: 910, y: 210 }, { x: 980, y: 210 }, { x: 1080, y: 150 }, { x: 1130, y: 150 },
+            { x: 1410, y: 210 }, { x: 1480, y: 210 }, { x: 1590, y: 170 }, { x: 1650, y: 170 },
+            { x: 1970, y: 210 }, { x: 2030, y: 210 }, { x: 2150, y: 170 }, { x: 2200, y: 170 },
+            { x: 2470, y: 210 }, { x: 2530, y: 210 }, { x: 2670, y: 150 }, { x: 2730, y: 150 },
+        ],
+        spikes: [
+            { x: 200, y: 304, w: 40 }, { x: 600, y: 304, w: 40 },
+            { x: 1480, y: 304, w: 40 }, { x: 2060, y: 304, w: 40 },
+        ],
+        enemies: [
+            { x: 560, y: 194, minX: 500, maxX: 660 },
+            { x: 920, y: 214, minX: 880, maxX: 1020 },
+            { x: 1420, y: 214, minX: 1380, maxX: 1520 },
+            { x: 1990, y: 214, minX: 1940, maxX: 2080 },
+            { x: 2680, y: 154, minX: 2640, maxX: 2800 },
+        ],
+        movingPlatforms: [
+            { x: 1240, y: 260, w: 90, h: 14, minX: 1200, maxX: 1360, speed: 1.5 },
+            { x: 1780, y: 260, w: 90, h: 14, minY: 200, maxY: 280, vertical: true, speed: 1.2 },
+            { x: 2300, y: 260, w: 90, h: 14, minX: 2260, maxX: 2420, speed: 1.5 },
+        ],
+        start: { x: 40, y: 284 },
+        door: { x: 2750, y: 140 },
+    },
+
+    // === TEMA 3: GÖKYÜZÜ (Level 9-12) ===
+    {
+        theme: 'sky', width: 2200,
+        ground: { y: 320, holes: [{ x: 200, w: 180 }, { x: 700, w: 200 }, { x: 1300, w: 200 }, { x: 1800, w: 200 }] },
+        platforms: [
+            { x: 220, y: 250, w: 140, h: 14 }, { x: 420, y: 210, w: 120, h: 14 },
+            { x: 720, y: 250, w: 120, h: 14 }, { x: 900, y: 210, w: 120, h: 14 },
+            { x: 1080, y: 170, w: 100, h: 14 }, { x: 1320, y: 220, w: 140, h: 14 },
+            { x: 1520, y: 180, w: 120, h: 14 }, { x: 1820, y: 240, w: 120, h: 14 },
+            { x: 2000, y: 200, w: 140, h: 14 },
+        ],
+        coins: [
+            { x: 250, y: 220 }, { x: 310, y: 220 }, { x: 450, y: 180 }, { x: 510, y: 180 },
+            { x: 750, y: 220 }, { x: 810, y: 220 }, { x: 930, y: 180 }, { x: 990, y: 180 },
+            { x: 1100, y: 140 }, { x: 1150, y: 140 },
+            { x: 1350, y: 190 }, { x: 1420, y: 190 }, { x: 1550, y: 150 }, { x: 1610, y: 150 },
+            { x: 1850, y: 210 }, { x: 1910, y: 210 }, { x: 2030, y: 170 }, { x: 2090, y: 170 },
+        ],
+        spikes: [],
+        enemies: [
+            { x: 480, y: 184, minX: 420, maxX: 540 },
+            { x: 950, y: 184, minX: 900, maxX: 1020 },
+            { x: 1580, y: 154, minX: 1520, maxX: 1640 },
+        ],
+        movingPlatforms: [
+            { x: 600, y: 230, w: 80, h: 12, minX: 560, maxX: 720, speed: 1.4 },
+            { x: 1200, y: 200, w: 80, h: 12, minY: 160, maxY: 260, vertical: true, speed: 1.2 },
+        ],
+        start: { x: 40, y: 284 },
+        door: { x: 2080, y: 160 },
+    },
+    {
+        theme: 'sky', width: 2500,
+        ground: { y: 320, holes: [{ x: 200, w: 200 }, { x: 700, w: 200 }, { x: 1200, w: 240 }, { x: 1800, w: 240 }] },
+        platforms: [
+            { x: 240, y: 240, w: 140, h: 14 }, { x: 460, y: 200, w: 100, h: 14 },
+            { x: 740, y: 240, w: 120, h: 14 }, { x: 940, y: 200, w: 120, h: 14 },
+            { x: 1140, y: 160, w: 100, h: 14 }, { x: 1500, y: 220, w: 140, h: 14 },
+            { x: 1720, y: 180, w: 120, h: 14 }, { x: 2060, y: 220, w: 120, h: 14 },
+            { x: 2240, y: 180, w: 140, h: 14 },
+        ],
+        coins: [
+            { x: 270, y: 210 }, { x: 340, y: 210 }, { x: 490, y: 170 }, { x: 540, y: 170 },
+            { x: 770, y: 210 }, { x: 830, y: 210 }, { x: 970, y: 170 }, { x: 1030, y: 170 },
+            { x: 1160, y: 130 }, { x: 1210, y: 130 },
+            { x: 1530, y: 190 }, { x: 1600, y: 190 }, { x: 1750, y: 150 }, { x: 1810, y: 150 },
+            { x: 2090, y: 190 }, { x: 2150, y: 190 }, { x: 2270, y: 150 }, { x: 2340, y: 150 },
+        ],
+        spikes: [],
+        enemies: [
+            { x: 500, y: 174, minX: 460, maxX: 560 },
+            { x: 1020, y: 174, minX: 940, maxX: 1060 },
+            { x: 1780, y: 154, minX: 1720, maxX: 1840 },
+        ],
+        movingPlatforms: [
+            { x: 600, y: 220, w: 80, h: 12, minX: 560, maxX: 720, speed: 1.5 },
+            { x: 1300, y: 200, w: 80, h: 12, minY: 160, maxY: 280, vertical: true, speed: 1.3 },
+            { x: 1900, y: 220, w: 80, h: 12, minX: 1860, maxX: 2040, speed: 1.6 },
+        ],
+        start: { x: 40, y: 284 },
+        door: { x: 2300, y: 140 },
+    },
+    {
+        theme: 'sky', width: 2800,
+        ground: { y: 320, holes: [{ x: 160, w: 220 }, { x: 600, w: 240 }, { x: 1080, w: 260 }, { x: 1580, w: 260 }, { x: 2100, w: 260 }] },
+        platforms: [
+            { x: 220, y: 240, w: 120, h: 14 }, { x: 400, y: 200, w: 100, h: 14 },
+            { x: 660, y: 240, w: 120, h: 14 }, { x: 840, y: 180, w: 100, h: 14 },
+            { x: 1140, y: 220, w: 120, h: 14 }, { x: 1320, y: 160, w: 120, h: 14 },
+            { x: 1620, y: 220, w: 120, h: 14 }, { x: 1820, y: 180, w: 100, h: 14 },
+            { x: 2160, y: 220, w: 120, h: 14 }, { x: 2340, y: 160, w: 100, h: 14 },
+            { x: 2520, y: 220, w: 160, h: 14 },
+        ],
+        coins: [
+            { x: 250, y: 210 }, { x: 310, y: 210 }, { x: 430, y: 170 }, { x: 480, y: 170 },
+            { x: 690, y: 210 }, { x: 750, y: 210 }, { x: 870, y: 150 }, { x: 920, y: 150 },
+            { x: 1170, y: 190 }, { x: 1230, y: 190 }, { x: 1350, y: 130 }, { x: 1400, y: 130 },
+            { x: 1650, y: 190 }, { x: 1710, y: 190 }, { x: 1850, y: 150 }, { x: 1900, y: 150 },
+            { x: 2190, y: 190 }, { x: 2250, y: 190 }, { x: 2370, y: 130 }, { x: 2420, y: 130 },
+            { x: 2550, y: 190 }, { x: 2610, y: 190 },
+        ],
+        spikes: [],
+        enemies: [
+            { x: 450, y: 174, minX: 400, maxX: 500 },
+            { x: 870, y: 154, minX: 840, maxX: 940 },
+            { x: 1380, y: 134, minX: 1320, maxX: 1440 },
+            { x: 1880, y: 154, minX: 1820, maxX: 1920 },
+            { x: 2580, y: 194, minX: 2520, maxX: 2680 },
+        ],
+        movingPlatforms: [
+            { x: 1000, y: 220, w: 80, h: 12, minY: 160, maxY: 280, vertical: true, speed: 1.4 },
+            { x: 1500, y: 220, w: 80, h: 12, minX: 1460, maxX: 1620, speed: 1.6 },
+            { x: 2020, y: 200, w: 80, h: 12, minY: 140, maxY: 260, vertical: true, speed: 1.5 },
+        ],
+        start: { x: 40, y: 284 },
+        door: { x: 2620, y: 180 },
+    },
+    {
+        // Boss: en uzun, en zor
+        theme: 'sky', width: 3200,
+        ground: { y: 320, holes: [{ x: 140, w: 240 }, { x: 560, w: 280 }, { x: 1040, w: 300 }, { x: 1520, w: 300 }, { x: 2040, w: 300 }, { x: 2580, w: 280 }] },
+        platforms: [
+            { x: 200, y: 240, w: 120, h: 14 }, { x: 400, y: 200, w: 100, h: 14 },
+            { x: 620, y: 240, w: 100, h: 14 }, { x: 820, y: 180, w: 120, h: 14 },
+            { x: 1100, y: 220, w: 120, h: 14 }, { x: 1300, y: 160, w: 120, h: 14 },
+            { x: 1580, y: 220, w: 100, h: 14 }, { x: 1780, y: 160, w: 100, h: 14 },
+            { x: 2100, y: 220, w: 120, h: 14 }, { x: 2300, y: 180, w: 100, h: 14 },
+            { x: 2640, y: 220, w: 120, h: 14 }, { x: 2840, y: 160, w: 120, h: 14 },
+            { x: 3020, y: 200, w: 160, h: 14 },
+        ],
+        coins: [
+            { x: 230, y: 210 }, { x: 290, y: 210 }, { x: 420, y: 170 }, { x: 480, y: 170 },
+            { x: 640, y: 210 }, { x: 700, y: 210 }, { x: 850, y: 150 }, { x: 910, y: 150 },
+            { x: 1130, y: 190 }, { x: 1190, y: 190 }, { x: 1330, y: 130 }, { x: 1390, y: 130 },
+            { x: 1610, y: 190 }, { x: 1660, y: 190 }, { x: 1810, y: 130 }, { x: 1860, y: 130 },
+            { x: 2130, y: 190 }, { x: 2190, y: 190 }, { x: 2330, y: 150 }, { x: 2380, y: 150 },
+            { x: 2670, y: 190 }, { x: 2730, y: 190 }, { x: 2870, y: 130 }, { x: 2930, y: 130 },
+            { x: 3050, y: 170 }, { x: 3120, y: 170 },
+        ],
+        spikes: [],
+        enemies: [
+            { x: 430, y: 174, minX: 400, maxX: 500 },
+            { x: 860, y: 154, minX: 820, maxX: 940 },
+            { x: 1150, y: 194, minX: 1100, maxX: 1220 },
+            { x: 1340, y: 134, minX: 1300, maxX: 1420 },
+            { x: 1640, y: 194, minX: 1580, maxX: 1680 },
+            { x: 1820, y: 134, minX: 1780, maxX: 1880 },
+            { x: 2140, y: 194, minX: 2100, maxX: 2220 },
+            { x: 2340, y: 154, minX: 2300, maxX: 2400 },
+            { x: 2680, y: 194, minX: 2640, maxX: 2760 },
+            { x: 2880, y: 134, minX: 2840, maxX: 2960 },
+            { x: 3060, y: 174, minX: 3020, maxX: 3180 },
+        ],
+        movingPlatforms: [
+            { x: 920, y: 220, w: 80, h: 12, minX: 880, maxX: 1060, speed: 1.8 },
+            { x: 1440, y: 200, w: 80, h: 12, minY: 140, maxY: 260, vertical: true, speed: 1.5 },
+            { x: 1940, y: 220, w: 80, h: 12, minX: 1900, maxX: 2080, speed: 1.8 },
+            { x: 2480, y: 200, w: 80, h: 12, minY: 140, maxY: 260, vertical: true, speed: 1.6 },
+        ],
+        start: { x: 40, y: 284 },
+        door: { x: 3140, y: 220 },
+    },
+];
+
+
+/* ============================================
+   OYUN: Zıpla Topla / Hop & Grab — 2D Platform Macerası
+   Canvas tabanlı, kamera takipli, 3 tema × 4 seviye = 12 bölüm
+   - Coyote time + jump buffer + değişken zıplama
+   - AABB swept collision (yan çarpışma dahil)
+   - Hareketli platform taşıma
+   - Mantar düşmanlar (üstüne basınca ölür)
+   - 3 can — bitince game over
+   - Modlar: solo + yerel 2 kişi (tek klavye)
+   ============================================ */
+
+const ZiplaTopla = (() => {
+    const id = 'zipla-topla';
+
+    // ---- Sabitler ----
+    const GAME_W = 800, GAME_H = 360;
+    const FPS = 60, STEP = 1 / FPS;
+
+    const PLAYER_W = 26, PLAYER_H = 36;
+    const COIN_R = 9;
+
+    // Fizik (piksel / saniye)
+    const GRAVITY = 1700;
+    const MAX_VY_FALL = 720;
+    const MAX_VY_JUMP = -680;
+    const JUMP_VELOCITY = 640;
+    const JUMP_CUT = 0.5;
+    const MAX_VX = 280;
+    const ACCEL_GROUND = 1800;
+    const ACCEL_AIR = 1000;
+    const FRIC_GROUND = 2200;
+    const FRIC_AIR = 400;
+    const COYOTE_TIME = 0.15;
+    const JUMP_BUFFER = 0.16;
+
+    const ENEMY_SPEED = 60;
+    const ENEMY_W = 28, ENEMY_H = 26;
+
+    const MAX_LIVES = 3;      // tek kişilik can havuzu
+    const COOP_LIVES = 5;     // iki kişilik ortak can havuzu (iki oyuncu daha sık ölür)
+    const EDGE_MARGIN = 6;    // co-op: oyuncuların görünür ekran kenarına yumuşak yapışma payı
+
+    // Oyuncu kontrolleri — P1: ok tuşları + ↑/Boşluk, P2: A/D + W
+    const CONTROLS = {
+        p1: { left: 'ArrowLeft', right: 'ArrowRight', jump: ['ArrowUp', ' '] },
+        p2: { left: 'a', right: 'd', jump: ['w'] },
+    };
+
+    // Karakter paletleri — P1 turuncu, P2 turkuaz. Aynı çizim, farklı renk (özgün tasarım).
+    const PALETTES = {
+        p1: { hat: '#e67e22', body: '#f39c12', label: '1' },
+        p2: { hat: '#16a085', body: '#1abc9c', label: '2' },
+    };
+
+    // Temalar
+    const THEMES = {
+        meadow: {
+            name: 'Çayır',
+            skyTop: '#89d5ff', skyBot: '#d5f2ff',
+            groundTop: '#3cc84a', groundMid: '#6b3b1f', groundBot: '#4a2a15',
+            platformTop: '#3cc84a', platformMid: '#6b3b1f',
+            cloudColor: 'rgba(255,255,255,0.85)',
+            accent: '#ffcf3a',
+        },
+        cave: {
+            name: 'Yeraltı',
+            skyTop: '#2a1845', skyBot: '#120825',
+            groundTop: '#6a5580', groundMid: '#3b2a55', groundBot: '#1f1238',
+            platformTop: '#8a7ea5', platformMid: '#4a3a68',
+            cloudColor: 'rgba(180,150,220,0.25)',
+            accent: '#ff6ac9',
+        },
+        sky: {
+            name: 'Gökyüzü',
+            skyTop: '#ffb27a', skyBot: '#ffeac0',
+            groundTop: '#fff', groundMid: '#c9d8ff', groundBot: '#8aa5e8',
+            platformTop: '#fff', platformMid: '#a9bfff',
+            cloudColor: 'rgba(255,255,255,0.9)',
+            accent: '#ff8a3a',
+        },
+    };
+
+    // ---- Seviye tanımları ----
+    // Platform: {x,y,w,h}
+    // MovingPlatform: {x,y,w,h,minX,maxX,speed} veya {minY,maxY,vertical:true}
+    // Coin: {x,y}
+    // Spike: {x,y,w}   — y platformun üst kenarıdır; diken yukarı doğru çıkar
+    // Enemy: {x,y,minX,maxX} (devriye gezen mantar düşman)
+    // Door: {x,y}
+    // Start: {x,y}
+    const LEVELS = window.ZIPLA_TOPLA_LEVELS || [];
+
+    const levels = LEVELS.map(() => ({}));
+
+    // ---- Durum ----
+    let container, callbacks, canvas, ctx;
+    let players, coinList, spikeList, platformList, movingPlatforms, door, enemyList, lvl, theme;
+    let collectedCoins, totalCoins, animFrameId, gameOver, levelWon, gameOverShown;
+    let keys, keysPrev, currentLevelIdx, lastTime, accum;
+    let cameraX, levelWidth, groundY, groundHoles;
+    let lives, deathFlash;
+    let mode = 'solo', maxLives = MAX_LIVES;   // 'solo' | 'coop' — sayfa oturumu boyunca korunur
+    let winTimer = null;                       // "bölüm kazanıldı" 700ms zamanlayıcısı (iptal edilebilir olmalı)
+    let levelBanner;
+
+    // ---- Init / Destroy ----
+    function init(gameArea, level, cbs) {
+        container = gameArea;
+        callbacks = cbs;
+        currentLevelIdx = level - 1;
+        maxLives = (mode === 'coop') ? COOP_LIVES : MAX_LIVES;
+        lives = maxLives;
+        GameEngine.setTotal(LEVELS[currentLevelIdx].coins.length);
+        startLevel();
+    }
+
+    // Seviye geometrisini + oyuncuları kur (DOM/döngü YOK).
+    function setupLevelData() {
+        lvl = LEVELS[currentLevelIdx];
+        theme = THEMES[lvl.theme];
+        levelWidth = lvl.width;
+        groundY = lvl.ground.y;
+        groundHoles = lvl.ground.holes || [];
+
+        players = [makePlayer('p1', CONTROLS.p1, lvl.start.x)];
+        if (mode === 'coop') {
+            players.push(makePlayer('p2', CONTROLS.p2, lvl.start.x + 40));
+        }
+
+        coinList = lvl.coins.map(c => ({ x: c.x, y: c.y, collected: false, bob: Math.random() * Math.PI * 2 }));
+        spikeList = lvl.spikes.map(s => ({ ...s }));
+        platformList = lvl.platforms.map(p => ({ ...p }));
+        movingPlatforms = lvl.movingPlatforms.map(p => ({
+            ...p, prevX: p.x, prevY: p.y, phase: Math.random() * Math.PI * 2,
+        }));
+        enemyList = (lvl.enemies || []).map(e => ({
+            x: e.x, y: e.y, minX: e.minX, maxX: e.maxX,
+            w: ENEMY_W, h: ENEMY_H, dir: -1,
+            dead: false, squashTimer: 0,
+        }));
+        door = { ...lvl.door };
+        collectedCoins = 0; totalCoins = lvl.coins.length;
+    }
+
+    function startLevel() {
+        if (animFrameId) cancelAnimationFrame(animFrameId);
+        if (winTimer) { clearTimeout(winTimer); winTimer = null; }
+        gameOver = false; levelWon = false; gameOverShown = false;
+        keys = {}; keysPrev = {};
+        lastTime = performance.now(); accum = 0;
+        cameraX = 0;
+        deathFlash = 0;
+
+        setupLevelData();
+
+        levelBanner = { show: true, timer: 1.6 };
+
+        buildDOM();
+        // Dinleyicileri çift-eklemeye karşı idempotent tut (mod değişimi/retry startLevel'i doğrudan çağırır)
+        document.removeEventListener('keydown', onKeyDown);
+        document.removeEventListener('keyup', onKeyUp);
+        document.removeEventListener('visibilitychange', onVisChange);
+        document.addEventListener('keydown', onKeyDown);
+        document.addEventListener('keyup', onKeyUp);
+        document.addEventListener('visibilitychange', onVisChange);
+        gameLoop();
+    }
+
+    function makePlayer(type, controls, startX) {
+        return {
+            x: startX, y: lvl.start.y - PLAYER_H, dx: 0, dy: 0,
+            w: PLAYER_W, h: PLAYER_H, dir: 1,
+            onGround: false, jumpHeld: false, invuln: 0,
+            coyote: 0, jumpBuf: 0, ridingPlatform: null,
+            type, controls, palette: PALETTES[type],
+        };
+    }
+
+    // Mod değiştir (HUD geçişi) — mevcut bölümü yeni modda yeniden başlatır
+    function setMode(m) {
+        if (m === mode || levelWon || gameOver) return;  // kazanma/game-over penceresinde geçişi engelle
+        mode = m;
+        maxLives = (mode === 'coop') ? COOP_LIVES : MAX_LIVES;
+        lives = maxLives;
+        startLevel();
+    }
+
+    function destroy() {
+        if (animFrameId) cancelAnimationFrame(animFrameId);
+        if (winTimer) { clearTimeout(winTimer); winTimer = null; }
+        document.removeEventListener('keydown', onKeyDown);
+        document.removeEventListener('keyup', onKeyUp);
+        document.removeEventListener('visibilitychange', onVisChange);
+        keys = {};
+        if (container) while (container.firstChild) container.removeChild(container.firstChild);
+    }
+
+    // ---- DOM ----
+    function buildDOM() {
+        while (container.firstChild) container.removeChild(container.firstChild);
+
+        const wrap = document.createElement('div');
+        wrap.className = 'zt-wrap';
+
+        const frame = document.createElement('div');
+        frame.className = 'zt-frame';
+
+        canvas = document.createElement('canvas');
+        canvas.className = 'zt-canvas';
+        ctx = canvas.getContext('2d');
+        try { MobileUtils.setupHiDPICanvas(canvas, ctx, GAME_W, GAME_H, { forceIntegerDpr: true }); }
+        catch (e) { canvas.width = GAME_W; canvas.height = GAME_H; }
+        canvas.style.touchAction = 'none';
+        frame.appendChild(canvas);
+
+        const hud = document.createElement('div');
+        hud.className = 'zt-hud';
+        const mkHudBox = (cls, id_, labelTxt, valTxt, valId) => {
+            const box = document.createElement('div');
+            box.className = 'zt-hud-box ' + cls;
+            if (id_) box.id = id_;
+            if (labelTxt !== null) {
+                const lab = document.createElement('span');
+                lab.className = 'zt-hud-label';
+                lab.textContent = labelTxt;
+                box.appendChild(lab);
+            }
+            if (valTxt !== null) {
+                const val = document.createElement('span');
+                if (valId) val.id = valId;
+                val.textContent = valTxt;
+                box.appendChild(val);
+            }
+            return box;
+        };
+        hud.appendChild(mkHudBox('zt-hud-lives', 'zt-lives', null, null));
+        hud.appendChild(mkHudBox('zt-hud-coins', null, '💰', '0/' + totalCoins, 'zt-coins'));
+        hud.appendChild(mkHudBox('zt-hud-level', null, T('zt.level'), (currentLevelIdx + 1) + '/12'));
+        frame.appendChild(hud);
+
+        // Mod geçişi (1 KİŞİ / 2 KİŞİ) — güvenli DOM ile, yalnızca klavyeli (dokunmatik olmayan) cihazlarda.
+        // 2 kişilik mod klavye gerektirir; mobilde tek kişilik kalır.
+        const isTouch = (typeof MobileUtils !== 'undefined' && MobileUtils.isTouchDevice && MobileUtils.isTouchDevice());
+        if (!isTouch) {
+            const modeBox = document.createElement('div');
+            modeBox.className = 'zt-hud-box zt-mode-toggle';
+            [['solo', T('zt.mode_solo')], ['coop', T('zt.mode_coop')]].forEach(([m, txt]) => {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'zt-mode-btn' + (mode === m ? ' active' : '');
+                b.dataset.mode = m;
+                b.textContent = txt;
+                modeBox.appendChild(b);
+            });
+            modeBox.addEventListener('click', (e) => {
+                const btn = e.target.closest('.zt-mode-btn');
+                if (btn) setMode(btn.dataset.mode);
+            });
+            hud.insertBefore(modeBox, hud.firstChild);
+        }
+
+        wrap.appendChild(frame);
+
+        const controls = document.createElement('div');
+        controls.className = 'zt-controls';
+        const makeBtn = (cls, txt) => {
+            const b = document.createElement('button');
+            b.className = 'zt-btn ' + cls;
+            b.textContent = txt;
+            b.setAttribute('type', 'button');
+            return b;
+        };
+        const btnL = makeBtn('zt-btn-left', '◀');
+        const btnR = makeBtn('zt-btn-right', '▶');
+        const btnJ = makeBtn('zt-btn-jump', '▲');
+
+        const bind = (btn, key) => {
+            if (typeof MobileUtils !== 'undefined' && MobileUtils.bindHoldButton) {
+                MobileUtils.bindHoldButton(btn, () => { keys[key] = true; }, () => { keys[key] = false; });
+            } else {
+                btn.addEventListener('touchstart', e => { e.preventDefault(); keys[key] = true; });
+                btn.addEventListener('touchend', e => { e.preventDefault(); keys[key] = false; });
+                btn.addEventListener('touchcancel', () => { keys[key] = false; });
+                btn.addEventListener('mousedown', () => { keys[key] = true; });
+                btn.addEventListener('mouseup', () => { keys[key] = false; });
+                btn.addEventListener('mouseleave', () => { keys[key] = false; });
+            }
+        };
+        bind(btnL, 'ArrowLeft'); bind(btnR, 'ArrowRight'); bind(btnJ, ' ');
+
+        const leftSide = document.createElement('div');
+        leftSide.className = 'zt-ctrl-side zt-ctrl-left';
+        leftSide.appendChild(btnL); leftSide.appendChild(btnR);
+
+        const rightSide = document.createElement('div');
+        rightSide.className = 'zt-ctrl-side zt-ctrl-right';
+        rightSide.appendChild(btnJ);
+
+        controls.appendChild(leftSide);
+        controls.appendChild(rightSide);
+        wrap.appendChild(controls);
+
+        container.appendChild(wrap);
+
+        maybeShowOrientationHint(wrap);
+
+        updateHUD();
+    }
+
+    function maybeShowOrientationHint(wrap) {
+        const isTouch = (typeof MobileUtils !== 'undefined' && MobileUtils.isTouchDevice());
+        if (!isTouch) return;
+        let dismissed = false;
+        try { dismissed = Storage.get('zt-rotate-hint-dismissed') === '1'; } catch (e) {}
+        if (dismissed) return;
+        const isPortrait = window.matchMedia && window.matchMedia('(orientation: portrait)').matches;
+        if (!isPortrait) return;
+
+        const overlay = document.createElement('div');
+        overlay.className = 'zt-rotate-hint';
+        const card = document.createElement('div');
+        card.className = 'zt-rotate-card';
+        const mk = (cls, txt) => {
+            const d = document.createElement('div');
+            d.className = cls;
+            d.textContent = txt;
+            return d;
+        };
+        card.appendChild(mk('zt-rotate-icon', '📱↻'));
+        card.appendChild(mk('zt-rotate-title', T('zt.rotate_title')));
+        card.appendChild(mk('zt-rotate-text', T('zt.rotate_text')));
+        const dismissBtn = document.createElement('button');
+        dismissBtn.className = 'zt-rotate-btn';
+        dismissBtn.type = 'button';
+        dismissBtn.textContent = T('zt.rotate_dismiss');
+        card.appendChild(dismissBtn);
+        overlay.appendChild(card);
+        wrap.appendChild(overlay);
+        dismissBtn.addEventListener('click', () => {
+            try { Storage.set('zt-rotate-hint-dismissed', '1'); } catch (e) {}
+            overlay.remove();
+        });
+    }
+
+    function updateHUD() {
+        const coinEl = document.getElementById('zt-coins');
+        if (coinEl) coinEl.textContent = collectedCoins + '/' + totalCoins;
+        const livesEl = document.getElementById('zt-lives');
+        if (livesEl) {
+            let html = '';
+            for (let i = 0; i < maxLives; i++) {
+                html += '<span class="zt-heart ' + (i < lives ? 'on' : 'off') + '">♥</span>';
+            }
+            livesEl.innerHTML = html;
+        }
+    }
+
+    // ---- Input ----
+    // P1: ok tuşları + ↑/Boşluk · P2: A/D + W
+    // Bir tuşu mantıksal token'a çevir. ÖNCE fiziksel tuş kodu (e.code: KeyA/KeyD/KeyW/Arrow*/Space)
+    // — klavye DÜZENİNDEN bağımsız, böylece WASD Türkçe-F dahil her düzende çalışır — sonra e.key karakteri.
+    function keyToken(e) {
+        const code = e.code;
+        if (code === 'ArrowLeft' || e.key === 'ArrowLeft') return 'ArrowLeft';
+        if (code === 'ArrowRight' || e.key === 'ArrowRight') return 'ArrowRight';
+        if (code === 'ArrowUp' || e.key === 'ArrowUp') return 'ArrowUp';
+        if (code === 'Space' || e.key === ' ') return ' ';
+        if (code === 'KeyA') return 'a';
+        if (code === 'KeyD') return 'd';
+        if (code === 'KeyW') return 'w';
+        const k = (e.key && e.key.length === 1) ? e.key.toLowerCase() : e.key;
+        if (k === 'a' || k === 'd' || k === 'w') return k;
+        return null;
+    }
+    function onKeyDown(e) {
+        const tok = keyToken(e);
+        if (!tok) return;
+        if (tok === 'ArrowLeft' || tok === 'ArrowRight' || tok === 'ArrowUp' || tok === ' ') e.preventDefault();
+        keys[tok] = true;
+    }
+    function onKeyUp(e) {
+        const tok = keyToken(e);
+        if (tok) keys[tok] = false;
+    }
+
+    // ---- Loop ----
+    function stepGame() {
+        const now = performance.now();
+        accum += Math.min(0.1, (now - lastTime) / 1000);
+        lastTime = now;
+
+        while (accum >= STEP) {
+            accum -= STEP;
+            if (!levelWon && !gameOver) fixedUpdate(STEP);
+            if (levelBanner && levelBanner.show) {
+                levelBanner.timer -= STEP;
+                if (levelBanner.timer <= 0) levelBanner.show = false;
+            }
+        }
+        if (!document.hidden) draw();   // gizli sekmede çizim israf
+    }
+
+    function gameLoop() {
+        if (gameOver && gameOverShown) return;
+        stepGame();
+        animFrameId = requestAnimationFrame(gameLoop);
+    }
+
+    // Sekme gizlenince basılı tuşları bırak — keyup başka sekmeye gittiğinde
+    // karakterin sonsuza dek koşması (takılı tuş) önlenir.
+    function onVisChange() { if (document.hidden) keys = {}; }
+
+    // ---- Fizik ----
+    function fixedUpdate(dt) {
+        // Hareketli platformları güncelle (önceki pos kaydet) — kareye bir kez
+        for (const mp of movingPlatforms) {
+            mp.prevX = mp.x; mp.prevY = mp.y;
+            mp.phase += mp.speed * dt;
+            if (mp.vertical) {
+                mp.y = mp.minY + (Math.sin(mp.phase) * 0.5 + 0.5) * (mp.maxY - mp.minY);
+            } else {
+                mp.x = mp.minX + (Math.sin(mp.phase) * 0.5 + 0.5) * (mp.maxX - mp.minX);
+            }
+        }
+
+        // Her oyuncuyu güncelle (ölüm game-over'a yol açarsa erken çık)
+        for (const p of players) {
+            updatePlayer(p, dt);
+            if (gameOver) return;
+        }
+
+        // Düşmanlar — kareye bir kez hareket, tüm oyunculara karşı kontrol
+        for (const e of enemyList) {
+            if (e.dead) {
+                e.squashTimer -= dt;
+                continue;
+            }
+            e.x += e.dir * ENEMY_SPEED * dt;
+            if (e.x <= e.minX) { e.x = e.minX; e.dir = 1; }
+            if (e.x + e.w >= e.maxX) { e.x = e.maxX - e.w; e.dir = -1; }
+
+            for (const p of players) {
+                if (!aabb(p, e)) continue;
+                // Üstten basma — iki oyuncu da aynı karede basabilir; her ikisi de seker
+                if (p.dy > 0 && (p.y + p.h - e.y) < 18) {
+                    p.dy = -JUMP_VELOCITY * 0.6;
+                    if (!e.dead) {
+                        e.dead = true;
+                        e.squashTimer = 0.35;
+                        try { AudioManager.play('success'); } catch (err) {}
+                    }
+                } else if (!e.dead && p.invuln <= 0) {
+                    // Yalnızca CANLI düşman zarar verir (ezilmiş düşmana yandan değmek öldürmez)
+                    playerDie(p);
+                    break;
+                }
+            }
+            if (gameOver) return;
+        }
+
+        // Para toplama — herhangi bir oyuncu toplayabilir (ortak sayaç)
+        for (const coin of coinList) {
+            if (coin.collected) continue;
+            coin.bob += dt * 4;
+            const cy = coin.y + Math.sin(coin.bob) * 3;
+            for (const p of players) {
+                const cdx = (p.x + p.w / 2) - coin.x;
+                const cdy = (p.y + p.h / 2) - cy;
+                if (cdx * cdx + cdy * cdy < (COIN_R + 16) * (COIN_R + 16)) {
+                    coin.collected = true;
+                    collectedCoins++;
+                    if (callbacks) callbacks.onCorrect();
+                    try { AudioManager.play('success'); } catch (e) {}
+                    updateHUD();
+                    break;
+                }
+            }
+        }
+
+        // Diken — ölümsüzken zarar yok
+        for (const s of spikeList) {
+            for (const p of players) {
+                if (p.invuln > 0) continue;
+                if (p.x + p.w > s.x + 4 && p.x < s.x + s.w - 4 &&
+                    p.y + p.h > s.y - 14 && p.y + p.h < s.y + 18) {
+                    playerDie(p);
+                    break;
+                }
+            }
+            if (gameOver) return;
+        }
+
+        // Kapı — herhangi bir oyuncu ulaşınca bölüm biter (co-op: birlikte kazanılır)
+        for (const p of players) {
+            if (p.x + p.w > door.x + 4 && p.x < door.x + 36 &&
+                p.y + p.h > door.y + 8 && p.y < door.y + 48) {
+                if (!levelWon) {
+                    levelWon = true;
+                    try { AudioManager.play('complete'); } catch (e) {}
+                    try { Particles.celebrate(); } catch (e) {}
+                    const pct = totalCoins > 0 ? collectedCoins / totalCoins : 1;
+                    const stars = pct >= 0.9 ? 3 : pct >= 0.7 ? 2 : 1;
+                    winTimer = setTimeout(() => { winTimer = null; callbacks.onComplete(stars); }, 700);
+                }
+                break;
+            }
+        }
+
+        updateCamera();
+    }
+
+    // Bir oyuncunun girdisini oku (solo/coop kendi kontrol seti)
+    function readInput(p) {
+        const c = p.controls;
+        return { left: !!keys[c.left], right: !!keys[c.right], jump: c.jump.some(k => keys[k]) };
+    }
+
+    function updatePlayer(p, dt) {
+        const inp = readInput(p);
+
+        // Jump buffer: zıplama tuşuna yeni basıldı mı?
+        const jumpPressed = !!inp.jump;
+        const jumpPressedNow = jumpPressed && !p.jumpHeld;
+        p.jumpHeld = jumpPressed;
+        if (jumpPressedNow) p.jumpBuf = JUMP_BUFFER;
+        else p.jumpBuf = Math.max(0, p.jumpBuf - dt);
+
+        // Yatay giriş
+        let ax = 0;
+        const accel = p.onGround ? ACCEL_GROUND : ACCEL_AIR;
+        const fric = p.onGround ? FRIC_GROUND : FRIC_AIR;
+        if (inp.left) { ax = -accel; p.dir = -1; }
+        else if (inp.right) { ax = accel; p.dir = 1; }
+        else {
+            // Sürtünme
+            if (p.dx > 0) { p.dx = Math.max(0, p.dx - fric * dt); }
+            else if (p.dx < 0) { p.dx = Math.min(0, p.dx + fric * dt); }
+        }
+        p.dx += ax * dt;
+        p.dx = Math.max(-MAX_VX, Math.min(MAX_VX, p.dx));
+
+        // Zıplama (buffer + coyote)
+        if (p.jumpBuf > 0 && (p.onGround || p.coyote > 0)) {
+            p.dy = -JUMP_VELOCITY;
+            p.onGround = false;
+            p.coyote = 0;
+            p.jumpBuf = 0;
+            try { AudioManager.play('pop'); } catch (e) {}
+        }
+
+        // Değişken zıplama: yukarı çıkarken tuş bırakılırsa kes
+        if (!jumpPressed && p.dy < 0) p.dy *= JUMP_CUT;
+
+        // Yerçekimi
+        p.dy += GRAVITY * dt;
+        p.dy = Math.max(MAX_VY_JUMP, Math.min(MAX_VY_FALL, p.dy));
+
+        // Hareket ve çarpışma (X sonra Y)
+        const wasOnGround = p.onGround;
+        p.onGround = false;
+
+        p.x += p.dx * dt;
+        resolveCollisionsX(p);
+
+        p.y += p.dy * dt;
+        resolveCollisionsY(p, dt);
+
+        // Hareketli platform üstündeyse taşı
+        if (p.ridingPlatform) {
+            p.x += p.ridingPlatform.x - p.ridingPlatform.prevX;
+            p.y += p.ridingPlatform.y - p.ridingPlatform.prevY;
+            if (p.y + p.h > groundY && !isOverHole(p.x, p.w)) {
+                p.y = groundY - p.h;
+                p.dy = 0;
+                p.onGround = true;
+            }
+        }
+        p.ridingPlatform = null;
+
+        // Coyote time
+        if (wasOnGround && !p.onGround) p.coyote = COYOTE_TIME;
+        else p.coyote = Math.max(0, p.coyote - dt);
+
+        // Seviye sınırları (X)
+        if (p.x < 0) { p.x = 0; p.dx = 0; }
+        if (p.x > levelWidth - p.w) { p.x = levelWidth - p.w; p.dx = 0; }
+
+        // Düşme ölümü
+        if (p.y > GAME_H + 50) { playerDie(p); return; }
+
+        // Ölümsüzlük sayacı
+        if (p.invuln > 0) p.invuln -= dt;
+    }
+
+    function updateCamera() {
+        let targetCam;
+        if ((mode === 'coop') && players.length > 1) {
+            // İki oyuncunun orta noktasını takip et
+            let sum = 0;
+            for (const p of players) sum += p.x + p.w / 2;
+            targetCam = sum / players.length - GAME_W / 2;
+        } else {
+            const p = players[0];
+            targetCam = p.x + p.w / 2 - GAME_W / 2;
+        }
+        cameraX = Math.max(0, Math.min(levelWidth - GAME_W, targetCam));
+
+        // Co-op: oyuncuları görünür ekranda tut — ekran kenarı yumuşak duvar gibi davranır,
+        // böylece kimse ekran dışına kaçamaz (modern platformer co-op kuralı).
+        if ((mode === 'coop') && players.length > 1) {
+            for (const p of players) {
+                const minX = cameraX + EDGE_MARGIN;
+                const maxX = cameraX + GAME_W - p.w - EDGE_MARGIN;
+                if (p.x < minX) { p.x = minX; if (p.dx < 0) p.dx = 0; }
+                if (p.x > maxX) { p.x = maxX; if (p.dx > 0) p.dx = 0; }
+            }
+        }
+    }
+
+    function isOverHole(x, w) {
+        for (const h of groundHoles) {
+            if (x + w > h.x + 4 && x < h.x + h.w - 4) return true;
+        }
+        return false;
+    }
+
+    function resolveCollisionsX(p) {
+        const all = [...platformList, ...movingPlatforms];
+        for (const pl of all) {
+            if (aabb(p, pl)) {
+                if (p.dx > 0) {
+                    p.x = pl.x - p.w - 0.01;
+                } else if (p.dx < 0) {
+                    p.x = pl.x + pl.w + 0.01;
+                }
+                p.dx = 0;
+            }
+        }
+    }
+
+    function resolveCollisionsY(p, dt) {
+        const all = [...platformList, ...movingPlatforms];
+        for (const pl of all) {
+            if (aabb(p, pl)) {
+                if (p.dy > 0) {
+                    // Yere iniş
+                    p.y = pl.y - p.h - 0.01;
+                    p.dy = 0;
+                    p.onGround = true;
+                    if (pl.minX !== undefined || pl.minY !== undefined) {
+                        p.ridingPlatform = pl;
+                    }
+                } else if (p.dy < 0) {
+                    // Tavana çarpma
+                    p.y = pl.y + pl.h + 0.01;
+                    p.dy = 0;
+                }
+            }
+        }
+        // Zemin (boşluklar hariç)
+        if (p.y + p.h > groundY && p.dy >= 0) {
+            if (!isOverHole(p.x, p.w)) {
+                p.y = groundY - p.h;
+                p.dy = 0;
+                p.onGround = true;
+            }
+        }
+    }
+
+    function aabb(a, b) {
+        return a.x < b.x + b.w && a.x + a.w > b.x &&
+               a.y < b.y + b.h && a.y + a.h > b.y;
+    }
+
+    // ---- Ölüm / Game Over ----
+    function playerDie(p) {
+        try { AudioManager.play('error'); } catch (e) {}
+        if (callbacks && callbacks.onWrong) callbacks.onWrong();
+        lives--;               // ortak can havuzu
+        updateHUD();
+        deathFlash = 0.3;
+        if (lives <= 0) {
+            showGameOver();
+        } else {
+            respawnPlayer(p);
+        }
+    }
+
+    function respawnPlayer(p) {
+        const partner = players.find(o => o !== p);
+        // Eş YALNIZCA güvenli zemindeyse (yerde + delik üzerinde değil) onun yanında doğ.
+        // Aksi halde (eş de düşüyor/havada ya da solo) güvenli başlangıca dön —
+        // böylece iki oyuncu aynı çukura düşünce zincirleme ölüm/can tükenmesi olmaz.
+        const partnerSafe = partner && partner.onGround && !isOverHole(partner.x, partner.w);
+        if (mode === 'coop' && partnerSafe) {
+            p.x = partner.x;
+            p.y = partner.y;
+        } else {
+            p.x = lvl.start.x;
+            p.y = lvl.start.y - PLAYER_H;
+            cameraX = 0;
+        }
+        p.dx = 0; p.dy = 0;
+        p.onGround = false;
+        p.invuln = 1.0;
+        p.coyote = 0; p.jumpBuf = 0;
+        p.ridingPlatform = null;
+    }
+
+    function showGameOver() {
+        gameOver = true;
+        gameOverShown = true;
+        SDK.gameplayStop();
+        try { AudioManager.play('error'); } catch (e) {}
+
+        const overlay = document.createElement('div');
+        overlay.className = 'zt-modal zt-gameover';
+        const card = document.createElement('div');
+        card.className = 'zt-modal-card';
+        const mk = (cls, txt) => {
+            const d = document.createElement('div');
+            d.className = cls;
+            d.textContent = txt;
+            return d;
+        };
+        card.appendChild(mk('zt-modal-title', T('zt.gameover')));
+        card.appendChild(mk('zt-modal-sub', T('zt.gameover_sub')));
+        const stats = mk('zt-modal-stats', T('zt.coins_collected') + ' ');
+        const b = document.createElement('b');
+        b.textContent = collectedCoins + '/' + totalCoins;
+        stats.appendChild(b);
+        card.appendChild(stats);
+        const row = document.createElement('div');
+        row.className = 'zt-modal-buttons';
+        const retryBtn = document.createElement('button');
+        retryBtn.className = 'zt-mbtn zt-mbtn-primary';
+        retryBtn.textContent = T('zt.retry');
+        const backBtn = document.createElement('button');
+        backBtn.className = 'zt-mbtn zt-mbtn-secondary';
+        backBtn.textContent = T('zt.home');
+        row.appendChild(retryBtn);
+        row.appendChild(backBtn);
+        card.appendChild(row);
+        overlay.appendChild(card);
+        container.appendChild(overlay);
+        retryBtn.addEventListener('click', () => {
+            overlay.remove();
+            lives = maxLives;
+            gameOverShown = false;
+            gameOver = false;
+            SDK.gameplayStart();
+            startLevel();
+        });
+        backBtn.addEventListener('click', () => {
+            const h = document.getElementById('btn-home');
+            if (h) h.click();
+        });
+    }
+
+    // ---- Çizim ----
+    function draw() {
+        drawBackground();
+        drawGround();
+        drawPlatforms();
+        drawSpikes();
+        drawCoins();
+        drawDoor();
+        drawEnemies();
+        for (const p of players) drawPlayer(p);
+
+        if (deathFlash > 0) {
+            ctx.fillStyle = `rgba(255, 80, 80, ${deathFlash})`;
+            ctx.fillRect(0, 0, GAME_W, GAME_H);
+            deathFlash = Math.max(0, deathFlash - 0.02);
+        }
+
+        if (levelBanner && levelBanner.show) drawLevelBanner();
+    }
+
+    function drawBackground() {
+        const g = ctx.createLinearGradient(0, 0, 0, GAME_H);
+        g.addColorStop(0, theme.skyTop);
+        g.addColorStop(1, theme.skyBot);
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, GAME_W, GAME_H);
+
+        // Parallax bulutlar/dekor
+        ctx.fillStyle = theme.cloudColor;
+        const paraOffset = -cameraX * 0.3;
+        for (let i = 0; i < 8; i++) {
+            const cx = ((i * 340 + paraOffset) % (GAME_W + 200) + GAME_W + 200) % (GAME_W + 200) - 100;
+            const cy = 40 + (i % 3) * 30;
+            if (lvl.theme === 'cave') {
+                // Taş sarkıt
+                ctx.beginPath();
+                ctx.moveTo(cx, 0);
+                ctx.lineTo(cx + 20, 0);
+                ctx.lineTo(cx + 10, 24 + (i % 2) * 10);
+                ctx.closePath();
+                ctx.fill();
+            } else {
+                // Bulut
+                ctx.beginPath();
+                ctx.arc(cx, cy, 18, 0, Math.PI * 2);
+                ctx.arc(cx + 22, cy - 6, 22, 0, Math.PI * 2);
+                ctx.arc(cx + 44, cy, 18, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Uzak dağlar (sadece meadow/sky)
+        if (lvl.theme !== 'cave') {
+            ctx.fillStyle = lvl.theme === 'sky' ? 'rgba(255,255,255,0.4)' : 'rgba(80, 140, 80, 0.55)';
+            const mpOffset = -cameraX * 0.5;
+            for (let i = 0; i < 10; i++) {
+                const mx = (i * 280 + mpOffset) % (GAME_W + 400) - 200;
+                const my = groundY - 60;
+                ctx.beginPath();
+                ctx.moveTo(mx, my + 60);
+                ctx.lineTo(mx + 80, my);
+                ctx.lineTo(mx + 160, my + 60);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+    }
+
+    function drawGround() {
+        // Zemin: groundHoles hariç çiz
+        const segments = [{ x: 0, w: levelWidth }];
+        for (const h of groundHoles) {
+            const newSegs = [];
+            for (const s of segments) {
+                if (h.x + h.w <= s.x || h.x >= s.x + s.w) {
+                    newSegs.push(s);
+                } else {
+                    if (h.x > s.x) newSegs.push({ x: s.x, w: h.x - s.x });
+                    if (h.x + h.w < s.x + s.w) newSegs.push({ x: h.x + h.w, w: s.x + s.w - (h.x + h.w) });
+                }
+            }
+            segments.splice(0, segments.length, ...newSegs);
+        }
+        for (const s of segments) {
+            const sx = s.x - cameraX;
+            if (sx + s.w < 0 || sx > GAME_W) continue;
+            // Üst yeşil/çim
+            ctx.fillStyle = theme.groundTop;
+            ctx.fillRect(sx, groundY, s.w, 8);
+            // Orta
+            ctx.fillStyle = theme.groundMid;
+            ctx.fillRect(sx, groundY + 8, s.w, 20);
+            // Alt
+            ctx.fillStyle = theme.groundBot;
+            ctx.fillRect(sx, groundY + 28, s.w, GAME_H - groundY - 28);
+            // Doku noktaları
+            ctx.fillStyle = 'rgba(0,0,0,0.12)';
+            for (let i = 0; i < s.w; i += 24) {
+                ctx.fillRect(sx + i, groundY + 14, 3, 3);
+                ctx.fillRect(sx + i + 12, groundY + 22, 2, 2);
+            }
+        }
+    }
+
+    function drawPlatforms() {
+        for (const p of platformList) drawPlatform(p, false);
+        for (const mp of movingPlatforms) drawPlatform(mp, true);
+    }
+
+    function drawPlatform(p, moving) {
+        const sx = p.x - cameraX;
+        if (sx + p.w < 0 || sx > GAME_W) return;
+        // Üst şerit — tema renginde
+        ctx.fillStyle = moving ? theme.accent : theme.platformTop;
+        ctx.fillRect(sx, p.y, p.w, 4);
+        // Gövde
+        ctx.fillStyle = theme.platformMid;
+        ctx.fillRect(sx, p.y + 4, p.w, p.h - 4);
+        // Tile çizgileri
+        ctx.strokeStyle = 'rgba(0,0,0,0.18)';
+        ctx.lineWidth = 1;
+        for (let i = 20; i < p.w; i += 20) {
+            ctx.beginPath();
+            ctx.moveTo(sx + i, p.y + 4);
+            ctx.lineTo(sx + i, p.y + p.h);
+            ctx.stroke();
+        }
+        // Gölge
+        ctx.fillStyle = 'rgba(0,0,0,0.25)';
+        ctx.fillRect(sx, p.y + p.h, p.w, 2);
+    }
+
+    function drawSpikes() {
+        ctx.fillStyle = '#d0d0d0';
+        ctx.strokeStyle = '#666';
+        for (const s of spikeList) {
+            const sx = s.x - cameraX;
+            const cnt = Math.floor(s.w / 10);
+            for (let i = 0; i < cnt; i++) {
+                ctx.beginPath();
+                ctx.moveTo(sx + i * 10, s.y + 12);
+                ctx.lineTo(sx + i * 10 + 5, s.y - 6);
+                ctx.lineTo(sx + i * 10 + 10, s.y + 12);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            }
+        }
+    }
+
+    function drawCoins() {
+        for (const coin of coinList) {
+            if (coin.collected) continue;
+            const sx = coin.x - cameraX;
+            if (sx < -20 || sx > GAME_W + 20) continue;
+            const cy = coin.y + Math.sin(coin.bob) * 3;
+            // Glow
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.35)';
+            ctx.beginPath(); ctx.arc(sx, cy, COIN_R + 4, 0, Math.PI * 2); ctx.fill();
+            // Gövde
+            ctx.beginPath(); ctx.arc(sx, cy, COIN_R, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffd700'; ctx.fill();
+            ctx.strokeStyle = '#c9a300'; ctx.lineWidth = 2; ctx.stroke();
+            // Parlak nokta
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.beginPath(); ctx.arc(sx - 3, cy - 3, 2.5, 0, Math.PI * 2); ctx.fill();
+            // $ harfi
+            ctx.fillStyle = '#a07800';
+            ctx.font = 'bold 10px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('$', sx, cy + 1);
+        }
+    }
+
+    function drawDoor() {
+        const sx = door.x - cameraX;
+        if (sx + 40 < 0 || sx > GAME_W) return;
+        // Çerçeve
+        ctx.fillStyle = '#4a2a10';
+        ctx.fillRect(sx, door.y, 36, 52);
+        // İç
+        ctx.fillStyle = theme.accent;
+        ctx.fillRect(sx + 3, door.y + 3, 30, 46);
+        // Üst kemer
+        ctx.fillStyle = '#4a2a10';
+        ctx.beginPath();
+        ctx.arc(sx + 18, door.y + 12, 12, Math.PI, 0);
+        ctx.fill();
+        ctx.fillStyle = theme.accent;
+        ctx.beginPath();
+        ctx.arc(sx + 18, door.y + 12, 9, Math.PI, 0);
+        ctx.fill();
+        // Tokmak
+        ctx.fillStyle = '#ffd700';
+        ctx.beginPath(); ctx.arc(sx + 28, door.y + 30, 2.5, 0, Math.PI * 2); ctx.fill();
+        // Yazı
+        ctx.fillStyle = '#4a2a10';
+        ctx.font = 'bold 9px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(T('zt.exit'), sx + 18, door.y + 42);
+    }
+
+    function drawEnemies() {
+        for (const e of enemyList) {
+            const sx = e.x - cameraX;
+            if (sx + e.w < 0 || sx > GAME_W) continue;
+            if (e.dead) {
+                // Ezilmiş
+                ctx.fillStyle = '#8b4513';
+                ctx.fillRect(sx, e.y + e.h - 6, e.w, 6);
+                ctx.fillStyle = '#a0522d';
+                ctx.fillRect(sx + 2, e.y + e.h - 4, e.w - 4, 2);
+                continue;
+            }
+            // Mantar düşman gövde
+            ctx.save();
+            // Gölge
+            ctx.fillStyle = 'rgba(0,0,0,0.25)';
+            ctx.beginPath(); ctx.ellipse(sx + e.w / 2, e.y + e.h + 2, e.w / 2, 3, 0, 0, Math.PI * 2); ctx.fill();
+            // Kafa/gövde — kahverengi mantar
+            ctx.fillStyle = '#8b5a2b';
+            ctx.beginPath();
+            ctx.arc(sx + e.w / 2, e.y + e.h / 2, e.w / 2, Math.PI, 0);
+            ctx.fill();
+            ctx.fillRect(sx, e.y + e.h / 2, e.w, e.h / 2);
+            // Alt — daha koyu
+            ctx.fillStyle = '#6b3b1f';
+            ctx.fillRect(sx, e.y + e.h - 6, e.w, 6);
+            // Ayaklar
+            ctx.fillStyle = '#2a1a10';
+            const foot = (Math.floor(e.x / 10) % 2 === 0) ? 0 : 2;
+            ctx.fillRect(sx + 2, e.y + e.h - 3, 8, 4);
+            ctx.fillRect(sx + e.w - 10, e.y + e.h - 3 + foot, 8, 4);
+            // Gözler
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(sx + 6, e.y + 8, 6, 6);
+            ctx.fillRect(sx + e.w - 12, e.y + 8, 6, 6);
+            ctx.fillStyle = '#000';
+            const eyeOff = e.dir > 0 ? 2 : 0;
+            ctx.fillRect(sx + 7 + eyeOff, e.y + 10, 3, 3);
+            ctx.fillRect(sx + e.w - 11 + eyeOff, e.y + 10, 3, 3);
+            // Kaşlar
+            ctx.fillStyle = '#2a1a10';
+            ctx.fillRect(sx + 4, e.y + 6, 8, 2);
+            ctx.fillRect(sx + e.w - 12, e.y + 6, 8, 2);
+            ctx.restore();
+        }
+    }
+
+    function drawPlayer(p) {
+        const sx = p.x - cameraX;
+        // Ölümsüzken yanıp sön — zaman tabanlı (tüm modlarda doğru çalışır)
+        if (p.invuln > 0 && Math.floor(performance.now() / 70) % 2 === 0) return;
+        const pal = p.palette;
+        ctx.save();
+        if (p.dir === -1) {
+            ctx.translate(sx + p.w / 2, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(sx + p.w / 2), 0);
+        }
+        // Gölge
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.beginPath(); ctx.ellipse(sx + p.w / 2, p.y + p.h + 2, p.w / 2, 3, 0, 0, Math.PI * 2); ctx.fill();
+
+        // Bacaklar (koşu animasyonu)
+        ctx.fillStyle = '#2a4080';
+        const runPhase = Math.abs(p.dx) > 20 ? Math.sin(performance.now() / 80) * 3 : 0;
+        ctx.fillRect(sx + 4, p.y + 26, 6, 10 + runPhase);
+        ctx.fillRect(sx + 16, p.y + 26, 6, 10 - runPhase);
+        // Ayakkabı
+        ctx.fillStyle = '#6b3b1f';
+        ctx.fillRect(sx + 3, p.y + 34 + runPhase, 8, 3);
+        ctx.fillRect(sx + 15, p.y + 34 - runPhase, 8, 3);
+
+        // Gövde - tulum (palet rengi: P1 turuncu / P2 turkuaz)
+        ctx.fillStyle = pal.body;
+        ctx.fillRect(sx + 3, p.y + 15, 20, 14);
+        // Askı / düğmeler
+        ctx.fillStyle = '#fff2a0';
+        ctx.beginPath(); ctx.arc(sx + 8, p.y + 20, 1.5, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(sx + 18, p.y + 20, 1.5, 0, Math.PI * 2); ctx.fill();
+
+        // Kollar
+        ctx.fillStyle = '#fed7a8';
+        ctx.fillRect(sx + 1, p.y + 17, 4, 9);
+        ctx.fillRect(sx + 21, p.y + 17, 4, 9);
+
+        // Kafa
+        ctx.fillStyle = '#fed7a8';
+        ctx.beginPath(); ctx.arc(sx + p.w / 2, p.y + 8, 8, 0, Math.PI * 2); ctx.fill();
+
+        // Şapka (palet rengi)
+        ctx.fillStyle = pal.hat;
+        ctx.fillRect(sx + 4, p.y, 18, 5);
+        ctx.fillRect(sx + 8, p.y - 4, 12, 5);
+
+        // Göz
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(sx + 15, p.y + 6, 4, 5);
+        ctx.fillStyle = '#000';
+        ctx.fillRect(sx + 17, p.y + 7, 2, 3);
+
+        ctx.restore();
+
+        // Şapka logosu — "Z" — flip DIŞINDA çizilir ki sola bakınca aynalanmasın
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 6px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Z', sx + p.w / 2, p.y + 3);
+
+        // Co-op: başın üstünde oyuncu rozeti ("1"/"2") — flip dışında, düz çizilir
+        if (mode === 'coop') {
+            const lx = sx + p.w / 2;
+            const ly = p.y - 12;
+            ctx.fillStyle = pal.hat;
+            ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(lx, ly, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 9px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(pal.label, lx, ly + 0.5);
+            ctx.textBaseline = 'alphabetic';
+        }
+    }
+
+    function drawLevelBanner() {
+        const alpha = Math.min(1, levelBanner.timer / 1.6) * 0.9;
+        ctx.fillStyle = `rgba(0, 0, 0, ${alpha * 0.5})`;
+        ctx.fillRect(0, GAME_H / 2 - 50, GAME_W, 100);
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = `rgba(255, 223, 100, ${alpha})`;
+        ctx.font = 'bold 38px "Comic Sans MS", system-ui, sans-serif';
+        ctx.shadowColor = '#000'; ctx.shadowBlur = 6;
+        ctx.fillText(T('zt.banner_level', { n: currentLevelIdx + 1 }) + ' — ' + T('zt.theme_' + lvl.theme), GAME_W / 2, GAME_H / 2 - 10);
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+        ctx.font = 'bold 16px "Comic Sans MS", system-ui, sans-serif';
+        if (mode === 'coop') {
+            ctx.fillText(T('zt.banner_coop'), GAME_W / 2, GAME_H / 2 + 20);
+        } else {
+            ctx.fillText(T('zt.banner_solo'), GAME_W / 2, GAME_H / 2 + 22);
+        }
+    }
+
+    return { id, levels, init, destroy };
+})();
+
+
+/* GAME: kabuğun başlatacağı modül */
+const GAME = ZiplaTopla;
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => Shell.boot());
+} else {
+    Shell.boot();
+}
+</script>
+</body>
+</html>

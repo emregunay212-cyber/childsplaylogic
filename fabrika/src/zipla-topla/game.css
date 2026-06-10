@@ -1,0 +1,327 @@
+/* ============================================
+   Zıpla Topla / Hop & Grab — platformer stilleri
+   ============================================ */
+
+.zt-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  background: #0a0820;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 4px #6b3b1f,
+    0 0 0 6px #2a1a10,
+    0 20px 40px rgba(0,0,0,0.4);
+  user-select: none;
+  touch-action: manipulation;
+  display: flex;
+  flex-direction: column;
+}
+
+.zt-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 800 / 360;
+  overflow: hidden;
+}
+
+.zt-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* ---- HUD ---- */
+.zt-hud {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  gap: 6px;
+  font-family: 'Comic Sans MS', 'Baloo', system-ui, sans-serif;
+  pointer-events: none;
+}
+
+.zt-hud-box {
+  background: rgba(15, 10, 30, 0.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 2px solid #ffcf3a;
+  border-radius: 8px;
+  padding: 4px 10px;
+  color: #fff;
+  font-weight: 800;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.6);
+}
+
+.zt-hud-label {
+  font-size: 10px;
+  opacity: 0.85;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.zt-hud-coins span:last-child,
+.zt-hud-level span:last-child {
+  color: #ffd54a;
+  font-variant-numeric: tabular-nums;
+}
+
+.zt-hud-lives { gap: 2px; padding: 4px 8px; }
+.zt-heart {
+  font-size: 18px;
+  transition: transform 0.2s, opacity 0.2s;
+  filter: drop-shadow(0 0 4px rgba(255, 0, 80, 0.5));
+}
+.zt-heart.on { color: #ff5470; }
+.zt-heart.off { color: #2a1830; filter: none; opacity: 0.4; }
+
+.zt-hud-coins, .zt-hud-level { margin-left: auto; }
+.zt-hud-level { margin-left: 0; }
+
+/* ---- Mod geçişi (1 KİŞİ / 2 KİŞİ) — yalnızca klavyeli cihazlarda enjekte edilir ---- */
+.zt-mode-toggle {
+  pointer-events: auto;
+  gap: 2px;
+  padding: 2px;
+}
+.zt-mode-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.72);
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.zt-mode-btn:hover { color: #fff; }
+.zt-mode-btn.active {
+  background: linear-gradient(135deg, #ffcf3a, #ff8a3a);
+  color: #2a1010;
+  box-shadow: 0 2px 6px rgba(255, 138, 58, 0.4);
+}
+
+/* ---- Mobile Controls (canvas altında ayrı bar) ---- */
+.zt-controls {
+  display: none;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, #1a0a2a 0%, #0a0820 100%);
+  border-top: 2px solid #6b3b1f;
+}
+
+.zt-ctrl-side {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.zt-btn {
+  pointer-events: auto;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: rgba(15, 10, 30, 0.75);
+  border: 2.5px solid #ffcf3a;
+  color: #ffcf3a;
+  font-size: 22px;
+  font-weight: 900;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 0 12px rgba(255, 207, 58, 0.15);
+  text-shadow: 0 0 6px rgba(255, 207, 58, 0.5);
+  transition: transform 0.08s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  flex-shrink: 0;
+  padding: 0;
+  line-height: 1;
+}
+.zt-btn:active {
+  background: rgba(255, 207, 58, 0.3);
+  transform: scale(0.92);
+}
+.zt-btn-jump {
+  width: 72px;
+  height: 72px;
+  border-color: #e74c3c;
+  color: #ff8070;
+  text-shadow: 0 0 8px rgba(231, 76, 60, 0.6);
+  box-shadow: 0 4px 14px rgba(231, 76, 60, 0.5), inset 0 0 12px rgba(231, 76, 60, 0.2);
+  font-size: 26px;
+}
+.zt-btn-jump:active { background: rgba(231, 76, 60, 0.4); }
+
+@media (pointer: coarse), (hover: none), (max-width: 900px) {
+  .zt-controls { display: flex; }
+}
+
+@media (max-width: 380px) {
+  .zt-btn { width: 52px; height: 52px; font-size: 19px; }
+  .zt-btn-jump { width: 64px; height: 64px; font-size: 22px; }
+  .zt-controls { padding: 8px 10px; gap: 8px; }
+  .zt-ctrl-side { gap: 8px; }
+  .zt-hud-box { padding: 3px 7px; font-size: 12px; }
+  .zt-hud-label { font-size: 9px; }
+}
+
+/* ---- Portrait rotate hint ---- */
+.zt-rotate-hint {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 2, 20, 0.85);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  padding: 20px;
+}
+.zt-rotate-card {
+  background: linear-gradient(145deg, #2a1a48, #4a2a70);
+  border: 2px solid #ffcf3a;
+  border-radius: 14px;
+  padding: 20px 22px;
+  max-width: 320px;
+  text-align: center;
+  color: #fff;
+  font-family: 'Comic Sans MS', system-ui, sans-serif;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+.zt-rotate-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+  animation: zt-rotate-anim 2.5s ease-in-out infinite;
+}
+@keyframes zt-rotate-anim {
+  0%, 40%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(90deg); }
+}
+.zt-rotate-title {
+  font-size: 18px;
+  font-weight: 900;
+  color: #ffd54a;
+  margin-bottom: 8px;
+}
+.zt-rotate-text {
+  font-size: 13px;
+  color: rgba(255,255,255,0.88);
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+.zt-rotate-btn {
+  background: linear-gradient(135deg, #ffcf3a, #ff8a3a);
+  color: #2a1010;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 4px 14px rgba(255, 138, 58, 0.4);
+}
+.zt-rotate-btn:active { transform: scale(0.96); }
+
+/* ---- Game Over Modal ---- */
+.zt-modal {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: ztFadeIn 0.3s ease;
+}
+@keyframes ztFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.zt-modal-card {
+  background: linear-gradient(145deg, #2a1a48, #4a2a70);
+  border: 3px solid #ffcf3a;
+  border-radius: 18px;
+  padding: 24px 28px;
+  max-width: 88%;
+  min-width: 300px;
+  color: #fff;
+  font-family: 'Comic Sans MS', system-ui, sans-serif;
+  box-shadow: 0 25px 80px rgba(0,0,0,0.6);
+  text-align: center;
+}
+
+.zt-modal-title {
+  font-size: 28px;
+  font-weight: 900;
+  margin-bottom: 10px;
+  color: #ff5470;
+  text-shadow: 0 4px 14px rgba(255, 84, 112, 0.5);
+}
+.zt-modal-sub {
+  font-size: 15px;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 14px;
+}
+.zt-modal-stats {
+  background: rgba(0,0,0,0.3);
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  font-size: 15px;
+}
+.zt-modal-stats b {
+  color: #ffd54a;
+  font-size: 17px;
+  text-shadow: 0 0 6px rgba(255, 213, 74, 0.6);
+}
+
+.zt-modal-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.zt-mbtn {
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  transition: transform 0.12s;
+}
+.zt-mbtn:hover { transform: translateY(-2px); }
+.zt-mbtn:active { transform: translateY(0); }
+.zt-mbtn-primary {
+  background: linear-gradient(135deg, #ffcf3a, #ff8a3a);
+  color: #2a1010;
+  box-shadow: 0 5px 18px rgba(255, 138, 58, 0.5);
+}
+.zt-mbtn-secondary {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.3);
+}

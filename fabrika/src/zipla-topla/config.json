@@ -1,0 +1,14 @@
+{
+  "id": "zipla-topla",
+  "type": "shellA",
+  "titles": { "tr": "Zıpla Topla", "en": "Hop & Grab" },
+  "slug": { "tr": "zipla-topla", "en": "hop-and-grab" },
+  "langs": ["tr", "en"],
+  "themeColor": "#f39c12",
+  "mode": "levels",
+  "levelCount": 12,
+  "gameVar": "ZiplaTopla",
+  "sources": ["levels.js", "game.js"],
+  "css": ["game.css"],
+  "forbiddenWords": ["mario", "luigi", "goomba", "nintendo"]
+}
