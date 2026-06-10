@@ -94,13 +94,23 @@ const Lobby = (() => {
     // Önce eski listener'ları temizle — aksi halde stale LOBBY_CREATED handler'ları tetiklenebilir
     Multiplayer.offAll();
 
-    const isKod = currentGameType === 'kod-macerasi' || currentGameType === 'satranc' || currentGameType === 'penalti-mp' || currentGameType === 'ates-buz';
+    const isKod = currentGameType === 'kod-macerasi' || currentGameType === 'satranc' || currentGameType === 'penalti-mp' || currentGameType === 'ates-buz' || currentGameType === 'zipla-topla-coop' || currentGameType === 'hava-hokeyi';
     const isSatranc = currentGameType === 'satranc';
     const isPenalti = currentGameType === 'penalti-mp';
 
     const isAtesBuz = currentGameType === 'ates-buz';
+    const isZiplaCoop = currentGameType === 'zipla-topla-coop';
+    const isHavaHokeyi = currentGameType === 'hava-hokeyi';
 
-    const settingsHTML = isAtesBuz ? `
+    const settingsHTML = isHavaHokeyi ? `
+        <div class="lobby-setting">
+          <p style="text-align:center;color:#888;font-size:0.9rem;">Tokmağı kaydır · ilk 7 golü atan kazanır</p>
+        </div>
+    ` : isZiplaCoop ? `
+        <div class="lobby-setting">
+          <p style="text-align:center;color:#888;font-size:0.9rem;">Host = Mario, Guest = Luigi · birlikte 12 bölüm</p>
+        </div>
+    ` : isAtesBuz ? `
         <div class="lobby-setting">
           <p style="text-align:center;color:#888;font-size:0.9rem;">Host = Ates, Guest = Buz | 5 seviye</p>
         </div>
@@ -157,7 +167,7 @@ const Lobby = (() => {
     });
 
     container.querySelector('.lobby-submit-btn').onclick = () => {
-      if (isAtesBuz) {
+      if (isAtesBuz || isZiplaCoop || isHavaHokeyi) {
         Multiplayer.on('LOBBY_CREATED', (data) => renderWaitingRoom(data.lobbyId));
         Multiplayer.send('CREATE_LOBBY', { gameType: currentGameType });
       } else if (isPenalti) {
@@ -201,7 +211,7 @@ const Lobby = (() => {
       </div>`;
 
     Multiplayer.on('PLAYER_JOINED', (data) => {
-      if (currentGameType === 'kod-macerasi' || currentGameType === 'satranc' || currentGameType === 'penalti-mp' || currentGameType === 'ates-buz') {
+      if (currentGameType === 'kod-macerasi' || currentGameType === 'satranc' || currentGameType === 'penalti-mp' || currentGameType === 'ates-buz' || currentGameType === 'zipla-topla-coop' || currentGameType === 'hava-hokeyi') {
         // Kelime girisi yok, GAME_START bekle
         Multiplayer.on('GAME_START', (gameData) => {
           Multiplayer.off('GAME_START');
@@ -214,7 +224,7 @@ const Lobby = (() => {
     });
 
     // Also listen for GAME_START directly (for joiner)
-    if (currentGameType === 'kod-macerasi' || currentGameType === 'satranc' || currentGameType === 'ates-buz') {
+    if (currentGameType === 'kod-macerasi' || currentGameType === 'satranc' || currentGameType === 'ates-buz' || currentGameType === 'zipla-topla-coop' || currentGameType === 'hava-hokeyi') {
       Multiplayer.on('GAME_START', (gameData) => {
         Multiplayer.off('GAME_START');
         Multiplayer.off('PLAYER_JOINED');
@@ -250,10 +260,10 @@ const Lobby = (() => {
       listContainer.innerHTML = data.lobbies.map(l => `
         <div class="lobby-list-card">
           <div class="lobby-list-info">
-            <span class="lobby-list-icon">${l.gameType === 'penalti-mp' ? '⚽' : l.gameType === 'ates-buz' ? '🔥' : l.gameType === 'kod-macerasi' ? '🤖' : l.gameType === 'kelime-tahmin' ? '🔤' : l.gameType === 'satranc' ? '♟️' : '🔡'}</span>
+            <span class="lobby-list-icon">${l.gameType === 'penalti-mp' ? '⚽' : l.gameType === 'ates-buz' ? '🔥' : l.gameType === 'hava-hokeyi' ? '🏒' : l.gameType === 'zipla-topla-coop' ? '🏃' : l.gameType === 'kod-macerasi' ? '🤖' : l.gameType === 'kelime-tahmin' ? '🔤' : l.gameType === 'satranc' ? '♟️' : '🔡'}</span>
             <div>
               <strong>${escapeHTML(l.hostName)}</strong>
-              <span class="lobby-list-detail">${l.gameType === 'penalti-mp' ? '5 atış' : l.gameType === 'ates-buz' ? '5 seviye' : l.gameType === 'kod-macerasi' ? l.gridSize+'x'+l.gridSize+' grid' : l.gameType === 'satranc' ? 'Satranç' : l.wordLength+' harf · '+(l.maxTurns>=999?'∞':l.maxTurns)+' tur'}</span>
+              <span class="lobby-list-detail">${l.gameType === 'penalti-mp' ? '5 atış' : l.gameType === 'ates-buz' ? '5 seviye' : l.gameType === 'hava-hokeyi' ? 'İlk 7 gol' : l.gameType === 'zipla-topla-coop' ? '12 bölüm co-op' : l.gameType === 'kod-macerasi' ? l.gridSize+'x'+l.gridSize+' grid' : l.gameType === 'satranc' ? 'Satranç' : l.wordLength+' harf · '+(l.maxTurns>=999?'∞':l.maxTurns)+' tur'}</span>
             </div>
           </div>
           <button class="lobby-join-btn" data-id="${l.id}">${TR.mp.join}</button>
@@ -265,7 +275,7 @@ const Lobby = (() => {
           Multiplayer.on('PLAYER_JOINED', (data) => {
             joinedData = data;
           });
-          if (currentGameType === 'kod-macerasi' || currentGameType === 'satranc' || currentGameType === 'penalti-mp' || currentGameType === 'ates-buz') {
+          if (currentGameType === 'kod-macerasi' || currentGameType === 'satranc' || currentGameType === 'penalti-mp' || currentGameType === 'ates-buz' || currentGameType === 'zipla-topla-coop' || currentGameType === 'hava-hokeyi') {
             Multiplayer.on('GAME_START', (gameData) => {
               Multiplayer.offAll();
               if (onGameStart) onGameStart(gameData);
@@ -299,7 +309,7 @@ const Lobby = (() => {
     Multiplayer.on('PLAYER_JOINED', (data) => {
       joinedData = data;
     });
-    if (currentGameType === 'kod-macerasi' || currentGameType === 'satranc' || currentGameType === 'ates-buz' || currentGameType === 'penalti-mp') {
+    if (currentGameType === 'kod-macerasi' || currentGameType === 'satranc' || currentGameType === 'ates-buz' || currentGameType === 'penalti-mp' || currentGameType === 'zipla-topla-coop' || currentGameType === 'hava-hokeyi') {
       Multiplayer.on('GAME_START', (gameData) => {
         Multiplayer.offAll();
         if (onGameStart) onGameStart(gameData);

@@ -89,6 +89,33 @@
 .zt-hud-coins, .zt-hud-level { margin-left: auto; }
 .zt-hud-level { margin-left: 0; }
 
+/* ---- Mod geçişi (1 KİŞİ / 2 KİŞİ) — yalnızca klavyeli cihazlarda enjekte edilir ---- */
+.zt-mode-toggle {
+  pointer-events: auto;
+  gap: 2px;
+  padding: 2px;
+}
+.zt-mode-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.72);
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.zt-mode-btn:hover { color: #fff; }
+.zt-mode-btn.active {
+  background: linear-gradient(135deg, #ffcf3a, #ff8a3a);
+  color: #2a1010;
+  box-shadow: 0 2px 6px rgba(255, 138, 58, 0.4);
+}
+
 /* ---- Mobile Controls (canvas altında ayrı bar) ---- */
 .zt-controls {
   display: none;

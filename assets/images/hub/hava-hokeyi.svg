@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Zemin -->
+  <rect width="256" height="256" rx="48" fill="#0E3A4D"/>
+  <!-- Masa -->
+  <rect x="64" y="26" width="128" height="204" rx="16" fill="#dcf0fa" stroke="#0a2a38" stroke-width="6"/>
+  <!-- Orta çizgi + merkez daire -->
+  <line x1="70" y1="128" x2="186" y2="128" stroke="#3CC8E0" stroke-width="4"/>
+  <circle cx="128" cy="128" r="28" fill="none" stroke="#3CC8E0" stroke-width="4"/>
+  <circle cx="128" cy="128" r="5" fill="#3CC8E0"/>
+  <!-- Kale ağızları -->
+  <line x1="100" y1="29" x2="156" y2="29" stroke="#ff5a5a" stroke-width="7" stroke-linecap="round"/>
+  <line x1="100" y1="227" x2="156" y2="227" stroke="#3ab6f5" stroke-width="7" stroke-linecap="round"/>
+  <!-- Üst tokmak (rakip - kırmızı) -->
+  <circle cx="128" cy="72" r="20" fill="#ff5a5a" stroke="#b71c1c" stroke-width="3"/>
+  <circle cx="128" cy="72" r="9" fill="none" stroke="#ffffff" stroke-width="3" opacity="0.8"/>
+  <!-- Alt tokmak (sen - mavi) -->
+  <circle cx="128" cy="184" r="20" fill="#3ab6f5" stroke="#0277bd" stroke-width="3"/>
+  <circle cx="128" cy="184" r="9" fill="none" stroke="#ffffff" stroke-width="3" opacity="0.8"/>
+  <!-- Disk -->
+  <circle cx="128" cy="128" r="12" fill="#1c2b34"/>
+  <ellipse cx="128" cy="124" rx="7" ry="3.5" fill="#ffffff" opacity="0.3"/>
+</svg>

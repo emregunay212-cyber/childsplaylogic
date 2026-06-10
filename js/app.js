@@ -255,6 +255,8 @@ const App = (() => {
         { id: 'satranc', game: SatrancMP },
         { id: 'penalti-mp', game: PenaltiMP },
         { id: 'ates-buz', game: AtesBuz },
+        { id: 'zipla-topla-coop', game: ZiplaToplaCoop },
+        { id: 'hava-hokeyi', game: HavaHokeyi },
         { id: 'altin-avi', game: AltinAvi },
         { id: 'kelimelik', game: Kelimelik },
     ];

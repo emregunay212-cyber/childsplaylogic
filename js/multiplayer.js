@@ -177,6 +177,13 @@ const Multiplayer = (() => {
         buttons: {},
         createdAt: firebase.database.ServerValue.TIMESTAMP
       };
+    } else if (gameType === 'hava-hokeyi') {
+      lobbyData = {
+        id: lobbyId, gameType,
+        hostId: playerId, hostName: playerName, guestId: null, guestName: null,
+        state: 'WAITING',
+        createdAt: firebase.database.ServerValue.TIMESTAMP
+      };
     } else if (gameType === 'zipla-topla-coop') {
       lobbyData = {
         id: lobbyId, gameType,
@@ -280,6 +287,14 @@ const Multiplayer = (() => {
         yourRole: 'guest', opponentName: lobby.hostName,
         gameType: 'ates-buz', lobbyId, level: lobby.level || 1
       });
+    } else if (lobby.gameType === 'hava-hokeyi') {
+      await ref.update({ guestId: playerId, guestName: playerName, state: 'PLAYING' });
+      listenToLobby(lobbyId);
+      emit('PLAYER_JOINED', { opponentName: lobby.hostName, role: 'guest' });
+      emit('GAME_START', {
+        yourRole: 'guest', opponentName: lobby.hostName,
+        gameType: 'hava-hokeyi', lobbyId
+      });
     } else if (lobby.gameType === 'zipla-topla-coop') {
       await ref.update({ guestId: playerId, guestName: playerName, state: 'PLAYING' });
       listenToLobby(lobbyId);
@@ -337,6 +352,8 @@ const Multiplayer = (() => {
       const defaults = gameType === 'penalti-mp'
         ? { gameType }
         : gameType === 'ates-buz'
+        ? { gameType }
+        : gameType === 'hava-hokeyi'
         ? { gameType }
         : gameType === 'zipla-topla-coop'
         ? { gameType }
@@ -799,6 +816,16 @@ const Multiplayer = (() => {
           emit('GAME_START', {
             yourRole: 'host', opponentName: lobby.guestName,
             gameType: 'ates-buz', lobbyId: currentLobbyId, level: lobby.level || 1
+          });
+        } else if (lobby.gameType === 'hava-hokeyi') {
+          emit('GAME_START', {
+            yourRole: 'host', opponentName: lobby.guestName,
+            gameType: 'hava-hokeyi', lobbyId: currentLobbyId
+          });
+        } else if (lobby.gameType === 'zipla-topla-coop') {
+          emit('GAME_START', {
+            yourRole: 'host', opponentName: lobby.guestName,
+            gameType: 'zipla-topla-coop', lobbyId: currentLobbyId, level: lobby.level || 1
           });
         } else if (lobby.gameType === 'kod-macerasi') {
           const round = lobby.rounds[lobby.currentRound];

@@ -351,6 +351,7 @@
 .game-card[data-game="buz-kulesi"]::before { background: var(--buz-kulesi-color); }
 .game-card[data-game="tetris"]::before { background: var(--tetris-color); }
 .game-card[data-game="zindan-okcusu"]::before { background: var(--zindan-okcusu-color); }
+.game-card[data-game="hava-hokeyi"]::before { background: var(--hava-hokeyi-color); }
 
 /* ── Yakında (deaktif) oyun kartı ── */
 .game-card.coming-soon { cursor: default; }

@@ -19,6 +19,7 @@ const LOCK_CATALOG = [
     { key: 'penalti',         id: 'penalti',         stars: 35, type: 'solo' },
     { key: 'zindan-okcusu',   id: 'zindan-okcusu',   stars: 40, type: 'solo' },
     // Online (çok oyunculu) — solo'lardan sonra, daha yüksek eşik
+    { key: 'mp:zipla-topla-coop', id: 'zipla-topla-coop', stars: 30, type: 'online' },
     { key: 'mp:kelime-tahmin', id: 'kelime-tahmin',  stars: 40, type: 'online' },
     { key: 'mp:harf-tahmin',   id: 'harf-tahmin',    stars: 45, type: 'online' },
     { key: 'mp:kod-macerasi',  id: 'kod-macerasi',   stars: 50, type: 'online' },
@@ -26,6 +27,7 @@ const LOCK_CATALOG = [
     { key: 'mp:penalti-mp',    id: 'penalti-mp',     stars: 60, type: 'online' },
     { key: 'mp:ates-buz',      id: 'ates-buz',       stars: 65, type: 'online' },
     { key: 'mp:altin-avi',     id: 'altin-avi',      stars: 70, type: 'online' },
+    { key: 'mp:hava-hokeyi',   id: 'hava-hokeyi',    stars: 75, type: 'online' },
 ];
 
 // key -> gerekli yıldız (hızlı arama)

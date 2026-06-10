@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Hava Hokeyi</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    background: #08131f;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    -webkit-user-select: none; user-select: none;
+    touch-action: none;
+  }
+  #wrap {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #rink {
+    display: block;
+    touch-action: none;
+    border-radius: 14px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    cursor: none;
+  }
+</style>
+</head>
+<body>
+  <div id="wrap">
+    <canvas id="rink"></canvas>
+  </div>
+
+<script>
+(() => {
+  'use strict';
+
+  // ── Saha boyutları (mantıksal/otoriter koordinat sistemi) ──
+  const W = 480, H = 800;
+  const PUCK_R = 16;
+  const MAL_R  = 30;          // tokmak yarıçapı
+  const GOAL_W = 200;         // kale ağzı genişliği
+  const WALL = 14;            // çerçeve kalınlığı (görsel + çarpışma payı)
+  const FRICTION = 0.994;     // disk sürtünmesi (frame başına)
+  const PUCK_MAX = 13;        // disk maksimum hızı (frame başına) — tünelleme önlemi
+  const REST = 0.93;          // çarpışma esnekliği
+  const WIN_SCORE = 7;
+  const CENTER_X = W / 2, CENTER_Y = H / 2;
+  const GOAL_X0 = (W - GOAL_W) / 2, GOAL_X1 = (W + GOAL_W) / 2;
+
+  // Faz sabitleri
+  const PH_COUNTDOWN = 0, PH_PLAY = 1, PH_GOAL = 2, PH_OVER = 3;
+
+  // Throttle (Ateş & Buz ile aynı: ~30Hz state, ~20Hz input)
+  const STATE_MS = 33;
+  const INPUT_MS = 40;
+
+  // ── Canvas ──
+  const canvas = document.getElementById('rink');
+  const ctx = canvas.getContext('2d');
+  const wrap = document.getElementById('wrap');
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  ctx.scale(dpr, dpr);
+
+  function layout() {
+    const cw = wrap.clientWidth, ch = wrap.clientHeight;
+    const scale = Math.min(cw / W, ch / H);
+    canvas.style.width = Math.round(W * scale) + 'px';
+    canvas.style.height = Math.round(H * scale) + 'px';
+  }
+  window.addEventListener('resize', layout);
+  layout();
+
+  // ── Rol / bağlantı ──
+  const params = new URLSearchParams(location.search);
+  const role = params.get('role') === 'guest' ? 'guest' : 'host';
+  const lobbyId = params.get('lobbyId');
+  const isHost = role === 'host';
+  const opponentName = decodeURIComponent(params.get('name') || 'Rakip');
+  const MY_COLOR = isHost ? '#ff5a5a' : '#3ab6f5';
+  const OP_COLOR = isHost ? '#3ab6f5' : '#ff5a5a';
+
+  // ── Oyun durumu (host otoriter olarak hesaplar) ──
+  const puck = { x: CENTER_X, y: CENTER_Y, vx: 0, vy: 0 };
+  // Tokmaklar host koordinatında: host alt yarı, guest üst yarı
+  const malH = { x: CENTER_X, y: H - 140, px: CENTER_X, py: H - 140, vx: 0, vy: 0 };
+  const malG = { x: CENTER_X, y: 140,     px: CENTER_X, py: 140,     vx: 0, vy: 0 };
+  let scoreH = 0, scoreG = 0;
+  let phase = PH_COUNTDOWN, countdown = 3, lastScorer = null, winner = null;
+  let phaseTimer = 0;         // frame sayacı (host)
+
+  // ── Guest tarafı render durumu (yumuşatma + ölü-hesap) ──
+  const puckR = { x: CENTER_X, y: CENTER_Y, vx: 0, vy: 0 };  // guest'in çizdiği disk
+  const malOpR = { x: CENTER_X, y: H - 140 };                // guest'in çizdiği rakip(host) tokmağı
+  // Guest kendi tokmağını yerel (anlık) tutar — host koordinatında üst yarı
+  const malGuestLocal = { x: CENTER_X, y: 140 };
+
+  // Pointer hedefi (kendi tokmağım için, host koordinatında)
+  let pointerTarget = isHost ? { x: malH.x, y: malH.y } : { x: malGuestLocal.x, y: malGuestLocal.y };
+  let pointerActive = false;
+
+  // ── Yardımcılar ──
+  const clamp = (v, lo, hi) => v < lo ? lo : v > hi ? hi : v;
+  const round1 = v => Math.round(v * 10) / 10;
+
+  // Görsel y dönüşümü: guest kendi tokmağını altta görsün diye y eksenini çevirir
+  const viewFlip = !isHost;
+  const VY = y => viewFlip ? H - y : y;
+
+  // Pointer olayını mantıksal host koordinatına çevir
+  function pointerToWorld(e) {
+    const rect = canvas.getBoundingClientRect();
+    let x = (e.clientX - rect.left) / rect.width * W;
+    let y = (e.clientY - rect.top) / rect.height * H;
+    if (viewFlip) y = H - y;   // guest ekranı çevrildiğinden girişi de geri çevir
+    return { x, y };
+  }
+
+  function onPointer(e) {
+    if (e.cancelable) e.preventDefault();
+    const w = pointerToWorld(e);
+    pointerActive = true;
+    if (isHost) {
+      pointerTarget.x = clamp(w.x, WALL + MAL_R, W - WALL - MAL_R);
+      pointerTarget.y = clamp(w.y, CENTER_Y + MAL_R, H - WALL - MAL_R);
+    } else {
+      pointerTarget.x = clamp(w.x, WALL + MAL_R, W - WALL - MAL_R);
+      pointerTarget.y = clamp(w.y, WALL + MAL_R, CENTER_Y - MAL_R);
+    }
+  }
+  canvas.addEventListener('pointermove', onPointer, { passive: false });
+  canvas.addEventListener('pointerdown', onPointer, { passive: false });
+
+  // ════════════════════════════════════════════
+  //  AĞ KATMANI (parent bilnetoyun Firebase üzerinden)
+  // ════════════════════════════════════════════
+  let hhRef = null;
+  let presenceRef = null;
+  let latestHostState = null;
+  let latestGuestInput = null;
+  let opponentLeft = false;
+  let opponentEverSeen = false;
+  let oppGoneTimer = null;
+  const GRACE_MS = 6000;
+
+  let lastStateSent = 0, lastInputSent = 0;
+
+  function initNet() {
+    const pwin = window.parent;
+    if (!lobbyId || !pwin || !pwin.firebase) {
+      console.warn('[HavaHokeyi] Parent Firebase yok — bağlantı kurulamadı');
+      return false;
+    }
+    try {
+      hhRef = pwin.firebase.database().ref('lobbies/' + lobbyId + '/hh');
+    } catch (err) {
+      console.error('[HavaHokeyi] Firebase ref hatası:', err);
+      return false;
+    }
+
+    if (isHost) {
+      hhRef.child('guestInput').on('value', s => { const v = s.val(); if (v) latestGuestInput = v; });
+    } else {
+      hhRef.child('hostState').on('value', s => { const v = s.val(); if (v) onHostState(v); });
+    }
+
+    // Presence — her (re)connect'te yeniden kur (kısa kopmada yanlış "ayrıldı" deme)
+    presenceRef = hhRef.child('presence/' + role);
+    const connRef = pwin.firebase.database().ref('.info/connected');
+    connRef.on('value', s => {
+      if (s.val() === true && presenceRef) {
+        presenceRef.onDisconnect().remove();
+        presenceRef.set(true);
+      }
+    });
+
+    const oppRole = isHost ? 'guest' : 'host';
+    hhRef.child('presence/' + oppRole).on('value', s => {
+      if (s.val()) {
+        opponentEverSeen = true;
+        if (oppGoneTimer) { clearTimeout(oppGoneTimer); oppGoneTimer = null; }
+        if (opponentLeft) opponentLeft = false;
+      } else if (opponentEverSeen && !oppGoneTimer) {
+        oppGoneTimer = setTimeout(() => { oppGoneTimer = null; opponentLeft = true; }, GRACE_MS);
+      }
+    });
+
+    window.addEventListener('pagehide', cleanupNet);
+    window.addEventListener('unload', cleanupNet);
+    console.log('[HavaHokeyi] Bağlandı — rol:', role, 'lobby:', lobbyId);
+    return true;
+  }
+
+  function onHostState(v) {
+    latestHostState = v;
+    // Disk hedefini yumuşak yakala + ölü-hesap için hız güncelle
+    puckR.vx = v.pvx; puckR.vy = v.pvy;
+    puckR.x += (v.px - puckR.x) * 0.35;
+    puckR.y += (v.py - puckR.y) * 0.35;
+    scoreH = v.sh; scoreG = v.sg;
+    phase = v.ph; countdown = v.cd; lastScorer = v.ls || null;
+    winner = v.ph === PH_OVER ? (v.sh >= WIN_SCORE ? 'host' : 'guest') : null;
+  }
+
+  function sendHostState(now) {
+    if (!hhRef || now - lastStateSent < STATE_MS) return;
+    lastStateSent = now;
+    hhRef.child('hostState').set({
+      px: Math.round(puck.x), py: Math.round(puck.y),
+      pvx: round1(puck.vx), pvy: round1(puck.vy),
+      hx: Math.round(malH.x), hy: Math.round(malH.y),
+      gx: Math.round(malG.x), gy: Math.round(malG.y),
+      sh: scoreH, sg: scoreG, ph: phase, cd: countdown,
+      ls: lastScorer || null
+    });
+  }
+
+  function sendGuestInput(now) {
+    if (!hhRef || now - lastInputSent < INPUT_MS) return;
+    lastInputSent = now;
+    hhRef.child('guestInput').set({
+      px: Math.round(malGuestLocal.x), py: Math.round(malGuestLocal.y)
+    });
+  }
+
+  function cleanupNet() {
+    if (oppGoneTimer) { clearTimeout(oppGoneTimer); oppGoneTimer = null; }
+    if (presenceRef) { try { presenceRef.onDisconnect().cancel(); presenceRef.remove(); } catch (e) {} presenceRef = null; }
+    if (hhRef) { try { hhRef.off(); hhRef.child('presence/' + (isHost ? 'guest' : 'host')).off(); } catch (e) {} }
+  }
+
+  // ════════════════════════════════════════════
+  //  FİZİK (yalnız host hesaplar)
+  // ════════════════════════════════════════════
+  function resetPuck() {
+    puck.x = CENTER_X; puck.y = CENTER_Y;
+    puck.vx = 0; puck.vy = 0;
+  }
+
+  function updateMallet(mal, tx, ty) {
+    mal.px = mal.x; mal.py = mal.y;
+    mal.x = tx; mal.y = ty;
+    mal.vx = mal.x - mal.px;
+    mal.vy = mal.y - mal.py;
+  }
+
+  function malletCollision(mal) {
+    const dx = puck.x - mal.x, dy = puck.y - mal.y;
+    let dist = Math.hypot(dx, dy);
+    const minD = PUCK_R + MAL_R;
+    if (dist >= minD || dist === 0) return;
+    const nx = dx / dist, ny = dy / dist;
+    // Üst üste binmeyi çöz
+    puck.x = mal.x + nx * minD;
+    puck.y = mal.y + ny * minD;
+    // Göreli hız (tokmak kinematik: hareketi diske momentum aktarır)
+    const rvx = puck.vx - mal.vx, rvy = puck.vy - mal.vy;
+    const vn = rvx * nx + rvy * ny;
+    if (vn < 0) {
+      const j = -(1 + REST) * vn;
+      puck.vx += j * nx;
+      puck.vy += j * ny;
+    }
+    // Minimum çıkış hızı (disk tokmağın içinde yapışıp kalmasın)
+    const sp = Math.hypot(puck.vx, puck.vy);
+    if (sp < 2.2) { puck.vx = nx * 2.2; puck.vy = ny * 2.2; }
+  }
+
+  function updatePhysics() {
+    // Tokmakları konumlandır
+    if (isHost) {
+      updateMallet(malH, pointerTarget.x, pointerTarget.y);
+      const gi = latestGuestInput;
+      if (gi) {
+        const gx = clamp(gi.px, WALL + MAL_R, W - WALL - MAL_R);
+        const gy = clamp(gi.py, WALL + MAL_R, CENTER_Y - MAL_R);
+        updateMallet(malG, gx, gy);
+      }
+    }
+
+    if (phase === PH_COUNTDOWN) {
+      phaseTimer--;
+      countdown = Math.max(1, Math.ceil(phaseTimer / 60));
+      if (phaseTimer <= 0) { phase = PH_PLAY; }
+      return;
+    }
+    if (phase === PH_GOAL) {
+      phaseTimer--;
+      if (phaseTimer <= 0) {
+        resetPuck();
+        phase = PH_COUNTDOWN; phaseTimer = 120; countdown = 2;
+      }
+      return;
+    }
+    if (phase === PH_OVER) return;
+
+    // ── PH_PLAY: disk entegrasyonu ──
+    puck.vx *= FRICTION; puck.vy *= FRICTION;
+    const sp = Math.hypot(puck.vx, puck.vy);
+    if (sp > PUCK_MAX) { puck.vx = puck.vx / sp * PUCK_MAX; puck.vy = puck.vy / sp * PUCK_MAX; }
+    puck.x += puck.vx; puck.y += puck.vy;
+
+    // Yan duvarlar
+    if (puck.x - PUCK_R < WALL) { puck.x = WALL + PUCK_R; puck.vx = Math.abs(puck.vx) * REST; }
+    else if (puck.x + PUCK_R > W - WALL) { puck.x = W - WALL - PUCK_R; puck.vx = -Math.abs(puck.vx) * REST; }
+
+    // Üst/alt: kale ağzı dışı sekme, kale içi gol
+    const inGoalX = puck.x > GOAL_X0 && puck.x < GOAL_X1;
+    if (puck.y - PUCK_R < WALL) {
+      if (inGoalX && puck.y < WALL) { goal('host'); return; }     // üst kaleye host attı
+      if (!inGoalX) { puck.y = WALL + PUCK_R; puck.vy = Math.abs(puck.vy) * REST; }
+    } else if (puck.y + PUCK_R > H - WALL) {
+      if (inGoalX && puck.y > H - WALL) { goal('guest'); return; } // alt kaleye guest attı
+      if (!inGoalX) { puck.y = H - WALL - PUCK_R; puck.vy = -Math.abs(puck.vy) * REST; }
+    }
+
+    // Tokmak çarpışmaları
+    malletCollision(malH);
+    malletCollision(malG);
+  }
+
+  function goal(who) {
+    if (who === 'host') scoreH++; else scoreG++;
+    lastScorer = who;
+    if (scoreH >= WIN_SCORE || scoreG >= WIN_SCORE) {
+      phase = PH_OVER;
+      winner = scoreH >= WIN_SCORE ? 'host' : 'guest';
+    } else {
+      phase = PH_GOAL; phaseTimer = 90;
+    }
+  }
+
+  // ════════════════════════════════════════════
+  //  ÇİZİM
+  // ════════════════════════════════════════════
+  function drawRink() {
+    // Zemin
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#eaf7fd');
+    g.addColorStop(0.5, '#d2edf8');
+    g.addColorStop(1, '#eaf7fd');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+
+    // Orta çizgi + merkez daire
+    ctx.strokeStyle = 'rgba(42,163,196,0.55)';
+    ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(WALL, CENTER_Y); ctx.lineTo(W - WALL, CENTER_Y); ctx.stroke();
+    ctx.beginPath(); ctx.arc(CENTER_X, CENTER_Y, 78, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = 'rgba(42,163,196,0.18)';
+    ctx.beginPath(); ctx.arc(CENTER_X, CENTER_Y, 14, 0, Math.PI * 2); ctx.fill();
+
+    // Kale yarım daireleri (her oyuncunun kalesi kendi rengiyle hafif)
+    drawGoalArc(VY(WALL), OP_COLOR);        // üst (rakip)
+    drawGoalArc(VY(H - WALL), MY_COLOR);    // alt (benim)
+
+    // Kale ağzı (renkli kalın çizgi)
+    ctx.lineWidth = 7; ctx.lineCap = 'round';
+    ctx.strokeStyle = OP_COLOR;
+    ctx.beginPath(); ctx.moveTo(GOAL_X0, VY(WALL)); ctx.lineTo(GOAL_X1, VY(WALL)); ctx.stroke();
+    ctx.strokeStyle = MY_COLOR;
+    ctx.beginPath(); ctx.moveTo(GOAL_X0, VY(H - WALL)); ctx.lineTo(GOAL_X1, VY(H - WALL)); ctx.stroke();
+    ctx.lineCap = 'butt';
+
+    // Çerçeve
+    ctx.strokeStyle = '#123a4d';
+    ctx.lineWidth = WALL * 2;
+    ctx.strokeRect(WALL, WALL, W - WALL * 2, H - WALL * 2);
+  }
+
+  function drawGoalArc(y, color) {
+    ctx.fillStyle = color + '22';
+    ctx.beginPath();
+    ctx.arc(CENTER_X, y, GOAL_W / 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function drawMallet(cx, cy, color) {
+    const y = VY(cy);
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.35)'; ctx.shadowBlur = 12; ctx.shadowOffsetY = 4;
+    const grd = ctx.createRadialGradient(cx - 8, y - 8, 4, cx, y, MAL_R);
+    grd.addColorStop(0, '#ffffff');
+    grd.addColorStop(0.25, color);
+    grd.addColorStop(1, shade(color, -40));
+    ctx.fillStyle = grd;
+    ctx.beginPath(); ctx.arc(cx, y, MAL_R, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    // İç halka (tutamak)
+    ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(cx, y, MAL_R * 0.5, 0, Math.PI * 2); ctx.stroke();
+  }
+
+  function drawPuck(cx, cy) {
+    const y = VY(cy);
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.4)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 3;
+    const grd = ctx.createRadialGradient(cx - 5, y - 5, 2, cx, y, PUCK_R);
+    grd.addColorStop(0, '#4a5b66');
+    grd.addColorStop(1, '#0d1b22');
+    ctx.fillStyle = grd;
+    ctx.beginPath(); ctx.arc(cx, y, PUCK_R, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.beginPath(); ctx.ellipse(cx, y - 5, PUCK_R * 0.55, PUCK_R * 0.3, 0, 0, Math.PI * 2); ctx.fill();
+  }
+
+  function drawHUD() {
+    const mySc = isHost ? scoreH : scoreG;
+    const opSc = isHost ? scoreG : scoreH;
+    // Rakip skoru üstte, benim skorum altta (perspektif: ben hep alttayım)
+    drawScore(opSc, 54, OP_COLOR, opponentName);
+    drawScore(mySc, H - 70, MY_COLOR, 'Sen');
+
+    if (phase === PH_COUNTDOWN) {
+      bigText(String(countdown), CENTER_X, CENTER_Y - 40, 96, '#123a4d');
+      smallText('Hazır ol!', CENTER_X, CENTER_Y + 36, '#2a6b80');
+    } else if (phase === PH_GOAL) {
+      const iScored = (lastScorer === 'host') === isHost;
+      bigText(iScored ? 'SAYI!' : 'Gol yedin', CENTER_X, CENTER_Y, 56, iScored ? '#1f9e57' : '#c0392b');
+    } else if (phase === PH_OVER) {
+      const iWon = (winner === 'host') === isHost;
+      drawOverlay();
+      bigText(iWon ? 'KAZANDIN!' : 'Kaybettin', CENTER_X, CENTER_Y - 30, 60, iWon ? '#1f9e57' : '#c0392b');
+      smallText(opSc + ' - ' + mySc + '  •  üstteki ana sayfa düğmesiyle çık', CENTER_X, CENTER_Y + 34, '#eaf7fd');
+    }
+
+    if (opponentLeft && phase !== PH_OVER) {
+      drawOverlay();
+      bigText('Rakip ayrıldı', CENTER_X, CENTER_Y - 16, 44, '#eaf7fd');
+      smallText('Üstteki ana sayfa düğmesiyle dön', CENTER_X, CENTER_Y + 28, '#bcd6e0');
+    }
+  }
+
+  function drawScore(n, y, color, label) {
+    ctx.textAlign = 'center';
+    ctx.fillStyle = color;
+    ctx.font = '700 40px Segoe UI, sans-serif';
+    ctx.fillText(String(n), W - 52, y + 14);
+    ctx.fillStyle = 'rgba(18,58,77,0.65)';
+    ctx.font = '600 16px Segoe UI, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(label, 30, y + 8);
+  }
+
+  function bigText(t, x, y, size, color) {
+    ctx.save();
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = '800 ' + size + 'px Segoe UI, sans-serif';
+    ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+    ctx.strokeText(t, x, y); ctx.fillStyle = color; ctx.fillText(t, x, y);
+    ctx.restore();
+  }
+  function smallText(t, x, y, color) {
+    ctx.save();
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = '600 20px Segoe UI, sans-serif';
+    ctx.fillStyle = color; ctx.fillText(t, x, y);
+    ctx.restore();
+  }
+  function drawOverlay() {
+    ctx.fillStyle = 'rgba(8,19,31,0.55)';
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  // Renk tonlama yardımcı
+  function shade(hex, amt) {
+    const n = parseInt(hex.slice(1), 16);
+    let r = (n >> 16) + amt, g = ((n >> 8) & 255) + amt, b = (n & 255) + amt;
+    r = clamp(r, 0, 255); g = clamp(g, 0, 255); b = clamp(b, 0, 255);
+    return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+  }
+
+  // ════════════════════════════════════════════
+  //  DÖNGÜ
+  // ════════════════════════════════════════════
+  let then = performance.now();
+  const FRAME = 1000 / 60;
+
+  function loop(now) {
+    requestAnimationFrame(loop);
+    let delta = now - then;
+    if (delta < FRAME * 0.9) return;
+    then = now - (delta % FRAME);
+
+    if (isHost) {
+      updatePhysics();
+      sendHostState(now);
+      render(puck.x, puck.y, malH.x, malH.y, malG.x, malG.y);
+    } else {
+      // Guest: kendi tokmağını anlık yakala + gönder
+      malGuestLocal.x += (pointerTarget.x - malGuestLocal.x) * 0.5;
+      malGuestLocal.y += (pointerTarget.y - malGuestLocal.y) * 0.5;
+      sendGuestInput(now);
+      // Rakip(host) tokmağını yumuşat
+      if (latestHostState) {
+        malOpR.x += (latestHostState.hx - malOpR.x) * 0.4;
+        malOpR.y += (latestHostState.hy - malOpR.y) * 0.4;
+      }
+      // Disk ölü-hesap (state aralarında akıcı hareket)
+      if (phase === PH_PLAY) {
+        puckR.x += puckR.vx; puckR.y += puckR.vy;
+        puckR.vx *= FRICTION; puckR.vy *= FRICTION;
+      }
+      render(puckR.x, puckR.y, malOpR.x, malOpR.y, malGuestLocal.x, malGuestLocal.y);
+    }
+  }
+
+  // render: disk + iki tokmak (benim/rakip pozisyonları çağrana göre verilir)
+  function render(pX, pY, opX, opY, myX, myY) {
+    ctx.clearRect(0, 0, W, H);
+    drawRink();
+    drawMallet(opX, opY, OP_COLOR);
+    drawMallet(myX, myY, MY_COLOR);
+    if (phase === PH_PLAY || phase === PH_COUNTDOWN || phase === PH_GOAL) drawPuck(pX, pY);
+    drawHUD();
+  }
+
+  // ── Başlat ──
+  const ok = initNet();
+  if (isHost) { phase = PH_COUNTDOWN; phaseTimer = 180; countdown = 3; }
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

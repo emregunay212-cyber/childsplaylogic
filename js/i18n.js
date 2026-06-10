@@ -32,7 +32,9 @@ const TR = {
         'sayilarla-boyama': 'Sayılarla Boyama',
         'emoji-yapici': 'Emoji Yapıcı',
         'zipla-topla': 'Zıpla Topla',
+        'zipla-topla-coop': 'Zıpla Topla Online',
         'ates-buz': 'Ateş & Buz',
+        'hava-hokeyi': 'Hava Hokeyi',
         'space-waves': 'SpaceWaves',
         'egim': 'Eğim',
         'altin-avi': 'Altın Avı',
@@ -135,6 +137,7 @@ const TR = {
         'tetris': 'Blokları döndür, satırları doldur ve temizle!',
         'kelimelik': 'Arkadaşınla 1v1: harfleri diz, kelime kur, en çok puanı topla!',
         'zindan-okcusu': 'Ok at, düşmanları yen, ekipman topla, zindanı temizle!',
+        'hava-hokeyi': 'Tokmağı kaydır, diski rakibin kalesine sok — ilk 7 golü atan kazanır!',
     },
 
     // Kod Macerasi stringleri
