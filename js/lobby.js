@@ -292,8 +292,8 @@ const Lobby = (() => {
       });
     });
 
-    Multiplayer.send('LIST_LOBBIES');
-    container.querySelector('.lobby-refresh-btn').onclick = () => Multiplayer.send('LIST_LOBBIES');
+    Multiplayer.send('LIST_LOBBIES', { gameType: currentGameType });
+    container.querySelector('.lobby-refresh-btn').onclick = () => Multiplayer.send('LIST_LOBBIES', { gameType: currentGameType });
     container.querySelector('[data-action="back"]').onclick = renderMainMenu;
   }
 

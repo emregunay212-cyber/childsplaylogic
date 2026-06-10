@@ -57,7 +57,7 @@ const Multiplayer = (() => {
     switch (type) {
       case 'SET_NAME': return setName(payload.name);
       case 'CREATE_LOBBY': return createLobby(payload);
-      case 'LIST_LOBBIES': return listLobbies();
+      case 'LIST_LOBBIES': return listLobbies(payload.gameType);
       case 'JOIN_LOBBY': return joinLobby(payload.lobbyId);
       case 'QUICK_PLAY': return quickPlay(payload.gameType);
       case 'SET_WORD': return setWord(payload.word);
@@ -232,11 +232,13 @@ const Multiplayer = (() => {
     emit('LOBBY_CREATED', { lobbyId, lobby: lobbyData });
   }
 
-  async function listLobbies() {
+  async function listLobbies(gameType) {
     const snapshot = await db.ref('lobbies').orderByChild('state').equalTo('WAITING').once('value');
     const list = [];
     snapshot.forEach(child => {
       const lobby = child.val();
+      // Sadece istenen oyunun odaları: harf-tahmin odası kelime-tahmin listesine sızmasın
+      if (gameType && lobby.gameType !== gameType) return;
       const item = { id: lobby.id, gameType: lobby.gameType, hostName: lobby.hostName || 'Bilinmiyor' };
       if (lobby.gameType === 'kod-macerasi') {
         item.gridSize = lobby.gridSize;
