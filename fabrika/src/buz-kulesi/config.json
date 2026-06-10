@@ -1,0 +1,13 @@
+{
+  "id": "buz-kulesi",
+  "type": "shellA",
+  "titles": { "tr": "Buz Kulesi", "en": "Frost Climber" },
+  "slug": { "tr": "buz-kulesi", "en": "frost-climber" },
+  "langs": ["tr", "en"],
+  "themeColor": "#4FC3F7",
+  "mode": "endless",
+  "levelCount": 1,
+  "gameVar": "BuzKulesi",
+  "sources": ["game.js"],
+  "css": ["game.css"]
+}
