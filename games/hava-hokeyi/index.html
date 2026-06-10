@@ -232,6 +232,7 @@
   }
 
   function cleanupNet() {
+    if (bgTicker) { bgTicker.stop(); bgTicker = null; }
     if (oppGoneTimer) { clearTimeout(oppGoneTimer); oppGoneTimer = null; }
     if (presenceRef) { try { presenceRef.onDisconnect().cancel(); presenceRef.remove(); } catch (e) {} presenceRef = null; }
     if (hhRef) { try { hhRef.off(); hhRef.child('presence/' + (isHost ? 'guest' : 'host')).off(); } catch (e) {} }
@@ -497,14 +498,16 @@
   // ════════════════════════════════════════════
   //  DÖNGÜ
   // ════════════════════════════════════════════
-  let then = performance.now();
   const FRAME = 1000 / 60;
+  let lastStep = performance.now();
 
-  function loop(now) {
-    requestAnimationFrame(loop);
-    let delta = now - then;
-    if (delta < FRAME * 0.9) return;
-    then = now - (delta % FRAME);
+  // Tek simülasyon/ağ/çizim adımı. Görünür sekmede rAF, GİZLİ sekmede Worker (bgTicker)
+  // çağırır. Zaman-damgalı throttle: iki sürücü aynı anda çağırsa bile tek adım atılır
+  // (fixed-timestep korunur, çift-hız olmaz).
+  function stepFrame() {
+    const now = performance.now();
+    if (now - lastStep < FRAME * 0.9) return;
+    lastStep = now;
 
     if (isHost) {
       updatePhysics();
@@ -528,6 +531,26 @@
     }
   }
 
+  function rafLoop() { stepFrame(); requestAnimationFrame(rafLoop); }
+
+  // Arka-plan sürücüsü: Worker setInterval gizli sekmede KISILMAZ (ana-thread timer'larının
+  // aksine) — host yayını + guest girdisi sekme arka plandayken de sürer. Bu, "rakip ayrıldı"
+  // yanlış-pozitifini ve aynı PC'de iki-sekme testinde donmayı önler.
+  let bgTicker = null;
+  function startBgTicker() {
+    try {
+      const url = URL.createObjectURL(new Blob(
+        ['setInterval(function(){postMessage(1)},33)'], { type: 'application/javascript' }));
+      const w = new Worker(url);
+      URL.revokeObjectURL(url);
+      w.onmessage = () => stepFrame();
+      bgTicker = { stop: () => w.terminate() };
+    } catch (e) {
+      const id = setInterval(stepFrame, 200);
+      bgTicker = { stop: () => clearInterval(id) };
+    }
+  }
+
   // render: disk + iki tokmak (benim/rakip pozisyonları çağrana göre verilir)
   function render(pX, pY, opX, opY, myX, myY) {
     ctx.clearRect(0, 0, W, H);
@@ -541,7 +564,8 @@
   // ── Başlat ──
   const ok = initNet();
   if (isHost) { phase = PH_COUNTDOWN; phaseTimer = 180; countdown = 3; }
-  requestAnimationFrame(loop);
+  requestAnimationFrame(rafLoop);
+  startBgTicker();
 })();
 </script>
 </body>
