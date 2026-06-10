@@ -186,6 +186,11 @@ def build_game(game_id):
     failed = False
     for out in outs:
         errors = validator.validate(out)
+        # Oyun-özel yasaklı kelimeler (örn. marka adları)
+        text = out.read_text(encoding='utf-8').lower()
+        for word in cfg.get('forbiddenWords', []):
+            if word.lower() in text:
+                errors.append(f'yasaklı kelime: {word!r}')
         if errors:
             failed = True
             print(f'   [FAIL] {out.name}')

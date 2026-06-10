@@ -1,0 +1,14 @@
+{
+  "id": "blok-yagmuru",
+  "type": "shellA",
+  "titles": { "tr": "Blok Yağmuru", "en": "Block Rain" },
+  "slug": { "tr": "blok-yagmuru", "en": "block-rain" },
+  "langs": ["tr", "en"],
+  "themeColor": "#5C6BC0",
+  "mode": "endless",
+  "levelCount": 1,
+  "gameVar": "BlokYagmuru",
+  "sources": ["game.js"],
+  "css": ["game.css"],
+  "forbiddenWords": ["tetris", "tetromino"]
+}

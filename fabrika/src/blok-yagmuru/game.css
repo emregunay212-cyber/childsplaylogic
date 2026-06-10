@@ -1,0 +1,311 @@
+/* ============================================
+   Blok Yağmuru — Oyun Stilleri (klasik renkli, çocuk dostu)
+   ============================================ */
+
+.tt-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  aspect-ratio: 560 / 720;
+  max-height: calc(100dvh - 96px);
+  margin: 0 auto;
+  background: linear-gradient(160deg, #EEF1FB 0%, #DDE2F4 100%);
+  border-radius: 22px;
+  box-shadow:
+    0 0 0 3px rgba(92, 107, 192, 0.25),
+    0 18px 50px rgba(60, 65, 120, 0.28);
+  overflow: hidden;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.tt-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.tt-ui-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.tt-ui-layer > * { pointer-events: auto; }
+
+/* ---- İpucu (masaüstü) ---- */
+.tt-hint {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(92, 107, 192, 0.92);
+  color: #fff;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  font-family: 'Fredoka', 'Nunito', system-ui, sans-serif;
+  box-shadow: 0 4px 14px rgba(92, 107, 192, 0.4);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.tt-hint b { color: #FFE08A; }
+
+/* ---- Mobil dokunmatik kontroller ---- */
+.tt-mobile {
+  position: absolute;
+  bottom: 14px;
+  left: 12px;
+  right: 12px;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+}
+.tt-mbtn {
+  pointer-events: auto;
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 2px solid #5C6BC0;
+  color: #4453A6;
+  font-size: 24px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(92, 107, 192, 0.35);
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tt-mbtn:active {
+  background: #5C6BC0;
+  color: #fff;
+  transform: scale(0.94);
+  box-shadow: 0 2px 8px rgba(92, 107, 192, 0.5);
+}
+.tt-mrotate {
+  background: #5C6BC0;
+  color: #fff;
+}
+.tt-mrotate:active { background: #4453A6; }
+.tt-mdrop {
+  background: #F2994A;
+  border-color: #F2994A;
+  color: #fff;
+}
+.tt-mdrop:active { background: #d97e2e; }
+
+@media (pointer: coarse), (hover: none), (max-width: 820px) {
+  .tt-mobile { display: flex; }
+  .tt-hint { display: none; }
+}
+
+@media (max-width: 430px) {
+  .tt-mbtn { width: 52px; height: 52px; font-size: 21px; border-radius: 14px; }
+  .tt-mobile { gap: 7px; bottom: 10px; }
+}
+
+/* Yatay (landscape) modda kontrolleri kenarda topla */
+@media (orientation: landscape) and (max-height: 560px) {
+  .tt-wrap { max-height: calc(100dvh - 60px); }
+  .tt-mobile { bottom: 8px; }
+}
+
+/* ---- Modal ---- */
+.tt-modal {
+  position: absolute;
+  inset: 0;
+  background: rgba(60, 65, 120, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  animation: ttFadeIn 0.3s ease;
+}
+@keyframes ttFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.tt-modal-card {
+  background: linear-gradient(160deg, #ffffff 0%, #F3F5FE 100%);
+  border: 3px solid #5C6BC0;
+  border-radius: 20px;
+  padding: 22px 24px;
+  min-width: 300px;
+  max-width: 92%;
+  max-height: 90%;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(60, 65, 120, 0.5);
+  color: #3A4178;
+  font-family: 'Fredoka', 'Nunito', system-ui, sans-serif;
+}
+
+.tt-gameover-title {
+  font-size: 28px;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 16px;
+  color: #5C6BC0;
+}
+
+.tt-gameover-score {
+  background: #F0F2FB;
+  border-radius: 14px;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+}
+.tt-go-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 16px;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(92, 107, 192, 0.14);
+}
+.tt-go-row:last-child { border-bottom: none; }
+.tt-go-row b {
+  color: #5C6BC0;
+  font-size: 19px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.tt-gameover-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tt-btn {
+  padding: 12px 20px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  border: none;
+  font-family: inherit;
+}
+.tt-btn:hover { transform: translateY(-2px); }
+.tt-btn:active { transform: translateY(0); }
+.tt-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.tt-btn-primary {
+  background: linear-gradient(135deg, #5C6BC0, #4453A6);
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(92, 107, 192, 0.45);
+}
+.tt-btn-secondary {
+  background: #fff;
+  color: #5C6BC0;
+  border: 2px solid #C5CBEC;
+}
+.tt-btn-accent {
+  background: linear-gradient(135deg, #FFC94A, #F2994A);
+  color: #fff;
+  font-weight: 800;
+  box-shadow: 0 6px 16px rgba(242, 153, 74, 0.45);
+}
+.tt-btn-ghost {
+  background: #EEF0FA;
+  color: #5C6BC0;
+  border: 1px solid #D2D7F0;
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+/* ---- Skor kaydet & Lider tablosu ---- */
+.tt-save-area { margin-top: 14px; }
+.tt-save-form { display: flex; gap: 8px; flex-wrap: wrap; }
+.tt-save-form input {
+  flex: 1;
+  min-width: 150px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  border: 2px solid #C5CBEC;
+  background: #fff;
+  color: #3A4178;
+  font-size: 15px;
+  font-family: inherit;
+  font-weight: 600;
+}
+.tt-save-form input:focus {
+  outline: none;
+  border-color: #5C6BC0;
+  box-shadow: 0 0 0 3px rgba(92, 107, 192, 0.18);
+}
+.tt-shake { animation: ttShake 0.4s ease; }
+@keyframes ttShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+.tt-save-ok { color: #2ecc71; font-weight: 700; text-align: center; padding: 8px; }
+.tt-error { color: #e74c3c; font-weight: 700; text-align: center; padding: 8px; }
+
+.tt-leaderboard-area { margin-top: 16px; }
+.tt-lb-loading { text-align: center; padding: 14px; color: #7986CB; font-weight: 600; }
+.tt-lb-title {
+  font-size: 15px;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 10px;
+  color: #5C6BC0;
+}
+.tt-lb-table {
+  background: #F0F2FB;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.tt-lb-head, .tt-lb-row {
+  display: grid;
+  grid-template-columns: 46px 1fr 76px;
+  padding: 9px 12px;
+  align-items: center;
+  font-size: 14px;
+}
+.tt-lb-head {
+  background: #5C6BC0;
+  font-weight: 800;
+  color: #fff;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.tt-lb-row { border-bottom: 1px solid rgba(92, 107, 192, 0.1); font-weight: 600; }
+.tt-lb-row:last-child { border-bottom: none; }
+.tt-lb-row.tt-lb-me {
+  background: linear-gradient(90deg, rgba(92, 107, 192, 0.18), rgba(255, 201, 74, 0.18));
+  font-weight: 800;
+}
+.tt-lb-rank { color: #5C6BC0; font-weight: 800; }
+.tt-lb-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tt-lb-score { text-align: right; color: #4453A6; font-weight: 800; font-variant-numeric: tabular-nums; }
+.tt-lb-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  gap: 8px;
+}
+.tt-lb-pageinfo { color: #7986CB; font-size: 12px; font-weight: 600; }
+.tt-lb-out {
+  text-align: center;
+  padding: 18px;
+  background: #F0F2FB;
+  border-radius: 14px;
+}
+.tt-lb-rank-big {
+  font-size: 52px;
+  font-weight: 900;
+  color: #5C6BC0;
+  margin: 8px 0;
+}
+.tt-lb-msg { color: #7986CB; font-size: 13px; font-weight: 600; }
