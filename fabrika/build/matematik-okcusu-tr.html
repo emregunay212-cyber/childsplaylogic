@@ -68,9 +68,10 @@
     font-size:clamp(22px,6vw,32px);margin-bottom:14px;text-align:center;}
 
   /* titles & buttons */
-  .title{font-family:Georgia, 'Times New Roman',serif;font-weight:900;line-height:.95;font-size:clamp(38px,11vw,76px);
+  /* MATH ARCHER: başlık 16 karakter — taşmasın diye ölçü düşürüldü */
+  .title{font-family:Georgia, 'Times New Roman',serif;font-weight:900;line-height:.95;font-size:clamp(26px,7.4vw,58px);
     background:linear-gradient(180deg,#ffe7a8,#f5c451 45%,#c8841f);-webkit-background-clip:text;background-clip:text;
-    color:transparent;text-shadow:0 0 40px rgba(245,196,81,.25);letter-spacing:2px;}
+    color:transparent;text-shadow:0 0 40px rgba(245,196,81,.25);letter-spacing:1px;}
   .subtitle{font-family:Georgia,serif;font-weight:600;font-size:clamp(10px,3vw,14px);letter-spacing:6px;color:var(--muted);
     margin-top:6px;text-transform:uppercase;}
   .btn{font-family:Georgia, 'Times New Roman',serif;font-weight:700;cursor:pointer;font-size:clamp(16px,4.6vw,22px);letter-spacing:2px;
@@ -235,6 +236,21 @@
   #goStats .s span{font-size:10px;letter-spacing:2px;color:var(--muted);font-weight:600;text-transform:uppercase;margin-top:3px;}
 
   /* ── MATH ARCHER: soru bandı + sandık sorusu ── */
+  /* MATH ARCHER: hub ayar paneli — konu + atış modu tek kompakt kartta, chip dizilimi */
+  #setupPanel{margin:14px auto 0;max-width:520px;width:calc(100% - 24px);
+    background:rgba(20,16,34,.55);border:1px solid rgba(120,100,180,.25);border-radius:16px;
+    padding:10px 12px 12px;display:flex;flex-direction:column;gap:9px;}
+  .setRow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;}
+  .setLbl{flex:0 0 auto;color:var(--muted);font-size:10px;letter-spacing:2px;font-weight:700;
+    min-width:58px;text-align:right;}
+  .chip{flex:0 0 auto;width:auto;max-width:none;cursor:pointer;
+    font-family:Georgia,serif;font-weight:700;font-size:12px;letter-spacing:.4px;
+    color:var(--muted);background:rgba(255,255,255,.04);
+    border:1.5px solid rgba(120,100,180,.35);border-radius:999px;padding:7px 13px;
+    transition:transform .08s,border-color .12s,color .12s;}
+  .chip:active{transform:scale(.94);}
+  .chip.on{color:var(--gold);border-color:var(--gold);background:rgba(245,196,81,.10);}
+
   #qBand{position:fixed;left:50%;transform:translateX(-50%) translateY(-140%);top:84px;z-index:40;
     max-width:min(92vw,560px);padding:9px 22px;border-radius:14px;text-align:center;
     background:linear-gradient(180deg,rgba(34,27,54,.96),rgba(18,14,30,.96));
@@ -349,8 +365,10 @@ window.storage = {
   <div class="crossbow">🏹</div>
   <h1 class="title">MATEMATİK OKÇUSU</h1>
   <div class="subtitle">Sorularla Güçlen!</div>
-  <div id="topicRow" style="margin-top:10px"></div>
-  <div id="fireModeRow" style="margin-top:8px"></div>
+  <div id="setupPanel">
+    <div class="setRow" id="topicRow"></div>
+    <div class="setRow" id="fireModeRow"></div>
+  </div>
   <div class="charPanel" style="margin-top:20px">
     <div class="slotRow" id="hubSlots"></div>
     <div class="statGrid" id="hubStats"></div>
@@ -2618,47 +2636,35 @@ function renderHub(){
   $('bestLine').textContent=save.bestEndless>0?'🏆 Sonsuz rekoru: '+fmt(save.bestEndless):'';
   renderTopics();
 }
-/* MATH ARCHER — Mekanik C: konu seçimi (yalnız soru havuzunu filtreler, oynanışı değiştirmez) */
-function renderTopics(){
-  const wrap=$('topicRow');if(!wrap)return;
-  while(wrap.firstChild)wrap.removeChild(wrap.firstChild);
-  const lbl=document.createElement('div');
-  lbl.style.cssText='color:var(--muted);font-size:11px;letter-spacing:2px;font-weight:700;margin-bottom:6px';
-  lbl.textContent='📚 SORU KONUSU';
-  wrap.appendChild(lbl);
-  const row=document.createElement('div');
-  row.style.cssText='display:flex;gap:7px;justify-content:center;flex-wrap:wrap';
-  const opts=[{kod:'',ad:'Karışık'}].concat(SORU_BANKASI.konular);
-  for(const k of opts){
-    const b=document.createElement('button');
-    b.className='btn ghost';
-    const on=maTopic===k.kod;
-    b.style.cssText='padding:7px 13px;font-size:12px'+(on?';border-color:var(--gold);color:var(--gold);box-shadow:0 0 12px rgba(245,196,81,.25)':'');
-    b.textContent=(on?'✓ ':'')+k.ad;
-    b.onclick=()=>{maTopic=k.kod;try{Storage.set('ma.konu',maTopic);}catch(e){}renderTopics();sfx.coin&&sfx.coin();};
-    row.appendChild(b);
-  }
-  wrap.appendChild(row);
-  renderFireMode();
-}
-/* MATH ARCHER — hub'da atış modu seçici (savaş içinde 🎯/🅰 mini butonu ya da F) */
-function renderFireMode(){
-  const wrap=$('fireModeRow');if(!wrap)return;
+/* MATH ARCHER — hub ayar paneli: kompakt chip satırları (etiket + seçenekler) */
+function chipRow(wrap,label,opts,isOn,onPick){
   while(wrap.firstChild)wrap.removeChild(wrap.firstChild);
   const lbl=document.createElement('span');
-  lbl.style.cssText='color:var(--muted);font-size:11px;letter-spacing:2px;font-weight:700;margin-right:8px';
-  lbl.textContent='🏹 ATIŞ';
+  lbl.className='setLbl';lbl.textContent=label;
   wrap.appendChild(lbl);
-  const opts=[['manual','🎯 Nişanla (basılı tut)'],['auto','🅰 Otomatik']];
-  for(const[mode,txt]of opts){
+  for(const[val,txt]of opts){
     const b=document.createElement('button');
-    b.className='btn ghost';
-    const on=fireMode===mode;
-    b.style.cssText='padding:7px 13px;font-size:12px'+(on?';border-color:var(--gold);color:var(--gold);box-shadow:0 0 12px rgba(245,196,81,.25)':'');
-    b.textContent=(on?'✓ ':'')+txt;
-    b.onclick=()=>{if(fireMode!==mode)toggleFireMode();};
+    b.className='chip'+(isOn(val)?' on':'');
+    b.textContent=(isOn(val)?'✓ ':'')+txt;
+    b.onclick=()=>onPick(val);
     wrap.appendChild(b);
   }
+}
+/* Mekanik C: konu seçimi (yalnız soru havuzunu filtreler, oynanışı değiştirmez) */
+function renderTopics(){
+  const wrap=$('topicRow');if(!wrap)return;
+  const opts=[['','Karışık']].concat(SORU_BANKASI.konular.map(k=>[k.kod,k.ad]));
+  chipRow(wrap,'KONU',opts,v=>maTopic===v,v=>{
+    maTopic=v;try{Storage.set('ma.konu',maTopic);}catch(e){}
+    renderTopics();sfx.coin&&sfx.coin();
+  });
+  renderFireMode();
+}
+/* Atış modu seçici (savaş içinde 🎯/🅰 mini butonu ya da F) */
+function renderFireMode(){
+  const wrap=$('fireModeRow');if(!wrap)return;
+  chipRow(wrap,'ATIŞ',[['manual','🎯 Nişanla'],['auto','🅰 Otomatik']],
+    v=>fireMode===v,v=>{if(fireMode!==v)toggleFireMode();});
 }
 function renderMap(){
   updateGoldDisplays();
