@@ -98,15 +98,15 @@
     "7": [
         {
             "position": {
-                "x": 1224,
-                "y": 108
+                "x": 1116,
+                "y": 828
             },
             "element": "fire"
         },
         {
             "position": {
-                "x": 1296,
-                "y": 108
+                "x": 1188,
+                "y": 828
             },
             "element": "water"
         }
@@ -114,15 +114,15 @@
     "8": [
         {
             "position": {
-                "x": 648,
-                "y": 216
+                "x": 1188,
+                "y": 828
             },
             "element": "fire"
         },
         {
             "position": {
-                "x": 756,
-                "y": 216
+                "x": 1260,
+                "y": 828
             },
             "element": "water"
         }
@@ -131,14 +131,14 @@
         {
             "position": {
                 "x": 1188,
-                "y": 108
+                "y": 828
             },
             "element": "fire"
         },
         {
             "position": {
                 "x": 1260,
-                "y": 108
+                "y": 828
             },
             "element": "water"
         }
@@ -146,15 +146,15 @@
     "10": [
         {
             "position": {
-                "x": 72,
-                "y": 108
+                "x": 1224,
+                "y": 828
             },
             "element": "fire"
         },
         {
             "position": {
-                "x": 180,
-                "y": 108
+                "x": 1296,
+                "y": 828
             },
             "element": "water"
         }

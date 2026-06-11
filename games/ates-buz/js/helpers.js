@@ -45,7 +45,11 @@ function setEndGame(setValue) {
 }
 
 function setCurrentLevel(setValue) {
-    currentLevel = setValue;
+    // Sayıya çevir: menü seçimi for..in ile STRING anahtar gönderir ("7").
+    // String kalırsa online'da host levelIdx:"7" yayınlar, misafirdeki
+    // typeof==='number' koruması reddeder -> misafir yeni bölümü YÜKLEYEMEZ
+    // (eski görsel/çarpışmayla oynar); ayrıca kapı-ilerlemesi "7"+1="71" olur.
+    currentLevel = Number(setValue);
 }
 
 function setMenuActive(setValue) {

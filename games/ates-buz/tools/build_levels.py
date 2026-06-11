@@ -305,142 +305,165 @@ def make_level(rows27, floor):
     return [BORDER] + body + [BORDER]
 
 
-# ---- BOLUM 7: "Kopru Gecidi" — YATAY, 2-BUTON ROLE koprusu, kolay-orta ----
-# Ikisi solda baslar (c1-13 zemin). Merkezde GENIS ASIT hendegi (c14-25 = 12 hucre,
-# ZIPLANAMAZ, ikisini de oldurur) sagdaki kapilardan ayirir. Tek paylasilan rampa-kopru
-# iki butona (sol c11 / sag c27) bagli (OR): biri butonda DURURKEN rampa asidi zemin
-# seviyesinde kopruler. ASIMETRIK RELE: A sol butonu tutar -> B kopruden gecer -> B sag
-# butonu tutar -> A gecer. Tek oyuncu yapamaz (hem basip hem gecemez); asit ziplanamaz
-# -> dumduz gecmek IMKANSIZ. (Level 1/4 asimetrik buton-rampa idiomu.)
+# ---- BOLUM 7: "Üç Kilit" — 3 KAT, 3 CO-OP KİLİDİ, orta-zor (DOĞRULANMIŞ) ----
+# NOT: Daha yoğun "koridor-labirent" denemesi motorun KAFA-ÇARPMASI bug'ına takıldı
+# (alçak tavana çarpan oyuncu kayma durumunda havuz+duvar İÇİNDEN dünyadan düşüyor).
+# KURAL: zıplama yapılan her yerde ≥5 satır açık tavan bırak; alçak tavan altında
+# zorunlu zıplama TASARLAMA. Yoğunluk = L5/L6 tarzı YÜKSEK tavanlı açık odalar.
+# AKIŞ: üst kat (başlangıç) -> sağ şaft -> orta kat RÖLE köprüsü (gömülü, asitten
+# yükselir) -> delik -> alt kat KALDIRAÇ köprüsü + lav şeridi + mesafe-kilitli BEKÇİ.
 LEVEL7 = make_level([
-    lay(),                # r1
-    lay(),                # r2
-    lay(),                # r3
-    lay(),                # r4
-    lay(),                # r5
-    lay((34, 37)),        # r6  KAPI basamağı (en üst-sağ)
-    lay((34, 37)),        # r7
-    lay((34, 37)),        # r8
-    lay((32, 37)),        # r9
-    lay((32, 37)),        # r10
-    lay((32, 37)),        # r11
-    lay((30, 37)),        # r12
-    lay((30, 37)),        # r13
-    lay((30, 37)),        # r14
-    lay((28, 37)),        # r15
-    lay((28, 37)),        # r16
-    lay((28, 37)),        # r17
-    lay((26, 37)),        # r18
-    lay((26, 37)),        # r19
-    lay((26, 37)),        # r20
-    lay((24, 37)),        # r21
-    lay((24, 37)),        # r22
-    lay((24, 37)),        # r23
-    lay((22, 37)),        # r24  merdiven tabanı (kenar-tırmanışla çıkılır)
-    lay((22, 37)),        # r25
-    lay((22, 37)),        # r26
-], lay((1, 5, "#"), (6, 17, "a"), (18, 37, "#")))     # r27 zemin: başlangıç c1-5 / GENİŞ ASİT c6-17 (röle) / sahanlık+merdiven c18-37
+    lay(),                                            # r1
+    lay(),                                            # r2
+    lay(),                                            # r3
+    lay(),                                            # r4
+    lay(),                                            # r5
+    lay(),                                            # r6
+    lay(),                                            # r7
+    lay(),                                            # r8
+    lay((1, 30)),                                     # r9  ÜST KAT bandı (başlangıç); c31-37 = iniş şaftı
+    lay(),                                            # r10
+    lay(),                                            # r11
+    lay(),                                            # r12
+    lay(),                                            # r13
+    lay(),                                            # r14
+    lay((1, 4), (8, 11), (23, 37)),                   # r15 ORTA KAT: sol cep / delik c5-7 / sol-yaka / ÇUKUR c12-22 / sağ-yaka
+    lay((1, 4), (8, 11), (12, 22, "a"), (23, 37)),    # r16 ÇUKURDA ASİT (yürüme seviyesinin 1 altı)
+    lay((12, 22), (30, 30)),                          # r17 asit leğeni tabanı + BEKÇİ DUVAR GÖVDESİ (c30)
+    lay((30, 30)),                                    # r18 duvar gövdesi (sağ oda mühürlü — tek giriş bariyer)
+    lay((30, 30)),                                    # r19
+    lay((30, 30)),                                    # r20
+    lay((30, 30)),                                    # r21
+    lay((30, 30)),                                    # r22 (bariyer açılınca çubuk gövdeye çekilir)
+    lay(),                                            # r23
+    lay(),                                            # r24
+    lay(),                                            # r25
+    lay((1, 7), (19, 20), (24, 37)),                  # r26 ALT KAT bandı: cep / ÇUKUR c8-18 / ara / LAV c21-23 / kapılar
+], lay((1, 7, "#"), (8, 18, "a"), (19, 20, "#"), (21, 23, "f"), (24, 37, "#")))
+# r27 çukur içleri: ASİT moat2 c8-18 (kaldıraç köprüsü üstünden) / LAV c21-23 (ateş içinden,
+#     su üstünden) — leğen tabanı = alt kenar duvarı (r28)
 
-# ---- BOLUM 8: "Kule" — DIKEY zigzag tirmanis, orta ----
-# Her basamak 3 hücre + GENIS (≥4 hücre) örtüşmeli zigzag -> kolay yan-sıçrayış,
-# baş-çarpması yok. İlk basamak (r24) zeminden 3 hücre = doğrudan ulaşılır (mekanik
-# gerekmez). Köşelerde ATEŞ/SU havuzu (tema + elmas); ana yol ortada güvenli.
-# Aşamalı zorluk: uzun dikey tırmanış. Çözülebilirlik = her adım <=3 hücre.
+# ---- BOLUM 8: "Küp Atölyesi" — ASİT GÖLÜ ÜSTÜNDE BANT + ÇİFT-BUTON BEKÇİ + KÜP, zor ----
+# Tüm aksiyon r18 YÜRÜME BANDINDA (c1-21), altı DEV ASİT GÖLÜ (c1-32). AKIŞ:
+# (1) BEKÇİ RÖLESİ: bariyer (c12) bandı ikiye böler; butonlar c1 (başlangıç tarafı) ve
+#     c20 (raf tarafı) — bariyere uzak => tek kişi imkansız. A c1'i tutar -> B geçer.
+# (2) B raftaki KÜPÜ sağa iter: bandın ucundan (792) ASİT GÖLÜNE düşer, dibe oturur ve
+#     DİPTEKİ BUTONA basar — oyuncu o butona ASLA ulaşamaz (asit öldürür) => köprü
+#     (c24-32) KALICI yükselir. (3) B c20 butonunu tutar -> A bariyerden geçer.
+# (4) İkisi bant ucundan köprüye/küpün üstüne atlar -> kapı platformuna (c33-37).
 LEVEL8 = make_level([
-    lay(),                # r1
-    lay(),                # r2
-    lay(),                # r3
-    lay(),                # r4
-    lay(),                # r5
-    lay(),                # r6
-    lay(),                # r7
-    lay(),                # r8
-    lay((17, 22)),        # r9  PIRAMIT TEPESI — ORTAK kapı platformu (zirve)
-    lay((17, 22)),        # r10
-    lay((17, 22)),        # r11
-    lay((15, 24)),        # r12
-    lay((15, 24)),        # r13
-    lay((15, 24)),        # r14
-    lay((13, 26)),        # r15
-    lay((13, 26)),        # r16
-    lay((13, 26)),        # r17
-    lay((11, 28)),        # r18
-    lay((11, 28)),        # r19
-    lay((11, 28)),        # r20
-    lay((9, 30)),         # r21
-    lay((9, 30)),         # r22
-    lay((9, 30)),         # r23
-    lay((7, 32)),         # r24
-    lay((7, 32)),         # r25
-    lay((7, 32)),         # r26
-], lay((1, 37, "#")))     # r27 zemin — KATI PIRAMIT (ateş sol yüzü, su sağ yüzü tırmanır;
-                          # her basamak altına kadar dolu -> "duvara yürü + zıpla" güvenilir)
+    lay((30, 30)),                                    # r1  BÖLME DUVARI (c30, tavandan r23'e): bant ucundan kapı
+    lay((30, 30)),                                    # r2  platformuna UZUN-ZIPLAMA hilesini keser; altında (864-936)
+    lay((30, 30)),                                    # r3  72px geçit — köprüden YÜRÜYEREK geçilir
+    lay((30, 30)),                                    # r4
+    lay((30, 30)),                                    # r5
+    lay((30, 30)),                                    # r6
+    lay((30, 30)),                                    # r7
+    lay((30, 30)),                                    # r8
+    lay((30, 30)),                                    # r9
+    lay((30, 30)),                                    # r10
+    lay((30, 30)),                                    # r11
+    lay((12, 12), (30, 30)),                          # r12 BEKÇİ duvar gövdesi (bariyer kalkınca içine girer)
+    lay((12, 12), (30, 30)),                          # r13
+    lay((12, 12), (30, 30)),                          # r14
+    lay((30, 30)),                                    # r15 (bariyer çubuğu r15-17 — makine)
+    lay((30, 30)),                                    # r16
+    lay((14, 14), (30, 30)),                          # r17 raf DUDAĞI (c14): küp sola/bariyere itilip kaybolamaz
+    lay((1, 21), (30, 30)),                           # r18 YÜRÜME BANDI (c1-21): başlangıç c1-11 | bariyer c12 | raf c13-21;
+                                                      #     sağ ucu (792) gölün üstü => küp DOĞRUDAN dipteki butona düşer
+    lay((30, 30)),                                    # r19
+    lay((30, 30)),                                    # r20
+    lay((30, 30)),                                    # r21
+    lay((30, 30)),                                    # r22
+    lay((30, 30)),                                    # r23 bölme duvarı alt ucu (864) — köprü (936) üstünde 72px geçit
+    lay(),                                            # r24
+    lay(),                                            # r25
+    lay((33, 37)),                                    # r26 KAPI platformu (sağ-alt; köprüden yürünerek ulaşılır)
+], lay((1, 32, "a"), (33, 37, "#")))
+# r27 DEV ASİT GÖLÜ c1-32 (banttan düşen ölür — yumuşak-kilit YOK, yeniden başlar) +
+#     kapı platformu tabanı c33-37. Küp gölden dibe (kenar duvarı üstü 1008) oturur.
 
 # ---- BOLUM 9: "Tirmanis" — KATI MERDIVEN (sağa çıkış), zor ----
 # Tek yönlü katı merdiven: sol-alttan sağ-üst kapıya. Her basamak 3 hücre + altına
 # kadar dolu (tam temaslı yüzler) -> "duvara yürü + zıpla" güvenilir. İki oyuncu
-# birlikte tırmanır. Aşamalı zorluk: L8'den daha uzun/dik. Tehlike yok.
+# ---- BOLUM 9: "Ada Zinciri" — TÜNELLİ ÇİFT RÖLE (kıyı->ada->kapı kıyısı), zor ----
+# Asit gölü ORTASINDA ADA; iki ardışık GÖMÜLÜ köprü, her biri 2-buton rölesi:
+# (1) A kıyı butonunu (c5) tutar -> köprü-A asitten yükselir -> B adaya geçer ->
+#     B ada-sol butonunu (c14) tutar -> A geçer. (2) Aynı röle ada-sağ (c20) /
+#     kapı-kıyısı (c29) butonlarıyla köprü-B üstünden. ALÇAK TÜNEL TAVANI (r22,
+#     c7-27): zıplama ~2.75 hücreye düşer => 6 hücrelik göller ASLA atlanamaz,
+#     tavanın üstüne de çıkılamaz (144px > 135px apex). Adada LAV-dalış cebi
+#     (c16-17, ateş elmasları), kapı kıyısında SU-dalış cebi (c30-31). Gömülü
+#     köprüler bırakılınca batar => solo bas-koş İMKANSIZ (binen asitte ölür).
 LEVEL9 = make_level([
-    lay(),                # r1
-    lay(),                # r2
-    lay(),                # r3
-    lay(),                # r4
-    lay(),                # r5
-    lay((32, 37)),        # r6  en üst basamak (kapılar) sağ-üst
-    lay((32, 37)),        # r7
-    lay((32, 37)),        # r8
-    lay((28, 37)),        # r9
-    lay((28, 37)),        # r10
-    lay((28, 37)),        # r11
-    lay((24, 37)),        # r12
-    lay((24, 37)),        # r13
-    lay((24, 37)),        # r14
-    lay((20, 37)),        # r15
-    lay((20, 37)),        # r16
-    lay((20, 37)),        # r17
-    lay((16, 37)),        # r18
-    lay((16, 37)),        # r19
-    lay((16, 37)),        # r20
-    lay((12, 37)),        # r21
-    lay((12, 37)),        # r22
-    lay((12, 37)),        # r23
-    lay((8, 37)),         # r24
-    lay((8, 37)),         # r25
-    lay((8, 37)),         # r26
-], lay((1, 37, "#")))     # r27 zemin (sol c1-7 başlangıç düzlüğü)
+    lay(),                                            # r1
+    lay(),                                            # r2
+    lay(),                                            # r3
+    lay(),                                            # r4
+    lay(),                                            # r5
+    lay(),                                            # r6
+    lay(),                                            # r7
+    lay(),                                            # r8
+    lay(),                                            # r9
+    lay(),                                            # r10
+    lay(),                                            # r11
+    lay(),                                            # r12
+    lay(),                                            # r13
+    lay(),                                            # r14
+    lay(),                                            # r15
+    lay(),                                            # r16
+    lay(),                                            # r17
+    lay(),                                            # r18
+    lay(),                                            # r19
+    lay(),                                            # r20
+    lay(),                                            # r21
+    lay((7, 27)),                                     # r22 TÜNEL TAVANI (göller+ada üstü; üstüne zıplanamaz: 144>135)
+    lay(),                                            # r23
+    lay(),                                            # r24
+    lay(),                                            # r25
+    lay((1, 6), (13, 15), (18, 21), (28, 29), (32, 37)),  # r26 yürüme bantları: sol kıyı / ada-sol / ada-sağ
+                                                      #     (lav cebi c16-17 arada) / kapı kıyısı (su cebi c30-31 arada)
+], lay((1, 6, "#"), (7, 12, "a"), (13, 15, "#"), (16, 17, "f"), (18, 21, "#"), (22, 27, "a"), (28, 29, "#"), (30, 31, "w"), (32, 37, "#")))
+# r27: ASİT göl-A c7-12 / ada (LAV cebi c16-17) / ASİT göl-B c22-27 / kapı kıyısı (SU cebi c30-31)
 
-# ---- BOLUM 10: "Doruk" — KATI MERDIVEN (sola çıkış) + KALDIRAÇ-ASİT köprüsü, en zor ----
-# Sağ-altta başlar; bir ASİT hendeği (c25-30) başlangıcı merdivenden ayırır. KALDIRAÇ
-# çekilince rampa hendeği zemin seviyesinde kalıcı köprüler (L7 deseni, güvenilir).
-# Sonra sola-çıkan katı merdivenle sol-üst kapılara. Kaldıraç ZORUNLU + uzun tırmanış.
+# ---- BOLUM 10: "Doruk" — BEKÇİ + KÜP + GÖL KÖPRÜSÜ + KALDIRAÇ FİNALİ, en zor ----
+# 4 aşamalı finale (hepsi doğrulanmış parçalar): (1) BANT (c1-21, altı asit gölü):
+# bekçi bariyeri c10, röle butonları c1/c18 — A tutar, B geçer (sonra tersi).
+# (2) B KÜPÜ (c15) bant ucundan (792) göle iter -> dipteki butona oturur -> köprü-1
+# (c24-26) KALICI yükselir. (3) İkisi banttan küp/köprüye atlayıp ORTA PLATFORMA
+# (c27-30) geçer. (4) KALDIRAÇ (c29; sağından sola yürüyerek çevrilir) son asit
+# boşluğunun (c31-33) köprüsünü KALICI yükseltir -> kapı platformu (c34-37).
+# BÖLME KOLONU (c31, tavandan 828'e): bant ucundan kapılara uzun-zıplamayı keser;
+# altındaki 108px geçit yürüyerek geçilir + son boşluğun zıplama-kapağı olur.
 LEVEL10 = make_level([
-    lay(),                # r1
-    lay(),                # r2
-    lay(),                # r3
-    lay(),                # r4
-    lay(),                # r5
-    lay((1, 6)),          # r6  en üst basamak (kapılar) sol-üst
-    lay((1, 6)),          # r7
-    lay((1, 6)),          # r8
-    lay((1, 9)),          # r9
-    lay((1, 9)),          # r10
-    lay((1, 9)),          # r11
-    lay((1, 12)),         # r12
-    lay((1, 12)),         # r13
-    lay((1, 12)),         # r14
-    lay((1, 15)),         # r15
-    lay((1, 15)),         # r16
-    lay((1, 15)),         # r17
-    lay((1, 18)),         # r18
-    lay((1, 18)),         # r19
-    lay((1, 18)),         # r20
-    lay((1, 21)),         # r21
-    lay((1, 21)),         # r22
-    lay((1, 21)),         # r23
-    lay((1, 24)),         # r24  taban (zeminden 3 hücre)
-    lay((1, 24)),         # r25
-    lay((1, 24)),         # r26
-], lay((1, 24, "#"), (25, 29, "a"), (30, 37, "#")))   # r27 merdiven tabanı c1-24, ASİT c25-29, başlangıç c30-37
+    lay(),                                            # r1
+    lay((31, 31)),                                    # r2  BÖLME KOLONU başı (uzun-zıplama hile-keseri)
+    lay((31, 31)),                                    # r3
+    lay((31, 31)),                                    # r4
+    lay((31, 31)),                                    # r5
+    lay((31, 31)),                                    # r6
+    lay((31, 31)),                                    # r7
+    lay((31, 31)),                                    # r8
+    lay((31, 31)),                                    # r9
+    lay((31, 31)),                                    # r10
+    lay((31, 31)),                                    # r11
+    lay((10, 10), (31, 31)),                          # r12 BEKÇİ duvar gövdesi (c10) + kolon
+    lay((10, 10), (31, 31)),                          # r13
+    lay((10, 10), (31, 31)),                          # r14
+    lay((31, 31)),                                    # r15 (bariyer çubuğu r15-17 — makine)
+    lay((31, 31)),                                    # r16
+    lay((12, 12), (31, 31)),                          # r17 raf DUDAĞI (c12) + kolon
+    lay((1, 21), (31, 31)),                           # r18 YÜRÜME BANDI (c1-21; ucu 792 = göl yuvasının üstü)
+    lay((31, 31)),                                    # r19
+    lay((31, 31)),                                    # r20
+    lay((31, 31)),                                    # r21
+    lay((31, 33)),                                    # r22 kolon başlığı: son boşluğun (c31-33) ZIPLAMA KAPAĞI
+    lay(),                                            # r23
+    lay(),                                            # r24
+    lay(),                                            # r25
+    lay((27, 30), (34, 37)),                          # r26 ORTA PLATFORM (c27-30; kaldıraç c29) + KAPI platformu (c34-37)
+], lay((1, 26, "a"), (27, 30, "#"), (31, 33, "a"), (34, 37, "#")))
+# r27: DEV ASİT GÖLÜ c1-26 (küp dibe oturur, buton c22) / orta taban / SON BOŞLUK asidi c31-33 / kapı tabanı
 
 LEVELS = {7: LEVEL7, 8: LEVEL8, 9: LEVEL9, 10: LEVEL10}
 
@@ -453,57 +476,117 @@ LEVELS = {7: LEVEL7, 8: LEVEL8, 9: LEVEL9, 10: LEVEL10}
 # diamonds: (col, row, "fire"|"water") -> piksel (col*36, row*36)
 OBJECTS = {
     7: {
-        # YOĞUN: tabanda 2-BUTON RÖLE köprüsü (geniş asit c6-17 üstü, asimetrik co-op) ->
-        # ardından KATI-BASAMAK MERDIVEN (sağa-yukarı kenar-tırmanış) -> üst-sağ kapılar.
-        # İki oyuncu solda başlar, röleyle asidi geçer, birlikte merdiveni tırmanır.
-        "players": {"fire": (2, 27), "water": (3, 27)},
-        "doors": {"fire": (34, 6), "water": (36, 6)},
+        # "Üç Kilit" (DOĞRULANMIŞ): üst kat -> şaft -> RÖLE -> delik -> KALDIRAÇ + BEKÇİ.
+        "players": {"fire": (2, 9), "water": (4, 9)},      # üst kat, sol-üst
+        "doors": {"fire": (31, 26), "water": (33, 26)},    # alt-sağ, bariyerin arkası
         "diamonds": [
-            (2, 26, "fire"), (23, 23, "fire"), (27, 17, "fire"), (31, 11, "fire"),
-            (24, 20, "fire"), (28, 14, "fire"), (32, 8, "fire"), (35, 5, "fire"),
-            (4, 26, "water"), (25, 23, "water"), (29, 17, "water"), (33, 11, "water"),
-            (26, 20, "water"), (30, 14, "water"), (33, 8, "water"), (34, 5, "water"),
+            (6, 8, "fire"), (10, 8, "water"), (14, 8, "fire"), (18, 8, "water"), (22, 8, "fire"), (26, 8, "water"),
+            (10, 14, "fire"), (24, 14, "water"), (2, 14, "fire"), (4, 14, "water"),
+            (11, 25, "fire"), (15, 25, "water"), (20, 25, "fire"), (22, 26, "fire"),
+            (26, 25, "water"), (6, 25, "water"),
         ],
-        # 2-BUTON RÖLE (OR): paylaşılan rampa-köprü iki butona bağlı (sol c3 / sağ c19).
-        # Biri butonu tutar -> rampa asidi (c6-17) zemin seviyesinde köprüler -> diğeri geçer ->
-        # karşı butonu tutar -> ilki geçer. Asit 12 hücre = zıplanamaz -> dümdüz İMKANSIZ.
-        # KRİTİK: butonlar rampanın x-aralığından (c6-17) UZAK; yoksa butonu tutan oyuncu inen
-        # rampayı engeller (c5'te bu olmuştu). Sol buton c3 (rampa solu), sağ c19 (sahanlık).
         "buttons": [
-            {"buttons": [(1, 26), (19, 26)],
-             "ramp": {"pos": (6, 23), "final": (6, 27), "finalY": 967, "boxCount": 12, "rotated": False,
-                      "color": "#0a7d4a", "finalColor": "#10c878"}},
+            # RÖLE — moat1 (c12-22) köprüsü GÖMÜLÜ (asit içinde r17) bekler; basılınca 535'e
+            # (yürüme 540) yükselir. Bırakılınca batar => solo bas-koş imkansız, sıkışma yok.
+            {"buttons": [(25, 15), (9, 15)],
+             "ramp": {"pos": (12, 17), "final": (12, 15), "finalY": 535, "boxCount": 11, "rotated": False,
+                      "color": "#092DB8", "finalColor": "#0C3AEE"}},
+            # KAPI BEKÇİSİ — dikey bariyer c30 (gövde r17-22 mühürler); butonlar c3 (27 hücre
+            # uzak => tek kişi imkansız) ve c36 (röle dönüşü).
+            {"buttons": [(3, 26), (36, 26)],
+             "ramp": {"pos": (30, 23), "final": (30, 20), "boxCount": 3, "rotated": True,
+                      "color": "#b00101", "finalColor": "#FE0000"}},
+        ],
+        # KALDIRAÇ — sol cep c1; moat2 köprüsü (c8-18) asitten yükselip KALICI durur.
+        "levers": [
+            {"lever": (1, 26),
+             "ramp": {"pos": (8, 28), "final": (8, 26), "finalY": 931, "boxCount": 11, "rotated": False,
+                      "color": "#B8B8B8", "finalColor": "#FEFEFE"}},
         ],
     },
     8: {
-        "players": {"fire": (4, 27), "water": (34, 27)},     # zemin köşeleri (piramit tabanı dışı)
-        "doors": {"fire": (18, 9), "water": (21, 9)},        # piramit zirvesi ORTAK platform (r9)
+        # "Küp Atölyesi" v2: asit gölü üstünde bant; çift-buton bekçi rölesi + küp -> göl-dibi
+        # butonu -> kalıcı köprü. Yerleşim mantığı LEVEL8 yorumunda.
+        "players": {"fire": (2, 18), "water": (4, 18)},   # bant üstü, sol uç
+        "doors": {"fire": (33, 26), "water": (35, 26)},   # sağ-alt kapı platformu
         "diamonds": [
-            (8, 23, "fire"), (10, 20, "fire"), (12, 17, "fire"), (14, 14, "fire"), (16, 11, "fire"),
-            (31, 23, "water"), (29, 20, "water"), (27, 17, "water"), (25, 14, "water"), (23, 11, "water"),
+            (3, 17, "fire"), (6, 17, "water"), (9, 17, "fire"),        # bant başlangıç bölgesi
+            (12, 17, "water"),                                          # bariyer geçidi (açıkken alınır)
+            (15, 17, "fire"), (18, 17, "water"), (21, 17, "water"),     # raf bölgesi
+            (22, 22, "fire"), (23, 24, "water"),                        # iniş yolu (düşerken)
+            (24, 25, "fire"), (26, 25, "water"), (29, 25, "fire"), (31, 25, "water"),  # köprü üstü
+            (34, 25, "fire"), (36, 25, "water"),                        # kapı yanı
+        ],
+        "cubes": [(17, 15)],   # rafa düşer (648 üstüne oturur); dudağın (c14) 2 hücre sağında
+        "buttons": [
+            # KÖPRÜ — buton GÖLÜN DİBİNDE (c22, kenar-duvarı üstü 1008; oyuncu giremez, asit
+            # öldürür) => yalnız KÜP basabilir. Köprü c24-32 gömülüden 931'e yükselir, KALICI.
+            {"buttons": [(22, 28)],
+             "ramp": {"pos": (24, 28), "final": (24, 26), "finalY": 931, "boxCount": 9, "rotated": False,
+                      "color": "#092DB8", "finalColor": "#0C3AEE"}},
+            # BEKÇİ RÖLESİ — bariyer c12; butonlar bant üstünde c1 (başlangıç yakası) ve c20
+            # (raf yakası): ikisi de bariyere 8+ hücre => tek kişi bas-koş YAPAMAZ (kapanır).
+            # A c1 tutar -> B geçer; küp işinden sonra B c20 tutar -> A geçer.
+            {"buttons": [(1, 18), (20, 18)],
+             "ramp": {"pos": (12, 15), "final": (12, 12), "boxCount": 3, "rotated": True,
+                      "color": "#b00101", "finalColor": "#FE0000"}},
         ],
     },
     9: {
-        "players": {"fire": (3, 27), "water": (5, 27)},      # sol-alt başlangıç düzlüğü
-        "doors": {"fire": (33, 6), "water": (35, 6)},        # sağ-üst en üst basamak
+        # "Ada Zinciri": çift gömülü-köprü rölesi + tünel tavanı + element-dalış cepleri.
+        # Spawn'lar butondan (c5: x180-254) SOLDA — su spawn'ı butona basmasın diye c3'te.
+        "players": {"fire": (1, 26), "water": (3, 26)},
+        "doors": {"fire": (33, 26), "water": (35, 26)},
         "diamonds": [
-            (9, 23, "fire"), (13, 20, "fire"), (17, 17, "fire"), (21, 14, "fire"), (25, 11, "fire"),
-            (10, 23, "water"), (14, 20, "water"), (18, 17, "water"), (22, 14, "water"), (29, 8, "water"),
+            (2, 25, "fire"), (4, 25, "water"),                          # sol kıyı
+            (8, 25, "water"), (10, 25, "fire"), (12, 25, "water"),      # köprü-A üstü (tünelde)
+            (14, 25, "fire"), (21, 25, "water"),                        # ada
+            (16, 26, "fire"), (17, 26, "fire"),                         # LAV cebi içi (ateş dalar)
+            (23, 25, "fire"), (25, 25, "water"), (27, 25, "fire"),      # köprü-B üstü
+            (30, 26, "water"), (31, 26, "water"),                       # SU cebi içi (su dalar)
+            (34, 25, "fire"), (36, 25, "water"),                        # kapı yanı
+        ],
+        "buttons": [
+            # RÖLE-A — göl-A (c7-12) köprüsü; butonlar: sol kıyı c5 + ada-sol c14.
+            {"buttons": [(5, 26), (14, 26)],
+             "ramp": {"pos": (7, 28), "final": (7, 26), "finalY": 931, "boxCount": 6, "rotated": False,
+                      "color": "#092DB8", "finalColor": "#0C3AEE"}},
+            # RÖLE-B — göl-B (c22-27) köprüsü; butonlar: ada-sağ c20 + kapı kıyısı c29.
+            {"buttons": [(20, 26), (29, 26)],
+             "ramp": {"pos": (22, 28), "final": (22, 26), "finalY": 931, "boxCount": 6, "rotated": False,
+                      "color": "#7a4fb0", "finalColor": "#b06fe0"}},
         ],
     },
     10: {
-        "players": {"fire": (33, 27), "water": (35, 27)},    # sağ-alt başlangıç (asit hendeğinin sağı)
-        "doors": {"fire": (2, 6), "water": (5, 6)},          # sol-üst en üst basamak
+        # "Doruk" finali: bekçi rölesi + küp -> göl butonu -> köprü-1 + kaldıraç -> köprü-2.
+        "players": {"fire": (2, 18), "water": (4, 18)},   # bant üstü, sol uç
+        "doors": {"fire": (34, 26), "water": (36, 26)},   # kapı platformu (kolonun arkası)
         "diamonds": [
-            (23, 23, "fire"), (20, 20, "fire"), (17, 17, "fire"), (14, 14, "fire"), (8, 8, "fire"),
-            (22, 23, "water"), (19, 20, "water"), (16, 17, "water"), (11, 11, "water"), (5, 5, "water"),
+            (3, 17, "fire"), (6, 17, "water"), (9, 17, "water"),       # bant başlangıç
+            (13, 17, "fire"), (16, 17, "water"), (19, 17, "fire"),     # bant raf bölgesi
+            (22, 23, "water"), (23, 25, "fire"),                       # iniş/yuva yolu
+            (25, 25, "water"), (28, 25, "fire"),                       # köprü-1 + orta platform
+            (32, 25, "water"), (33, 25, "fire"),                       # son boşluk (kolon altı)
+            (35, 25, "fire"), (37, 25, "water"),                       # kapı yanı
         ],
-        # KALDIRAC (c31, sola yaklaşılır) -> rampa ASİT hendeğini (c25-29) zemin
-        # seviyesinde kalıcı köprüler (L7 deseni). İki oyuncu da geçer, sola tırmanır.
+        "cubes": [(15, 15)],   # banda düşer; dudak c12 solunu kapar, sağdan göle itilir
+        "buttons": [
+            # KÖPRÜ-1 — buton GÖLÜN DİBİNDE (c22): yalnız küp basabilir; köprü c24-26 KALICI.
+            {"buttons": [(22, 28)],
+             "ramp": {"pos": (24, 28), "final": (24, 26), "finalY": 931, "boxCount": 3, "rotated": False,
+                      "color": "#092DB8", "finalColor": "#0C3AEE"}},
+            # BEKÇİ RÖLESİ — bariyer c10; butonlar bant üstü c1 ve c18 (ikisi de uzak =>
+            # tek kişi bas-koş yapamaz). A c1 tutar -> B geçer; B c18 tutar -> A geçer.
+            {"buttons": [(1, 18), (18, 18)],
+             "ramp": {"pos": (10, 15), "final": (10, 12), "boxCount": 3, "rotated": True,
+                      "color": "#b00101", "finalColor": "#FE0000"}},
+        ],
+        # KALDIRAÇ — orta platform c29 (üstünden hoplanıp SAĞINDAN sola yürüyerek çevrilir);
+        # son boşluğun (c31-33) köprüsünü KALICI yükseltir. BEYAZ.
         "levers": [
-            {"lever": (31, 26),
-             "ramp": {"pos": (25, 23), "final": (25, 27), "boxCount": 5, "rotated": False,
-                      "color": "#b8b800", "finalColor": "#ffff33"}},
+            {"lever": (29, 26),
+             "ramp": {"pos": (31, 28), "final": (31, 26), "finalY": 931, "boxCount": 3, "rotated": False,
+                      "color": "#B8B8B8", "finalColor": "#FEFEFE"}},
         ],
     },
 }
@@ -523,9 +606,22 @@ def _save_json(name, data):
 
 
 def _gpx(cr):
-    """grid (col,row) -> piksel {x,y} (sol-ust). Rampa/kup/top/kopru/buton/lever
+    """grid (col,row) -> piksel {x,y} (sol-ust). Rampa/kup/top/kopru
     konumlari icin. Hizalama oyun-icinde ince ayar edilir."""
     return {"x": cr[0] * B, "y": cr[1] * B}
+
+
+def _btn_px(cr):
+    """Buton (col, ZEMIN_satiri) -> piksel. Buton zeminin USTUNE oturur:
+    y = zemin_top - 18 (hitbox yuksekligi). Orijinal L5 ile ayni (990 = 1008-18).
+    Boylece buton havada durmaz; basilinca 19px zemine gomulur."""
+    return {"x": cr[0] * B, "y": cr[1] * B - 18}
+
+
+def _lever_px(cr):
+    """Kaldirac (col, ZEMIN_satiri) -> piksel. Taban (position+45) zemine oturur:
+    y = zemin_top - 46 (orijinal L5: 962 = 1008-46; cubuk hitbox'i +2..+44 oyuncuyla kesisir)."""
+    return {"x": cr[0] * B, "y": cr[1] * B - 46}
 
 
 def _ramp_json(r):
@@ -563,10 +659,13 @@ def cmd_json():
     for n, obj in OBJECTS.items():
         k = str(n)
         # --- players ---
+        # y = ayak_satiri*36 - 97: ayaklar (position+37+60) TAM zemin ustunde dogar.
+        # (-72 oyuncuyu 25px zemine GOMUYORDU -> kafa-carpismasi dali yana kaydirip
+        #  cukura dusurebiliyor + birikien hizla kenar duvarini tunelliyordu.)
         fx, fr = obj["players"]["fire"]
         wx, wr = obj["players"]["water"]
-        players["fireboy"][k] = {"position": {"x": fx * B, "y": fr * B - 72}}
-        players["watergirl"][k] = {"position": {"x": wx * B, "y": wr * B - 72}}
+        players["fireboy"][k] = {"position": {"x": fx * B, "y": fr * B - 97}}
+        players["watergirl"][k] = {"position": {"x": wx * B, "y": wr * B - 97}}
         # --- diamonds ---
         diamonds[k] = [{"position": {"x": c * B, "y": r * B}, "type": t}
                        for (c, r, t) in obj["diamonds"]]
@@ -579,12 +678,12 @@ def cmd_json():
         ]
         # --- mekanikler (opsiyonel; yoksa anahtari sil) ---
         if obj.get("buttons"):
-            buttons[k] = [{"buttons": [{"position": _gpx(b)} for b in g["buttons"]],
+            buttons[k] = [{"buttons": [{"position": _btn_px(b)} for b in g["buttons"]],
                            "ramp": _ramp_json(g["ramp"])} for g in obj["buttons"]]
         else:
             buttons.pop(k, None)
         if obj.get("levers"):
-            levers[k] = [{"lever": {"position": _gpx(g["lever"])}, "ramp": _ramp_json(g["ramp"])}
+            levers[k] = [{"lever": {"position": _lever_px(g["lever"])}, "ramp": _ramp_json(g["ramp"])}
                          for g in obj["levers"]]
         else:
             levers.pop(k, None)

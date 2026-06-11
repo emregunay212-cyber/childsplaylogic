@@ -1,6 +1,6 @@
 import { Player } from "./player.js?v=3";
 import { Sprite } from "./sprite.js";
-import { levels } from "./collisionBlocks.js?v=3";
+import { levels } from "./collisionBlocks.js?v=5";
 import { createObjectsFromArray } from "./collisions.js";
 import { Diamond } from "./ingameAssets/diamond.js";
 import { Button } from "./ingameAssets/button.js";
@@ -372,9 +372,6 @@ function playGame() {
 
         if (delta > interval) {
             then = now - (delta % interval);
-
-            // __AB DEBUG (geçici): manuel kare-adımlamada gerçek döngü karışmasın diye duraklat
-            if (window.__AB_PAUSE) { requestAnimationFrame(animation); return; }
 
             // Tek bir kare içindeki beklenmedik istisna TÜM döngüyü kalıcı durdurup oyunu
             // dondurmasın (ve tuşları ölü göstermesin) diye kareyi try/catch'e al. Hata loglanır,
@@ -990,9 +987,13 @@ function playGame() {
     // ── Host-authoritative state uygulama (guest tarafı) ──────────
     function applyHostState(st) {
         if (!st) return;
-        // Level değişimi: host yeni seviyeye geçtiyse guest de yüklesin
-        if (typeof st.levelIdx === 'number' && st.levelIdx !== currentLevel && st.levelIdx >= 1 && st.levelIdx <= Object.keys(levels).length) {
-            setCurrentLevel(st.levelIdx);
+        // Level değişimi: host yeni seviyeye geçtiyse guest de yüklesin.
+        // Number(): eski sürüm host levelIdx'i STRING yayınlayabilir (menü seçimi
+        // for..in string anahtarı) — sayıya çevirip karşılaştır, yoksa misafir
+        // yeni bölümü hiç yüklemez (eski görselle yeni bölüm oynanır bug'ı).
+        const hostLevel = Number(st.levelIdx);
+        if (Number.isFinite(hostLevel) && hostLevel !== Number(currentLevel) && hostLevel >= 1 && hostLevel <= Object.keys(levels).length) {
+            setCurrentLevel(hostLevel);
             setLevelCompleted(false);
             setMenuActive(null);
             startGame();
@@ -1131,31 +1132,6 @@ function playGame() {
         startGame();
         animation();
     }
-
-    // === __AB DEBUG (geçici test kancası — commit'ten önce kaldırılacak) ===
-    window.__AB = {
-        load(n) {
-            setCurrentLevel(n); setMenuActive(null); setLevelCompleted(false);
-            window.__AB_PAUSE = true; startGame(); animation(); window.__AB.sync(); return window.__AB.snap();
-        },
-        sync() {
-            const A = window.__AB;
-            A.players = allPlayers; A.cubes = allCubes; A.buttons = allButtons; A.levers = allLevers;
-            A.ramps = allRamps; A.balls = allBalls; A.bridges = allBridges; A.doors = allDoors;
-            A.diamonds = allDiamonds; A.assets = allAssets; A.collisionBlocks = collisionBlocks; A.ponds = ponds;
-            A.JUMP_VELOCITY = JUMP_VELOCITY; A.MOVE_SPEED = MOVE_SPEED;
-        },
-        snap() {
-            const p = {};
-            allPlayers.forEach((pl) => { p[pl.element] = { x:Math.round(pl.position.x), y:Math.round(pl.position.y), hx:Math.round(pl.hitbox.position.x), hy:Math.round(pl.hitbox.position.y), onBlock:pl.isOnBlock, died:pl.died }; });
-            return {
-                level: currentLevel, players: p,
-                doors: allDoors.map((d) => ({ el:d.element, pressed:d.pressed, opened:d.opened })),
-                diamonds: allDiamonds.map((d) => ({ x:Math.round(d.position.x), y:Math.round(d.position.y), collected:d.collected, type:d.type })),
-                ramps: allRamps.map((r) => ({ x:Math.round(r.position.x), y:Math.round(r.position.y) })),
-            };
-        },
-    };
 }
 
 export { playGame };

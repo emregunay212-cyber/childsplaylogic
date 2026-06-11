@@ -1,4 +1,4 @@
-import { playGame } from "./game.js?v=4";
+import { playGame } from "./game.js?v=5";
 import { loadData, loadDataFromLocalStorage, setCurrentLevel, setMenuActive } from "./helpers.js";
 import { initNetwork, isOnline, getMyRole } from "./network.js?v=4";
 

@@ -143,22 +143,46 @@
         {
             "lever": {
                 "position": {
-                    "x": 1116,
-                    "y": 936
+                    "x": 1044,
+                    "y": 890
                 }
             },
             "ramp": {
                 "position": {
-                    "x": 900,
-                    "y": 828
+                    "x": 1116,
+                    "y": 1008
                 },
-                "boxCount": 5,
-                "color": "#b8b800",
+                "boxCount": 3,
+                "color": "#B8B8B8",
                 "finalPosition": {
-                    "x": 900,
-                    "y": 972
+                    "x": 1116,
+                    "y": 931
                 },
-                "finalColor": "#ffff33",
+                "finalColor": "#FEFEFE",
+                "rotated": false
+            }
+        }
+    ],
+    "7": [
+        {
+            "lever": {
+                "position": {
+                    "x": 36,
+                    "y": 890
+                }
+            },
+            "ramp": {
+                "position": {
+                    "x": 288,
+                    "y": 1008
+                },
+                "boxCount": 11,
+                "color": "#B8B8B8",
+                "finalPosition": {
+                    "x": 288,
+                    "y": 931
+                },
+                "finalColor": "#FEFEFE",
                 "rotated": false
             }
         }

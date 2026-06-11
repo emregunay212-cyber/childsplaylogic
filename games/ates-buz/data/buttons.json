@@ -278,30 +278,234 @@
             "buttons": [
                 {
                     "position": {
-                        "x": 36,
-                        "y": 936
+                        "x": 900,
+                        "y": 522
                     }
                 },
                 {
                     "position": {
-                        "x": 684,
-                        "y": 936
+                        "x": 324,
+                        "y": 522
                     }
                 }
             ],
             "ramp": {
                 "position": {
-                    "x": 216,
+                    "x": 432,
+                    "y": 612
+                },
+                "boxCount": 11,
+                "color": "#092DB8",
+                "finalPosition": {
+                    "x": 432,
+                    "y": 535
+                },
+                "finalColor": "#0C3AEE",
+                "rotated": false
+            }
+        },
+        {
+            "buttons": [
+                {
+                    "position": {
+                        "x": 108,
+                        "y": 918
+                    }
+                },
+                {
+                    "position": {
+                        "x": 1296,
+                        "y": 918
+                    }
+                }
+            ],
+            "ramp": {
+                "position": {
+                    "x": 1080,
                     "y": 828
                 },
-                "boxCount": 12,
-                "color": "#0a7d4a",
+                "boxCount": 3,
+                "color": "#b00101",
                 "finalPosition": {
-                    "x": 216,
-                    "y": 967
+                    "x": 1080,
+                    "y": 720
                 },
-                "finalColor": "#10c878",
+                "finalColor": "#FE0000",
+                "rotated": true
+            }
+        }
+    ],
+    "8": [
+        {
+            "buttons": [
+                {
+                    "position": {
+                        "x": 792,
+                        "y": 990
+                    }
+                }
+            ],
+            "ramp": {
+                "position": {
+                    "x": 864,
+                    "y": 1008
+                },
+                "boxCount": 9,
+                "color": "#092DB8",
+                "finalPosition": {
+                    "x": 864,
+                    "y": 931
+                },
+                "finalColor": "#0C3AEE",
                 "rotated": false
+            }
+        },
+        {
+            "buttons": [
+                {
+                    "position": {
+                        "x": 36,
+                        "y": 630
+                    }
+                },
+                {
+                    "position": {
+                        "x": 720,
+                        "y": 630
+                    }
+                }
+            ],
+            "ramp": {
+                "position": {
+                    "x": 432,
+                    "y": 540
+                },
+                "boxCount": 3,
+                "color": "#b00101",
+                "finalPosition": {
+                    "x": 432,
+                    "y": 432
+                },
+                "finalColor": "#FE0000",
+                "rotated": true
+            }
+        }
+    ],
+    "9": [
+        {
+            "buttons": [
+                {
+                    "position": {
+                        "x": 180,
+                        "y": 918
+                    }
+                },
+                {
+                    "position": {
+                        "x": 504,
+                        "y": 918
+                    }
+                }
+            ],
+            "ramp": {
+                "position": {
+                    "x": 252,
+                    "y": 1008
+                },
+                "boxCount": 6,
+                "color": "#092DB8",
+                "finalPosition": {
+                    "x": 252,
+                    "y": 931
+                },
+                "finalColor": "#0C3AEE",
+                "rotated": false
+            }
+        },
+        {
+            "buttons": [
+                {
+                    "position": {
+                        "x": 720,
+                        "y": 918
+                    }
+                },
+                {
+                    "position": {
+                        "x": 1044,
+                        "y": 918
+                    }
+                }
+            ],
+            "ramp": {
+                "position": {
+                    "x": 792,
+                    "y": 1008
+                },
+                "boxCount": 6,
+                "color": "#7a4fb0",
+                "finalPosition": {
+                    "x": 792,
+                    "y": 931
+                },
+                "finalColor": "#b06fe0",
+                "rotated": false
+            }
+        }
+    ],
+    "10": [
+        {
+            "buttons": [
+                {
+                    "position": {
+                        "x": 792,
+                        "y": 990
+                    }
+                }
+            ],
+            "ramp": {
+                "position": {
+                    "x": 864,
+                    "y": 1008
+                },
+                "boxCount": 3,
+                "color": "#092DB8",
+                "finalPosition": {
+                    "x": 864,
+                    "y": 931
+                },
+                "finalColor": "#0C3AEE",
+                "rotated": false
+            }
+        },
+        {
+            "buttons": [
+                {
+                    "position": {
+                        "x": 36,
+                        "y": 630
+                    }
+                },
+                {
+                    "position": {
+                        "x": 648,
+                        "y": 630
+                    }
+                }
+            ],
+            "ramp": {
+                "position": {
+                    "x": 360,
+                    "y": 540
+                },
+                "boxCount": 3,
+                "color": "#b00101",
+                "finalPosition": {
+                    "x": 360,
+                    "y": 432
+                },
+                "finalColor": "#FE0000",
+                "rotated": true
             }
         }
     ]
