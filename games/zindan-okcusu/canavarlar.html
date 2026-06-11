@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zindan Okçusu — Canavar Galerisi</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(circle at 50% 25%, #242449, #0d0d1b 70%);
+       color:#e9e9f2;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+       -webkit-tap-highlight-color:transparent;padding-bottom:30px}
+  h1{text-align:center;font-size:19px;padding:18px 12px 2px;margin:0;letter-spacing:.3px}
+  .note{text-align:center;color:#8086ac;font-size:12px;margin:4px 14px 6px;line-height:1.4}
+  h2{font-size:13px;color:#aab0dc;text-transform:uppercase;letter-spacing:1.2px;
+     margin:18px 14px 8px;border-bottom:1px solid #2a2a48;padding-bottom:6px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:11px;padding:0 12px}
+  .card{background:rgba(255,255,255,.035);border:1px solid #272750;border-radius:14px;
+        padding:10px 8px 12px;text-align:center}
+  .card canvas{display:block;margin:0 auto}
+  .nm{font-weight:600;font-size:14px;margin-top:6px}
+  .sub{font-size:12px;color:#8b90ba;margin-top:1px}
+</style>
+</head>
+<body>
+<h1>🏹 Zindan Okçusu — Canavar Galerisi</h1>
+<p class="note">Oyundaki tüm sprite düşmanlar (animasyonlu, oyun içiyle aynı kenar/hale efektleriyle).<br>Not: <b>demon</b> boss ve <b>healer</b> hâlâ prosedürel çizimdir, burada yer almaz.</p>
+<div id="app"></div>
+<script>
+const DATA = {
+  "Düşmanlar": [
+    {f:'bat_fly.png',      fps:14, nm:'Yarasa',         sub:'Sürü · swarm',      rim:2},
+    {f:'rat_run.png',      fps:14, nm:'Fare',           sub:'Kovalayan · chaser', rim:1.6},
+    {f:'goblin_run.png',   fps:14, nm:'Goblin',         sub:'Atılgan · dasher',  rim:1.6},
+    {f:'mushroom_run.png', fps:12, nm:'Mantar',         sub:'Bombacı · bomber',  rim:1.5},
+    {f:'flyeye_flight.png',fps:12, nm:'Uçan Göz',       sub:'Nişancı · shooter', rim:1.6},
+    {f:'slime_walk.png',   fps:10, nm:'Slime',          sub:'Bölünen · splitter'},
+    {f:'mimic_walk.png',   fps:8,  nm:'Mimic (Sandık)', sub:'Tank',              glow:'#ffae42'},
+  ],
+  "Bosslar": [
+    {f:'evilwizard_move.png', fps:9,  nm:'Kara Büyücü',    sub:'Boss · lich',    glow:'#b06bff', flip:1, boss:1},
+    {f:'fireworm_walk.png',   fps:12, nm:'Ateş Solucanı',  sub:'Boss · serpent', glow:'#ff7a3a', boss:1},
+    {f:'skeleton_walk.png',   fps:8,  nm:'Dev İskelet',    sub:'Boss · golem',   glow:'#bfe8ff', boss:1},
+  ],
+};
+
+const app = document.getElementById('app');
+const items = [];
+for (const sec in DATA) {
+  const h = document.createElement('h2'); h.textContent = sec; app.appendChild(h);
+  const g = document.createElement('div'); g.className = 'grid'; app.appendChild(g);
+  for (const d of DATA[sec]) {
+    const card = document.createElement('div'); card.className = 'card';
+    const sz = d.boss ? 168 : 148;
+    const cv = document.createElement('canvas'); cv.width = sz; cv.height = sz;
+    const nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = d.nm;
+    const sub = document.createElement('div'); sub.className = 'sub'; sub.textContent = d.sub;
+    card.appendChild(cv); card.appendChild(nm); card.appendChild(sub); g.appendChild(card);
+    const it = { d, cv, ctx: cv.getContext('2d'), sz, img: new Image(), ready: false };
+    it.img.onload = () => prep(it);
+    it.img.src = 'assets/enemy/' + d.f;
+    items.push(it);
+  }
+}
+
+// her şeridin kare-yerel içerik kutusunu (padding kırpma) ve rim için beyaz siluetini hazırla
+function prep(it) {
+  const img = it.img, h = img.height;
+  it.n = Math.max(1, Math.round(img.width / h)); it.fw = h; it.fh = h;
+  const oc = document.createElement('canvas'); oc.width = img.width; oc.height = img.height;
+  const ox = oc.getContext('2d'); ox.drawImage(img, 0, 0);
+  const data = ox.getImageData(0, 0, img.width, img.height).data;
+  let minx = 1e9, miny = 1e9, maxx = -1, maxy = -1;
+  for (let y = 0; y < img.height; y++) for (let x = 0; x < img.width; x++) {
+    if (data[(y * img.width + x) * 4 + 3] > 16) {
+      const lx = x % h;
+      if (lx < minx) minx = lx; if (lx > maxx) maxx = lx;
+      if (y < miny) miny = y; if (y > maxy) maxy = y;
+    }
+  }
+  it.bx = minx; it.by = miny; it.bw = Math.max(1, maxx - minx + 1); it.bh = Math.max(1, maxy - miny + 1);
+  if (it.d.rim) {
+    const wc = document.createElement('canvas'); wc.width = img.width; wc.height = img.height;
+    const wx = wc.getContext('2d'); wx.drawImage(img, 0, 0);
+    wx.globalCompositeOperation = 'source-atop'; wx.fillStyle = '#fff'; wx.fillRect(0, 0, img.width, img.height);
+    it.white = wc;
+  }
+  it.ready = true;
+}
+
+let t0 = null;
+function loop(t) {
+  if (t0 == null) t0 = t;
+  const tt = (t - t0) / 1000;
+  for (const it of items) {
+    if (!it.ready) continue;
+    const { ctx, sz, d } = it;
+    ctx.clearRect(0, 0, sz, sz);
+    const fr = Math.floor(tt * d.fps) % it.n, sx = fr * it.fw;
+    const maxH = sz * (d.boss ? 0.80 : 0.66), maxW = sz * 0.86; // hem yükseklik hem genişliğe sığdır
+    const scA = Math.min(maxH / it.bh, maxW / it.bw), dw = it.bw * scA, dh = it.bh * scA;
+    ctx.save();
+    ctx.translate(sz / 2, sz / 2);
+    if (d.flip) ctx.scale(-1, 1);                          // sola bakan sprite'ı çevir (hepsi sağa baksın)
+    const dx = -dw / 2, dy = -dh / 2;
+    if (d.glow) {
+      ctx.save(); ctx.shadowColor = d.glow; ctx.shadowBlur = 15;
+      ctx.drawImage(it.img, sx + it.bx, it.by, it.bw, it.bh, dx, dy, dw, dh);
+      ctx.restore();
+    } else if (d.rim && it.white) {
+      ctx.globalAlpha = 0.5;
+      for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2;
+        ctx.drawImage(it.white, sx + it.bx, it.by, it.bw, it.bh, dx + Math.cos(a) * d.rim, dy + Math.sin(a) * d.rim, dw, dh); }
+      ctx.globalAlpha = 1;
+    }
+    ctx.drawImage(it.img, sx + it.bx, it.by, it.bw, it.bh, dx, dy, dw, dh);
+    ctx.restore();
+  }
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
