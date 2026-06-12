@@ -156,6 +156,10 @@ GAMES = [
        teaches="Zihinden işlem akıcılığı ve sayı hissi",
        short="Komşu taşları sürükle, hedef sayıyı tuttur — zincir ne kadar uzun, puan o kadar dev!",
        about="Matematik Patlatma, sayı taşlarından zincir kurarak hedefi tutturduğun 60 saniyelik bir işlem akıcılığı oyunudur. Hedef üstte yazar (örneğin 'Toplamı 12 yap'); komşu taşları parmağınla sürükleyip zincirin toplamı hedefe tam ulaşınca taşlar patlar, üstten yenileri düşer. Puan taş sayısının karesiyle büyür — uzun zincir kurmak hep kazandırır. Etek'te kolay toplamalar, Tırmanış'ta fark soruları, Zirve'de çarpım hedefleriyle zihinden işlem hızı eğlenerek gelişir. Ücretsiz, üyeliksiz, tarayıcıda oynanır."),
+  dict(slug="kelime-balonu", name="Kelime Balonu", cat="İngilizce", age="8-12", players="Tek kişilik",
+       teaches="İngilizce kelime dağarcığı ve yazım (spelling)",
+       short="İngilizce kelimenin harflerini balonlardan vur — kelime tamamlanınca büyük patlama!",
+       about="Kelime Balonu, klasik balon patlatma (bubble shooter) mekaniğini İngilizce kelime öğrenimiyle birleştirir. Üstte hedef kelimenin resmi ve Türkçesi görünür (🐱 kedi); balonun içindeki doğru harfleri vurarak C-A-T gibi kelimeleri tamamlarsın. Doğru harf patlar ve yanındaki aynı harfli balonları da götürür; yanlış vuruş balonu kümeye yapıştırır — dikkat! Etek'te 3 harfli kolay kelimeler, Tırmanış'ta 6+ harf sıralı vurma, Zirve'de resim ipucu olmadan sadece Türkçe karşılıkla oynanır. Nişan alma, sekme ve zamanlama becerisiyle İngilizce yazım bir arada gelişir. Ücretsiz, üyeliksiz, tarayıcıda oynanır."),
 ]
 
 PAGE_TMPL = """<!DOCTYPE html>

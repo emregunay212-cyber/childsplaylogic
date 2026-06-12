@@ -46,6 +46,7 @@ const TR = {
         'kelime-madeni-3d': 'Kelime Madeni 3D',
         'bilgi-madencisi': 'Bilgi Madencisi',
         'matematik-patlatma': 'Matematik Patlatma',
+        'kelime-balonu': 'Kelime Balonu',
     },
 
     // Multiplayer strings
@@ -146,6 +147,7 @@ const TR = {
         'kelime-madeni-3d': 'Kaz, üret, derine in — cevherler İngilizce soru sorar!',
         'bilgi-madencisi': 'Soruyu çöz, kancayı doğru taşa bırak, altını topla!',
         'matematik-patlatma': 'Komşu taşları sürükle, hedef sayıyı tuttur, zinciri patlat!',
+        'kelime-balonu': 'İngilizce kelimenin harflerini balonlardan vur, kelimeyi tamamla!',
     },
 
     // Kod Macerasi stringleri

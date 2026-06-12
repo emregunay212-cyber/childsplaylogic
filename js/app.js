@@ -24,6 +24,7 @@ const App = (() => {
                 { game: HeceBirlestirme, color: 'var(--hece-color)' },
                 // Eğitsel seri (Faz 0+): kilitsiz — İngilizce kelime öğretimi.
                 { game: KelimeMadeni3D, color: 'var(--kelime-madeni-color)' },
+                { game: KelimeBalonu, color: 'var(--kelime-balonu-color)' },
             ]
         },
         {
