@@ -11,7 +11,7 @@ import os, html, datetime
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = "https://bilnetoyun.com"
-TODAY = "2026-06-07"  # Date.now() ortamda yok; elle guncellenir
+TODAY = "2026-06-13"  # Date.now() ortamda yok; elle guncellenir
 
 # slug = SPA oyun id'si (derin-link app.js'te ?oyun=<slug> ile eslenir)
 # cat: kategori etiketi · age: yas · players: kac kisilik · teaches: ne kazandirir
@@ -140,6 +140,18 @@ GAMES = [
        teaches="Kelime bilgisi, strateji ve Türkçe yazım",
        short="Arkadaşınla 1v1 Türkçe kelime oyunu: harfleri diz, kelime kur, puan topla.",
        about="Kelimelik, Scrabble tarzında 1v1 oynanan online Türkçe kelime oyunudur. 15x15 tahtada harf taşlarını dizerek kelimeler kurar, harf ve kelime çarpanlı özel karelerle puan toplar, arkadaşına karşı yarışırsın. Kelime dağarcığı, strateji ve Türkçe yazımı geliştiren ücretsiz, üyeliksiz online çok oyunculu bir oyun."),
+  dict(slug="bil-ve-fethet", name="Bil ve Fethet", cat="Bilgi / Strateji", age="8-12", players="Tek kişilik",
+       teaches="Genel kültür, strateji ve hızlı karar verme",
+       short="Soruları cevapla, ülkeleri fethet: dünya haritasında bilgi savaşı.",
+       about="Bil ve Fethet, gerçek dünya haritası üzerinde oynanan soru-cevap temelli bir fetih oyunudur. Komşu ülkelere saldırır, 10 soruluk bilgi savaşlarıyla toprak kazanır, gelirini yönetip saldırı ve savunma seviyeni geliştirirsin. Anaokulundan liseye kademe seçimi ve matematik, fen, Türkçe, sosyal, coğrafya, İngilizce ders seçenekleriyle hem genel kültürü hem stratejik düşünmeyi geliştirir. Ücretsiz, üyeliksiz, tarayıcıda oynanır."),
+  dict(slug="kelime-madeni-3d", name="Kelime Madeni 3D", cat="3D / İngilizce", age="8-12", players="Tek kişilik",
+       teaches="İngilizce kelime dağarcığı ve mekânsal düşünme",
+       short="Minecraft tarzı 3D madende kaz, üret — cevherler İngilizce soru sorar!",
+       about="Kelime Madeni 3D, Minecraft tarzı blok dünyasında geçen eğitsel bir madencilik oyunudur. Ağaç kes, kazma üret, mağaralara in; kömür, demir, elmas ve kristal kazdığında İngilizce kelime sorusu gelir — doğru bilirsen cevher senindir. Üretim zinciri, 10 görevlik macera ve öğrendiğin kelimelerin defteriyle İngilizce kelime dağarcığını oyun içinde geliştirirsin. Dünya otomatik kaydedilir, kaldığın yerden devam edersin. Ücretsiz, üyeliksiz, tarayıcıda oynanır."),
+  dict(slug="bilgi-madencisi", name="Bilgi Madencisi", cat="Matematik", age="8-12", players="Tek kişilik",
+       teaches="Dört işlem akıcılığı, kesirler ve hızlı karar verme",
+       short="Soru yukarıda, cevaplar yerin altında — kancayı doğru taşa bırak!",
+       about="Bilgi Madencisi, klasik altın madencisi mekaniğini matematikle birleştiren bir refleks ve işlem oyunudur. Ekranın üstünde bir soru görünür, yerin altında 4 cevap taşı durur; sallanan kancayı doğru taşa bırakırsan puan kazanırsın — yanlış taş ağırdır ve zamanını yer. Art arda doğrularda combo çarpanı, 5 doğruda dinamit! Etek'ten Zirve'ye 4 zorluk seviyesiyle toplama, çıkarma, çarpım tablosu, bölme, kesirler ve yüzdeler 60 saniyelik vardiyalarda akıcı hale gelir. Ücretsiz, üyeliksiz, tarayıcıda oynanır."),
 ]
 
 PAGE_TMPL = """<!DOCTYPE html>

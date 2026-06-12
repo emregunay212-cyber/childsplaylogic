@@ -18,8 +18,9 @@ const Auth = (() => {
 
     // Oyun-içi kayıtlar (Progress blob'undan AYRI; oyunların kendi localStorage anahtarları):
     // Zindan Okçusu bölüm/altın/ekipman + yüksek skorlar + seviye editörü kayıtları.
+    // Bil ve Fethet sefer kaydı + Kelime Madeni 3D dünya kaydı (eğitsel seri Faz 0).
     // Google kullanıcısında users/{uid}/gameSaves altında senkronlanır.
-    const GAME_SAVE_KEYS = ['zindan_okcusu_save_v1', 'tetris-best', 'egim-best', 'bk-highscore', 'menuLevels', 'menuLevelsPath'];
+    const GAME_SAVE_KEYS = ['zindan_okcusu_save_v1', 'tetris-best', 'egim-best', 'bk-highscore', 'menuLevels', 'menuLevelsPath', 'bilfethet_save', 'bilfethet_stats', 'kelimemadeni_save', 'kelimemadeni_stats', 'bilgimadenci_stats', 'bilnet_score_queue'];
     const lastGameSave = {};   // key -> son buluta yazılan değer (gereksiz yazımı önler)
     let gsTimer = null;
     let gsWired = false;

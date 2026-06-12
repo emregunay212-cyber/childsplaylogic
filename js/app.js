@@ -22,6 +22,8 @@ const App = (() => {
             games: [
                 { game: HarfTanima, color: 'var(--harf-color)' },
                 { game: HeceBirlestirme, color: 'var(--hece-color)' },
+                // Eğitsel seri (Faz 0+): kilitsiz — İngilizce kelime öğretimi.
+                { game: KelimeMadeni3D, color: 'var(--kelime-madeni-color)' },
             ]
         },
         {
@@ -32,6 +34,8 @@ const App = (() => {
                 { game: SayiSayma, color: 'var(--sayi-color)' },
                 { game: Matematik, color: 'var(--matematik-color)' },
                 { game: Desen, color: 'var(--desen-color)' },
+                // Eğitsel seri Faz 1 (4.1): kilitsiz — işlem akıcılığı.
+                { game: BilgiMadencisi, color: 'var(--bilgi-madencisi-color)' },
             ]
         },
         {
@@ -74,6 +78,8 @@ const App = (() => {
                 { game: BuzKulesi, color: 'var(--buz-kulesi-color)' },
                 { game: Penalti, color: 'var(--penalti-color)' },
                 { game: ZindanOkcusu, color: 'var(--zindan-okcusu-color)' },
+                // Eğitsel seri (Faz 0+): kilitsiz — eğitsel içeriğe engelsiz erişim.
+                { game: BilVeFethet, color: 'var(--bil-ve-fethet-color)' },
             ]
         },
     ];

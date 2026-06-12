@@ -42,6 +42,9 @@ const TR = {
         'tetris': 'Tetris',
         'kelimelik': 'Kelimelik',
         'zindan-okcusu': 'Zindan Okçusu',
+        'bil-ve-fethet': 'Bil ve Fethet',
+        'kelime-madeni-3d': 'Kelime Madeni 3D',
+        'bilgi-madencisi': 'Bilgi Madencisi',
     },
 
     // Multiplayer strings
@@ -138,6 +141,9 @@ const TR = {
         'kelimelik': 'Arkadaşınla 1v1: harfleri diz, kelime kur, en çok puanı topla!',
         'zindan-okcusu': 'Ok at, düşmanları yen, ekipman topla, zindanı temizle!',
         'hava-hokeyi': 'Tokmağı kaydır, diski rakibin kalesine sok — ilk 7 golü atan kazanır!',
+        'bil-ve-fethet': 'Soruları cevapla, komşu ülkeleri fethet, tüm dünyayı ele geçir!',
+        'kelime-madeni-3d': 'Kaz, üret, derine in — cevherler İngilizce soru sorar!',
+        'bilgi-madencisi': 'Soruyu çöz, kancayı doğru taşa bırak, altını topla!',
     },
 
     // Kod Macerasi stringleri

@@ -352,6 +352,9 @@
 .game-card[data-game="tetris"]::before { background: var(--tetris-color); }
 .game-card[data-game="zindan-okcusu"]::before { background: var(--zindan-okcusu-color); }
 .game-card[data-game="hava-hokeyi"]::before { background: var(--hava-hokeyi-color); }
+.game-card[data-game="bil-ve-fethet"]::before { background: var(--bil-ve-fethet-color); }
+.game-card[data-game="kelime-madeni-3d"]::before { background: var(--kelime-madeni-color); }
+.game-card[data-game="bilgi-madencisi"]::before { background: var(--bilgi-madencisi-color); }
 
 /* ── Yakında (deaktif) oyun kartı ── */
 .game-card.coming-soon { cursor: default; }
