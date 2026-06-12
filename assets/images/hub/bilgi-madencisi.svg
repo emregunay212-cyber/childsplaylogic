@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Bilgi Madencisi: toprak kesiti + kanca + soru taşı -->
+  <defs>
+    <linearGradient id="bmDirt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9a6b3f"/>
+      <stop offset="100%" stop-color="#4a2c16"/>
+    </linearGradient>
+    <radialGradient id="bmRock" cx="35%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#a8a8b2"/>
+      <stop offset="100%" stop-color="#5c5c66"/>
+    </radialGradient>
+    <radialGradient id="bmGold" cx="35%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#ffe08a"/>
+      <stop offset="100%" stop-color="#d99a1f"/>
+    </radialGradient>
+  </defs>
+  <rect x="6" y="6" width="88" height="88" rx="16" fill="url(#bmDirt)"/>
+  <!-- gökyüzü şeridi -->
+  <path d="M6 22 L94 22 L94 22 Q94 6 78 6 L22 6 Q6 6 6 22 Z" fill="#8ed1ec"/>
+  <!-- platform + madenci -->
+  <rect x="36" y="18" width="28" height="6" rx="2" fill="#52351d"/>
+  <text x="50" y="17" font-size="13" text-anchor="middle">🤠</text>
+  <!-- halat -->
+  <line x1="50" y1="24" x2="62" y2="56" stroke="#2e1d0e" stroke-width="3" stroke-linecap="round"/>
+  <!-- kanca -->
+  <path d="M56 60 q6 7 13 1" fill="none" stroke="#cfcfd6" stroke-width="4.5" stroke-linecap="round"/>
+  <!-- taşlar: biri altın parlamalı (doğru), diğerleri gri -->
+  <circle cx="26" cy="62" r="13" fill="url(#bmRock)" stroke="#3e3e46" stroke-width="2.5"/>
+  <text x="26" y="67" font-family="system-ui, sans-serif" font-size="13" font-weight="800" text-anchor="middle" fill="#fff">9</text>
+  <circle cx="74" cy="78" r="12" fill="url(#bmRock)" stroke="#3e3e46" stroke-width="2.5"/>
+  <text x="74" y="83" font-family="system-ui, sans-serif" font-size="12" font-weight="800" text-anchor="middle" fill="#fff">14</text>
+  <circle cx="44" cy="82" r="13" fill="url(#bmGold)" stroke="#a87413" stroke-width="2.5"/>
+  <text x="44" y="87" font-family="system-ui, sans-serif" font-size="13" font-weight="800" text-anchor="middle" fill="#5a3a00">12</text>
+  <!-- soru rozeti -->
+  <circle cx="79" cy="36" r="11" fill="#f4c14f" stroke="#a87413" stroke-width="2.5"/>
+  <text x="79" y="41" font-family="system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle" fill="#3c2a0e">?</text>
+</svg>

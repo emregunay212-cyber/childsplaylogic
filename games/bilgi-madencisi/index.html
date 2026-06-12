@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bilgi Madencisi — Soru Cevapla, Altını Çek!</title>
+<!-- Portal standardı: tek dosya, harici bağımlılık YOK, sistem fontları.
+     Eğitsel seri Faz 1 / Oyun 4.1 — tasarım: EGITSEL-OYUN-PLANI.md §4.1 + §5 -->
+<style>
+:root{
+  --sky:#7ec8e3; --dirt1:#9a6b3f; --dirt2:#6e4426; --dirt3:#4a2c16;
+  --gold:#f4c14f; --gold-dark:#b8860b; --rock:#8d8d96; --rock-dark:#5c5c66;
+  --ink:#fff7e8; --ink-dim:#d9c9a8; --panel:#3a2414; --panel2:#52351d;
+  --ok:#5fae6e; --warn:#e0552c;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--dirt3);color:var(--ink);
+  font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;user-select:none;touch-action:manipulation}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:12px}
+.screen{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:14px;text-align:center}
+.screen.show{display:flex}
+
+/* ===== MENÜ ===== */
+#screen-menu{background:linear-gradient(180deg,var(--sky) 0%,var(--sky) 28%,var(--dirt1) 28.2%,var(--dirt2) 60%,var(--dirt3) 100%)}
+#screen-menu h1{font-size:clamp(30px,8vw,52px);text-shadow:0 3px 0 rgba(0,0,0,.35);letter-spacing:.5px}
+#screen-menu .sub{color:var(--ink);opacity:.92;margin:6px 0 16px;font-size:clamp(14px,3.6vw,17px);max-width:480px}
+.tierGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:min(440px,94vw);margin-bottom:14px}
+.tierBtn{background:var(--panel2);color:var(--ink);padding:13px 8px;font-size:16px;font-weight:700;
+  border:3px solid transparent;display:flex;flex-direction:column;gap:3px;transition:transform .1s}
+.tierBtn small{font-weight:400;font-size:12px;color:var(--ink-dim)}
+.tierBtn.on{border-color:var(--gold);background:var(--panel);transform:scale(1.03)}
+.bigBtn{background:var(--gold);color:#3c2a0e;font-size:19px;font-weight:800;padding:14px 34px;
+  box-shadow:0 4px 0 var(--gold-dark);margin-top:4px}
+.bigBtn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--gold-dark)}
+.ghost{background:transparent;color:var(--ink-dim);font-size:14px;padding:10px;margin-top:8px;text-decoration:underline}
+#bestLine{font-size:13px;color:var(--ink-dim);margin-top:10px;min-height:18px}
+
+/* ===== NASIL OYNANIR ===== */
+#helpBox{display:none;background:var(--panel);border-radius:14px;padding:16px;max-width:460px;
+  font-size:14px;line-height:1.55;text-align:left;margin-top:12px;max-height:44vh;overflow:auto}
+#helpBox.show{display:block}
+#helpBox b{color:var(--gold)}
+
+/* ===== OYUN ===== */
+#screen-game{padding:0;justify-content:flex-start}
+#qBar{width:100%;background:var(--panel);padding:8px 10px 9px;display:flex;flex-direction:column;gap:5px;
+  box-shadow:0 3px 12px rgba(0,0,0,.4);z-index:5}
+#hudRow{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;font-weight:700}
+#hudRow .chip{background:var(--panel2);border-radius:9px;padding:3px 9px;white-space:nowrap}
+#timeChip.low{color:#ffb3a0;animation:pulse .6s infinite alternate}
+@keyframes pulse{from{transform:scale(1)}to{transform:scale(1.12)}}
+#qText{font-size:clamp(19px,5.6vw,27px);font-weight:800;color:var(--gold);min-height:30px}
+#qText.shake{animation:shake .42s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+#cv{flex:1;width:100%;display:block;touch-action:none}
+#btnRow{position:absolute;right:10px;bottom:12px;display:flex;flex-direction:column;gap:10px;z-index:6}
+.gBtn{width:58px;height:58px;border-radius:50%;font-size:25px;background:var(--panel2);color:var(--ink);
+  box-shadow:0 3px 8px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center}
+.gBtn:disabled{opacity:.35}
+#bDyn{background:#7a2e12}
+#bDyn .cnt{position:absolute;transform:translate(20px,-18px);background:var(--gold);color:#3c2a0e;
+  font-size:12px;font-weight:800;border-radius:50%;width:20px;height:20px;line-height:20px}
+#comboTag{position:absolute;left:10px;bottom:16px;font-size:15px;font-weight:800;color:var(--gold);
+  text-shadow:0 2px 3px rgba(0,0,0,.5);z-index:6;opacity:0;transition:opacity .2s}
+#comboTag.show{opacity:1}
+
+/* ===== DURAKLATMA ===== */
+#pauseVeil{position:fixed;inset:0;background:rgba(20,10,4,.82);display:none;align-items:center;justify-content:center;
+  flex-direction:column;gap:14px;z-index:20;text-align:center;padding:20px}
+#pauseVeil.show{display:flex}
+#pauseVeil h2{font-size:26px}
+
+/* ===== SONUÇ ===== */
+#screen-result{background:linear-gradient(180deg,var(--dirt2),var(--dirt3))}
+#resEmoji{font-size:56px}
+#resScore{font-size:clamp(34px,10vw,52px);font-weight:900;color:var(--gold);margin:4px 0}
+#resStats{background:var(--panel);border-radius:14px;padding:14px 20px;font-size:15px;line-height:1.7;margin:10px 0;max-width:420px}
+#resStats b{color:var(--gold)}
+#eduLine{font-size:16px;font-weight:700;margin-top:4px;color:var(--ink)}
+
+@media (max-width:380px){
+  .gBtn{width:50px;height:50px;font-size:21px}
+  #hudRow{font-size:12px}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== MENÜ ===== -->
+<div class="screen show" id="screen-menu">
+  <h1>💎 BİLGİ MADENCİSİ ⛏️</h1>
+  <p class="sub">Soru yukarıda, cevaplar yerin altında! Kancayı doğru taşa bırak — yanlış taş ağırdır, zamanını yer.</p>
+  <div class="tierGrid" id="tierGrid">
+    <button class="tierBtn on" data-t="1">🏕️ Etek<small>3. sınıf · başlangıç</small></button>
+    <button class="tierBtn" data-t="2">⛰️ Yamaç<small>4. sınıf · orta</small></button>
+    <button class="tierBtn" data-t="3">🧗 Tırmanış<small>5. sınıf · ileri</small></button>
+    <button class="tierBtn" data-t="4">🏔️ Zirve<small>6. sınıf · uzman</small></button>
+  </div>
+  <button class="bigBtn" id="bPlay">⛏️ KAZMAYA BAŞLA</button>
+  <button class="ghost" id="bHelp">📜 Nasıl oynanır?</button>
+  <div id="helpBox">
+    <b>Amaç:</b> 60 saniyede en çok puanı topla!<br><br>
+    <b>Kanca:</b> Kendiliğinden sağa-sola sallanır. Ekrana dokun (veya BOŞLUK) → kanca o yöne iner ve değdiği taşı çeker.<br><br>
+    <b>Taşlar:</b> Her soru için 4 taş çıkar — sadece biri doğru cevap. Taşlar dışarıdan aynı görünür, fark BİLGİDE!<br>
+    ✅ Doğru taş hafiftir, hızlı gelir, puan verir.<br>
+    ❌ Yanlış taş AĞIRDIR, yavaş gelir, puan vermez — zaman kaybı!<br><br>
+    <b>Combo:</b> Art arda doğrularda puan çarpanı ×1 → ×1.5 → ×2'ye çıkar; 3+ seride kanca da hızlanır.<br><br>
+    <b>🧨 Dinamit:</b> Her 5 doğru cevapta 1 dinamit kazanırsın. Yanlış taşı çekerken patlat → taş yok olur, kanca hemen döner!
+  </div>
+  <div id="bestLine"></div>
+</div>
+
+<!-- ===== OYUN ===== -->
+<div class="screen" id="screen-game">
+  <div id="qBar">
+    <div id="hudRow">
+      <span class="chip" id="scoreChip">⭐ 0</span>
+      <span class="chip" id="timeChip">⏱️ 60</span>
+      <span class="chip" id="dynChip">🧨 0</span>
+      <button class="chip" id="bPause" style="background:var(--panel2);color:var(--ink)">⏸️</button>
+    </div>
+    <div id="qText">3 × 4 = ?</div>
+  </div>
+  <canvas id="cv"></canvas>
+  <div id="comboTag">🔥 COMBO ×2</div>
+  <div id="btnRow">
+    <button class="gBtn" id="bDyn" disabled>🧨<span class="cnt" id="dynCnt">0</span></button>
+  </div>
+</div>
+
+<!-- ===== DURAKLATMA ===== -->
+<div id="pauseVeil">
+  <h2>⏸️ Mola!</h2>
+  <p style="color:var(--ink-dim)">Madenci dinleniyor — süre durdu.</p>
+  <button class="bigBtn" id="bResume">▶️ Devam Et</button>
+  <button class="ghost" id="bQuit">🏠 Menüye Dön</button>
+</div>
+
+<!-- ===== SONUÇ ===== -->
+<div class="screen" id="screen-result">
+  <div id="resEmoji">🏆</div>
+  <h1 style="font-size:26px">Vardiya Bitti!</h1>
+  <div id="resScore">0</div>
+  <div id="resStats"></div>
+  <div id="eduLine"></div>
+  <button class="bigBtn" id="bAgain" style="margin-top:14px">🔄 Tekrar Oyna</button>
+  <button class="ghost" id="bMenu">🏠 Menü</button>
+</div>
+
+<!-- ChildsPlayLogic entegrasyonu: window.storage köprüsü (localStorage, Promise API).
+     Google girişli kullanıcıda hub bu anahtarları users/{uid}/gameSaves ile senkronlar. -->
+<script>
+(function () {
+  if (window.storage && window.storage.get && window.storage.set) return;
+  window.storage = {
+    get: function (key) {
+      try { var v = localStorage.getItem(key); return Promise.resolve(v != null ? { value: v } : null); }
+      catch (e) { return Promise.resolve(null); }
+    },
+    set: function (key, value) {
+      try { localStorage.setItem(key, value); return Promise.resolve(); }
+      catch (e) { return Promise.resolve(); }
+    },
+    remove: function (key) {
+      try { localStorage.removeItem(key); return Promise.resolve(); }
+      catch (e) { return Promise.resolve(); }
+    }
+  };
+})();
+</script>
+<script>
+"use strict";
+/* ================= STRINGS (UI metinleri — ileride i18n) ================= */
+const STRINGS = {
+  comboTag: m => `🔥 COMBO ×${m}`,
+  speedUp: '⚡ Kanca hızlandı!',
+  dynamiteGet: '🧨 Dinamit kazandın!',
+  dynamiteBoom: '💥 GÜM! Taş yok oldu.',
+  resultTitleGood: 'Altın Vardiya!',
+  resultTitleOk: 'Vardiya Bitti!',
+  edu: n => `Bugün ${n} işlem çözdün! 🎉`,
+  eduZero: 'Kanca hazır — bir dahaki vardiyada işlemler seni bekliyor! 💪',
+  best: (t, s) => `🏅 ${['','Etek','Yamaç','Tırmanış','Zirve'][t]} rekorun: ${s}`,
+};
+
+/* ================= CONFIG (tüm denge sabitleri — EGITSEL-OYUN-PLANI §4.1) ================= */
+const CONFIG = {
+  ROUND_SEC: 60,                 // tur süresi
+  STONES_PER_Q: 4,               // 1 doğru + 3 çeldirici
+  POINT_PER_TIER: 50,            // doğru çekme puanı = tier × 50
+  COMBO_MULTS: [1, 1, 1.5, 2],   // streak 0-1 → ×1, 2 → ×1.5, 3+ → ×2 (max)
+  SPEED_BONUS_STREAK: 3,         // art arda 3 doğru → kanca hızı +%20
+  SPEED_BONUS: 1.2,
+  DYNAMITE_EVERY: 5,             // 5 doğru cevapla 1 dinamit
+  DYNAMITE_MAX: 3,
+  WRONG_WEIGHT: 2.4,             // yanlış taş bu kat yavaş gelir
+  EXTEND_SPEED: 560,             // px/sn (kanca uzama)
+  RETRACT_SPEED: 480,            // px/sn (boş/doğru geri sarma)
+  TIERS: {                       // tier farkı: sallanma hızı + soru zorluğu
+    1: { swing: 1.15, maxAng: 1.18 },
+    2: { swing: 1.40, maxAng: 1.22 },
+    3: { swing: 1.62, maxAng: 1.26 },
+    4: { swing: 1.85, maxAng: 1.30 },
+  },
+};
+
+/* ================= FALLBACK_QUESTIONS (gömülü — offline güvence)
+   Kaynak: fabrika/soru-bankasi/soru-bankasi-matematik.json (kısa cevaplı seçki) ================= */
+const FALLBACK_QUESTIONS = [
+  {t:1,q:"6 × 7 = ?",o:["43","49","42","41"],a:2},
+  {t:1,q:"5 × 6 = ?",o:["20","30","40","35"],a:1},
+  {t:1,q:"46 − 18 = ?",o:["28","30","38","33"],a:0},
+  {t:1,q:"18 + 69 = ?",o:["82","77","88","87"],a:3},
+  {t:1,q:"34 + 28 = ?",o:["57","62","61","60"],a:1},
+  {t:1,q:"6 × 6 = ?",o:["35","36","26","30"],a:1},
+  {t:2,q:"6 × 12 = ?",o:["62","78","72","71"],a:2},
+  {t:2,q:"6 × 6 = ?",o:["26","46","36","37"],a:2},
+  {t:2,q:"38 + 20 − 6 = ?",o:["57","42","53","52"],a:3},
+  {t:2,q:"10 × 8 = ?",o:["81","80","79","88"],a:1},
+  {t:2,q:"9 × 11 = ?",o:["100","98","90","99"],a:3},
+  {t:2,q:"12 × 9 = ?",o:["99","108","96","118"],a:1},
+  {t:3,q:"6 × 7 + 39 = ?",o:["81","71","76","83"],a:0},
+  {t:3,q:"9 × 9 + 15 = ?",o:["94","96","95","106"],a:1},
+  {t:3,q:"3 × 3 + 31 = ?",o:["35","38","40","30"],a:2},
+  {t:3,q:"8/12 kesrinin en sade hali?",o:["2/3","8/11","3/4","1/3"],a:0},
+  {t:3,q:"12 × 4 = ?",o:["44","48","58","47"],a:1},
+  {t:3,q:"3/6 kesrinin en sade hali?",o:["2/3","1/2","1/1","3/5"],a:1},
+  {t:4,q:"6/8 kesrinin en sade hali?",o:["1/1","3/4","4/5","1/2"],a:1},
+  {t:4,q:"4/10 kesrinin en sade hali?",o:["2/5","3/5","1/5","3/6"],a:0},
+  {t:4,q:"4/12 kesrinin en sade hali?",o:["4/11","2/4","1/3","2/3"],a:2},
+  {t:4,q:"10/12 kesrinin en sade hali?",o:["2/3","6/7","10/11","5/6"],a:3},
+  {t:4,q:"6/12 kesrinin en sade hali?",o:["2/3","6/11","1/2","1/1"],a:2},
+  {t:4,q:"4/6 kesrinin en sade hali?",o:["1/3","4/5","2/3","1/1"],a:2},
+];
+
+/* ================= QuestionBank =================
+   1) fetch('sorular/math-tier{n}.json') denenir (ileride banka dosyaları eklenince)
+   2) yoksa: prosedürel üretici (sonsuz, tekrar yok) + FALLBACK karışımı — oyun ASLA kırılmaz */
+const QuestionBank = (() => {
+  const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const sgcd = (a, b) => b ? sgcd(b, a % b) : a;
+
+  // Kısa cevaplı seçenek üretimi: doğru + 3 yakın çeldirici
+  function numOpts(ans, spread){
+    const set = new Set([ans]);
+    let guard = 0;
+    while (set.size < 4 && guard++ < 60){
+      const v = ans + rnd(-spread, spread);
+      if (v !== ans && v >= 0) set.add(v);
+    }
+    while (set.size < 4) set.add(ans + set.size);
+    const o = shuffle([...set].map(String));
+    return { o, a: o.indexOf(String(ans)) };
+  }
+  function fracOpts(num, den){
+    const correct = num + '/' + den;
+    const set = new Set([correct]);
+    let guard = 0;
+    while (set.size < 4 && guard++ < 60){
+      const v = rnd(1, den + 2) + '/' + rnd(2, den + 4);
+      if (v !== correct) set.add(v);
+    }
+    const o = shuffle([...set]);
+    return { o, a: o.indexOf(correct) };
+  }
+
+  // Prosedürel üretici — tier başına ayrı zorluk (Etek/Yamaç/Tırmanış/Zirve)
+  const PROC = {
+    1: () => {
+      const k = rnd(0, 2);
+      if (k === 0){ const a = rnd(2, 9), b = rnd(2, 9); return { q: `${a} + ${b} = ?`, ...numOpts(a + b, 4) }; }
+      if (k === 1){ const a = rnd(5, 18), b = rnd(1, a); return { q: `${a} − ${b} = ?`, ...numOpts(a - b, 4) }; }
+      const a = rnd(2, 5), b = rnd(2, 5); return { q: `${a} × ${b} = ?`, ...numOpts(a * b, 5) };
+    },
+    2: () => {
+      const k = rnd(0, 2);
+      if (k === 0){ const a = rnd(12, 60), b = rnd(12, 39); return { q: `${a} + ${b} = ?`, ...numOpts(a + b, 9) }; }
+      if (k === 1){ const a = rnd(2, 9), b = rnd(2, 9); return { q: `${a} × ${b} = ?`, ...numOpts(a * b, 8) }; }
+      const b = rnd(2, 9), c = rnd(2, 9); return { q: `${b * c} ÷ ${b} = ?`, ...numOpts(c, 4) };
+    },
+    3: () => {
+      const k = rnd(0, 3);
+      if (k === 0){ const a = rnd(6, 15), b = rnd(3, 9); return { q: `${a} × ${b} = ?`, ...numOpts(a * b, 14) }; }
+      if (k === 1){ const b = rnd(3, 9), c = rnd(4, 15); return { q: `${b * c} ÷ ${b} = ?`, ...numOpts(c, 5) }; }
+      if (k === 2){ const den = pick([2, 4, 5, 10]), n = den * rnd(2, 9); return { q: `${n} sayısının 1/${den}'i?`, ...numOpts(n / den, 5) }; }
+      const m = rnd(2, 5), nu = rnd(1, 4) * m, de = rnd(nu / m + 1, 6) * m, g = sgcd(nu, de);
+      return { q: `${nu}/${de} kesrinin en sade hali?`, ...fracOpts(nu / g, de / g) };
+    },
+    4: () => {
+      const k = rnd(0, 3);
+      if (k === 0){ const a = rnd(3, 9), b = rnd(3, 9), c = rnd(5, 30); return { q: `${a} × ${b} + ${c} = ?`, ...numOpts(a * b + c, 12) }; }
+      if (k === 1){ const p = pick([10, 25, 50]), base = (100 / p) * rnd(2, 9); return { q: `${base} sayısının %${p}'i?`, ...numOpts(base * p / 100, 7) }; }
+      if (k === 2){ const b2 = rnd(2, 6), e = rnd(2, 3); return { q: `${b2}${e === 2 ? '²' : '³'} = ?`, ...numOpts(Math.pow(b2, e), 11) }; }
+      const m = rnd(2, 6), nu = rnd(1, 5) * m, de = rnd(nu / m + 1, 7) * m, g = sgcd(nu, de);
+      return { q: `${nu}/${de} kesrinin en sade hali?`, ...fracOpts(nu / g, de / g) };
+    },
+  };
+
+  let bank = null;          // fetch ile yüklenirse {t,q,o,a} dizisi
+  const asked = new Set();  // oturum içi tekrar engelleme
+
+  async function load(tier){
+    bank = null;
+    try {
+      const r = await fetch(`sorular/math-tier${tier}.json`, { cache: 'no-store' });
+      if (r.ok){
+        const j = await r.json();
+        if (Array.isArray(j) && j.length) bank = j;
+      }
+    } catch (e) { /* offline / dosya yok → prosedürel + fallback */ }
+  }
+  function next(tier){
+    // %25 gömülü gerçek banka sorusu (tekrarsız), gerisi prosedürel
+    const pool = (bank || FALLBACK_QUESTIONS).filter(x => (x.t || tier) === tier && !asked.has(x.q));
+    if (pool.length && Math.random() < 0.25){
+      const q = pick(pool);
+      asked.add(q.q);
+      return { q: q.q, o: q.o.slice(), a: q.a };
+    }
+    let g, guard = 0;
+    do { g = PROC[tier](); } while (asked.has(g.q) && guard++ < 25);
+    asked.add(g.q);
+    return g;
+  }
+  function reset(){ asked.clear(); }
+  return { load, next, reset };
+})();
+
+/* ================= Audio (Web Audio sentez — ses dosyası yok) ================= */
+const Audio2 = (() => {
+  let ctx = null;
+  function init(){ if (!ctx){ try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } if (ctx && ctx.state === 'suspended') ctx.resume(); }
+  function tone(f, dur, type, vol, when){
+    if (!ctx) return;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type || 'triangle'; o.frequency.value = f;
+    g.gain.setValueAtTime(vol || 0.06, ctx.currentTime + (when || 0));
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + (when || 0) + dur);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(ctx.currentTime + (when || 0)); o.stop(ctx.currentTime + (when || 0) + dur + 0.02);
+  }
+  return {
+    init,
+    drop:    () => tone(300, 0.09, 'square', 0.04),
+    grab:    () => tone(180, 0.12, 'square', 0.05),
+    correct: () => { tone(660, 0.1, 'triangle', 0.07); tone(880, 0.14, 'triangle', 0.07, 0.1); },
+    wrong:   () => tone(150, 0.3, 'sawtooth', 0.05),
+    combo:   () => { tone(700, 0.08, 'triangle', 0.06); tone(900, 0.08, 'triangle', 0.06, 0.08); tone(1100, 0.1, 'triangle', 0.06, 0.16); },
+    dyn:     () => { tone(90, 0.35, 'sawtooth', 0.09); tone(60, 0.4, 'square', 0.07, 0.05); },
+    tick:    () => tone(840, 0.05, 'square', 0.03),
+    fanfare: () => [523, 659, 784, 1046].forEach((f, i) => tone(f, 0.16, 'triangle', 0.07, i * 0.13)),
+  };
+})();
+
+/* ================= Bridge (EGITSEL-OYUN-PLANI §6.1 — meta katman v1 stub)
+   Skorlar localStorage kuyruğuna yazılır; meta katman v1 backend bağlanınca
+   sendToBackend gerçek yazıma çevrilir, oyun dosyasına dokunulmaz. ================= */
+const BilnetBridge = {
+  QUEUE_KEY: 'bilnet_score_queue',
+  async submitScore(payload){
+    const rec = { ...payload, ts: Date.now() };
+    try {
+      const r = await window.storage.get(this.QUEUE_KEY);
+      const q = r && r.value ? JSON.parse(r.value) : [];
+      q.push(rec);
+      while (q.length > 50) q.shift();   // kuyruk sınırı
+      await window.storage.set(this.QUEUE_KEY, JSON.stringify(q));
+    } catch (e) {}
+  },
+  flushQueue(){ /* meta katman v1: backend bağlanınca doldurulacak */ },
+};
+
+/* ================= İstatistik (kalıcı — meta katman okuyacak) ================= */
+const STATS_KEY = 'bilgimadenci_stats';
+let STATS = { plays: 0, correct: 0, wrong: 0, bestCombo: 0, best: { 1: 0, 2: 0, 3: 0, 4: 0 } };
+function loadStats(){
+  try { window.storage.get(STATS_KEY).then(r => {
+    if (r && r.value){ try { STATS = Object.assign(STATS, JSON.parse(r.value)); } catch (e) {} }
+    refreshBestLine();
+  }); } catch (e) {}
+}
+function saveStats(){ try { window.storage.set(STATS_KEY, JSON.stringify(STATS)); } catch (e) {} }
+
+/* ================= Game (state machine: menu → playing → paused → result) ================= */
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx2 = cv.getContext('2d');
+
+const G = {
+  state: 'menu', tier: 1,
+  score: 0, timeLeft: CONFIG.ROUND_SEC,
+  correct: 0, wrong: 0, streak: 0, bestStreak: 0,
+  dynamite: 0, sinceDyn: 0,
+  hook: { ang: 0, t: 0, mode: 'swing', len: 0, carrying: null, dir: { x: 0, y: 1 } },
+  stones: [], cur: null,
+  particles: [], fx: [],
+  lastTs: 0, raf: 0, secAcc: 0,
+};
+
+function resize(){
+  const bar = $('qBar').getBoundingClientRect();
+  cv.width = innerWidth;
+  cv.height = Math.max(220, innerHeight - bar.height);
+}
+addEventListener('resize', resize);
+
+/* ---- Taş yerleşimi: alt %58'lik alana, çakışmasız ---- */
+function spawnStones(q){
+  G.stones = [];
+  const W = cv.width, H = cv.height;
+  const r = Math.max(26, Math.min(40, W / 9));
+  const yMin = H * 0.42, yMax = H - r - 10, xMin = r + 8, xMax = W - r - 8;
+  const idx = [0, 1, 2, 3];
+  for (let i = 0; i < CONFIG.STONES_PER_Q; i++){
+    let x, y, ok = false, guard = 0;
+    while (!ok && guard++ < 120){
+      x = xMin + Math.random() * (xMax - xMin);
+      y = yMin + Math.random() * (yMax - yMin);
+      ok = G.stones.every(s => (s.x - x) ** 2 + (s.y - y) ** 2 > (r * 2.25) ** 2);
+    }
+    G.stones.push({ x, y, r, text: q.o[idx[i]], correct: idx[i] === q.a, dead: false });
+  }
+}
+function newQuestion(){
+  G.cur = QuestionBank.next(G.tier);
+  $('qText').textContent = G.cur.q;
+  spawnStones(G.cur);
+}
+
+/* ---- Kanca ---- */
+function hookSpeedMult(){ return G.streak >= CONFIG.SPEED_BONUS_STREAK ? CONFIG.SPEED_BONUS : 1; }
+function dropHook(){
+  if (G.state !== 'playing' || G.hook.mode !== 'swing') return;
+  Audio2.init(); Audio2.drop();
+  const h = G.hook;
+  h.dir = { x: Math.sin(h.ang), y: Math.cos(h.ang) };
+  h.mode = 'extend'; h.len = 26;
+}
+function pivot(){ return { x: cv.width / 2, y: 14 }; }
+
+function updateHook(dt){
+  const h = G.hook, cfg = CONFIG.TIERS[G.tier], p = pivot();
+  if (h.mode === 'swing'){
+    h.t += dt * cfg.swing * hookSpeedMult();
+    h.ang = Math.sin(h.t) * cfg.maxAng;
+  } else if (h.mode === 'extend'){
+    h.len += CONFIG.EXTEND_SPEED * hookSpeedMult() * dt;
+    const tx = p.x + h.dir.x * h.len, ty = p.y + h.dir.y * h.len;
+    for (const s of G.stones){
+      if (s.dead) continue;
+      if ((s.x - tx) ** 2 + (s.y - ty) ** 2 < (s.r + 7) ** 2){
+        h.carrying = s; s.dead = true;
+        h.mode = 'retract'; Audio2.grab();
+        if (!s.correct) $('bDyn').disabled = G.dynamite <= 0;   // yanlış taşta dinamit aktif
+        return;
+      }
+    }
+    const maxLen = Math.hypot(cv.width, cv.height);
+    if (tx < -20 || tx > cv.width + 20 || ty > cv.height + 20 || h.len > maxLen){ h.mode = 'retract'; }
+  } else if (h.mode === 'retract'){
+    const w = h.carrying && !h.carrying.correct ? CONFIG.WRONG_WEIGHT : 1;
+    h.len -= (CONFIG.RETRACT_SPEED * hookSpeedMult() / w) * dt;
+    if (h.carrying){ h.carrying.x = p.x + h.dir.x * h.len; h.carrying.y = p.y + h.dir.y * h.len; }
+    if (h.len <= 26){ deliver(); h.mode = 'swing'; h.carrying = null; $('bDyn').disabled = true; }
+  }
+}
+
+function deliver(){
+  const s = G.hook.carrying;
+  if (!s) return;
+  if (s.correct){
+    G.streak++; G.correct++; G.sinceDyn++;
+    if (G.streak > G.bestStreak) G.bestStreak = G.streak;
+    const mult = CONFIG.COMBO_MULTS[Math.min(G.streak, CONFIG.COMBO_MULTS.length - 1)];
+    const pts = Math.round(G.tier * CONFIG.POINT_PER_TIER * mult);
+    G.score += pts;
+    addFx(`+${pts}`, 'var(--gold)');
+    burst(pivot().x, 70, '#f4c14f');
+    if (mult > 1){ $('comboTag').textContent = STRINGS.comboTag(mult); $('comboTag').classList.add('show'); Audio2.combo(); }
+    else Audio2.correct();
+    if (G.streak === CONFIG.SPEED_BONUS_STREAK) addFx(STRINGS.speedUp, '#bfe8ff');
+    if (G.sinceDyn >= CONFIG.DYNAMITE_EVERY && G.dynamite < CONFIG.DYNAMITE_MAX){
+      G.sinceDyn = 0; G.dynamite++;
+      addFx(STRINGS.dynamiteGet, '#ffb380');
+    }
+    newQuestion();
+  } else {
+    // Yanlış: puan yok, combo sıfır — ceza utandırmaz, sadece zaman kaybı (nötr shake)
+    G.wrong++; G.streak = 0;
+    $('comboTag').classList.remove('show');
+    $('qText').classList.remove('shake'); void $('qText').offsetWidth; $('qText').classList.add('shake');
+    Audio2.wrong();
+  }
+  refreshHUD();
+}
+
+/* ---- Dinamit: yanlış taşı çekerken patlat ---- */
+$('bDyn').addEventListener('click', e => {
+  e.stopPropagation();
+  const h = G.hook;
+  if (G.state !== 'playing' || G.dynamite <= 0) return;
+  if (h.mode !== 'retract' || !h.carrying || h.carrying.correct) return;
+  G.dynamite--;
+  burst(h.carrying.x, h.carrying.y, '#ff8c5a');
+  addFx(STRINGS.dynamiteBoom, '#ffb380');
+  Audio2.dyn();
+  h.carrying = null;          // taş yok edildi — kanca boş ve hızlı döner
+  $('bDyn').disabled = true;
+  refreshHUD();
+});
+
+/* ---- Efektler ---- */
+function addFx(text, color){ G.fx.push({ text, color, y: 96, life: 1 }); }
+function burst(x, y, color){
+  for (let i = 0; i < 14; i++){
+    const a = Math.random() * Math.PI * 2, sp = 60 + Math.random() * 160;
+    G.particles.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 40, life: 0.7, color });
+  }
+}
+
+/* ---- Çizim ---- */
+function draw(){
+  const W = cv.width, H = cv.height, p = pivot();
+  // zemin: gökyüzü şeridi + toprak katmanları
+  const sky = H * 0.16;
+  let g = ctx2.createLinearGradient(0, 0, 0, sky);
+  g.addColorStop(0, '#8ed1ec'); g.addColorStop(1, '#bfe6f2');
+  ctx2.fillStyle = g; ctx2.fillRect(0, 0, W, sky);
+  g = ctx2.createLinearGradient(0, sky, 0, H);
+  g.addColorStop(0, '#9a6b3f'); g.addColorStop(0.5, '#6e4426'); g.addColorStop(1, '#3c2414');
+  ctx2.fillStyle = g; ctx2.fillRect(0, sky, W, H - sky);
+  // toprak dokusu (deterministik benekler)
+  ctx2.fillStyle = 'rgba(0,0,0,0.12)';
+  for (let i = 0; i < 40; i++){
+    const x = ((i * 73) % W), y = sky + ((i * 131) % (H - sky));
+    ctx2.fillRect(x, y, 5, 3);
+  }
+  // madenci platformu
+  ctx2.fillStyle = '#52351d';
+  ctx2.fillRect(p.x - 44, 0, 88, 12);
+  ctx2.font = '22px system-ui'; ctx2.textAlign = 'center';
+  ctx2.fillText('🤠', p.x + (G.hook.mode === 'swing' ? Math.sin(G.hook.ang) * 8 : 0), 22);
+
+  // taşlar — HEPSİ AYNI görünür (görsel ipucu yok, fark bilgide)
+  for (const s of G.stones){
+    if (s.dead && G.hook.carrying !== s) continue;
+    ctx2.beginPath(); ctx2.arc(s.x, s.y + 3, s.r, 0, 7); ctx2.fillStyle = 'rgba(0,0,0,0.3)'; ctx2.fill();
+    const rg = ctx2.createRadialGradient(s.x - s.r * 0.35, s.y - s.r * 0.4, s.r * 0.2, s.x, s.y, s.r);
+    rg.addColorStop(0, '#a8a8b2'); rg.addColorStop(1, '#5c5c66');
+    ctx2.beginPath(); ctx2.arc(s.x, s.y, s.r, 0, 7); ctx2.fillStyle = rg; ctx2.fill();
+    ctx2.lineWidth = 3; ctx2.strokeStyle = '#3e3e46'; ctx2.stroke();
+    ctx2.fillStyle = '#fff';
+    ctx2.font = `800 ${Math.min(20, s.r * 0.62, (s.r * 2.4) / Math.max(2, s.text.length) * 1.6)}px system-ui`;
+    ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
+    ctx2.fillText(s.text, s.x, s.y + 1);
+    ctx2.textBaseline = 'alphabetic';
+  }
+
+  // halat + kanca
+  const h = G.hook;
+  const tip = h.mode === 'swing'
+    ? { x: p.x + Math.sin(h.ang) * 30, y: p.y + Math.cos(h.ang) * 30 }
+    : { x: p.x + h.dir.x * h.len, y: p.y + h.dir.y * h.len };
+  ctx2.beginPath(); ctx2.moveTo(p.x, p.y); ctx2.lineTo(tip.x, tip.y);
+  ctx2.lineWidth = 3; ctx2.strokeStyle = '#2e1d0e'; ctx2.stroke();
+  ctx2.save();
+  ctx2.translate(tip.x, tip.y);
+  ctx2.rotate(h.mode === 'swing' ? h.ang : Math.atan2(h.dir.x, h.dir.y));
+  ctx2.beginPath(); ctx2.arc(0, 6, 9, 0.25 * Math.PI, 0.75 * Math.PI, true);
+  ctx2.lineWidth = 5; ctx2.strokeStyle = G.streak >= CONFIG.SPEED_BONUS_STREAK ? '#f4c14f' : '#cfcfd6'; ctx2.stroke();
+  ctx2.restore();
+  // taşınan doğru taş altın parlar
+  if (h.carrying && h.carrying.correct){
+    ctx2.beginPath(); ctx2.arc(h.carrying.x, h.carrying.y, h.carrying.r + 5, 0, 7);
+    ctx2.strokeStyle = 'rgba(244,193,79,0.85)'; ctx2.lineWidth = 4; ctx2.stroke();
+  }
+
+  // parçacıklar
+  for (const pt of G.particles){
+    ctx2.globalAlpha = Math.max(0, pt.life / 0.7);
+    ctx2.fillStyle = pt.color;
+    ctx2.fillRect(pt.x - 2.5, pt.y - 2.5, 5, 5);
+  }
+  ctx2.globalAlpha = 1;
+  // yüzen yazılar
+  ctx2.textAlign = 'center'; ctx2.font = '800 21px system-ui';
+  for (const f of G.fx){
+    ctx2.globalAlpha = Math.max(0, f.life);
+    ctx2.fillStyle = f.color.startsWith('var') ? '#f4c14f' : f.color;
+    ctx2.fillText(f.text, W / 2, f.y);
+  }
+  ctx2.globalAlpha = 1;
+}
+
+/* ---- Döngü ---- */
+function loop(ts){
+  if (G.state !== 'playing'){ G.raf = 0; return; }
+  const dt = Math.min(0.05, (ts - G.lastTs) / 1000 || 0.016);
+  G.lastTs = ts;
+  // süre
+  G.secAcc += dt;
+  if (G.secAcc >= 1){
+    G.secAcc -= 1; G.timeLeft--;
+    if (G.timeLeft <= 5 && G.timeLeft > 0) Audio2.tick();
+    refreshHUD();
+    if (G.timeLeft <= 0){ endRound(); return; }
+  }
+  updateHook(dt);
+  for (const pt of G.particles){ pt.x += pt.vx * dt; pt.y += pt.vy * dt; pt.vy += 320 * dt; pt.life -= dt; }
+  G.particles = G.particles.filter(pt => pt.life > 0);
+  for (const f of G.fx){ f.y -= 26 * dt; f.life -= dt * 0.8; }
+  G.fx = G.fx.filter(f => f.life > 0);
+  draw();
+  G.raf = requestAnimationFrame(loop);
+}
+
+function refreshHUD(){
+  $('scoreChip').textContent = '⭐ ' + G.score;
+  $('timeChip').textContent = '⏱️ ' + Math.max(0, G.timeLeft);
+  $('timeChip').classList.toggle('low', G.timeLeft <= 10);
+  $('dynChip').textContent = '🧨 ' + G.dynamite;
+  $('dynCnt').textContent = G.dynamite;
+  if (G.streak < 2) $('comboTag').classList.remove('show');
+}
+
+/* ---- Akış ---- */
+function show(id){ document.querySelectorAll('.screen').forEach(s => s.classList.remove('show')); $(id).classList.add('show'); }
+
+async function startRound(){
+  G.state = 'playing';
+  G.score = 0; G.timeLeft = CONFIG.ROUND_SEC; G.secAcc = 0;
+  G.correct = 0; G.wrong = 0; G.streak = 0; G.bestStreak = 0;
+  G.dynamite = 0; G.sinceDyn = 0;
+  G.hook = { ang: 0, t: 0, mode: 'swing', len: 0, carrying: null, dir: { x: 0, y: 1 } };
+  G.particles = []; G.fx = [];
+  QuestionBank.reset();
+  show('screen-game');
+  resize();
+  await QuestionBank.load(G.tier);
+  newQuestion();
+  refreshHUD();
+  $('bDyn').disabled = true;
+  G.lastTs = performance.now();
+  if (!G.raf) G.raf = requestAnimationFrame(loop);
+}
+
+function endRound(){
+  G.state = 'result';
+  if (G.raf){ cancelAnimationFrame(G.raf); G.raf = 0; }
+  // istatistik + rekor
+  STATS.plays++; STATS.correct += G.correct; STATS.wrong += G.wrong;
+  if (G.bestStreak > STATS.bestCombo) STATS.bestCombo = G.bestStreak;
+  const isBest = G.score > (STATS.best[G.tier] || 0);
+  if (isBest) STATS.best[G.tier] = G.score;
+  saveStats();
+  // Bridge: skor kuyruğa (meta katman v1 backend bağlayacak)
+  BilnetBridge.submitScore({
+    gameId: 'bilgi-madencisi', score: G.score, tier: G.tier,
+    stats: { correct: G.correct, wrong: G.wrong, maxCombo: G.bestStreak },
+  });
+  // sonuç ekranı + eğitsel özet (§5: kazanım söylenir)
+  const acc = G.correct + G.wrong > 0 ? Math.round(100 * G.correct / (G.correct + G.wrong)) : 0;
+  $('resEmoji').textContent = isBest ? '🏆' : (G.correct >= 8 ? '🥇' : '⛏️');
+  $('resScore').textContent = G.score;
+  $('resStats').innerHTML =
+    `✅ Doğru: <b>${G.correct}</b> &nbsp;·&nbsp; ❌ Yanlış: <b>${G.wrong}</b> &nbsp;·&nbsp; 🎯 İsabet: <b>%${acc}</b><br>` +
+    `🔥 En iyi combo: <b>${G.bestStreak}</b> &nbsp;·&nbsp; 💎 Jeton: <b>+${Math.floor(G.score / 100)}</b>` +
+    (isBest ? `<br>🏅 <b>YENİ ${['', 'ETEK', 'YAMAÇ', 'TIRMANIŞ', 'ZİRVE'][G.tier]} REKORU!</b>` : '');
+  $('eduLine').textContent = G.correct > 0 ? STRINGS.edu(G.correct) : STRINGS.eduZero;
+  if (G.correct >= 5) Audio2.fanfare();
+  show('screen-result');
+  refreshBestLine();
+}
+
+function refreshBestLine(){
+  const b = STATS.best[G.tier] || 0;
+  $('bestLine').textContent = b > 0 ? STRINGS.best(G.tier, b) : '';
+}
+
+/* ---- Menü etkileşimi ---- */
+document.querySelectorAll('.tierBtn').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.tierBtn').forEach(x => x.classList.remove('on'));
+  b.classList.add('on');
+  G.tier = parseInt(b.dataset.t, 10);
+  refreshBestLine();
+}));
+$('bPlay').addEventListener('click', () => { Audio2.init(); startRound(); });
+$('bHelp').addEventListener('click', () => $('helpBox').classList.toggle('show'));
+$('bAgain').addEventListener('click', startRound);
+$('bMenu').addEventListener('click', () => { G.state = 'menu'; show('screen-menu'); refreshBestLine(); });
+
+/* ---- Oyun girdisi: dokunmatik birincil (canvas'a dokun = kancayı bırak) ---- */
+cv.addEventListener('pointerdown', dropHook);
+addEventListener('keydown', e => {
+  if (e.code === 'Space' || e.code === 'ArrowDown'){ e.preventDefault(); dropHook(); }
+  if (e.code === 'KeyP' || e.code === 'Escape'){ if (G.state === 'playing') pauseGame(); }
+});
+
+/* ---- Duraklatma + visibilitychange (zorunlu davranış §5) ---- */
+function pauseGame(){
+  if (G.state !== 'playing') return;
+  G.state = 'paused';
+  if (G.raf){ cancelAnimationFrame(G.raf); G.raf = 0; }
+  $('pauseVeil').classList.add('show');
+}
+function resumeGame(){
+  if (G.state !== 'paused') return;
+  G.state = 'playing';
+  $('pauseVeil').classList.remove('show');
+  G.lastTs = performance.now();
+  if (!G.raf) G.raf = requestAnimationFrame(loop);
+}
+$('bPause').addEventListener('click', pauseGame);
+$('bResume').addEventListener('click', resumeGame);
+$('bQuit').addEventListener('click', () => {
+  $('pauseVeil').classList.remove('show');
+  G.state = 'menu'; show('screen-menu'); refreshBestLine();
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && G.state === 'playing'){ pauseGame(); saveStats(); }   // teneffüs zili güvencesi
+});
+
+/* ---- Başlat ---- */
+resize();
+loadStats();
+</script>
+</body>
+</html>
