@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Kelime Balonu: harfli balon kümesi + nişan oku -->
+  <defs>
+    <linearGradient id="kbSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#aee3ff"/>
+      <stop offset="100%" stop-color="#5aa7d6"/>
+    </linearGradient>
+    <radialGradient id="kbB1" cx="35%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#ffb3c8"/><stop offset="100%" stop-color="#ef5777"/>
+    </radialGradient>
+    <radialGradient id="kbB2" cx="35%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#b3e2ff"/><stop offset="100%" stop-color="#4aa8ff"/>
+    </radialGradient>
+    <radialGradient id="kbB3" cx="35%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#c8f5b3"/><stop offset="100%" stop-color="#7bd960"/>
+    </radialGradient>
+  </defs>
+  <rect x="6" y="6" width="88" height="88" rx="16" fill="url(#kbSky)"/>
+  <!-- balon kümesi -->
+  <g font-family="system-ui, sans-serif" font-weight="900" text-anchor="middle" font-size="14" fill="#fff">
+    <circle cx="30" cy="24" r="12" fill="url(#kbB1)" stroke="#b23a55" stroke-width="2"/>
+    <text x="30" y="29">C</text>
+    <circle cx="54" cy="24" r="12" fill="url(#kbB2)" stroke="#2f74bd" stroke-width="2"/>
+    <text x="54" y="29">A</text>
+    <circle cx="78" cy="24" r="12" fill="url(#kbB3)" stroke="#4f9e3c" stroke-width="2"/>
+    <text x="78" y="29">T</text>
+    <circle cx="42" cy="43" r="12" fill="url(#kbB3)" stroke="#4f9e3c" stroke-width="2"/>
+    <text x="42" y="48">B</text>
+    <circle cx="66" cy="43" r="12" fill="url(#kbB1)" stroke="#b23a55" stroke-width="2"/>
+    <text x="66" y="48">E</text>
+  </g>
+  <!-- kedi hedefi -->
+  <text x="20" y="66" font-size="15">🐱</text>
+  <!-- nişan çizgisi -->
+  <path d="M50 88 L58 60" stroke="#ffffff" stroke-width="3" stroke-dasharray="3 5" stroke-linecap="round"/>
+  <!-- fırlatılan yıldız balonu -->
+  <circle cx="50" cy="84" r="9" fill="#ffd23f" stroke="#c2912b" stroke-width="2"/>
+  <text x="50" y="89" font-family="system-ui, sans-serif" font-size="11" font-weight="900" text-anchor="middle" fill="#7a4a00">★</text>
+</svg>

@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Kelime Balonu — Harfleri Vur, Kelimeyi Tamamla!</title>
+<!-- Portal standardı: tek dosya, harici bağımlılık YOK, sistem fontları.
+     Eğitsel seri Faz 1 / Oyun 4.3 — tasarım: EGITSEL-OYUN-PLANI.md §4.3 + §5 -->
+<style>
+:root{
+  --sky1:#aee3ff; --sky2:#7ec3ef; --deep:#1c4a6e;
+  --panel:#155181; --panel2:#1f6aa5; --ink:#f4fbff; --ink-dim:#bcdcf2;
+  --hot:#ff7a59; --gold:#ffd23f; --ok:#6ee7a0;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--sky2);color:var(--ink);
+  font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;user-select:none;touch-action:manipulation}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:12px}
+.screen{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:14px;text-align:center}
+.screen.show{display:flex}
+
+/* ===== MENÜ ===== */
+#screen-menu{background:linear-gradient(180deg,var(--sky1),var(--sky2) 55%,#5aa7d6)}
+#screen-menu h1{font-size:clamp(28px,7.4vw,48px);color:#0e3a5c;text-shadow:0 2px 0 rgba(255,255,255,.5)}
+#screen-menu .sub{color:#0e3a5c;opacity:.85;margin:6px 0 16px;font-size:clamp(14px,3.6vw,17px);max-width:480px}
+.tierGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:min(440px,94vw);margin-bottom:14px}
+.tierBtn{background:var(--panel);color:var(--ink);padding:13px 8px;font-size:16px;font-weight:700;
+  border:3px solid transparent;display:flex;flex-direction:column;gap:3px;transition:transform .1s}
+.tierBtn small{font-weight:400;font-size:12px;color:var(--ink-dim)}
+.tierBtn.on{border-color:var(--gold);background:var(--panel2);transform:scale(1.03)}
+.bigBtn{background:var(--hot);color:#fff;font-size:19px;font-weight:800;padding:14px 34px;
+  box-shadow:0 4px 0 #c2503a;margin-top:4px}
+.bigBtn:active{transform:translateY(3px);box-shadow:0 1px 0 #c2503a}
+.ghost{background:transparent;color:#0e3a5c;font-size:14px;padding:10px;margin-top:8px;text-decoration:underline}
+#bestLine{font-size:13px;color:#0e3a5c;margin-top:10px;min-height:18px;font-weight:600}
+#helpBox{display:none;background:var(--panel);border-radius:14px;padding:16px;max-width:460px;
+  font-size:14px;line-height:1.55;text-align:left;margin-top:12px;max-height:42vh;overflow:auto;color:var(--ink)}
+#helpBox.show{display:block}
+#helpBox b{color:var(--gold)}
+
+/* ===== OYUN ===== */
+#screen-game{padding:0;justify-content:flex-start;background:linear-gradient(180deg,var(--sky1),var(--sky2) 60%,#5aa7d6)}
+#topBar{width:100%;background:var(--panel);padding:8px 10px 9px;display:flex;flex-direction:column;gap:5px;
+  box-shadow:0 3px 14px rgba(0,0,0,.3);z-index:5}
+#hudRow{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;font-weight:700}
+#hudRow .chip{background:var(--panel2);border-radius:9px;padding:3px 10px;white-space:nowrap}
+#timeChip.low{color:#ffc2b3;animation:pulse .6s infinite alternate}
+@keyframes pulse{from{transform:scale(1)}to{transform:scale(1.12)}}
+#wordRow{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+#wordEmoji{font-size:clamp(26px,7vw,34px)}
+#wordTr{font-size:clamp(16px,4.6vw,21px);font-weight:800;color:var(--gold)}
+#slots{display:flex;gap:5px;justify-content:center}
+.slot{width:clamp(26px,7vw,34px);height:clamp(32px,8.4vw,40px);border-radius:8px;background:rgba(255,255,255,.16);
+  border:2px dashed rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:clamp(16px,4.6vw,22px)}
+.slot.fill{background:var(--ok);border-style:solid;border-color:#3f9e6b;color:#0c3a22;animation:slotPop .3s}
+.slot.next{border-color:var(--gold);box-shadow:0 0 8px rgba(255,210,63,.7)}
+@keyframes slotPop{0%{transform:scale(.4)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+#cv{flex:1;width:100%;display:block;touch-action:none}
+
+/* ===== DURAKLATMA ===== */
+#pauseVeil{position:fixed;inset:0;background:rgba(8,28,46,.85);display:none;align-items:center;justify-content:center;
+  flex-direction:column;gap:14px;z-index:20;text-align:center;padding:20px}
+#pauseVeil.show{display:flex}
+#pauseVeil h2{font-size:26px}
+
+/* ===== SONUÇ ===== */
+#screen-result{background:linear-gradient(180deg,var(--sky1),var(--sky2) 60%,#5aa7d6)}
+#resEmoji{font-size:56px}
+#screen-result h1{color:#0e3a5c}
+#resScore{font-size:clamp(34px,10vw,52px);font-weight:900;color:#b8651b;margin:4px 0;text-shadow:0 2px 0 rgba(255,255,255,.5)}
+#resStats{background:var(--panel);border-radius:14px;padding:14px 20px;font-size:15px;line-height:1.7;margin:10px 0;max-width:440px;color:var(--ink)}
+#resStats b{color:var(--gold)}
+#resWords{font-size:13px;color:var(--ink-dim);margin-top:6px;line-height:1.6}
+#eduLine{font-size:16px;font-weight:700;margin-top:4px;color:#0e3a5c}
+
+@media (max-width:380px){ #hudRow{font-size:12px} }
+</style>
+</head>
+<body>
+
+<!-- ===== MENÜ ===== -->
+<div class="screen show" id="screen-menu">
+  <h1>🎈 KELİME BALONU 🔤</h1>
+  <p class="sub">Hedef kelimenin harflerini balonlardan vur! Doğru harf patlar, yanlış vuruş balonunu kümeye yapıştırır. Kelime tamamlanınca BÜYÜK patlama!</p>
+  <div class="tierGrid" id="tierGrid">
+    <button class="tierBtn on" data-t="1">🏕️ Etek<small>3 harfli kelimeler · sıra serbest</small></button>
+    <button class="tierBtn" data-t="2">⛰️ Yamaç<small>4-5 harf · sıra serbest</small></button>
+    <button class="tierBtn" data-t="3">🧗 Tırmanış<small>6+ harf · SIRAYLA vur!</small></button>
+    <button class="tierBtn" data-t="4">🏔️ Zirve<small>Resim yok · sadece Türkçesi</small></button>
+  </div>
+  <button class="bigBtn" id="bPlay">🎈 BAŞLA</button>
+  <button class="ghost" id="bHelp">📜 Nasıl oynanır?</button>
+  <div id="helpBox">
+    <b>Amaç:</b> 120 saniyede en çok İngilizce kelimeyi tamamla!<br><br>
+    <b>Hedef:</b> Üstte resim + Türkçesi var (🐱 kedi). İngilizcesinin harflerini balonlardan bul: C-A-T.<br><br>
+    <b>Nişan:</b> Parmağını (veya fareyi) ekranda gezdir → ok nişan alır. Bırakınca balon fırlar, duvarlardan seker.<br><br>
+    ✅ <b>Doğru harfe</b> çarparsa: o balon VE yanındaki aynı harfli balonlar patlar, harf kelimene eklenir.<br>
+    ❌ <b>Yanlış harfe</b> çarparsa: balonun kümeye yapışır — küme aşağı sınıra inerse tur biter, dikkat!<br><br>
+    <b>Kopanlar düşer:</b> Tavandan kopan balon grupları aşağı düşer — alanı temizler.<br><br>
+    <b>Puan:</b> kelime uzunluğu × 30 × seviye. Uzun kelime + yüksek seviye = dev puan!<br>
+    🧗 <b>Tırmanış'tan itibaren</b> harfleri SIRAYLA vurman gerekir (altın çerçeveli kutu sıradakini gösterir).<br>
+    🏔️ <b>Zirve'de</b> resim ipucu yok — sadece Türkçe karşılık!
+  </div>
+  <div id="bestLine"></div>
+</div>
+
+<!-- ===== OYUN ===== -->
+<div class="screen" id="screen-game">
+  <div id="topBar">
+    <div id="hudRow">
+      <span class="chip" id="scoreChip">⭐ 0</span>
+      <span class="chip" id="timeChip">⏱️ 120</span>
+      <span class="chip" id="wordChip">📚 0</span>
+      <button class="chip" id="bPause" style="background:var(--panel2);color:var(--ink)">⏸️</button>
+    </div>
+    <div id="wordRow">
+      <span id="wordEmoji">🐱</span>
+      <span id="wordTr">kedi</span>
+      <div id="slots"></div>
+    </div>
+  </div>
+  <canvas id="cv"></canvas>
+</div>
+
+<!-- ===== DURAKLATMA ===== -->
+<div id="pauseVeil">
+  <h2>⏸️ Mola!</h2>
+  <p style="color:var(--ink-dim)">Balonlar bekliyor — süre durdu.</p>
+  <button class="bigBtn" id="bResume">▶️ Devam Et</button>
+  <button class="ghost" id="bQuit" style="color:var(--ink-dim)">🏠 Menüye Dön</button>
+</div>
+
+<!-- ===== SONUÇ ===== -->
+<div class="screen" id="screen-result">
+  <div id="resEmoji">🏆</div>
+  <h1 style="font-size:26px" id="resTitle">Süre Doldu!</h1>
+  <div id="resScore">0</div>
+  <div id="resStats"></div>
+  <div id="eduLine"></div>
+  <button class="bigBtn" id="bAgain" style="margin-top:14px">🔄 Tekrar Oyna</button>
+  <button class="ghost" id="bMenu">🏠 Menü</button>
+</div>
+
+<!-- ChildsPlayLogic entegrasyonu: window.storage köprüsü (localStorage, Promise API).
+     Google girişli kullanıcıda hub bu anahtarları users/{uid}/gameSaves ile senkronlar. -->
+<script>
+(function () {
+  if (window.storage && window.storage.get && window.storage.set) return;
+  window.storage = {
+    get: function (key) {
+      try { var v = localStorage.getItem(key); return Promise.resolve(v != null ? { value: v } : null); }
+      catch (e) { return Promise.resolve(null); }
+    },
+    set: function (key, value) {
+      try { localStorage.setItem(key, value); return Promise.resolve(); }
+      catch (e) { return Promise.resolve(); }
+    },
+    remove: function (key) {
+      try { localStorage.removeItem(key); return Promise.resolve(); }
+      catch (e) { return Promise.resolve(); }
+    }
+  };
+})();
+</script>
+<script>
+"use strict";
+/* ================= STRINGS ================= */
+const STRINGS = {
+  overflow: '🎈 Balonlar sınıra ulaştı!',
+  wordDone: w => `🎉 ${w.toUpperCase()}!`,
+  edu: (n) => `Bugün ${n} İngilizce kelime tamamladın! 🎉`,
+  eduZero: 'Balonlar seni bekliyor — bir dahaki turda patlat! 💪',
+  best: (t, s) => `🏅 ${['','Etek','Yamaç','Tırmanış','Zirve'][t]} rekorun: ${s}`,
+};
+
+/* ================= CONFIG (EGITSEL-OYUN-PLANI §4.3 — aynen) ================= */
+const CONFIG = {
+  ROUND_SEC: 120,
+  WORD_POINT: (len, tier) => len * 30 * tier,   // kelime tamamlama puanı: uzunluk × 30 × tier
+  ORDERED: { 1: false, 2: false, 3: true, 4: true },   // sıra zorunluluğu Tırmanış+
+  SHOW_EMOJI: { 1: true, 2: true, 3: true, 4: false }, // Zirve: resim yok, sadece TR
+  COLS: 8,                 // hex grid: çift satır 8, tek satır 7 balon
+  INIT_ROWS: 4,
+  PROJ_SPEED: 920,         // px/sn
+  FALL_BONUS_LIMIT: 40,
+};
+function rnd(a, b){ return a + Math.floor(Math.random() * (b - a + 1)); }
+function pick(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+function shuffle(a){ for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+/* ================= KELİME BANKASI (EN-TR-emoji; pair_match) ================= */
+const WORDS = {
+  1: [ // 3 harf
+    ['cat','kedi','🐱'],['dog','köpek','🐶'],['sun','güneş','☀️'],['bee','arı','🐝'],
+    ['car','araba','🚗'],['bus','otobüs','🚌'],['egg','yumurta','🥚'],['fox','tilki','🦊'],
+    ['owl','baykuş','🦉'],['ant','karınca','🐜'],['cow','inek','🐮'],['hat','şapka','🎩'],
+    ['key','anahtar','🔑'],['map','harita','🗺️'],['pen','kalem','🖊️'],['box','kutu','📦'],
+    ['cup','fincan','☕'],['bed','yatak','🛏️'],['ice','buz','🧊'],['eye','göz','👁️'],
+    ['ear','kulak','👂'],['arm','kol','💪'],['leg','bacak','🦵'],['bag','çanta','🎒'],
+    ['sea','deniz','🌊'],['toy','oyuncak','🧸'],
+  ],
+  2: [ // 4-5 harf
+    ['fish','balık','🐟'],['bird','kuş','🐦'],['lion','aslan','🦁'],['frog','kurbağa','🐸'],
+    ['star','yıldız','⭐'],['moon','ay','🌙'],['tree','ağaç','🌳'],['book','kitap','📖'],
+    ['milk','süt','🥛'],['cake','pasta','🎂'],['apple','elma','🍎'],['horse','at','🐴'],
+    ['mouse','fare','🐭'],['house','ev','🏠'],['bread','ekmek','🍞'],['water','su','💧'],
+    ['train','tren','🚆'],['plane','uçak','✈️'],['chair','sandalye','🪑'],['clock','saat','🕐'],
+    ['heart','kalp','❤️'],['snake','yılan','🐍'],['sheep','koyun','🐑'],['tiger','kaplan','🐯'],
+    ['queen','kraliçe','👑'],['shoe','ayakkabı','👟'],['ship','gemi','🚢'],['door','kapı','🚪'],
+    ['ring','yüzük','💍'],['rain','yağmur','🌧️'],
+  ],
+  3: [ // 6+ harf, sıralı
+    ['orange','portakal','🍊'],['banana','muz','🍌'],['monkey','maymun','🐵'],['rabbit','tavşan','🐰'],
+    ['flower','çiçek','🌸'],['school','okul','🏫'],['window','pencere','🪟'],['garden','bahçe','🌷'],
+    ['cheese','peynir','🧀'],['chicken','tavuk','🐔'],['turtle','kaplumbağa','🐢'],['spider','örümcek','🕷️'],
+    ['winter','kış','❄️'],['pencil','kurşun kalem','✏️'],['yellow','sarı','💛'],['purple','mor','💜'],
+    ['dragon','ejderha','🐉'],['doctor','doktor','🩺'],['father','baba','👨'],['mother','anne','👩'],
+    ['bridge','köprü','🌉'],['candle','mum','🕯️'],['planet','gezegen','🪐'],['rocket','roket','🚀'],
+    ['guitar','gitar','🎸'],['button','düğme','🔘'],
+  ],
+};
+// Zirve: 5-8 harf karışık (resim gösterilmez — sadece TR karşılık, çeviri bilgisi)
+WORDS[4] = WORDS[3].concat([
+  ['teacher','öğretmen','👩‍🏫'],['student','öğrenci','🎓'],['kitchen','mutfak','🍳'],['morning','sabah','🌅'],
+  ['animal','hayvan','🐾'],['picture','resim','🖼️'],['castle','kale','🏰'],['family','aile','👨‍👩‍👧'],
+  ['summer','yaz','🏖️'],['market','pazar','🛒'],['breakfast','kahvaltı','🥐'],['mountain','dağ','⛰️'],
+]);
+
+/* ================= Audio (Web Audio sentez) ================= */
+const Audio2 = (() => {
+  let ctx = null;
+  function init(){ if (!ctx){ try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } if (ctx && ctx.state === 'suspended') ctx.resume(); }
+  function tone(f, dur, type, vol, when){
+    if (!ctx) return;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type || 'triangle'; o.frequency.value = f;
+    g.gain.setValueAtTime(vol || 0.06, ctx.currentTime + (when || 0));
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + (when || 0) + dur);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(ctx.currentTime + (when || 0)); o.stop(ctx.currentTime + (when || 0) + dur + 0.02);
+  }
+  return {
+    init,
+    shoot: () => tone(420, 0.1, 'square', 0.04),
+    pop: n => { for (let i = 0; i < Math.min(n, 5); i++) tone(560 + i * 110, 0.09, 'triangle', 0.06, i * 0.05); },
+    stick: () => tone(170, 0.18, 'sawtooth', 0.05),
+    fall: () => { tone(700, 0.07, 'triangle', 0.04); tone(500, 0.09, 'triangle', 0.04, 0.07); },
+    word: () => [523, 659, 784, 1046].forEach((f, i) => tone(f, 0.15, 'triangle', 0.07, i * 0.1)),
+    tick: () => tone(840, 0.05, 'square', 0.03),
+    over: () => { tone(300, 0.25, 'sawtooth', 0.06); tone(220, 0.3, 'sawtooth', 0.06, 0.2); },
+    fanfare: () => [523, 659, 784, 1046, 1318].forEach((f, i) => tone(f, 0.16, 'triangle', 0.07, i * 0.12)),
+  };
+})();
+
+/* ================= Bridge (§6.1 stub) ================= */
+const BilnetBridge = {
+  QUEUE_KEY: 'bilnet_score_queue',
+  async submitScore(payload){
+    const rec = { ...payload, ts: Date.now() };
+    try {
+      const r = await window.storage.get(this.QUEUE_KEY);
+      const q = r && r.value ? JSON.parse(r.value) : [];
+      q.push(rec);
+      while (q.length > 50) q.shift();
+      await window.storage.set(this.QUEUE_KEY, JSON.stringify(q));
+    } catch (e) {}
+  },
+  flushQueue(){ /* meta katman v1 */ },
+};
+
+/* ================= İstatistik ================= */
+const STATS_KEY = 'kelimebalonu_stats';
+let STATS = { plays: 0, words: 0, bubbles: 0, best: { 1: 0, 2: 0, 3: 0, 4: 0 } };
+function loadStats(){
+  try { window.storage.get(STATS_KEY).then(r => {
+    if (r && r.value){ try { STATS = Object.assign(STATS, JSON.parse(r.value)); } catch (e) {} }
+    refreshBestLine();
+  }); } catch (e) {}
+}
+function saveStats(){ try { window.storage.set(STATS_KEY, JSON.stringify(STATS)); } catch (e) {} }
+
+/* ================= Game ================= */
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx2 = cv.getContext('2d');
+const LETTER_HUE = L => (L.charCodeAt(0) * 47) % 360;
+
+const G = {
+  state: 'menu', tier: 1,
+  score: 0, timeLeft: CONFIG.ROUND_SEC, secT: null,
+  words: 0, bubblesPopped: 0, doneWords: [],
+  pool: [], word: null, remaining: [], progress: 0,
+  cells: new Map(),          // "c,r" -> {c, r, L}
+  D: 44, padX: 6, topPad: 8,
+  proj: null, aim: { x: 0, y: -1, active: false },
+  particles: [], fallers: [], floats: [],
+  raf: 0, lastTs: 0, shotsResolved: true,
+};
+
+/* ---- hex grid yardımcıları (odd-r offset: tek satırlar yarım sağa) ---- */
+const ckey = (c, r) => c + ',' + r;
+function rowCols(r){ return r % 2 ? CONFIG.COLS - 1 : CONFIG.COLS; }
+function cellXY(c, r){
+  return {
+    x: G.padX + G.D / 2 + c * G.D + (r % 2 ? G.D / 2 : 0),
+    y: G.topPad + G.D / 2 + r * G.D * 0.866,
+  };
+}
+function neighborsOf(c, r){
+  const odd = r % 2;
+  const dirs = odd
+    ? [[1, 0], [-1, 0], [0, -1], [1, -1], [0, 1], [1, 1]]
+    : [[1, 0], [-1, 0], [-1, -1], [0, -1], [-1, 1], [0, 1]];
+  const out = [];
+  for (const [dc, dr] of dirs){
+    const nc = c + dc, nr = r + dr;
+    if (nr < 0 || nc < 0 || nc >= rowCols(nr)) continue;
+    out.push([nc, nr]);
+  }
+  return out;
+}
+
+/* ---- yerleşim ---- */
+function layout(){
+  const bar = $('topBar').getBoundingClientRect();
+  cv.width = innerWidth;
+  cv.height = Math.max(300, innerHeight - bar.height);
+  G.D = Math.min(Math.floor((cv.width - 12) / CONFIG.COLS), 54);
+  G.padX = Math.floor((cv.width - (CONFIG.COLS * G.D)) / 2);
+}
+function shooterPos(){ return { x: cv.width / 2, y: cv.height - 64 }; }
+function dangerY(){ return cv.height - 150; }
+
+/* ---- balon üretimi / kelime ---- */
+function randLetter(){ return String.fromCharCode(65 + rnd(0, 25)); }
+function fillInitial(){
+  G.cells.clear();
+  for (let r = 0; r < CONFIG.INIT_ROWS; r++)
+    for (let c = 0; c < rowCols(r); c++)
+      G.cells.set(ckey(c, r), { c, r, L: randLetter() });
+}
+function newWord(){
+  if (!G.pool.length) G.pool = shuffle(WORDS[G.tier].slice());
+  const [en, tr, emoji] = G.pool.pop();
+  G.word = { en: en.toUpperCase(), tr, emoji };
+  G.remaining = G.word.en.split('');     // sırasızda multiset, sıralıda kuyruk
+  G.progress = 0;
+  $('wordEmoji').textContent = CONFIG.SHOW_EMOJI[G.tier] ? emoji : '❓';
+  $('wordTr').textContent = tr;
+  renderSlots();
+  ensureLetters();
+}
+function renderSlots(){
+  const el = $('slots');
+  el.innerHTML = '';
+  const ordered = CONFIG.ORDERED[G.tier];
+  G.word.en.split('').forEach((L, i) => {
+    const s = document.createElement('div');
+    s.className = 'slot';
+    if (i < G.progress){ s.classList.add('fill'); s.textContent = L; }
+    else if (ordered && i === G.progress) s.classList.add('next');
+    el.appendChild(s);
+  });
+}
+function neededLetters(){
+  if (CONFIG.ORDERED[G.tier]) return G.progress < G.word.en.length ? [G.word.en[G.progress]] : [];
+  return [...new Set(G.remaining)];
+}
+/* Çözülebilirlik garantisi: gereken her harf kümede yoksa bir çeldirici yeniden etiketlenir */
+function ensureLetters(){
+  const needs = neededLetters();
+  if (!needs.length) return;
+  const live = [...G.cells.values()];
+  if (!live.length){ pushRow(); pushRow(); return ensureLetters(); }
+  for (const L of needs){
+    if (live.some(b => b.L === L)) continue;
+    const distractors = live.filter(b => !needs.includes(b.L));
+    const target = distractors.length ? pick(distractors) : pick(live);
+    target.L = L;
+  }
+}
+
+/* ---- satır itme (kelime tamamlanınca tavandan yeni satır) ---- */
+function pushRow(){
+  const moved = [...G.cells.values()];
+  G.cells.clear();
+  for (const b of moved){
+    b.r += 1;
+    // satır paritesi değişti — kolon sınırını aşan kenar balonu içeri al
+    if (b.c >= rowCols(b.r)) b.c = rowCols(b.r) - 1;
+    const k = ckey(b.c, b.r);
+    if (!G.cells.has(k)) G.cells.set(k, b);
+  }
+  for (let c = 0; c < rowCols(0); c++) G.cells.set(ckey(c, 0), { c, r: 0, L: randLetter() });
+  checkDanger();
+}
+
+/* ---- tehlike sınırı ---- */
+function lowestBubbleY(){
+  let y = 0;
+  for (const b of G.cells.values()) y = Math.max(y, cellXY(b.c, b.r).y + G.D / 2);
+  return y;
+}
+function checkDanger(){
+  if (G.state === 'playing' && lowestBubbleY() > dangerY()) endRound('overflow');
+}
+
+/* ---- fırlatma ---- */
+function fire(){
+  if (G.state !== 'playing' || G.proj || !G.shotsResolved) return;
+  const s = shooterPos();
+  let dx = G.aim.x - s.x, dy = G.aim.y - s.y;
+  if (dy > -20) dy = -20;
+  const L = Math.hypot(dx, dy);
+  G.proj = { x: s.x, y: s.y, vx: dx / L * CONFIG.PROJ_SPEED, vy: dy / L * CONFIG.PROJ_SPEED };
+  G.shotsResolved = false;
+  Audio2.shoot();
+}
+function updateProj(dt){
+  const p = G.proj;
+  if (!p) return;
+  p.x += p.vx * dt; p.y += p.vy * dt;
+  const R = G.D / 2 - 2;
+  if (p.x < R){ p.x = R; p.vx = -p.vx; }
+  if (p.x > cv.width - R){ p.x = cv.width - R; p.vx = -p.vx; }
+  // tavana ulaştı → yapış (yanlış sayılır: klasik ceza)
+  if (p.y < G.topPad + R){ stickProj(null); return; }
+  // küme teması
+  for (const b of G.cells.values()){
+    const q = cellXY(b.c, b.r);
+    const d2 = (q.x - p.x) ** 2 + (q.y - p.y) ** 2;
+    if (d2 < (G.D * 0.86) ** 2){ hitBubble(b); return; }
+  }
+}
+function hitBubble(b){
+  const needs = neededLetters();
+  if (needs.includes(b.L)) popCorrect(b);
+  else stickProj(b);
+}
+
+/* ---- doğru: patlat (+ komşu aynı harfler), kopanlar düşer, harfi topla ---- */
+function popCorrect(hit){
+  const L = hit.L;
+  // flood: aynı harfli komşu grubu
+  const group = new Set([ckey(hit.c, hit.r)]);
+  const stack = [hit];
+  while (stack.length){
+    const b = stack.pop();
+    for (const [nc, nr] of neighborsOf(b.c, b.r)){
+      const k = ckey(nc, nr);
+      const nb = G.cells.get(k);
+      if (nb && nb.L === L && !group.has(k)){ group.add(k); stack.push(nb); }
+    }
+  }
+  for (const k of group){
+    const b = G.cells.get(k);
+    burstAt(cellXY(b.c, b.r), b.L);
+    G.cells.delete(k);
+  }
+  G.bubblesPopped += group.size;
+  Audio2.pop(group.size);
+  dropFloating();
+  G.proj = null; G.shotsResolved = true;
+  collectLetter(L);
+}
+function collectLetter(L){
+  if (CONFIG.ORDERED[G.tier]) G.progress++;
+  else {
+    const i = G.remaining.indexOf(L);
+    if (i >= 0) G.remaining.splice(i, 1);
+    G.progress = G.word.en.length - G.remaining.length;
+  }
+  renderSlots();
+  if (G.progress >= G.word.en.length) wordComplete();
+  else ensureLetters();
+}
+function wordComplete(){
+  const pts = CONFIG.WORD_POINT(G.word.en.length, G.tier);   // uzunluk × 30 × tier (§4.3)
+  G.score += pts;
+  G.words++;
+  G.doneWords.push([G.word.en, G.word.tr]);
+  floatText(STRINGS.wordDone(G.word.en) + '  +' + pts, cv.width / 2, cv.height * 0.32);
+  Audio2.word();
+  // büyük patlama hissi: ekrandaki tüm balonlardan minik konfeti
+  let n = 0;
+  for (const b of G.cells.values()){ if (n++ % 3 === 0) burstAt(cellXY(b.c, b.r), b.L, 4); }
+  pushRow();             // yeni satır tavandan iner — yoğunluk korunur
+  refreshHUD();
+  newWord();
+}
+/* tavandan kopanlar düşer */
+function dropFloating(){
+  const reach = new Set();
+  const stack = [];
+  for (const b of G.cells.values()) if (b.r === 0){ reach.add(ckey(b.c, b.r)); stack.push(b); }
+  while (stack.length){
+    const b = stack.pop();
+    for (const [nc, nr] of neighborsOf(b.c, b.r)){
+      const k = ckey(nc, nr);
+      const nb = G.cells.get(k);
+      if (nb && !reach.has(k)){ reach.add(k); stack.push(nb); }
+    }
+  }
+  const fell = [];
+  for (const [k, b] of [...G.cells]){
+    if (!reach.has(k)){
+      const p = cellXY(b.c, b.r);
+      fell.push({ x: p.x, y: p.y, vy: -60, L: b.L });
+      G.cells.delete(k);
+    }
+  }
+  if (fell.length){
+    G.fallers.push(...fell.slice(0, CONFIG.FALL_BONUS_LIMIT));
+    G.bubblesPopped += fell.length;
+    Audio2.fall();
+  }
+}
+
+/* ---- yanlış: fırlatılan balon kümeye yapışır (klasik ceza) ---- */
+function stickProj(contact){
+  const p = G.proj;
+  // aday hücreler: temas balonunun boş komşuları; tavan vuruşunda 0. satır
+  let candidates = [];
+  if (contact){
+    for (const [nc, nr] of neighborsOf(contact.c, contact.r))
+      if (!G.cells.has(ckey(nc, nr))) candidates.push([nc, nr]);
+  }
+  if (!candidates.length){
+    const r = 0;
+    for (let c = 0; c < rowCols(r); c++) if (!G.cells.has(ckey(c, r))) candidates.push([c, r]);
+  }
+  if (!candidates.length){ G.proj = null; G.shotsResolved = true; return; }
+  let bestC = candidates[0], bestD = Infinity;
+  for (const [c, r] of candidates){
+    const q = cellXY(c, r);
+    const d = (q.x - p.x) ** 2 + (q.y - p.y) ** 2;
+    if (d < bestD){ bestD = d; bestC = [c, r]; }
+  }
+  // yapışan balon rastgele çeldirici harf alır (gereken harf OLMASIN — haksız ödül engellenir)
+  const needs = neededLetters();
+  let L = randLetter(), guard = 0;
+  while (needs.includes(L) && guard++ < 20) L = randLetter();
+  G.cells.set(ckey(bestC[0], bestC[1]), { c: bestC[0], r: bestC[1], L });
+  Audio2.stick();
+  shakeWord();
+  G.proj = null; G.shotsResolved = true;
+  checkDanger();
+  ensureLetters();
+}
+function shakeWord(){
+  const el = $('wordRow');
+  el.style.transition = 'transform .08s';
+  el.style.transform = 'translateX(-6px)';
+  setTimeout(() => el.style.transform = 'translateX(6px)', 80);
+  setTimeout(() => el.style.transform = '', 160);
+}
+
+/* ---- efektler ---- */
+function burstAt(p, L, n){
+  const hue = LETTER_HUE(L);
+  for (let i = 0; i < (n || 10); i++){
+    const a = Math.random() * Math.PI * 2, sp = 60 + Math.random() * 170;
+    G.particles.push({ x: p.x, y: p.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 40, life: 0.6, hue });
+  }
+}
+function floatText(txt, x, y){ G.floats.push({ txt, x, y, life: 1.3 }); }
+
+/* ---- çizim ---- */
+function drawBubble(x, y, L, alpha){
+  const R = G.D / 2 - 2;
+  const hue = LETTER_HUE(L);
+  ctx2.globalAlpha = alpha == null ? 1 : alpha;
+  const g = ctx2.createRadialGradient(x - R * 0.35, y - R * 0.4, R * 0.2, x, y, R);
+  g.addColorStop(0, `hsl(${hue} 85% 76%)`);
+  g.addColorStop(1, `hsl(${hue} 70% 52%)`);
+  ctx2.beginPath(); ctx2.arc(x, y, R, 0, 7);
+  ctx2.fillStyle = g; ctx2.fill();
+  ctx2.lineWidth = 2; ctx2.strokeStyle = `hsl(${hue} 60% 38%)`; ctx2.stroke();
+  // parlama
+  ctx2.beginPath(); ctx2.arc(x - R * 0.35, y - R * 0.42, R * 0.22, 0, 7);
+  ctx2.fillStyle = 'rgba(255,255,255,.55)'; ctx2.fill();
+  ctx2.fillStyle = '#fff';
+  ctx2.font = `900 ${Math.round(R * 1.02)}px system-ui`;
+  ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
+  ctx2.strokeStyle = `hsl(${hue} 60% 30%)`; ctx2.lineWidth = 3;
+  ctx2.strokeText(L, x, y + 1);
+  ctx2.fillText(L, x, y + 1);
+  ctx2.textBaseline = 'alphabetic';
+  ctx2.globalAlpha = 1;
+}
+function draw(){
+  ctx2.clearRect(0, 0, cv.width, cv.height);
+  // tehlike sınırı
+  const dy = dangerY();
+  ctx2.setLineDash([10, 8]);
+  ctx2.beginPath(); ctx2.moveTo(0, dy); ctx2.lineTo(cv.width, dy);
+  ctx2.strokeStyle = 'rgba(220,60,60,.55)'; ctx2.lineWidth = 2.5; ctx2.stroke();
+  ctx2.setLineDash([]);
+  // küme
+  for (const b of G.cells.values()){
+    const p = cellXY(b.c, b.r);
+    drawBubble(p.x, p.y, b.L);
+  }
+  // düşenler
+  for (const f of G.fallers) drawBubble(f.x, f.y, f.L, 0.9);
+  // nişan çizgisi (1 sekme önizleme)
+  const s = shooterPos();
+  if (G.state === 'playing' && G.aim.active && !G.proj){
+    let dx = G.aim.x - s.x, dy2 = G.aim.y - s.y;
+    if (dy2 > -20) dy2 = -20;
+    const len = Math.hypot(dx, dy2); dx /= len; dy2 /= len;
+    let x = s.x, y = s.y, vx = dx, vy = dy2;
+    ctx2.setLineDash([4, 9]);
+    ctx2.beginPath(); ctx2.moveTo(x, y);
+    let travel = 0, bounced = 0;
+    while (travel < cv.height * 0.95 && bounced <= 1){
+      const tToWall = vx > 0 ? (cv.width - 10 - x) / vx : vx < 0 ? (10 - x) / vx : 1e9;
+      const tToTop = vy < 0 ? (G.topPad + 14 - y) / vy : 1e9;
+      const t = Math.min(tToWall, tToTop, 220);
+      x += vx * t; y += vy * t; travel += t;
+      ctx2.lineTo(x, y);
+      if (t === tToTop) break;
+      if (t === tToWall){ vx = -vx; bounced++; }
+    }
+    ctx2.strokeStyle = 'rgba(255,255,255,.8)'; ctx2.lineWidth = 3; ctx2.stroke();
+    ctx2.setLineDash([]);
+  }
+  // fırlatıcı (sapan tabanı + bekleyen balon)
+  ctx2.font = '30px system-ui'; ctx2.textAlign = 'center';
+  ctx2.fillText('🏹', s.x, s.y + 38);
+  if (!G.proj) drawBubble(s.x, s.y, '★');
+  // mermi
+  if (G.proj) drawBubble(G.proj.x, G.proj.y, '★');
+  // parçacıklar
+  for (const pt of G.particles){
+    ctx2.globalAlpha = Math.max(0, pt.life / 0.6);
+    ctx2.fillStyle = `hsl(${pt.hue} 85% 65%)`;
+    ctx2.fillRect(pt.x - 3, pt.y - 3, 6, 6);
+  }
+  ctx2.globalAlpha = 1;
+  // yüzen yazılar
+  ctx2.textAlign = 'center'; ctx2.font = '900 24px system-ui';
+  for (const f of G.floats){
+    ctx2.globalAlpha = Math.max(0, Math.min(1, f.life));
+    ctx2.fillStyle = '#fff';
+    ctx2.strokeStyle = 'rgba(14,58,92,.85)'; ctx2.lineWidth = 5;
+    ctx2.strokeText(f.txt, f.x, f.y);
+    ctx2.fillText(f.txt, f.x, f.y);
+  }
+  ctx2.globalAlpha = 1;
+}
+
+/* ---- döngü ---- */
+function loop(ts){
+  if (G.state !== 'playing'){ G.raf = 0; return; }
+  const dt = Math.min(0.04, (ts - G.lastTs) / 1000 || 0.016);
+  G.lastTs = ts;
+  updateProj(dt);
+  for (const pt of G.particles){ pt.x += pt.vx * dt; pt.y += pt.vy * dt; pt.vy += 340 * dt; pt.life -= dt; }
+  G.particles = G.particles.filter(pt => pt.life > 0);
+  for (const f of G.fallers){ f.y += (f.vy += 900 * dt) * dt; }
+  G.fallers = G.fallers.filter(f => f.y < cv.height + G.D);
+  for (const f of G.floats){ f.y -= 24 * dt; f.life -= dt * 0.7; }
+  G.floats = G.floats.filter(f => f.life > 0);
+  draw();
+  G.raf = requestAnimationFrame(loop);
+}
+
+/* ---- giriş: nişan + ateş ---- */
+cv.addEventListener('pointerdown', e => {
+  if (G.state !== 'playing') return;
+  Audio2.init();
+  G.aim = { x: e.clientX, y: e.clientY - $('topBar').getBoundingClientRect().height, active: true };
+});
+cv.addEventListener('pointermove', e => {
+  if (!G.aim.active) return;
+  G.aim.x = e.clientX;
+  G.aim.y = e.clientY - $('topBar').getBoundingClientRect().height;
+});
+cv.addEventListener('pointerup', e => {
+  if (G.state !== 'playing' || !G.aim.active) return;
+  G.aim.active = false;
+  fire();
+});
+cv.addEventListener('pointercancel', () => { G.aim.active = false; });
+
+/* ---- HUD + akış ---- */
+function refreshHUD(){
+  $('scoreChip').textContent = '⭐ ' + G.score;
+  $('timeChip').textContent = '⏱️ ' + Math.max(0, G.timeLeft);
+  $('timeChip').classList.toggle('low', G.timeLeft <= 15);
+  $('wordChip').textContent = '📚 ' + G.words;
+}
+function show(id){ document.querySelectorAll('.screen').forEach(s => s.classList.remove('show')); $(id).classList.add('show'); }
+
+function startRound(){
+  G.state = 'playing';
+  G.score = 0; G.timeLeft = CONFIG.ROUND_SEC;
+  G.words = 0; G.bubblesPopped = 0; G.doneWords = [];
+  G.pool = shuffle(WORDS[G.tier].slice());
+  G.proj = null; G.shotsResolved = true;
+  G.particles = []; G.fallers = []; G.floats = [];
+  show('screen-game');
+  layout(); fillInitial(); newWord();
+  refreshHUD();
+  clearInterval(G.secT);
+  G.secT = setInterval(() => {
+    if (G.state !== 'playing') return;
+    G.timeLeft--;
+    if (G.timeLeft <= 5 && G.timeLeft > 0) Audio2.tick();
+    refreshHUD();
+    if (G.timeLeft <= 0) endRound('time');
+  }, 1000);
+  G.lastTs = performance.now();
+  if (!G.raf) G.raf = requestAnimationFrame(loop);
+}
+
+function endRound(reason){
+  if (G.state !== 'playing') return;
+  G.state = 'result';
+  clearInterval(G.secT);
+  if (reason === 'overflow') Audio2.over();
+  STATS.plays++; STATS.words += G.words; STATS.bubbles += G.bubblesPopped;
+  const isBest = G.score > (STATS.best[G.tier] || 0);
+  if (isBest) STATS.best[G.tier] = G.score;
+  saveStats();
+  BilnetBridge.submitScore({
+    gameId: 'kelime-balonu', score: G.score, tier: G.tier,
+    stats: { words: G.words, bubblesPopped: G.bubblesPopped },
+  });
+  $('resTitle').textContent = reason === 'overflow' ? STRINGS.overflow : 'Süre Doldu!';
+  $('resEmoji').textContent = isBest ? '🏆' : (G.words >= 5 ? '🥇' : '🎈');
+  $('resScore').textContent = G.score;
+  const wordList = G.doneWords.slice(0, 8).map(([en, tr]) => `<b>${en.toLowerCase()}</b> = ${tr}`).join(' · ');
+  $('resStats').innerHTML =
+    `📚 Tamamlanan kelime: <b>${G.words}</b> &nbsp;·&nbsp; 🎈 Patlayan balon: <b>${G.bubblesPopped}</b>` +
+    (isBest ? `<br>🏅 <b>YENİ ${['', 'ETEK', 'YAMAÇ', 'TIRMANIŞ', 'ZİRVE'][G.tier]} REKORU!</b>` : '') +
+    (wordList ? `<div id="resWords">📖 ${wordList}</div>` : '');
+  $('eduLine').textContent = G.words > 0 ? STRINGS.edu(G.words) : STRINGS.eduZero;
+  if (G.words >= 3) Audio2.fanfare();
+  show('screen-result');
+  refreshBestLine();
+}
+function refreshBestLine(){
+  const b = STATS.best[G.tier] || 0;
+  $('bestLine').textContent = b > 0 ? STRINGS.best(G.tier, b) : '';
+}
+
+/* ---- menü ---- */
+document.querySelectorAll('.tierBtn').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.tierBtn').forEach(x => x.classList.remove('on'));
+  b.classList.add('on');
+  G.tier = parseInt(b.dataset.t, 10);
+  refreshBestLine();
+}));
+$('bPlay').addEventListener('click', () => { Audio2.init(); startRound(); });
+$('bHelp').addEventListener('click', () => $('helpBox').classList.toggle('show'));
+$('bAgain').addEventListener('click', startRound);
+$('bMenu').addEventListener('click', () => { G.state = 'menu'; show('screen-menu'); refreshBestLine(); });
+
+/* ---- duraklatma + visibilitychange (zorunlu §5) ---- */
+function pauseGame(){
+  if (G.state !== 'playing') return;
+  G.state = 'paused';
+  $('pauseVeil').classList.add('show');
+}
+function resumeGame(){
+  if (G.state !== 'paused') return;
+  G.state = 'playing';
+  $('pauseVeil').classList.remove('show');
+  G.lastTs = performance.now();
+  if (!G.raf) G.raf = requestAnimationFrame(loop);
+}
+$('bPause').addEventListener('click', pauseGame);
+$('bResume').addEventListener('click', resumeGame);
+$('bQuit').addEventListener('click', () => {
+  $('pauseVeil').classList.remove('show');
+  clearInterval(G.secT);
+  G.state = 'menu'; show('screen-menu'); refreshBestLine();
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && G.state === 'playing'){ pauseGame(); saveStats(); }   // teneffüs güvencesi
+});
+addEventListener('keydown', e => { if ((e.code === 'KeyP' || e.code === 'Escape') && G.state === 'playing') pauseGame(); });
+addEventListener('resize', () => { if (G.state === 'playing') layout(); });
+
+/* ---- başlat ---- */
+loadStats();
+</script>
+</body>
+</html>
