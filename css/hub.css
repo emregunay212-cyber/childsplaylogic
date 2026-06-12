@@ -548,3 +548,35 @@
     animation: float 3s ease-in-out infinite, sway 2s ease-in-out infinite;
     pointer-events: none;
 }
+
+/* ── Meta katman v1: jeton çipi + ilerleme paneli (EGITSEL-OYUN-PLANI §3) ── */
+.coin-counter { cursor: pointer; }
+.coin-counter .coin-icon { font-size: 17px; line-height: 1; }
+.coin-counter:hover { transform: scale(1.06); }
+
+.meta-panel { position: fixed; inset: 0; background: rgba(10, 30, 50, .55); display: none;
+    align-items: center; justify-content: center; z-index: 1200; padding: 18px; }
+.meta-panel.show { display: flex; }
+.meta-card { background: #fff; border-radius: 18px; width: min(440px, 94vw); max-height: 84vh;
+    overflow: auto; padding: 18px 18px 14px; box-shadow: 0 14px 44px rgba(0, 0, 0, .35); color: #1d3b53; }
+.meta-head { display: flex; justify-content: space-between; align-items: center; }
+.meta-head h2 { font-size: 20px; }
+.meta-head button { background: none; border: none; font-size: 20px; cursor: pointer; color: #7a93a8; }
+.meta-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
+.meta-stat { background: #eef6fc; border-radius: 12px; padding: 9px 6px; text-align: center; }
+.meta-stat span { display: block; font-size: 11.5px; color: #5e7a90; font-weight: 700; }
+.meta-stat b { font-size: 17px; }
+.meta-games { display: flex; flex-direction: column; gap: 6px; }
+.mp-row { display: flex; align-items: center; gap: 8px; background: #f6fafd; border-radius: 10px;
+    padding: 8px 10px; font-size: 13.5px; }
+.mp-ic { font-size: 18px; }
+.mp-nm { font-weight: 800; white-space: nowrap; }
+.mp-ln { color: #5e7a90; margin-left: auto; text-align: right; }
+.mp-empty { justify-content: center; color: #5e7a90; }
+.meta-note { font-size: 12px; color: #7a93a8; margin-top: 12px; line-height: 1.5; }
+
+.meta-toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(80px);
+    background: #143c5c; color: #fff; padding: 11px 20px; border-radius: 14px; font-weight: 700;
+    font-size: 14px; box-shadow: 0 8px 24px rgba(0, 0, 0, .35); z-index: 1300; opacity: 0;
+    transition: transform .3s, opacity .3s; pointer-events: none; max-width: 92vw; text-align: center; }
+.meta-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
