@@ -45,6 +45,7 @@ const TR = {
         'bil-ve-fethet': 'Bil ve Fethet',
         'kelime-madeni-3d': 'Kelime Madeni 3D',
         'bilgi-madencisi': 'Bilgi Madencisi',
+        'matematik-patlatma': 'Matematik Patlatma',
     },
 
     // Multiplayer strings
@@ -144,6 +145,7 @@ const TR = {
         'bil-ve-fethet': 'Soruları cevapla, komşu ülkeleri fethet, tüm dünyayı ele geçir!',
         'kelime-madeni-3d': 'Kaz, üret, derine in — cevherler İngilizce soru sorar!',
         'bilgi-madencisi': 'Soruyu çöz, kancayı doğru taşa bırak, altını topla!',
+        'matematik-patlatma': 'Komşu taşları sürükle, hedef sayıyı tuttur, zinciri patlat!',
     },
 
     // Kod Macerasi stringleri

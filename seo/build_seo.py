@@ -152,6 +152,10 @@ GAMES = [
        teaches="Dört işlem akıcılığı, kesirler ve hızlı karar verme",
        short="Soru yukarıda, cevaplar yerin altında — kancayı doğru taşa bırak!",
        about="Bilgi Madencisi, klasik altın madencisi mekaniğini matematikle birleştiren bir refleks ve işlem oyunudur. Ekranın üstünde bir soru görünür, yerin altında 4 cevap taşı durur; sallanan kancayı doğru taşa bırakırsan puan kazanırsın — yanlış taş ağırdır ve zamanını yer. Art arda doğrularda combo çarpanı, 5 doğruda dinamit! Etek'ten Zirve'ye 4 zorluk seviyesiyle toplama, çıkarma, çarpım tablosu, bölme, kesirler ve yüzdeler 60 saniyelik vardiyalarda akıcı hale gelir. Ücretsiz, üyeliksiz, tarayıcıda oynanır."),
+  dict(slug="matematik-patlatma", name="Matematik Patlatma", cat="Matematik", age="8-12", players="Tek kişilik",
+       teaches="Zihinden işlem akıcılığı ve sayı hissi",
+       short="Komşu taşları sürükle, hedef sayıyı tuttur — zincir ne kadar uzun, puan o kadar dev!",
+       about="Matematik Patlatma, sayı taşlarından zincir kurarak hedefi tutturduğun 60 saniyelik bir işlem akıcılığı oyunudur. Hedef üstte yazar (örneğin 'Toplamı 12 yap'); komşu taşları parmağınla sürükleyip zincirin toplamı hedefe tam ulaşınca taşlar patlar, üstten yenileri düşer. Puan taş sayısının karesiyle büyür — uzun zincir kurmak hep kazandırır. Etek'te kolay toplamalar, Tırmanış'ta fark soruları, Zirve'de çarpım hedefleriyle zihinden işlem hızı eğlenerek gelişir. Ücretsiz, üyeliksiz, tarayıcıda oynanır."),
 ]
 
 PAGE_TMPL = """<!DOCTYPE html>

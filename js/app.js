@@ -34,8 +34,9 @@ const App = (() => {
                 { game: SayiSayma, color: 'var(--sayi-color)' },
                 { game: Matematik, color: 'var(--matematik-color)' },
                 { game: Desen, color: 'var(--desen-color)' },
-                // Eğitsel seri Faz 1 (4.1): kilitsiz — işlem akıcılığı.
+                // Eğitsel seri Faz 1 (4.1, 4.2): kilitsiz — işlem akıcılığı.
                 { game: BilgiMadencisi, color: 'var(--bilgi-madencisi-color)' },
+                { game: MatematikPatlatma, color: 'var(--matematik-patlatma-color)' },
             ]
         },
         {
