@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bil ve Fethet — Dünya Bilgi Fetih Oyunu</title>
+<!-- Portal standardı: harici bağımlılık yok — sistem fontları kullanılır -->
+<style>
+:root{
+  --ocean:#0d1f2d; --panel:#16293a; --panel2:#1d3349; --ink:#f3ead7; --ink-dim:#a8b4ad;
+  --gold:#e2b75c; --player:#e0552c; --player-glow:#ff7a4d; --danger:#d6453a; --ok:#5fae6e;
+  --d1:#ddd2ab; --d2:#c8b687; --d3:#a98e5f; --d4:#83663f;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--ocean);color:var(--ink);
+  font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;user-select:none}
+button{font-family:inherit;cursor:pointer;border:none}
+.mono{font-family:'Cascadia Code','Consolas',ui-monospace,monospace}
+
+/* ===== HARİTA ===== */
+#mapWrap{position:fixed;inset:0;touch-action:none}
+#map{width:100%;height:100%;display:block;cursor:grab}
+#map.grabbing{cursor:grabbing}
+.country{stroke:#0d1f2d;stroke-width:.6;transition:filter .15s}
+.country.sel-mode:hover{filter:brightness(1.35);cursor:pointer}
+.country.attackable{cursor:pointer;animation:targetPulse 1.6s ease-in-out infinite}
+.country.attackable:hover{filter:brightness(1.4)}
+@keyframes targetPulse{0%,100%{stroke:#0d1f2d;stroke-width:.6}50%{stroke:var(--gold);stroke-width:1.8}}
+@keyframes conquerFlash{0%{stroke:#fff;stroke-width:3;filter:brightness(2)}100%{stroke:#0d1f2d;stroke-width:.6;filter:brightness(1)}}
+.country.flash{animation:conquerFlash .7s ease-out}
+@keyframes resPop{0%{transform:scale(0) rotate(-20deg);opacity:0}60%{transform:scale(1.25) rotate(8deg)}100%{transform:scale(1) rotate(0)}}
+#resEmoji,#endEmoji{display:inline-block;animation:resPop .5s cubic-bezier(.3,1.5,.5,1)}
+.veil.show #resEmoji,.veil.show #endEmoji{animation:resPop .5s cubic-bezier(.3,1.5,.5,1)}
+.ownFill{pointer-events:none}
+.capStar{fill:var(--gold);stroke:#5e4716;stroke-width:.5;pointer-events:none;
+  filter:drop-shadow(0 0 3px rgba(226,183,92,.9))}
+
+/* ===== ÜST HUD ===== */
+#hud{position:fixed;top:0;left:0;right:0;display:none;gap:8px;padding:8px 10px;
+  background:linear-gradient(180deg,rgba(13,31,45,.96),rgba(13,31,45,.75) 80%,transparent);
+  z-index:20;flex-wrap:wrap;align-items:center}
+.hudBox{background:var(--panel);border:1px solid #2c4861;border-radius:10px;
+  padding:6px 12px;display:flex;align-items:center;gap:8px;font-size:14px}
+.hudBox b{color:var(--gold);font-size:16px}
+.hudLbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-dim)}
+.upBtn{background:var(--panel2);border:1px solid var(--gold);color:var(--gold);
+  border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;transition:.15s}
+.upBtn:hover:not(:disabled){background:var(--gold);color:#1a1208}
+.upBtn:disabled{opacity:.38;cursor:not-allowed;border-color:#3a4c5c;color:var(--ink-dim)}
+.lvlPips{display:flex;gap:3px}
+.pip{width:9px;height:14px;border-radius:2px;background:#2c4861}
+.pip.on{background:var(--gold)}
+#worldWarn{display:none;background:#3a2730;border:1px solid var(--danger);color:#f6b0a8;
+  border-radius:10px;padding:6px 12px;font-size:12px}
+
+/* ===== PANELLER / MODALLAR ===== */
+.veil{position:fixed;inset:0;background:rgba(7,15,22,.82);backdrop-filter:blur(4px);
+  z-index:50;display:none;align-items:center;justify-content:center;padding:16px}
+.veil.show{display:flex}
+.card{background:var(--panel);border:1px solid #2c4861;border-radius:18px;
+  padding:28px;max-width:520px;width:100%;max-height:92vh;overflow-y:auto;
+  box-shadow:0 24px 70px rgba(0,0,0,.6)}
+h1{font-weight:900;font-size:clamp(34px,7vw,54px);line-height:1.02;letter-spacing:-1px}
+h1 .accent{color:var(--gold)}
+h2{font-weight:800;font-size:22px;margin-bottom:6px}
+.sub{color:var(--ink-dim);font-size:14px;line-height:1.5}
+.bigBtn{display:block;width:100%;background:var(--player);color:#fff;font-weight:800;
+  font-size:17px;padding:15px;border-radius:12px;margin-top:14px;transition:.15s;
+  box-shadow:0 4px 0 #9c3318}
+.bigBtn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 0 #9c3318}
+.bigBtn:active{transform:translateY(2px);box-shadow:0 1px 0 #9c3318}
+.bigBtn:disabled{background:#3a4c5c;box-shadow:none;color:var(--ink-dim);cursor:not-allowed}
+.bigBtn.ghost{background:var(--panel2);color:var(--ink);box-shadow:0 4px 0 #0e1c29}
+.kademeGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.kademeBtn{background:var(--panel2);border:2px solid #2c4861;border-radius:12px;
+  padding:16px 10px;color:var(--ink);font-weight:700;font-size:15px;transition:.15s;text-align:center}
+.kademeBtn small{display:block;font-weight:400;color:var(--ink-dim);font-size:11px;margin-top:3px}
+.kademeBtn.on{border-color:var(--gold);background:#2a3d28;color:var(--gold)}
+.subjGrid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.subjChip{background:var(--panel2);border:2px solid #2c4861;border-radius:20px;
+  padding:8px 14px;color:var(--ink);font-weight:600;font-size:13px;transition:.13s}
+.subjChip.on{border-color:var(--gold);background:#2a3d28;color:var(--gold)}
+.subjChip:active{transform:scale(.95)}
+input[type=range]{width:100%;accent-color:var(--gold);margin:8px 0}
+
+/* ===== SAVAŞ EKRANI ===== */
+#battleCard{max-width:600px;text-align:center}
+#fuseWrap{height:12px;background:#0e1c29;border-radius:6px;overflow:hidden;margin:14px 0 4px;
+  border:1px solid #2c4861;position:relative}
+#fuse{height:100%;width:100%;border-radius:6px;
+  background:linear-gradient(90deg,var(--ok),var(--gold) 60%,var(--danger))}
+#qNum{font-size:12px;letter-spacing:2px;color:var(--ink-dim);text-transform:uppercase}
+#qText{font-size:clamp(22px,4.5vw,32px);font-weight:800;margin:16px 0 20px;min-height:74px;
+  display:flex;align-items:center;justify-content:center;line-height:1.25}
+.optGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.optBtn{background:var(--panel2);border:2px solid #2c4861;border-radius:12px;color:var(--ink);
+  padding:18px 10px;font-size:19px;font-weight:700;transition:.12s}
+.optBtn:hover:not(:disabled){border-color:var(--gold);transform:scale(1.02)}
+.optBtn.right{background:#234a2c;border-color:var(--ok)}
+.optBtn.wrong{background:#4a2323;border-color:var(--danger)}
+.optBtn:disabled{cursor:default}
+.dots{display:flex;gap:5px;justify-content:center;margin-top:18px}
+.dot{width:14px;height:14px;border-radius:50%;background:#2c4861}
+.dot.r{background:var(--ok)} .dot.w{background:var(--danger)}
+.battleHead{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.fighter{font-weight:800;font-size:15px}
+.fighter small{display:block;font-weight:400;font-size:11px;color:var(--ink-dim)}
+.vs{font-family:'Cascadia Code','Consolas',ui-monospace,monospace;color:var(--gold);font-size:20px}
+
+/* ===== HEDEF PANELİ ===== */
+#targetPanel{position:fixed;bottom:14px;left:50%;transform:translateX(-50%) translateY(140%);
+  background:var(--panel);border:1px solid var(--gold);border-radius:16px;padding:16px 20px;
+  z-index:30;width:min(94vw,400px);transition:transform .25s;box-shadow:0 14px 44px rgba(0,0,0,.55)}
+#targetPanel.show{transform:translateX(-50%) translateY(0)}
+.tpRow{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-dim);margin:3px 0}
+.tpRow b{color:var(--ink)}
+.diffBadge{display:inline-flex;gap:3px;align-items:center;font-weight:700}
+
+/* ===== BİLDİRİM & SONUÇ ===== */
+#toast{position:fixed;top:64px;left:50%;transform:translateX(-50%) translateY(-200%);
+  background:var(--panel);border:1px solid var(--gold);color:var(--gold);font-weight:700;
+  padding:10px 22px;border-radius:30px;z-index:60;transition:transform .3s;font-size:14px;
+  box-shadow:0 8px 30px rgba(0,0,0,.5);text-align:center;max-width:90vw}
+#toast.show{transform:translateX(-50%) translateY(0)}
+.resultBig{font-size:clamp(30px,6vw,44px);font-weight:900;margin:6px 0}
+.resultBig.win{color:var(--ok)} .resultBig.lose{color:var(--danger)} .resultBig.draw{color:var(--gold)}
+.scoreLine{font-family:'Cascadia Code','Consolas',ui-monospace,monospace;font-size:30px;margin:10px 0}
+#zoomCtl{position:fixed;right:12px;bottom:14px;display:none;flex-direction:column;gap:8px;z-index:25}
+#zoomCtl button{width:44px;height:44px;border-radius:12px;background:var(--panel);
+  border:1px solid #2c4861;color:var(--ink);font-size:22px;font-weight:700}
+#legend{position:fixed;left:12px;bottom:14px;display:none;background:rgba(22,41,58,.92);
+  border:1px solid #2c4861;border-radius:12px;padding:10px 12px;z-index:25;font-size:11px}
+.legRow{display:flex;align-items:center;gap:7px;margin:3px 0}
+.legSw{width:16px;height:12px;border-radius:3px;border:1px solid #0d1f2d}
+@media(max-width:640px){
+  .hudBox{padding:5px 8px;font-size:12px}.hudBox b{font-size:14px}
+  #legend{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<!-- HARİTA -->
+<div id="mapWrap">
+  <svg id="map" preserveAspectRatio="xMidYMid meet"></svg>
+</div>
+
+<!-- HUD -->
+<div id="hud">
+  <div class="hudBox"><span>🪙</span><div><div class="hudLbl">Altın</div><b id="goldV">0</b></div></div>
+  <div class="hudBox"><div><div class="hudLbl">Gelir</div><b id="incomeV" style="font-size:13px">+0</b></div></div>
+  <div class="hudBox"><div><div class="hudLbl">⚔️ Saldırı</div><div class="lvlPips" id="atkPips"></div></div>
+    <button class="upBtn" id="atkUp">Yükselt</button></div>
+  <div class="hudBox"><div><div class="hudLbl">🛡️ Savunma</div><div class="lvlPips" id="defPips"></div></div>
+    <button class="upBtn" id="defUp">Yükselt</button></div>
+  <div class="hudBox"><div><div class="hudLbl">Süre</div><b id="clockV" class="mono" style="font-size:14px">00:00</b></div></div>
+  <div class="hudBox"><div><div class="hudLbl">Fetih</div><b id="progV" style="font-size:14px">0%</b></div></div>
+  <div id="worldWarn">🌍 Dünya zorlaşıyor!</div>
+</div>
+
+<div id="zoomCtl">
+  <button id="zMenu" style="font-size:18px" title="Menü">☰</button>
+  <button id="zSound" style="font-size:16px" title="Ses">🔊</button>
+  <button id="zIn">+</button><button id="zOut">−</button><button id="zHome" style="font-size:15px" title="Toprağıma odaklan">⌖</button><button id="zWorld" style="font-size:15px" title="Dünya görünümü">🌍</button>
+</div>
+
+<div id="legend">
+  <div style="font-weight:700;margin-bottom:4px;color:var(--gold)">SAVUNMA ZORLUĞU</div>
+  <div class="legRow"><div class="legSw" style="background:hsl(165,38%,70%)"></div>Açık ton — Etek (kolay)</div>
+  <div class="legRow"><div class="legSw" style="background:hsl(165,38%,60%)"></div>Yamaç</div>
+  <div class="legRow"><div class="legSw" style="background:hsl(165,38%,48%)"></div>Tırmanış</div>
+  <div class="legRow"><div class="legSw" style="background:hsl(165,38%,36%)"></div>Koyu ton — Zirve (zor)</div>
+  <div class="legRow"><div class="legSw" style="background:var(--player)"></div>Senin toprağın</div>
+  <div style="color:var(--ink-dim);margin-top:4px">Renk = ülke, koyuluk = zorluk</div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ANA MENÜ -->
+<div class="veil show" id="menuVeil">
+  <div class="card" style="text-align:center">
+    <div style="font-size:46px">🌍⚔️</div>
+    <h1>BİL ve <span class="accent">FETHET</span></h1>
+    <p class="sub" style="margin-top:8px">Soruları bil, dünyayı fethet. Her doğru cevap toprak,
+    her yanlış kayıp demek. Tüm dünyayı ele geçirebilecek misin?</p>
+    <button class="bigBtn" id="btnContinue" style="display:none">▶️ Kaldığın Yerden Devam Et</button>
+    <button class="bigBtn" id="btnSingle">🎮 Bireysel Oyun</button>
+    <button class="bigBtn ghost" disabled>🌐 Online Oyun — Faz 3'te</button>
+    <button class="bigBtn ghost" id="btnHelp">📜 Nasıl Oynanır?</button>
+  </div>
+</div>
+
+<!-- NASIL OYNANIR -->
+<div class="veil" id="helpVeil">
+  <div class="card">
+    <h2>📜 Nasıl Oynanır?</h2>
+    <p class="sub" style="margin-top:10px">
+    <b style="color:var(--gold)">Fetih:</b> Komşu ülkeye tıkla ve saldır. 10 soru gelir.
+    6+ doğru → bildiğin oranda toprak kazanırsın (10 doğru = ülkenin tamamı).
+    5 doğru → berabere. 5'in altı → kendi toprağından kaybedersin!<br><br>
+    <b style="color:var(--gold)">Zorluk:</b> Her ülkenin rastgele savunma seviyesi var (renkten anlaşılır).
+    Saldırı seviyeni yükseltirsen daha kolay sorularla fethedersin.
+    Zaman geçtikçe sahipsiz ülkeler zorlaşır — acele et!<br><br>
+    <b style="color:var(--gold)">Karşı saldırı:</b> Saldırı seviyesi senin savunmana denk gelen komşular
+    ara ara SANA saldırır. Savunma seviyen yüksekse soruları daha kolay görürsün.<br><br>
+    <b style="color:var(--gold)">Altın:</b> Sahip olduğun şehir sayısına göre her 10 saniyede altın gelir.
+    Altınla saldırı/savunma geliştirilir (4 kademe: Etek → Yamaç → Tırmanış → Zirve).<br><br>
+    <b style="color:var(--gold)">Hedef:</b> Tüm dünyayı fethet! Tüm toprağını kaybedersen oyun biter.<br><br>
+    <b style="color:var(--gold)">Dersler:</b> İlkokul/ortaokul/lise seçince ders de seçebilirsin (matematik, fen, Türkçe, sosyal, coğrafya, İngilizce, din). Birden çok ders seçersen sorular karışık gelir.</p>
+    <button class="bigBtn ghost" onclick="hide('helpVeil')">Kapat</button>
+  </div>
+</div>
+
+<!-- KURULUM -->
+<div class="veil" id="setupVeil">
+  <div class="card">
+    <h2>⚙️ Sefer Hazırlığı</h2>
+    <p class="sub">Soruların seviyesini belirleyecek kademeyi seç.</p>
+    <div class="kademeGrid" id="kademeGrid">
+      <button class="kademeBtn" data-k="ana">🧸 Anaokulu<small>Sayma, şekil, renk</small></button>
+      <button class="kademeBtn" data-k="ilk">✏️ İlkokul<small>1-4. sınıf</small></button>
+      <button class="kademeBtn on" data-k="orta">📐 Ortaokul<small>5-8. sınıf</small></button>
+      <button class="kademeBtn" data-k="lise">🎓 Lise<small>9-12. sınıf</small></button>
+    </div>
+    <div id="subjectBox">
+      <div style="font-weight:700;margin:14px 0 2px">📚 Dersler <small style="font-weight:400;color:var(--ink-dim)">— en az bir tane seç, sorular karışık gelir</small></div>
+      <div class="subjGrid" id="subjGrid"></div>
+    </div>
+    <div style="margin:14px 0 2px;font-weight:700">⏱️ Soru süresi: <span id="qtV" style="color:var(--gold)">20</span> saniye</div>
+    <input type="range" id="qtSlider" min="10" max="30" step="5" value="20">
+    <button class="bigBtn" id="btnPickCountry">🗺️ Haritadan Ülkeni Seç</button>
+  </div>
+</div>
+
+<!-- ÜLKE ONAY -->
+<div class="veil" id="confirmVeil">
+  <div class="card" style="text-align:center">
+    <h2 id="cfName">Türkiye</h2>
+    <p class="sub" id="cfInfo"></p>
+    <button class="bigBtn" id="btnStart">⚔️ Bu Ülkeyle Başla</button>
+    <button class="bigBtn ghost" onclick="hide('confirmVeil')">Başka Ülke Seç</button>
+  </div>
+</div>
+
+<!-- SAVAŞ -->
+<div class="veil" id="battleVeil">
+  <div class="card" id="battleCard">
+    <div class="battleHead">
+      <div class="fighter" style="color:var(--player-glow)" id="bLeft">Sen<small id="bLeftSub"></small></div>
+      <div class="vs">VS</div>
+      <div class="fighter" id="bRight">Ülke<small id="bRightSub"></small></div>
+    </div>
+    <div id="fuseWrap"><div id="fuse"></div></div>
+    <div id="qNum">SORU 1 / 10</div>
+    <div id="qText"></div>
+    <div class="optGrid" id="optGrid"></div>
+    <div class="dots" id="dots"></div>
+  </div>
+</div>
+
+<!-- SONUÇ -->
+<div class="veil" id="resultVeil">
+  <div class="card" style="text-align:center">
+    <div id="resEmoji" style="font-size:52px">⚔️</div>
+    <div class="resultBig" id="resTitle"></div>
+    <div class="scoreLine" id="resScore"></div>
+    <p class="sub" id="resDetail"></p>
+    <button class="bigBtn" onclick="hide('resultVeil');afterBattle()">Devam</button>
+  </div>
+</div>
+
+<!-- OYUN SONU -->
+<div class="veil" id="endVeil">
+  <div class="card" style="text-align:center">
+    <div id="endEmoji" style="font-size:60px"></div>
+    <div class="resultBig" id="endTitle"></div>
+    <p class="sub" id="endDetail"></p>
+    <button class="bigBtn" onclick="location.reload()">🔄 Yeniden Oyna</button>
+  </div>
+</div>
+
+<!-- OYUN İÇİ MENÜ (DURAKLAT) -->
+<div class="veil" id="pauseVeil">
+  <div class="card" style="text-align:center">
+    <div style="font-size:40px">⏸️</div>
+    <h2>Oyun Duraklatıldı</h2>
+    <p class="sub" id="pauseInfo" style="margin-bottom:6px"></p>
+    <button class="bigBtn" onclick="hide('pauseVeil')">▶️ Devam Et</button>
+    <button class="bigBtn ghost" id="btnRestart">🔄 Yeniden Başlat <small style="font-weight:400">(yeni ülke seç)</small></button>
+    <button class="bigBtn ghost" id="btnMainMenu">🏠 Ana Menü</button>
+  </div>
+</div>
+
+<!-- HEDEF PANELİ -->
+<div id="targetPanel">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <h2 id="tpName" style="font-size:19px">Ülke</h2>
+    <button onclick="closeTarget()" style="background:none;color:var(--ink-dim);font-size:22px">✕</button>
+  </div>
+  <div class="tpRow"><span>🏙️ Şehir</span><b id="tpCities"></b></div>
+  <div class="tpRow"><span>🛡️ Savunma seviyesi</span><b class="diffBadge" id="tpDef"></b></div>
+  <div class="tpRow"><span>📊 Sahiplik durumun</span><b id="tpOwn"></b></div>
+  <div class="tpRow"><span>❓ Karşına çıkacak soru zorluğu</span><b id="tpQDiff"></b></div>
+  <button class="bigBtn" id="btnAttack" style="margin-top:10px">⚔️ SALDIR (10 Soru)</button>
+</div>
+
+<!-- ChildsPlayLogic entegrasyonu: oyunun beklediği window.storage API'sini
+     localStorage üzerine kurar (Promise tabanlı). Hub, Google girişli kullanıcıda
+     bu anahtarları users/{uid}/gameSaves altında bulutla senkronlar (js/auth.js). -->
+<script>
+(function () {
+  if (window.storage && window.storage.get && window.storage.set) return;
+  window.storage = {
+    get: function (key) {
+      try {
+        var v = localStorage.getItem(key);
+        return Promise.resolve(v != null ? { value: v } : null);
+      } catch (e) { return Promise.resolve(null); }
+    },
+    set: function (key, value) {
+      try { localStorage.setItem(key, value); return Promise.resolve(); }
+      catch (e) { return Promise.resolve(); }
+    },
+    remove: function (key) {
+      try { localStorage.removeItem(key); return Promise.resolve(); }
+      catch (e) { return Promise.resolve(); }
+    }
+  };
+})();
+</script>
+<script>
+/* ================= VERİ ================= */
+const DATA = __GAMEDATA__;
+__QUESTIONBANK__
+const CFG = {
+  TICK_MS: 10000,          // gelir aralığı
+  INCOME_BASE: 25,         // taban gelir
+  INCOME_PER_CITY: 3,      // şehir başı gelir
+  COST_BASE: 600,          // yükseltme taban maliyeti
+  WORLD_HARDEN_MS: 300000, // her 5 dk sahipsiz savunma +1
+  ZIRVE_LOCK_MS: 600000,   // 4. kademe ilk 10 dk kilitli
+  NPC_ATK_MIN: 60000, NPC_ATK_MAX: 180000, // karşı saldırı aralığı
+  NPC_EXPECT: {1:4, 2:5, 3:6, 4:7},        // NPC seviye→beklenen doğru
+};
+const TIERS = ['','Etek','Yamaç','Tırmanış','Zirve'];
+const TIER_ICONS = ['','🟢','🟡','🟠','🔴'];
+const byId = {}; DATA.forEach(c => byId[c.id] = c);
+
+/* ================= DURUM ================= */
+const S = {
+  phase:'menu', kademe:'orta', qTime:20, subjects:['mat'],
+  startId:null, own:{},            // id -> 0..1
+  npc:{},                          // id -> {atk,def}
+  gold:0, atkLvl:1, defLvl:1,
+  startedAt:0, hardenBonus:0,
+  inBattle:false, npcTimer:null,
+  battle:null,
+};
+
+/* ================= YARDIMCI ================= */
+const $ = id => document.getElementById(id);
+const show = id => $(id).classList.add('show');
+const hide = id => $(id).classList.remove('show');
+const fmt = n => n >= 1000 ? (n/1000).toFixed(1).replace('.0','') + 'k' : '' + n;
+const rnd = (a,b) => a + Math.floor(Math.random() * (b - a + 1));
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const shuffle = a => { for (let i = a.length-1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; };
+function toast(msg, ms=2600){ const t = $('toast'); t.innerHTML = msg; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), ms); }
+
+/* ================= SES (Web Audio sentezi) ================= */
+const SFX = {
+  ctx: null, on: true,
+  init(){ if (!this.ctx){ try { this.ctx = new (window.AudioContext||window.webkitAudioContext)(); } catch(e){} } },
+  tone(freq, dur, type='sine', vol=0.18, when=0){
+    if (!this.on || !this.ctx) return;
+    const t0 = this.ctx.currentTime + when;
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t0);
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(vol, t0 + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g); g.connect(this.ctx.destination);
+    o.start(t0); o.stop(t0 + dur + 0.02);
+  },
+  slide(f1, f2, dur, type='sawtooth', vol=0.16){
+    if (!this.on || !this.ctx) return;
+    const t0 = this.ctx.currentTime;
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(f1, t0);
+    o.frequency.exponentialRampToValueAtTime(Math.max(40,f2), t0 + dur);
+    g.gain.setValueAtTime(vol, t0); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g); g.connect(this.ctx.destination); o.start(t0); o.stop(t0 + dur + 0.02);
+  },
+  click(){ this.tone(420, 0.05, 'square', 0.10); },
+  correct(){ this.tone(660, 0.10, 'sine', 0.16); this.tone(880, 0.14, 'sine', 0.14, 0.09); },
+  wrong(){ this.slide(220, 90, 0.32, 'sawtooth', 0.16); },
+  timeout(){ this.tone(160, 0.30, 'triangle', 0.16); },
+  conquer(){ [523,659,784,1047].forEach((f,i) => this.tone(f, 0.16, 'triangle', 0.16, i*0.07)); },
+  win(){ [523,659,784,1047,1319].forEach((f,i) => this.tone(f, 0.22, 'sine', 0.18, i*0.10)); },
+  lose(){ [392,330,262,196].forEach((f,i) => this.tone(f, 0.24, 'triangle', 0.16, i*0.11)); },
+  draw(){ this.tone(440, 0.12, 'sine', 0.14); this.tone(440, 0.12, 'sine', 0.12, 0.14); },
+  attack(){ this.slide(120, 200, 0.18, 'square', 0.14); this.tone(80, 0.20, 'sine', 0.18); },
+  upgrade(){ [440,587,740].forEach((f,i) => this.tone(f, 0.12, 'triangle', 0.15, i*0.06)); },
+  alarm(){ this.tone(880, 0.12, 'square', 0.15); this.tone(700, 0.12, 'square', 0.15, 0.14); },
+};
+
+/* ================= KAYIT (window.storage köprüsü) ================= */
+const SAVE_KEY = 'bilfethet_save';
+const STATS_KEY = 'bilfethet_stats';
+let STATS = { battles:0, wins:0, correct:0, questions:0, conquests:0, worldWins:0 };
+let SAVED = null;   // menüdeki "Devam Et" için bekleyen kayıt
+function loadStats(){
+  try{ window.storage.get(STATS_KEY).then(r => {
+    if (r && r.value){ try{ STATS = Object.assign(STATS, JSON.parse(r.value)); }catch(e){} }
+  }); }catch(e){}
+}
+function saveStats(){ try{ window.storage.set(STATS_KEY, JSON.stringify(STATS)); }catch(e){} }
+function persist(){
+  if (S.phase !== 'play') return null;
+  try{
+    const data = { v:1, kademe:S.kademe, qTime:S.qTime, subjects:S.subjects,
+      startId:S.startId, own:S.own, npc:S.npc, gold:S.gold,
+      atkLvl:S.atkLvl, defLvl:S.defLvl, hardenBonus:S.hardenBonus,
+      elapsed: Date.now() - S.startedAt, asked: [...askedQ].slice(-400), sfx: SFX.on };
+    window.storage.set(SAVE_KEY, JSON.stringify(data));
+    return data;
+  }catch(e){ return null; }
+}
+function clearSave(){ SAVED = null; try{ window.storage.remove(SAVE_KEY); }catch(e){} }
+
+const effDef = id => Math.min(4, S.npc[id].def + S.hardenBonus);
+const ownedCities = () => DATA.reduce((s,c) => s + (S.own[c.id]||0) * c.c, 0);
+const incomePerTick = () => Math.round(CFG.INCOME_BASE + ownedCities() * CFG.INCOME_PER_CITY);
+const upCost = lvl => Math.round(CFG.COST_BASE * lvl*lvl*lvl * (0.5 + byId[S.startId].c / 100));
+const totalProgress = () => DATA.reduce((s,c) => s + (S.own[c.id]||0), 0) / DATA.length;
+
+/* ================= HARİTA ================= */
+/* --- Atlas renklendirme: komşular farklı renk (greedy graph coloring) --- */
+const HUES = [165, 200, 95, 260, 35, 320, 230, 140];   // teal, mavi, yeşil, mor, hardal, pembe, lacivert, çimen
+const DIFF_LIGHT = { 1: 70, 2: 60, 3: 48, 4: 36 };      // savunma zorlaştıkça koyulaşır
+function assignHues(){
+  DATA.forEach(c => c._hue = -1);
+  [...DATA].sort((a,b) => b.nb.length - a.nb.length).forEach(c => {
+    const used = new Set(c.nb.map(n => byId[n]._hue));
+    for (let i = 0; i < HUES.length; i++) if (!used.has(i)){ c._hue = i; break; }
+    if (c._hue === -1) c._hue = rnd(0, HUES.length-1);
+  });
+}
+function countryFill(c){
+  const lvl = S.npc[c.id] ? effDef(c.id) : 2;
+  return `hsl(${HUES[c._hue]}, 38%, ${DIFF_LIGHT[lvl]}%)`;
+}
+
+/* --- Ülkeye yumuşak yakınlaşma --- */
+let vbAnim = null;
+function animateVBTo(tx, ty, w, h, dur = 550){
+  const from = { ...VB }, t0 = performance.now();
+  cancelAnimationFrame(vbAnim);
+  (function step(t){
+    const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1-k, 3);
+    VB.x = from.x + (tx - from.x)*e; VB.y = from.y + (ty - from.y)*e;
+    VB.w = from.w + (w - from.w)*e; VB.h = from.h + (h - from.h)*e;
+    applyVB();
+    if (k < 1) vbAnim = requestAnimationFrame(step);
+  })(t0);
+}
+function focusCountry(id, pad = 2.2){
+  const bb = byId[id]._bb;
+  let w = Math.max(70, bb.width * pad), h = w * 0.52;
+  if (bb.height * pad > h){ h = bb.height * pad; w = h / 0.52; }
+  animateVBTo(bb.x + bb.width/2 - w/2, bb.y + bb.height/2 - h/2, w, h);
+}
+
+const svg = $('map');
+const VB = { x:0, y:0, w:1000, h:520 };
+function applyVB(){ svg.setAttribute('viewBox', `${VB.x} ${VB.y} ${VB.w} ${VB.h}`); }
+
+function buildMap(){
+  const NS = 'http://www.w3.org/2000/svg';
+  const defs = document.createElementNS(NS,'defs'); svg.appendChild(defs);
+  DATA.forEach(c => {
+    const g = document.createElementNS(NS,'g');
+    const base = document.createElementNS(NS,'path');
+    base.setAttribute('d', c.p.join(' '));
+    base.setAttribute('class','country'); base.id = 'c' + c.id;
+    base.addEventListener('click', e => { e.stopPropagation(); onCountryClick(c.id); });
+    g.appendChild(base);
+    // sahiplik dolgusu (clip ile alttan dolar)
+    const clip = document.createElementNS(NS,'clipPath'); clip.id = 'clip' + c.id;
+    const rect = document.createElementNS(NS,'rect'); clip.appendChild(rect); defs.appendChild(clip);
+    const ov = document.createElementNS(NS,'path');
+    ov.setAttribute('d', c.p.join(' '));
+    ov.setAttribute('class','ownFill'); ov.setAttribute('fill','var(--player)');
+    ov.setAttribute('clip-path', `url(#clip${c.id})`); ov.id = 'o' + c.id;
+    g.appendChild(ov);
+    svg.appendChild(g);
+    c._rect = rect;
+  });
+  // bbox'ları hesapla + atlas renkleri
+  DATA.forEach(c => { c._bb = $('c'+c.id).getBBox(); });
+  assignHues();
+  DATA.forEach(c => { $('c'+c.id).style.fill = `hsl(${HUES[c._hue]}, 38%, 62%)`; });
+  applyVB();
+}
+function paintCountry(c){
+  const f = S.own[c.id] || 0;
+  $('c'+c.id).style.fill = countryFill(c);
+  const bb = c._bb;
+  c._rect.setAttribute('x', bb.x - 1); c._rect.setAttribute('width', bb.width + 2);
+  const h = bb.height * f;
+  c._rect.setAttribute('y', bb.y + bb.height - h - (f>=1?1:0));
+  c._rect.setAttribute('height', f >= 1 ? bb.height + 2 : h);
+}
+function paintAll(){ DATA.forEach(paintCountry); markAttackables(); }
+function markAttackables(){
+  const set = attackableIds();
+  DATA.forEach(c => $('c'+c.id).classList.toggle('attackable', S.phase==='play' && set.has(c.id)));
+}
+function attackableIds(){
+  const set = new Set();
+  if (S.phase !== 'play') return set;
+  DATA.forEach(c => {
+    const f = S.own[c.id] || 0;
+    if (f > 0 && f < 1) set.add(c.id);           // yarım kalan fetih
+    if (f > 0) c.nb.forEach(n => { if ((S.own[n]||0) < 1) set.add(n); });
+  });
+  set.forEach(id => { if ((S.own[id]||0) >= 1) set.delete(id); });
+  return set;
+}
+function placeCapital(){
+  const NS = 'http://www.w3.org/2000/svg';
+  const c = byId[S.startId];
+  const st = document.createElementNS(NS,'path');
+  const x = c.x, y = c.y, r = 6;
+  let d = '';
+  for (let i = 0; i < 10; i++){
+    const ang = -Math.PI/2 + i * Math.PI/5, rr = i%2 ? r*0.45 : r;
+    d += (i?'L':'M') + (x+Math.cos(ang)*rr).toFixed(1) + ',' + (y+Math.sin(ang)*rr).toFixed(1);
+  }
+  st.setAttribute('d', d+'Z'); st.setAttribute('class','capStar'); st.id = 'capStar';
+  svg.appendChild(st);
+}
+function removeCapitalStar(){ const s = $('capStar'); if (s) s.remove(); }
+
+/* --- pan & zoom --- */
+let drag = null, pinch = null, lastDragMoved = false;
+function clientToMap(cx, cy){
+  const r = svg.getBoundingClientRect();
+  return { x: VB.x + (cx - r.left)/r.width * VB.w, y: VB.y + (cy - r.top)/r.height * VB.h };
+}
+function zoomAt(cx, cy, factor){
+  const p = clientToMap(cx, cy);
+  const nw = Math.min(1400, Math.max(60, VB.w * factor));
+  const nh = nw * 0.52;
+  VB.x = p.x - (p.x - VB.x) * nw/VB.w; VB.y = p.y - (p.y - VB.y) * nh/VB.h;
+  VB.w = nw; VB.h = nh; applyVB();
+}
+svg.addEventListener('wheel', e => { e.preventDefault(); zoomAt(e.clientX, e.clientY, e.deltaY > 0 ? 1.18 : 0.85); }, {passive:false});
+svg.addEventListener('pointerdown', e => {
+  cancelAnimationFrame(vbAnim);
+  svg.setPointerCapture(e.pointerId);
+  if (pinch === null && drag === null) drag = { id:e.pointerId, x:e.clientX, y:e.clientY, moved:false };
+  else if (drag && pinch === null) pinch = { id2:e.pointerId, x:e.clientX, y:e.clientY };
+  svg.classList.add('grabbing');
+});
+svg.addEventListener('pointermove', e => {
+  if (pinch && (e.pointerId === pinch.id2 || (drag && e.pointerId === drag.id))){
+    if (e.pointerId === pinch.id2){ pinch.x = e.clientX; pinch.y = e.clientY; }
+    else { drag.x = e.clientX; drag.y = e.clientY; }
+    const dNow = Math.hypot(drag.x - pinch.x, drag.y - pinch.y);
+    if (pinch.last) zoomAt((drag.x+pinch.x)/2, (drag.y+pinch.y)/2, pinch.last/dNow);
+    pinch.last = dNow; return;
+  }
+  if (!drag || e.pointerId !== drag.id) return;
+  const r = svg.getBoundingClientRect();
+  const dx = (e.clientX - drag.x)/r.width * VB.w, dy = (e.clientY - drag.y)/r.height * VB.h;
+  if (Math.abs(e.clientX-drag.x) + Math.abs(e.clientY-drag.y) > 4) drag.moved = true;
+  VB.x -= dx; VB.y -= dy; drag.x = e.clientX; drag.y = e.clientY; applyVB();
+});
+const endPtr = e => { if (pinch && e.pointerId === pinch.id2) pinch = null;
+  else if (drag && e.pointerId === drag.id){ lastDragMoved = drag.moved; drag = null; pinch = null;
+    setTimeout(() => lastDragMoved = false, 80); }
+  svg.classList.remove('grabbing'); };
+svg.addEventListener('pointerup', endPtr); svg.addEventListener('pointercancel', endPtr);
+$('zIn').onclick = () => zoomAt(innerWidth/2, innerHeight/2, 0.8);
+$('zOut').onclick = () => zoomAt(innerWidth/2, innerHeight/2, 1.25);
+$('zWorld').onclick = () => animateVBTo(0, 0, 1000, 520);
+// Ses aç/kapa
+$('zSound').onclick = () => {
+  SFX.on = !SFX.on; $('zSound').textContent = SFX.on ? '🔊' : '🔇';
+  if (SFX.on){ SFX.init(); SFX.click(); }
+};
+// İlk etkileşimde AudioContext'i başlat (tarayıcı politikası)
+document.addEventListener('pointerdown', () => { SFX.init(); if (SFX.ctx && SFX.ctx.state==='suspended') SFX.ctx.resume(); }, { once:false });
+// Oyun içi menü
+$('zMenu').onclick = () => {
+  if (S.phase !== 'play') return;
+  $('pauseInfo').innerHTML = `${byId[S.startId].n} ile oynuyorsun — fetih: %${(totalProgress()*100).toFixed(1)}`;
+  show('pauseVeil');
+};
+$('btnRestart').onclick = () => {
+  hide('pauseVeil');
+  clearSave();   // eski sefer kaydı geçersiz — yeni ülke seçilecek
+  S.phase = 'pick';
+  S.own = {}; removeCapitalStar(); paintAll();
+  if (S._tickT) clearInterval(S._tickT);
+  if (S._hudT) clearInterval(S._hudT);
+  clearTimeout(S.npcTimer);
+  $('hud').style.display = 'none'; $('legend').style.display = 'none';
+  document.querySelectorAll('.country').forEach(p => p.classList.add('sel-mode'));
+  animateVBTo(0, 0, 1000, 520);
+  toast('🗺️ Yeni başlangıç ülkeni seç!', 4000);
+};
+$('btnMainMenu').onclick = () => {
+  hide('pauseVeil');
+  SAVED = persist();   // seferi kaydet — menüden "Devam Et" ile dönülebilir
+  if (S._tickT) clearInterval(S._tickT);
+  if (S._hudT) clearInterval(S._hudT);
+  clearTimeout(S.npcTimer);
+  S.phase = 'menu'; S.own = {}; S.npc = {}; S.inBattle = false; S.battle = null;
+  removeCapitalStar();
+  document.querySelectorAll('.country').forEach(p => p.classList.remove('sel-mode','attackable'));
+  paintAll();
+  $('hud').style.display = 'none'; $('zoomCtl').style.display = 'none'; $('legend').style.display = 'none';
+  closeTarget();
+  animateVBTo(0, 0, 1000, 520);
+  $('btnContinue').style.display = SAVED ? '' : 'none';
+  show('menuVeil');
+};
+$('zHome').onclick = () => {
+  const owned = DATA.filter(c => (S.own[c.id]||0) > 0);
+  if (!owned.length){ animateVBTo(0, 0, 1000, 520); return; }
+  let x1 = 1e9, y1 = 1e9, x2 = -1e9, y2 = -1e9;
+  owned.forEach(c => { const b = c._bb;
+    x1 = Math.min(x1, b.x); y1 = Math.min(y1, b.y);
+    x2 = Math.max(x2, b.x + b.width); y2 = Math.max(y2, b.y + b.height); });
+  let w = Math.max(70, (x2 - x1) * 1.6), h = w * 0.52;
+  if ((y2 - y1) * 1.6 > h){ h = (y2 - y1) * 1.6; w = h / 0.52; }
+  animateVBTo((x1+x2)/2 - w/2, (y1+y2)/2 - h/2, w, h);
+};
+
+/* ================= SORU ÜRETİCİ ================= */
+function makeOptions(correct, gen){
+  const set = new Set([correct]);
+  let guard = 0;
+  while (set.size < 4 && guard++ < 60){ const v = gen(); if (v !== correct) set.add(v); }
+  while (set.size < 4) set.add(correct + set.size * (rnd(0,1)?1:-1) || correct + set.size);
+  return shuffle([...set]);
+}
+const CAPS_EASY = [['Türkiye','Ankara'],['Fransa','Paris'],['Almanya','Berlin'],['İtalya','Roma'],
+ ['İspanya','Madrid'],['İngiltere','Londra'],['Rusya','Moskova'],['Japonya','Tokyo'],['Yunanistan','Atina'],['Mısır','Kahire']];
+const CAPS_HARD = [['Kanada','Ottawa'],['Avustralya','Kanberra'],['Brezilya','Brasilia'],['Kazakistan','Astana'],
+ ['İsviçre','Bern'],['Hollanda','Amsterdam'],['Norveç','Oslo'],['Güney Kore','Seul'],['Hindistan','Yeni Delhi'],
+ ['Azerbaycan','Bakü'],['Özbekistan','Taşkent'],['Fas','Rabat'],['Arjantin','Buenos Aires'],['Polonya','Varşova']];
+function capitalQ(hard){
+  const pool = hard ? CAPS_HARD : CAPS_EASY;
+  const [country, cap] = pick(pool);
+  const opts = makeOptions(cap, () => pick(pool.concat(CAPS_EASY))[1]);
+  return { q: `${country}'nin başkenti neresidir?`, opts, ans: opts.indexOf(cap) };
+}
+function numQ(text, ans, spread){
+  const opts = makeOptions(ans, () => ans + rnd(-spread, spread));
+  return { q: text, opts: opts.map(String), ans: opts.indexOf(ans) };
+}
+const MATGEN = {
+  ilk: d => {
+    if (d === 1){
+      const t = rnd(0,2);
+      if (t===0){ const a=rnd(2,12), b=rnd(2,12); return numQ(`${a} + ${b} = ?`, a+b, 5); }
+      if (t===1){ const a=rnd(5,15), b=rnd(1,a); return numQ(`${a} − ${b} = ?`, a-b, 5); }
+      const a=rnd(2,5), b=rnd(2,5); return numQ(`${a} × ${b} = ?`, a*b, 5);
+    }
+    if (d === 2){
+      const t = rnd(0,2);
+      if (t===0){ const a=rnd(12,80), b=rnd(12,80); return numQ(`${a} + ${b} = ?`, a+b, 12); }
+      if (t===1){ const a=rnd(30,99), b=rnd(10,a); return numQ(`${a} − ${b} = ?`, a-b, 12); }
+      const a=rnd(2,9), b=rnd(2,9); return numQ(`${a} × ${b} = ?`, a*b, 8);
+    }
+    if (d === 3){
+      const t = rnd(0,3);
+      if (t===0){ const a=rnd(6,18), b=rnd(3,9); return numQ(`${a} × ${b} = ?`, a*b, 16); }
+      if (t===1){ const b=rnd(3,9), q=rnd(3,15); return numQ(`${b*q} ÷ ${b} = ?`, q, 6); }
+      if (t===2){ const a=rnd(100,600), b=rnd(50,300); return numQ(`${a} − ${b} = ?`, a-b, 35); }
+      const a=rnd(100,500), b=rnd(100,400); return numQ(`${a} + ${b} = ?`, a+b, 40);
+    }
+    // d===4 Zirve
+    const t = rnd(0,3);
+    if (t===0){ const a=rnd(11,30), b=rnd(6,14); return numQ(`${a} × ${b} = ?`, a*b, 45); }
+    if (t===1){ const a=rnd(3,12), b=rnd(3,12), c=rnd(2,15); return numQ(`${a} × ${b} + ${c} = ?`, a*b+c, 20); }
+    if (t===2){ const b=rnd(6,12), q=rnd(6,18); return numQ(`${b*q} ÷ ${b} = ?`, q, 9); }
+    const a=rnd(20,60), b=rnd(2,9), c=rnd(2,9); return numQ(`${a} + ${b} × ${c} = ?`, a+b*c, 18);
+  },
+  orta: d => {
+    if (d === 1){
+      const t = rnd(0,1);
+      if (t===0){ const a=rnd(11,40), b=rnd(11,40); return numQ(`${a} × ? işlemine hazırlık: ${a} + ${b} = ?`, a+b, 12); }
+      const a=rnd(6,12), b=rnd(2,9); return numQ(`${a} × ${b} = ?`, a*b, 12);
+    }
+    if (d === 2){
+      const t = rnd(0,2);
+      if (t===0){ const den=pick([2,3,4,5]), n=den*rnd(2,9); return numQ(`${n} sayısının 1/${den}'i kaçtır?`, n/den, 6); }
+      if (t===1){ const p=pick([10,25,50]), num=rnd(2,9)*(p===10?10:p===25?4:2); return numQ(`${num*100/p} sayısının %${p}'${p===50?'si':'i'} kaçtır?`, num, 8); }
+      const a=rnd(12,30), b=rnd(11,20); return numQ(`${a} × ${b} = ?`, a*b, 30);
+    }
+    if (d === 3){
+      const t = rnd(0,2);
+      if (t===0){ const x=rnd(2,12), a=rnd(2,6), b=rnd(1,30); return numQ(`${a}x + ${b} = ${a*x+b} ise x = ?`, x, 4); }
+      if (t===1){ const b2=rnd(2,6), e=rnd(2,3); return numQ(`${b2}<sup>${e}</sup> = ?`, Math.pow(b2,e), 12); }
+      const p=pick([15,20,40,75]), base=rnd(2,9)*20; return numQ(`${base} sayısının %${p}'i kaçtır?`, base*p/100, 14);
+    }
+    // d===4 Zirve: çok adımlı denklem / üs+işlem / negatif
+    const t = rnd(0,2);
+    if (t===0){ const x=rnd(3,12), a=rnd(3,7), b=rnd(5,40); return numQ(`${a}x − ${b} = ${a*x-b} ise 2x = ?`, 2*x, 6); }
+    if (t===1){ const b2=rnd(2,5), e=rnd(2,4), ek=rnd(5,40); return numQ(`${b2}<sup>${e}</sup> + ${ek} = ?`, Math.pow(b2,e)+ek, 15); }
+    const a=rnd(-9,-2), b=rnd(2,9); return numQ(`(${a}) × ${b} = ?`, a*b, 12);
+  },
+  lise: d => {
+    if (d === 1){
+      const t=rnd(0,3);
+      if (t===0){ const x=rnd(2,25); return numQ(`x² = ${x*x} ise x'in pozitif değeri?`, x, 5); }
+      if (t===1){ const p=pick([10,20,25,50]), base=rnd(2,20)*20; return numQ(`${base} sayısının %${p}'i?`, base*p/100, 12); }
+      if (t===2){ const a=rnd(2,12), b=rnd(2,12); return numQ(`${a} × ${b} = ?`, a*b, 14); }
+      const a=rnd(10,40), b=rnd(2,9); return numQ(`${a} − ${b}² = ? (${b}²=${b*b})`, a-b*b, 12);
+    }
+    if (d === 2){
+      const t=rnd(0,3);
+      if (t===0){ const x=rnd(3,15), a=rnd(2,6), b=rnd(1,20); return numQ(`${a}x − ${b} = ${a*x-b} ise x = ?`, x, 5); }
+      if (t===1){ const b3=pick([2,3,4,5]), e=rnd(2,3); return numQ(`${b3}<sup>${e}</sup> = ?`, Math.pow(b3,e), 14); }
+      if (t===2){ const n=rnd(3,6); let f=1; for(let i=2;i<=n;i++)f*=i; return numQ(`${n}! = ?`, f, Math.max(8,f/2|0)); }
+      const a=rnd(2,9), b=rnd(2,9); return numQ(`${a}<sup>2</sup> + ${b}<sup>2</sup> = ?`, a*a+b*b, 16);
+    }
+    if (d === 3){
+      const t=rnd(0,3);
+      if (t===0){ const x=rnd(4,18); return numQ(`x² − ${x*x} = 0 ise x'in pozitif kökü?`, x, 6); }
+      if (t===1){ const a=rnd(2,7), b=rnd(2,7); return numQ(`${a}<sup>2</sup> × ${b}<sup>2</sup> = ?`, a*a*b*b, 40); }
+      if (t===2){ const x=rnd(2,9); return numQ(`f(x)=x² ise f(${x}) + f(${x+1}) = ?`, x*x+(x+1)*(x+1), 22); }
+      const a=rnd(2,6), x=rnd(2,9), b=rnd(1,20); return numQ(`${a}x + ${b} = ${a*x+b} ise x² = ?`, x*x, 12);
+    }
+    // d===4 Zirve
+    const t=rnd(0,3);
+    if (t===0){ const a=rnd(2,9), x=rnd(2,6); return numQ(`f(x)=${a}x² ise f′(x)=${2*a}x. x=${x} için f′(${x}) = ?`, 2*a*x, 10); }
+    if (t===1){ const x=rnd(3,12); return numQ(`2x² + 3x = ${2*x*x+3*x} ise pozitif kök x = ?`, x, 5); }
+    if (t===2){ const b3=pick([2,3]), e=rnd(3,6), ek=rnd(10,80); return numQ(`${b3}<sup>${e}</sup> − ${ek} = ?`, Math.pow(b3,e)-ek, 20); }
+    const a=rnd(2,8), b=rnd(2,8), c=rnd(2,8); return numQ(`${a} × ${b} + ${c}² = ? (${c}²=${c*c})`, a*b+c*c, 18);
+  },
+};
+// Anaokulu: sayma + şekil (ders seçimi yok, ikisi karışık)
+const SHAPES = [['🔺','üçgen'],['⬛','kare'],['🔵','daire'],['⭐','yıldız'],['❤️','kalp'],['🔶','dörtgen']];
+const COLORS = [['🔴','kırmızı'],['🔵','mavi'],['🟢','yeşil'],['🟡','sarı'],['🟣','mor'],['🟠','turuncu']];
+function anaQuestion(d){
+  const t = rnd(0, 6);
+  const EMO = ['🎈','🍎','⭐','🐱','🌸','🍓','🐶','🚗','🦋','🌞','🍪','🎁','🐠','🌷','⚽','🐰','🍌','🐝','🌈','🦁'];
+  if (t === 0 || t === 1){ const n = rnd(2, 9 + d), em = pick(EMO);
+    const o = makeOptions(n, () => Math.max(1, n + rnd(-2,2)));
+    return { q: em.repeat(n) + '<br>Kaç tane var?', opts:o.map(String), ans:o.indexOf(n) }; }
+  if (t === 2){ const a = rnd(1, 5+d*2), b = rnd(1, 5+d*2); return numQ(`${a} + ${b} = ?`, a+b, 3); }
+  if (t === 3){ const a = rnd(3, 8+d*2), b = rnd(1, a); return numQ(`${a} − ${b} = ?`, a-b, 3); }
+  if (t === 4){ const a = rnd(1, 9), b = rnd(1, 9); if (a===b) return anaQuestion(d);
+    const em = pick(EMO);
+    return { q: `Hangi grup daha çok?<br>A) ${em.repeat(a)}<br>B) ${em.repeat(b)}`,
+      opts: ['A grubu','B grubu','İkisi eşit','Bilmiyorum'], ans: a>b?0:1 }; }
+  if (t === 5){ const [e,name] = pick(SHAPES);
+    const opts = shuffle([name, ...shuffle(SHAPES.filter(s=>s[1]!==name)).slice(0,3).map(s=>s[1])]);
+    return { q: `Bu hangi şekil? ${e}`, opts, ans: opts.indexOf(name) }; }
+  const [e,name] = pick(COLORS);
+  const opts = shuffle([name, ...shuffle(COLORS.filter(s=>s[1]!==name)).slice(0,3).map(s=>s[1])]);
+  return { q: `Bu hangi renk? ${e}`, opts, ans: opts.indexOf(name) };
+}
+
+// Sorulmuş soruları metne göre takip et — tüm dünya fethedilse bile tekrar gelmesin
+let askedQ = new Set();
+function genQuestion(diff){
+  const d = Math.max(1, Math.min(4, diff));
+  if (S.kademe === 'ana'){
+    const q = freshGenStrict(() => anaQuestion(d), 40);
+    return q || anaQuestion(d);
+  }
+  const subs = S.subjects && S.subjects.length ? S.subjects : ['mat'];
+  const subj = pick(subs);
+  // matematik: sonsuz prosedürel — her zaman tekrarsız üretir
+  if (subj === 'mat') return freshGenStrict(() => MATGEN[S.kademe](d), 40) || MATGEN[S.kademe](d);
+  // sözel ders: tekrarsız soru bulmaya çalış
+  const gen = SUBJGEN[subj] && SUBJGEN[subj][S.kademe];
+  if (gen){
+    const q = freshGenStrict(() => gen(d), 40);
+    if (q) return q;  // taze sözel soru bulundu
+    // bu ders tükendi → matematiğe düş (karışık modda tekrar olmasın)
+  }
+  return freshGenStrict(() => MATGEN[S.kademe](d), 40) || MATGEN[S.kademe](d);
+}
+// SADECE tekrarsız soru döndürür; bulamazsa null (havuz tükendi sinyali)
+function freshGenStrict(fn, tries){
+  for (let i = 0; i < tries; i++){
+    const q = fn();
+    if (!q) return null;
+    if (!askedQ.has(q.q)){ askedQ.add(q.q); return q; }
+  }
+  return null;
+}
+
+/* ================= AKIŞ: MENÜ & KURULUM ================= */
+$('btnSingle').onclick = () => { hide('menuVeil'); show('setupVeil'); };
+$('btnHelp').onclick = () => show('helpVeil');
+$('kademeGrid').addEventListener('click', e => {
+  const b = e.target.closest('.kademeBtn'); if (!b) return;
+  document.querySelectorAll('.kademeBtn').forEach(x => x.classList.remove('on'));
+  b.classList.add('on'); S.kademe = b.dataset.k;
+  renderSubjects();
+});
+function renderSubjects(){
+  const box = $('subjectBox'), grid = $('subjGrid');
+  if (S.kademe === 'ana'){ box.style.display = 'none'; S.subjects = ['mat']; return; }
+  box.style.display = 'block';
+  // varsayılan: tüm dersler seçili (karışık)
+  S.subjects = SUBJECTS[S.kademe].map(s => s[0]);
+  grid.innerHTML = '';
+  SUBJECTS[S.kademe].forEach(([key, label]) => {
+    const chip = document.createElement('button');
+    chip.className = 'subjChip on'; chip.textContent = label; chip.dataset.s = key;
+    chip.onclick = () => {
+      const i = S.subjects.indexOf(key);
+      if (i >= 0){ if (S.subjects.length === 1) return; S.subjects.splice(i,1); chip.classList.remove('on'); }
+      else { S.subjects.push(key); chip.classList.add('on'); }
+    };
+    grid.appendChild(chip);
+  });
+}
+renderSubjects();
+$('qtSlider').oninput = e => { S.qTime = +e.target.value; $('qtV').textContent = S.qTime; };
+$('btnPickCountry').onclick = () => {
+  hide('setupVeil'); S.phase = 'pick';
+  document.querySelectorAll('.country').forEach(p => p.classList.add('sel-mode'));
+  toast('🗺️ Başlangıç ülkene tıkla! (sürükle/yakınlaştır serbest)', 4000);
+};
+let pendingPick = null;
+function onCountryClick(id){
+  if (lastDragMoved || (drag && drag.moved)) return;
+  if (S.phase === 'pick'){
+    pendingPick = id;
+    focusCountry(id, 3.2);
+    const c = byId[id];
+    $('cfName').textContent = c.n;
+    $('cfInfo').innerHTML = `🏙️ ${c.c} şehir &nbsp;•&nbsp; 🪙 ~${fmt(Math.round((CFG.INCOME_BASE + c.c*CFG.INCOME_PER_CITY)*6))}/dk başlangıç geliri<br>` +
+      `🤝 ${c.nb.length} komşu &nbsp;•&nbsp; Yükseltme maliyeti şehir sayısıyla artar`;
+    show('confirmVeil');
+  } else if (S.phase === 'play'){
+    if (attackableIds().has(id)) openTarget(id);
+  }
+}
+$('btnStart').onclick = () => { hide('confirmVeil'); startGame(pendingPick); };
+
+/* ================= OYUN BAŞLAT ================= */
+function startGame(id){
+  // önceki oyundan kalan zamanlayıcıları temizle (yeniden başlatma için)
+  if (S._tickT) clearInterval(S._tickT);
+  if (S._hudT) clearInterval(S._hudT);
+  clearTimeout(S.npcTimer);
+  // durumu sıfırla
+  S.phase = 'play'; S.startId = id; S.own = { [id]: 1 };
+  S.gold = 0; S.atkLvl = 1; S.defLvl = 1; S.hardenBonus = 0;
+  S.inBattle = false; S.battle = null; S.npc = {};
+  askedQ.clear();
+  $('worldWarn').style.display = 'none';
+  removeCapitalStar();
+  document.querySelectorAll('.country').forEach(p => p.classList.remove('sel-mode'));
+  // NPC seviyeleri (başlangıç ülkesi dahil — toprak kaybedilirse geri fethedilebilir)
+  DATA.forEach(c => { S.npc[c.id] = { atk: rnd(1,4), def: rnd(1,4) }; });
+  // Denge: komşuların en az yarısı savunma ≤ 2
+  const nbs = byId[id].nb;
+  const easyCount = nbs.filter(n => S.npc[n].def <= 2).length;
+  let need = Math.ceil(nbs.length / 2) - easyCount;
+  shuffle([...nbs]).forEach(n => { if (need > 0 && S.npc[n].def > 2){ S.npc[n].def = rnd(1,2); need--; } });
+  S.startedAt = Date.now();
+  $('hud').style.display = 'flex'; $('zoomCtl').style.display = 'flex'; $('legend').style.display = 'block';
+  paintAll(); placeCapital(); refreshHUD();
+  focusCountry(id, 4.5);
+  S._tickT = setInterval(tick, CFG.TICK_MS);
+  S._hudT = setInterval(refreshHUD, 1000);
+  scheduleNpcAttack();
+  toast(`⚔️ Sefer başladı! ${byId[id].n} senin. Komşulara saldır!`, 4000);
+  persist();   // yeni sefer kaydı (eski kaydın üzerine yazar)
+}
+function tick(){
+  if (S.phase !== 'play') return;
+  S.gold += incomePerTick();
+  // dünya zorlaşması
+  const bonus = Math.floor((Date.now() - S.startedAt) / CFG.WORLD_HARDEN_MS);
+  if (bonus > S.hardenBonus){
+    S.hardenBonus = bonus;
+    $('worldWarn').style.display = 'block';
+    toast('🌍 Dünya zorlaşıyor! Sahipsiz ülkelerin savunması +1 arttı.', 3500);
+    setTimeout(() => $('worldWarn').style.display = 'none', 6000);
+    paintAll();
+  }
+  refreshHUD();
+  persist();   // 10 sn'de bir otomatik kayıt
+}
+function refreshHUD(){
+  $('goldV').textContent = fmt(S.gold);
+  $('incomeV').textContent = '+' + fmt(incomePerTick()) + '/10sn';
+  const el = Math.floor((Date.now() - S.startedAt)/1000);
+  $('clockV').textContent = String(Math.floor(el/60)).padStart(2,'0') + ':' + String(el%60).padStart(2,'0');
+  $('progV').textContent = (totalProgress()*100).toFixed(1) + '%';
+  ['atk','def'].forEach(k => {
+    const lvl = S[k+'Lvl'];
+    $(k+'Pips').innerHTML = [1,2,3,4].map(i => `<div class="pip${i<=lvl?' on':''}"></div>`).join('');
+    const btn = $(k+'Up');
+    if (lvl >= 4){ btn.textContent = 'MAX'; btn.disabled = true; return; }
+    const cost = upCost(lvl+1);
+    const locked = lvl+1 === 4 && Date.now() - S.startedAt < CFG.ZIRVE_LOCK_MS;
+    btn.textContent = locked ? '🔒 ' + Math.ceil((CFG.ZIRVE_LOCK_MS-(Date.now()-S.startedAt))/60000) + 'dk' : '🪙' + fmt(cost);
+    btn.disabled = locked || S.gold < cost || S.inBattle;
+  });
+}
+function buyUp(k){
+  const lvl = S[k+'Lvl']; if (lvl >= 4) return;
+  const cost = upCost(lvl+1); if (S.gold < cost) return;
+  if (lvl+1 === 4 && Date.now() - S.startedAt < CFG.ZIRVE_LOCK_MS) return;
+  S.gold -= cost; S[k+'Lvl']++;
+  SFX.upgrade();
+  toast(`${k==='atk'?'⚔️ Saldırı':'🛡️ Savunma'} → ${TIERS[S[k+'Lvl']]} seviyesine yükseldi!`);
+  refreshHUD();
+  persist();
+}
+$('atkUp').onclick = () => buyUp('atk');
+$('defUp').onclick = () => buyUp('def');
+
+/* ================= HEDEF & SALDIRI ================= */
+let targetId = null;
+function openTarget(id){
+  targetId = id;
+  focusCountry(id, 3.0);
+  const c = byId[id], d = effDef(id);
+  const qd = Math.max(1, d - (S.atkLvl - 1));
+  $('tpName').textContent = c.n;
+  $('tpCities').textContent = c.c;
+  $('tpDef').innerHTML = TIER_ICONS[d] + ' ' + TIERS[d] + (S.hardenBonus ? ' (zamanla arttı)' : '');
+  $('tpOwn').textContent = '%' + Math.round((S.own[id]||0)*100) + ' senin';
+  $('tpQDiff').innerHTML = TIER_ICONS[qd] + ' ' + TIERS[qd] + (qd < d ? ' (saldırın sayesinde ↓)' : '');
+  $('targetPanel').classList.add('show');
+}
+function closeTarget(){ $('targetPanel').classList.remove('show'); targetId = null; }
+$('btnAttack').onclick = () => {
+  if (!targetId || S.inBattle) return;
+  const id = targetId; closeTarget();
+  startBattle({ mode:'attack', enemyId:id, diff: Math.max(1, effDef(id) - (S.atkLvl-1)) });
+};
+
+/* ================= SAVAŞ MOTORU ================= */
+function startBattle(b){
+  SFX.init(); SFX.attack();
+  S.inBattle = true;
+  S.battle = { ...b, idx:0, correct:0, results:[] };
+  const e = byId[b.enemyId];
+  if (b.mode === 'attack'){
+    $('bLeft').firstChild.textContent = 'Sen (Saldıran)';
+    $('bLeftSub').textContent = '⚔️ ' + TIERS[S.atkLvl];
+    $('bRight').childNodes[0].textContent = e.n;
+    $('bRightSub').textContent = '🛡️ ' + TIERS[effDef(b.enemyId)];
+  } else {
+    $('bLeft').firstChild.textContent = 'Sen (Savunan)';
+    $('bLeftSub').textContent = '🛡️ ' + TIERS[S.defLvl];
+    $('bRight').childNodes[0].textContent = e.n + ' saldırıyor!';
+    $('bRightSub').textContent = '⚔️ ' + TIERS[Math.min(4, S.npc[b.enemyId].atk)];
+  }
+  $('dots').innerHTML = Array(10).fill('<div class="dot"></div>').join('');
+  show('battleVeil');
+  nextQuestion();
+}
+let fuseTimer = null, fuseStart = 0;
+function nextQuestion(){
+  const B = S.battle;
+  if (B.idx >= 10){ finishBattle(); return; }
+  $('qNum').textContent = `SORU ${B.idx+1} / 10  •  Doğru: ${B.correct}`;
+  const q = genQuestion(B.diff);
+  B.cur = q;
+  $('qText').innerHTML = q.q;
+  $('optGrid').innerHTML = '';
+  q.opts.forEach((o, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'optBtn'; btn.innerHTML = o;
+    btn.onclick = () => answer(i);
+    $('optGrid').appendChild(btn);
+  });
+  fuseStart = Date.now();
+  startFuse();
+}
+let fusePausedLeft = null;   // sekme gizlenince kalan süre (ms)
+function startFuse(){
+  clearInterval(fuseTimer);
+  fuseTimer = setInterval(() => {
+    const left = 1 - (Date.now() - fuseStart) / (S.qTime * 1000);
+    $('fuse').style.width = Math.max(0, left*100) + '%';
+    if (left <= 0) answer(-1); // süre doldu = yanlış
+  }, 60);
+  if (document.hidden) pauseFuse();   // gizliyken yeni soru geldiyse hemen duraklat
+}
+function pauseFuse(){
+  if (!fuseTimer) return;
+  clearInterval(fuseTimer); fuseTimer = null;
+  fusePausedLeft = Math.max(0, S.qTime * 1000 - (Date.now() - fuseStart));
+}
+function answer(i){
+  clearInterval(fuseTimer);
+  const B = S.battle, q = B.cur;
+  const right = i === q.ans;
+  if (i === -1) SFX.timeout(); else if (right) SFX.correct(); else SFX.wrong();
+  if (right) B.correct++;
+  B.results.push(right);
+  const btns = $('optGrid').children;
+  [...btns].forEach((b, j) => { b.disabled = true;
+    if (j === q.ans) b.classList.add('right');
+    else if (j === i) b.classList.add('wrong'); });
+  const dots = $('dots').children;
+  dots[B.idx].classList.add(right ? 'r' : 'w');
+  B.idx++;
+  setTimeout(nextQuestion, 850);
+}
+function finishBattle(){
+  hide('battleVeil');
+  const B = S.battle, e = byId[B.enemyId], n = B.correct;
+  let title, cls, emoji, detail, score;
+  if (B.mode === 'attack'){
+    score = `${n} / 10`;
+    if (n > 5){
+      const gainFrac = n / 10;                       // hedefin n/10'u
+      const before = S.own[B.enemyId] || 0;
+      const remaining = 1 - before;
+      const gained = Math.min(remaining, gainFrac * remaining + (n === 10 ? remaining : 0));
+      S.own[B.enemyId] = n === 10 ? 1 : Math.min(1, before + gainFrac * remaining);
+      const newPct = Math.round(S.own[B.enemyId]*100);
+      const reward = Math.round(e.c * 12 * (S.own[B.enemyId]-before));
+      S.gold += reward;
+      if (before < 1 && S.own[B.enemyId] >= 1) STATS.conquests++;   // tam fetih sayacı
+      title = n === 10 ? 'TAM FETİH!' : 'ZAFER!'; cls = 'win'; emoji = n === 10 ? '👑' : '🚩';
+      detail = `${e.n} topraklarının %${newPct}'i artık senin! ` +
+        (S.own[B.enemyId] >= 1 ? 'Ülke tamamen fethedildi! ' : '') + `+🪙${fmt(reward)} ganimet`;
+    } else if (n === 5){
+      title = 'BERABERE'; cls = 'draw'; emoji = '🤝';
+      detail = 'Topraklar değişmedi. Bir dahaki sefere!';
+    } else {
+      const lossFrac = (5 - n) / 10;
+      const lost = loseTerritory(lossFrac);
+      title = 'YENİLGİ...'; cls = 'lose'; emoji = '💔';
+      detail = `Saldırı püskürtüldü! Kendi toprağının %${Math.round(lossFrac*100)}'${lossFrac===.5?'si':'i'} kaybedildi.`;
+    }
+  } else {
+    // savunma: NPC skoru simüle
+    const lvl = Math.min(4, S.npc[B.enemyId].atk);
+    const npcScore = Math.max(0, Math.min(10, CFG.NPC_EXPECT[lvl] + rnd(-1, 1)));
+    const fark = n - npcScore;
+    score = `Sen ${n} — ${npcScore} ${e.n}`;
+    if (fark > 0){
+      const before = S.own[B.enemyId] || 0;
+      S.own[B.enemyId] = Math.min(1, before + (fark/10) * (1 - before));
+      title = 'SAVUNDUN VE KARŞILIK VERDİN!'; cls = 'win'; emoji = '🛡️';
+      detail = `${e.n} püskürtüldü, üstüne %${Math.round((S.own[B.enemyId]-before)*100)} toprağını aldın!`;
+    } else if (fark === 0){
+      title = 'BERABERE'; cls = 'draw'; emoji = '🤝';
+      detail = 'Saldırı sonuçsuz kaldı, topraklar değişmedi.';
+    } else {
+      loseTerritory(-fark/10);
+      title = 'TOPRAK KAYBETTİN'; cls = 'lose'; emoji = '🏚️';
+      detail = `${e.n} saldırısı başarılı oldu. Toprağının %${Math.round(-fark*10)}'${-fark===5?'si':'i'} gitti.`;
+    }
+  }
+  $('resEmoji').textContent = emoji;
+  $('resTitle').textContent = title; $('resTitle').className = 'resultBig ' + cls;
+  $('resScore').textContent = score;
+  $('resDetail').innerHTML = detail;
+  // sonuç sesi
+  if (cls === 'win') (B.mode==='attack' && n===10) ? SFX.conquer() : SFX.conquer();
+  else if (cls === 'draw') SFX.draw();
+  else SFX.lose();
+  // kazanılan ülkeye parlama
+  if (cls === 'win'){
+    const el = $('c'+B.enemyId);
+    if (el){ el.classList.remove('flash'); void el.getBBox(); el.classList.add('flash');
+      setTimeout(() => el.classList.remove('flash'), 750); }
+  }
+  show('resultVeil');
+  paintAll(); refreshHUD();
+  // istatistik + otomatik kayıt (meta katman v1 bu anahtarları okuyacak)
+  STATS.battles++; STATS.questions += 10; STATS.correct += n;
+  if (cls === 'win') STATS.wins++;
+  saveStats(); persist();
+}
+function loseTerritory(frac){
+  // toplam varlığın frac'ı kadar şehir-değeri kaybedilir; küçük parçalar önce, başlangıç ülkesi en son
+  let toLose = ownedCities() * frac;
+  const order = DATA.filter(c => (S.own[c.id]||0) > 0)
+    .sort((a,b) => (a.id===S.startId) - (b.id===S.startId) || (S.own[a.id]*a.c) - (S.own[b.id]*b.c));
+  for (const c of order){
+    if (toLose <= 0) break;
+    const have = S.own[c.id] * c.c;
+    const cut = Math.min(have, toLose);
+    S.own[c.id] -= cut / c.c;
+    if (S.own[c.id] < 0.005) delete S.own[c.id];
+    toLose -= cut;
+  }
+}
+function afterBattle(){
+  S.inBattle = false; S.battle = null;
+  // kazanma / kaybetme kontrolü
+  if (ownedCities() <= 0.01){
+    SFX.lose();
+    $('endEmoji').textContent = '☠️'; $('endTitle').textContent = 'OYUN BİTTİ';
+    $('endTitle').className = 'resultBig lose';
+    $('endDetail').textContent = 'Tüm topraklarını kaybettin. Bireysel modda başkent koruması yok — bir dahaki sefere daha dikkatli savun!';
+    clearSave(); saveStats();
+    show('endVeil'); S.phase = 'over'; return;
+  }
+  if (DATA.every(c => (S.own[c.id]||0) >= 0.999)){
+    SFX.win();
+    const el = Math.floor((Date.now()-S.startedAt)/60000);
+    $('endEmoji').textContent = '🌍👑'; $('endTitle').textContent = 'DÜNYA SENİN!';
+    $('endTitle').className = 'resultBig win';
+    $('endDetail').textContent = `${el} dakikada tüm dünyayı fethettin. Tarih seni yazacak!`;
+    STATS.worldWins++; clearSave(); saveStats();
+    show('endVeil'); S.phase = 'over'; return;
+  }
+  scheduleNpcAttack();
+  refreshHUD();
+}
+
+/* ================= NPC KARŞI SALDIRISI ================= */
+function scheduleNpcAttack(){
+  clearTimeout(S.npcTimer);
+  S.npcTimer = setTimeout(tryNpcAttack, rnd(CFG.NPC_ATK_MIN, CFG.NPC_ATK_MAX));
+}
+function tryNpcAttack(){
+  if (S.phase !== 'play' || S.inBattle){ scheduleNpcAttack(); return; }
+  // sahip olunan toprakların komşusu + saldırısı savunmana DENK NPC'ler
+  const cands = new Set();
+  DATA.forEach(c => { if ((S.own[c.id]||0) > 0)
+    c.nb.forEach(n => { if ((S.own[n]||0) < 1 && S.npc[n] && S.npc[n].atk === S.defLvl) cands.add(n); }); });
+  if (!cands.size){ scheduleNpcAttack(); return; }
+  const id = pick([...cands]);
+  const diff = Math.max(1, S.npc[id].atk - (S.defLvl - 1));
+  SFX.alarm();
+  toast(`🚨 <b>${byId[id].n} sana saldırıyor!</b> Savunmaya geç!`, 2200);
+  closeTarget();
+  setTimeout(() => { if (!S.inBattle && S.phase==='play') startBattle({ mode:'defend', enemyId:id, diff }); }, 1600);
+}
+
+/* ================= KAYITTAN DEVAM ================= */
+function restoreGame(d){
+  if (S._tickT) clearInterval(S._tickT);
+  if (S._hudT) clearInterval(S._hudT);
+  clearTimeout(S.npcTimer);
+  S.phase = 'play';
+  S.kademe = d.kademe || 'orta';
+  S.qTime = d.qTime || 20;
+  S.subjects = (d.subjects && d.subjects.length) ? d.subjects : ['mat'];
+  S.startId = d.startId;
+  S.own = d.own || {}; S.npc = d.npc || {};
+  S.gold = d.gold || 0; S.atkLvl = d.atkLvl || 1; S.defLvl = d.defLvl || 1;
+  S.hardenBonus = d.hardenBonus || 0;
+  S.startedAt = Date.now() - (d.elapsed || 0);   // oyun saati kaldığı yerden sürer
+  S.inBattle = false; S.battle = null;
+  askedQ.clear(); (d.asked || []).forEach(x => askedQ.add(x));
+  if (typeof d.sfx === 'boolean'){ SFX.on = d.sfx; $('zSound').textContent = SFX.on ? '🔊' : '🔇'; }
+  $('worldWarn').style.display = 'none';
+  removeCapitalStar();
+  document.querySelectorAll('.country').forEach(p => p.classList.remove('sel-mode'));
+  $('hud').style.display = 'flex'; $('zoomCtl').style.display = 'flex'; $('legend').style.display = 'block';
+  paintAll(); placeCapital(); refreshHUD();
+  focusCountry(S.startId, 4.5);
+  S._tickT = setInterval(tick, CFG.TICK_MS);
+  S._hudT = setInterval(refreshHUD, 1000);
+  scheduleNpcAttack();
+  toast('▶️ Kaldığın yerden devam! Fetih: %' + (totalProgress()*100).toFixed(1), 4000);
+}
+$('btnContinue').onclick = () => {
+  if (!SAVED) return;
+  hide('menuVeil');
+  restoreGame(SAVED);
+};
+
+/* ================= OTOMATİK DURAKLATMA (sekme gizlenince) ================= */
+let hiddenAt = 0;
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden){
+    if (S.phase !== 'play') return;
+    hiddenAt = Date.now();
+    if (S._tickT){ clearInterval(S._tickT); S._tickT = null; }
+    if (S._hudT){ clearInterval(S._hudT); S._hudT = null; }
+    clearTimeout(S.npcTimer);
+    if (S.inBattle) pauseFuse();
+    persist(); saveStats();   // teneffüs zili çalsa da ilerleme güvende
+  } else {
+    if (S.phase !== 'play' || !hiddenAt) return;
+    const dt = Date.now() - hiddenAt; hiddenAt = 0;
+    S.startedAt += dt;   // gizli geçen süre oyun saatine işlemez (zorlaşma/kilit adil kalır)
+    if (!S._tickT) S._tickT = setInterval(tick, CFG.TICK_MS);
+    if (!S._hudT) S._hudT = setInterval(refreshHUD, 1000);
+    if (!S.inBattle) scheduleNpcAttack();
+    if (S.inBattle && fusePausedLeft != null){
+      fuseStart = Date.now() - (S.qTime * 1000 - fusePausedLeft);
+      fusePausedLeft = null;
+      startFuse();
+    }
+  }
+});
+
+/* ================= BAŞLAT ================= */
+buildMap();
+loadStats();
+window.storage.get(SAVE_KEY).then(r => {
+  if (r && r.value){ try{ SAVED = JSON.parse(r.value); }catch(e){ SAVED = null; } }
+  if (SAVED && SAVED.startId != null && byId[SAVED.startId]) $('btnContinue').style.display = '';
+  else SAVED = null;
+});
+</script>
+</body>
+</html>

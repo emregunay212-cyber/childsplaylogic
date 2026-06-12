@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Bil ve Fethet: dünya + fetih bayrağı + soru -->
+  <defs>
+    <radialGradient id="bvfSea" cx="38%" cy="35%" r="75%">
+      <stop offset="0%" stop-color="#2e6f8e"/>
+      <stop offset="100%" stop-color="#16374b"/>
+    </radialGradient>
+  </defs>
+  <!-- Dünya -->
+  <circle cx="50" cy="54" r="34" fill="url(#bvfSea)" stroke="#0d1f2d" stroke-width="3"/>
+  <!-- Kıtalar -->
+  <path d="M30 42 q6 -8 14 -6 q5 1 6 6 q1 6 -5 8 q-9 3 -13 -2 q-3 -3 -2 -6z" fill="#7fae6a"/>
+  <path d="M58 38 q9 -3 13 3 q3 5 -1 9 q-5 5 -11 2 q-6 -3 -4 -9 q1 -3 3 -5z" fill="#9bc27a"/>
+  <path d="M38 62 q7 -3 12 1 q5 4 2 9 q-3 6 -10 4 q-7 -2 -7 -8 q0 -4 3 -6z" fill="#86a95f"/>
+  <!-- Fethedilen bölge (altın) -->
+  <path d="M60 60 q8 -2 11 4 q2 5 -3 8 q-6 3 -10 -1 q-3 -4 -1 -8z" fill="#e2b75c"/>
+  <!-- Bayrak direği -->
+  <line x1="66" y1="63" x2="66" y2="30" stroke="#5a3d1e" stroke-width="3.4" stroke-linecap="round"/>
+  <!-- Bayrak -->
+  <path d="M66 30 l20 5 l-20 7 z" fill="#e0552c" stroke="#a83b1c" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- Soru işareti rozeti -->
+  <circle cx="28" cy="26" r="13" fill="#e2b75c" stroke="#a87f33" stroke-width="2.5"/>
+  <text x="28" y="32" font-family="system-ui, sans-serif" font-size="17" font-weight="800"
+        text-anchor="middle" fill="#3c2a0e">?</text>
+</svg>
