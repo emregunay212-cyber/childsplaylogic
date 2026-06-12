@@ -42,9 +42,9 @@
 
 | No | Oyun | İlham | Efor | Durum | Not |
 |---|---|---|---|---|---|
-| 4.6 | Bilgi Takımı ⚔️ | Mafia Wars (sosyalsiz) | ⭐⭐ | ⬜ | DOM tabanlı, enerji sistemi burada test edilir |
-| 4.5 | Matematik Kafe ☕ | Cafe World | ⭐⭐ | ⬜ | Numpad bileşeni MODÜLER yazılmalı (diğer oyunlar kullanacak) |
-| M2 | Meta katman v2 | — | ⭐⭐ | ⬜ | Sınıf ligi + haftalık turnuva + rozetler |
+| 4.6 | **Bilgi Takımı** ⚔️ | Mafia Wars (sosyalsiz) | ⭐⭐ | ✅ 2026-06-13 | §4.6 aynen: günlük enerji 20, görevler hızlı(3s/1⚡)/normal(5s/2⚡)/destan(10s/3⚡), her 5 görevde karakter, bonus max +%25 (sadece çarpan), aylık 30 görevlik sezon kitabı; 96 soruluk gömülü karma banka (fabrika mat+tr+fen) + EN prosedürel; `bilgitakimi_save/stats`; kategori: Strateji & Macera |
+| 4.5 | **Matematik Kafe** ☕ | Cafe World | ⭐⭐ | ✅ 2026-06-13 | §4.5 aynen: vardiya 120sn, sabır Etek 30/diğer 20sn, doğru=50p+kalan sabır×2 bahşiş; tier problemleri (fiyat okuma → para üstü → tarif/% indirim → KDV %1+kampanya kıyası); **Numpad MODÜLER bileşen** (mount/clear API — diğer oyunlara kopyalanabilir); müşteri state machine, sabrı bitince üzülmeden çıkar; `matkafe_stats`; kategori: Sayılar & Matematik |
+| M2 | **Meta katman v2 — rozetler** | — | ⭐⭐ | ✅ 2026-06-13 | §3.3 rozet kataloğu bilnet-meta.js'te: İlk Adım, Seri Ustası(7g), Matematik Kâşifi(1000p), Kelime Avcısı(100), Genç Bilimci(F3'te aktifleşir), Zirve Fatihi, Keskin Nişancı(%100/10+), Koleksiyoncu(5 oyun), Sezon Kahramanı; panelde rozet vitrini. **Sınıf ligi + haftalık turnuva ERTELENDİ**: RTDB sunucu yazımı + database.rules.json + sınıf kodu kayıt akışı gerektirir — sabah kararı (rules deploy riski gece alınmadı) |
 
 ## FAZ 3 — Amiral Gemileri
 

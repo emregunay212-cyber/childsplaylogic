@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs><linearGradient id="btBg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#2a3a5e"/><stop offset="100%" stop-color="#141c30"/>
+  </linearGradient></defs>
+  <rect x="6" y="6" width="88" height="88" rx="16" fill="url(#btBg)"/>
+  <!-- takım üyeleri -->
+  <text x="30" y="46" font-size="26" text-anchor="middle">👧</text>
+  <text x="50" y="40" font-size="30" text-anchor="middle">🦉</text>
+  <text x="70" y="46" font-size="26" text-anchor="middle">👦</text>
+  <!-- görev parşömeni -->
+  <rect x="22" y="56" width="56" height="26" rx="6" fill="#ffe9c2" stroke="#c2a36b" stroke-width="2.5"/>
+  <line x1="29" y1="65" x2="58" y2="65" stroke="#a4683a" stroke-width="3" stroke-linecap="round"/>
+  <line x1="29" y1="73" x2="50" y2="73" stroke="#c9a877" stroke-width="3" stroke-linecap="round"/>
+  <text x="68" y="76" font-size="14" text-anchor="middle">✅</text>
+  <!-- enerji -->
+  <text x="82" y="26" font-size="15" text-anchor="middle">⚡</text>
+</svg>

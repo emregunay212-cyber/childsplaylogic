@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs><linearGradient id="mkBg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#ffe9c2"/><stop offset="100%" stop-color="#e8cf9e"/>
+  </linearGradient></defs>
+  <rect x="6" y="6" width="88" height="88" rx="16" fill="url(#mkBg)"/>
+  <!-- tente -->
+  <path d="M6 24 L94 24 L94 14 Q94 6 86 6 L14 6 Q6 6 6 14 Z" fill="#e2622b"/>
+  <path d="M6 24 h11 v8 q0 4 -5.5 4 T6 32 Z M28 24 h11 v8 q0 4 -5.5 4 T28 32 Z M50 24 h11 v8 q0 4 -5.5 4 T50 32 Z M72 24 h11 v8 q0 4 -5.5 4 T72 32 Z" fill="#fff" opacity=".85"/>
+  <!-- fincan -->
+  <text x="34" y="66" font-size="30" text-anchor="middle">☕</text>
+  <!-- hesap fişi -->
+  <rect x="52" y="42" width="30" height="38" rx="4" fill="#fff" stroke="#c2a36b" stroke-width="2.5"/>
+  <text x="67" y="58" font-family="system-ui, sans-serif" font-size="12" font-weight="900" text-anchor="middle" fill="#4a2f18">2+3</text>
+  <text x="67" y="73" font-family="system-ui, sans-serif" font-size="13" font-weight="900" text-anchor="middle" fill="#e2622b">=?</text>
+  <!-- müşteri -->
+  <text x="22" y="90" font-size="16" text-anchor="middle">🧒</text>
+</svg>

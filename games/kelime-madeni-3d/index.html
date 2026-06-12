@@ -33,7 +33,9 @@
     width:90px; height:10px; background:#000000aa; border:2px solid #0e0804; border-radius:6px; display:none; }
   #mineBar { height:100%; width:0%; background:#ffd23f; border-radius:3px; }
 
-  #hotbar { bottom:14px; left:50%; transform:translateX(-50%); display:flex; gap:5px; }
+  /* 14 eşya: 2 satır × 7 grid — kaydırma yok, her slot her ekranda görünür/dokunulur */
+  #hotbar { bottom:14px; left:50%; transform:translateX(-50%); display:grid;
+    grid-template-columns:repeat(7,auto); gap:5px; justify-content:center; }
   .slot { width:52px; height:56px; background:#2a1a0cd9; border:3px solid #0e0804; border-radius:8px;
     display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; position:relative; }
   .slot.sel { border-color:#ffd23f; box-shadow:0 0 10px #ffd23f88; }
@@ -250,10 +252,27 @@ const ITEMS = {
   plank:{n:"Tahta",e:"🟧"}, stick:{n:"Çubuk",e:"🥢"}, coal:{n:"Kömür",e:"⚫"},
   rawiron:{n:"Ham Demir",e:"🟠"}, ingot:{n:"Demir Külçe",e:"🔩"}, diamond:{n:"Elmas",e:"💎"},
   shard:{n:"Kristal Parçası",e:"🔮"}, torch:{n:"Meşale",e:"🕯️"},
-  lantern:{n:"Büyülü Fener",e:"🏮"}, furnace:{n:"Fırın",e:"♨️"}
+  lantern:{n:"Büyülü Fener",e:"🏮"}, furnace:{n:"Fırın",e:"♨️"},
+  sand:{n:"Kum",e:"🟨"}, glass:{n:"Cam",e:"🪟"}, door:{n:"Kapı",e:"🚪"},
+  roofw:{n:"Tahta Çatı",e:"🔶"}, rooft:{n:"Kiremit Çatı",e:"🔺"},
+  slabw:{n:"Yarım Tahta",e:"🟤"}, slabs:{n:"Yarım Taş",e:"⬜"}
 };
 const B = {AIR:0,GRASS:1,DIRT:2,STONE:3,COAL:4,IRON:5,DIAMOND:6,CRYSTAL:7,
-           WOOD:8,LEAF:9,PLANK:10,COBBLE:11,TORCH:12,LANTERN:13,FURNACE:14,BEDROCK:15};
+           WOOD:8,LEAF:9,PLANK:10,COBBLE:11,TORCH:12,LANTERN:13,FURNACE:14,BEDROCK:15,
+           SAND:16,GLASS:17,
+           // kapı: eksen (X/Z) × yarı (A=alt, U=üst); DOORO = açık hâli
+           DOOR_XA:18,DOOR_XU:19,DOOR_ZA:20,DOOR_ZU:21,
+           DOORO_XA:22,DOORO_XU:23,DOORO_ZA:24,DOORO_ZU:25,
+           // çatı merdivenleri: 4 yön (üst basamak hangi kenarda)
+           ROOFW_N:26,ROOFW_E:27,ROOFW_S:28,ROOFW_W:29,
+           ROOFT_N:30,ROOFT_E:31,ROOFT_S:32,ROOFT_W:33,
+           SLAB_W:34,SLAB_S:35};
+const isDoor      = t => t>=B.DOOR_XA  && t<=B.DOORO_ZU;
+const isOpenDoor  = t => t>=B.DOORO_XA && t<=B.DOORO_ZU;
+const isDoorUpper = t => isDoor(t) && (t===B.DOOR_XU||t===B.DOOR_ZU||t===B.DOORO_XU||t===B.DOORO_ZU);
+const isRoof      = t => t>=B.ROOFW_N && t<=B.ROOFT_W;
+const isSlab      = t => t===B.SLAB_W || t===B.SLAB_S;
+const isHalf      = t => isRoof(t) || isSlab(t);   // yarım yükseklik çarpışma kutusu
 // hp, drop, minTier, isim, dokular [yan, üst, alt]
 const BINFO = {
  [B.GRASS]:  {hp:0.55,drop:"dirt",  tier:0,n:"Çim",          tex:[1,0,2]},
@@ -270,9 +289,38 @@ const BINFO = {
  [B.TORCH]:  {hp:0.1, drop:"torch", tier:0,n:"Meşale",       tex:[14,14,14]},
  [B.LANTERN]:{hp:0.2, drop:"lantern",tier:0,n:"Fener",       tex:[15,15,15]},
  [B.FURNACE]:{hp:1.6, drop:"furnace",tier:0,n:"Fırın",       tex:[12,12,12]},
- [B.BEDROCK]:{hp:Infinity,drop:null,tier:9,n:"Anakaya",      tex:[13,13,13]}
+ [B.BEDROCK]:{hp:Infinity,drop:null,tier:9,n:"Anakaya",      tex:[13,13,13]},
+ [B.SAND]:   {hp:0.5, drop:"sand",  tier:0,n:"Kum",          tex:[16,16,16]},
+ [B.GLASS]:  {hp:0.45,drop:"glass", tier:0,n:"Cam",          tex:[17,17,17]},
+ [B.DOOR_XA]:{hp:1.0, drop:"door",  tier:0,n:"Kapı",         tex:[19,19,19]},
+ [B.DOOR_XU]:{hp:1.0, drop:"door",  tier:0,n:"Kapı",         tex:[18,18,18]},
+ [B.DOOR_ZA]:{hp:1.0, drop:"door",  tier:0,n:"Kapı",         tex:[19,19,19]},
+ [B.DOOR_ZU]:{hp:1.0, drop:"door",  tier:0,n:"Kapı",         tex:[18,18,18]},
+ [B.DOORO_XA]:{hp:1.0,drop:"door",  tier:0,n:"Kapı (açık)",  tex:[19,19,19]},
+ [B.DOORO_XU]:{hp:1.0,drop:"door",  tier:0,n:"Kapı (açık)",  tex:[18,18,18]},
+ [B.DOORO_ZA]:{hp:1.0,drop:"door",  tier:0,n:"Kapı (açık)",  tex:[19,19,19]},
+ [B.DOORO_ZU]:{hp:1.0,drop:"door",  tier:0,n:"Kapı (açık)",  tex:[18,18,18]},
+ [B.ROOFW_N]:{hp:0.8, drop:"roofw", tier:0,n:"Tahta Çatı",   tex:[10,10,10]},
+ [B.ROOFW_E]:{hp:0.8, drop:"roofw", tier:0,n:"Tahta Çatı",   tex:[10,10,10]},
+ [B.ROOFW_S]:{hp:0.8, drop:"roofw", tier:0,n:"Tahta Çatı",   tex:[10,10,10]},
+ [B.ROOFW_W]:{hp:0.8, drop:"roofw", tier:0,n:"Tahta Çatı",   tex:[10,10,10]},
+ [B.ROOFT_N]:{hp:1.2, drop:"rooft", tier:0,n:"Kiremit Çatı", tex:[20,20,20]},
+ [B.ROOFT_E]:{hp:1.2, drop:"rooft", tier:0,n:"Kiremit Çatı", tex:[20,20,20]},
+ [B.ROOFT_S]:{hp:1.2, drop:"rooft", tier:0,n:"Kiremit Çatı", tex:[20,20,20]},
+ [B.ROOFT_W]:{hp:1.2, drop:"rooft", tier:0,n:"Kiremit Çatı", tex:[20,20,20]},
+ [B.SLAB_W]: {hp:0.6, drop:"slabw", tier:0,n:"Yarım Tahta",  tex:[10,10,10]},
+ [B.SLAB_S]: {hp:1.2, drop:"slabs", tier:0,n:"Yarım Taş",    tex:[11,11,11]}
 };
-const OPAQUE = t => t!==B.AIR && t!==B.TORCH && t!==B.LANTERN;
+// Bilinmeyen blok ID'si (bayat istemci + yeni bulut kaydı) için güvenli yedek —
+// geçerli tex şart: alphaTest yüzünden çizilmemiş karo = görünmez blok olur.
+const BINFO_FALLBACK = {hp:1.7, drop:null, tier:0, n:"Blok", tex:[3,3,3]};
+const binfo = t => BINFO[t] || BINFO_FALLBACK;
+/* OPAQUE: ışığı keser + komşu yüzleri ayıklatır. 17+ (cam/kapı/çatı/yarım) ŞEFFAF
+   sayılır: ışık geçer, arkalarındaki komşu yüzler çizilir. KUM (16) opak tam blok.
+   SOLID: oyuncu çarpışması — görsel şeffaflıktan bağımsız. Açık kapı geçilir,
+   yarım bloklar collides() içinde 0.5 yükseklikle ele alınır. */
+const OPAQUE = t => t!==B.AIR && t!==B.TORCH && t!==B.LANTERN && t<B.GLASS;
+const SOLID  = t => OPAQUE(t) || t===B.GLASS || (isDoor(t) && !isOpenDoor(t)) || isHalf(t);
 const EMIT = { [B.TORCH]:12, [B.LANTERN]:14, [B.CRYSTAL]:9, [B.FURNACE]:8 };
 
 const PICKS = [
@@ -290,7 +338,14 @@ const RECIPES = [
  {out:"pick",  tier:3, req:{ingot:3,stick:2},  d:"Elmas kazabilirsin"},
  {out:"lantern",n:1, req:{torch:1,shard:2}, d:"Dev ışık alanı"},
  {out:"pick",  tier:4, req:{diamond:3,stick:2},d:"Çok hızlı kazar"},
- {out:"pick",  tier:5, req:{diamond:2,shard:3,stick:2}, d:"EFSANE! Kristal gücü"}
+ {out:"pick",  tier:5, req:{diamond:2,shard:3,stick:2}, d:"EFSANE! Kristal gücü"},
+ // — inşa parçaları (ev kurma) —
+ {out:"door",  n:1, req:{plank:4},            d:"Evine giriş kapısı (aç/kapa)"},
+ {out:"glass", n:2, req:{sand:2,coal:1}, furn:true, d:"Kumdan fırında cam"},
+ {out:"roofw", n:4, req:{plank:3},            d:"Tahta çatı merdiveni"},
+ {out:"rooft", n:4, req:{cobble:3,coal:1}, furn:true, d:"Fırında pişmiş kiremit çatı"},
+ {out:"slabw", n:2, req:{plank:1},            d:"Yarım tahta basamak"},
+ {out:"slabs", n:2, req:{cobble:1},           d:"Yarım taş basamak"}
 ];
 const QUESTS = [
  {t:"Elinle 5 odun topla 🪵",      c:s=>s.stats.wood>=5,    p:s=>`${Math.min(5,s.stats.wood)}/5`},
@@ -302,7 +357,11 @@ const QUESTS = [
  {t:"Demir Kazma üret ⛏️",         c:s=>s.pick>=3},
  {t:"Bir cevher sorusu çöz 🔮",      c:s=>s.stats.solved>=1},
  {t:"Elmas bul 💎",                 c:s=>s.stats.diamond>=1},
- {t:"KRİSTAL KAZMA üret! 🏆",       c:s=>s.pick>=5}
+ {t:"KRİSTAL KAZMA üret! 🏆",       c:s=>s.pick>=5},
+ // — ev kurma zinciri (eski kayıtlarla uyum için SONA eklenir, araya girilmez) —
+ {t:"Kapı üret ve yerleştir 🚪",    c:s=>(s.stats.doorPlaced||0)>=1},
+ {t:"4 cam üret 🪟",                c:s=>(s.stats.glassMade||0)>=4, p:s=>`${Math.min(4,s.stats.glassMade||0)}/4`},
+ {t:"6 çatı parçası yerleştir 🏠",  c:s=>(s.stats.roofPlaced||0)>=6, p:s=>`${Math.min(6,s.stats.roofPlaced||0)}/6`}
 ];
 
 /* ============== DÜNYA VERİSİ ============== */
@@ -319,11 +378,26 @@ function hash3(x,y,z){
 }
 
 const HMAP = new Int16Array(WX*WZ);
+/* Yeraltı kum cepleri — deterministik (hash3), YALNIZ taş hücreleri dönüştürür.
+   Hem genWorld'de hem ESKİ KAYIT telafisinde kullanılır: kum eklenmeden önceki
+   dünyalarda cam tarifi/görevi imkânsız kalmasın diye yüklemede de çağrılır
+   (taş oyuncu tarafından yerleştirilemez → oyuncu yapılarına dokunmaz). */
+function seedSandPockets(arr){
+  for(let x=2;x<WX-2;x++) for(let z=2;z<WZ-2;z++) for(let y=4;y<22;y++){
+    if(hash3(x+55,y+77,z+55) < 0.01){
+      const i = IX(x,y,z);
+      if(arr[i]===B.STONE) arr[i] = B.SAND;
+    }
+  }
+}
 function genWorld(){
   for(let x=0;x<WX;x++) for(let z=0;z<WZ;z++){
     const h = Math.round(22 + 3.5*Math.sin(x*0.16) + 3*Math.sin(z*0.19+2.1)
               + 2*Math.sin((x+z)*0.11+4) + 1.3*Math.sin(x*0.4+z*0.33));
     HMAP[x+WX*z] = h;
+    // kum yamaları: alçak arazide tutarlı (sin) gürültüyle "kumsal" bölgeleri —
+    // cam üretiminin hammaddesi (kum + fırın)
+    const sandy = h<=20 && (Math.sin(x*0.21+1.7)+Math.sin(z*0.24+0.6)+Math.sin((x-z)*0.13+3.9)) > 1.1;
     for(let y=0;y<WY;y++){
       let t = B.AIR;
       if(y<=1) t = B.BEDROCK;
@@ -336,8 +410,8 @@ function genWorld(){
         if(r1>0.9975 && y<h-5) t=B.CRYSTAL;
         if(r2>0.996 && y<13) t=B.CRYSTAL;
       }
-      else if(y<h) t = B.DIRT;
-      else if(y===h) t = B.GRASS;
+      else if(y<h) t = sandy ? B.SAND : B.DIRT;
+      else if(y===h) t = sandy ? B.SAND : B.GRASS;
       blocks[IX(x,y,z)] = t;
     }
   }
@@ -360,6 +434,7 @@ function genWorld(){
       cyp = Math.max(3, Math.min(20, cyp));
     }
   }
+  seedSandPockets(blocks); // yeraltı kum cepleri (yüzey yamalarına ek kaynak)
   // ağaçlar
   for(let x=3;x<WX-3;x++) for(let z=3;z<WZ-3;z++){
     if(hash3(x,0,z)<0.018){
@@ -450,12 +525,15 @@ function relightBox(bx0,by0,bz0,bx1,by1,bz1, seedBorder){
   return cx1<0 ? null : {x0:cx0,y0:cy0,z0:cz0,x1:cx1,y1:cy1,z1:cz1};
 }
 
-/* ============== DOKU ATLASI ============== */
+/* ============== DOKU ATLASI ==============
+   8×8 ızgara (64 karo, 0-20 dolu). tileUV() ile bölenler BİRLİKTE değişmeli.
+   Çizilmeyen karolar alpha=0 kalır — alphaTest yüzünden ASLA boş indekse atıf yapma. */
+const AT = 8; // satır başına karo sayısı
 function makeAtlas(){
-  const TS=32, c=document.createElement("canvas"); c.width=TS*4; c.height=TS*4;
+  const TS=32, c=document.createElement("canvas"); c.width=TS*AT; c.height=TS*AT;
   const g=c.getContext("2d");
   const R=(a,b)=>a+Math.random()*(b-a);
-  function base(ti,col){ const tx=(ti%4)*TS, ty=((ti/4)|0)*TS; g.fillStyle=col; g.fillRect(tx,ty,TS,TS); return [tx,ty]; }
+  function base(ti,col){ const tx=(ti%AT)*TS, ty=((ti/AT)|0)*TS; g.fillStyle=col; g.fillRect(tx,ty,TS,TS); return [tx,ty]; }
   function spk(tx,ty,col,n,s){ g.fillStyle=col;
     for(let i=0;i<n;i++) g.fillRect(tx+R(0,TS-s), ty+R(0,TS-s), s, s); }
   function blob(tx,ty,col,n){ g.fillStyle=col;
@@ -487,6 +565,25 @@ function makeAtlas(){
     g.fillStyle="#fff0a0"; g.fillRect(p[0]+12,p[1]+2,8,7);                                      // meşale
   p=base(15,"#caa84a"); g.fillStyle="#1d5a55"; g.fillRect(p[0]+5,p[1]+5,22,22);
     g.fillStyle="#7df0e2"; g.fillRect(p[0]+8,p[1]+8,16,16); g.fillStyle="#e9fffb"; g.fillRect(p[0]+12,p[1]+12,6,6); // fener
+  p=base(16,"#e3cf7d"); spk(p[0],p[1],"#cdb763",24,3); spk(p[0],p[1],"#f2e29a",14,2);            // kum
+  { // 17 cam — orta ŞEFFAF bırakılır (alphaTest görünmez yapar), yalnız çerçeve + parıltı çizilir
+    const tx=(17%AT)*TS, ty=((17/AT)|0)*TS;
+    g.fillStyle="#d7eef7"; g.fillRect(tx,ty,TS,3); g.fillRect(tx,ty+TS-3,TS,3);
+    g.fillRect(tx,ty,3,TS); g.fillRect(tx+TS-3,ty,3,TS);
+    g.fillStyle="#ffffff"; g.fillRect(tx+7,ty+6,3,11); g.fillRect(tx+12,ty+11,3,8);              // parıltı çizgileri
+  }
+  p=base(18,"#8a5a30"); g.fillStyle="#6e4621"; g.strokeStyle="#6e4621"; g.lineWidth=3;
+    g.strokeRect(p[0]+2,p[1]+2,TS-4,TS-4);
+    g.fillStyle="#bfe6f2"; g.fillRect(p[0]+8,p[1]+8,7,7); g.fillRect(p[0]+17,p[1]+8,7,7);
+    g.fillStyle="#6e4621"; g.fillRect(p[0]+8,p[1]+17,16,3);                                      // kapı üst (pencereli)
+  p=base(19,"#8a5a30"); g.strokeStyle="#6e4621"; g.lineWidth=3;
+    g.strokeRect(p[0]+2,p[1]+2,TS-4,TS-4); g.fillStyle="#6e4621";
+    g.fillRect(p[0]+8,p[1]+6,16,9); g.fillRect(p[0]+8,p[1]+19,16,7);
+    g.fillStyle="#ffd23f"; g.fillRect(p[0]+25,p[1]+14,3,4);                                      // kapı alt (panel + tokmak)
+  p=base(20,"#c25040"); g.fillStyle="#9c3a2d";
+    g.fillRect(p[0],p[1]+7,TS,3); g.fillRect(p[0],p[1]+17,TS,3); g.fillRect(p[0],p[1]+27,TS,3);
+    g.fillStyle="#d8695a"; for(let i=0;i<4;i++) g.fillRect(p[0]+i*8+2,p[1]+2,4,3);
+    spk(p[0],p[1],"#aa4435",10,2);                                                              // kiremit
   const tex = new THREE.CanvasTexture(c);
   tex.magFilter = THREE.NearestFilter; tex.minFilter = THREE.NearestFilter;
   tex.generateMipmaps = false;
@@ -507,13 +604,31 @@ const chunkMeshes = new Array(CXN*CZN).fill(null);
 let scene, camera, renderer, material, highlight;
 
 function tileUV(ti, u, v){
-  const tx = ti%4, ty = (ti/4)|0;
-  return [ (tx + 0.02 + u*0.96)/4, ( (3-ty) + 0.02 + v*0.96 )/4 ];
+  const tx = ti%AT, ty = (ti/AT)|0;
+  return [ (tx + 0.02 + u*0.96)/AT, ( (AT-1-ty) + 0.02 + v*0.96 )/AT ];
 }
 function lightAt(x,y,z){
   if(y>=WY) return 15;
   if(!inW(x,y,z)) return 12;
   return light[IX(x,y,z)];
+}
+/* Yeni şekillerin kutuları: [ox,oy,oz, sx,sy,sz] listesi.
+   Kapı kapalı = hücre ortasında ince panel; açık = menteşe kenarına yaslı dik panel.
+   Çatı = alt yarım + yöne göre arka üst çeyrek. Yarım blok = alt yarım. */
+function shapeBoxes(t,x,y,z){
+  if(isSlab(t)) return [[x,y,z, 1,0.5,1]];
+  if(isRoof(t)){
+    const d=(t-B.ROOFW_N)%4; // 0=K(-z) 1=D(+x) 2=G(+z) 3=B(-x)
+    const top = d===0 ? [x,y+0.5,z, 1,0.5,0.5]
+            : d===1 ? [x+0.5,y+0.5,z, 0.5,0.5,1]
+            : d===2 ? [x,y+0.5,z+0.5, 1,0.5,0.5]
+            :         [x,y+0.5,z, 0.5,0.5,1];
+    return [[x,y,z, 1,0.5,1], top];
+  }
+  if(t===B.DOOR_XA||t===B.DOOR_XU)   return [[x,y,z+0.43, 1,1,0.14]];
+  if(t===B.DOOR_ZA||t===B.DOOR_ZU)   return [[x+0.43,y,z, 0.14,1,1]];
+  if(t===B.DOORO_XA||t===B.DOORO_XU) return [[x,y,z+0.01, 0.14,1,0.98]];
+  return [[x+0.01,y,z, 0.98,1,0.14]]; // DOORO_Z*
 }
 function buildChunk(ci, cj){
   const pos=[], col=[], uv=[], idx=[];
@@ -531,7 +646,7 @@ function buildChunk(ci, cj){
     const x = ci*CS+lx, z = cj*CS+lz;
     const t = blocks[IX(x,y,z)];
     if(t===B.AIR) continue;
-    const info = BINFO[t];
+    const info = binfo(t);
     if(t===B.TORCH || t===B.LANTERN){
       // küçük dekor kutusu
       const s = t===B.TORCH ? [0.2,0.62,0.2] : [0.42,0.5,0.42];
@@ -540,10 +655,20 @@ function buildChunk(ci, cj){
       for(const f of FACES) pushFace(f, o[0],o[1],o[2], s[0],s[1],s[2], info.tex[0], br);
       continue;
     }
+    if(isDoor(t) || isHalf(t)){
+      // kapı/çatı/yarım blok: kendi hücresinin ışığıyla (meşalenin sabit-parlak
+      // yolu DEĞİL — mağarada bembeyaz görünmesinler) kutu(lar) hâlinde çiz
+      const cellBr = Math.max(lightAt(x,y,z)/15, 0.05);
+      for(const bx of shapeBoxes(t,x,y,z))
+        for(const f of FACES)
+          pushFace(f, bx[0],bx[1],bx[2], bx[3],bx[4],bx[5], info.tex[0], cellBr*f.sh);
+      continue;
+    }
     for(const f of FACES){
       const nx=x+f.dir[0], ny=y+f.dir[1], nz=z+f.dir[2];
       const nb = getB(nx,ny,nz);
       if(OPAQUE(nb)) continue;
+      if(t===B.GLASS && nb===B.GLASS) continue; // bitişik camlar arasına yüz çizme
       let br = Math.max(lightAt(nx,ny,nz)/15, 0.05) * f.sh;
       if(t===B.CRYSTAL) br = Math.max(br, 0.95);
       const ti = f.dir[1]===1 ? info.tex[1] : f.dir[1]===-1 ? info.tex[2] : info.tex[0];
@@ -595,7 +720,8 @@ function setBlock(x,y,z,v){
 const state = {
   pick:0, xp:0, level:1, streak:0, bestStreak:0, paused:true, sel:0,
   hasFurnace:false, inv:{}, learned:[], pool:[...WORDS].sort(()=>Math.random()-0.5),
-  stats:{wood:0,cobble:0,ingot:0,solved:0,diamond:0,torchPlaced:0},
+  stats:{wood:0,cobble:0,ingot:0,solved:0,diamond:0,torchPlaced:0,
+         doorPlaced:0,glassMade:0,roofPlaced:0},
   questDone:new Array(QUESTS.length).fill(false),
   endShown:false
 };
@@ -655,9 +781,13 @@ function loadKStats(){
   }); }catch(e){}
 }
 function saveKStats(){ try{ window.storage.set(KM_STATS_KEY, JSON.stringify(KSTATS)); }catch(e){} }
+/* Eşya çubuğu: 2 satır × 7 (CSS grid). Kapı/çatı b alanında TEMEL ID taşır;
+   gerçek yön varyantı tryPlace içinde bakış yönünden çözülür. */
 const HOT = [
  {it:"dirt",b:B.DIRT},{it:"cobble",b:B.COBBLE},{it:"wood",b:B.WOOD},{it:"plank",b:B.PLANK},
- {it:"torch",b:B.TORCH},{it:"lantern",b:B.LANTERN},{it:"furnace",b:B.FURNACE}
+ {it:"torch",b:B.TORCH},{it:"lantern",b:B.LANTERN},{it:"furnace",b:B.FURNACE},
+ {it:"sand",b:B.SAND},{it:"glass",b:B.GLASS},{it:"door",b:B.DOOR_XA},
+ {it:"roofw",b:B.ROOFW_N},{it:"rooft",b:B.ROOFT_N},{it:"slabw",b:B.SLAB_W},{it:"slabs",b:B.SLAB_S}
 ];
 
 /* ============== OYUNCU / KONTROL ============== */
@@ -691,25 +821,33 @@ if(isTouch) document.body.classList.add("touch");
 
 addEventListener("keydown",e=>{
   keys[e.code]=true;
-  const d=e.code.match(/^Digit([1-7])$/); if(d) selectSlot(+d[1]-1);
+  const d=e.code.match(/^Digit([1-9])$/); if(d) selectSlot(+d[1]-1);
   if(e.code==="KeyE" && !state.paused){ document.exitPointerLock&&document.exitPointerLock(); renderCraft(); openPanel("ovCraft"); }
   if(e.code==="KeyC" && !state.paused) toggleCam();
   if(e.code==="Space") e.preventDefault();
 });
 addEventListener("keyup",e=>keys[e.code]=false);
 
-function solidAt(x,y,z){
-  if(y<0) return true;
-  if(x<0||x>=WX||z<0||z>=WZ) return true;
-  if(y>=WY) return false;
-  const t = blocks[IX(Math.floor(x),Math.floor(y),Math.floor(z))];
-  return t!==B.AIR && t!==B.TORCH && t!==B.LANTERN;
+function blockAt(x,y,z){ // tam hücre koordinatı; dünya kenarları katı, üstü açık
+  if(y<0) return B.BEDROCK;
+  if(x<0||x>=WX||z<0||z>=WZ) return B.BEDROCK;
+  if(y>=WY) return B.AIR;
+  return blocks[IX(x,y,z)];
+}
+function solidAt(x,y,z){ // destek/genel kontrol — açık kapı katı DEĞİL
+  return SOLID(blockAt(Math.floor(x),Math.floor(y),Math.floor(z)));
 }
 function collides(px,py,pz){
   for(let y=Math.floor(py); y<=Math.floor(py+PH-0.01); y++)
     for(let x=Math.floor(px-PW); x<=Math.floor(px+PW-0.001); x++)
-      for(let z=Math.floor(pz-PW); z<=Math.floor(pz+PW-0.001); z++)
-        if(solidAt(x+0.5,y+0.5,z+0.5)) return true;
+      for(let z=Math.floor(pz-PW); z<=Math.floor(pz+PW-0.001); z++){
+        const t = blockAt(x,y,z);
+        if(!SOLID(t)) continue;
+        // yarım bloklar (çatı/yarım): yalnız alt yarısı katı — ayak tabanı
+        // hücrenin 0.5 çizgisinin ÜZERİNDEYSE çarpışma yok (kesin <, tam 0.5'te durulabilir)
+        if(isHalf(t) && py >= y+0.5) continue;
+        return true;
+      }
   return false;
 }
 function physics(dt){
@@ -734,6 +872,17 @@ function physics(dt){
   if(!collides(nx,player.y,player.z)) player.x=nx; else hitWall=true;
   let nz = player.z + player.vz*dt;
   if(!collides(player.x,player.y,nz)) player.z=nz; else hitWall=true;
+  // yarım basamak (çatı merdiveni / yarım blok): 0.5 yükselmiş AABB ile tekrar dene —
+  // tam blok yükseltilmiş kutuyla da çarpışır, yalnız yarım engeller geçer.
+  // Dokunmatik oto-zıplamadan ÖNCE: yarım basamak tam zıplama tetiklemesin. (tüm platformlar)
+  if(hitWall && player.ground && (mx!==0||mz!==0)){
+    const sy2 = player.y + 0.52;
+    if(!collides(player.x + player.vx*dt, sy2, player.z)){
+      player.y = sy2; player.x += player.vx*dt; hitWall=false;
+    } else if(!collides(player.x, sy2, player.z + player.vz*dt)){
+      player.y = sy2; player.z += player.vz*dt; hitWall=false;
+    }
+  }
   // otomatik zıplama (dokunmatik): 1 bloklu basamağa yürüyünce kendiliğinden atla
   if(isTouch && hitWall && player.ground && (mx!==0||mz!==0)){
     if(!collides(player.x+mx*0.4, player.y+1.05, player.z+mz*0.4)){
@@ -758,7 +907,9 @@ function raycast(ox,oy,oz, dx,dy,dz, maxD){
   for(let i=0;i<160;i++){
     if(inW(x,y,z)){
       const b = blocks[IX(x,y,z)];
-      if(b!==B.AIR) return {x,y,z,b,face,t};
+      // başlangıç hücresi (face===null) AÇIK KAPI ise atla — kapı eşiğinde duran
+      // oyuncu kendi içinden geçen ışınla nişan alabilsin (kapıyı üstüne kapatmasın)
+      if(b!==B.AIR && !(face===null && isOpenDoor(b))) return {x,y,z,b,face,t};
     }
     if(tx<ty && tx<tz){ if(tx>maxD) break; x+=stx; t=tx; tx+=tdx; face=[-stx,0,0]; }
     else if(ty<tz){ if(ty>maxD) break; y+=sty; t=ty; ty+=tdy; face=[0,-sty,0]; }
@@ -799,7 +950,7 @@ function doMine(dt){
     mineTarget = hit; mineDmg = 0; mineTarget.warned = false;
   }
   highlightUpdate(hit);
-  const info = BINFO[hit.b];
+  const info = binfo(hit.b);
   if(info.hp===Infinity) return;
   if(state.pick < info.tier){
     if(!mineTarget.warned){ toast(`${info.n} için en az ${PICKS[info.tier].n} gerek! 🔒`);
@@ -812,6 +963,11 @@ function doMine(dt){
   if(mineDmg >= info.hp){
     const bType = hit.b;
     setBlock(hit.x, hit.y, hit.z, B.AIR);
+    // kapı iki hücredir: eşi de temizlenir, eşya BİR kez düşer
+    if(isDoor(bType)){
+      const py2 = isDoorUpper(bType) ? hit.y-1 : hit.y+1;
+      if(isDoor(getB(hit.x,py2,hit.z))) setBlock(hit.x,py2,hit.z,B.AIR);
+    }
     beep(180,0.07,"square",0.05);
     if(QUIZ_ORE[bType]) openQuiz(bType, hit.y);
     else if(info.drop){
@@ -822,6 +978,25 @@ function doMine(dt){
     }
     mineTarget=null; mineDmg=0; mineBarWrap.style.display="none";
   }
+}
+// blok hücresi oyuncu AABB'siyle kesişiyor mu (half: yalnız alt yarım kutu)
+function playerOverlapsCell(px,py,pz,half){
+  const topY = half ? py+0.5 : py+1;
+  return px+1>player.x-PW && px<player.x+PW && pz+1>player.z-PW && pz<player.z+PW &&
+         topY>player.y && py<player.y+PH;
+}
+function toggleDoor(x,y,z,t){
+  const lowY = isDoorUpper(t) ? y-1 : y;
+  const low = getB(x,lowY,z), up = getB(x,lowY+1,z);
+  if(!isDoor(low) || !isDoor(up)) return; // eşi bozuksa dokunma
+  const opening = !isOpenDoor(low);
+  if(!opening && (playerOverlapsCell(x,lowY,z,false) || playerOverlapsCell(x,lowY+1,z,false))){
+    toast("Kapının içinde duruyorsun! 🚪"); return; // üstüne kapatıp fırlatmasın
+  }
+  const D = B.DOORO_XA - B.DOOR_XA; // açık-kapalı ID farkı (4)
+  setBlock(x,lowY,z,   opening ? low+D : low-D);
+  setBlock(x,lowY+1,z, opening ? up+D  : up-D);
+  beep(opening?420:280,0.07,"square",0.05);
 }
 function tryPlace(sx,sy){
   if(state.paused) return;
@@ -834,16 +1009,35 @@ function tryPlace(sx,sy){
   }
   const hit = raycast(o[0],o[1],o[2], d[0],d[1],d[2], max);
   if(!hit || !hit.face) return;
+  // kapıya sağ tık / kısa dokunuş = aç-kapa (yerleştirme yapılmaz)
+  if(isDoor(hit.b)){ toggleDoor(hit.x,hit.y,hit.z,hit.b); return; }
   const px=hit.x+hit.face[0], py=hit.y+hit.face[1], pz=hit.z+hit.face[2];
   if(!inW(px,py,pz) || getB(px,py,pz)!==B.AIR) return;
   const h = HOT[state.sel];
   if(cnt(h.it)<=0){ toast(`${ITEMS[h.it].e} ${ITEMS[h.it].n} yok! Önce topla/üret.`); return; }
-  if(OPAQUE(h.b)){ // oyuncunun içine koyma
-    if(px+1>player.x-PW && px<player.x+PW && pz+1>player.z-PW && pz<player.z+PW &&
-       py+1>player.y && py<player.y+PH) return;
+  // kapı: 2 hücre + zemin desteği + tavan sınırı; yönü bakışa dik eksenden
+  if(isDoor(h.b)){
+    if(py+1>=WY || getB(px,py+1,pz)!==B.AIR){ toast("Kapı için 2 boş kare gerek! 🚪"); return; }
+    if(!solidAt(px+0.5,py-0.5,pz+0.5)){ toast("Kapı zemine oturmalı! 🚪"); return; }
+    if(playerOverlapsCell(px,py,pz,false) || playerOverlapsCell(px,py+1,pz,false)) return;
+    const spanX = Math.abs(d[2]) >= Math.abs(d[0]); // Z'ye bakıyorsan panel X'e uzanır
+    setBlock(px,py,pz,   spanX ? B.DOOR_XA : B.DOOR_ZA);
+    setBlock(px,py+1,pz, spanX ? B.DOOR_XU : B.DOOR_ZU);
+    add(h.it,-1);
+    state.stats.doorPlaced = (state.stats.doorPlaced||0)+1;
+    updateHUD(); beep(300,0.05,"square",0.03);
+    return;
   }
-  setBlock(px,py,pz,h.b); add(h.it,-1);
+  // çatı merdiveni: üst basamak oyuncudan uzağa bakar (4 yön)
+  let v = h.b;
+  if(isRoof(v)){
+    const baseN = v<B.ROOFT_N ? B.ROOFW_N : B.ROOFT_N;
+    v = Math.abs(d[0])>Math.abs(d[2]) ? baseN+(d[0]>0?1:3) : baseN+(d[2]>0?2:0);
+  }
+  if(SOLID(v) && playerOverlapsCell(px,py,pz,isHalf(v))) return; // oyuncunun içine koyma
+  setBlock(px,py,pz,v); add(h.it,-1);
   if(h.it==="torch") state.stats.torchPlaced++;
+  if(isRoof(v)) state.stats.roofPlaced = (state.stats.roofPlaced||0)+1;
   updateHUD(); beep(300,0.05,"square",0.03);
 }
 function highlightUpdate(hit){
@@ -1024,6 +1218,7 @@ function craft(r){
     add(r.out,r.n||1);
     if(r.out==="furnace") state.hasFurnace=true;
     if(r.out==="ingot") state.stats.ingot++;
+    if(r.out==="glass") state.stats.glassMade = (state.stats.glassMade||0)+(r.n||1);
     toast(`${recipeIcon(r)} ${recipeName(r)} x${r.n||1} üretildi!`);
   }
   gainXp(8);
@@ -1084,11 +1279,18 @@ function buildHotbar(){
   HOT.forEach((h,i)=>{
     const s=document.createElement("div");
     s.className="slot"+(i===state.sel?" sel":"");
-    s.innerHTML=`<span class="key">${i+1}</span><div class="ic">${ITEMS[h.it].e}</div><div class="ct" id="ct${i}">0</div>`;
+    const key = i<9 ? `<span class="key">${i+1}</span>` : ""; // 10+ slota tuş yok (tık/tekerlek)
+    s.innerHTML=`${key}<div class="ic">${ITEMS[h.it].e}</div><div class="ct" id="ct${i}">0</div>`;
     s.onclick=()=>selectSlot(i);
     hb.appendChild(s);
   });
 }
+// fare tekerleği: slot döngüsü (panel açıkken karışmasın — paneller tekerle kayıyor)
+addEventListener("wheel",e=>{
+  if(state.paused || !worldActive) return;
+  const dir = e.deltaY>0 ? 1 : -1;
+  selectSlot((state.sel + dir + HOT.length) % HOT.length);
+},{passive:true});
 function selectSlot(i){ state.sel=i;
   [...document.getElementById("hotbar").children].forEach((s,k)=>s.classList.toggle("sel",k===i)); }
 function updateHUD(){
@@ -1216,7 +1418,9 @@ function init(){
     camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
     renderer.setSize(innerWidth,innerHeight);
   });
-  material = new THREE.MeshBasicMaterial({ map:makeAtlas(), vertexColors:true });
+  // alphaTest: cam karosunun şeffaf ortası delik açar; opak karolar etkilenmez.
+  // transparent:true KULLANMA — sıralama sorunu çıkarır, cutout yeterli.
+  material = new THREE.MeshBasicMaterial({ map:makeAtlas(), vertexColors:true, alphaTest:0.5 });
   // bulutlar
   const cloudMat = new THREE.MeshBasicMaterial({color:0xffffff, transparent:true, opacity:0.85});
   for(let i=0;i<10;i++){
@@ -1253,6 +1457,9 @@ function restoreFromSave(d){
     const decoded = rleDecode(b64ToU8(d.blocks), blocks.length);
     if (decoded.length !== blocks.length) return false;
     blocks.set(decoded);
+    // eski kayıt telafisi: dünyada hiç kum yoksa (kum güncellemesinden önceki dünya)
+    // deterministik yeraltı ceplerini ekle — cam görevi her kayıtta yapılabilir kalsın
+    if (!blocks.includes(B.SAND)) seedSandPockets(blocks);
     const st = d.st || {};
     ['pick','xp','level','streak','bestStreak','sel','hasFurnace','inv','learned',
      'pool','stats','questDone','endShown'].forEach(k => { if (st[k] !== undefined) state[k] = st[k]; });

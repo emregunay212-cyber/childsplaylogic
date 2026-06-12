@@ -1,17 +1,13 @@
 /* ============================================
-   OYUN: Kelime Madeni 3D
-   Minecraft tarzı 3D voxel madencilik + İngilizce kelime öğretimi
-   (Faz 0.2 — eğitsel seri). Cevher kazınca TR↔EN soru gelir; doğru
-   cevap cevheri kazandırır. Bağımsız HTML oyunu olduğu için siteye
-   iframe ile gömülür (bkz. games/kelime-madeni-3d/index.html;
-   three.min.js aynı klasörden yerel servis edilir — CDN yok).
-   Kayıt (dünya + ilerleme + istatistik) window.storage köprüsüyle
-   localStorage'a yazılır; Google girişte gameSaves bulut senkronu.
-   Tek oyunculu: kendi ilerlemesini yönetir, yıldız vermez.
+   OYUN: Matematik Kafe — günlük hayat problemleri + numpad (Faz 2 / 4.5, Cafe World esinli)
+   Eğitsel seri — bağımsız tek-dosya HTML oyunu, siteye iframe ile gömülür
+   (bkz. games/matematik-kafe/index.html). Kayıt/istatistik window.storage
+   köprüsüyle localStorage'a; Google girişte gameSaves bulut senkronu.
+   Yıldız vermez (eğitsel seri kilitsiz).
    ============================================ */
 
-const KelimeMadeni3D = (() => {
-    const id = 'kelime-madeni-3d';
+const MatematikKafe = (() => {
+    const id = 'matematik-kafe';
     const levels = [{}];
 
     let iframe = null;
@@ -27,14 +23,12 @@ const KelimeMadeni3D = (() => {
         clear(gameArea);
 
         iframe = document.createElement('iframe');
-        iframe.src = 'games/kelime-madeni-3d/index.html?v=2';
-        iframe.className = 'km3-iframe';
+        iframe.src = 'games/matematik-kafe/index.html?v=1';
+        iframe.className = 'mk-iframe';
         iframe.setAttribute('allow', 'fullscreen; autoplay');
         iframe.setAttribute('tabindex', '0');
         gameArea.appendChild(iframe);
 
-        // iframe yüklenince ve tıklanınca içeriğine odaklan — klavye (WASD/C/E)
-        // kontrollerinin tıklamadan da çalışması için.
         iframe.addEventListener('load', () => { try { iframe.contentWindow.focus(); } catch (e) {} });
         iframe.addEventListener('click', () => { try { iframe.contentWindow.focus(); } catch (e) {} });
     }

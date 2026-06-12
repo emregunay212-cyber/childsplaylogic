@@ -484,7 +484,8 @@ function buildMap(){
     const base = document.createElementNS(NS,'path');
     base.setAttribute('d', c.p.join(' '));
     base.setAttribute('class','country'); base.id = 'c' + c.id;
-    base.addEventListener('click', e => { e.stopPropagation(); onCountryClick(c.id); });
+    // NOT: tıklama 'click' ile DİNLENMEZ — svg.setPointerCapture click'i SVG'ye
+    // yeniden hedeflediği için path'e ulaşmaz. Seçim endPtr'deki tap algılamasında.
     g.appendChild(base);
     // sahiplik dolgusu (clip ile alttan dolar)
     const clip = document.createElementNS(NS,'clipPath'); clip.id = 'clip' + c.id;
@@ -560,8 +561,10 @@ svg.addEventListener('wheel', e => { e.preventDefault(); zoomAt(e.clientX, e.cli
 svg.addEventListener('pointerdown', e => {
   cancelAnimationFrame(vbAnim);
   svg.setPointerCapture(e.pointerId);
-  if (pinch === null && drag === null) drag = { id:e.pointerId, x:e.clientX, y:e.clientY, moved:false };
-  else if (drag && pinch === null) pinch = { id2:e.pointerId, x:e.clientX, y:e.clientY };
+  if (pinch === null && drag === null)
+    drag = { id:e.pointerId, x:e.clientX, y:e.clientY, moved:false, pinched:false,
+             t: e.target.closest ? e.target.closest('.country') : null };
+  else if (drag && pinch === null){ pinch = { id2:e.pointerId, x:e.clientX, y:e.clientY }; drag.pinched = true; }
   svg.classList.add('grabbing');
 });
 svg.addEventListener('pointermove', e => {
@@ -579,8 +582,15 @@ svg.addEventListener('pointermove', e => {
   VB.x -= dx; VB.y -= dy; drag.x = e.clientX; drag.y = e.clientY; applyVB();
 });
 const endPtr = e => { if (pinch && e.pointerId === pinch.id2) pinch = null;
-  else if (drag && e.pointerId === drag.id){ lastDragMoved = drag.moved; drag = null; pinch = null;
-    setTimeout(() => lastDragMoved = false, 80); }
+  else if (drag && e.pointerId === drag.id){
+    // tap algılama: parmak/fare oynamadıysa ve pinch yapılmadıysa = ülke seçimi
+    // (pointer capture yüzünden path'lere 'click' ulaşmaz; seçim burada yapılır)
+    const tap = e.type === 'pointerup' && !drag.moved && !drag.pinched && drag.t;
+    const tapId = tap ? +drag.t.id.slice(1) : null;
+    lastDragMoved = drag.moved; drag = null; pinch = null;
+    setTimeout(() => lastDragMoved = false, 80);
+    if (tapId !== null) onCountryClick(tapId);
+  }
   svg.classList.remove('grabbing'); };
 svg.addEventListener('pointerup', endPtr); svg.addEventListener('pointercancel', endPtr);
 $('zIn').onclick = () => zoomAt(innerWidth/2, innerHeight/2, 0.8);

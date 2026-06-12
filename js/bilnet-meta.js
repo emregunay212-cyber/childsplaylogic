@@ -31,8 +31,52 @@ const BilnetMeta = (() => {
         { key: 'kelimemadeni_stats',  name: 'Kelime Madeni 3D',   icon: '💎', line: s => `${s.solved || 0} kelime sorusu çözüldü` },
     ];
 
-    let M = { coins: 0, dayKey: '', coinsToday: 0, streak: 0, bestStreak: 0, lastDay: '', lastTs: 0, weekBadge: 0 };
+    let M = { coins: 0, dayKey: '', coinsToday: 0, streak: 0, bestStreak: 0, lastDay: '', lastTs: 0,
+              badges: [], matPoints: 0, seenGames: [] };
     let saveTimer = null;
+
+    /* ── ROZET KATALOĞU (meta v2 — EGITSEL-OYUN-PLANI §3.3) ── */
+    const MAT_GAMES = ['bilgi-madencisi', 'matematik-patlatma', 'matematik-kafe'];
+    const BADGES = [
+        { id: 'ilk-adim',     e: '🥇', ad: 'İlk Adım',          k: 'İlk oyununu tamamla',
+          test: () => M.seenGames.length >= 1 },
+        { id: 'seri-ustasi',  e: '🔥', ad: 'Seri Ustası',       k: '7 günlük giriş serisi',
+          test: () => M.bestStreak >= 7 },
+        { id: 'mat-kasifi',   e: '🧮', ad: 'Matematik Kâşifi',  k: 'Matematik oyunlarında 1000 toplam puan',
+          test: () => M.matPoints >= 1000 },
+        { id: 'kelime-avcisi',e: '📚', ad: 'Kelime Avcısı',     k: '100 kelime eşleştir/öğren',
+          test: () => {
+              let n = 0;
+              try { n += (JSON.parse(localStorage.getItem('kelimebalonu_stats') || '{}').words || 0); } catch (e) {}
+              try { n += (JSON.parse(localStorage.getItem('kelimemadeni_stats') || '{}').solved || 0); } catch (e) {}
+              return n >= 100;
+          } },
+        { id: 'genc-bilimci', e: '🔬', ad: 'Genç Bilimci',      k: "Bilim Dedektifi'nde 10 vaka çöz",
+          test: () => { try { return (JSON.parse(localStorage.getItem('bilimdedektifi_stats') || '{}').cases || 0) >= 10; } catch (e) { return false; } } },
+        { id: 'zirve-fatihi', e: '🏔️', ad: 'Zirve Fatihi',      k: 'Bir oyunda Zirve seviyesinde skor yap',
+          test: () => ['bilgimadenci_stats', 'matpatlatma_stats', 'kelimebalonu_stats', 'matkafe_stats']
+              .some(k => { try { const s = JSON.parse(localStorage.getItem(k) || '{}'); return s.best && (s.best[4] || 0) > 0; } catch (e) { return false; } }) },
+        { id: 'nisanci',      e: '🎯', ad: 'Keskin Nişancı',    k: 'Bir oturumda %100 doğruluk (en az 10 soru)',
+          test: null /* kuyruk kaydından işaretlenir */ },
+        { id: 'koleksiyoncu', e: '🌟', ad: 'Koleksiyoncu',      k: '5 farklı oyunda skor kaydet',
+          test: () => M.seenGames.length >= 5 },
+        { id: 'sezon-kahramani', e: '🏅', ad: 'Sezon Kahramanı', k: 'Bilgi Takımı sezon kitabını bitir',
+          test: () => { try { return (JSON.parse(localStorage.getItem('bilgitakimi_stats') || '{}').seasonsCompleted || 0) >= 1; } catch (e) { return false; } } },
+    ];
+    function awardBadge(id){
+        if (M.badges.includes(id)) return;
+        const b = BADGES.find(x => x.id === id);
+        if (!b) return;
+        M.badges.push(id);
+        save();
+        toast(`${b.e} ROZET KAZANDIN: ${b.ad}!`);
+    }
+    function checkBadges(){
+        for (const b of BADGES){
+            if (M.badges.includes(b.id) || !b.test) continue;
+            try { if (b.test()) awardBadge(b.id); } catch (e) {}
+        }
+    }
 
     function todayKey(d) {
         const x = d || new Date();
@@ -77,6 +121,7 @@ const BilnetMeta = (() => {
         M.coins += earned;        // giriş bonusu tavandan bağımsız (sınırlı zaten)
         save();
         toast(msg);
+        checkBadges();            // seri rozeti (7 gün) burada düşebilir
     }
 
     // ── Skor kuyruğu → jeton (§3.1: floor(skor/100), günlük tavan 50) ──
@@ -88,6 +133,11 @@ const BilnetMeta = (() => {
         for (const rec of q) {
             if (!rec || !rec.ts || rec.ts <= M.lastTs) continue;
             M.lastTs = Math.max(M.lastTs, rec.ts);
+            // rozet ham verileri (v2): oynanan oyunlar, matematik puanı, keskin nişancı
+            if (rec.gameId && !M.seenGames.includes(rec.gameId)) M.seenGames.push(rec.gameId);
+            if (MAT_GAMES.includes(rec.gameId)) M.matPoints += (rec.score || 0);
+            const st = rec.stats || {};
+            if ((st.correct || 0) >= 10 && (st.wrong || 0) === 0) awardBadge('nisanci');
             let j = Math.floor((rec.score || 0) / 100);
             if (j <= 0) continue;
             const room = DAILY_CAP - M.coinsToday;
@@ -95,6 +145,7 @@ const BilnetMeta = (() => {
             if (j > room) { j = room; capped = true; }
             M.coins += j; M.coinsToday += j; earned += j;
         }
+        checkBadges();
         if (earned > 0) {
             save();
             toast(`💎 +${earned} jeton kazandın!` + (capped ? ' (günlük tavan doldu — yarın yine kazan!)' : ''));
@@ -139,6 +190,14 @@ const BilnetMeta = (() => {
             list.appendChild(row);
         }
         if (!list.children.length) list.innerHTML = '<div class="mp-row mp-empty">Eğitsel oyunları oynadıkça istatistiklerin burada birikecek! 🎓</div>';
+        // rozetler (v2)
+        const bl = document.getElementById('mp-badges');
+        if (bl) {
+            bl.innerHTML = BADGES.map(b => {
+                const on = M.badges.includes(b.id);
+                return `<div class="mp-badge${on ? ' on' : ''}" title="${b.k}"><span>${on ? b.e : '🔒'}</span><small>${b.ad}</small></div>`;
+            }).join('');
+        }
         ov.classList.add('show');
     }
     function closePanel() {

@@ -357,6 +357,8 @@
 .game-card[data-game="bilgi-madencisi"]::before { background: var(--bilgi-madencisi-color); }
 .game-card[data-game="matematik-patlatma"]::before { background: var(--matematik-patlatma-color); }
 .game-card[data-game="kelime-balonu"]::before { background: var(--kelime-balonu-color); }
+.game-card[data-game="bilgi-takimi"]::before { background: var(--bilgi-takimi-color); }
+.game-card[data-game="matematik-kafe"]::before { background: var(--matematik-kafe-color); }
 
 /* ── Yakında (deaktif) oyun kartı ── */
 .game-card.coming-soon { cursor: default; }
@@ -580,3 +582,12 @@
     font-size: 14px; box-shadow: 0 8px 24px rgba(0, 0, 0, .35); z-index: 1300; opacity: 0;
     transition: transform .3s, opacity .3s; pointer-events: none; max-width: 92vw; text-align: center; }
 .meta-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+/* ── Meta v2: rozetler ── */
+.meta-sub { font-size: 14px; margin: 12px 0 7px; }
+.meta-badges { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+.mp-badge { background: #f6fafd; border-radius: 10px; padding: 8px 4px; text-align: center;
+    opacity: .45; filter: grayscale(.6); }
+.mp-badge.on { opacity: 1; filter: none; background: #fff6dd; box-shadow: 0 0 0 2px #f0d98c inset; }
+.mp-badge span { font-size: 22px; display: block; }
+.mp-badge small { font-size: 10.5px; font-weight: 700; color: #5e7a90; line-height: 1.2; display: block; margin-top: 2px; }

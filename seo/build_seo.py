@@ -160,6 +160,14 @@ GAMES = [
        teaches="İngilizce kelime dağarcığı ve yazım (spelling)",
        short="İngilizce kelimenin harflerini balonlardan vur — kelime tamamlanınca büyük patlama!",
        about="Kelime Balonu, klasik balon patlatma (bubble shooter) mekaniğini İngilizce kelime öğrenimiyle birleştirir. Üstte hedef kelimenin resmi ve Türkçesi görünür (🐱 kedi); balonun içindeki doğru harfleri vurarak C-A-T gibi kelimeleri tamamlarsın. Doğru harf patlar ve yanındaki aynı harfli balonları da götürür; yanlış vuruş balonu kümeye yapıştırır — dikkat! Etek'te 3 harfli kolay kelimeler, Tırmanış'ta 6+ harf sıralı vurma, Zirve'de resim ipucu olmadan sadece Türkçe karşılıkla oynanır. Nişan alma, sekme ve zamanlama becerisiyle İngilizce yazım bir arada gelişir. Ücretsiz, üyeliksiz, tarayıcıda oynanır."),
+  dict(slug="bilgi-takimi", name="Bilgi Takımı", cat="Karma / Görev", age="8-12", players="Tek kişilik",
+       teaches="Matematik, Türkçe, fen ve İngilizce — düzenli çalışma alışkanlığı",
+       short="Görevleri bitir, XP topla, bilgi takımına yeni karakterler kat!",
+       about="Bilgi Takımı, soru çözerek görev tamamladığın bir macera-koleksiyon oyunudur. Kütüphane, laboratuvar ve sözlük görevlerinde matematik, Türkçe, fen ve İngilizce soruları çözer; XP ve puan toplarsın. Her 5 görevde takımına Matematikçi Aslı, Bilge Baykuş gibi yeni bir karakter katılır — karakterler sana asla cevap söylemez, sadece puanını artırır. Günlük 20 enerji sınırı ekran süresini dengeler; aylık 30 görevlik sezon kitabını bitirenler Sezon Kahramanı olur. Ücretsiz, üyeliksiz, tarayıcıda oynanır."),
+  dict(slug="matematik-kafe", name="Matematik Kafe", cat="Matematik", age="8-12", players="Tek kişilik",
+       teaches="Günlük hayat matematiği: alışveriş, para üstü, oran ve yüzde",
+       short="Siparişin hesabını yap, hızlı servisle bahşişi kap — kasa sende!",
+       about="Matematik Kafe'de kasiyer sensin! Müşteriler sipariş verir, fiyatlar panoda yazar; hesabı tuş takımıyla girer, doğru ve hızlı servisle bahşiş kazanırsın. Etek'te tek ürün fiyatı okuma, Yamaç'ta çoklu sipariş ve para üstü, Tırmanış'ta tarif ölçekleme ve %10 indirim, Zirve'de %1 KDV ve kampanya karşılaştırma soruları seni bekler. Müfredatın en çok istediği günlük hayat problemleri 120 saniyelik eğlenceli vardiyalara dönüşür. Ücretsiz, üyeliksiz, tarayıcıda oynanır."),
 ]
 
 PAGE_TMPL = """<!DOCTYPE html>

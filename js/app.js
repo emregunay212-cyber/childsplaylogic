@@ -38,6 +38,7 @@ const App = (() => {
                 // Eğitsel seri Faz 1 (4.1, 4.2): kilitsiz — işlem akıcılığı.
                 { game: BilgiMadencisi, color: 'var(--bilgi-madencisi-color)' },
                 { game: MatematikPatlatma, color: 'var(--matematik-patlatma-color)' },
+                { game: MatematikKafe, color: 'var(--matematik-kafe-color)' },
             ]
         },
         {
@@ -82,6 +83,7 @@ const App = (() => {
                 { game: ZindanOkcusu, color: 'var(--zindan-okcusu-color)' },
                 // Eğitsel seri (Faz 0+): kilitsiz — eğitsel içeriğe engelsiz erişim.
                 { game: BilVeFethet, color: 'var(--bil-ve-fethet-color)' },
+                { game: BilgiTakimi, color: 'var(--bilgi-takimi-color)' },
             ]
         },
     ];

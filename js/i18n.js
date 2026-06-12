@@ -47,6 +47,8 @@ const TR = {
         'bilgi-madencisi': 'Bilgi Madencisi',
         'matematik-patlatma': 'Matematik Patlatma',
         'kelime-balonu': 'Kelime Balonu',
+        'bilgi-takimi': 'Bilgi Takımı',
+        'matematik-kafe': 'Matematik Kafe',
     },
 
     // Multiplayer strings
@@ -148,6 +150,8 @@ const TR = {
         'bilgi-madencisi': 'Soruyu çöz, kancayı doğru taşa bırak, altını topla!',
         'matematik-patlatma': 'Komşu taşları sürükle, hedef sayıyı tuttur, zinciri patlat!',
         'kelime-balonu': 'İngilizce kelimenin harflerini balonlardan vur, kelimeyi tamamla!',
+        'bilgi-takimi': 'Görevleri bitir, XP topla, takımına yeni karakterler kat!',
+        'matematik-kafe': 'Siparişin hesabını yap, hızlı servisle bahşişi kap!',
     },
 
     // Kod Macerasi stringleri
