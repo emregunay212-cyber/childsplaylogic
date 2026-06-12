@@ -168,6 +168,18 @@ GAMES = [
        teaches="Günlük hayat matematiği: alışveriş, para üstü, oran ve yüzde",
        short="Siparişin hesabını yap, hızlı servisle bahşişi kap — kasa sende!",
        about="Matematik Kafe'de kasiyer sensin! Müşteriler sipariş verir, fiyatlar panoda yazar; hesabı tuş takımıyla girer, doğru ve hızlı servisle bahşiş kazanırsın. Etek'te tek ürün fiyatı okuma, Yamaç'ta çoklu sipariş ve para üstü, Tırmanış'ta tarif ölçekleme ve %10 indirim, Zirve'de %1 KDV ve kampanya karşılaştırma soruları seni bekler. Müfredatın en çok istediği günlük hayat problemleri 120 saniyelik eğlenceli vardiyalara dönüşür. Ücretsiz, üyeliksiz, tarayıcıda oynanır."),
+  dict(slug="bilim-dedektifi", name="Bilim Dedektifi", cat="Fen Bilimleri", age="8-12", players="Tek kişilik",
+       teaches="Fen kavramları, gözlem ve dikkat",
+       short="Sahnedeki bilimsel nesneleri bul, vaka quizini çöz, 3 yıldızı topla!",
+       about="Bilim Dedektifi, gizli obje bulmaca mekaniğini fen bilimleriyle birleştirir. Orman, mutfak, uzay, derin deniz gibi 8 vakada 'omurgalıları bul', 'ısı kaynaklarını işaretle' gibi görevler verilir; yanlış tıklama büyüteci 5 saniye dondurur. Vaka sonunda konuyla ilgili 3 soruluk mini quiz yıldızlarını belirler. Gözlem, dikkat ve fen kavramları (canlılar, madde, enerji, su döngüsü, elektrik) bir arada gelişir. Ücretsiz, üyeliksiz, tarayıcıda oynanır."),
+  dict(slug="bilgi-ciftligi", name="Bilgi Çiftliği", cat="Karma / Çiftlik", age="8-12", players="Tek kişilik",
+       teaches="Tüm dersler + sabır ve planlama",
+       short="Soru çöz, tohum kazan, ek — bitkiler gerçek zamanda büyür, hasat senin!",
+       about="Bilgi Çiftliği'nde tohumlar bilgiyle kazanılır: 10 soruluk oturumlarda her doğru cevap 1 tohum verir. Matematik Buğdayı, Fen Domatesi, İngilizce Ayçiçeği ve Türkçe Lavantası gerçek zamanda büyür (30 dakikadan 24 saate) — oyun kapalıyken bile! Bitkiler asla solmaz, hasada hazır seni bekler. Hasatla çiftlik XP'si toplar, araziyi 3×3'ten 5×5'e büyütürsün. Düzenli tekrar alışkanlığını oyunlaştıran, stressiz bir çiftlik deneyimi. Ücretsiz, üyeliksiz, tarayıcıda oynanır."),
+  dict(slug="kelime-canavarlari", name="Kelime Canavarları", cat="İngilizce", age="8-12", players="Tek kişilik",
+       teaches="İngilizce kelime kategorileri (hayvanlar, yiyecekler, renkler...)",
+       short="İngilizce kelimelerle canavarını besle, evrimleştir, FUSION ile melez yarat!",
+       about="Kelime Canavarları'nda her İngilizce kelime kategorisinin bir canavarı var: hayvanlar, yiyecekler, renkler, okul, doğa ve vücut. Kategorinin kelime quizlerini çözerek canavarını besler, 10 doğruda yumurtayı çatlatır, 25-60-120 doğruda evrimleştirirsin. İki tam evrimli canavarı 20 soruluk karışık quizde %80 başarıyla BİRLEŞTİRİP nadir melezler kazanabilirsin. 24 canavarlık koleksiyonu tamamla, Canavar Profesörü ol! Ücretsiz, üyeliksiz, tarayıcıda oynanır."),
 ]
 
 PAGE_TMPL = """<!DOCTYPE html>

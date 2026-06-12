@@ -819,7 +819,7 @@ function zoomAt(cx, cy, factor){
 svg.addEventListener('wheel', e => { e.preventDefault(); zoomAt(e.clientX, e.clientY, e.deltaY > 0 ? 1.18 : 0.85); }, {passive:false});
 svg.addEventListener('pointerdown', e => {
   cancelAnimationFrame(vbAnim);
-  svg.setPointerCapture(e.pointerId);
+  try{ svg.setPointerCapture(e.pointerId); }catch(err){} // sentetik/uç durum pointerId'leri handler'ı düşürmesin
   if (pinch === null && drag === null)
     drag = { id:e.pointerId, x:e.clientX, y:e.clientY, moved:false, pinched:false,
              t: e.target.closest ? e.target.closest('.country') : null };

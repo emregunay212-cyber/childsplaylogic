@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs><linearGradient id="bdBg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#1f4366"/><stop offset="100%" stop-color="#0d2238"/></linearGradient></defs>
+  <rect x="6" y="6" width="88" height="88" rx="16" fill="url(#bdBg)"/>
+  <text x="28" y="40" font-size="22" text-anchor="middle">🦊</text>
+  <text x="62" y="32" font-size="18" text-anchor="middle">🐦</text>
+  <text x="74" y="62" font-size="18" text-anchor="middle">🍄</text>
+  <circle cx="44" cy="58" r="20" fill="rgba(255,255,255,.14)" stroke="#ffd23f" stroke-width="4"/>
+  <line x1="58" y1="73" x2="74" y2="88" stroke="#ffd23f" stroke-width="7" stroke-linecap="round"/>
+  <text x="44" y="66" font-size="20" text-anchor="middle">🐸</text>
+</svg>

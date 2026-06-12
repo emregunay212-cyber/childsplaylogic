@@ -359,6 +359,9 @@
 .game-card[data-game="kelime-balonu"]::before { background: var(--kelime-balonu-color); }
 .game-card[data-game="bilgi-takimi"]::before { background: var(--bilgi-takimi-color); }
 .game-card[data-game="matematik-kafe"]::before { background: var(--matematik-kafe-color); }
+.game-card[data-game="bilim-dedektifi"]::before { background: var(--bilim-dedektifi-color); }
+.game-card[data-game="bilgi-ciftligi"]::before { background: var(--bilgi-ciftligi-color); }
+.game-card[data-game="kelime-canavarlari"]::before { background: var(--kelime-canavar-color); }
 
 /* ── Yakında (deaktif) oyun kartı ── */
 .game-card.coming-soon { cursor: default; }

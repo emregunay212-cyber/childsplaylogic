@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bilgi Çiftliği — Soru Çöz, Tohum Ek, Hasadı Topla!</title>
+<!-- Portal standardı: tek dosya, harici bağımlılık YOK. Eğitsel seri Faz 3 / 4.7
+     (FarmVille esinli — solma stresi BİLİNÇLİ ÇIKARILDI: bitki solmaz, "hasada
+     hazır" bekler). Tasarım: EGITSEL-OYUN-PLANI §4.7 -->
+<style>
+:root{
+  --sky:#aee3ff; --grass:#7ec850; --soil:#8a5a33; --soil2:#6e4426;
+  --panel:#fff8ec; --ink:#3c2a14; --ink-dim:#8a6a4a; --hot:#e2622b; --ok:#5fae6e; --gold:#f4a93c;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:linear-gradient(180deg,var(--sky) 0%,var(--sky) 30%,var(--grass) 30.2%);
+  color:var(--ink);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;user-select:none;touch-action:manipulation}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:12px}
+#app{height:100%;display:flex;flex-direction:column;max-width:640px;margin:0 auto;padding:8px}
+
+#top{display:flex;flex-direction:column;gap:6px}
+#hudRow{display:flex;gap:6px;justify-content:space-between;font-size:12.5px;font-weight:800;flex-wrap:wrap}
+.chip{background:rgba(255,255,255,.92);border-radius:10px;padding:5px 10px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+#seedRow{display:flex;gap:6px;font-size:12px;font-weight:800;flex-wrap:wrap}
+.seedChip{background:rgba(255,255,255,.85);border-radius:10px;padding:4px 9px}
+
+#farmWrap{flex:1;display:flex;align-items:center;justify-content:center;padding:6px;min-height:0}
+#farm{display:grid;gap:7px;background:var(--soil2);padding:10px;border-radius:18px;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.plot{background:linear-gradient(180deg,#a4683a,var(--soil));border-radius:12px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;position:relative;cursor:pointer;border:2px solid #5a3a1e}
+.plot:active{transform:scale(.96)}
+.plot .pe{line-height:1}
+.plot .pt{position:absolute;bottom:3px;left:0;right:0;font-size:9.5px;font-weight:800;color:#ffe9c2;text-align:center;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.plot.ready{animation:readyGlow 1.4s infinite alternate;border-color:var(--gold)}
+@keyframes readyGlow{from{box-shadow:0 0 4px rgba(244,169,60,.4)}to{box-shadow:0 0 16px rgba(244,169,60,.9)}}
+.plot.lockedPlot{background:#5a4630;opacity:.55;cursor:default}
+
+#bottomBar{display:flex;gap:8px;padding-top:6px}
+.bigBtn{flex:1;background:var(--hot);color:#fff;font-size:15px;font-weight:800;padding:13px 8px;box-shadow:0 4px 0 #a8431a}
+.bigBtn:active{transform:translateY(3px);box-shadow:0 1px 0 #a8431a}
+.bigBtn.alt{background:#4a8ac2;box-shadow:0 4px 0 #2f5f8c}
+
+/* ===== VEIL'ler ===== */
+.veil{position:fixed;inset:0;background:rgba(40,25,8,.82);display:none;align-items:center;justify-content:center;z-index:30;padding:14px}
+.veil.show{display:flex}
+.card{background:var(--panel);border-radius:18px;padding:18px;width:min(460px,96vw);max-height:92vh;overflow:auto;text-align:center}
+.optGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
+.selBtn{background:#fff;border:3px solid #e3cda4;color:var(--ink);padding:12px 6px;font-weight:800;font-size:14px;display:flex;flex-direction:column;gap:2px}
+.selBtn small{font-weight:600;font-size:11px;color:var(--ink-dim)}
+.selBtn.on{border-color:var(--hot);background:#fff0e0}
+#qzFuseWrap{height:7px;background:#e8d9bd;border-radius:5px;overflow:hidden;margin:10px 0}
+#qzFuse{height:100%;width:100%;background:linear-gradient(90deg,var(--hot),var(--gold))}
+#qzText{font-size:clamp(16px,4.6vw,21px);font-weight:800;min-height:52px;display:flex;align-items:center;justify-content:center}
+#qzOpts{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
+.opt{background:#fff;color:var(--ink);padding:13px 8px;font-size:15px;font-weight:700;border:2px solid #e3cda4}
+.opt.right{background:#d8f3e0;border-color:var(--ok)}
+.opt.wrong{background:#f8d7dc;border-color:#d6536a}
+.ghost{background:transparent;color:var(--ink-dim);font-size:13px;padding:8px;text-decoration:underline}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#3c2a14;color:#fff;
+  padding:10px 18px;border-radius:12px;font-weight:700;font-size:13.5px;opacity:0;transition:opacity .3s;z-index:40;pointer-events:none;max-width:92vw;text-align:center}
+#toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="top">
+    <div id="hudRow">
+      <span class="chip" id="xpChip">🚜 Sv 1 · 0 XP</span>
+      <span class="chip" id="plotChip">🟫 3×3</span>
+      <span class="chip" id="harvestChip">🧺 0 hasat</span>
+    </div>
+    <div id="seedRow">
+      <span class="seedChip" id="sMat">🌾 0</span>
+      <span class="seedChip" id="sFen">🍅 0</span>
+      <span class="seedChip" id="sEn">🌻 0</span>
+      <span class="seedChip" id="sTr">💜 0</span>
+    </div>
+  </div>
+  <div id="farmWrap"><div id="farm"></div></div>
+  <div id="bottomBar">
+    <button class="bigBtn" id="bQuiz">📝 Soru Çöz → Tohum Kazan</button>
+    <button class="bigBtn alt" id="bHelp">📜</button>
+  </div>
+</div>
+
+<!-- DERS+TIER SEÇİMİ -->
+<div class="veil" id="setupVeil">
+  <div class="card">
+    <h2>📝 Soru Oturumu</h2>
+    <p style="font-size:13px;color:var(--ink-dim);margin-top:4px">10 soru · her doğru = 1 tohum. Ders tohumun türünü, zorluk büyüme süresini ve hasat değerini belirler!</p>
+    <div class="optGrid" id="dersGrid">
+      <button class="selBtn on" data-d="mat">🌾 Matematik<small>Buğday tohumu</small></button>
+      <button class="selBtn" data-d="fen">🍅 Fen<small>Domates tohumu</small></button>
+      <button class="selBtn" data-d="en">🌻 İngilizce<small>Ayçiçeği tohumu</small></button>
+      <button class="selBtn" data-d="tr">💜 Türkçe<small>Lavanta tohumu</small></button>
+    </div>
+    <div class="optGrid" id="tierGrid" style="margin-top:8px">
+      <button class="selBtn on" data-t="1">🏕️ Etek<small>30 dk · 60p hasat</small></button>
+      <button class="selBtn" data-t="2">⛰️ Yamaç<small>2 saat · 150p</small></button>
+      <button class="selBtn" data-t="3">🧗 Tırmanış<small>8 saat · 350p</small></button>
+      <button class="selBtn" data-t="4">🏔️ Zirve<small>24 saat · 800p</small></button>
+    </div>
+    <button class="bigBtn" id="bStartQuiz" style="margin-top:12px;flex:none;padding:13px 28px">BAŞLA</button>
+    <button class="ghost" id="bSetupClose">Vazgeç</button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="veil" id="quizVeil">
+  <div class="card">
+    <div style="font-weight:900" id="qzTitle">🌾 Tohum Oturumu</div>
+    <div id="qzInfo" style="font-size:12.5px;color:var(--ink-dim);margin-top:3px">Soru 1/10 · Tohum: 0</div>
+    <div id="qzFuseWrap"><div id="qzFuse"></div></div>
+    <div id="qzText"></div>
+    <div id="qzOpts"></div>
+  </div>
+</div>
+
+<!-- OTURUM SONU -->
+<div class="veil" id="resultVeil">
+  <div class="card">
+    <div style="font-size:48px">🌱</div>
+    <h2 id="resTitle">Tohumlar Hazır!</h2>
+    <p id="resDetail" style="margin-top:8px;line-height:1.6;color:var(--ink-dim)"></p>
+    <button class="bigBtn" id="resOk" style="flex:none;padding:13px 28px">Tarlaya Dön</button>
+  </div>
+</div>
+
+<!-- EKME SEÇİMİ -->
+<div class="veil" id="plantVeil">
+  <div class="card">
+    <h2>🌱 Ne Ekelim?</h2>
+    <div class="optGrid" id="plantGrid"></div>
+    <button class="ghost" id="bPlantClose">Vazgeç</button>
+  </div>
+</div>
+
+<!-- YARDIM -->
+<div class="veil" id="helpVeil">
+  <div class="card" style="text-align:left">
+    <h2 style="text-align:center">📜 Nasıl Oynanır?</h2>
+    <p style="font-size:14px;line-height:1.6;margin-top:8px">
+    <b>1.</b> "Soru Çöz" ile 10 soruluk oturum aç — her doğru cevap 1 tohum! Ders tohum türünü belirler.<br><br>
+    <b>2.</b> Boş tarlaya dokun, tohumunu ek. Bitki GERÇEK ZAMANDA büyür (Etek 30 dk → Zirve 24 saat). Oyunu kapatsan bile büyümeye devam eder!<br><br>
+    <b>3.</b> ✨ parlayan bitki hasada hazır — dokun, puanı ve çiftlik XP'sini topla. Bitkiler ASLA solmaz, seni bekler. 😌<br><br>
+    <b>4.</b> XP ile çiftlik büyür: Seviye 3'te 4×4, Seviye 6'da 5×5 arazi!</p>
+    <button class="bigBtn" id="bHelpClose" style="flex:none;padding:12px 26px;display:block;margin:10px auto 0">Anladım</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+(function () {
+  if (window.storage && window.storage.get && window.storage.set) return;
+  window.storage = {
+    get: function (key) { try { var v = localStorage.getItem(key); return Promise.resolve(v != null ? { value: v } : null); } catch (e) { return Promise.resolve(null); } },
+    set: function (key, value) { try { localStorage.setItem(key, value); return Promise.resolve(); } catch (e) { return Promise.resolve(); } },
+    remove: function (key) { try { localStorage.removeItem(key); return Promise.resolve(); } catch (e) { return Promise.resolve(); } }
+  };
+})();
+</script>
+<script>
+"use strict";
+/* ================= CONFIG (EGITSEL-OYUN-PLANI §4.7 — aynen) ================= */
+const CONFIG = {
+  SESSION_Q: 10,                 // 10 soruluk paketler, doğru başına 1 tohum
+  Q_TIME: 15,
+  GROW_MS: { 1: 30 * 60e3, 2: 2 * 3600e3, 3: 8 * 3600e3, 4: 24 * 3600e3 },   // 30dk/2sa/8sa/24sa
+  HARVEST_PTS: { 1: 60, 2: 150, 3: 350, 4: 800 },
+  HARVEST_XP: { 1: 10, 2: 22, 3: 45, 4: 90 },
+  GRID_BY_LEVEL: lvl => lvl >= 6 ? 5 : lvl >= 3 ? 4 : 3,    // 3×3 → 4×4 → 5×5
+  XP_PER_LEVEL: 100,
+};
+const CROPS = {
+  mat: { ad: 'Matematik Buğdayı', seed: '🌾', stages: ['🌱', '🌿', '🌾'] },
+  fen: { ad: 'Fen Domatesi',      seed: '🍅', stages: ['🌱', '🌿', '🍅'] },
+  en:  { ad: 'İngilizce Ayçiçeği',seed: '🌻', stages: ['🌱', '🌿', '🌻'] },
+  tr:  { ad: 'Türkçe Lavantası',  seed: '💜', stages: ['🌱', '🌿', '💜'] },
+};
+
+/* ================= SORU BANKASI (Bilgi Takımı ile ortak gömülü banka, kısaltılmış + EN üretici) ================= */
+const BANK = [
+  {d:"mat",z:1,q:"4 × 5 = ?",o:["10","15","20","25"],a:2},
+  {d:"mat",z:1,q:"77 − 55 = ?",o:["20","32","27","22"],a:3},
+  {d:"mat",z:1,q:"9 × 7 = ?",o:["64","63","54","56"],a:1},
+  {d:"mat",z:1,q:"9 × 6 = ?",o:["44","64","54","45"],a:2},
+  {d:"mat",z:1,q:"56 − 55 = ?",o:["2","6","11","1"],a:3},
+  {d:"mat",z:1,q:"2/4 + 1/4 = ?",o:["4/5","3/4","1/2","3/8"],a:1},
+  {d:"mat",z:2,q:"43 + 34 − 9 = ?",o:["68","67","78","63"],a:0},
+  {d:"mat",z:2,q:"6 × 6 = ?",o:["26","46","36","37"],a:2},
+  {d:"mat",z:2,q:"11 × 11 = ?",o:["131","120","132","121"],a:3},
+  {d:"mat",z:2,q:"35 + 28 − 13 = ?",o:["45","60","50","40"],a:2},
+  {d:"mat",z:2,q:"73 + 47 − 20 = ?",o:["100","95","98","102"],a:0},
+  {d:"mat",z:3,q:"13 × 8 = ?",o:["91","104","117","112"],a:1},
+  {d:"mat",z:3,q:"9 × 8 + 17 = ?",o:["84","90","88","89"],a:3},
+  {d:"mat",z:3,q:"10/12 kesrinin en sade hali?",o:["2/3","6/7","10/11","5/6"],a:3},
+  {d:"mat",z:3,q:"16 × 5 = ?",o:["75","80","70","64"],a:1},
+  {d:"mat",z:3,q:"9 × 9 + 15 = ?",o:["94","96","95","106"],a:1},
+  {d:"tr",z:1,q:"'ev' kelimesinin eş anlamlısı?",o:["yol","ağaç","bulut","konut"],a:3},
+  {d:"tr",z:1,q:"'okul' kelimesinin eş anlamlısı?",o:["deniz","bahçe","mektep","kalem"],a:2},
+  {d:"tr",z:1,q:"'hekim' kelimesinin eş anlamlısı?",o:["hasta","doktor","hemşire","ilaç"],a:1},
+  {d:"tr",z:1,q:"'armağan' kelimesinin eş anlamlısı?",o:["kupa","hediye","para","ödül"],a:1},
+  {d:"tr",z:2,q:"'ucuz' kelimesinin zıt anlamlısı?",o:["bedava","indirimli","pahalı","değerli"],a:2},
+  {d:"tr",z:2,q:"'kolay' kelimesinin zıt anlamlısı?",o:["rahat","basit","hafif","zor"],a:3},
+  {d:"tr",z:2,q:"'gece' kelimesinin zıt anlamlısı?",o:["gündüz","akşam","öğle","sabah"],a:0},
+  {d:"tr",z:2,q:"'eski' kelimesinin zıt anlamlısı?",o:["kullanılmış","yeni","antika","tarihi"],a:1},
+  {d:"tr",z:3,q:"Hangisi doğru yazılmıştır?",o:["yanliş","yannış","yalnış","yanlış"],a:3},
+  {d:"tr",z:3,q:"Hangisi doğru yazılmıştır?",o:["kitabcı","kitabçı","kitapçı","kitapcı"],a:2},
+  {d:"tr",z:3,q:"Hangisi doğru yazılmıştır?",o:["şofor","şöför","şoför","şöfor"],a:2},
+  {d:"fen",z:1,q:"Hangisi canlıdır?",o:["Ağaç","Taş","Su","Bulut"],a:0},
+  {d:"fen",z:1,q:"Bitkiler hangi gazı üretir?",o:["Oksijen","Helyum","Azot","Karbondioksit"],a:0},
+  {d:"fen",z:1,q:"Hangisi sıvıdır?",o:["Taş","Süt","Tahta","Demir"],a:1},
+  {d:"fen",z:1,q:"İnsan hangi organla nefes alır?",o:["Mide","Kalp","Akciğer","Böbrek"],a:2},
+  {d:"fen",z:2,q:"Suyun donma sıcaklığı kaç derecedir?",o:["-100°C","0°C","100°C","10°C"],a:1},
+  {d:"fen",z:2,q:"Sıvı halden gaz haline geçişe ne denir?",o:["Erime","Donma","Buharlaşma","Yoğuşma"],a:2},
+  {d:"fen",z:2,q:"Hangisi gezegendir?",o:["Jüpiter","Ay","Yıldız","Güneş"],a:0},
+  {d:"fen",z:3,q:"Hangisi Güneş'e en yakın gezegendir?",o:["Mars","Dünya","Merkür","Venüs"],a:2},
+  {d:"fen",z:3,q:"Mevsimler neden oluşur?",o:["Ay","Eksen eğikliği","Rüzgar","Güneşe uzaklık"],a:1},
+  {d:"fen",z:3,q:"Hangisi karışımdır?",o:["Saf su","Altın","Tuzlu su","Oksijen"],a:2},
+];
+const EN_WORDS = [
+  ['apple','elma'],['dog','köpek'],['cat','kedi'],['bird','kuş'],['fish','balık'],['book','kitap'],
+  ['water','su'],['bread','ekmek'],['milk','süt'],['house','ev'],['school','okul'],['sun','güneş'],
+  ['moon','ay'],['star','yıldız'],['tree','ağaç'],['flower','çiçek'],['red','kırmızı'],['blue','mavi'],
+  ['green','yeşil'],['big','büyük'],['small','küçük'],['happy','mutlu'],['fast','hızlı'],['cold','soğuk'],
+];
+const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+function enQuestion(){
+  const [en, tr] = pick(EN_WORDS);
+  const toEn = Math.random() < 0.5;
+  const correct = toEn ? en : tr;
+  const set = new Set([correct]);
+  while (set.size < 4){ const w = pick(EN_WORDS); set.add(toEn ? w[0] : w[1]); }
+  const o = [...set].sort(() => Math.random() - 0.5);
+  return { q: toEn ? `'${tr}' İngilizcede nedir?` : `'${en}' Türkçede nedir?`, o, a: o.indexOf(correct) };
+}
+const asked = new Set();
+function nextQuestion(ders, tier){
+  if (ders === 'en') return enQuestion();
+  const z = Math.min(3, tier);
+  let pool = BANK.filter(x => x.d === ders && x.z <= z && !asked.has(x.q));
+  if (!pool.length){ BANK.forEach(x => { if (x.d === ders) asked.delete(x.q); }); pool = BANK.filter(x => x.d === ders && x.z <= z); }
+  const q = pick(pool);
+  asked.add(q.q);
+  return { q: q.q, o: q.o.slice(), a: q.a };
+}
+
+/* ================= Audio ================= */
+const Audio2 = (() => {
+  let ctx = null;
+  function init(){ if (!ctx){ try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } if (ctx && ctx.state === 'suspended') ctx.resume(); }
+  function tone(f, dur, type, vol, when){
+    if (!ctx) return;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type || 'triangle'; o.frequency.value = f;
+    g.gain.setValueAtTime(vol || 0.06, ctx.currentTime + (when || 0));
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + (when || 0) + dur);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(ctx.currentTime + (when || 0)); o.stop(ctx.currentTime + (when || 0) + dur + 0.02);
+  }
+  return {
+    init,
+    ok: () => { tone(660, 0.1, 'triangle', 0.07); tone(880, 0.12, 'triangle', 0.07, 0.09); },
+    bad: () => tone(160, 0.25, 'sawtooth', 0.05),
+    plant: () => { tone(420, 0.09, 'triangle', 0.05); tone(520, 0.1, 'triangle', 0.05, 0.08); },
+    harvest: () => [523, 659, 784, 1046].forEach((f, i) => tone(f, 0.14, 'triangle', 0.07, i * 0.1)),
+    level: () => [392, 523, 659, 784].forEach((f, i) => tone(f, 0.15, 'triangle', 0.08, i * 0.11)),
+  };
+})();
+
+/* ================= Bridge ================= */
+const BilnetBridge = {
+  QUEUE_KEY: 'bilnet_score_queue',
+  async submitScore(payload){
+    const rec = { ...payload, ts: Date.now() };
+    try {
+      const r = await window.storage.get(this.QUEUE_KEY);
+      const q = r && r.value ? JSON.parse(r.value) : [];
+      q.push(rec); while (q.length > 50) q.shift();
+      await window.storage.set(this.QUEUE_KEY, JSON.stringify(q));
+    } catch (e) {}
+  },
+};
+
+/* ================= KALICI ÇİFTLİK ================= */
+const SAVE_KEY = 'bilgiciftligi_save';
+const STATS_KEY = 'bilgiciftligi_stats';
+let F = {
+  xp: 0, harvests: 0,
+  seeds: { mat: 0, fen: 0, en: 0, tr: 0 },
+  plots: {},        // "r,c" -> {d, t, at}  (ders, tier, dikilme zamanı)
+};
+let STATS = { sessions: 0, correct: 0, wrong: 0, harvests: 0 };
+function persist(){ try { window.storage.set(SAVE_KEY, JSON.stringify(F)); } catch (e) {} }
+function saveStats(){ try { window.storage.set(STATS_KEY, JSON.stringify(STATS)); } catch (e) {} }
+function level(){ return 1 + Math.floor(F.xp / CONFIG.XP_PER_LEVEL); }
+
+/* ================= UI ================= */
+const $ = id => document.getElementById(id);
+let toastT = null;
+function toast(msg){
+  const t = $('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2800);
+}
+function fmtLeft(ms){
+  if (ms <= 0) return 'HAZIR ✨';
+  const s = Math.ceil(ms / 1000);
+  if (s < 60) return s + ' sn';
+  const m = Math.ceil(s / 60);
+  if (m < 60) return m + ' dk';
+  const h = Math.floor(m / 60);
+  return h + ' sa ' + (m % 60 ? (m % 60) + ' dk' : '');
+}
+function refreshHUD(){
+  $('xpChip').textContent = `🚜 Sv ${level()} · ${F.xp} XP`;
+  const N = CONFIG.GRID_BY_LEVEL(level());
+  $('plotChip').textContent = `🟫 ${N}×${N}`;
+  $('harvestChip').textContent = `🧺 ${F.harvests} hasat`;
+  $('sMat').textContent = '🌾 ' + F.seeds.mat;
+  $('sFen').textContent = '🍅 ' + F.seeds.fen;
+  $('sEn').textContent = '🌻 ' + F.seeds.en;
+  $('sTr').textContent = '💜 ' + F.seeds.tr;
+}
+function renderFarm(){
+  refreshHUD();
+  const N = CONFIG.GRID_BY_LEVEL(level());
+  const farm = $('farm');
+  const wrap = $('farmWrap').getBoundingClientRect();
+  const size = Math.min(wrap.width - 8, wrap.height - 8, 480);
+  const cell = Math.floor((size - 14 - (N - 1) * 7) / N);
+  farm.style.gridTemplateColumns = `repeat(${N}, ${cell}px)`;
+  farm.innerHTML = '';
+  const now = Date.now();
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++){
+    const k = r + ',' + c;
+    const p = F.plots[k];
+    const el = document.createElement('div');
+    el.className = 'plot';
+    el.style.height = cell + 'px';
+    if (p){
+      // anti-hile: dikilme zamanı gelecekteyse şimdiye çek (cihaz saati oynatılmış)
+      if (p.at > now){ p.at = now; persist(); }
+      const total = CONFIG.GROW_MS[p.t];
+      const left = p.at + total - now;
+      const crop = CROPS[p.d];
+      const stage = left <= 0 ? 2 : (now - p.at) / total > 0.5 ? 1 : 0;
+      el.innerHTML = `<div class="pe" style="font-size:${Math.round(cell * 0.42)}px">${crop.stages[stage]}</div>
+        <div class="pt">${fmtLeft(left)}</div>`;
+      if (left <= 0) el.classList.add('ready');
+      el.addEventListener('click', () => {
+        if (left <= 0) harvest(k);
+        else toast(`${crop.ad} büyüyor — ${fmtLeft(left)} kaldı. Solmaz, seni bekler! 😌`);
+      });
+    } else {
+      el.innerHTML = `<div class="pe" style="font-size:${Math.round(cell * 0.34)}px;opacity:.5">➕</div>`;
+      el.addEventListener('click', () => openPlant(k));
+    }
+    farm.appendChild(el);
+  }
+}
+function harvest(k){
+  const p = F.plots[k];
+  if (!p) return;
+  const pts = CONFIG.HARVEST_PTS[p.t], xp = CONFIG.HARVEST_XP[p.t];
+  const lvlBefore = level();
+  delete F.plots[k];
+  F.xp += xp; F.harvests++; STATS.harvests++;
+  persist(); saveStats();
+  Audio2.harvest();
+  toast(`🧺 ${CROPS[p.d].ad} hasat edildi! +${pts} puan, +${xp} XP`);
+  BilnetBridge.submitScore({ gameId: 'bilgi-ciftligi', score: pts, tier: p.t, stats: { crop: p.d, harvests: F.harvests } });
+  if (level() > lvlBefore){ Audio2.level(); toast(`🎉 Çiftlik seviye ${level()} oldu!` + (CONFIG.GRID_BY_LEVEL(level()) > CONFIG.GRID_BY_LEVEL(lvlBefore) ? ' ARAZİ BÜYÜDÜ! 🟫' : '')); }
+  renderFarm();
+}
+/* ---- ekme ---- */
+let plantTarget = null;
+function openPlant(k){
+  plantTarget = k;
+  const g = $('plantGrid');
+  g.innerHTML = '';
+  let any = false;
+  // tohumlar ders bazlı; tier dikim sırasında seçilir (tohum türü ders, süre/değer tier)
+  for (const d of ['mat', 'fen', 'en', 'tr']){
+    const b = document.createElement('button');
+    b.className = 'selBtn';
+    b.disabled = F.seeds[d] <= 0;
+    b.style.opacity = F.seeds[d] <= 0 ? 0.45 : 1;
+    b.innerHTML = `${CROPS[d].seed} ${CROPS[d].ad}<small>${F.seeds[d]} tohum</small>`;
+    b.addEventListener('click', () => choosePlantTier(d));
+    g.appendChild(b);
+    if (F.seeds[d] > 0) any = true;
+  }
+  if (!any){ toast('Tohumun yok — önce soru çöz! 📝'); return; }
+  $('plantVeil').classList.add('show');
+}
+function choosePlantTier(d){
+  const g = $('plantGrid');
+  g.innerHTML = '';
+  [1, 2, 3, 4].forEach(t => {
+    const b = document.createElement('button');
+    b.className = 'selBtn';
+    b.innerHTML = `${['', '🏕️ Etek', '⛰️ Yamaç', '🧗 Tırmanış', '🏔️ Zirve'][t]}<small>${fmtLeft(CONFIG.GROW_MS[t]).replace('HAZIR ✨', '')} · ${CONFIG.HARVEST_PTS[t]}p</small>`;
+    b.addEventListener('click', () => {
+      F.seeds[d]--;
+      F.plots[plantTarget] = { d, t, at: Date.now() };
+      persist();
+      Audio2.plant();
+      $('plantVeil').classList.remove('show');
+      renderFarm();
+    });
+    g.appendChild(b);
+  });
+}
+$('bPlantClose').addEventListener('click', () => $('plantVeil').classList.remove('show'));
+
+/* ---- soru oturumu ---- */
+let selDers = 'mat', selTier = 1, Q = null, fuseT = null;
+document.querySelectorAll('#dersGrid .selBtn').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('#dersGrid .selBtn').forEach(x => x.classList.remove('on'));
+  b.classList.add('on'); selDers = b.dataset.d;
+}));
+document.querySelectorAll('#tierGrid .selBtn').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('#tierGrid .selBtn').forEach(x => x.classList.remove('on'));
+  b.classList.add('on'); selTier = parseInt(b.dataset.t, 10);
+}));
+$('bQuiz').addEventListener('click', () => { Audio2.init(); $('setupVeil').classList.add('show'); });
+$('bSetupClose').addEventListener('click', () => $('setupVeil').classList.remove('show'));
+$('bStartQuiz').addEventListener('click', () => {
+  $('setupVeil').classList.remove('show');
+  Q = { i: 0, correct: 0 };
+  $('qzTitle').textContent = `${CROPS[selDers].seed} ${CROPS[selDers].ad} Oturumu`;
+  $('quizVeil').classList.add('show');
+  showQ();
+});
+function showQ(){
+  const q = nextQuestion(selDers, selTier);
+  Q.cur = q;
+  $('qzInfo').textContent = `Soru ${Q.i + 1}/${CONFIG.SESSION_Q} · Tohum: ${Q.correct}`;
+  $('qzText').textContent = q.q;
+  const box = $('qzOpts'); box.innerHTML = '';
+  q.o.forEach((o, i) => {
+    const b = document.createElement('button');
+    b.className = 'opt'; b.textContent = o;
+    b.addEventListener('click', () => answerQ(i));
+    box.appendChild(b);
+  });
+  clearInterval(fuseT);
+  const t0 = Date.now();
+  fuseT = setInterval(() => {
+    if (document.hidden) return;
+    const left = 1 - (Date.now() - t0) / (CONFIG.Q_TIME * 1000);
+    $('qzFuse').style.width = Math.max(0, left * 100) + '%';
+    if (left <= 0) answerQ(-1);
+  }, 100);
+}
+function answerQ(i){
+  clearInterval(fuseT);
+  const q = Q.cur;
+  const right = i === q.a;
+  if (right){ Q.correct++; Audio2.ok(); } else Audio2.bad();
+  const btns = $('qzOpts').children;
+  [...btns].forEach((b, j) => { b.disabled = true; if (j === q.a) b.classList.add('right'); else if (j === i) b.classList.add('wrong'); });
+  Q.i++;
+  setTimeout(() => { Q.i >= CONFIG.SESSION_Q ? endSession() : showQ(); }, 800);
+}
+function endSession(){
+  $('quizVeil').classList.remove('show');
+  F.seeds[selDers] += Q.correct;          // doğru başına 1 tohum (§4.7)
+  STATS.sessions++; STATS.correct += Q.correct; STATS.wrong += CONFIG.SESSION_Q - Q.correct;
+  persist(); saveStats();
+  $('resTitle').textContent = Q.correct > 0 ? 'Tohumlar Hazır!' : 'Tarla Seni Bekliyor!';
+  $('resDetail').innerHTML = `✅ ${Q.correct}/${CONFIG.SESSION_Q} doğru → ${CROPS[selDers].seed} <b>${Q.correct} tohum</b> kazandın!<br><small>Bugün ${Q.correct} soru çözdün 🎓 Şimdi ek, büyüsün!</small>`;
+  $('resultVeil').classList.add('show');
+}
+$('resOk').addEventListener('click', () => { $('resultVeil').classList.remove('show'); renderFarm(); });
+
+$('bHelp').addEventListener('click', () => $('helpVeil').classList.add('show'));
+$('bHelpClose').addEventListener('click', () => $('helpVeil').classList.remove('show'));
+
+/* ---- başlat + canlı sayaç ---- */
+window.storage.get(SAVE_KEY).then(r => {
+  if (r && r.value){ try { F = Object.assign(F, JSON.parse(r.value)); } catch (e) {} }
+  return window.storage.get(STATS_KEY);
+}).then(r => {
+  if (r && r.value){ try { STATS = Object.assign(STATS, JSON.parse(r.value)); } catch (e) {} }
+  renderFarm();
+});
+setInterval(() => { if (!document.hidden) renderFarm(); }, 10000);   // kalan süre etiketleri tazelenir
+document.addEventListener('visibilitychange', () => { document.hidden ? persist() : renderFarm(); });
+addEventListener('resize', renderFarm);
+</script>
+</body>
+</html>

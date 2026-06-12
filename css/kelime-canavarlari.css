@@ -1,0 +1,5 @@
+/* kelime-canavarlari - bağımsız HTML oyununun iframe ile gömülmesi */
+.kc-iframe { width: 100%; max-width: 100%; height: min(88vh, 880px); min-height: 520px;
+    border: none; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,.35); background: #102219; display: block; }
+.is-fullscreen .kc-iframe { height: 100%; min-height: 0; max-width: none; border-radius: 0; }
+@media (max-width: 768px) { .kc-iframe { height: 80vh; min-height: 0; border-radius: 8px; } }

@@ -25,6 +25,7 @@ const App = (() => {
                 // Eğitsel seri (Faz 0+): kilitsiz — İngilizce kelime öğretimi.
                 { game: KelimeMadeni3D, color: 'var(--kelime-madeni-color)' },
                 { game: KelimeBalonu, color: 'var(--kelime-balonu-color)' },
+                { game: KelimeCanavarlari, color: 'var(--kelime-canavar-color)' },
             ]
         },
         {
@@ -51,6 +52,8 @@ const App = (() => {
                 { game: Siralama, color: 'var(--siralama-color)' },
                 { game: Jigsaw, color: 'var(--jigsaw-color)' },
                 { game: Tetris, color: 'var(--tetris-color)' },
+                // Eğitsel seri (Faz 3): kilitsiz — fen gözlem/dikkat.
+                { game: BilimDedektifi, color: 'var(--bilim-dedektifi-color)' },
             ]
         },
         {
@@ -84,6 +87,7 @@ const App = (() => {
                 // Eğitsel seri (Faz 0+): kilitsiz — eğitsel içeriğe engelsiz erişim.
                 { game: BilVeFethet, color: 'var(--bil-ve-fethet-color)' },
                 { game: BilgiTakimi, color: 'var(--bilgi-takimi-color)' },
+                { game: BilgiCiftligi, color: 'var(--bilgi-ciftligi-color)' },
             ]
         },
     ];

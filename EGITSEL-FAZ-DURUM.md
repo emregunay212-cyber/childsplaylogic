@@ -50,9 +50,9 @@
 
 | No | Oyun | İlham | Efor | Durum | Not |
 |---|---|---|---|---|---|
-| 4.4 | Bilim Dedektifi 🔍 | Criminal Case | ⭐⭐⭐ | ⬜ | Sahne JSON'ları için ayrı Python generator gerekli (paralel hazırlanmalı) |
-| 4.7 | Bilgi Çiftliği 🌱 | FarmVille | ⭐⭐⭐ | ⬜ | Zaman bazlı büyüme SERVER timestamp ile (cihaz saati hilesi); en dikkatli test gerektiren |
-| 4.8 | Kelime Canavarları 🐉 | Dragon City | ⭐⭐ | ⬜ | Zindan Okçusu fusion/envanter/nadirlik kodu MEVCUT ✓ — göründüğünden hızlı |
+| 4.4 | **Bilim Dedektifi** 🔍 | Criminal Case | ⭐⭐⭐ | ✅ 2026-06-13 | §4.4 aynen: 90sn vaka, nesne 100p + süre bonusu, yanlış tık 5sn DONMA (puan kaybı yok), 1 ipucu (2sn parlama), 3 soruluk mini quiz → 1-3⭐ (3⭐ = tüm nesneler + quiz %100); 8 gömülü sahne (orman/mutfak/geri dönüşüm/uzay/vücut/deniz/hava/elektrik, tier etiketli) — Python generator yerine elle hazırlandı, yeni sahne = SCENES dizisine ekleme; `bilimdedektifi_stats.cases` → Genç Bilimci rozeti; kategori: Bulmaca & Mantık |
+| 4.7 | **Bilgi Çiftliği** 🌱 | FarmVille | ⭐⭐⭐ | ✅ 2026-06-13 | §4.7 aynen: 10 soruluk paket → doğru başına 1 tohum (ders=tohum türü), GERÇEK zamanla büyüme 30dk/2sa/8sa/24sa, solma YOK ('hasada hazır bekler'), arazi 3×3→Sv3 4×4→Sv6 5×5; NOT: server timestamp yerine cihaz saati + anti-hile (gelecek tarihli dikim şimdiye çekilir) — tam sunucu doğrulaması lig altyapısıyla gelecek; kategori: Strateji & Macera |
+| 4.8 | **Kelime Canavarları** 🐉 | Dragon City | ⭐⭐ | ✅ 2026-06-13 | §4.8 aynen: yumurta 10 doğru, evrim 25/60/120 (kategori sayacı), FUSION = 2 tam evrim + 20 soruluk karışık quiz %80+, 10sn/4 şık quiz; 6 kategori × 3 evrim + 6 melez = 24'lük koleksiyon defteri, nadirlik renkleri (common/rare/epic/legendary — Zindan DNA'sı); kategori: Harfler & Kelimeler |
 
 ## FAZ 4 — İkinci Dalga: Hızlı Çoğaltma (her biri ~1 oturum)
 

@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Kelime Canavarları — Besle, Evrimleştir, Birleştir!</title>
+<!-- Portal standardı: tek dosya, harici bağımlılık YOK. Eğitsel seri Faz 3 / 4.8
+     (Dragon City esinli; Zindan Okçusu fusion/nadirlik DNA'sı — savaş katmanı YOK).
+     Tasarım: EGITSEL-OYUN-PLANI §4.8 -->
+<style>
+:root{
+  --bg1:#1d3a2f; --bg2:#102219; --panel:#26513f; --panel2:#347054; --line:#478a69;
+  --ink:#f0fff7; --ink-dim:#a9d8c0; --gold:#ffd23f; --hot:#ff7a59; --ok:#5fd68b;
+  --common:#9fb6c4; --rare:#4aa8ff; --epic:#d36bff; --leg:#ffd23f;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--ink);
+  font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;user-select:none}
+body{overflow:hidden}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:12px}
+#app{height:100%;display:flex;flex-direction:column;max-width:680px;margin:0 auto}
+#top{padding:10px 12px 8px;display:flex;flex-direction:column;gap:8px}
+#hudRow{display:flex;gap:8px;justify-content:space-between;font-size:13px;font-weight:800}
+.chip{background:var(--panel);border-radius:10px;padding:5px 11px;white-space:nowrap}
+#tabs{display:flex;gap:6px}
+.tab{flex:1;background:var(--panel);color:var(--ink-dim);padding:9px 4px;font-size:13.5px;font-weight:800;border-radius:12px 12px 0 0}
+.tab.on{background:var(--panel2);color:var(--ink);box-shadow:inset 0 -3px 0 var(--gold)}
+#content{flex:1;overflow-y:auto;background:var(--panel2);border-radius:0 0 14px 14px;padding:12px;-webkit-overflow-scrolling:touch}
+
+/* canavar kartları */
+#monGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.monCard{background:var(--panel);border-radius:16px;padding:12px 8px;text-align:center;border:3px solid var(--line);position:relative}
+.monCard.r-rare{border-color:var(--rare)}
+.monCard.r-epic{border-color:var(--epic);box-shadow:0 0 12px rgba(211,107,255,.25)}
+.monCard.r-leg{border-color:var(--leg);box-shadow:0 0 14px rgba(255,210,63,.3)}
+.monCard.eggCard{opacity:.85}
+.monEmoji{font-size:44px;line-height:1.2}
+.monName{font-weight:800;font-size:13.5px;margin-top:4px}
+.monKat{font-size:11px;color:var(--ink-dim)}
+.monBar{height:7px;background:rgba(0,0,0,.3);border-radius:5px;overflow:hidden;margin:6px 8px 0}
+.monBar i{display:block;height:100%;background:var(--ok)}
+.monBtn{background:var(--gold);color:#3c2a0e;font-weight:900;font-size:12.5px;padding:8px 10px;margin-top:8px;box-shadow:0 3px 0 #b8901c}
+.monBtn:active{transform:translateY(2px);box-shadow:0 1px 0 #b8901c}
+.monBtn.fusion{background:var(--epic);color:#fff;box-shadow:0 3px 0 #8a3aad}
+.evoTag{position:absolute;top:6px;right:8px;font-size:11px;font-weight:900;color:var(--gold)}
+.secHead{font-size:13px;font-weight:800;color:var(--ink-dim);margin:6px 2px 8px;display:flex;justify-content:space-between}
+
+/* quiz */
+.veil{position:fixed;inset:0;background:rgba(5,18,12,.92);display:none;align-items:center;justify-content:center;z-index:30;padding:14px}
+.veil.show{display:flex}
+.card{background:var(--panel2);border-radius:18px;padding:18px;width:min(460px,96vw);max-height:92vh;overflow:auto;text-align:center}
+#qzFuseWrap{height:7px;background:var(--panel);border-radius:5px;overflow:hidden;margin:10px 0}
+#qzFuse{height:100%;width:100%;background:linear-gradient(90deg,var(--hot),var(--gold))}
+#qzText{font-size:clamp(17px,4.8vw,22px);font-weight:800;min-height:54px;display:flex;align-items:center;justify-content:center}
+#qzOpts{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+.opt{background:var(--panel);color:var(--ink);padding:13px 8px;font-size:15px;font-weight:700;border:2px solid var(--line)}
+.opt.right{background:#1d5c38;border-color:var(--ok)}
+.opt.wrong{background:#5c1d28;border-color:#d6536a}
+.bigBtn{background:var(--hot);color:#fff;font-size:17px;font-weight:800;padding:13px 28px;box-shadow:0 4px 0 #c2503a;margin-top:12px}
+.bigBtn:active{transform:translateY(3px);box-shadow:0 1px 0 #c2503a}
+.ghost{background:transparent;color:var(--ink-dim);font-size:13px;padding:8px;text-decoration:underline}
+#evoChar{font-size:70px;animation:evoPop .7s}
+@keyframes evoPop{0%{transform:scale(.2) rotate(-20deg)}60%{transform:scale(1.3)}100%{transform:scale(1)}}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#0a1f14;color:#fff;
+  padding:10px 18px;border-radius:12px;font-weight:700;font-size:13.5px;opacity:0;transition:opacity .3s;z-index:40;pointer-events:none;max-width:92vw;text-align:center}
+#toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="top">
+    <div id="hudRow">
+      <span class="chip" id="colChip">📖 0/24</span>
+      <span class="chip" id="solvedChip">✅ 0 doğru</span>
+      <span class="chip" id="fusionChip">🧬 0 melez</span>
+    </div>
+    <div id="tabs">
+      <button class="tab on" data-tab="mons">🐉 Canavarlarım</button>
+      <button class="tab" data-tab="book">📖 Koleksiyon</button>
+    </div>
+  </div>
+  <div id="content"></div>
+</div>
+
+<!-- QUIZ -->
+<div class="veil" id="quizVeil">
+  <div class="card">
+    <div style="font-weight:900" id="qzTitle">🍖 Besleme Quizi</div>
+    <div id="qzInfo" style="font-size:12.5px;color:var(--ink-dim);margin-top:3px">Soru 1/5</div>
+    <div id="qzFuseWrap"><div id="qzFuse"></div></div>
+    <div id="qzText"></div>
+    <div id="qzOpts"></div>
+  </div>
+</div>
+
+<!-- EVRİM / YENİ CANAVAR -->
+<div class="veil" id="evoVeil">
+  <div class="card">
+    <h2 id="evoTitle">🎊 EVRİM!</h2>
+    <div id="evoChar">🦎</div>
+    <div id="evoName" style="font-weight:900;font-size:19px"></div>
+    <p id="evoDetail" style="font-size:13px;color:var(--ink-dim);margin-top:6px"></p>
+    <button class="bigBtn" id="evoOk">Müthiş!</button>
+  </div>
+</div>
+
+<!-- QUIZ SONU -->
+<div class="veil" id="resultVeil">
+  <div class="card">
+    <div style="font-size:46px" id="resEmoji">🍖</div>
+    <h2 id="resTitle">Beslendi!</h2>
+    <p id="resDetail" style="margin-top:8px;line-height:1.6;color:var(--ink-dim)"></p>
+    <button class="bigBtn" id="resOk">Devam</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+(function () {
+  if (window.storage && window.storage.get && window.storage.set) return;
+  window.storage = {
+    get: function (key) { try { var v = localStorage.getItem(key); return Promise.resolve(v != null ? { value: v } : null); } catch (e) { return Promise.resolve(null); } },
+    set: function (key, value) { try { localStorage.setItem(key, value); return Promise.resolve(); } catch (e) { return Promise.resolve(); } },
+    remove: function (key) { try { localStorage.removeItem(key); return Promise.resolve(); } catch (e) { return Promise.resolve(); } }
+  };
+})();
+</script>
+<script>
+"use strict";
+/* ================= CONFIG (EGITSEL-OYUN-PLANI §4.8 — aynen) ================= */
+const CONFIG = {
+  EGG_HATCH: 10,                 // yumurta açma: kategoriden 10 doğru
+  EVO_THRESHOLDS: [25, 60, 120], // evrim eşikleri (kategori bazlı doğru sayacı)
+  FUSION_Q: 20,                  // fusion: 20 soruluk karışık quiz
+  FUSION_PASS: 0.8,              // %80+
+  FEED_Q: 5,                     // besleme quizi soru sayısı
+  Q_TIME: 10,                    // 10 sn süre (§4.8 quiz formatı)
+};
+
+/* ================= KATEGORİLER + KELİME BANKASI (EN→TR) ================= */
+const CATS = {
+  animals: { ad: 'Hayvanlar', e: '🐾', mon: ['🦎', '🦖', '🐉'], adlar: ['Kertenkelecik', 'Dinozorcuk', 'Kelime Ejderi'],
+    words: [['cat','kedi'],['dog','köpek'],['bird','kuş'],['fish','balık'],['lion','aslan'],['tiger','kaplan'],
+            ['rabbit','tavşan'],['monkey','maymun'],['horse','at'],['sheep','koyun'],['snake','yılan'],['frog','kurbağa'],
+            ['bear','ayı'],['wolf','kurt'],['duck','ördek'],['cow','inek']] },
+  food: { ad: 'Yiyecekler', e: '🍎', mon: ['🍄', '🧁', '🎂'], adlar: ['Mantarcık', 'Kekcik', 'Pasta Devi'],
+    words: [['apple','elma'],['bread','ekmek'],['milk','süt'],['cheese','peynir'],['egg','yumurta'],['banana','muz'],
+            ['orange','portakal'],['cake','pasta'],['honey','bal'],['rice','pirinç'],['soup','çorba'],['tea','çay'],
+            ['water','su'],['butter','tereyağı'],['grape','üzüm'],['lemon','limon']] },
+  colors: { ad: 'Renkler', e: '🌈', mon: ['🦋', '🦚', '🦄'], adlar: ['Kelebekçik', 'Tavuskuşu', 'Gökkuşağı Tekboynuz'],
+    words: [['red','kırmızı'],['blue','mavi'],['green','yeşil'],['yellow','sarı'],['black','siyah'],['white','beyaz'],
+            ['purple','mor'],['pink','pembe'],['orange','turuncu'],['brown','kahverengi'],['gray','gri'],['gold','altın rengi']] },
+  school: { ad: 'Okul', e: '🏫', mon: ['🦉', '🧙', '🧞'], adlar: ['Baykuşçuk', 'Bilge Büyücü', 'Bilgi Cini'],
+    words: [['book','kitap'],['pen','kalem'],['teacher','öğretmen'],['student','öğrenci'],['school','okul'],['desk','sıra'],
+            ['paper','kağıt'],['lesson','ders'],['bag','çanta'],['eraser','silgi'],['ruler','cetvel'],['board','tahta']] },
+  nature: { ad: 'Doğa', e: '🌳', mon: ['🌱', '🌲', '🗻'], adlar: ['Filizcik', 'Orman Bekçisi', 'Dağ Ruhu'],
+    words: [['tree','ağaç'],['flower','çiçek'],['sun','güneş'],['moon','ay'],['star','yıldız'],['rain','yağmur'],
+            ['snow','kar'],['wind','rüzgar'],['sea','deniz'],['mountain','dağ'],['river','nehir'],['cloud','bulut']] },
+  body: { ad: 'Vücut', e: '🫀', mon: ['👾', '🤖', '👹'], adlar: ['Mini Yaratık', 'Robo Vücut', 'Dev Koruyucu'],
+    words: [['head','baş'],['eye','göz'],['ear','kulak'],['nose','burun'],['mouth','ağız'],['hand','el'],
+            ['foot','ayak'],['arm','kol'],['leg','bacak'],['hair','saç'],['tooth','diş'],['heart','kalp']] },
+};
+/* Melezler: iki tam evrimli canavar + %80 karışık quiz → nadir melez (Zindan fusion DNA'sı) */
+const HYBRIDS = [
+  { id: 'animals+food',   e: '🐙', ad: 'Lezzet Ahtapotu' },
+  { id: 'animals+colors', e: '🦩', ad: 'Flamingo Prensi' },
+  { id: 'animals+nature', e: '🦌', ad: 'Orman Geyiği' },
+  { id: 'food+school',    e: '🧇', ad: 'Bilgin Waffle' },
+  { id: 'colors+nature',  e: '🌺', ad: 'Renk Bahçesi' },
+  { id: 'school+body',    e: '🧠', ad: 'Süper Beyin' },
+];
+const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+function wordQuestion(cat){
+  // kategoriler arası karışık: cat null ise rastgele kategori (fusion quizi)
+  const c = cat || pick(Object.keys(CATS));
+  const [en, tr] = pick(CATS[c].words);
+  const toEn = Math.random() < 0.5;
+  const correct = toEn ? en : tr;
+  const set = new Set([correct]);
+  let guard = 0;
+  while (set.size < 4 && guard++ < 40){
+    const w = pick(CATS[c].words);
+    set.add(toEn ? w[0] : w[1]);
+  }
+  while (set.size < 4){ const cc = pick(Object.keys(CATS)); const w = pick(CATS[cc].words); set.add(toEn ? w[0] : w[1]); }
+  const o = [...set].sort(() => Math.random() - 0.5);
+  return { q: toEn ? `'${tr}' İngilizcede nedir?` : `'${en}' Türkçede nedir?`, o, a: o.indexOf(correct) };
+}
+
+/* ================= Audio ================= */
+const Audio2 = (() => {
+  let ctx = null;
+  function init(){ if (!ctx){ try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } if (ctx && ctx.state === 'suspended') ctx.resume(); }
+  function tone(f, dur, type, vol, when){
+    if (!ctx) return;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type || 'triangle'; o.frequency.value = f;
+    g.gain.setValueAtTime(vol || 0.06, ctx.currentTime + (when || 0));
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + (when || 0) + dur);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(ctx.currentTime + (when || 0)); o.stop(ctx.currentTime + (when || 0) + dur + 0.02);
+  }
+  return {
+    init,
+    ok: () => { tone(660, 0.1, 'triangle', 0.07); tone(880, 0.12, 'triangle', 0.07, 0.09); },
+    bad: () => tone(160, 0.25, 'sawtooth', 0.05),
+    evo: () => [392, 523, 659, 784, 1046].forEach((f, i) => tone(f, 0.16, 'triangle', 0.08, i * 0.11)),
+    feed: () => { tone(500, 0.08, 'triangle', 0.05); tone(620, 0.1, 'triangle', 0.05, 0.07); },
+  };
+})();
+
+/* ================= Bridge ================= */
+const BilnetBridge = {
+  QUEUE_KEY: 'bilnet_score_queue',
+  async submitScore(payload){
+    const rec = { ...payload, ts: Date.now() };
+    try {
+      const r = await window.storage.get(this.QUEUE_KEY);
+      const q = r && r.value ? JSON.parse(r.value) : [];
+      q.push(rec); while (q.length > 50) q.shift();
+      await window.storage.set(this.QUEUE_KEY, JSON.stringify(q));
+    } catch (e) {}
+  },
+};
+
+/* ================= KALICI DURUM ================= */
+const SAVE_KEY = 'kelimecanavar_save';
+let S = {
+  counts: {},        // kategori → toplam doğru (evrim sayacı §4.8)
+  hybrids: [],       // kazanılan melez id'leri
+  solved: 0, wrong: 0,
+};
+function persist(){ try { window.storage.set(SAVE_KEY, JSON.stringify(S)); } catch (e) {} }
+function stageOf(cat){
+  const n = S.counts[cat] || 0;
+  if (n >= CONFIG.EVO_THRESHOLDS[2]) return 3;       // 3 = tam evrim (max)
+  if (n >= CONFIG.EVO_THRESHOLDS[1]) return 2;
+  if (n >= CONFIG.EVO_THRESHOLDS[0]) return 1;
+  if (n >= CONFIG.EGG_HATCH) return 0;               // 0 = yumurtadan çıktı (bebek)
+  return -1;                                          // -1 = yumurta
+}
+function nextGoal(cat){
+  const n = S.counts[cat] || 0;
+  if (n < CONFIG.EGG_HATCH) return CONFIG.EGG_HATCH;
+  for (const t of CONFIG.EVO_THRESHOLDS) if (n < t) return t;
+  return null;   // max
+}
+
+/* ================= UI ================= */
+const $ = id => document.getElementById(id);
+let toastT = null;
+function toast(msg){
+  const t = $('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2800);
+}
+function collectionCount(){
+  let n = 0;
+  for (const c of Object.keys(CATS)){ const st = stageOf(c); if (st >= 0) n += (st === 0 ? 1 : st); }
+  return n + S.hybrids.length;
+}
+function refreshHUD(){
+  $('colChip').textContent = `📖 ${collectionCount()}/24`;
+  $('solvedChip').textContent = `✅ ${S.solved} doğru`;
+  $('fusionChip').textContent = `🧬 ${S.hybrids.length} melez`;
+}
+let activeTab = 'mons';
+function render(){
+  refreshHUD();
+  const c = $('content');
+  if (activeTab === 'mons'){
+    const maxed = Object.keys(CATS).filter(k => stageOf(k) === 3);
+    let fusionHtml = '';
+    if (maxed.length >= 2){
+      const avail = HYBRIDS.filter(h => {
+        const [a, b] = h.id.split('+');
+        return maxed.includes(a) && maxed.includes(b) && !S.hybrids.includes(h.id);
+      });
+      if (avail.length){
+        fusionHtml = `<div class="secHead"><span>🧬 FUSION HAZIR!</span></div>` + avail.map(h => {
+          const [a, b] = h.id.split('+');
+          return `<div class="monCard r-epic" style="margin-bottom:10px">
+            <div class="monEmoji">${CATS[a].mon[2]} ➕ ${CATS[b].mon[2]} = ❓</div>
+            <div class="monName">${CATS[a].ad} × ${CATS[b].ad}</div>
+            <div class="monKat">20 soruluk karışık quizde %80+ yap, melezi kazan!</div>
+            <button class="monBtn fusion" data-fusion="${h.id}">🧬 BİRLEŞTİR</button>
+          </div>`;
+        }).join('');
+      }
+    }
+    c.innerHTML = fusionHtml + `<div class="secHead"><span>🐉 Kategori Canavarları</span><span>besle = quiz çöz</span></div><div id="monGrid">` +
+      Object.entries(CATS).map(([k, cat]) => {
+        const st = stageOf(k), n = S.counts[k] || 0, goal = nextGoal(k);
+        const emoji = st < 0 ? '🥚' : cat.mon[Math.max(0, st - 1)];
+        const name = st < 0 ? 'Gizemli Yumurta' : st === 0 ? cat.mon[0] + ' bebeği' : cat.adlar[st - 1];
+        const rar = st >= 3 ? 'r-leg' : st === 2 ? 'r-epic' : st === 1 ? 'r-rare' : '';
+        const prog = goal ? Math.min(100, (n / goal) * 100) : 100;
+        return `<div class="monCard ${rar}${st < 0 ? ' eggCard' : ''}">
+          ${st > 0 ? `<div class="evoTag">Evrim ${st}/3</div>` : ''}
+          <div class="monEmoji">${emoji}</div>
+          <div class="monName">${st < 0 ? 'Gizemli Yumurta' : name}</div>
+          <div class="monKat">${cat.e} ${cat.ad} · ${n} doğru</div>
+          <div class="monBar"><i style="width:${prog}%"></i></div>
+          <div class="monKat" style="margin-top:3px">${goal ? `${n}/${goal}` : 'TAM EVRİM! 🌟'}</div>
+          <button class="monBtn" data-feed="${k}">🍖 Besle (${CONFIG.FEED_Q} soru)</button>
+        </div>`;
+      }).join('') + '</div>';
+  } else {
+    c.innerHTML = `<div class="secHead"><span>📖 Koleksiyon Defteri</span><span>${collectionCount()}/24</span></div><div id="monGrid">` +
+      Object.entries(CATS).flatMap(([k, cat]) => cat.mon.map((m, i) => {
+        const owned = stageOf(k) >= i + 1 || (i === 0 && stageOf(k) >= 0);
+        return `<div class="monCard${owned ? (i === 2 ? ' r-leg' : i === 1 ? ' r-epic' : ' r-rare') : ''}" style="${owned ? '' : 'opacity:.4;filter:grayscale(.8)'}">
+          <div class="monEmoji">${owned ? m : '❓'}</div>
+          <div class="monName">${owned ? cat.adlar[i] : '???'}</div>
+          <div class="monKat">${cat.e} ${cat.ad}</div>
+        </div>`;
+      })).join('') +
+      HYBRIDS.map(h => {
+        const owned = S.hybrids.includes(h.id);
+        return `<div class="monCard${owned ? ' r-leg' : ''}" style="${owned ? '' : 'opacity:.4;filter:grayscale(.8)'}">
+          <div class="monEmoji">${owned ? h.e : '❓'}</div>
+          <div class="monName">${owned ? h.ad : 'Gizli Melez'}</div>
+          <div class="monKat">🧬 Fusion</div>
+        </div>`;
+      }).join('') + '</div>' +
+      `<div class="monKat" style="text-align:center;margin-top:10px">Hepsini topla → "Canavar Profesörü" ol! 🎓</div>`;
+  }
+  c.querySelectorAll('[data-feed]').forEach(b => b.addEventListener('click', () => startFeed(b.dataset.feed)));
+  c.querySelectorAll('[data-fusion]').forEach(b => b.addEventListener('click', () => startFusion(b.dataset.fusion)));
+}
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('on'));
+  t.classList.add('on');
+  activeTab = t.dataset.tab;
+  render();
+}));
+
+/* ================= QUIZ AKIŞI (besleme + fusion) ================= */
+let Q = null, fuseT = null;
+function startFeed(cat){
+  Audio2.init();
+  Q = { mode: 'feed', cat, n: CONFIG.FEED_Q, i: 0, correct: 0 };
+  $('qzTitle').textContent = `🍖 ${CATS[cat].ad} Beslemesi`;
+  $('quizVeil').classList.add('show');
+  showQ();
+}
+function startFusion(hid){
+  Audio2.init();
+  Q = { mode: 'fusion', hid, n: CONFIG.FUSION_Q, i: 0, correct: 0 };
+  $('qzTitle').textContent = '🧬 FUSION Quizi — Karışık!';
+  $('quizVeil').classList.add('show');
+  showQ();
+}
+function showQ(){
+  const q = Q.mode === 'fusion' ? wordQuestion(null) : wordQuestion(Q.cat);
+  Q.cur = q;
+  $('qzInfo').textContent = `Soru ${Q.i + 1}/${Q.n} · Doğru: ${Q.correct}`;
+  $('qzText').textContent = q.q;
+  const box = $('qzOpts'); box.innerHTML = '';
+  q.o.forEach((o, i) => {
+    const b = document.createElement('button');
+    b.className = 'opt'; b.textContent = o;
+    b.addEventListener('click', () => answerQ(i));
+    box.appendChild(b);
+  });
+  clearInterval(fuseT);
+  const t0 = Date.now();
+  fuseT = setInterval(() => {
+    if (document.hidden) return;
+    const left = 1 - (Date.now() - t0) / (CONFIG.Q_TIME * 1000);
+    $('qzFuse').style.width = Math.max(0, left * 100) + '%';
+    if (left <= 0) answerQ(-1);
+  }, 100);
+}
+function answerQ(i){
+  clearInterval(fuseT);
+  const q = Q.cur;
+  const right = i === q.a;
+  if (right){ Q.correct++; Audio2.ok(); } else Audio2.bad();
+  const btns = $('qzOpts').children;
+  [...btns].forEach((b, j) => { b.disabled = true; if (j === q.a) b.classList.add('right'); else if (j === i) b.classList.add('wrong'); });
+  Q.i++;
+  setTimeout(() => { Q.i >= Q.n ? endQuiz() : showQ(); }, 800);
+}
+function endQuiz(){
+  $('quizVeil').classList.remove('show');
+  S.solved += Q.correct; S.wrong += Q.n - Q.correct;
+  if (Q.mode === 'feed'){
+    const before = stageOf(Q.cat);
+    S.counts[Q.cat] = (S.counts[Q.cat] || 0) + Q.correct;
+    const after = stageOf(Q.cat);
+    persist();
+    BilnetBridge.submitScore({ gameId: 'kelime-canavarlari', score: Q.correct * 15, tier: 2,
+      stats: { correct: Q.correct, wrong: Q.n - Q.correct, cat: Q.cat } });
+    if (after > before){
+      // yumurtadan çıkış ya da evrim!
+      const cat = CATS[Q.cat];
+      Audio2.evo();
+      $('evoTitle').textContent = after === 0 ? '🐣 YUMURTA ÇATLADI!' : '🎊 EVRİM!';
+      $('evoChar').textContent = cat.mon[Math.max(0, after - 1)];
+      $('evoName').textContent = after === 0 ? cat.mon[0] + ' bebeği doğdu!' : cat.adlar[after - 1];
+      $('evoDetail').textContent = after === 3 ? 'TAM EVRİM! Artık fusion için hazır 🧬' : `Sonraki evrim: ${nextGoal(Q.cat)} doğru cevapta.`;
+      $('evoVeil').classList.add('show');
+      return;
+    }
+    Audio2.feed();
+    $('resEmoji').textContent = '🍖';
+    $('resTitle').textContent = 'Beslendi!';
+    $('resDetail').innerHTML = `✅ ${Q.correct}/${Q.n} doğru → ${CATS[Q.cat].ad} canavarın ${Q.correct} büyüme puanı kazandı!<br><small>Bugün ${Q.correct} İngilizce kelime çalıştın 🎓</small>`;
+    $('resultVeil').classList.add('show');
+  } else {
+    // fusion: %80+ şart (§4.8)
+    const ok = Q.correct / Q.n >= CONFIG.FUSION_PASS;
+    persist();
+    BilnetBridge.submitScore({ gameId: 'kelime-canavarlari', score: ok ? 500 : Q.correct * 10, tier: 4,
+      stats: { correct: Q.correct, wrong: Q.n - Q.correct, fusion: Q.hid, success: ok } });
+    if (ok){
+      S.hybrids.push(Q.hid);
+      persist();
+      const h = HYBRIDS.find(x => x.id === Q.hid);
+      Audio2.evo();
+      $('evoTitle').textContent = '🧬 FUSION BAŞARILI!';
+      $('evoChar').textContent = h.e;
+      $('evoName').textContent = h.ad;
+      $('evoDetail').textContent = `%${Math.round(100 * Q.correct / Q.n)} doğrulukla nadir melez kazandın!`;
+      $('evoVeil').classList.add('show');
+    } else {
+      $('resEmoji').textContent = '🧪';
+      $('resTitle').textContent = 'Fusion Tutmadı!';
+      $('resDetail').innerHTML = `%${Math.round(100 * Q.correct / Q.n)} doğruluk — fusion için %80 gerekli.<br><small>Canavarların sana küsmedi, tekrar dene! 💪</small>`;
+      $('resultVeil').classList.add('show');
+    }
+  }
+}
+$('resOk').addEventListener('click', () => { $('resultVeil').classList.remove('show'); render(); });
+$('evoOk').addEventListener('click', () => { $('evoVeil').classList.remove('show'); render(); });
+
+/* ================= BAŞLAT ================= */
+window.storage.get(SAVE_KEY).then(r => {
+  if (r && r.value){ try { S = Object.assign(S, JSON.parse(r.value)); } catch (e) {} }
+  render();
+});
+document.addEventListener('visibilitychange', () => { if (document.hidden) persist(); });
+</script>
+</body>
+</html>
