@@ -32,7 +32,7 @@
 | No | Oyun | İlham | Efor | Durum | Oturum | Not |
 |---|---|---|---|---|---|---|
 | 4.1 | **Bilgi Madencisi** 💎⛏️ | Gold Miner | ⭐ | ✅ | 2026-06-13 | "Altın Madencisi" kaynak kodu repoda YOK (doğrulandı) → SIFIRDAN yazıldı (kullanıcı onayı); §4.1 parametreleri aynen (tier×50, combo ×2 max, 5 doğruda dinamit, 60sn); FALLBACK 24 soru fabrika bankasından + prosedürel üretici; Bridge skor kuyruğu (`bilnet_score_queue`); kategori: Sayılar & Matematik |
-| 4.2 | Matematik Patlatma 🧨 | Diamond Dash | ⭐⭐ | ⬜ | — | Prosedürel, soru bankası gerekmez; çözümsüzlük kontrolü şart |
+| 4.2 | **Matematik Patlatma** 🧨 | Diamond Dash | ⭐⭐ | ✅ | 2026-06-13 | §4.2 aynen: 7×7 (mobil 6×6), zincir puanı taş²×10, hedef her 3 patlatmada yenilenir, tier hedefleri (Etek toplam 5-10 / Yamaç 10-20 / Tırmanış +fark / Zirve çarpım); çözümsüzlük kontrolü: hedef yeniden çekme → karıştırma → yeniden doldurma; hedefe TAM ulaşınca otomatik patlama, geri alma destekli sürükleme; `matpatlatma_stats` + Bridge kuyruğu; kategori: Sayılar & Matematik |
 | 4.3 | Kelime Balonu 🎈 | Bubble Safari | ⭐⭐ | ⬜ | — | Hex grid + balon fiziği tek zor kısım; emoji görseller |
 | M1 | **Meta katman v1** | — | ⭐⭐ | ⬜ | — | Jeton + günlük giriş serisi + skor tablosu; Bridge backend bağlanır; NOT: ana doküman Firestore der, portal RTDB kullanır → bu oturumda karara bağlanacak; soru bankası şema dönüştürücüsü (ana doküman §2 ↔ `fabrika/soru-bankasi/*.json`) burada yazılacak |
 
