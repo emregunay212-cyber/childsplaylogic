@@ -27,7 +27,7 @@ const BilVeFethet = (() => {
         clear(gameArea);
 
         iframe = document.createElement('iframe');
-        iframe.src = 'games/bil-ve-fethet/index.html?v=1';
+        iframe.src = 'games/bil-ve-fethet/index.html?v=2';
         iframe.className = 'bvf-iframe';
         iframe.setAttribute('allow', 'fullscreen; autoplay');
         iframe.setAttribute('tabindex', '0');

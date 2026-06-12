@@ -181,7 +181,7 @@ const CONFIG = {
   ORDERED: { 1: false, 2: false, 3: true, 4: true },   // sıra zorunluluğu Tırmanış+
   SHOW_EMOJI: { 1: true, 2: true, 3: true, 4: false }, // Zirve: resim yok, sadece TR
   COLS: 8,                 // hex grid: çift satır 8, tek satır 7 balon
-  INIT_ROWS: 4,
+  INIT_ROWS: { 1: 3, 2: 4, 3: 4, 4: 4 },   // Etek'te daha ferah başlangıç
   PROJ_SPEED: 920,         // px/sn
   FALL_BONUS_LIMIT: 40,
 };
@@ -335,7 +335,7 @@ function dangerY(){ return cv.height - 150; }
 function randLetter(){ return String.fromCharCode(65 + rnd(0, 25)); }
 function fillInitial(){
   G.cells.clear();
-  for (let r = 0; r < CONFIG.INIT_ROWS; r++)
+  for (let r = 0; r < CONFIG.INIT_ROWS[G.tier]; r++)
     for (let c = 0; c < rowCols(r); c++)
       G.cells.set(ckey(c, r), { c, r, L: randLetter() });
 }
@@ -366,17 +366,31 @@ function neededLetters(){
   if (CONFIG.ORDERED[G.tier]) return G.progress < G.word.en.length ? [G.word.en[G.progress]] : [];
   return [...new Set(G.remaining)];
 }
-/* Çözülebilirlik garantisi: gereken her harf kümede yoksa bir çeldirici yeniden etiketlenir */
+/* VURULABİLİRLİK: balon, yanında/altında boş hücre varsa mermiyle ulaşılabilir.
+   (Mermi alttan gelir — gömülü balona çarpamaz.) */
+function isHittable(b){
+  for (const [nc, nr] of neighborsOf(b.c, b.r))
+    if (nr >= b.r && !G.cells.has(ckey(nc, nr))) return true;
+  // kendi sütununun en altındaki balon her zaman açıktır
+  for (let r = b.r + 1; r < b.r + 2; r++) if (!G.cells.has(ckey(b.c, r))) return true;
+  return false;
+}
+/* Çözülebilirlik garantisi v2: gereken her harf VURULABİLİR yüzeyde olmalı —
+   sadece var olması yetmez (gömülü harf = imkânsız atış). Yoksa alt yüzeydeki
+   bir çeldirici balon o harfe yeniden etiketlenir. */
 function ensureLetters(){
   const needs = neededLetters();
   if (!needs.length) return;
   const live = [...G.cells.values()];
   if (!live.length){ pushRow(); pushRow(); return ensureLetters(); }
+  const hittables = live.filter(isHittable)
+    .sort((a, b) => cellXY(b.c, b.r).y - cellXY(a.c, a.r).y);   // en alttakiler önce
   for (const L of needs){
-    if (live.some(b => b.L === L)) continue;
-    const distractors = live.filter(b => !needs.includes(b.L));
-    const target = distractors.length ? pick(distractors) : pick(live);
-    target.L = L;
+    if (hittables.some(b => b.L === L)) continue;   // zaten vurulabilir yüzeyde
+    // alt yüzeyden bir çeldirici seç (gereken başka harfi bozma), en ulaşılabilir 8 içinden
+    const cands = hittables.filter(b => !needs.includes(b.L));
+    const target = cands.length ? pick(cands.slice(0, 8)) : (hittables[0] || pick(live));
+    if (target) target.L = L;
   }
 }
 
@@ -596,10 +610,17 @@ function draw(){
   ctx2.beginPath(); ctx2.moveTo(0, dy); ctx2.lineTo(cv.width, dy);
   ctx2.strokeStyle = 'rgba(220,60,60,.55)'; ctx2.lineWidth = 2.5; ctx2.stroke();
   ctx2.setLineDash([]);
-  // küme
+  // küme — gereken harfler altın halkayla vurgulanır ("hangi harfi arıyorum?" sorunu çözülür)
+  const needsNow = G.state === 'playing' ? neededLetters() : [];
+  const pulse = 0.55 + 0.45 * Math.sin(performance.now() / 280);
   for (const b of G.cells.values()){
     const p = cellXY(b.c, b.r);
     drawBubble(p.x, p.y, b.L);
+    if (needsNow.includes(b.L)){
+      ctx2.beginPath(); ctx2.arc(p.x, p.y, G.D / 2 + 2.5, 0, 7);
+      ctx2.strokeStyle = `rgba(255,210,63,${(0.45 + 0.5 * pulse).toFixed(2)})`;
+      ctx2.lineWidth = 3.5; ctx2.stroke();
+    }
   }
   // düşenler
   for (const f of G.fallers) drawBubble(f.x, f.y, f.L, 0.9);

@@ -30,7 +30,7 @@ const KelimeBalonu = (() => {
         clear(gameArea);
 
         iframe = document.createElement('iframe');
-        iframe.src = 'games/kelime-balonu/index.html?v=1';
+        iframe.src = 'games/kelime-balonu/index.html?v=2';
         iframe.className = 'kb-iframe';
         iframe.setAttribute('allow', 'fullscreen; autoplay');
         iframe.setAttribute('tabindex', '0');
