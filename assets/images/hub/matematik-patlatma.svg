@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Matematik Patlatma: sayı taşları + zincir + patlama -->
+  <defs>
+    <radialGradient id="mtpBg" cx="50%" cy="30%" r="85%">
+      <stop offset="0%" stop-color="#3a2a63"/>
+      <stop offset="100%" stop-color="#1a1033"/>
+    </radialGradient>
+  </defs>
+  <rect x="6" y="6" width="88" height="88" rx="16" fill="url(#mtpBg)"/>
+  <!-- patlama yıldızı (arka) -->
+  <g transform="translate(67 33)">
+    <path d="M0 -19 L5 -6 L18 -7 L8 2 L13 15 L0 8 L-13 15 L-8 2 L-18 -7 L-5 -6 Z"
+          fill="#ffd23f" stroke="#d99a1f" stroke-width="2" stroke-linejoin="round"/>
+    <text x="0" y="6" font-family="system-ui, sans-serif" font-size="15" font-weight="900" text-anchor="middle" fill="#7a4a00">12</text>
+  </g>
+  <!-- sayı taşları zinciri -->
+  <g font-family="system-ui, sans-serif" font-weight="900" text-anchor="middle">
+    <rect x="14" y="52" width="22" height="22" rx="6" fill="#ef5777" stroke="#b23a55" stroke-width="2"/>
+    <text x="25" y="68" font-size="14" fill="#fff">3</text>
+    <rect x="40" y="60" width="22" height="22" rx="6" fill="#4aa8ff" stroke="#2f74bd" stroke-width="2"/>
+    <text x="51" y="76" font-size="14" fill="#fff">4</text>
+    <rect x="66" y="64" width="22" height="22" rx="6" fill="#7bd960" stroke="#4f9e3c" stroke-width="2"/>
+    <text x="77" y="80" font-size="14" fill="#fff">5</text>
+  </g>
+  <!-- zincir çizgisi -->
+  <path d="M25 63 L51 71 L77 75" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.75"/>
+  <!-- kıvılcımlar -->
+  <circle cx="44" cy="26" r="3" fill="#ff6bc4"/>
+  <circle cx="86" cy="50" r="2.6" fill="#37c8ab"/>
+  <circle cx="22" cy="38" r="2.6" fill="#ffd23f"/>
+</svg>
