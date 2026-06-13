@@ -41,8 +41,19 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:12px}
   font-weight:900;font-size:clamp(18px,5vw,24px);will-change:transform;color:#fff}
 .tileK.hitOk{background:#1d5c38;border-color:var(--ok)}
 .tileK.hitBad{background:#5c1d28;border-color:#d6536a}
+/* nota vuruş bölgesindeyken parlasın — oyuncu ne zaman basacağını görsün */
+.tileK.inZone{box-shadow:0 0 18px 4px rgba(255,210,63,.9);border-color:var(--gold);transform-origin:center;animation:zonePulse .5s ease-in-out infinite alternate}
+@keyframes zonePulse{from{filter:brightness(1)}to{filter:brightness(1.35)}}
 #hitLine{position:absolute;left:0;right:0;bottom:96px;height:3px;background:rgba(255,210,63,.5);box-shadow:0 0 12px rgba(255,210,63,.6)}
-#lives{position:absolute;top:8px;right:10px;font-size:18px;z-index:6}
+/* büyük görünür harf etiketleri — her kolonun altında, vuruş çizgisi hizasında */
+#keyRow{position:absolute;left:0;right:0;bottom:14px;height:64px;display:flex;z-index:6;pointer-events:none}
+.keyCap{flex:1;display:flex;align-items:center;justify-content:center;margin:0 .5%;
+  font-size:clamp(22px,7vw,34px);font-weight:900;color:var(--gold);
+  background:rgba(0,0,0,.3);border:3px solid rgba(255,210,63,.35);border-radius:14px;
+  text-shadow:0 2px 0 rgba(0,0,0,.5);transition:transform .07s,background .07s,border-color .07s}
+.keyCap.press{transform:scale(.86);background:rgba(255,210,63,.45);border-color:var(--gold);color:#241a44}
+#keyHint{width:100%;text-align:center;font-size:clamp(11px,3vw,14px);color:var(--ink-dim);padding:5px 8px 8px}
+#lives{position:absolute;top:8px;right:10px;font-size:18px;z-index:7}
 
 #screen-result #resEmoji{font-size:52px}
 #resScore{font-size:clamp(32px,9vw,48px);font-weight:900;color:var(--gold)}
@@ -81,8 +92,15 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:12px}
     <div class="col" style="left:0"></div><div class="col" style="left:25%"></div>
     <div class="col" style="left:50%"></div><div class="col" style="left:75%"></div>
     <div id="hitLine"></div>
+    <div id="keyRow">
+      <span class="keyCap" data-col="0">A</span>
+      <span class="keyCap" data-col="1">S</span>
+      <span class="keyCap" data-col="2">D</span>
+      <span class="keyCap" data-col="3">F</span>
+    </div>
     <div id="lives"></div>
   </div>
+  <p id="keyHint">⌨️ Tuşlar: <b>A S D F</b> (veya <b>1 2 3 4</b>) · 📱 Dokun da olur!</p>
 </div>
 
 <div id="pauseVeil">
@@ -202,9 +220,18 @@ const G = {
   score:0, correct:0, wrong:0, streak:0, bestStreak:0, lives:Infinity,
   tiles:[], q:null, speed:2, noteI:0,
   timeLeft:CONFIG.ROUND_SEC, secT:null, raf:0, lastTs:0, spawnAcc:0,
+  recentQ:[],            // son soruların metni (peş peşe tekrar engeli)
+  keyLockUntil:[0,0,0,0],// kolon başına debounce (key-repeat engeli)
 };
+const RECENT_Q_MAX = 8;       // son 8 sorunun metnini hatırla
+const KEY_DEBOUNCE_MS = 120;  // kolon başına tuş tekrar engeli
+const HIT_ZONE_PX = 45;       // vuruş çizgisine ±45px yakınlık (hit-zone)
+const KEY_TO_COL = { KeyA:0, KeyS:1, KeyD:2, KeyF:3, Digit1:0, Digit2:1, Digit3:2, Digit4:3,
+                     Numpad1:0, Numpad2:1, Numpad3:2, Numpad4:3 };
 function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('show')); $(id).classList.add('show'); }
 function comboMult(){ return Math.min(CONFIG.COMBO_MAX, 1 + Math.floor(G.streak/4)); }
+/* vuruş çizgisi (#hitLine) bottom:96px + 3px yükseklik; merkez y'si lane üstünden */
+function hitZoneCenterY(H){ return H - 96 - 1.5; }
 function refreshHUD(){
   $('scoreChip').textContent = '⭐ ' + G.score;
   $('comboChip').textContent = '🔥 ×' + comboMult();
@@ -212,7 +239,13 @@ function refreshHUD(){
   $('lives').textContent = G.lives === Infinity ? '' : '❤️'.repeat(Math.max(0,G.lives));
 }
 function newQuestion(){
-  G.q = genQ(G.tier);
+  // peş peşe aynı soru gelmesin: son sorulardan biriyse sınırlı denemeyle yeniden üret
+  let q = genQ(G.tier);
+  let tries = 0;
+  while (G.recentQ.includes(q.q) && tries++ < 12){ q = genQ(G.tier); }
+  G.q = q;
+  G.recentQ.push(q.q);
+  while (G.recentQ.length > RECENT_Q_MAX) G.recentQ.shift();
   $('qLine').textContent = G.q.q;
 }
 function spawnTile(){
@@ -227,7 +260,7 @@ function spawnTile(){
   el.addEventListener('pointerdown', e => { e.stopPropagation(); tapTile(t); });
   const lane = $('lane');
   lane.appendChild(el);
-  const t = { el, y: -90, txt, correct, dead:false };
+  const t = { el, y: -90, txt, correct, dead:false, col, inZone:false };
   G.tiles.push(t);
 }
 function tapTile(t){
@@ -252,6 +285,25 @@ function tapTile(t){
   refreshHUD();
 }
 function removeTileLater(t){ setTimeout(()=>{ t.el.remove(); }, 180); }
+/* Klavye vuruşu: ilgili kolonda vuruş çizgisine en yakın (hit-zone içi) notayı bul ve bas.
+   Boş basışta (hit-zone'da nota yok) kaçırma geri bildirimi ver. */
+function hitColumn(col){
+  if (G.state!=='playing') return;
+  const lane = $('lane');
+  const zoneCenter = hitZoneCenterY(lane.clientHeight);
+  let best = null, bestDist = Infinity;
+  for (const t of G.tiles){
+    if (t.dead || t.col !== col) continue;
+    const dist = Math.abs((t.y + 42) - zoneCenter);
+    if (dist <= HIT_ZONE_PX && dist < bestDist){ best = t; bestDist = dist; }
+  }
+  if (best){
+    tapTile(best);                 // mevcut vuruş/skor mantığını aynen kullan
+  } else {
+    // hit-zone dışında boş basış: kaçırma sesi + hafif görsel uyarı (oyun bitmez)
+    Audio2.miss();
+  }
+}
 function loop(ts){
   if (G.state!=='playing'){ G.raf=0; return; }
   const dt = Math.min(0.05,(ts-G.lastTs)/1000||0.016);
@@ -259,6 +311,7 @@ function loop(ts){
   const lane = $('lane');
   const H = lane.clientHeight;
   const pxPerSec = G.speed * 120;
+  const zoneCenter = hitZoneCenterY(H);   // vuruş çizgisinin merkez y'si
   // spawn: karolar arası mesafe
   G.spawnAcc += dt * G.speed;
   if (G.spawnAcc >= CONFIG.SPAWN_GAP){ G.spawnAcc = 0; spawnTile(); }
@@ -266,6 +319,12 @@ function loop(ts){
     if (t.dead) continue;
     t.y += pxPerSec * dt;
     t.el.style.transform = `translateY(${t.y}px)`;
+    // hit-zone görsel vurgusu: karo merkezi vuruş çizgisine ±45px ise parlat
+    const inZone = Math.abs((t.y + 42) - zoneCenter) <= HIT_ZONE_PX;
+    if (inZone !== t.inZone){
+      t.inZone = inZone;
+      t.el.classList.toggle('inZone', inZone);
+    }
     if (t.y > H){
       t.dead = true;
       t.el.remove();
@@ -289,6 +348,8 @@ function startRound(){
   G.speed = CONFIG.START_SPEED;
   G.timeLeft = CONFIG.ROUND_SEC;
   G.spawnAcc = 0;
+  G.recentQ = [];
+  G.keyLockUntil = [0,0,0,0];
   document.querySelectorAll('.tileK').forEach(e=>e.remove());
   G.tiles = [];
   show('screen-game');
@@ -341,6 +402,25 @@ $('bPause').addEventListener('click',pauseGame);
 $('bResume').addEventListener('click',()=>{ if(G.state!=='paused')return; G.state='playing'; $('pauseVeil').classList.remove('show'); G.lastTs=performance.now(); if(!G.raf)G.raf=requestAnimationFrame(loop); });
 $('bQuit').addEventListener('click',()=>{ $('pauseVeil').classList.remove('show'); clearInterval(G.secT); G.state='menu'; show('screen-menu'); refreshBest(); });
 addEventListener('keydown',e=>{ if((e.code==='KeyP'||e.code==='Escape')&&G.state==='playing') pauseGame(); });
+/* Oyun tuşları: A S D F (alternatif 1 2 3 4) → kolon vuruşu. Debounce + preventDefault. */
+addEventListener('keydown',e=>{
+  if (G.state!=='playing') return;
+  const col = KEY_TO_COL[e.code];
+  if (col === undefined) return;
+  e.preventDefault();
+  if (e.repeat) return;                              // tarayıcı key-repeat'i engelle
+  const now = performance.now();
+  if (now < G.keyLockUntil[col]) return;             // kolon başına ~120ms debounce
+  G.keyLockUntil[col] = now + KEY_DEBOUNCE_MS;
+  flashKeyCap(col);                                  // harf etiketine basış efekti
+  hitColumn(col);
+});
+function flashKeyCap(col){
+  const cap = document.querySelector('.keyCap[data-col="'+col+'"]');
+  if (!cap) return;
+  cap.classList.add('press');
+  setTimeout(()=>cap.classList.remove('press'), 110);
+}
 document.addEventListener('visibilitychange',()=>{ if(document.hidden && G.state==='playing'){ pauseGame(); saveStats(); } });
 loadStats();
 </script>

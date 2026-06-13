@@ -104,7 +104,7 @@ const CONFIG = {
   START_AMMO_Q: 3,          // başlangıç: 3 soru = 3 mermi
   G_BASE: 1450,             // yerçekimi (bölüm çarpanıyla — "Ay bölümü" g düşük)
   POWER_MAX: 100,
-  V_PER_POWER: 9.4,
+  V_PER_POWER: 10.6,        // kuvvet→hız: uzaktaki kutuları vurabilmek için artırıldı
 };
 /* 12 el yapımı seviye (JSON tanımlı kutu dizilimleri — §4.20)
    b: kutular [x(0-1 sahne oranı), yerden kat, w, h(kat), hp] · s: yıldızlar · g: yerçekimi çarpanı */
@@ -183,8 +183,14 @@ const G = {
 function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('show')); $(id).classList.add('show'); }
 function layout(){ cv.width = innerWidth; cv.height = innerHeight; }
 const groundY = () => cv.height - 60;
-const slingX = () => Math.min(110, cv.width*0.14);
+/* Sapan konumu: mermiyi geriye (sol/aşağı) çekip güç toplamaya yetecek alan kalsın.
+   Soldan en az ~120px boşluk bırak (geniş çekme payı), ama hedefler 0.55–0.86 oranında
+   olduğu için kabaca ekranın %22'sini geçme (mermi yine de uzağa atılabilsin). */
+const slingX = () => Math.max(120, Math.min(cv.width*0.22, 260));
 const slingY = () => groundY() - 70;
+/* Maksimum geriye çekme mesafesi: sapanın solundaki kullanılabilir alanla orantılı.
+   Geniş ekranda büyük, dar ekranda makul; POWER_MAX'a bu mesafede ulaşılır. */
+const maxDrag = () => Math.max(120, Math.min(slingX() - 16, 260));
 const unit = () => Math.min(56, cv.height/9);
 function renderMenu(){
   const g = $('lvlGrid');
@@ -358,8 +364,8 @@ function draw(){
   // zemin
   ctx2.fillStyle = G.lvl && G.lvl.g<1 ? '#5a5a7e' : '#5fae6e';
   ctx2.fillRect(0,groundY(),cv.width,cv.height-groundY());
-  // yörünge öngörüsü (Etek bölümlerinde açık, son bölümlerde kapalı — §4.20)
-  const showGuide = G.lvlIdx < 6;
+  // yörünge öngörüsü (ilk bölümlerde açık, yalnızca son 3 bölümde kapalı — §4.20)
+  const showGuide = G.lvlIdx < 9;
   if (G.drag && showGuide){
     const v = launchVel();
     let x=slingX(), y=slingY(), vx=v.vx, vy=v.vy;
@@ -428,7 +434,9 @@ function updateAim(e){
   const dx = slingX() - e.clientX, dy = e.clientY - slingY();
   G.angle = Math.max(5, Math.min(85, Math.atan2(dy, dx) * 180/Math.PI));
   if (isNaN(G.angle)) G.angle = 45;
-  G.power = Math.max(15, Math.min(CONFIG.POWER_MAX, Math.hypot(dx,dy)/2.2));
+  // Çekme mesafesini POWER_MAX'a oranla: maxDrag kadar çekince tam güç.
+  const pull = Math.hypot(dx, dy);
+  G.power = Math.max(15, Math.min(CONFIG.POWER_MAX, (pull/maxDrag())*CONFIG.POWER_MAX));
   Audio2.stretch(G.power);
   refreshHUD();
 }

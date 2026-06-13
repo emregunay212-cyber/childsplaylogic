@@ -227,8 +227,51 @@ const EN_WORDS = [
 ];
 const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+/* ================= KALICI SORU GEÇMİŞİ (tekrar-önleme) =================
+   Öğrenciye aynı soru gelmesin diye sorulmuş sorular ders bazlı kalıcı
+   tutulur (localStorage). Oturum-içi Set (asked) hızlı erişim, kalıcı
+   geçmiş (ASKED) sayfa yenilense de korunur. İngilizce sorular kelime-çifti
+   anahtarıyla (en|tr) izlenir. */
+const ASKED_KEY = 'bilgiciftligi_asked';
+const asked = { mat: new Set(), fen: new Set(), en: new Set(), tr: new Set() };
+let ASKED = { mat: [], fen: [], en: [], tr: [] };
+function loadAsked(){
+  try {
+    return window.storage.get(ASKED_KEY).then(r => {
+      if (r && r.value){
+        const parsed = JSON.parse(r.value);
+        for (const d of ['mat', 'fen', 'en', 'tr']){
+          const arr = Array.isArray(parsed && parsed[d]) ? parsed[d] : [];
+          ASKED[d] = arr.slice();
+          asked[d] = new Set(arr);
+        }
+      }
+    }).catch(() => {});
+  } catch (e) { return Promise.resolve(); }
+}
+function saveAsked(){ try { window.storage.set(ASKED_KEY, JSON.stringify(ASKED)); } catch (e) {} }
+function markAsked(ders, key){
+  if (!asked[ders]) return;
+  if (asked[ders].has(key)) return;
+  asked[ders].add(key);
+  ASKED[ders].push(key);
+  saveAsked();
+}
+function resetAsked(ders){
+  if (!asked[ders]) return;
+  asked[ders].clear();
+  ASKED[ders] = [];
+  saveAsked();
+}
+
+function enKey(en, tr){ return en + '|' + tr; }
 function enQuestion(){
-  const [en, tr] = pick(EN_WORDS);
+  // havuzdaki sorulmamış kelime çiftlerini bul; hepsi sorulduysa SADECE EN geçmişini sıfırla
+  let words = EN_WORDS.filter(w => !asked.en.has(enKey(w[0], w[1])));
+  if (!words.length){ resetAsked('en'); words = EN_WORDS.slice(); }
+  const [en, tr] = pick(words);
+  markAsked('en', enKey(en, tr));
   const toEn = Math.random() < 0.5;
   const correct = toEn ? en : tr;
   const set = new Set([correct]);
@@ -236,14 +279,13 @@ function enQuestion(){
   const o = [...set].sort(() => Math.random() - 0.5);
   return { q: toEn ? `'${tr}' İngilizcede nedir?` : `'${en}' Türkçede nedir?`, o, a: o.indexOf(correct) };
 }
-const asked = new Set();
 function nextQuestion(ders, tier){
   if (ders === 'en') return enQuestion();
   const z = Math.min(3, tier);
-  let pool = BANK.filter(x => x.d === ders && x.z <= z && !asked.has(x.q));
-  if (!pool.length){ BANK.forEach(x => { if (x.d === ders) asked.delete(x.q); }); pool = BANK.filter(x => x.d === ders && x.z <= z); }
+  let pool = BANK.filter(x => x.d === ders && x.z <= z && !asked[ders].has(x.q));
+  if (!pool.length){ resetAsked(ders); pool = BANK.filter(x => x.d === ders && x.z <= z); }
   const q = pick(pool);
-  asked.add(q.q);
+  markAsked(ders, q.q);
   return { q: q.q, o: q.o.slice(), a: q.a };
 }
 
@@ -486,6 +528,8 @@ window.storage.get(SAVE_KEY).then(r => {
   return window.storage.get(STATS_KEY);
 }).then(r => {
   if (r && r.value){ try { STATS = Object.assign(STATS, JSON.parse(r.value)); } catch (e) {} }
+  return loadAsked();   // sorulmuş-soru geçmişini geri yükle (tekrar-önleme)
+}).then(() => {
   renderFarm();
 });
 setInterval(() => { if (!document.hidden) renderFarm(); }, 10000);   // kalan süre etiketleri tazelenir

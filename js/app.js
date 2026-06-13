@@ -97,7 +97,6 @@ const App = (() => {
                 { game: BilgiTakimi, color: 'var(--bilgi-takimi-color)' },
                 { game: BilgiCiftligi, color: 'var(--bilgi-ciftligi-color)' },
                 { game: BilgiKulesi, color: 'var(--bilgi-kulesi-color)' },
-                { game: BilgiZiplamasi, color: 'var(--ziplamasi-color)' },
                 { game: CevapKosusu, color: 'var(--cevap-kosusu-color)' },
                 { game: BilgiSavunmasi, color: 'var(--savunma-color)' },
                 { game: FizikFirlatma, color: 'var(--firlatma-color)' },

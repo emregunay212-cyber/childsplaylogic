@@ -32,8 +32,32 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:12px}
 #hudRow{display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:800}
 .chip{background:rgba(0,0,0,.25);border-radius:9px;padding:4px 10px;white-space:nowrap}
 #ruleLine{font-size:clamp(15px,4.5vw,20px);font-weight:900;color:var(--gold);text-align:center}
-#ruleLine.fresh{animation:rulePop .5s}
-@keyframes rulePop{0%{transform:scale(1)}50%{transform:scale(1.15);color:#fff}100%{transform:scale(1)}}
+#ruleLine.fresh{animation:rulePop .7s ease-out}
+@keyframes rulePop{
+  0%{transform:scale(1);color:var(--gold);text-shadow:none}
+  25%{transform:scale(1.28);color:#fff;text-shadow:0 0 12px var(--hot),0 0 22px var(--gold)}
+  50%{transform:scale(1.12);color:var(--gold);text-shadow:0 0 16px var(--gold)}
+  75%{transform:scale(1.18);color:#fff;text-shadow:0 0 14px var(--hot),0 0 20px var(--gold)}
+  100%{transform:scale(1);color:var(--gold);text-shadow:none}
+}
+/* Yeni görev banner overlay — ekran ortasında kısa süreli, yüksek z-index */
+#ruleBanner{position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+  flex-direction:column;gap:8px;z-index:60;pointer-events:none;text-align:center;padding:20px}
+#ruleBanner.show{display:flex;animation:bannerIn .8s ease-out forwards}
+#ruleBanner .bnTitle{font-size:clamp(30px,9vw,56px);font-weight:900;color:var(--hot);
+  text-shadow:0 0 18px rgba(255,94,154,.7),0 4px 0 rgba(0,0,0,.45);letter-spacing:1px}
+#ruleBanner .bnRule{font-size:clamp(18px,5.5vw,28px);font-weight:900;color:var(--gold);
+  background:rgba(22,13,34,.78);border:3px solid var(--gold);border-radius:16px;
+  padding:10px 20px;box-shadow:0 0 24px rgba(255,210,63,.45);max-width:92vw}
+@keyframes bannerIn{
+  0%{opacity:0;transform:scale(.4)}
+  18%{opacity:1;transform:scale(1.18)}
+  32%{transform:scale(.95)}
+  44%{transform:scale(1.05)}
+  56%{transform:scale(1)}
+  82%{opacity:1;transform:scale(1)}
+  100%{opacity:0;transform:scale(1.12)}
+}
 #cv{flex:1;width:100%;display:block;touch-action:none}
 #screen-game.shake{animation:scrShake .4s}
 @keyframes scrShake{0%,100%{transform:translate(0,0)}25%{transform:translate(-8px,4px)}50%{transform:translate(8px,-4px)}75%{transform:translate(-5px,-3px)}}
@@ -71,6 +95,11 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:12px}
     <div id="ruleLine">Çift sayıları kes!</div>
   </div>
   <canvas id="cv"></canvas>
+</div>
+
+<div id="ruleBanner">
+  <div class="bnTitle">⚔️ YENİ GÖREV! ⚔️</div>
+  <div class="bnRule" id="bnRuleText"></div>
 </div>
 
 <div id="pauseVeil">
@@ -188,11 +217,22 @@ function layout(){
   cv.width = innerWidth;
   cv.height = innerHeight - bar.height;
 }
+let bannerTimer = null;
+function showRuleBanner(ruleText){
+  const ban = $('ruleBanner');
+  $('bnRuleText').textContent = ruleText;
+  // animasyonu sıfırla ve yeniden tetikle
+  ban.classList.remove('show'); void ban.offsetWidth; ban.classList.add('show');
+  clearTimeout(bannerTimer);
+  bannerTimer = setTimeout(()=>ban.classList.remove('show'), 800);
+}
+function hideRuleBanner(){ clearTimeout(bannerTimer); $('ruleBanner').classList.remove('show'); }
 function newRule(fresh){
   G.rule = pick(RULES[G.tier].filter(r => r !== G.rule));
   $('ruleLine').textContent = '⚔️ ' + G.rule.ad;
   if (fresh !== false){
     $('ruleLine').classList.remove('fresh'); void $('ruleLine').offsetWidth; $('ruleLine').classList.add('fresh');
+    showRuleBanner(G.rule.ad);
     Audio2.rule();
   }
 }
@@ -379,7 +419,7 @@ function startRound(){
   G.spawnAcc=0; G.shakeUntil=0;
   show('screen-game');
   layout();
-  newRule(false);
+  newRule(true);   // ilk turda da kuralı tam animasyon + banner ile göster
   refreshHUD();
   clearInterval(G.secT);
   let ruleAge = 0;
@@ -426,7 +466,7 @@ $('bMenu').addEventListener('click',()=>{ G.state='menu'; show('screen-menu'); r
 function pauseGame(){ if(G.state!=='playing')return; G.state='paused'; $('pauseVeil').classList.add('show'); }
 $('bPause').addEventListener('click',pauseGame);
 $('bResume').addEventListener('click',()=>{ if(G.state!=='paused')return; G.state='playing'; $('pauseVeil').classList.remove('show'); G.lastTs=performance.now(); if(!G.raf)G.raf=requestAnimationFrame(loop); });
-$('bQuit').addEventListener('click',()=>{ $('pauseVeil').classList.remove('show'); clearInterval(G.secT); G.state='menu'; show('screen-menu'); refreshBest(); });
+$('bQuit').addEventListener('click',()=>{ $('pauseVeil').classList.remove('show'); hideRuleBanner(); clearInterval(G.secT); G.state='menu'; show('screen-menu'); refreshBest(); });
 addEventListener('keydown',e=>{ if((e.code==='KeyP'||e.code==='Escape')&&G.state==='playing') pauseGame(); });
 document.addEventListener('visibilitychange',()=>{ if(document.hidden && G.state==='playing'){ pauseGame(); saveStats(); } });
 addEventListener('resize',()=>{ if(G.state==='playing') layout(); });

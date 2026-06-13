@@ -110,7 +110,7 @@ const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
 const pick = a => a[Math.floor(Math.random()*a.length)];
 const shuffle = a => { for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
 /* 3 şıklı kısa sorular (tabela boyutu — §4.21) */
-function genQ(){
+function buildQ(){
   const k = rnd(0,3);
   let q, ans, opts;
   if (k===0){ const a=rnd(3,12),b=rnd(3,12); q=`${a}+${b}=?`; ans=String(a+b); opts=[ans,String(a+b+2),String(a+b-2)]; }
@@ -124,6 +124,16 @@ function genQ(){
   const o = shuffle([...new Set(opts)]).slice(0,3);
   while (o.length<3) o.push(ans+' ');
   return { q, o, a:o.indexOf(ans) };
+}
+/* tekrar-önleme: son ~8 sorunun metnini tut, tekrarsa yeniden üret (§4.21) */
+const Q_HISTORY = [];
+const Q_HISTORY_MAX = 8;
+function genQ(){
+  let res = buildQ();
+  for (let tries=0; tries<12 && Q_HISTORY.includes(res.q); tries++) res = buildQ();
+  Q_HISTORY.push(res.q);
+  while (Q_HISTORY.length > Q_HISTORY_MAX) Q_HISTORY.shift();
+  return res;
 }
 
 /* ================= Audio ================= */
@@ -293,6 +303,165 @@ function theme(){
   for (const th of CONFIG.THEMES) if (G.dist >= th.d) t = th;
   return t;
 }
+/* ===== Saf canvas çizim yardımcıları (emoji yok, görsel dosya yok — §4.21) =====
+   Hepsi (cx, cy, scale) alır; konum/boyut eski emoji ankrajlarıyla aynı kalır,
+   böylece çarpışma mantığı (z tabanlı) etkilenmez. */
+function rr(c, x, y, w, h, r){
+  c.beginPath();
+  if (c.roundRect) c.roundRect(x, y, w, h, r);
+  else { c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r);
+         c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); }
+}
+function drawCoin(c, cx, cy, sc){
+  const R = Math.max(6, 18*sc);
+  c.save();
+  c.shadowColor = 'rgba(0,0,0,.25)'; c.shadowBlur = 6*sc; c.shadowOffsetY = 3*sc;
+  // dış altın halka
+  c.beginPath(); c.arc(cx, cy, R, 0, Math.PI*2);
+  c.fillStyle = '#e8a200'; c.fill();
+  c.shadowColor = 'transparent';
+  // iç parlak altın
+  c.beginPath(); c.arc(cx, cy, R*0.78, 0, Math.PI*2);
+  c.fillStyle = '#ffd23f'; c.fill();
+  // yıldız/yazı yerine ışıltı: sol üst beyaz parıltı
+  c.beginPath(); c.arc(cx - R*0.28, cy - R*0.3, R*0.22, 0, Math.PI*2);
+  c.fillStyle = 'rgba(255,255,255,.85)'; c.fill();
+  // hafif iç kenar
+  c.lineWidth = Math.max(1, 2*sc); c.strokeStyle = 'rgba(168,116,19,.5)';
+  c.beginPath(); c.arc(cx, cy, R*0.78, 0, Math.PI*2); c.stroke();
+  c.restore();
+}
+function drawLog(c, cx, cy, sc){
+  const w = Math.max(30, 60*sc), h = Math.max(14, 26*sc);
+  const x = cx - w/2, y = cy - h*0.6;
+  c.save();
+  c.shadowColor = 'rgba(0,0,0,.25)'; c.shadowBlur = 5*sc; c.shadowOffsetY = 3*sc;
+  // gövde (yuvarlatılmış kahverengi dikdörtgen)
+  c.fillStyle = '#8a5a32'; rr(c, x, y, w, h, h*0.4); c.fill();
+  c.shadowColor = 'transparent';
+  // uç (kesit) açık kahve daire
+  c.fillStyle = '#c08a52';
+  c.beginPath(); c.ellipse(x + h*0.5, y + h/2, h*0.42, h*0.46, 0, 0, Math.PI*2); c.fill();
+  // halka çizgileri (kütük kesiti)
+  c.strokeStyle = '#8a5a32'; c.lineWidth = Math.max(1, 1.6*sc);
+  for (const f of [0.7, 0.42]){
+    c.beginPath(); c.ellipse(x + h*0.5, y + h/2, h*0.42*f, h*0.46*f, 0, 0, Math.PI*2); c.stroke();
+  }
+  // gövde üstünde ahşap çizgileri
+  c.strokeStyle = 'rgba(90,50,20,.45)'; c.lineWidth = Math.max(1, 1.4*sc);
+  c.beginPath(); c.moveTo(x + h, y + h*0.35); c.lineTo(x + w - h*0.3, y + h*0.35);
+  c.moveTo(x + h, y + h*0.65); c.lineTo(x + w - h*0.3, y + h*0.65); c.stroke();
+  c.restore();
+}
+function drawRock(c, cx, cy, sc){
+  const R = Math.max(14, 26*sc);
+  c.save();
+  c.shadowColor = 'rgba(0,0,0,.28)'; c.shadowBlur = 5*sc; c.shadowOffsetY = 3*sc;
+  // pürüzlü taş gövdesi (çokgen)
+  c.beginPath();
+  c.moveTo(cx - R, cy + R*0.25);
+  c.lineTo(cx - R*0.75, cy - R*0.45);
+  c.lineTo(cx - R*0.1, cy - R*0.8);
+  c.lineTo(cx + R*0.6, cy - R*0.5);
+  c.lineTo(cx + R, cy + R*0.15);
+  c.lineTo(cx + R*0.5, cy + R*0.7);
+  c.lineTo(cx - R*0.45, cy + R*0.7);
+  c.closePath();
+  c.fillStyle = '#8d949c'; c.fill();
+  c.shadowColor = 'transparent';
+  // üst aydınlık yüzey
+  c.beginPath();
+  c.moveTo(cx - R*0.75, cy - R*0.45);
+  c.lineTo(cx - R*0.1, cy - R*0.8);
+  c.lineTo(cx + R*0.6, cy - R*0.5);
+  c.lineTo(cx + R*0.1, cy - R*0.2);
+  c.closePath();
+  c.fillStyle = '#aeb4bb'; c.fill();
+  // çatlak/pürüz çizgisi
+  c.strokeStyle = 'rgba(70,75,82,.6)'; c.lineWidth = Math.max(1, 1.5*sc);
+  c.beginPath(); c.moveTo(cx - R*0.2, cy - R*0.3); c.lineTo(cx + R*0.15, cy + R*0.4); c.stroke();
+  c.restore();
+}
+function drawBranch(c, cx, cy, sc){
+  // alçak yeşil dal (oyuncu altından kayar) — yatay dal + yapraklar
+  const w = Math.max(34, 64*sc);
+  c.save();
+  c.shadowColor = 'rgba(0,0,0,.2)'; c.shadowBlur = 4*sc; c.shadowOffsetY = 2*sc;
+  // dal sapı
+  c.strokeStyle = '#6b4a2a'; c.lineWidth = Math.max(3, 6*sc); c.lineCap = 'round';
+  c.beginPath(); c.moveTo(cx - w/2, cy); c.lineTo(cx + w/2, cy - 4*sc); c.stroke();
+  c.shadowColor = 'transparent';
+  // yapraklar (3 yeşil yaprak)
+  const leaf = (lx, ly, ang, sz) => {
+    c.save(); c.translate(lx, ly); c.rotate(ang);
+    c.beginPath(); c.ellipse(0, 0, sz, sz*0.5, 0, 0, Math.PI*2);
+    c.fillStyle = '#4caf50'; c.fill();
+    c.strokeStyle = '#2e7d32'; c.lineWidth = Math.max(1, 1.2*sc);
+    c.beginPath(); c.moveTo(-sz, 0); c.lineTo(sz, 0); c.stroke();
+    c.restore();
+  };
+  const lz = Math.max(7, 13*sc);
+  leaf(cx - w*0.28, cy - 5*sc, -0.5, lz);
+  leaf(cx + w*0.02, cy - 10*sc, -0.3, lz*1.1);
+  leaf(cx + w*0.32, cy - 8*sc,  0.2, lz);
+  c.restore();
+}
+function drawRunner(c, cx, cy, sc, sliding, phase){
+  // sevimli figür: yuvarlak baş + gövde + kol/bacak; sliding ise eğilmiş poz
+  const u = Math.max(0.6, sc);            // birim ölçek
+  const skin = '#ffcc80', shirt = '#ff5a3c', pants = '#2962ff', shoe = '#222';
+  const sw = Math.sin((phase||0));        // basit koşu salınımı
+  c.save();
+  c.shadowColor = 'rgba(0,0,0,.25)'; c.shadowBlur = 6*u; c.shadowOffsetY = 4*u;
+  if (sliding){
+    // kayma pozu: yatay/eğik, ayaklar önde
+    const headR = 11*u;
+    // bacaklar (önde uzanmış)
+    c.strokeStyle = pants; c.lineWidth = 7*u; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(cx - 6*u, cy); c.lineTo(cx + 20*u, cy - 4*u); c.stroke();
+    // ayakkabı
+    c.strokeStyle = shoe; c.lineWidth = 6*u;
+    c.beginPath(); c.moveTo(cx + 18*u, cy - 4*u); c.lineTo(cx + 26*u, cy - 6*u); c.stroke();
+    // gövde
+    c.strokeStyle = shirt; c.lineWidth = 13*u; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(cx - 14*u, cy - 8*u); c.lineTo(cx - 2*u, cy - 2*u); c.stroke();
+    c.shadowColor = 'transparent';
+    // baş
+    c.fillStyle = skin; c.beginPath(); c.arc(cx - 20*u, cy - 12*u, headR, 0, Math.PI*2); c.fill();
+    // saç
+    c.fillStyle = '#5d4037';
+    c.beginPath(); c.arc(cx - 20*u, cy - 15*u, headR, Math.PI*1.05, Math.PI*2.0); c.fill();
+    c.restore();
+    return;
+  }
+  // koşma pozu (dik)
+  const headR = 12*u;
+  const hipY = cy - 24*u, footY = cy;
+  // arka bacak
+  c.strokeStyle = pants; c.lineWidth = 8*u; c.lineCap = 'round';
+  c.beginPath(); c.moveTo(cx, hipY); c.lineTo(cx - 12*u*sw - 2*u, footY); c.stroke();
+  // ön bacak
+  c.beginPath(); c.moveTo(cx, hipY); c.lineTo(cx + 12*u*sw + 2*u, footY); c.stroke();
+  // ayakkabılar
+  c.strokeStyle = shoe; c.lineWidth = 6*u;
+  c.beginPath(); c.moveTo(cx - 12*u*sw - 2*u, footY); c.lineTo(cx - 12*u*sw + 5*u, footY); c.stroke();
+  c.beginPath(); c.moveTo(cx + 12*u*sw + 2*u, footY); c.lineTo(cx + 12*u*sw + 9*u, footY); c.stroke();
+  // gövde
+  c.strokeStyle = shirt; c.lineWidth = 15*u; c.lineCap = 'round';
+  c.beginPath(); c.moveTo(cx, hipY); c.lineTo(cx, hipY - 22*u); c.stroke();
+  // kollar (zıt salınım)
+  c.lineWidth = 6*u; c.strokeStyle = skin;
+  c.beginPath(); c.moveTo(cx, hipY - 16*u); c.lineTo(cx - 11*u*sw, hipY - 6*u); c.stroke();
+  c.beginPath(); c.moveTo(cx, hipY - 16*u); c.lineTo(cx + 11*u*sw, hipY - 6*u); c.stroke();
+  c.shadowColor = 'transparent';
+  // baş
+  c.fillStyle = skin;
+  c.beginPath(); c.arc(cx, hipY - 22*u - headR*0.6, headR, 0, Math.PI*2); c.fill();
+  // saç
+  c.fillStyle = '#5d4037';
+  c.beginPath(); c.arc(cx, hipY - 22*u - headR*0.6, headR, Math.PI*1.0, Math.PI*2.0); c.fill();
+  c.restore();
+}
 function draw(){
   const th = theme();
   const H = HORIZON();
@@ -341,27 +510,42 @@ function draw(){
     const p = project(o.z, o.lane);
     const s = p.s;
     if (o.type==='coin'){
-      ctx2.font = `${Math.round(34*s+6)}px system-ui`;
-      ctx2.fillText('🪙', p.x, p.y - 18*s);
+      drawCoin(ctx2, p.x, p.y - 18*s, s);
     } else if (o.type==='log'){
-      ctx2.font = `${Math.round(44*s+8)}px system-ui`;
-      ctx2.fillText('🪵', p.x, p.y);
+      drawLog(ctx2, p.x, p.y, s);
     } else if (o.type==='rock'){
-      ctx2.font = `${Math.round(46*s+8)}px system-ui`;
-      ctx2.fillText('🪨', p.x, p.y);
+      drawRock(ctx2, p.x, p.y, s);
     } else if (o.type==='branch'){
-      ctx2.font = `${Math.round(42*s+8)}px system-ui`;
-      ctx2.fillText('🌿', p.x, p.y - 30*s);
+      drawBranch(ctx2, p.x, p.y - 30*s, s);
     } else if (o.type==='sign'){
       const w = Math.max(46, 120*s), h = Math.max(22, 44*s);
+      const bx = p.x-w/2, by = p.y-h-26*s;
+      ctx2.save();
+      // direk (golgeli ahsap)
+      ctx2.fillStyle = '#6b4a2a';
+      ctx2.fillRect(p.x-3, p.y-26*s, 6, 26*s);
+      ctx2.fillStyle = '#8a5a32';
+      ctx2.fillRect(p.x-3, p.y-26*s, 3, 26*s);
+      // tabela panosu (golge + derinlik)
+      ctx2.shadowColor = 'rgba(0,0,0,.35)'; ctx2.shadowBlur = 8*s+2; ctx2.shadowOffsetY = 4*s+1;
       ctx2.fillStyle = '#ffd23f';
-      ctx2.strokeStyle = '#a87413'; ctx2.lineWidth = 2.5;
-      ctx2.beginPath(); ctx2.roundRect(p.x-w/2, p.y-h-26*s, w, h, 7); ctx2.fill(); ctx2.stroke();
-      ctx2.fillStyle = '#7a4a00';
-      ctx2.fillRect(p.x-2.5, p.y-26*s, 5, 26*s);
-      ctx2.fillStyle = '#3c2a0e';
+      rr(ctx2, bx, by, w, h, 8); ctx2.fill();
+      ctx2.shadowColor = 'transparent';
+      // ust parlak serit (derinlik hissi)
+      ctx2.fillStyle = 'rgba(255,255,255,.4)';
+      rr(ctx2, bx+2, by+2, w-4, h*0.34, 6); ctx2.fill();
+      // cerceve
+      ctx2.strokeStyle = '#a87413'; ctx2.lineWidth = Math.max(2, 3*s);
+      rr(ctx2, bx, by, w, h, 8); ctx2.stroke();
+      // yazi (guclu kontrast: koyu metin + acik golge)
       ctx2.font = `900 ${Math.max(11, Math.min(h*0.55, w*1.5/Math.max(3,o.txt.length)))}px system-ui`;
-      ctx2.fillText(o.txt, p.x, p.y-h/2-26*s+5);
+      ctx2.textBaseline = 'middle';
+      ctx2.fillStyle = 'rgba(255,255,255,.7)';
+      ctx2.fillText(o.txt, p.x, by+h/2+1.5);
+      ctx2.fillStyle = '#2a1c06';
+      ctx2.fillText(o.txt, p.x, by+h/2);
+      ctx2.textBaseline = 'alphabetic';
+      ctx2.restore();
     }
   }
   // çamur efekti
@@ -369,13 +553,12 @@ function draw(){
     ctx2.fillStyle = 'rgba(90,60,20,.18)';
     ctx2.fillRect(0,H,cv.width,cv.height-H);
   }
-  // koşucu (stilize silüet — §4.21: 3 kare sprite yerine transform)
+  // koşucu (saf canvas figür — §4.21: 3 kare sprite yerine transform)
   const pp = project(0, G.laneX);
   const jumpY = G.jumpT>0 ? Math.sin(Math.min(1,(0.55-G.jumpT)/0.55)*Math.PI)*70 : 0;
   const slide = G.slideT>0;
-  ctx2.font = `${slide?44:56}px system-ui`;
-  ctx2.fillText(slide ? '🛹' : '🏃', pp.x, pp.y - 6 - jumpY);
-  ctx2.textBaseline='alphabetic';
+  const runPhase = G.dist * 6;                 // mesafeyle koşu salınımı
+  drawRunner(ctx2, pp.x, pp.y - 6 - jumpY, 1.0, slide, runPhase);
 }
 function endRound(){
   if (G.state!=='playing') return;
