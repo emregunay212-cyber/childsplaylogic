@@ -1142,7 +1142,7 @@ const SHAPES = [['🔺','üçgen'],['⬛','kare'],['🔵','daire'],['⭐','yıld
 const COLORS = [['🔴','kırmızı'],['🔵','mavi'],['🟢','yeşil'],['🟡','sarı'],['🟣','mor'],['🟠','turuncu']];
 function anaQuestion(d){
   const t = rnd(0, 6);
-  const EMO = ['🎈','🍎','⭐','🐱','🌸','🍓','🐶','🚗','🦋','🌞','🍪','🎁','🐠','🌷','⚽','🐰','🍌','🐝','🌈','🦁'];
+  const EMO = ['🎈','🍎','⭐','🐱','🌸','🍓','🐶','🚗','🦋','🌞','🍪','🎁','🐠','🌷','⚽','🐰','🍇','🐝','🌈','🦁'];
   if (t === 0 || t === 1){ const n = rnd(2, 9 + d), em = pick(EMO);
     const o = makeOptions(n, () => Math.max(1, n + rnd(-2,2)));
     return { q: em.repeat(n) + '<br>Kaç tane var?', opts:o.map(String), ans:o.indexOf(n) }; }

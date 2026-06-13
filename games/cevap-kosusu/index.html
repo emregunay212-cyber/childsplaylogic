@@ -256,7 +256,7 @@ function loop(ts){
           const chosen = G.objs.find(s=>s.type==='sign'&&s.lane===Math.round(G.laneX));
           const okSign = chosen && chosen.correct;
           if (okSign){ G.correct++; Audio2.ok(); $('qLine').textContent='🎉 Doğru yol!'; }
-          else { G.wrong++; G.mudUntil = now + CONFIG.MUD_MS; Audio2.mud(); $('qLine').textContent='💦 Çamurlu yol! 5 sn yavaşlama'; }
+          else { G.wrong++; G.mudUntil = now + CONFIG.MUD_MS; Audio2.mud(); $('qLine').textContent='💧 Çamurlu yol! 5 sn yavaşlama'; }
           setTimeout(()=>{ if(G.state==='playing' && !G.q) $('qLine').textContent=''; }, 1400);
           G.q = null;
           G.objs = G.objs.filter(s=>s.type!=='sign');
@@ -574,7 +574,7 @@ function endRound(){
   $('resEmoji').textContent = isBest ? '🏆' : G.dist>=3000 ? '🏔️' : '🏃';
   $('resTitle').textContent = G.dist>=3000 ? 'ZİRVEYE KOŞTUN!' : 'Koşu Bitti!';
   $('resScore').textContent = score;
-  $('resStats').innerHTML = `🏁 Mesafe: <b>${Math.round(G.dist)} m</b> · ✅ Doğru ayrım: <b>${G.correct}</b> · 💦 Çamur: <b>${G.wrong}</b> · 🪙 <b>${G.coins}</b>` +
+  $('resStats').innerHTML = `🏁 Mesafe: <b>${Math.round(G.dist)} m</b> · ✅ Doğru ayrım: <b>${G.correct}</b> · 💧 Çamur: <b>${G.wrong}</b> · 🪙 <b>${G.coins}</b>` +
     (isBest?`<br>🏅 <b>YENİ REKOR!</b>`:'');
   $('eduLine').textContent = G.correct>0 ? `Koşarken ${G.correct} soruya doğru yön verdin! 🎉` : 'Ayakların ısındı — sorularla hızlan! 💪';
   if (G.dist>=1500) Audio2.fanfare();
