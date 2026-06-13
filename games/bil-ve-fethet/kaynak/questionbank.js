@@ -78,6 +78,49 @@ const EN_WORDS = [
   ['read','okumak'],['write','yazmak'],['play','oynamak'],['go','gitmek'],['come','gelmek'],
   ['see','görmek'],['look','bakmak'],['open','açmak'],['close','kapatmak'],['sit','oturmak'],
   ['jump','zıplamak'],['swim','yüzmek'],['fly','uçmak'],['sing','şarkı söylemek'],['dance','dans etmek'],
+  // — Meyve & sebze
+  ['tomato','domates'],['potato','patates'],['onion','soğan'],['carrot','havuç'],['cucumber','salatalık'],
+  ['pepper','biber'],['corn','mısır'],['pea','bezelye'],['bean','fasulye'],['garlic','sarımsak'],
+  ['apricot','kayısı'],['fig','incir'],['plum','erik'],['melon','kavun'],['coconut','hindistan cevizi'],
+  // — Hayvanlar
+  ['tiger','kaplan'],['giraffe','zürafa'],['zebra','zebra'],['camel','deve'],['donkey','eşek'],
+  ['goat','keçi'],['chicken','tavuk'],['duck','ördek'],['turkey','hindi'],['mouse','fare'],
+  ['squirrel','sincap'],['turtle','kaplumbağa'],['butterfly','kelebek'],['bee','arı'],['ant','karınca'],
+  ['spider','örümcek'],['penguin','penguen'],['dolphin','yunus'],['whale','balina'],['crocodile','timsah'],
+  // — Renkler
+  ['gold','altın rengi'],['silver','gümüş rengi'],
+  // — Okul & eşya
+  ['eraser','silgi'],['pencil','kurşun kalem'],['crayon','boya kalemi'],['scissors','makas'],['glue','yapıştırıcı'],
+  ['paper','kâğıt'],['map','harita'],['globe','küre'],['clock','saat'],['computer','bilgisayar'],
+  // — Aile & insanlar
+  ['son','oğul'],['daughter','kız evlat'],['friend','arkadaş'],['boy','erkek çocuk'],['girl','kız çocuk'],
+  ['man','adam'],['woman','kadın'],['child','çocuk'],['people','insanlar'],['neighbor','komşu'],
+  // — Ev & mobilya
+  ['roof','çatı'],['floor','zemin'],['stairs','merdiven'],['lamp','lamba'],['mirror','ayna'],
+  ['sofa','koltuk'],['carpet','halı'],['curtain','perde'],['key','anahtar'],['phone','telefon'],
+  // — Yiyecek & içecek
+  ['butter','tereyağı'],['sugar','şeker'],['tea','çay'],['coffee','kahve'],['juice','meyve suyu'],
+  ['cake','pasta'],['chocolate','çikolata'],['biscuit','bisküvi'],['jam','reçel'],['olive','zeytin'],
+  // — Vücut
+  ['finger','parmak'],['tooth','diş'],['tongue','dil'],['neck','boyun'],['knee','diz'],
+  ['shoulder','omuz'],['face','yüz'],['heart','kalp'],['back','sırt'],['stomach','mide'],
+  // — Doğa & hava
+  ['lake','göl'],['forest','orman'],['island','ada'],['desert','çöl'],['valley','vadi'],
+  ['storm','fırtına'],['fog','sis'],['rainbow','gökkuşağı'],['thunder','gök gürültüsü'],['lightning','şimşek'],
+  // — Sıfatlar
+  ['heavy','ağır'],['light','hafif'],['wide','geniş'],['narrow','dar'],['deep','derin'],
+  ['empty','boş'],['full','dolu'],['quiet','sessiz'],['loud','gürültülü'],['soft','yumuşak'],
+  ['hard','sert'],['sweet','tatlı'],['sour','ekşi'],['wet','ıslak'],['dry','kuru'],
+  // — Fiiller
+  ['listen','dinlemek'],['speak','konuşmak'],['help','yardım etmek'],['buy','satın almak'],['sell','satmak'],
+  ['cook','pişirmek'],['wash','yıkamak'],['draw','çizmek'],['paint','boyamak'],['count','saymak'],
+  ['learn','öğrenmek'],['teach','öğretmek'],['think','düşünmek'],['carry','taşımak'],['catch','yakalamak'],
+  // — Meslekler
+  ['doctor','doktor'],['nurse','hemşire'],['driver','şoför'],['farmer','çiftçi'],['pilot','pilot'],
+  ['singer','şarkıcı'],['painter','ressam'],['baker','fırıncı'],['police','polis'],
+  // — Ulaşım
+  ['car','araba'],['bus','otobüs'],['train','tren'],['plane','uçak'],['ship','gemi'],
+  ['bike','bisiklet'],['truck','kamyon'],['boat','tekne'],
 ];
 const EN_DAYS = [['Monday','Pazartesi'],['Tuesday','Salı'],['Wednesday','Çarşamba'],['Thursday','Perşembe'],
   ['Friday','Cuma'],['Saturday','Cumartesi'],['Sunday','Pazar']];
@@ -86,16 +129,30 @@ const EN_NUM = [['one','1'],['two','2'],['three','3'],['four','4'],['five','5'],
 const EN_ANT = [['big','small'],['hot','cold'],['fast','slow'],['happy','sad'],['good','bad'],
   ['new','old'],['tall','short'],['easy','difficult'],['beautiful','ugly'],['strong','weak'],
   ['open','close'],['day','night'],['up','down'],['long','short'],['rich','poor'],
-  ['clean','dirty'],['young','old'],['full','empty'],['right','wrong'],['near','far']];
+  ['clean','dirty'],['young','old'],['full','empty'],['right','wrong'],['near','far'],
+  ['light','dark'],['wet','dry'],['soft','hard'],['wide','narrow'],
+  ['deep','shallow'],['loud','quiet'],['sweet','sour'],['first','last'],['begin','end'],
+  ['win','lose'],['buy','sell'],['push','pull'],['true','false']];
 const EN_PAST = [['go','went'],['come','came'],['see','saw'],['eat','ate'],['drink','drank'],
   ['run','ran'],['write','wrote'],['take','took'],['give','gave'],['make','made'],
   ['buy','bought'],['bring','brought'],['get','got'],['sit','sat'],['sing','sang'],
-  ['swim','swam'],['fly','flew'],['speak','spoke'],['break','broke'],['begin','began']];
+  ['swim','swam'],['fly','flew'],['speak','spoke'],['break','broke'],['begin','began'],
+  ['find','found'],['think','thought'],['teach','taught'],['catch','caught'],['build','built'],
+  ['sell','sold'],['tell','told'],['feel','felt'],['keep','kept'],['sleep','slept'],
+  ['leave','left'],['meet','met'],['read','read'],['stand','stood'],['understand','understood'],
+  ['win','won'],['lose','lost'],['send','sent'],['spend','spent'],['hold','held']];
 const EN_V3 = [['eat','eaten'],['write','written'],['see','seen'],['go','gone'],['do','done'],
   ['take','taken'],['give','given'],['speak','spoken'],['break','broken'],['drink','drunk'],
-  ['choose','chosen'],['forget','forgotten'],['know','known'],['fall','fallen'],['drive','driven']];
+  ['choose','chosen'],['forget','forgotten'],['know','known'],['fall','fallen'],['drive','driven'],
+  ['begin','begun'],['ring','rung'],['sing','sung'],['swim','swum'],['run','run'],
+  ['come','come'],['become','become'],['grow','grown'],['throw','thrown'],['fly','flown'],
+  ['wear','worn'],['tear','torn'],['bite','bitten'],['hide','hidden'],['ride','ridden']];
 const EN_COMP = [['big','bigger'],['small','smaller'],['fast','faster'],['tall','taller'],['old','older'],
-  ['strong','stronger'],['young','younger'],['cold','colder'],['hot','hotter'],['long','longer']];
+  ['strong','stronger'],['young','younger'],['cold','colder'],['hot','hotter'],['long','longer'],
+  ['short','shorter'],['weak','weaker'],['slow','slower'],['warm','warmer'],['rich','richer'],
+  ['poor','poorer'],['clean','cleaner'],['cheap','cheaper'],['near','nearer'],['deep','deeper'],
+  ['high','higher'],['low','lower'],['light','lighter'],['dark','darker'],['soft','softer'],
+  ['happy','happier'],['easy','easier'],['busy','busier'],['heavy','heavier'],['early','earlier']];
 
 const GEO = [
   ['Türkiye','Ankara','Asya'],['Almanya','Berlin','Avrupa'],['Fransa','Paris','Avrupa'],['İtalya','Roma','Avrupa'],
@@ -126,26 +183,45 @@ const TR_SYN = [['ak','beyaz'],['kara','siyah'],['ihtiyar','yaşlı'],['cevap','
   ['öğretmen','muallim'],['anı','hatıra'],['konuk','misafir'],['armağan','hediye'],['sınav','imtihan'],
   ['vatan','yurt'],['fakir','yoksul'],['neşeli','sevinçli'],['kelime','sözcük'],['okul','mektep'],
   ['yıl','sene'],['hekim','doktor'],['kent','şehir'],['ulus','millet'],['kalp','yürek'],
-  ['siyah','kara'],['beyaz','ak'],['zor','güç'],['mutlu','sevinçli'],['acele','ivedi']];
+  ['siyah','kara'],['beyaz','ak'],['zor','güç'],['mutlu','sevinçli'],['acele','ivedi'],
+  ['öykü','hikâye'],['savaş','harp'],['barış','sulh'],['özgür','hür'],['düş','rüya'],
+  ['ihtiyaç','gereksinim'],['olay','vaka'],['yöntem','metot'],['amaç','hedef'],['görev','vazife'],
+  ['yetenek','kabiliyet'],['sözleşme','mukavele'],['anlam','mana'],['utangaç','çekingen'],['cömert','eli açık'],
+  ['cesur','yürekli'],['gerçek','hakikat'],['kaygı','endişe'],['başarı','muvaffakiyet'],['tutsak','esir'],
+  ['yorgun','bitkin'],['konut','mesken'],['dilek','istek'],['gülünç','komik'],['temel','esas']];
 const TR_ANT = [['büyük','küçük'],['uzun','kısa'],['açık','kapalı'],['sıcak','soğuk'],['hızlı','yavaş'],
   ['iyi','kötü'],['güzel','çirkin'],['ileri','geri'],['aydınlık','karanlık'],['zengin','fakir'],
   ['dolu','boş'],['kalın','ince'],['yüksek','alçak'],['genç','yaşlı'],['sevinç','üzüntü'],
   ['doğru','yanlış'],['kolay','zor'],['önce','sonra'],['kalabalık','tenha'],['temiz','kirli'],
-  ['gece','gündüz'],['yaz','kış'],['girmek','çıkmak'],['gülmek','ağlamak'],['almak','vermek']];
-const TR_NOUNS = ['kalem','masa','deniz','kuş','çiçek','okul','kitap','ev','araba','ağaç','güneş','bulut','yıldız','köprü','bahçe','pencere','kapı','duvar','sokak','şehir'];
-const TR_ADJ = ['mavi','güzel','büyük','hızlı','sıcak','yeşil','küçük','yeni','eski','parlak','geniş','dar'];
-const TR_VERB = ['koştu','geldi','yazdı','okudu','baktı','gitti','güldü','uçtu','yürüdü','konuştu','düşündü','bekledi'];
-const TR_SYLL = ['kelebek','şemsiye','telefon','pencere','bilgisayar','kütüphane','öğretmen','arkadaş','okul','kitap','deniz','ağaç','elma','portakal','televizyon','bilgi','sevgi','mutluluk','gökyüzü','merhaba'];
+  ['gece','gündüz'],['yaz','kış'],['girmek','çıkmak'],['gülmek','ağlamak'],['almak','vermek'],
+  ['sevmek','nefret etmek'],['başlamak','bitirmek'],['açmak','kapamak'],['yaş','kuru'],
+  ['ağır','hafif'],['sert','yumuşak'],['derin','sığ'],['bol','kıt'],['cesur','korkak'],
+  ['cömert','cimri'],['çalışkan','tembel'],['düzenli','dağınık'],['tatlı','acı'],['yakın','uzak'],
+  ['hatırlamak','unutmak'],['kazanmak','kaybetmek'],['sağlam','çürük'],['ucuz','pahalı'],['sabah','akşam'],
+  ['barış','savaş'],['dost','düşman'],['ödül','ceza'],['artmak','azalmak'],['canlı','cansız']];
+const TR_NOUNS = ['kalem','masa','deniz','kuş','çiçek','okul','kitap','ev','araba','ağaç','güneş','bulut','yıldız','köprü','bahçe','pencere','kapı','duvar','sokak','şehir',
+  'orman','nehir','dağ','bisiklet','top','bardak','tabak','kaşık','defter','silgi','anahtar','saat','kuzu','tavşan','kelebek','balık','gemi','uçak','tren','kütüphane'];
+const TR_ADJ = ['mavi','güzel','büyük','hızlı','sıcak','yeşil','küçük','yeni','eski','parlak','geniş','dar',
+  'kırmızı','sarı','soğuk','tatlı','uzun','kısa','temiz','sessiz','neşeli','akıllı','cesur','yumuşak'];
+const TR_VERB = ['koştu','geldi','yazdı','okudu','baktı','gitti','güldü','uçtu','yürüdü','konuştu','düşündü','bekledi',
+  'zıpladı','yüzdü','söyledi','dinledi','çizdi','boyadı','oynadı','uyudu','kalktı','oturdu','atladı','sevindi'];
+const TR_SYLL = ['kelebek','şemsiye','telefon','pencere','bilgisayar','kütüphane','öğretmen','arkadaş','okul','kitap','deniz','ağaç','elma','portakal','televizyon','bilgi','sevgi','mutluluk','gökyüzü','merhaba',
+  'kalem','masa','çiçek','kapı','araba','bahçe','köprü','yıldız','bardak','defter','anahtar','bisiklet','tavşan','balık','orman','uçak','okyanus','meyve','kardeş','kumbara'];
 
 const FEN_UNITS = [['Kuvvet','Newton'],['Enerji','Joule'],['Güç','Watt'],['Elektrik akımı','Amper'],
-  ['Gerilim','Volt'],['Sıcaklık','Kelvin'],['Uzunluk','Metre'],['Kütle','Kilogram'],['Zaman','Saniye'],['Direnç','Ohm']];
+  ['Gerilim','Volt'],['Sıcaklık','Kelvin'],['Uzunluk','Metre'],['Kütle','Kilogram'],['Zaman','Saniye'],['Direnç','Ohm'],
+  ['Basınç','Pascal'],['Frekans','Hertz'],['Elektrik yükü','Coulomb'],['Işık şiddeti','Kandela'],['Madde miktarı','Mol']];
 const FEN_ORGAN = [['Kalp','kan pompalar'],['Akciğer','solunum yapar'],['Mide','besinleri sindirir'],
-  ['Böbrek','kanı süzer'],['Beyin','vücudu yönetir'],['Karaciğer','kanı temizler'],['Göz','görmeyi sağlar'],['Kulak','duymayı sağlar'],['Deri','vücudu korur'],['Bağırsak','besinleri emer']];
+  ['Böbrek','kanı süzer'],['Beyin','vücudu yönetir'],['Karaciğer','kanı temizler'],['Göz','görmeyi sağlar'],['Kulak','duymayı sağlar'],['Deri','vücudu korur'],['Bağırsak','besinleri emer'],
+  ['Dil','tat almayı sağlar'],['Burun','koku almayı sağlar'],['Diş','besinleri öğütür'],['İskelet','vücuda destek verir'],['Kaslar','hareket etmemizi sağlar']];
 const PLANETS = ['Merkür','Venüs','Dünya','Mars','Jüpiter','Satürn','Uranüs','Neptün'];
 const FEN_STATE = [['Erime','katıdan sıvıya'],['Donma','sıvıdan katıya'],['Buharlaşma','sıvıdan gaza'],
-  ['Yoğuşma','gazdan sıvıya'],['Süblimleşme','katıdan gaza']];
+  ['Yoğuşma','gazdan sıvıya'],['Süblimleşme','katıdan gaza'],['Kırağılaşma','gazdan katıya']];
 const FEN_ELEM = [['Oksijen','O'],['Hidrojen','H'],['Karbon','C'],['Azot','N'],['Demir','Fe'],
-  ['Altın','Au'],['Gümüş','Ag'],['Bakır','Cu'],['Sodyum','Na'],['Potasyum','K'],['Kalsiyum','Ca'],['Helyum','He']];
+  ['Altın','Au'],['Gümüş','Ag'],['Bakır','Cu'],['Sodyum','Na'],['Potasyum','K'],['Kalsiyum','Ca'],['Helyum','He'],
+  ['Kükürt','S'],['Fosfor','P'],['Klor','Cl'],['Flor','F'],['Magnezyum','Mg'],
+  ['Çinko','Zn'],['Kurşun','Pb'],['Alüminyum','Al'],['Silisyum','Si'],['Cıva','Hg'],
+  ['Kalay','Sn'],['Nikel','Ni'],['Lityum','Li'],['Neon','Ne'],['Argon','Ar']];
 
 const HIST = [
   ['Türkiye Cumhuriyeti\'nin ilanı','1923'],['TBMM\'nin açılışı','1920'],['İstanbul\'un fethi','1453'],
@@ -154,12 +230,25 @@ const HIST = [
   ['Saltanatın kaldırılması','1922'],['Halifeliğin kaldırılması','1924'],['Harf İnkılabı','1928'],
   ['Kadınlara seçme-seçilme hakkı','1934'],['Fransız İhtilali','1789'],['I. Dünya Savaşı başlangıcı','1914'],
   ['II. Dünya Savaşı başlangıcı','1939'],['Osmanlı Devleti\'nin kuruluşu','1299'],['Soyadı Kanunu','1934'],
-  ['Çanakkale Zaferi','1915'],['Ankara\'nın başkent olması','1923']];
+  ['Çanakkale Zaferi','1915'],['Ankara\'nın başkent olması','1923'],
+  ['Tekke ve zaviyelerin kapatılması','1925'],['Şapka İnkılabı','1925'],['Tevhid-i Tedrisat Kanunu (Öğretim Birliği)','1924'],
+  ['Medeni Kanun\'un kabulü','1926'],['Kabotaj Kanunu\'nun kabulü','1926'],['Türk Dil Kurumu\'nun kuruluşu','1932'],
+  ['Türk Tarih Kurumu\'nun kuruluşu','1931'],['İzmir İktisat Kongresi','1923'],['Cumhuriyet\'in 10. yıl kutlamaları','1933'],
+  ['Atatürk\'ün vefatı','1938'],['Hatay\'ın Türkiye\'ye katılması','1939'],['Birinci İnönü Muharebesi','1921'],
+  ['İkinci İnönü Muharebesi','1921'],['Kütahya-Eskişehir Muharebeleri','1921'],['Amasya Genelgesi','1919'],
+  ['Erzurum Kongresi','1919'],['Sivas Kongresi','1919'],['Misak-ı Millî\'nin kabulü','1920'],
+  ['Birleşmiş Milletler\'in kuruluşu','1945'],['İlk insanlı Ay\'a iniş','1969'],['Türkiye\'de ilk nüfus sayımı','1927']];
 const HIST_WHO = [
   ['İstanbul\'u fetheden padişah','Fatih Sultan Mehmet'],['Türkiye Cumhuriyeti\'nin kurucusu','Mustafa Kemal Atatürk'],
   ['Osmanlı Devleti\'ni kuran kişi','Osman Bey'],['İlk TBMM Başkanı','Mustafa Kemal'],
   ['Kanuni lakaplı padişah','Sultan Süleyman'],['Yavuz lakaplı padişah','Sultan Selim'],
-  ['Türkiye\'nin 2. cumhurbaşkanı','İsmet İnönü'],['Türk tarihinde ilk kadın pilot','Sabiha Gökçen']];
+  ['Türkiye\'nin 2. cumhurbaşkanı','İsmet İnönü'],['Türk tarihinde ilk kadın savaş pilotu','Sabiha Gökçen'],
+  ['İstiklal Marşı\'nın şairi','Mehmet Akif Ersoy'],['İstiklal Marşı\'nı besteleyen sanatçı','Osman Zeki Üngör'],
+  ['Malazgirt Savaşı\'nı kazanan Selçuklu sultanı','Alparslan'],['Divânu Lugâti\'t-Türk adlı eseri yazan bilgin','Kaşgarlı Mahmud'],
+  ['Kutadgu Bilig adlı eseri yazan düşünür','Yusuf Has Hacip'],['Anadolu\'da yaşamış büyük Türk halk ozanı','Yunus Emre'],
+  ['Osmanlı\'da ilk matbaayı kuran kişi','İbrahim Müteferrika'],['Osmanlı\'nın en ünlü mimarı (Selimiye\'nin mimarı)','Mimar Sinan'],
+  ['Cebir biliminin kurucusu sayılan bilgin','Harezmi'],['El-Kanun fi\'t-Tıb adlı tıp eserinin yazarı','İbn-i Sina'],
+  ['Türkiye Cumhuriyeti\'nin başkomutanı ve ilk cumhurbaşkanı','Mustafa Kemal Atatürk']];
 
 const DIN_FACTS = [
   ['İslam dininin kutsal kitabı','Kur\'an-ı Kerim'],['Müslümanların günlük namaz vakti sayısı','5'],
@@ -167,7 +256,16 @@ const DIN_FACTS = [
   ['Hz. Muhammed\'in doğduğu şehir','Mekke'],['Müslümanların hac yaptığı şehir','Mekke'],
   ['Hz. Muhammed\'e ilk vahyin geldiği yer','Hira Mağarası'],['İslam\'ın ilk halifesi','Hz. Ebubekir'],
   ['Ramazan ayında tutulan ibadet','Oruç'],['Haftalık toplu ibadet günü','Cuma'],
-  ['Kâbe\'nin bulunduğu şehir','Mekke'],['Hicretin yapıldığı ikinci şehir','Medine'],['Zekât ibadetinin türü','Mali']];
+  ['Kâbe\'nin bulunduğu şehir','Mekke'],['Hicretin yapıldığı (hicret edilen) şehir','Medine'],['Zekât ibadetinin türü','Mali'],
+  ['Hz. Muhammed\'in babasının adı','Abdullah'],['Hz. Muhammed\'in annesinin adı','Âmine'],
+  ['Müslümanların yöneldiği kıble','Kâbe'],['Günde kılınan farz namazların toplam rekât sayısı','17'],
+  ['Sabah namazının farzının rekât sayısı','2'],['Bir haftada kaç gün vardır','7'],
+  ['Kur\'an-ı Kerim\'in ilk suresi','Fatiha'],['Kur\'an-ı Kerim\'in en kısa surelerinden biri','Kevser'],
+  ['Orucun açıldığı akşam yemeğinin adı','İftar'],['Oruca başlamadan önce yenen sabah öğünü','Sahur'],
+  ['Hac ibadetinin yapıldığı ay (kurban ile aynı dönem)','Zilhicce'],['Ramazan Bayramı\'nın diğer adı','Şeker Bayramı'],
+  ['Namazdan önce alınan temizlik (abdest) için kullanılan madde','Su'],['Kur\'an\'ı tane tane, kurallarına göre okumaya ne denir','Tecvid'],
+  ['Camide namaz kıldıran kişiye ne denir','İmam'],['Ezanı okuyan kişiye ne denir','Müezzin'],
+  ['İslam\'da yardımlaşma ve paylaşmayı ifade eden değer','Yardımseverlik'],['Büyüklere ve küçüklere karşı gösterilmesi gereken davranış','Saygı']];
 
 /* ===================== PROSEDÜREL ÜRETİCİLER ===================== */
 const SUBJGEN = {
