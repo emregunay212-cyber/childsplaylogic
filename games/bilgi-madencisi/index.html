@@ -259,9 +259,13 @@ const QuestionBank = (() => {
     const set = new Set([correct]);
     let guard = 0;
     while (set.size < 4 && guard++ < 60){
-      const v = rnd(1, den + 2) + '/' + rnd(2, den + 4);
-      if (v !== correct) set.add(v);
+      const dn = rnd(1, den + 2), dd = rnd(2, den + 4);
+      const v = dn + '/' + dd;
+      // çeldirici doğru cevapla AYNI değere eşit olmamalı (çapraz çarpım) — çift-doğru engeli
+      if (v !== correct && dn * den !== dd * num) set.add(v);
     }
+    let pad = den + 1;
+    while (set.size < 4){ set.add(num + '/' + pad); pad++; }   // emniyet: artan payda → her tur yeni string, sonsuz döngü yok, doğru cevapla (num/den) çakışmaz
     const o = shuffle([...set]);
     return { o, a: o.indexOf(correct) };
   }
