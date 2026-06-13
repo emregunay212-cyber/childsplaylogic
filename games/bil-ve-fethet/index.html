@@ -441,7 +441,7 @@ const GEO = [
   ['Çin','Pekin','Asya'],['Japonya','Tokyo','Asya'],['Hindistan','Yeni Delhi','Asya'],['Güney Kore','Seul','Asya'],
   ['Kuzey Kore','Pyongyang','Asya'],['Tayland','Bangkok','Asya'],['Vietnam','Hanoi','Asya'],['Endonezya','Cakarta','Asya'],
   ['Malezya','Kuala Lumpur','Asya'],['Filipinler','Manila','Asya'],['Pakistan','İslamabad','Asya'],['İran','Tahran','Asya'],
-  ['Irak','Bağdat','Asya'],['Suriye','Şam','Asya'],['Suudi Arabistan','Riyad','Asya'],['İsrail','Kudüs','Asya'],
+  ['Irak','Bağdat','Asya'],['Suriye','Şam','Asya'],['Suudi Arabistan','Riyad','Asya'],
   ['Afganistan','Kabil','Asya'],['Kazakistan','Astana','Asya'],['Özbekistan','Taşkent','Asya'],['Azerbaycan','Bakü','Asya'],
   ['Gürcistan','Tiflis','Asya'],['Ermenistan','Erivan','Asya'],['Moğolistan','Ulanbator','Asya'],['Bangladeş','Dakka','Asya'],
   ['Mısır','Kahire','Afrika'],['Libya','Trablus','Afrika'],['Cezayir','Cezayir','Afrika'],['Fas','Rabat','Afrika'],
@@ -471,7 +471,7 @@ const TR_VERB = ['koştu','geldi','yazdı','okudu','baktı','gitti','güldü','u
 const TR_SYLL = ['kelebek','şemsiye','telefon','pencere','bilgisayar','kütüphane','öğretmen','arkadaş','okul','kitap','deniz','ağaç','elma','portakal','televizyon','bilgi','sevgi','mutluluk','gökyüzü','merhaba'];
 
 const FEN_UNITS = [['Kuvvet','Newton'],['Enerji','Joule'],['Güç','Watt'],['Elektrik akımı','Amper'],
-  ['Gerilim','Volt'],['Sıcaklık','Santigrat derece'],['Uzunluk','Metre'],['Kütle','Kilogram'],['Zaman','Saniye'],['Direnç','Ohm']];
+  ['Gerilim','Volt'],['Sıcaklık','Kelvin'],['Uzunluk','Metre'],['Kütle','Kilogram'],['Zaman','Saniye'],['Direnç','Ohm']];
 const FEN_ORGAN = [['Kalp','kan pompalar'],['Akciğer','solunum yapar'],['Mide','besinleri sindirir'],
   ['Böbrek','kanı süzer'],['Beyin','vücudu yönetir'],['Karaciğer','kanı temizler'],['Göz','görmeyi sağlar'],['Kulak','duymayı sağlar'],['Deri','vücudu korur'],['Bağırsak','besinleri emer']];
 const PLANETS = ['Merkür','Venüs','Dünya','Mars','Jüpiter','Satürn','Uranüs','Neptün'];
@@ -584,7 +584,7 @@ const SUBJGEN = {
     if (t===0){ const u=_pick(FEN_UNITS); return _q(`${u[0]} büyüklüğünün SI birimi nedir?`, u[1], FEN_UNITS.map(x=>x[1])); }
     if (t===1){ const m=_rnd(2,9), a=_rnd(2,9);
       const opts=_shuf([m*a, m+a, m*a+m, Math.abs(m*a-m)].filter((v,i,arr)=>arr.indexOf(v)===i)).map(String);
-      while(opts.length<4) opts.push(String(m*a+opts.length));
+      for(let pad=1; opts.length<4; pad++){ const cand=String(m*a+pad); if(!opts.includes(cand)) opts.push(cand); }
       return { q:`F = m·a: kütle ${m} kg, ivme ${a} m/s² ise kuvvet kaç N?`, opts, ans:opts.indexOf(String(m*a)) }; }
     if (t===2){ const e=_pick(FEN_ELEM); return _q(`"${e[1]}" sembolü hangi elementi gösterir?`, e[0], FEN_ELEM.map(x=>x[0])); }
     const i=_rnd(0,PLANETS.length-1); return _q(`Güneş sisteminde ${i+1}. sıradaki gezegen hangisidir?`, PLANETS[i], PLANETS);
