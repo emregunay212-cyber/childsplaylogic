@@ -26,6 +26,7 @@ const App = (() => {
                 { game: KelimeMadeni3D, color: 'var(--kelime-madeni-color)' },
                 { game: KelimeBalonu, color: 'var(--kelime-balonu-color)' },
                 { game: KelimeCanavarlari, color: 'var(--kelime-canavar-color)' },
+                { game: KelimeKurtarma, color: 'var(--kelime-kurtarma-color)' },
             ]
         },
         {
@@ -40,6 +41,9 @@ const App = (() => {
                 { game: BilgiMadencisi, color: 'var(--bilgi-madencisi-color)' },
                 { game: MatematikPatlatma, color: 'var(--matematik-patlatma-color)' },
                 { game: MatematikKafe, color: 'var(--matematik-kafe-color)' },
+                { game: BilgiYilani, color: 'var(--bilgi-yilani-color)' },
+                { game: RitimSorulari, color: 'var(--ritim-color)' },
+                { game: Kesir2048, color: 'var(--kesir-color)' },
             ]
         },
         {
@@ -54,6 +58,7 @@ const App = (() => {
                 { game: Tetris, color: 'var(--tetris-color)' },
                 // Eğitsel seri (Faz 3): kilitsiz — fen gözlem/dikkat.
                 { game: BilimDedektifi, color: 'var(--bilim-dedektifi-color)' },
+                { game: EslestirmeUstasi, color: 'var(--eslestirme-color)' },
             ]
         },
         {

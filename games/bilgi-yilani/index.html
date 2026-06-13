@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bilgi Yılanı — Doğru Yemi Ye, Uza!</title>
+<!-- Portal standardı: tek dosya, harici bağımlılık YOK. Eğitsel seri Faz 4 / 4.13
+     (Nokia Snake klasiği + soru yemleri). Tasarım: EGITSEL-OYUN-PLANI §4.13 -->
+<style>
+:root{
+  --bg1:#173a2a; --bg2:#0c2418; --panel:#1f5038; --ink:#eafff2; --ink-dim:#a3d4b8;
+  --gold:#ffd23f; --hot:#ff7a59; --ok:#5fd68b; --snake:#6ee7a0; --snake2:#3fae6e;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--ink);
+  font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;user-select:none;touch-action:none}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:12px}
+.screen{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:14px;text-align:center}
+.screen.show{display:flex}
+#screen-menu h1{font-size:clamp(27px,7.2vw,46px);text-shadow:0 3px 0 rgba(0,0,0,.4)}
+#screen-menu .sub{opacity:.9;margin:6px 0 14px;font-size:clamp(13px,3.5vw,16px);max-width:470px;color:var(--ink-dim)}
+.tierGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:min(440px,94vw);margin-bottom:12px}
+.tierBtn{background:var(--panel);color:var(--ink);padding:12px 8px;font-size:15px;font-weight:700;border:3px solid transparent;display:flex;flex-direction:column;gap:3px}
+.tierBtn small{font-weight:400;font-size:11.5px;color:var(--ink-dim)}
+.tierBtn.on{border-color:var(--gold);transform:scale(1.03)}
+.bigBtn{background:var(--hot);color:#fff;font-size:18px;font-weight:800;padding:14px 32px;box-shadow:0 4px 0 #c2503a}
+.bigBtn:active{transform:translateY(3px);box-shadow:0 1px 0 #c2503a}
+.ghost{background:transparent;color:var(--ink-dim);font-size:13px;padding:8px;text-decoration:underline}
+#bestLine{font-size:13px;color:var(--ink-dim);margin-top:8px;min-height:17px}
+
+#screen-game{padding:0;justify-content:flex-start}
+#topBar{width:100%;background:var(--panel);padding:7px 10px;display:flex;flex-direction:column;gap:4px;z-index:5}
+#hudRow{display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:800}
+.chip{background:rgba(0,0,0,.25);border-radius:9px;padding:4px 10px;white-space:nowrap}
+#qLine{font-size:clamp(15px,4.4vw,19px);font-weight:900;color:var(--gold);text-align:center}
+#cvWrap{flex:1;width:100%;display:flex;align-items:center;justify-content:center;padding:6px}
+#cv{border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.4);touch-action:none}
+
+#screen-result #resEmoji{font-size:52px}
+#resScore{font-size:clamp(32px,9vw,48px);font-weight:900;color:var(--gold)}
+#resStats{background:var(--panel);border-radius:14px;padding:14px 20px;font-size:15px;line-height:1.7;margin:10px 0;max-width:420px}
+#eduLine{font-weight:800}
+#pauseVeil{position:fixed;inset:0;background:rgba(5,18,10,.85);display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:20;padding:20px;text-align:center}
+#pauseVeil.show{display:flex}
+</style>
+</head>
+<body>
+
+<div class="screen show" id="screen-menu">
+  <h1>🐍 BİLGİ YILANI 🍎</h1>
+  <p class="sub">Klasik yılan ama yemler CEVAP! Üstteki sorunun doğru cevabını taşıyan yemi ye → uza ve puan kazan. Yanlış yem 2 boğum kısaltır. Kaydır ya da ok tuşlarıyla yönlendir!</p>
+  <div class="tierGrid">
+    <button class="tierBtn on" data-t="1">🏕️ Etek<small>2 yem · duvarlar geçirgen</small></button>
+    <button class="tierBtn" data-t="2">⛰️ Yamaç<small>3 yem · geçirgen duvar</small></button>
+    <button class="tierBtn" data-t="3">🧗 Tırmanış<small>4 yem · ÖLÜMCÜL duvar</small></button>
+    <button class="tierBtn" data-t="4">🏔️ Zirve<small>4 yem · ölümcül + hızlı</small></button>
+  </div>
+  <button class="bigBtn" id="bPlay">🐍 BAŞLA</button>
+  <div id="bestLine"></div>
+</div>
+
+<div class="screen" id="screen-game">
+  <div id="topBar">
+    <div id="hudRow">
+      <span class="chip" id="scoreChip">⭐ 0</span>
+      <span class="chip" id="lenChip">🐍 3</span>
+      <span class="chip" id="okChip">✅ 0</span>
+      <button class="chip" id="bPause">⏸️</button>
+    </div>
+    <div id="qLine">3 + 4 = ?</div>
+  </div>
+  <div id="cvWrap"><canvas id="cv"></canvas></div>
+</div>
+
+<div id="pauseVeil">
+  <h2 style="font-size:26px">⏸️ Mola!</h2>
+  <p style="color:var(--ink-dim)">Yılan kıvrılıp bekliyor.</p>
+  <button class="bigBtn" id="bResume">▶️ Devam Et</button>
+  <button class="ghost" id="bQuit">🏠 Menü</button>
+</div>
+
+<div class="screen" id="screen-result">
+  <div id="resEmoji">🐍</div>
+  <h1 style="font-size:25px" id="resTitle">Tur Bitti!</h1>
+  <div id="resScore">0</div>
+  <div id="resStats"></div>
+  <div id="eduLine"></div>
+  <button class="bigBtn" id="bAgain" style="margin-top:12px">🔄 Tekrar Oyna</button>
+  <button class="ghost" id="bMenu">🏠 Menü</button>
+</div>
+
+<script>
+(function () {
+  if (window.storage && window.storage.get && window.storage.set) return;
+  window.storage = {
+    get: function (key) { try { var v = localStorage.getItem(key); return Promise.resolve(v != null ? { value: v } : null); } catch (e) { return Promise.resolve(null); } },
+    set: function (key, value) { try { localStorage.setItem(key, value); return Promise.resolve(); } catch (e) { return Promise.resolve(); } },
+    remove: function (key) { try { localStorage.removeItem(key); return Promise.resolve(); } catch (e) { return Promise.resolve(); } }
+  };
+})();
+</script>
+<script>
+"use strict";
+/* ================= CONFIG (EGITSEL-OYUN-PLANI §4.13 — aynen) ================= */
+const CONFIG = {
+  GRID_DESKTOP: 20, GRID_MOBILE: 15, MOBILE_BREAK: 520,
+  BASE_SPEED: 5,                 // hücre/sn
+  SPEED_UP_EVERY: 5,             // her 5 doğruda +%10
+  SPEED_UP: 1.10,
+  FOOD_POINT: 30,                // 30 p × uzunluk çarpanı
+  WRONG_SHRINK: 2,               // yanlış yem: -2 boğum (puan kaybı yok)
+  TIERS: {
+    1: { foods: 2, wall: 'wrap', speedMul: 1.0 },
+    2: { foods: 3, wall: 'wrap', speedMul: 1.05 },
+    3: { foods: 4, wall: 'deadly', speedMul: 1.1 },
+    4: { foods: 4, wall: 'deadly', speedMul: 1.25 },
+  },
+};
+const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const shuffle = a => { for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+
+/* ---- soru üretici (kısa cevaplı matematik, tier ölçekli) ---- */
+function numOpts(ans, spread, n){
+  const set = new Set([ans]);
+  let g = 0;
+  while (set.size < n && g++ < 50){ const v = ans + rnd(-spread, spread); if (v >= 0 && v !== ans) set.add(v); }
+  while (set.size < n) set.add(ans + set.size);
+  return shuffle([...set]);
+}
+function genQ(tier, nFoods){
+  let q, ans;
+  if (tier === 1){ const a=rnd(2,9), b=rnd(2,9); q=`${a} + ${b} = ?`; ans=a+b; }
+  else if (tier === 2){ const k=rnd(0,1);
+    if (k===0){ const a=rnd(2,9), b=rnd(2,9); q=`${a} × ${b} = ?`; ans=a*b; }
+    else { const a=rnd(15,60), b=rnd(5,14); q=`${a} − ${b} = ?`; ans=a-b; } }
+  else if (tier === 3){ const k=rnd(0,1);
+    if (k===0){ const b=rnd(3,9), c=rnd(3,12); q=`${b*c} ÷ ${b} = ?`; ans=c; }
+    else { const a=rnd(6,15), b=rnd(3,9); q=`${a} × ${b} = ?`; ans=a*b; } }
+  else { const k=rnd(0,1);
+    if (k===0){ const a=rnd(3,9), b=rnd(3,9), c=rnd(4,20); q=`${a} × ${b} + ${c} = ?`; ans=a*b+c; }
+    else { const p=pick([10,25,50]), base=(100/p)*rnd(2,9); q=`${base} sayısının %${p}'i?`; ans=base*p/100; } }
+  const opts = numOpts(ans, Math.max(3, Math.round(ans*0.3)), nFoods);
+  return { q, opts: opts.map(String), ansIdx: opts.indexOf(ans) };
+}
+
+/* ================= Audio ================= */
+const Audio2 = (() => {
+  let ctx = null;
+  function init(){ if (!ctx){ try { ctx = new (window.AudioContext||window.webkitAudioContext)(); } catch(e){} } if (ctx && ctx.state==='suspended') ctx.resume(); }
+  function tone(f,d,t,v,w){ if(!ctx)return; const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type=t||'triangle'; o.frequency.value=f;
+    g.gain.setValueAtTime(v||0.06, ctx.currentTime+(w||0));
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+(w||0)+d);
+    o.connect(g); g.connect(ctx.destination); o.start(ctx.currentTime+(w||0)); o.stop(ctx.currentTime+(w||0)+d+0.02); }
+  return { init,
+    eat: () => { tone(620,0.08,'triangle',0.06); tone(820,0.1,'triangle',0.06,0.07); },
+    bad: () => tone(170,0.25,'sawtooth',0.05),
+    die: () => { tone(300,0.2,'sawtooth',0.06); tone(200,0.3,'sawtooth',0.06,0.15); },
+    speed: () => tone(1000,0.1,'square',0.05),
+    fanfare: () => [523,659,784,1046].forEach((f,i)=>tone(f,0.15,'triangle',0.07,i*0.11)) };
+})();
+
+const BilnetBridge = {
+  QUEUE_KEY: 'bilnet_score_queue',
+  async submitScore(p){ const rec={...p,ts:Date.now()};
+    try{ const r=await window.storage.get(this.QUEUE_KEY); const q=r&&r.value?JSON.parse(r.value):[];
+      q.push(rec); while(q.length>50)q.shift(); await window.storage.set(this.QUEUE_KEY,JSON.stringify(q)); }catch(e){} },
+};
+const STATS_KEY = 'bilgiyilani_stats';
+let STATS = { plays:0, correct:0, wrong:0, longest:3, best:{1:0,2:0,3:0,4:0} };
+function loadStats(){ try{ window.storage.get(STATS_KEY).then(r=>{ if(r&&r.value){ try{ STATS=Object.assign(STATS,JSON.parse(r.value)); }catch(e){} } refreshBest(); }); }catch(e){} }
+function saveStats(){ try{ window.storage.set(STATS_KEY,JSON.stringify(STATS)); }catch(e){} }
+
+/* ================= Game ================= */
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx2 = cv.getContext('2d');
+const G = {
+  state:'menu', tier:1, N:20, cell:20,
+  snake:[], dir:{x:1,y:0}, nextDir:{x:1,y:0},
+  foods:[], q:null,
+  score:0, correct:0, wrong:0, speed:CONFIG.BASE_SPEED,
+  acc:0, lastTs:0, raf:0,
+};
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('show')); $(id).classList.add('show'); }
+function layout(){
+  G.N = innerWidth < CONFIG.MOBILE_BREAK ? CONFIG.GRID_MOBILE : CONFIG.GRID_DESKTOP;
+  const wrap = $('cvWrap').getBoundingClientRect();
+  const size = Math.min(wrap.width-10, wrap.height-10, 540);
+  G.cell = Math.floor(size / G.N);
+  cv.width = cv.height = G.cell * G.N;
+}
+function newQuestion(){
+  const T = CONFIG.TIERS[G.tier];
+  G.q = genQ(G.tier, T.foods);
+  $('qLine').textContent = G.q.q;
+  spawnFoods();
+}
+function freeCell(){
+  let guard = 0;
+  while (guard++ < 400){
+    const x = rnd(0, G.N-1), y = rnd(0, G.N-1);
+    // yılanın gövdesine ve kafasının 3 hücre önüne spawn ETME (§4.13 — haksız ölüm engeli)
+    if (G.snake.some(s => s.x===x && s.y===y)) continue;
+    const h = G.snake[0];
+    let bad = false;
+    for (let k=1;k<=3;k++){
+      let fx = h.x + G.dir.x*k, fy = h.y + G.dir.y*k;
+      if (CONFIG.TIERS[G.tier].wall==='wrap'){ fx=(fx+G.N)%G.N; fy=(fy+G.N)%G.N; }
+      if (fx===x && fy===y){ bad=true; break; }
+    }
+    if (bad) continue;
+    if (G.foods.some(f => f.x===x && f.y===y)) continue;
+    return { x, y };
+  }
+  return { x: 0, y: 0 };
+}
+function spawnFoods(){
+  G.foods = [];
+  G.q.opts.forEach((txt, i) => {
+    const c = freeCell();
+    G.foods.push({ x:c.x, y:c.y, txt, correct: i === G.q.ansIdx });
+  });
+}
+function startRound(){
+  G.state='playing';
+  layout();
+  const mid = Math.floor(G.N/2);
+  G.snake = [{x:mid,y:mid},{x:mid-1,y:mid},{x:mid-2,y:mid}];
+  G.dir={x:1,y:0}; G.nextDir={x:1,y:0};
+  G.score=0; G.correct=0; G.wrong=0;
+  G.speed = CONFIG.BASE_SPEED * CONFIG.TIERS[G.tier].speedMul;
+  G.acc=0;
+  show('screen-game');
+  newQuestion();
+  refreshHUD();
+  G.lastTs = performance.now();
+  if (!G.raf) G.raf = requestAnimationFrame(loop);
+}
+function refreshHUD(){
+  $('scoreChip').textContent = '⭐ ' + G.score;
+  $('lenChip').textContent = '🐍 ' + G.snake.length;
+  $('okChip').textContent = '✅ ' + G.correct;
+}
+function step(){
+  G.dir = G.nextDir;
+  const T = CONFIG.TIERS[G.tier];
+  let nx = G.snake[0].x + G.dir.x, ny = G.snake[0].y + G.dir.y;
+  if (T.wall === 'wrap'){ nx = (nx+G.N)%G.N; ny = (ny+G.N)%G.N; }
+  else if (nx<0||nx>=G.N||ny<0||ny>=G.N){ return die('duvar'); }
+  if (G.snake.some((s,i) => i>0 && s.x===nx && s.y===ny)) return die('kendine');
+  G.snake.unshift({x:nx,y:ny});
+  const fi = G.foods.findIndex(f => f.x===nx && f.y===ny);
+  if (fi >= 0){
+    const f = G.foods[fi];
+    if (f.correct){
+      G.correct++;
+      G.score += Math.round(CONFIG.FOOD_POINT * (1 + G.snake.length/10));   // 30p × uzunluk çarpanı
+      Audio2.eat();
+      if (G.correct % CONFIG.SPEED_UP_EVERY === 0){ G.speed *= CONFIG.SPEED_UP; Audio2.speed(); }
+      if (G.snake.length > STATS.longest) STATS.longest = G.snake.length;
+      newQuestion();   // soru değişir, yemler yeniden konumlanır (büyüme: pop yok)
+    } else {
+      G.wrong++;
+      Audio2.bad();
+      // yanlış yem: -2 boğum (puan kaybı yok); 1 boğuma düşersen tur biter (§4.13)
+      for (let k=0;k<CONFIG.WRONG_SHRINK;k++) if (G.snake.length>1) G.snake.pop();
+      G.snake.pop();   // bu adımda büyümeyi de geri al
+      G.foods.splice(fi,1);
+      if (!G.foods.some(x=>x.correct)) newQuestion();
+      if (G.snake.length <= 1) return die('kisaldi');
+    }
+  } else {
+    G.snake.pop();
+  }
+  refreshHUD();
+}
+function die(reason){
+  Audio2.die();
+  endRound(reason);
+}
+function loop(ts){
+  if (G.state!=='playing'){ G.raf=0; return; }
+  const dt = Math.min(0.05,(ts-G.lastTs)/1000||0.016);
+  G.lastTs = ts;
+  G.acc += dt * G.speed;
+  while (G.acc >= 1){ G.acc -= 1; step(); if (G.state!=='playing'){ G.raf=0; return; } }
+  draw();
+  G.raf = requestAnimationFrame(loop);
+}
+function draw(){
+  const c = G.cell;
+  ctx2.fillStyle = '#0e2c1c';
+  ctx2.fillRect(0,0,cv.width,cv.height);
+  ctx2.fillStyle = 'rgba(255,255,255,.03)';
+  for (let x=0;x<G.N;x++) for (let y=0;y<G.N;y++) if ((x+y)%2===0) ctx2.fillRect(x*c,y*c,c,c);
+  // yemler — elma + cevap etiketi
+  for (const f of G.foods){
+    ctx2.font = `${Math.round(c*0.8)}px system-ui`;
+    ctx2.textAlign='center'; ctx2.textBaseline='middle';
+    ctx2.fillText('🍎', f.x*c+c/2, f.y*c+c/2);
+    ctx2.font = `900 ${Math.round(c*0.5)}px system-ui`;
+    ctx2.fillStyle='#fff';
+    ctx2.strokeStyle='rgba(0,0,0,.7)'; ctx2.lineWidth=3;
+    ctx2.strokeText(f.txt, f.x*c+c/2, f.y*c - c*0.25);
+    ctx2.fillText(f.txt, f.x*c+c/2, f.y*c - c*0.25);
+  }
+  // yılan
+  G.snake.forEach((s,i) => {
+    const t = i / Math.max(1, G.snake.length-1);
+    ctx2.fillStyle = i===0 ? '#9ff7c4' : `rgb(${Math.round(110-40*t)},${Math.round(231-80*t)},${Math.round(160-60*t)})`;
+    const pad = i===0 ? 1 : 2;
+    ctx2.beginPath();
+    ctx2.roundRect(s.x*c+pad, s.y*c+pad, c-pad*2, c-pad*2, c*0.3);
+    ctx2.fill();
+    if (i===0){
+      ctx2.fillStyle='#0c2418';
+      const ex = G.dir.x, ey = G.dir.y;
+      ctx2.beginPath(); ctx2.arc(s.x*c+c/2+ex*c*0.18-ey*c*0.15, s.y*c+c/2+ey*c*0.18+ex*c*0.15, c*0.08,0,7); ctx2.fill();
+      ctx2.beginPath(); ctx2.arc(s.x*c+c/2+ex*c*0.18+ey*c*0.15, s.y*c+c/2+ey*c*0.18-ex*c*0.15, c*0.08,0,7); ctx2.fill();
+    }
+  });
+  ctx2.textBaseline='alphabetic';
+}
+function endRound(reason){
+  G.state='result';
+  STATS.plays++; STATS.correct += G.correct; STATS.wrong += G.wrong;
+  const isBest = G.score > (STATS.best[G.tier]||0);
+  if (isBest) STATS.best[G.tier] = G.score;
+  saveStats();
+  BilnetBridge.submitScore({ gameId:'bilgi-yilani', score:G.score, tier:G.tier,
+    stats:{ correct:G.correct, wrong:G.wrong, length:G.snake.length } });
+  $('resEmoji').textContent = isBest ? '🏆' : '🐍';
+  $('resTitle').textContent = reason==='duvar' ? 'Duvara Çarptın!' : reason==='kendine' ? 'Kuyruğuna Dolandın!' : reason==='kisaldi' ? 'Yılan Çok Kısaldı!' : 'Tur Bitti!';
+  $('resScore').textContent = G.score;
+  $('resStats').innerHTML = `✅ Doğru yem: <b>${G.correct}</b> · ❌ Yanlış: <b>${G.wrong}</b> · 🐍 Uzunluk: <b>${G.snake.length}</b>` +
+    (isBest?`<br>🏅 <b>YENİ REKOR!</b>`:'');
+  $('eduLine').textContent = G.correct>0 ? `Bugün ${G.correct} işlemi yem yaparak çözdün! 🎉` : 'Yılanı ısıttın — tekrar dene! 💪';
+  if (G.correct>=8) Audio2.fanfare();
+  show('screen-result');
+  refreshBest();
+}
+function refreshBest(){
+  const b = STATS.best[G.tier]||0;
+  $('bestLine').textContent = b>0 ? `🏅 ${['','Etek','Yamaç','Tırmanış','Zirve'][G.tier]} rekorun: ${b}` : '';
+}
+/* ---- giriş: swipe (mobil) / ok tuşları ---- */
+let touchStart = null;
+cv.addEventListener('pointerdown', e => { touchStart = {x:e.clientX, y:e.clientY}; });
+cv.addEventListener('pointerup', e => {
+  if (!touchStart) return;
+  const dx = e.clientX-touchStart.x, dy = e.clientY-touchStart.y;
+  touchStart = null;
+  if (Math.abs(dx) < 18 && Math.abs(dy) < 18) return;
+  setDir(Math.abs(dx) > Math.abs(dy) ? {x:Math.sign(dx),y:0} : {x:0,y:Math.sign(dy)});
+});
+addEventListener('keydown', e => {
+  const m = { ArrowUp:{x:0,y:-1}, ArrowDown:{x:0,y:1}, ArrowLeft:{x:-1,y:0}, ArrowRight:{x:1,y:0},
+              KeyW:{x:0,y:-1}, KeyS:{x:0,y:1}, KeyA:{x:-1,y:0}, KeyD:{x:1,y:0} };
+  if (m[e.code]){ e.preventDefault(); setDir(m[e.code]); }
+  if ((e.code==='KeyP'||e.code==='Escape') && G.state==='playing') pauseGame();
+});
+function setDir(d){
+  if (G.state!=='playing') return;
+  if (d.x === -G.dir.x && d.y === -G.dir.y) return;   // geri dönüş yok
+  G.nextDir = d;
+}
+document.querySelectorAll('.tierBtn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tierBtn').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); G.tier=parseInt(b.dataset.t,10); refreshBest();
+}));
+$('bPlay').addEventListener('click',()=>{ Audio2.init(); startRound(); });
+$('bAgain').addEventListener('click',startRound);
+$('bMenu').addEventListener('click',()=>{ G.state='menu'; show('screen-menu'); refreshBest(); });
+function pauseGame(){ if(G.state!=='playing')return; G.state='paused'; $('pauseVeil').classList.add('show'); }
+$('bPause').addEventListener('click',pauseGame);
+$('bResume').addEventListener('click',()=>{ if(G.state!=='paused')return; G.state='playing'; $('pauseVeil').classList.remove('show'); G.lastTs=performance.now(); if(!G.raf)G.raf=requestAnimationFrame(loop); });
+$('bQuit').addEventListener('click',()=>{ $('pauseVeil').classList.remove('show'); G.state='menu'; show('screen-menu'); refreshBest(); });
+document.addEventListener('visibilitychange',()=>{ if(document.hidden && G.state==='playing'){ pauseGame(); saveStats(); } });
+addEventListener('resize',()=>{ if(G.state==='playing') layout(); });
+loadStats();
+</script>
+</body>
+</html>

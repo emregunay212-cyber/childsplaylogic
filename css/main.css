@@ -55,6 +55,11 @@ html, body {
     --bilim-dedektifi-color: #2A5680;
     --bilgi-ciftligi-color: #7EC850;
     --kelime-canavar-color: #5FD68B;
+    --eslestirme-color: #8A7BFF;
+    --kelime-kurtarma-color: #FF9EC4;
+    --bilgi-yilani-color: #3FAE6E;
+    --ritim-color: #B388FF;
+    --kesir-color: #FF8A65;
 
     /* UI Renkleri */
     --bg-sky-top: #87CEEB;

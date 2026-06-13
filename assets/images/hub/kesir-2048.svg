@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs><linearGradient id="gkesir-2048" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#4a4866"/><stop offset="100%" stop-color="#26253a"/></linearGradient></defs>
+  <rect x="6" y="6" width="88" height="88" rx="16" fill="url(#gkesir-2048)"/>
+  
+  <rect x="14" y="14" width="34" height="34" rx="8" fill="#e8593f"/>
+  <circle cx="31" cy="28" r="9" fill="none" stroke="#fff" stroke-width="2.4"/>
+  <path d="M31 28 L31 19 A9 9 0 0 1 40 28 Z" fill="#fff"/>
+  <text x="31" y="44" font-family="system-ui" font-size="10" font-weight="900" text-anchor="middle" fill="#fff">1/4</text>
+  <rect x="52" y="14" width="34" height="34" rx="8" fill="#3f9e6e"/>
+  <circle cx="69" cy="28" r="9" fill="none" stroke="#fff" stroke-width="2.4"/>
+  <path d="M69 28 L69 19 A9 9 0 1 1 60 28 Z" fill="#fff" transform="rotate(0 69 28)"/>
+  <text x="69" y="44" font-family="system-ui" font-size="10" font-weight="900" text-anchor="middle" fill="#fff">1/2</text>
+  <rect x="33" y="52" width="34" height="34" rx="8" fill="#ffd23f"/>
+  <circle cx="50" cy="66" r="9" fill="#fff" stroke="#fff" stroke-width="2.4"/>
+  <text x="50" y="82" font-family="system-ui" font-size="9.5" font-weight="900" text-anchor="middle" fill="#5a4500">1 TAM</text>
+</svg>

@@ -58,11 +58,11 @@
 
 | No | Oyun | İlham | Durum | Not |
 |---|---|---|---|---|
-| 4.11 | Eşleştirme Ustası 🃏 | Memory | ⬜ | EN KOLAY; `pair_match` bankası direkt kullanılır |
-| 4.12 | Kelime Kurtarma 🎈 | Adam Asmaca (yumuşatılmış) | ⬜ | Balon teması, asılan adam YOK; yarım oturum |
-| 4.13 | Bilgi Yılanı 🐍 | Snake | ⬜ | ~150 satır canvas; yem spawn kuralına dikkat |
-| 4.9 | Ritim Soruları 🎹 | Piano Tiles | ⬜ | Pentatonik nota ödülü; teneffüs oyunu |
-| 4.10 | Kesir 2048 🔢 | 2048 | ⬜ | Pasta dilimi SVG morph animasyonu asıl değer; kesir müfredatı stratejik |
+| 4.11 | **Eşleştirme Ustası** 🃏 | Memory | ✅ 2026-06-13 | §4.11 aynen: İLİŞKİLİ çiftler (7×8↔56, cat↔🐱, Buharlaşma↔💧→☁️), 3 deste (EN/mat/fen), 4×3→6×5+120sn, 3⭐=çift×1.5 hamle, 50p/çift+hamle bonusu, usta modu 3sn ön gösterim; rotateY flip; kategori: Bulmaca & Mantık |
+| 4.12 | **Kelime Kurtarma** 🎈 | Adam Asmaca (yumuşatılmış) | ✅ 2026-06-13 | §4.12 aynen: asılan adam YOK — balon demetli karakter, kayıpta PARAŞÜT; balon 8/6/5/4, puan harf×20+balon×15, 1 harf jokeri, ipucu baştan açık; t1-2 TR resimli, t3 EN spelling, t4 deyim tamamlama; TR/EN klavye + fiziksel klavye; kategori: Harfler & Kelimeler |
+| 4.13 | **Bilgi Yılanı** 🐍 | Snake | ✅ 2026-06-13 | §4.13 aynen: 20×20 (mobil 15×15), cevaplı yemler (t1 2→t3+ 4), doğru=30p×uzunluk çarpanı, yanlış=-2 boğum (1'de tur biter), duvar Etek geçirgen/Tırmanış+ ölümcül, hız +%10/5 doğru, yem spawn kuralı (gövde+kafa önü 3 hücre yasak); kategori: Sayılar & Matematik |
+| 4.9 | **Ritim Soruları** 🎹 | Piano Tiles | ✅ 2026-06-13 | §4.9 aynen: 4 sütun, hız 2→5 karo/sn (10 doğruda artar), 20p×combo (max ×3), Etek cezasız / Yamaç kaçırma combo bozar / Tırmanış+ 3 can, Zirve kesir-yüzde karolar; doğru basışlar PENTATONİK melodi; 75sn tur; kategori: Sayılar & Matematik |
+| 4.10 | **Kesir 2048** 🔢 | 2048 | ✅ 2026-06-13 | §4.10 aynen: 4×4, Etek 2-4-8 / Yamaç 5-10-20 / Tırmanış 1/8→1 TAM zinciri / Zirve DENK kesir gösterimleri (2/8'in 1/4'le birleştiği keşfedilir), birleşme=değer×10 + TAM bonusu, 3 geri al; PASTA modeli her taşta (conic-gradient — kesir görselleşir); kategori: Sayılar & Matematik |
 
 ## FAZ 5 — İkinci Dalga: Bağlılık Motorları
 

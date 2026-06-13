@@ -52,6 +52,11 @@ const TR = {
         'bilim-dedektifi': 'Bilim Dedektifi',
         'bilgi-ciftligi': 'Bilgi Çiftliği',
         'kelime-canavarlari': 'Kelime Canavarları',
+        'eslestirme-ustasi': 'Eşleştirme Ustası',
+        'kelime-kurtarma': 'Kelime Kurtarma',
+        'bilgi-yilani': 'Bilgi Yılanı',
+        'ritim-sorulari': 'Ritim Soruları',
+        'kesir-2048': 'Kesir 2048',
     },
 
     // Multiplayer strings
@@ -158,6 +163,11 @@ const TR = {
         'bilim-dedektifi': 'Sahnedeki bilimsel nesneleri bul, vaka quizini çöz, yıldızları topla!',
         'bilgi-ciftligi': 'Soru çöz, tohum kazan, ek — bitkiler gerçek zamanda büyür!',
         'kelime-canavarlari': 'İngilizce kelimelerle canavarını besle, evrimleştir, birleştir!',
+        'eslestirme-ustasi': 'İlişkili kartları eşleştir: 7×8 kartının eşi 56!',
+        'kelime-kurtarma': 'Harfleri tahmin et, balonları koru, kelimeyi kurtar!',
+        'bilgi-yilani': 'Yılanı doğru cevap yemine sür — uza ve puanı kap!',
+        'ritim-sorulari': 'Düşen karolardan doğru cevaba bas, melodini kur!',
+        'kesir-2048': 'Kaydır ve birleştir: 1/8+1/8=1/4 → hedef 1 TAM!',
     },
 
     // Kod Macerasi stringleri

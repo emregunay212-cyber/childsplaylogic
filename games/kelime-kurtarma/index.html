@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Kelime Kurtarma — Balonları Koru, Kelimeyi Bul!</title>
+<!-- Portal standardı: tek dosya, harici bağımlılık YOK. Eğitsel seri Faz 4 / 4.12
+     (Adam Asmaca — TEMA YUMUŞATILDI: asılan adam YOK; balon demetli karakter,
+     balonlar biterse PARAŞÜTLE süzülür). Tasarım: EGITSEL-OYUN-PLANI §4.12 -->
+<style>
+:root{
+  --sky1:#ffe3ec; --sky2:#c9e6ff; --panel:#ffffff; --ink:#3a2a4a; --ink-dim:#8a7a9a;
+  --hot:#ff5e9a; --ok:#5fae6e; --gold:#f4a93c; --bad:#d6536a;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:linear-gradient(180deg,var(--sky1),var(--sky2));color:var(--ink);
+  font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;user-select:none;touch-action:manipulation}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:12px}
+.screen{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:14px;text-align:center}
+.screen.show{display:flex}
+#screen-menu h1{font-size:clamp(26px,7vw,44px);text-shadow:0 2px 0 rgba(255,255,255,.7)}
+#screen-menu .sub{opacity:.85;margin:6px 0 14px;font-size:clamp(13px,3.5vw,16px);max-width:470px}
+.tierGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:min(440px,94vw);margin-bottom:12px}
+.tierBtn{background:#fff;color:var(--ink);padding:12px 8px;font-size:15px;font-weight:700;border:3px solid #f0d9e6;display:flex;flex-direction:column;gap:3px}
+.tierBtn small{font-weight:400;font-size:11.5px;color:var(--ink-dim)}
+.tierBtn.on{border-color:var(--hot);transform:scale(1.03)}
+.bigBtn{background:var(--hot);color:#fff;font-size:18px;font-weight:800;padding:14px 32px;box-shadow:0 4px 0 #b23064}
+.bigBtn:active{transform:translateY(3px);box-shadow:0 1px 0 #b23064}
+.ghost{background:transparent;color:var(--ink-dim);font-size:13px;padding:8px;text-decoration:underline}
+#bestLine{font-size:13px;color:var(--ink-dim);margin-top:8px;min-height:17px}
+
+#screen-game{padding:0;justify-content:flex-start}
+#topBar{width:100%;background:rgba(255,255,255,.85);padding:8px 10px;display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:800;z-index:5;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.chip{background:#fff;border-radius:9px;padding:4px 10px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+#stage{flex:1;width:100%;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:6px;overflow:hidden}
+#balloonGuy{position:relative;height:188px;display:flex;flex-direction:column;align-items:center;transition:transform 1.6s ease-in}
+#balloons{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;max-width:200px;min-height:70px}
+.bal{font-size:34px;line-height:1;transition:transform .3s, opacity .3s}
+.bal.pop{transform:scale(2);opacity:0}
+#hero{font-size:54px;line-height:1;margin-top:-6px}
+#hintBox{background:#fff;border-radius:14px;padding:9px 16px;font-size:clamp(13px,3.7vw,16px);font-weight:700;max-width:92vw;box-shadow:0 3px 10px rgba(0,0,0,.1)}
+#wordRow{display:flex;gap:6px;justify-content:center;margin:12px 0 4px;flex-wrap:wrap;max-width:96vw}
+.slot{width:clamp(26px,7.4vw,38px);height:clamp(34px,9vw,46px);border-bottom:4px solid var(--ink);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:clamp(18px,5.4vw,26px)}
+.slot.sp{border:none;width:14px}
+#kb{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:8px 8px 14px;max-width:560px;margin:0 auto}
+.key{width:clamp(30px,8.4vw,44px);height:clamp(38px,10vw,48px);background:#fff;color:var(--ink);font-weight:900;font-size:clamp(14px,4vw,18px);border:2px solid #e0d0ea;border-radius:10px}
+.key:disabled{opacity:.35}
+.key.hit{background:#d8f3e0;border-color:var(--ok)}
+.key.missK{background:#f8d7dc;border-color:var(--bad)}
+#jokerBtn{background:var(--gold);color:#4a3000;font-weight:900;padding:0 14px;border-radius:10px;font-size:13px}
+
+#screen-result #resEmoji{font-size:52px}
+#resScore{font-size:clamp(30px,8.6vw,46px);font-weight:900;color:var(--hot)}
+#resStats{background:#fff;border-radius:14px;padding:14px 20px;font-size:15px;line-height:1.7;margin:10px 0;max-width:420px;box-shadow:0 3px 12px rgba(0,0,0,.1)}
+#eduLine{font-weight:800}
+</style>
+</head>
+<body>
+
+<div class="screen show" id="screen-menu">
+  <h1>🎈 KELİME KURTARMA 🔤</h1>
+  <p class="sub">Karakterimiz balonlarla havada! Her yanlış harf bir balon patlatır. Balonlar biterse korkma — paraşütüyle yumuşacık iner. Kelimeyi bul, onu uçur!</p>
+  <div class="tierGrid">
+    <button class="tierBtn on" data-t="1">🏕️ Etek<small>3-4 harf · resimli · 8 balon</small></button>
+    <button class="tierBtn" data-t="2">⛰️ Yamaç<small>5-6 harf · 6 balon</small></button>
+    <button class="tierBtn" data-t="3">🧗 Tırmanış<small>EN kelime · tanımlı · 5 balon</small></button>
+    <button class="tierBtn" data-t="4">🏔️ Zirve<small>Deyim tamamlama · 4 balon</small></button>
+  </div>
+  <button class="bigBtn" id="bPlay">🎈 BAŞLA</button>
+  <div id="bestLine"></div>
+</div>
+
+<div class="screen" id="screen-game">
+  <div id="topBar">
+    <span class="chip" id="scoreChip">⭐ 0</span>
+    <span class="chip" id="balChip">🎈 8</span>
+    <span class="chip" id="wordChip">📚 0</span>
+    <button class="chip" id="bQuitTop">🏠</button>
+  </div>
+  <div id="stage">
+    <div id="balloonGuy">
+      <div id="balloons"></div>
+      <div id="hero">🐻</div>
+    </div>
+    <div id="hintBox">💡 İpucu</div>
+    <div id="wordRow"></div>
+  </div>
+  <div id="kb"></div>
+</div>
+
+<div class="screen" id="screen-result">
+  <div id="resEmoji">🎉</div>
+  <h1 style="font-size:25px" id="resTitle">Kurtarıldı!</h1>
+  <div id="resScore">0</div>
+  <div id="resStats"></div>
+  <div id="eduLine"></div>
+  <button class="bigBtn" id="bAgain" style="margin-top:12px">▶️ Sıradaki Kelime</button>
+  <button class="ghost" id="bMenu">🏠 Menü</button>
+</div>
+
+<script>
+(function () {
+  if (window.storage && window.storage.get && window.storage.set) return;
+  window.storage = {
+    get: function (key) { try { var v = localStorage.getItem(key); return Promise.resolve(v != null ? { value: v } : null); } catch (e) { return Promise.resolve(null); } },
+    set: function (key, value) { try { localStorage.setItem(key, value); return Promise.resolve(); } catch (e) { return Promise.resolve(); } },
+    remove: function (key) { try { localStorage.removeItem(key); return Promise.resolve(); } catch (e) { return Promise.resolve(); } }
+  };
+})();
+</script>
+<script>
+"use strict";
+/* ================= CONFIG (EGITSEL-OYUN-PLANI §4.12 — aynen) ================= */
+const CONFIG = {
+  BALLOONS: { 1: 8, 2: 6, 3: 5, 4: 4 },     // balon hakkı
+  WORD_POINT: (len, left) => len * 20 + left * 15,   // harf×20 + kalan balon×15
+  JOKER_PER_ROUND: 1,                        // 1 harf açma jokeri
+};
+/* Kelime havuzları: t1-t2 TR resimli, t3 EN tanımlı, t4 TR deyim tamamlama */
+const WORDS = {
+  1: [ // 3-4 harf TR + resim ipucu
+    { w:'KEDİ', hint:'🐱 Hayvan — miyav der', tr:true }, { w:'KUŞ', hint:'🐦 Hayvan — gökyüzünde uçar', tr:true },
+    { w:'ELMA', hint:'🍎 Meyve — kırmızı ya da yeşil', tr:true }, { w:'TOP', hint:'⚽ Oyuncak — zıplar', tr:true },
+    { w:'SÜT', hint:'🥛 İçecek — kemikleri güçlendirir', tr:true }, { w:'AY', hint:'🌙 Gökyüzünde — geceleri parlar', tr:true },
+    { w:'BUZ', hint:'🧊 Çok soğuk — donmuş su', tr:true }, { w:'GÜL', hint:'🌹 Çiçek — dikenli', tr:true },
+    { w:'ARI', hint:'🐝 Böcek — bal yapar', tr:true }, { w:'EV', hint:'🏠 İçinde yaşarız', tr:true },
+    { w:'KAR', hint:'❄️ Kışın yağar — bembeyaz', tr:true }, { w:'BAL', hint:'🍯 Arılar yapar — tatlı', tr:true },
+  ],
+  2: [ // 5-6 harf TR
+    { w:'KALEM', hint:'✏️ Okul eşyası — onunla yazarız', tr:true }, { w:'ÇİÇEK', hint:'🌸 Bahçede açar — güzel kokar', tr:true },
+    { w:'BALIK', hint:'🐟 Suda yaşar — solungaçla solur', tr:true }, { w:'YILDIZ', hint:'⭐ Geceleri gökyüzünde parlar', tr:true },
+    { w:'ORMAN', hint:'🌳 Ağaçlarla dolu yer', tr:true }, { w:'GÜNEŞ', hint:'☀️ Dünyamızı ısıtır ve aydınlatır', tr:true },
+    { w:'TAVŞAN', hint:'🐰 Havuç sever — uzun kulaklı', tr:true }, { w:'OYUNCAK', hint:'🧸 Çocuklar onunla oynar', tr:true },
+    { w:'KİTAP', hint:'📖 Okuruz — bilgi dolu', tr:true }, { w:'DENİZ', hint:'🌊 Tuzlu su — yüzeriz', tr:true },
+  ],
+  3: [ // EN spelling — tanım var, resim YOK (Zirve kuralı buraya da yaklaşır ama tanım+EN)
+    { w:'APPLE', hint:"🇬🇧 'elma' — İngilizcesini yaz" }, { w:'WATER', hint:"🇬🇧 'su' — İngilizcesini yaz" },
+    { w:'HOUSE', hint:"🇬🇧 'ev' — İngilizcesini yaz" }, { w:'SCHOOL', hint:"🇬🇧 'okul' — İngilizcesini yaz" },
+    { w:'ORANGE', hint:"🇬🇧 'portakal' — İngilizcesini yaz" }, { w:'YELLOW', hint:"🇬🇧 'sarı' — İngilizcesini yaz" },
+    { w:'RABBIT', hint:"🇬🇧 'tavşan' — İngilizcesini yaz" }, { w:'FLOWER', hint:"🇬🇧 'çiçek' — İngilizcesini yaz" },
+    { w:'WINTER', hint:"🇬🇧 'kış' — İngilizcesini yaz" }, { w:'MONKEY', hint:"🇬🇧 'maymun' — İngilizcesini yaz" },
+  ],
+  4: [ // TR deyim/atasözü tamamlama (eksik kelimeyi bul)
+    { w:'GÖL', hint:'📜 "Damlaya damlaya ___ olur."', tr:true },
+    { w:'DEMİR', hint:'📜 "___ tavında dövülür."', tr:true },
+    { w:'BAL', hint:'📜 "Tatlı dil yılanı deliğinden çıkarır; ___ tutan parmağını yalar."', tr:true },
+    { w:'AĞAÇ', hint:'📜 "___ yaşken eğilir."', tr:true },
+    { w:'TENCERE', hint:'📜 "___ yuvarlanmış kapağını bulmuş."', tr:true },
+    { w:'SAKLA', hint:'📜 "___ samanı gelir zamanı." (ipucu: fiil)', tr:true },
+    { w:'DOST', hint:'📜 "İyi ___ kara günde belli olur."', tr:true },
+    { w:'EMEK', hint:'📜 "___ olmadan yemek olmaz."', tr:true },
+  ],
+};
+const TR_LETTERS = 'ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ'.split('');
+const EN_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const HEROES = ['🐻','🐰','🐱','🦊','🐼'];
+const pick = a => a[Math.floor(Math.random()*a.length)];
+
+/* ================= Audio ================= */
+const Audio2 = (() => {
+  let ctx = null;
+  function init(){ if (!ctx){ try { ctx = new (window.AudioContext||window.webkitAudioContext)(); } catch(e){} } if (ctx && ctx.state==='suspended') ctx.resume(); }
+  function tone(f,d,t,v,w){ if(!ctx)return; const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type=t||'triangle'; o.frequency.value=f;
+    g.gain.setValueAtTime(v||0.06, ctx.currentTime+(w||0));
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+(w||0)+d);
+    o.connect(g); g.connect(ctx.destination); o.start(ctx.currentTime+(w||0)); o.stop(ctx.currentTime+(w||0)+d+0.02); }
+  return { init,
+    hit: () => { tone(660,0.1,'triangle',0.07); tone(880,0.12,'triangle',0.06,0.08); },
+    pop: () => tone(180,0.2,'sawtooth',0.06),
+    win: () => [523,659,784,1046].forEach((f,i)=>tone(f,0.15,'triangle',0.07,i*0.11)),
+    chute: () => { tone(400,0.2,'sine',0.05); tone(330,0.25,'sine',0.05,0.18); tone(290,0.3,'sine',0.04,0.38); } };
+})();
+
+const BilnetBridge = {
+  QUEUE_KEY: 'bilnet_score_queue',
+  async submitScore(p){ const rec={...p,ts:Date.now()};
+    try{ const r=await window.storage.get(this.QUEUE_KEY); const q=r&&r.value?JSON.parse(r.value):[];
+      q.push(rec); while(q.length>50)q.shift(); await window.storage.set(this.QUEUE_KEY,JSON.stringify(q)); }catch(e){} },
+};
+const STATS_KEY = 'kelimekurtarma_stats';
+let STATS = { plays:0, saved:0, best:{1:0,2:0,3:0,4:0} };
+function loadStats(){ try{ window.storage.get(STATS_KEY).then(r=>{ if(r&&r.value){ try{ STATS=Object.assign(STATS,JSON.parse(r.value)); }catch(e){} } refreshBest(); }); }catch(e){} }
+function saveStats(){ try{ window.storage.set(STATS_KEY,JSON.stringify(STATS)); }catch(e){} }
+
+/* ================= Game ================= */
+const $ = id => document.getElementById(id);
+const G = { state:'menu', tier:1, word:null, revealed:new Set(), balloons:8, joker:1,
+  score:0, words:0, usedWords:new Set() };
+const upperTr = s => s.toLocaleUpperCase('tr-TR');
+
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('show')); $(id).classList.add('show'); }
+function refreshHUD(){
+  $('scoreChip').textContent = '⭐ ' + G.score;
+  $('balChip').textContent = '🎈 ' + G.balloons;
+  $('wordChip').textContent = '📚 ' + G.words;
+}
+function newWord(){
+  let pool = WORDS[G.tier].filter(w => !G.usedWords.has(w.w));
+  if (!pool.length){ G.usedWords.clear(); pool = WORDS[G.tier]; }
+  G.word = pick(pool);
+  G.usedWords.add(G.word.w);
+  G.revealed = new Set();
+  G.balloons = CONFIG.BALLOONS[G.tier];
+  G.joker = CONFIG.JOKER_PER_ROUND;
+  G.state = 'playing';
+  $('hero').textContent = pick(HEROES);
+  $('balloonGuy').style.transform = '';
+  $('hintBox').textContent = '💡 ' + G.word.hint + ` (${G.word.w.length} harf)`;
+  renderBalloons(); renderWord(); renderKb();
+  refreshHUD();
+}
+function renderBalloons(){
+  const cols = ['🎈','🟠','🔴','🟡','🟢','🔵','🟣','🩷'];
+  $('balloons').innerHTML = Array.from({length:G.balloons},(_,i)=>`<span class="bal">${i%2?'🎈':'🎈'}</span>`).join('');
+}
+function renderWord(){
+  $('wordRow').innerHTML = G.word.w.split('').map(ch =>
+    ch === ' ' ? '<div class="slot sp"></div>' :
+    `<div class="slot">${G.revealed.has(ch) ? ch : ''}</div>`).join('');
+}
+function renderKb(){
+  const letters = G.word.tr ? TR_LETTERS : EN_LETTERS;
+  const kb = $('kb');
+  kb.innerHTML = '';
+  letters.forEach(L => {
+    const b = document.createElement('button');
+    b.className = 'key'; b.textContent = L;
+    b.addEventListener('click', () => guess(L, b));
+    kb.appendChild(b);
+  });
+  const j = document.createElement('button');
+  j.id = 'jokerBtn'; j.textContent = `🃏 Harf Aç (${G.joker})`;
+  j.addEventListener('click', useJoker);
+  kb.appendChild(j);
+}
+function guess(L, btn){
+  if (G.state !== 'playing' || btn.disabled) return;
+  Audio2.init();
+  btn.disabled = true;
+  if (G.word.w.includes(L)){
+    btn.classList.add('hit');
+    G.revealed.add(L);
+    Audio2.hit();
+    renderWord();
+    if (G.word.w.split('').every(ch => ch === ' ' || G.revealed.has(ch))) winWord();
+  } else {
+    btn.classList.add('missK');
+    G.balloons--;
+    Audio2.pop();
+    const bals = $('balloons').children;
+    if (bals.length) { bals[bals.length-1].classList.add('pop'); setTimeout(renderBalloons, 320); }
+    refreshHUD();
+    if (G.balloons <= 0) loseWord();
+  }
+}
+function useJoker(){
+  if (G.state !== 'playing' || G.joker <= 0) return;
+  const hidden = [...new Set(G.word.w.split(''))].filter(ch => ch !== ' ' && !G.revealed.has(ch));
+  if (!hidden.length) return;
+  G.joker--;
+  const L = pick(hidden);
+  G.revealed.add(L);
+  [...$('kb').children].forEach(b => { if (b.textContent === L){ b.disabled = true; b.classList.add('hit'); } });
+  document.getElementById('jokerBtn').textContent = `🃏 Harf Aç (${G.joker})`;
+  Audio2.hit();
+  renderWord();
+  if (G.word.w.split('').every(ch => ch === ' ' || G.revealed.has(ch))) winWord();
+}
+function winWord(){
+  G.state = 'result';
+  const pts = CONFIG.WORD_POINT(G.word.w.length, G.balloons);   // harf×20 + kalan balon×15 (§4.12)
+  G.score += pts; G.words++;
+  STATS.saved++;
+  endScreen(true, pts);
+}
+function loseWord(){
+  G.state = 'result';
+  // YUMUŞAK kayıp: karakter düşmez, paraşütle süzülür (§4.12)
+  Audio2.chute();
+  $('hero').textContent = '🪂';
+  $('balloonGuy').style.transform = 'translateY(46vh)';
+  setTimeout(() => endScreen(false, 0), 1500);
+}
+function endScreen(win, pts){
+  STATS.plays++;
+  const isBest = G.score > (STATS.best[G.tier]||0);
+  if (isBest) STATS.best[G.tier] = G.score;
+  saveStats();
+  BilnetBridge.submitScore({ gameId:'kelime-kurtarma', score:G.score, tier:G.tier,
+    stats:{ words:G.words, lastWord:G.word.w, win } });
+  $('resEmoji').textContent = win ? '🎉' : '🪂';
+  $('resTitle').textContent = win ? `${G.word.w} — Kurtarıldı!` : 'Yumuşak İniş!';
+  $('resScore').textContent = G.score;
+  $('resStats').innerHTML = (win
+    ? `🎈 Kalan balon: <b>${G.balloons}</b> · ⭐ Bu kelime: <b>+${pts}</b>`
+    : `Kelime <b>${G.word.w}</b> idi — paraşüt açıldı, kimseye bir şey olmadı! 😊`) +
+    `<br>📚 Bu turda kurtarılan: <b>${G.words}</b> kelime` +
+    (isBest ? `<br>🏅 <b>YENİ REKOR!</b>` : '');
+  $('eduLine').textContent = G.words > 0 ? `Bugün ${G.words} kelimenin yazılışını çalıştın! 🎓` : 'Harfleri ısıttın — yeni kelime seni bekliyor! 💪';
+  if (win) Audio2.win();
+  show('screen-result');
+  refreshBest();
+}
+function refreshBest(){
+  const b = STATS.best[G.tier]||0;
+  $('bestLine').textContent = b>0 ? `🏅 ${['','Etek','Yamaç','Tırmanış','Zirve'][G.tier]} rekorun: ${b}` : '';
+}
+document.querySelectorAll('.tierBtn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tierBtn').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); G.tier=parseInt(b.dataset.t,10); refreshBest();
+}));
+$('bPlay').addEventListener('click',()=>{ Audio2.init(); G.score=0; G.words=0; show('screen-game'); newWord(); });
+$('bAgain').addEventListener('click',()=>{ show('screen-game'); newWord(); });
+$('bMenu').addEventListener('click',()=>{ G.state='menu'; show('screen-menu'); refreshBest(); });
+$('bQuitTop').addEventListener('click',()=>{ G.state='menu'; show('screen-menu'); refreshBest(); });
+// fiziksel klavye desteği
+addEventListener('keydown', e => {
+  if (G.state !== 'playing') return;
+  const L = upperTr(e.key);
+  const btn = [...$('kb').children].find(b => b.textContent === L && !b.disabled && b.className.includes('key'));
+  if (btn) guess(L, btn);
+});
+document.addEventListener('visibilitychange',()=>{ if(document.hidden) saveStats(); });
+loadStats();
+</script>
+</body>
+</html>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ritim Soruları — Doğru Karoya Bas!</title>
+<!-- Portal standardı: tek dosya, harici bağımlılık YOK. Eğitsel seri Faz 4 / 4.9
+     (Piano Tiles esinli). Tasarım: EGITSEL-OYUN-PLANI §4.9 -->
+<style>
+:root{
+  --bg1:#241a44; --bg2:#160f2e; --panel:#3a2a63; --ink:#fdf6ff; --ink-dim:#c9b8e8;
+  --gold:#ffd23f; --hot:#ff5e9a; --ok:#6ee7a0; --tile:#4d3a80; --tileEdge:#6b58a8;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--ink);
+  font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;user-select:none;touch-action:manipulation}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:12px}
+.screen{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:14px;text-align:center}
+.screen.show{display:flex}
+#screen-menu h1{font-size:clamp(26px,7vw,44px);text-shadow:0 3px 0 rgba(0,0,0,.4)}
+#screen-menu .sub{opacity:.9;margin:6px 0 14px;font-size:clamp(13px,3.5vw,16px);max-width:470px;color:var(--ink-dim)}
+.tierGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:min(440px,94vw);margin-bottom:12px}
+.tierBtn{background:var(--panel);color:var(--ink);padding:12px 8px;font-size:15px;font-weight:700;border:3px solid transparent;display:flex;flex-direction:column;gap:3px}
+.tierBtn small{font-weight:400;font-size:11.5px;color:var(--ink-dim)}
+.tierBtn.on{border-color:var(--hot);transform:scale(1.03)}
+.bigBtn{background:var(--hot);color:#fff;font-size:18px;font-weight:800;padding:14px 32px;box-shadow:0 4px 0 #b23064}
+.bigBtn:active{transform:translateY(3px);box-shadow:0 1px 0 #b23064}
+.ghost{background:transparent;color:var(--ink-dim);font-size:13px;padding:8px;text-decoration:underline}
+#bestLine{font-size:13px;color:var(--ink-dim);margin-top:8px;min-height:17px}
+
+#screen-game{padding:0;justify-content:flex-start}
+#topBar{width:100%;background:var(--panel);padding:7px 10px;display:flex;flex-direction:column;gap:4px;z-index:5}
+#hudRow{display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:800}
+.chip{background:rgba(0,0,0,.25);border-radius:9px;padding:4px 10px;white-space:nowrap}
+#qLine{font-size:clamp(17px,5vw,23px);font-weight:900;color:var(--gold);text-align:center}
+#lane{flex:1;position:relative;width:100%;max-width:520px;margin:0 auto;overflow:hidden;
+  border-left:2px solid rgba(255,255,255,.08);border-right:2px solid rgba(255,255,255,.08)}
+.col{position:absolute;top:0;bottom:0;width:25%;border-right:1px solid rgba(255,255,255,.06)}
+.tileK{position:absolute;width:24%;margin:0 .5%;height:84px;background:linear-gradient(180deg,var(--tile),#3a2a63);
+  border:3px solid var(--tileEdge);border-radius:14px;display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:clamp(18px,5vw,24px);will-change:transform;color:#fff}
+.tileK.hitOk{background:#1d5c38;border-color:var(--ok)}
+.tileK.hitBad{background:#5c1d28;border-color:#d6536a}
+#hitLine{position:absolute;left:0;right:0;bottom:96px;height:3px;background:rgba(255,210,63,.5);box-shadow:0 0 12px rgba(255,210,63,.6)}
+#lives{position:absolute;top:8px;right:10px;font-size:18px;z-index:6}
+
+#screen-result #resEmoji{font-size:52px}
+#resScore{font-size:clamp(32px,9vw,48px);font-weight:900;color:var(--gold)}
+#resStats{background:var(--panel);border-radius:14px;padding:14px 20px;font-size:15px;line-height:1.7;margin:10px 0;max-width:420px}
+#eduLine{font-weight:800}
+#pauseVeil{position:fixed;inset:0;background:rgba(12,7,28,.88);display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:20;padding:20px;text-align:center}
+#pauseVeil.show{display:flex}
+</style>
+</head>
+<body>
+
+<div class="screen show" id="screen-menu">
+  <h1>🎹 RİTİM SORULARI ⬛</h1>
+  <p class="sub">Soru üstte sabit, cevaplar karolarla aşağı akıyor! DOĞRU cevaplı karoya bas, yanlışları boş geçir. Her doğru basış bir nota çalar — hatasız seri melodi olur! 🎵</p>
+  <div class="tierGrid">
+    <button class="tierBtn on" data-t="1">🏕️ Etek<small>Tek basamak · ceza yok</small></button>
+    <button class="tierBtn" data-t="2">⛰️ Yamaç<small>İki basamak · kaçırma combo bozar</small></button>
+    <button class="tierBtn" data-t="3">🧗 Tırmanış<small>3 CAN sistemi</small></button>
+    <button class="tierBtn" data-t="4">🏔️ Zirve<small>Kesir/yüzde karolar · 3 can</small></button>
+  </div>
+  <button class="bigBtn" id="bPlay">🎹 BAŞLA</button>
+  <div id="bestLine"></div>
+</div>
+
+<div class="screen" id="screen-game">
+  <div id="topBar">
+    <div id="hudRow">
+      <span class="chip" id="scoreChip">⭐ 0</span>
+      <span class="chip" id="comboChip">🔥 ×1</span>
+      <span class="chip" id="okChip">✅ 0</span>
+      <button class="chip" id="bPause">⏸️</button>
+    </div>
+    <div id="qLine">6 × 4 = ?</div>
+  </div>
+  <div id="lane">
+    <div class="col" style="left:0"></div><div class="col" style="left:25%"></div>
+    <div class="col" style="left:50%"></div><div class="col" style="left:75%"></div>
+    <div id="hitLine"></div>
+    <div id="lives"></div>
+  </div>
+</div>
+
+<div id="pauseVeil">
+  <h2 style="font-size:26px">⏸️ Mola!</h2>
+  <p style="color:var(--ink-dim)">Melodi bekliyor.</p>
+  <button class="bigBtn" id="bResume">▶️ Devam Et</button>
+  <button class="ghost" id="bQuit">🏠 Menü</button>
+</div>
+
+<div class="screen" id="screen-result">
+  <div id="resEmoji">🎹</div>
+  <h1 style="font-size:25px" id="resTitle">Melodi Bitti!</h1>
+  <div id="resScore">0</div>
+  <div id="resStats"></div>
+  <div id="eduLine"></div>
+  <button class="bigBtn" id="bAgain" style="margin-top:12px">🔄 Tekrar Oyna</button>
+  <button class="ghost" id="bMenu">🏠 Menü</button>
+</div>
+
+<script>
+(function () {
+  if (window.storage && window.storage.get && window.storage.set) return;
+  window.storage = {
+    get: function (key) { try { var v = localStorage.getItem(key); return Promise.resolve(v != null ? { value: v } : null); } catch (e) { return Promise.resolve(null); } },
+    set: function (key, value) { try { localStorage.setItem(key, value); return Promise.resolve(); } catch (e) { return Promise.resolve(); } },
+    remove: function (key) { try { localStorage.removeItem(key); return Promise.resolve(); } catch (e) { return Promise.resolve(); } }
+  };
+})();
+</script>
+<script>
+"use strict";
+/* ================= CONFIG (EGITSEL-OYUN-PLANI §4.9 — aynen) ================= */
+const CONFIG = {
+  ROUND_SEC: 75,
+  START_SPEED: 2,           // karo/sn (akış hızı)
+  MAX_SPEED: 5,
+  SPEED_UP_EVERY: 10,       // her 10 doğruda hız artar
+  SPEED_STEP: 0.35,
+  HIT_POINT: 20,            // 20 p × combo
+  COMBO_MAX: 3,             // max ×3
+  SPAWN_GAP: 0.85,          // karolar arası mesafe (karo yüksekliği oranı)
+  TIERS: {
+    1: { lives: Infinity, missBreaksCombo: false },   // Etek: ceza yok
+    2: { lives: Infinity, missBreaksCombo: true },    // Yamaç: kaçırma combo bozar
+    3: { lives: 3, missBreaksCombo: true },           // Tırmanış: 3 can
+    4: { lives: 3, missBreaksCombo: true, frac: true },// Zirve: kesir/yüzde cevaplar
+  },
+};
+/* pentatonik gam (doğru basışlar melodi olur — §4.9 ödül hissi) */
+const PENTA = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.5];
+const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const shuffle = a => { for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+
+function genQ(tier){
+  if (tier === 4 && Math.random() < 0.6){
+    if (Math.random() < 0.5){
+      const den = pick([2,4,5,10]), num = rnd(1,den-1);
+      const n = den*rnd(2,6);
+      const ans = n*num/den;
+      const opts = new Set([ans]); let g=0;
+      while (opts.size<4 && g++<40){ const v = ans + rnd(-6,6); if (v>0) opts.add(v); }
+      return { q:`${n} sayısının ${num}/${den}'i?`, opts: shuffle([...opts].map(String)), ans: String(ans) };
+    }
+    const p = pick([10,25,50]), base = (100/p)*rnd(2,9), ans = base*p/100;
+    const opts = new Set([ans]); let g=0;
+    while (opts.size<4 && g++<40){ const v = ans + rnd(-5,5); if (v>0) opts.add(v); }
+    return { q:`${base} sayısının %${p}'i?`, opts: shuffle([...opts].map(String)), ans: String(ans) };
+  }
+  let q, ans;
+  if (tier === 1){ const k=rnd(0,2);
+    if (k===0){ const a=rnd(2,9),b=rnd(2,9); q=`${a} + ${b} = ?`; ans=a+b; }
+    else if (k===1){ const a=rnd(5,18),b=rnd(1,a); q=`${a} − ${b} = ?`; ans=a-b; }
+    else { const a=rnd(2,5),b=rnd(2,5); q=`${a} × ${b} = ?`; ans=a*b; } }
+  else if (tier === 2){ const k=rnd(0,1);
+    if (k===0){ const a=rnd(11,49),b=rnd(11,49); q=`${a} + ${b} = ?`; ans=a+b; }
+    else { const a=rnd(2,9),b=rnd(2,9); q=`${a} × ${b} = ?`; ans=a*b; } }
+  else { const k=rnd(0,1);
+    if (k===0){ const a=rnd(6,14),b=rnd(3,9); q=`${a} × ${b} = ?`; ans=a*b; }
+    else { const b=rnd(3,9),c=rnd(4,15); q=`${b*c} ÷ ${b} = ?`; ans=c; } }
+  const opts = new Set([ans]); let g=0;
+  while (opts.size<4 && g++<40){ const v = ans + rnd(-Math.max(3,Math.round(ans*0.25)), Math.max(3,Math.round(ans*0.25))); if (v>=0) opts.add(v); }
+  return { q, opts: shuffle([...opts].map(String)), ans: String(ans) };
+}
+
+/* ================= Audio ================= */
+const Audio2 = (() => {
+  let ctx = null;
+  function init(){ if (!ctx){ try { ctx = new (window.AudioContext||window.webkitAudioContext)(); } catch(e){} } if (ctx && ctx.state==='suspended') ctx.resume(); }
+  function tone(f,d,t,v,w){ if(!ctx)return; const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type=t||'triangle'; o.frequency.value=f;
+    g.gain.setValueAtTime(v||0.06, ctx.currentTime+(w||0));
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+(w||0)+d);
+    o.connect(g); g.connect(ctx.destination); o.start(ctx.currentTime+(w||0)); o.stop(ctx.currentTime+(w||0)+d+0.02); }
+  return { init,
+    note: i => tone(PENTA[i % PENTA.length], 0.22, 'triangle', 0.08),
+    bad: () => tone(150,0.25,'sawtooth',0.05),
+    miss: () => tone(240,0.15,'sawtooth',0.04),
+    fanfare: () => [523,659,784,1046].forEach((f,i)=>tone(f,0.15,'triangle',0.07,i*0.11)) };
+})();
+
+const BilnetBridge = {
+  QUEUE_KEY: 'bilnet_score_queue',
+  async submitScore(p){ const rec={...p,ts:Date.now()};
+    try{ const r=await window.storage.get(this.QUEUE_KEY); const q=r&&r.value?JSON.parse(r.value):[];
+      q.push(rec); while(q.length>50)q.shift(); await window.storage.set(this.QUEUE_KEY,JSON.stringify(q)); }catch(e){} },
+};
+const STATS_KEY = 'ritim_stats';
+let STATS = { plays:0, correct:0, best:{1:0,2:0,3:0,4:0}, bestCombo:0 };
+function loadStats(){ try{ window.storage.get(STATS_KEY).then(r=>{ if(r&&r.value){ try{ STATS=Object.assign(STATS,JSON.parse(r.value)); }catch(e){} } refreshBest(); }); }catch(e){} }
+function saveStats(){ try{ window.storage.set(STATS_KEY,JSON.stringify(STATS)); }catch(e){} }
+
+/* ================= Game ================= */
+const $ = id => document.getElementById(id);
+const G = {
+  state:'menu', tier:1,
+  score:0, correct:0, wrong:0, streak:0, bestStreak:0, lives:Infinity,
+  tiles:[], q:null, speed:2, noteI:0,
+  timeLeft:CONFIG.ROUND_SEC, secT:null, raf:0, lastTs:0, spawnAcc:0,
+};
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('show')); $(id).classList.add('show'); }
+function comboMult(){ return Math.min(CONFIG.COMBO_MAX, 1 + Math.floor(G.streak/4)); }
+function refreshHUD(){
+  $('scoreChip').textContent = '⭐ ' + G.score;
+  $('comboChip').textContent = '🔥 ×' + comboMult();
+  $('okChip').textContent = '✅ ' + G.correct + ' · ⏱️ ' + Math.max(0,G.timeLeft);
+  $('lives').textContent = G.lives === Infinity ? '' : '❤️'.repeat(Math.max(0,G.lives));
+}
+function newQuestion(){
+  G.q = genQ(G.tier);
+  $('qLine').textContent = G.q.q;
+}
+function spawnTile(){
+  // her karo soru şıklarından biri; doğru karo %35 olasılıkla gelir (bulunabilir kalsın)
+  const correct = Math.random() < 0.35;
+  const txt = correct ? G.q.ans : pick(G.q.opts.filter(o => o !== G.q.ans));
+  const col = rnd(0,3);
+  const el = document.createElement('div');
+  el.className = 'tileK';
+  el.style.left = (col*25) + '%';
+  el.textContent = txt;
+  el.addEventListener('pointerdown', e => { e.stopPropagation(); tapTile(t); });
+  const lane = $('lane');
+  lane.appendChild(el);
+  const t = { el, y: -90, txt, correct, dead:false };
+  G.tiles.push(t);
+}
+function tapTile(t){
+  if (G.state!=='playing' || t.dead) return;
+  t.dead = true;
+  if (t.correct){
+    G.correct++; G.streak++;
+    if (G.streak > G.bestStreak) G.bestStreak = G.streak;
+    G.score += CONFIG.HIT_POINT * comboMult();   // 20p × combo (§4.9)
+    Audio2.note(G.noteI++);                      // pentatonik melodi
+    t.el.classList.add('hitOk');
+    if (G.correct % CONFIG.SPEED_UP_EVERY === 0) G.speed = Math.min(CONFIG.MAX_SPEED, G.speed + CONFIG.SPEED_STEP);
+    newQuestion();
+  } else {
+    // yanlışa basış: combo sıfırlanır (oyun bitmez — Etek'te yumuşak)
+    G.wrong++; G.streak = 0; G.noteI = 0;
+    Audio2.bad();
+    t.el.classList.add('hitBad');
+    if (G.lives !== Infinity){ G.lives--; if (G.lives<=0){ removeTileLater(t); return endRound('can'); } }
+  }
+  removeTileLater(t);
+  refreshHUD();
+}
+function removeTileLater(t){ setTimeout(()=>{ t.el.remove(); }, 180); }
+function loop(ts){
+  if (G.state!=='playing'){ G.raf=0; return; }
+  const dt = Math.min(0.05,(ts-G.lastTs)/1000||0.016);
+  G.lastTs = ts;
+  const lane = $('lane');
+  const H = lane.clientHeight;
+  const pxPerSec = G.speed * 120;
+  // spawn: karolar arası mesafe
+  G.spawnAcc += dt * G.speed;
+  if (G.spawnAcc >= CONFIG.SPAWN_GAP){ G.spawnAcc = 0; spawnTile(); }
+  for (const t of G.tiles){
+    if (t.dead) continue;
+    t.y += pxPerSec * dt;
+    t.el.style.transform = `translateY(${t.y}px)`;
+    if (t.y > H){
+      t.dead = true;
+      t.el.remove();
+      if (t.correct){
+        // doğru karo kaçtı
+        if (CONFIG.TIERS[G.tier].missBreaksCombo){ G.streak=0; G.noteI=0; Audio2.miss(); }
+        if (G.lives !== Infinity){ G.lives--; refreshHUD(); if (G.lives<=0) return endRound('can'); }
+        newQuestion();
+        refreshHUD();
+      }
+    }
+  }
+  G.tiles = G.tiles.filter(t => !t.dead);
+  G.raf = requestAnimationFrame(loop);
+}
+function startRound(){
+  const T = CONFIG.TIERS[G.tier];
+  G.state='playing';
+  G.score=0; G.correct=0; G.wrong=0; G.streak=0; G.bestStreak=0; G.noteI=0;
+  G.lives = T.lives;
+  G.speed = CONFIG.START_SPEED;
+  G.timeLeft = CONFIG.ROUND_SEC;
+  G.spawnAcc = 0;
+  document.querySelectorAll('.tileK').forEach(e=>e.remove());
+  G.tiles = [];
+  show('screen-game');
+  newQuestion();
+  refreshHUD();
+  clearInterval(G.secT);
+  G.secT = setInterval(()=>{
+    if (G.state!=='playing') return;
+    G.timeLeft--;
+    refreshHUD();
+    if (G.timeLeft<=0) endRound('sure');
+  },1000);
+  G.lastTs = performance.now();
+  if (!G.raf) G.raf = requestAnimationFrame(loop);
+}
+function endRound(reason){
+  if (G.state!=='playing') return;
+  G.state='result';
+  clearInterval(G.secT);
+  STATS.plays++; STATS.correct += G.correct;
+  if (G.bestStreak > STATS.bestCombo) STATS.bestCombo = G.bestStreak;
+  const isBest = G.score > (STATS.best[G.tier]||0);
+  if (isBest) STATS.best[G.tier] = G.score;
+  saveStats();
+  BilnetBridge.submitScore({ gameId:'ritim-sorulari', score:G.score, tier:G.tier,
+    stats:{ correct:G.correct, wrong:G.wrong, maxCombo:G.bestStreak } });
+  $('resEmoji').textContent = isBest ? '🏆' : '🎹';
+  $('resTitle').textContent = reason==='can' ? 'Canlar Bitti!' : 'Melodi Bitti!';
+  $('resScore').textContent = G.score;
+  $('resStats').innerHTML = `✅ Doğru: <b>${G.correct}</b> · ❌ Yanlış: <b>${G.wrong}</b> · 🔥 En uzun seri: <b>${G.bestStreak}</b>` +
+    (isBest?`<br>🏅 <b>YENİ REKOR!</b>`:'');
+  $('eduLine').textContent = G.correct>0 ? `Bugün ritimle ${G.correct} işlem çözdün! 🎵` : 'Parmakların ısındı — tekrar dene! 💪';
+  if (G.correct>=15) Audio2.fanfare();
+  show('screen-result');
+  refreshBest();
+}
+function refreshBest(){
+  const b = STATS.best[G.tier]||0;
+  $('bestLine').textContent = b>0 ? `🏅 ${['','Etek','Yamaç','Tırmanış','Zirve'][G.tier]} rekorun: ${b}` : '';
+}
+document.querySelectorAll('.tierBtn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tierBtn').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); G.tier=parseInt(b.dataset.t,10); refreshBest();
+}));
+$('bPlay').addEventListener('click',()=>{ Audio2.init(); startRound(); });
+$('bAgain').addEventListener('click',startRound);
+$('bMenu').addEventListener('click',()=>{ G.state='menu'; show('screen-menu'); refreshBest(); });
+function pauseGame(){ if(G.state!=='playing')return; G.state='paused'; $('pauseVeil').classList.add('show'); }
+$('bPause').addEventListener('click',pauseGame);
+$('bResume').addEventListener('click',()=>{ if(G.state!=='paused')return; G.state='playing'; $('pauseVeil').classList.remove('show'); G.lastTs=performance.now(); if(!G.raf)G.raf=requestAnimationFrame(loop); });
+$('bQuit').addEventListener('click',()=>{ $('pauseVeil').classList.remove('show'); clearInterval(G.secT); G.state='menu'; show('screen-menu'); refreshBest(); });
+addEventListener('keydown',e=>{ if((e.code==='KeyP'||e.code==='Escape')&&G.state==='playing') pauseGame(); });
+document.addEventListener('visibilitychange',()=>{ if(document.hidden && G.state==='playing'){ pauseGame(); saveStats(); } });
+loadStats();
+</script>
+</body>
+</html>

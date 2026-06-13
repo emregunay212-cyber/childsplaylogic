@@ -585,8 +585,10 @@ const endPtr = e => { if (pinch && e.pointerId === pinch.id2) pinch = null;
   else if (drag && e.pointerId === drag.id){
     // tap algılama: parmak/fare oynamadıysa ve pinch yapılmadıysa = ülke seçimi
     // (pointer capture yüzünden path'lere 'click' ulaşmaz; seçim burada yapılır)
+    // DİKKAT: ülke id'leri STRING (örn. "076" — baştaki sıfır anlamlı, DATA/Set
+    // karşılaştırmaları tip duyarlı). Sayıya ÇEVİRME.
     const tap = e.type === 'pointerup' && !drag.moved && !drag.pinched && drag.t;
-    const tapId = tap ? +drag.t.id.slice(1) : null;
+    const tapId = tap ? drag.t.id.slice(1) : null;
     lastDragMoved = drag.moved; drag = null; pinch = null;
     setTimeout(() => lastDragMoved = false, 80);
     if (tapId !== null) onCountryClick(tapId);

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs><linearGradient id="gkelime-kurtarma" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#ffe3ec"/><stop offset="100%" stop-color="#c9e6ff"/></linearGradient></defs>
+  <rect x="6" y="6" width="88" height="88" rx="16" fill="url(#gkelime-kurtarma)"/>
+  
+  <text x="38" y="34" font-size="22" text-anchor="middle">🎈</text>
+  <text x="58" y="28" font-size="18" text-anchor="middle">🎈</text>
+  <text x="48" y="58" font-size="26" text-anchor="middle">🐻</text>
+  <rect x="20" y="68" width="60" height="16" rx="5" fill="#fff" stroke="#e0d0ea" stroke-width="2"/>
+  <text x="50" y="80" font-family="system-ui" font-size="12" font-weight="900" text-anchor="middle" fill="#3a2a4a">K E D _</text>
+</svg>
