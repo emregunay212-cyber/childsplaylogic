@@ -268,6 +268,21 @@ ne de oyun içinde saldırı hedefi tıklanabiliyordu. Çözüm (kaynak/game_tem
 Doğrulama: preview'da uçtan uca akış — seçim, sürükleme (seçim tetiklemez), pinch,
 tekerlek zoom, saldırı→10 soru→oransal fetih, NPC savunma savaşı. `?v=2` cache-bust.
 
+**2026-06-13 — Çeldirici cevap-eşitliği çakışması (örn. "Mustafa Kemal" / "Mustafa Kemal Atatürk"):**
+`questionbank.js`'te aynı kişi iki ayrı cevap olarak var (HIST_WHO: "T.C. kurucusu"→"Mustafa Kemal
+Atatürk", "İlk TBMM Başkanı"→"Mustafa Kemal"). Çeldiriciler aynı havuzdan çekilince ikisi bir soruda
+buluşuyor; eski `_opts` yalnız BİREBİR string eşitliğini (`v !== correct`) eliyordu → çocuk "diğer
+varyantı" seçince yanlış sayılıyordu. Çözüm (kaynak/questionbank.js):
+1. `_normAns` (küçük harf TR + tırnak/noktalama silme; **`-` ve `/` AYRAÇ DEĞİL** → "-100"≠"100",
+   "1/2"≠"12") + `_sameAns` (normalize-eşit VEYA tam-kelime kapsama; "İnönü"⊂"İsmet İnönü").
+2. `_opts` yeniden yazıldı: doğru + en fazla 3 çeldirici, hiçbir seçenek bir diğeriyle "aynı cevap" olmaz.
+3. Sembol-yalnız cevaplar ("?"/"!") için ham-eşitlik yedeği (boşa-normalize birleştirmesin).
+Doğrulama: `kaynak/test_opts.js` (22 iddia: 1000×2 Mustafa Kemal + ~3600 üretilen soru, 0 ikilem,
+4 seçenek korunur) + tarayıcıda 15.000 tarih sorusunda 0 çakışma. `?v=3` cache-bust.
+**Audit:** `fabrika/tools/scan_option_collisions.py` ile 1631 baked seçenek dizisi tarandı —
+shipped tek diğer çakışma altin-avi "Mouse kaç düğme?" ("2" çeldiricisi doğru "2 ve bir tekerlek"in
+ön-eki) düzeltildi; fabrika fen bankasındaki 3 isabet meşru çeldirici + oyuna shipped değil.
+
 ---
 
 *Bu doküman, Claude Code veya başka bir geliştiriciyle çalışmaya devam etmek için

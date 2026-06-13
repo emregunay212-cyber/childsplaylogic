@@ -7,7 +7,7 @@
 const ALTIN_AVI_QUESTIONS = [
   // ---- Donanım: Klavye & Mouse ----
   { q: 'Klavyede en uzun tuş hangisidir?', options: ['Boşluk (Space)', 'Enter', 'Shift', 'Tab'], correctIdx: 0, difficulty: 1 },
-  { q: 'Mouse (fare) kaç tane düğmeye sahiptir genelde?', options: ['1', '2', '2 ve bir tekerlek', '4'], correctIdx: 2, difficulty: 1 },
+  { q: 'Mouse (fare) kaç tane düğmeye sahiptir genelde?', options: ['1', '3', '2 ve bir tekerlek', '4'], correctIdx: 2, difficulty: 1 },
   { q: 'Yazıyı bir satır aşağıya geçirmek için hangi tuş kullanılır?', options: ['Tab', 'Enter', 'Shift', 'Esc'], correctIdx: 1, difficulty: 1 },
   { q: 'Bir harfi büyük yazmak için hangi tuş basılı tutulur?', options: ['Ctrl', 'Alt', 'Shift', 'Tab'], correctIdx: 2, difficulty: 1 },
   { q: 'Yanlış yazılan harfi silmek için hangi tuş kullanılır?', options: ['Enter', 'Backspace', 'Shift', 'Space'], correctIdx: 1, difficulty: 1 },
@@ -104,8 +104,8 @@ const ALTIN_AVI_QUESTIONS = [
   { q: 'Bilgisayarın çalışma süresini uzatmak için ne yapılır?', options: ['Sürekli açık tutmak', 'Düzenli güncelleme ve bakım', 'Düşürmek', 'Soğukta tutmak'], correctIdx: 1, difficulty: 2 },
   { q: 'Bilgisayar başında uzun süre kalırsak hangisi olur?', options: ['Hiçbir şey', 'Göz ve sırt yorulur, mola vermeliyiz', 'Daha zeki oluruz', 'Boyumuz uzar'], correctIdx: 1, difficulty: 1 },
   { q: 'Bir bilgisayarı kapatmadan önce ne yapılmalı?', options: ['Hemen fişi çek', 'Açık dosyaları kaydedip düzgün kapat', 'Bilgisayarı sars', 'Mouse\'u sakla'], correctIdx: 1, difficulty: 1 },
-  { q: 'Klavyede F1 tuşu genelde ne için kullanılır?', options: ['Yardım', 'Kapatma', 'Açma', 'Sesi açma'], correctIdx: 0, difficulty: 3 },
-  { q: 'Bilgisayar oyunlarında kullanılan kontrol aleti?', options: ['Yazıcı', 'Joystick / Gamepad', 'Klavye yazıcı', 'Modem'], correctIdx: 1, difficulty: 1 },
+  { q: 'Klavyede F1 tuşu genelde ne için kullanılır?', options: ['Yardım', 'Kapatma', 'Yenileme', 'Ses açma'], correctIdx: 0, difficulty: 3 },
+  { q: 'Bilgisayar oyunlarında kullanılan kontrol aleti?', options: ['Tarayıcı', 'Joystick / Gamepad', 'Yazıcı', 'Modem'], correctIdx: 1, difficulty: 1 },
   { q: 'Modem ne işe yarar?', options: ['Sadece ses verir', 'İnternet bağlantısı sağlar', 'Yazı yazar', 'Resim çizer'], correctIdx: 1, difficulty: 2 },
 ];
 

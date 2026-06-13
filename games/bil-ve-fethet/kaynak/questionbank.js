@@ -14,10 +14,33 @@ const SUBJECTS = {
 const _rnd = (a,b) => a + Math.floor(Math.random() * (b - a + 1));
 const _pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const _shuf = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+// Cevap normalizasyonu: küçük harf (TR), tırnak/noktalama SİL (bitişik kalsın),
+// fazla boşlukları sadeleştir. DİKKAT: '-' ve '/' AYRAÇ SAYILMAZ — yoksa "-100" ile
+// "100", "1/2" ile "12" yanlışlıkla aynı sayılırdı (işaret/kesir korunur).
+const _normAns = s => String(s).toLocaleLowerCase('tr')
+  .replace(/['’`"().,;:!?]/g, '').replace(/\s+/g, ' ').trim();
+// İki seçenek AYNI cevabı mı gösteriyor? normalize-eşit VEYA biri diğerini TAM KELİMELERLE
+// kapsıyorsa (ör. "Mustafa Kemal" ⊂ "Mustafa Kemal Atatürk", "İnönü" ⊂ "İsmet İnönü") → evet.
+// Kelime sınırı şart: "12" sayısı "120" içinde, "O" elementi "OH" içinde sayılmaz.
+function _sameAns(a, b){
+  const x = _normAns(a), y = _normAns(b);
+  // Yalnız noktalama/sembol cevaplar ("?", "!", "@") boşa normalize olur — bunları
+  // birleştirme; ham eşitliğe düş (farklı semboller AYNI sayılmasın).
+  if (!x || !y) return String(a) === String(b);
+  if (x === y) return true;
+  const [s, l] = x.length <= y.length ? [x, y] : [y, x];
+  return (' ' + l + ' ').includes(' ' + s + ' ');
+}
+// Doğru cevap + en fazla 3 çeldirici. Hiçbir seçenek bir diğeriyle "aynı cevap" olmaz —
+// "Mustafa Kemal" ile "Mustafa Kemal Atatürk" gibi ikilemler aynı soruda çıkmaz.
 function _opts(correct, pool){
-  const uniq = pool.filter((v,i,a) => a.indexOf(v)===i && v !== correct);
-  const wrong = _shuf(uniq).slice(0, 3);
-  return _shuf([correct, ...wrong]);
+  const chosen = [correct];
+  for (const v of _shuf(pool)){
+    if (chosen.length >= 4) break;
+    if (chosen.some(c => _sameAns(c, v))) continue;
+    chosen.push(v);
+  }
+  return _shuf(chosen);
 }
 function _q(text, correct, pool){
   const opts = _opts(correct, pool);
