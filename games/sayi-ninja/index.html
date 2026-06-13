@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Sayı Ninja — Kurala Uyanı Kes!</title>
+<!-- Portal standardı: tek dosya, harici bağımlılık YOK. Eğitsel seri Faz 5 / 4.14
+     (Fruit Ninja esinli — kural motoru: üretici+doğrulayıcı çifti). Tasarım: §4.14 -->
+<style>
+:root{
+  --bg1:#2a1a3a; --bg2:#160d22; --panel:#3d2a55; --ink:#fbf4ff; --ink-dim:#cdb8e0;
+  --gold:#ffd23f; --hot:#ff5e9a; --ok:#6ee7a0;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--ink);
+  font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;user-select:none;touch-action:none}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:12px}
+.screen{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:14px;text-align:center}
+.screen.show{display:flex}
+#screen-menu h1{font-size:clamp(27px,7.2vw,46px);text-shadow:0 3px 0 rgba(0,0,0,.4)}
+#screen-menu .sub{opacity:.9;margin:6px 0 14px;font-size:clamp(13px,3.5vw,16px);max-width:470px;color:var(--ink-dim)}
+.tierGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:min(440px,94vw);margin-bottom:12px}
+.tierBtn{background:var(--panel);color:var(--ink);padding:12px 8px;font-size:15px;font-weight:700;border:3px solid transparent;display:flex;flex-direction:column;gap:3px}
+.tierBtn small{font-weight:400;font-size:11.5px;color:var(--ink-dim)}
+.tierBtn.on{border-color:var(--hot);transform:scale(1.03)}
+.bigBtn{background:var(--hot);color:#fff;font-size:18px;font-weight:800;padding:14px 32px;box-shadow:0 4px 0 #b23064}
+.bigBtn:active{transform:translateY(3px);box-shadow:0 1px 0 #b23064}
+.ghost{background:transparent;color:var(--ink-dim);font-size:13px;padding:8px;text-decoration:underline}
+#bestLine{font-size:13px;color:var(--ink-dim);margin-top:8px;min-height:17px}
+#screen-game{padding:0;justify-content:flex-start}
+#topBar{width:100%;background:var(--panel);padding:7px 10px;display:flex;flex-direction:column;gap:4px;z-index:5}
+#hudRow{display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:800}
+.chip{background:rgba(0,0,0,.25);border-radius:9px;padding:4px 10px;white-space:nowrap}
+#ruleLine{font-size:clamp(15px,4.5vw,20px);font-weight:900;color:var(--gold);text-align:center}
+#ruleLine.fresh{animation:rulePop .5s}
+@keyframes rulePop{0%{transform:scale(1)}50%{transform:scale(1.15);color:#fff}100%{transform:scale(1)}}
+#cv{flex:1;width:100%;display:block;touch-action:none}
+#screen-game.shake{animation:scrShake .4s}
+@keyframes scrShake{0%,100%{transform:translate(0,0)}25%{transform:translate(-8px,4px)}50%{transform:translate(8px,-4px)}75%{transform:translate(-5px,-3px)}}
+#screen-result #resEmoji{font-size:52px}
+#resScore{font-size:clamp(32px,9vw,48px);font-weight:900;color:var(--gold)}
+#resStats{background:var(--panel);border-radius:14px;padding:14px 20px;font-size:15px;line-height:1.7;margin:10px 0;max-width:420px}
+#eduLine{font-weight:800}
+#pauseVeil{position:fixed;inset:0;background:rgba(12,6,22,.88);display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:20;padding:20px;text-align:center}
+#pauseVeil.show{display:flex}
+</style>
+</head>
+<body>
+
+<div class="screen show" id="screen-menu">
+  <h1>🥷 SAYI NİNJA 🔢</h1>
+  <p class="sub">Sayılar havaya fırlıyor — kurala UYANLARI parmağınla kes! Kural her 15 saniyede değişir. Kurala uymayanı kesersen combo sıfırlanır. Çeldirici buluta dikkat! 🌫️</p>
+  <div class="tierGrid">
+    <button class="tierBtn on" data-t="1">🏕️ Etek<small>Çift/tek sayılar</small></button>
+    <button class="tierBtn" data-t="2">⛰️ Yamaç<small>Katlar + büyük/küçük</small></button>
+    <button class="tierBtn" data-t="3">🧗 Tırmanış<small>Asal + kare sayılar</small></button>
+    <button class="tierBtn" data-t="4">🏔️ Zirve<small>Kesir karşılaştırma</small></button>
+  </div>
+  <button class="bigBtn" id="bPlay">🥷 BAŞLA</button>
+  <div id="bestLine"></div>
+</div>
+
+<div class="screen" id="screen-game">
+  <div id="topBar">
+    <div id="hudRow">
+      <span class="chip" id="scoreChip">⭐ 0</span>
+      <span class="chip" id="comboChip">🔥 ×1</span>
+      <span class="chip" id="timeChip">⏱️ 75</span>
+      <button class="chip" id="bPause">⏸️</button>
+    </div>
+    <div id="ruleLine">Çift sayıları kes!</div>
+  </div>
+  <canvas id="cv"></canvas>
+</div>
+
+<div id="pauseVeil">
+  <h2 style="font-size:26px">⏸️ Mola!</h2>
+  <p style="color:var(--ink-dim)">Ninja nefes alıyor.</p>
+  <button class="bigBtn" id="bResume">▶️ Devam Et</button>
+  <button class="ghost" id="bQuit">🏠 Menü</button>
+</div>
+
+<div class="screen" id="screen-result">
+  <div id="resEmoji">🥷</div>
+  <h1 style="font-size:25px">Antrenman Bitti!</h1>
+  <div id="resScore">0</div>
+  <div id="resStats"></div>
+  <div id="eduLine"></div>
+  <button class="bigBtn" id="bAgain" style="margin-top:12px">🔄 Tekrar Oyna</button>
+  <button class="ghost" id="bMenu">🏠 Menü</button>
+</div>
+
+<script>
+(function () {
+  if (window.storage && window.storage.get && window.storage.set) return;
+  window.storage = {
+    get: function (key) { try { var v = localStorage.getItem(key); return Promise.resolve(v != null ? { value: v } : null); } catch (e) { return Promise.resolve(null); } },
+    set: function (key, value) { try { localStorage.setItem(key, value); return Promise.resolve(); } catch (e) { return Promise.resolve(); } },
+    remove: function (key) { try { localStorage.removeItem(key); return Promise.resolve(); } catch (e) { return Promise.resolve(); } }
+  };
+})();
+</script>
+<script>
+"use strict";
+/* ================= CONFIG (EGITSEL-OYUN-PLANI §4.14 — aynen) ================= */
+const CONFIG = {
+  ROUND_SEC: 75,
+  RULE_EVERY: 15,             // kural her 15 sn'de değişir
+  SPAWN_START: 1.5,           // nesne/sn
+  SPAWN_MAX: 3,
+  CUT_POINT: 25,              // 25 p × combo
+  COMBO_MAX: 4,
+  MULTI_BONUS: 2,             // tek harekette 3+ doğru = ×2
+  CLOUD_SHAKE_MS: 3000,       // çeldirici bulut: 3 sn ekran sallanır (yumuşak ceza)
+  GRAVITY: 760,
+};
+const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const isPrime = n => { if (n<2) return false; for (let i=2;i*i<=n;i++) if (n%i===0) return false; return true; };
+const isSquare = n => Number.isInteger(Math.sqrt(n));
+
+/* ================= KURAL MOTORU (üretici + doğrulayıcı çifti — §4.14 rules.js yaklaşımı) ================= */
+const RULES = {
+  1: [
+    { ad: 'ÇİFT sayıları kes!', gen: ok => { const n = rnd(1,25)*2 - (ok?0:1); return { t:String(n), v:n }; }, test: o => o.v % 2 === 0 },
+    { ad: 'TEK sayıları kes!',  gen: ok => { const n = rnd(1,25)*2 - (ok?1:0); return { t:String(n), v:n }; }, test: o => o.v % 2 === 1 },
+    { ad: "10'dan BÜYÜK sayıları kes!", gen: ok => { const n = ok ? rnd(11,40) : rnd(1,10); return { t:String(n), v:n }; }, test: o => o.v > 10 },
+  ],
+  2: [
+    { ad: "3'ün katlarını kes!", gen: ok => { let n = rnd(1,12)*3; if(!ok){ n += pick([1,2]); } return { t:String(n), v:n }; }, test: o => o.v % 3 === 0 },
+    { ad: "5'in katlarını kes!", gen: ok => { let n = rnd(1,10)*5; if(!ok){ n += pick([1,2,3,4]); } return { t:String(n), v:n }; }, test: o => o.v % 5 === 0 },
+    { ad: "4'ün katlarını kes!", gen: ok => { let n = rnd(1,10)*4; if(!ok){ n += pick([1,2,3]); } return { t:String(n), v:n }; }, test: o => o.v % 4 === 0 },
+    { ad: "20'den KÜÇÜK sayıları kes!", gen: ok => { const n = ok ? rnd(1,19) : rnd(20,50); return { t:String(n), v:n }; }, test: o => o.v < 20 },
+  ],
+  3: [
+    { ad: 'ASAL sayıları kes!', gen: ok => { const P=[2,3,5,7,11,13,17,19,23,29]; const C=[4,6,8,9,10,12,14,15,16,18,20,21,22]; const n = ok?pick(P):pick(C); return { t:String(n), v:n }; }, test: o => isPrime(o.v) },
+    { ad: 'KARE sayıları kes! (1,4,9…)', gen: ok => { const S=[1,4,9,16,25,36,49,64]; const C=[2,3,5,8,12,18,24,30,40,50]; const n = ok?pick(S):pick(C); return { t:String(n), v:n }; }, test: o => isSquare(o.v) },
+    { ad: "Sonucu 12 olan işlemleri kes!", gen: ok => { if(ok){ const f=pick([[3,4],[2,6],[6,2],[4,3],[12,1]]); return { t:`${f[0]}×${f[1]}`, v:f[0]*f[1] }; } const a=rnd(2,6),b=rnd(2,6); const v=a*b; return v===12?{t:`${a}×${b+1}`,v:a*(b+1)}:{t:`${a}×${b}`,v}; }, test: o => o.v === 12 },
+  ],
+  4: [
+    { ad: "1/2'den BÜYÜK kesirleri kes!", gen: ok => { const den=pick([4,6,8,10]); let num = ok ? rnd(Math.floor(den/2)+1, den-1) : rnd(1, Math.floor(den/2)); return { t:num+'/'+den, v:num/den }; }, test: o => o.v > 0.5 },
+    { ad: "1/2'den KÜÇÜK kesirleri kes!", gen: ok => { const den=pick([4,6,8,10]); let num = ok ? rnd(1, Math.floor(den/2)-1)||1 : rnd(Math.floor(den/2)+1, den-1); return { t:num+'/'+den, v:num/den }; }, test: o => o.v < 0.5 },
+    { ad: 'ASAL sayıları kes!', gen: ok => { const P=[2,3,5,7,11,13,17,19,23,29,31,37]; const C=[9,15,21,25,27,33,35,39,49,51]; const n = ok?pick(P):pick(C); return { t:String(n), v:n }; }, test: o => isPrime(o.v) },
+  ],
+};
+
+/* ================= Audio ================= */
+const Audio2 = (() => {
+  let ctx = null;
+  function init(){ if (!ctx){ try { ctx = new (window.AudioContext||window.webkitAudioContext)(); } catch(e){} } if (ctx && ctx.state==='suspended') ctx.resume(); }
+  function tone(f,d,t,v,w){ if(!ctx)return; const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type=t||'triangle'; o.frequency.value=f;
+    g.gain.setValueAtTime(v||0.06, ctx.currentTime+(w||0));
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+(w||0)+d);
+    o.connect(g); g.connect(ctx.destination); o.start(ctx.currentTime+(w||0)); o.stop(ctx.currentTime+(w||0)+d+0.02); }
+  return { init,
+    cut: c => tone(500+c*80, 0.09, 'square', 0.06),
+    bad: () => tone(160,0.25,'sawtooth',0.05),
+    cloud: () => { tone(120,0.4,'sawtooth',0.07); tone(90,0.5,'sawtooth',0.06,0.1); },
+    rule: () => { tone(520,0.1,'triangle',0.06); tone(700,0.12,'triangle',0.06,0.1); },
+    fanfare: () => [523,659,784,1046].forEach((f,i)=>tone(f,0.15,'triangle',0.07,i*0.11)) };
+})();
+const BilnetBridge = {
+  QUEUE_KEY: 'bilnet_score_queue',
+  async submitScore(p){ const rec={...p,ts:Date.now()};
+    try{ const r=await window.storage.get(this.QUEUE_KEY); const q=r&&r.value?JSON.parse(r.value):[];
+      q.push(rec); while(q.length>50)q.shift(); await window.storage.set(this.QUEUE_KEY,JSON.stringify(q)); }catch(e){} },
+};
+const STATS_KEY = 'sayininja_stats';
+let STATS = { plays:0, cuts:0, best:{1:0,2:0,3:0,4:0} };
+function loadStats(){ try{ window.storage.get(STATS_KEY).then(r=>{ if(r&&r.value){ try{ STATS=Object.assign(STATS,JSON.parse(r.value)); }catch(e){} } refreshBest(); }); }catch(e){} }
+function saveStats(){ try{ window.storage.set(STATS_KEY,JSON.stringify(STATS)); }catch(e){} }
+
+/* ================= Game ================= */
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx2 = cv.getContext('2d');
+const G = {
+  state:'menu', tier:1,
+  score:0, combo:0, bestCombo:0, cuts:0, badCuts:0,
+  rule:null, ruleT:0, timeLeft:CONFIG.ROUND_SEC,
+  objs:[], parts:[], blade:[], spawnAcc:0, spawnRate:CONFIG.SPAWN_START,
+  cutThisStroke:0,
+  raf:0, lastTs:0, secT:null,
+};
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('show')); $(id).classList.add('show'); }
+function layout(){
+  const bar = $('topBar').getBoundingClientRect();
+  cv.width = innerWidth;
+  cv.height = innerHeight - bar.height;
+}
+function newRule(fresh){
+  G.rule = pick(RULES[G.tier].filter(r => r !== G.rule));
+  $('ruleLine').textContent = '⚔️ ' + G.rule.ad;
+  if (fresh !== false){
+    $('ruleLine').classList.remove('fresh'); void $('ruleLine').offsetWidth; $('ruleLine').classList.add('fresh');
+    Audio2.rule();
+  }
+}
+function spawn(){
+  // %15 çeldirici bulut
+  if (Math.random() < 0.15){
+    G.objs.push({ cloud:true, x: rnd(60, cv.width-60), y: cv.height+40,
+      vx: rnd(-60,60), vy: -rnd(620, 780), r: 30, t:'🌫️' });
+    return;
+  }
+  const ok = Math.random() < 0.5;
+  const o = G.rule.gen(ok);
+  G.objs.push({ ...o, x: rnd(50, cv.width-50), y: cv.height+40,
+    vx: rnd(-80,80), vy: -rnd(640, 820), r: 26 + Math.min(10, o.t.length*2),
+    hue: (o.t.length*53 + o.t.charCodeAt(0)*31) % 360, cut:false });
+}
+function cutObj(o){
+  if (o.cloud){
+    // çeldirici bulut: 3 sn ekran sallanır (yumuşak ceza — §4.14)
+    Audio2.cloud();
+    const sc = $('screen-game');
+    sc.classList.add('shake');
+    setTimeout(()=>sc.classList.remove('shake'), 400);
+    G.shakeUntil = performance.now() + CONFIG.CLOUD_SHAKE_MS;
+    G.combo = 0;
+    o.cut = true;
+    burst(o.x, o.y, 200);
+    return;
+  }
+  o.cut = true;
+  if (G.rule.test(o)){
+    G.combo = Math.min(CONFIG.COMBO_MAX, G.combo + 1);
+    G.cutThisStroke++;
+    G.cuts++;
+    let pts = CONFIG.CUT_POINT * Math.max(1, G.combo);
+    G.score += pts;
+    if (G.combo > G.bestCombo) G.bestCombo = G.combo;
+    Audio2.cut(G.combo);
+    burst(o.x, o.y, o.hue);
+    floatText('+'+pts, o.x, o.y);
+  } else {
+    G.badCuts++;
+    G.combo = 0;
+    Audio2.bad();
+    burst(o.x, o.y, 0);
+    floatText('✖', o.x, o.y);
+  }
+  refreshHUD();
+}
+const floats = [];
+function floatText(t,x,y){ floats.push({t,x,y,life:0.9}); }
+function burst(x,y,hue){
+  for (let i=0;i<12;i++){
+    const a = Math.random()*Math.PI*2, sp = 80+Math.random()*200;
+    G.parts.push({ x, y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp-60, life:0.55, hue });
+  }
+}
+function refreshHUD(){
+  $('scoreChip').textContent = '⭐ ' + G.score;
+  $('comboChip').textContent = '🔥 ×' + Math.max(1, G.combo);
+  $('timeChip').textContent = '⏱️ ' + Math.max(0, G.timeLeft);
+}
+function loop(ts){
+  if (G.state!=='playing'){ G.raf=0; return; }
+  const dt = Math.min(0.05,(ts-G.lastTs)/1000||0.016);
+  G.lastTs = ts;
+  // spawn temposu 1.5 → 3/sn (tur ilerledikçe)
+  G.spawnRate = CONFIG.SPAWN_START + (CONFIG.SPAWN_MAX-CONFIG.SPAWN_START) * (1 - G.timeLeft/CONFIG.ROUND_SEC);
+  G.spawnAcc += dt * G.spawnRate;
+  while (G.spawnAcc >= 1){ G.spawnAcc -= 1; spawn(); }
+  for (const o of G.objs){
+    o.x += o.vx*dt; o.y += o.vy*dt; o.vy += CONFIG.GRAVITY*dt;
+  }
+  G.objs = G.objs.filter(o => !o.cut && o.y < cv.height + 80);
+  for (const p of G.parts){ p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=400*dt; p.life-=dt; }
+  G.parts = G.parts.filter(p=>p.life>0);
+  for (const f of floats){ f.y -= 30*dt; f.life -= dt; }
+  for (let i=floats.length-1;i>=0;i--) if (floats[i].life<=0) floats.splice(i,1);
+  // bıçak izi söner
+  for (const b of G.blade) b.life -= dt*2.5;
+  while (G.blade.length && G.blade[0].life <= 0) G.blade.shift();
+  draw(ts);
+  G.raf = requestAnimationFrame(loop);
+}
+function draw(ts){
+  // bulut cezası: hafif sürekli sarsıntı
+  let ox=0, oy=0;
+  if (G.shakeUntil && ts < G.shakeUntil){ ox = (Math.random()-0.5)*8; oy = (Math.random()-0.5)*8; }
+  ctx2.setTransform(1,0,0,1,ox,oy);
+  ctx2.clearRect(-20,-20,cv.width+40,cv.height+40);
+  // nesneler
+  for (const o of G.objs){
+    if (o.cloud){
+      ctx2.font = `${o.r*1.8}px system-ui`;
+      ctx2.textAlign='center'; ctx2.textBaseline='middle';
+      ctx2.fillText('🌫️', o.x, o.y);
+      continue;
+    }
+    const g = ctx2.createRadialGradient(o.x-o.r*0.3, o.y-o.r*0.35, o.r*0.2, o.x, o.y, o.r);
+    g.addColorStop(0, `hsl(${o.hue} 80% 70%)`);
+    g.addColorStop(1, `hsl(${o.hue} 65% 48%)`);
+    ctx2.beginPath(); ctx2.arc(o.x, o.y, o.r, 0, 7);
+    ctx2.fillStyle = g; ctx2.fill();
+    ctx2.lineWidth = 2.5; ctx2.strokeStyle = `hsl(${o.hue} 55% 35%)`; ctx2.stroke();
+    ctx2.fillStyle = '#fff';
+    ctx2.font = `900 ${Math.round(o.r*0.78 / Math.max(1, o.t.length*0.42))}px system-ui`;
+    ctx2.textAlign='center'; ctx2.textBaseline='middle';
+    ctx2.fillText(o.t, o.x, o.y+1);
+  }
+  ctx2.textBaseline='alphabetic';
+  // bıçak izi (sönen polyline — §4.14)
+  if (G.blade.length >= 2){
+    ctx2.beginPath();
+    G.blade.forEach((b,i) => i ? ctx2.lineTo(b.x,b.y) : ctx2.moveTo(b.x,b.y));
+    ctx2.strokeStyle = 'rgba(255,255,255,.75)';
+    ctx2.lineWidth = 5; ctx2.lineCap='round'; ctx2.lineJoin='round';
+    ctx2.stroke();
+  }
+  // parçacık
+  for (const p of G.parts){
+    ctx2.globalAlpha = Math.max(0, p.life/0.55);
+    ctx2.fillStyle = p.hue ? `hsl(${p.hue} 85% 65%)` : '#8a8a96';
+    ctx2.fillRect(p.x-3, p.y-3, 6, 6);
+  }
+  ctx2.globalAlpha = 1;
+  ctx2.font='900 22px system-ui'; ctx2.textAlign='center';
+  for (const f of floats){
+    ctx2.globalAlpha = Math.max(0,f.life);
+    ctx2.fillStyle = '#ffd23f';
+    ctx2.fillText(f.t, f.x, f.y);
+  }
+  ctx2.globalAlpha = 1;
+  ctx2.setTransform(1,0,0,1,0,0);
+}
+/* kesme: pointer hareket çizgisi nesne daireleriyle kesişir */
+let cutting = false;
+cv.addEventListener('pointerdown', e => {
+  if (G.state!=='playing') return;
+  Audio2.init();
+  cutting = true;
+  G.cutThisStroke = 0;
+  addBlade(e);
+});
+cv.addEventListener('pointermove', e => { if (cutting) addBlade(e); });
+function endStroke(){
+  if (!cutting) return;
+  cutting = false;
+  // çoklu kesim bonusu: tek harekette 3+ doğru = ×2 (§4.14)
+  if (G.cutThisStroke >= 3){
+    const bonus = G.cutThisStroke * CONFIG.CUT_POINT;
+    G.score += bonus;
+    floatText('ÇOKLU ×2! +'+bonus, cv.width/2, 90);
+    refreshHUD();
+  }
+}
+cv.addEventListener('pointerup', endStroke);
+cv.addEventListener('pointercancel', endStroke);
+function addBlade(e){
+  const r = cv.getBoundingClientRect();
+  const x = e.clientX - r.left, y = e.clientY - r.top;
+  const prev = G.blade[G.blade.length-1];
+  G.blade.push({ x, y, life:1 });
+  if (G.blade.length > 14) G.blade.shift();
+  if (!prev) return;
+  // çizgi-daire kesişimi
+  for (const o of G.objs){
+    if (o.cut) continue;
+    if (segCircle(prev.x, prev.y, x, y, o.x, o.y, o.r + 6)) cutObj(o);
+  }
+}
+function segCircle(x1,y1,x2,y2,cx,cy,r){
+  const dx=x2-x1, dy=y2-y1;
+  const L2 = dx*dx+dy*dy || 1;
+  let t = ((cx-x1)*dx + (cy-y1)*dy) / L2;
+  t = Math.max(0, Math.min(1, t));
+  const px = x1+t*dx, py = y1+t*dy;
+  return (px-cx)**2 + (py-cy)**2 <= r*r;
+}
+function startRound(){
+  G.state='playing';
+  G.score=0; G.combo=0; G.bestCombo=0; G.cuts=0; G.badCuts=0;
+  G.objs=[]; G.parts=[]; G.blade=[]; floats.length=0;
+  G.timeLeft = CONFIG.ROUND_SEC;
+  G.spawnAcc=0; G.shakeUntil=0;
+  show('screen-game');
+  layout();
+  newRule(false);
+  refreshHUD();
+  clearInterval(G.secT);
+  let ruleAge = 0;
+  G.secT = setInterval(()=>{
+    if (G.state!=='playing') return;
+    G.timeLeft--; ruleAge++;
+    if (ruleAge >= CONFIG.RULE_EVERY){ ruleAge = 0; newRule(); }   // kural 15 sn'de değişir
+    refreshHUD();
+    if (G.timeLeft<=0) endRound();
+  },1000);
+  G.lastTs = performance.now();
+  if (!G.raf) G.raf = requestAnimationFrame(loop);
+}
+function endRound(){
+  if (G.state!=='playing') return;
+  G.state='result';
+  clearInterval(G.secT);
+  STATS.plays++; STATS.cuts += G.cuts;
+  const isBest = G.score > (STATS.best[G.tier]||0);
+  if (isBest) STATS.best[G.tier] = G.score;
+  saveStats();
+  BilnetBridge.submitScore({ gameId:'sayi-ninja', score:G.score, tier:G.tier,
+    stats:{ cuts:G.cuts, badCuts:G.badCuts, maxCombo:G.bestCombo } });
+  $('resEmoji').textContent = isBest ? '🏆' : '🥷';
+  $('resScore').textContent = G.score;
+  $('resStats').innerHTML = `⚔️ Doğru kesim: <b>${G.cuts}</b> · ✖ Yanlış: <b>${G.badCuts}</b> · 🔥 En iyi combo: <b>×${G.bestCombo||1}</b>` +
+    (isBest?`<br>🏅 <b>YENİ REKOR!</b>`:'');
+  $('eduLine').textContent = G.cuts>0 ? `Bugün ${G.cuts} sayıyı TANIYARAK kestin — ezber değil, sayı hissi! 🎯` : 'Bıçağını biledin — tekrar dene! 💪';
+  if (G.cuts>=20) Audio2.fanfare();
+  show('screen-result');
+  refreshBest();
+}
+function refreshBest(){
+  const b = STATS.best[G.tier]||0;
+  $('bestLine').textContent = b>0 ? `🏅 ${['','Etek','Yamaç','Tırmanış','Zirve'][G.tier]} rekorun: ${b}` : '';
+}
+document.querySelectorAll('.tierBtn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tierBtn').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); G.tier=parseInt(b.dataset.t,10); refreshBest();
+}));
+$('bPlay').addEventListener('click',()=>{ Audio2.init(); startRound(); });
+$('bAgain').addEventListener('click',startRound);
+$('bMenu').addEventListener('click',()=>{ G.state='menu'; show('screen-menu'); refreshBest(); });
+function pauseGame(){ if(G.state!=='playing')return; G.state='paused'; $('pauseVeil').classList.add('show'); }
+$('bPause').addEventListener('click',pauseGame);
+$('bResume').addEventListener('click',()=>{ if(G.state!=='paused')return; G.state='playing'; $('pauseVeil').classList.remove('show'); G.lastTs=performance.now(); if(!G.raf)G.raf=requestAnimationFrame(loop); });
+$('bQuit').addEventListener('click',()=>{ $('pauseVeil').classList.remove('show'); clearInterval(G.secT); G.state='menu'; show('screen-menu'); refreshBest(); });
+addEventListener('keydown',e=>{ if((e.code==='KeyP'||e.code==='Escape')&&G.state==='playing') pauseGame(); });
+document.addEventListener('visibilitychange',()=>{ if(document.hidden && G.state==='playing'){ pauseGame(); saveStats(); } });
+addEventListener('resize',()=>{ if(G.state==='playing') layout(); });
+loadStats();
+</script>
+</body>
+</html>

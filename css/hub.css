@@ -367,6 +367,11 @@
 .game-card[data-game="bilgi-yilani"]::before { background: var(--bilgi-yilani-color); }
 .game-card[data-game="ritim-sorulari"]::before { background: var(--ritim-color); }
 .game-card[data-game="kesir-2048"]::before { background: var(--kesir-color); }
+.game-card[data-game="gunluk-kelime"]::before { background: var(--gunluk-kelime-color); }
+.game-card[data-game="sayi-ninja"]::before { background: var(--sayi-ninja-color); }
+.game-card[data-game="bilgi-kulesi"]::before { background: var(--bilgi-kulesi-color); }
+.game-card[data-game="bilgi-ziplamasi"]::before { background: var(--ziplamasi-color); }
+.game-card[data-game="labirent-avcisi"]::before { background: var(--labirent-color); }
 
 /* ── Yakında (deaktif) oyun kartı ── */
 .game-card.coming-soon { cursor: default; }

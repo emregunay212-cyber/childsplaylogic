@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs><linearGradient id="glax" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#1d3a6e"/><stop offset="100%" stop-color="#0a1122"/></linearGradient></defs>
+  <rect x="6" y="6" width="88" height="88" rx="16" fill="url(#glax)"/>
+  
+  <path d="M18 18 h64 v18 h-22 M18 18 v64 h64 v-30 M36 36 h28 v28 h-28 z" fill="none" stroke="#2a4a8a" stroke-width="7" stroke-linecap="square"/>
+  <text x="50" y="56" font-size="16" text-anchor="middle">😋</text>
+  <circle cx="26" cy="70" r="8" fill="#ffd23f"/>
+  <text x="26" y="74" font-family="system-ui" font-size="10" font-weight="900" text-anchor="middle" fill="#16264a">A</text>
+  <text x="74" y="30" font-size="14" text-anchor="middle">🌫️</text>
+</svg>

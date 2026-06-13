@@ -68,11 +68,11 @@
 
 | No | Oyun | İlham | Durum | Not |
 |---|---|---|---|---|
-| 4.15 | Günlük Kelime 🟩 | Wordle | ⬜ | ⭐ STRATEJİK — Faz 1 sonrasına ÖNE ALINABİLİR (ana doküman önerisi); tarih bazlı seed, sunucu gerekmez; İngilizce zümresi ünite kelimeleri fırsatı |
-| 4.14 | Sayı Ninja 🥷 | Fruit Ninja | ⬜ | Tanıtım/şov oyunu; kural motoru (`rules.js` çifti) |
-| 4.18 | Bilgi Kulesi 🏰 | Kim Milyoner | ⬜ | Hafta sonu turnuva formatı; "Sınıfa Sor" agregasyonu Cloud Function ister |
-| 4.16 | Bilgi Zıplaması 🦘 | Doodle Jump | ⬜ | Dokunma kontrolü varsayılan (iOS DeviceOrientation izni) |
-| 4.17 | Labirent Avcısı 👻 | Pac-Man | ⬜ | Grid hareket; A* GEREKMEZ |
+| 4.15 | **Günlük Kelime** 🟩 | Wordle | ✅ 2026-06-13 | §4.15 aynen: günde 1 kelime — TARİH BAZLI SEED (tüm okul aynı kelime, sunucu yok), TR 5 harf + EN 4 harf ayrı bulmacalar, 6 deneme, puan (7−deneme)×50 günde 1 kez, çözünce ANLAM + örnek cümle (eğitsel kapanış), ardışık gün serisi + deneme dağılımı grafiği; paylaşım butonu YOK; NOT: 'sınıf istatistiği' lig altyapısıyla; kelime listesi `TR_WORDS/EN_WORDS` — İngilizce zümresi ünite kelimeleri buraya eklenebilir; kategori: Harfler & Kelimeler |
+| 4.14 | **Sayı Ninja** 🥷 | Fruit Ninja | ✅ 2026-06-13 | §4.14 aynen: 75sn, fırlatma 1.5→3/sn, doğru kesim 25p×combo (max ×4), tek harekette 3+ doğru = ×2 bonus, çeldirici bulut 3sn sallanma (yumuşak); KURAL MOTORU (üretici+doğrulayıcı çifti): t1 çift/tek/büyük, t2 katlar, t3 asal/kare/işlem sonucu, t4 kesir karşılaştırma; bıçak izi sönen polyline, parabolik fizik; kategori: Sayılar & Matematik |
+| 4.18 | **Bilgi Kulesi** 🏰 | Kim Milyoner | ✅ 2026-06-13 | §4.18 aynen: 12 soru (3+3+3+3 tier), katlar 50→102400 (×2), güvenli kat 4 ve 8, 30sn/soru, günde 3 deneme, ÇEKİL stratejisi; jokerler: Yarı Yarıya + Çift Hak + 'Sınıfa Sor' yerine BİLGE BAYKUŞ (%70 isabet — sınıf agregasyonu lig altyapısı isteyecek, FAZ notu); kule görseli kat kat yükselir; kategori: Strateji & Macera |
+| 4.16 | **Bilgi Zıplaması** 🦘 | Doodle Jump | ✅ 2026-06-13 | §4.16 aynen: otomatik zıplama + sağ/sol yönlendirme (DOKUNMA varsayılan — DeviceOrientation kullanılmadı, iOS izin tuzağı yok), her 10 platformda 3'lü cevap platformu katmanı, doğru=süper zıplama/yanlış kırılır, skor=yükseklik+doğru×100, tema 500m orman→1500m bulut→3000m UZAY, kamera üst-1/3 takibi + platform geri dönüşümü; kategori: Strateji & Macera |
+| 4.17 | **Labirent Avcısı** 👻 | Pac-Man | ✅ 2026-06-13 | §4.17 aynen: 15×17 grid × 3 harita rotasyonu, harf×40p, bölüm=3 kelime, yanlış harf sırayı sıfırlar (harfler yeniden serpilir), UNUTKANLIK BULUTU değince 3sn ters kontrol (komik, korkutmaz), kapsül 5sn dondurur, bulut AI rastgele+%30 yönelme (A* yok), Zirve'de sahte harfler; swipe + ok tuşları; kategori: Bulmaca & Mantık |
 
 ## FAZ 6 — İkinci Dalga: Büyük Yapımlar
 
@@ -102,3 +102,23 @@
 - [ ] Backend: ana doküman Firestore şeması (§6.2) ↔ portal RTDB gerçeği → Bridge `sendToBackend` RTDB'ye uyarlanacak
 - [ ] Soru bankası dönüştürücü: ana doküman §2 şeması ↔ `fabrika/soru-bankasi/soru-bankasi-{matematik,kelime,fen}.json` şeması (Python)
 - [ ] Günlük jeton tavanı (50) ve skor doğrulama (rate limit + tutarlılık) — §3.1, §6.3
+
+## Bakım Notları (kullanıcı geri bildirimi düzeltmeleri)
+
+**2026-06-13 — Bil ve Fethet ülke seçimi (masaüstü) düzeltildi.**
+Kök neden: pan/zoom kodundaki `svg.setPointerCapture` sentetik `click`'i SVG'ye yeniden
+hedefliyordu → path'lerdeki `click` dinleyicileri HİÇ tetiklenmiyordu (başlangıç seçimi VE
+oyun içi saldırı tıklaması bozuktu, dokunmatikte de). Çözüm: path-başına `click` kaldırıldı;
+seçim `pointerup` tap algılamasına taşındı (hareket eşiği + pinch koruması). İkinci tuzak:
+ülke ID'leri STRING ("076" — baştaki sıfır anlamlı), sayıya çevirme `attackableIds().has()`
+ve `S.own` anahtarlarını bozuyor. KAYNAK kural geçerli: yalnız `kaynak/` düzenlenir + `python build.py`.
+Doğrulama: preview'da tam akış (seçim→fetih→NPC savunması→oransal transfer) oynandı. `?v=2`.
+
+**2026-06-13 — Kelime Madeni 3D v2.2: inşa parçaları (ev kurma).**
+Kapı/cam/çatı(2 çeşit)/yarım blok/kum + 6 tarif + 3 görev + 14 slot hotbar.
+Ayrıntı: `games/kelime-madeni-3d/CLAUDE.md` v2.2 bölümü. Node duman testi repoda:
+`node games/kelime-madeni-3d/test_sim.js` (58 iddia). `?v=2`.
+
+> ⚠️ Bu iki işin KODU, eşzamanlı çalışan başka bir oturumun `git add -A` süpürmesiyle
+> `22f4498`(faz2)–`ccd4196`(faz4) commitlerinin içine karıştı — commit mesajları bu işleri
+> anlatmaz; içerik doğrulandı ve sağlamdır. Ders: AYNI repoda iki oturum paralel çalışmamalı.

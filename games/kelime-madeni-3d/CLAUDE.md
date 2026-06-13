@@ -1,8 +1,35 @@
 # KELİME MADENİ 3D — Proje Belgesi (CLAUDE.md)
 
 > Eğitsel Minecraft benzeri 3D voxel oyunu — İngilizce kelime öğretimi entegre.
-> Tek dosyalık HTML5 (`kelime-madeni-3d-v2.html`), Three.js r128 (cdnjs CDN).
-> Hedef kitle: 8–12 yaş. Geliştirici: Emre (Bilnet) + Claude. Güncel sürüm: **2.1**
+> Tek dosyalık HTML5 (portalda `games/kelime-madeni-3d/index.html`, ~1500 satır),
+> Three.js r128 (yerel `three.min.js`).
+> Hedef kitle: 8–12 yaş. Geliştirici: Emre (Bilnet) + Claude. Güncel sürüm: **2.2**
+
+### v2.2 — İnşa Parçaları (ev kurma) — 2026-06-13
+- **Yeni bloklar (ID 16-35):** Kum(16, opak), Cam(17), Kapı(18-25: eksen×alt/üst×açık/kapalı
+  ayrı ID'ler), Tahta Çatı(26-29) + Kiremit Çatı(30-33) merdivenleri (4 yön), Yarım Tahta/Taş(34-35).
+- **OPAQUE / SOLID ayrımı:** OPAQUE (ışık+yüz ayıklama) ↔ SOLID (çarpışma) ayrıldı.
+  17+ şeffaf sayılır (çatıdan ışık sızar → ev içi aydınlık, bilinçli). Açık kapı geçilir;
+  çatı/yarım blok `collides()` içinde **yarım yükseklik** çarpışır (`py < y+0.5`, kesin <).
+- **Oto-basamak:** 0.5'lik engele yürüyünce tüm platformlarda kendiliğinden çıkılır
+  (yükseltilmiş AABB testi; dokunmatik tam-blok oto-zıplamasından ÖNCE denenir).
+- **Atlas 4×4 → 8×8** (`AT=8`): yeni karolar 16 kum, 17 cam (orta şeffaf — materyale
+  `alphaTest:0.5` eklendi, `transparent:true` YOK), 18-19 kapı üst/alt, 20 kiremit.
+- **Kapı mekaniği:** 2 hücre yerleşir (tavan/destek/oyuncu-çakışma kontrolleri), sağ tık /
+  kısa dokunuş aç-kapa; oyuncu eşikteyken KAPANMAZ (fırlatma koruması); kazınca iki hücre
+  temizlenir, eşya 1 düşer. `raycast` origin'i açık kapıysa atlar (eşikten nişan).
+- **Kum kaynağı:** yüzeyde sin-gürültü kumsalları + hash3 yeraltı cepleri.
+  **Eski kayıt telafisi:** yüklemede dünyada hiç kum yoksa yeraltı cepleri eklenir
+  (yalnız STONE dönüşür — oyuncu yapısına dokunmaz). Kayıt sürümü v:1 KALDI (bilinçli:
+  v:2 bayat istemcide kaydı reddettirip 20 sn'de üzerine yazdırırdı).
+- **Tarifler (+6):** kapı 4🟧; cam 2🟨+1⚫ fırın→2; tahta çatı 3🟧→4; kiremit 3🪨+1⚫ fırın→4;
+  yarım bloklar. **Görevler 10→13** (sona eklendi — eski questDone indeksleri korunur).
+- **Hotbar 7→14 slot:** 2 satır × 7 grid (kaydırma yok), `Digit1-9` + fare tekerleği döngüsü
+  (panel açıkken no-op). 360px ekranda taşmadan sığar (doğrulandı).
+- **Test:** `test_sim.js` Node duman harness'i artık REPODA (58 iddia: dünya/çarpışma/kapı/
+  oto-basamak/tarif/görev/kayıt/retrofit). Çalıştır: `node games/kelime-madeni-3d/test_sim.js`.
+- Savunma: `binfo(t)` bilinmeyen ID'de taş-benzeri yedek döner (geçerli tex DAHİL —
+  alphaTest + çizilmemiş karo = görünmez blok tuzağı). iframe cache-bust `?v=2`.
 
 ---
 
@@ -113,7 +140,7 @@ regresyon testi yap.
 - [ ] Gece/gündüz döngüsü (gök rengi + gök ışığı seviyesi animasyonu — relight maliyetine
       dikkat: tüm dünya relight yerine gökten gelen ışığı çarpan olarak uygula).
 - [ ] Basit yaratıklar (gece zombisi / mağara örümceği) + kılıç tarifi + kalp sistemi.
-- [ ] Sandık + daha fazla blok türü (cam: kum+fırın, merdiven).
+- [x] ~~Daha fazla blok türü (cam: kum+fırın, merdiven)~~ → **v2.2'de geldi** (kapı/cam/çatı/yarım blok). Sandık hâlâ açık.
 - [ ] Başarımlar (rozetler) + oyun sonu istatistik ekranı (öğrenilen kelime raporu).
 
 ### Faz 3 — Okul/ürünleştirme (eğitsel oyun fabrikası ile hizalı)

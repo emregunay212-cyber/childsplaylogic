@@ -27,6 +27,7 @@ const App = (() => {
                 { game: KelimeBalonu, color: 'var(--kelime-balonu-color)' },
                 { game: KelimeCanavarlari, color: 'var(--kelime-canavar-color)' },
                 { game: KelimeKurtarma, color: 'var(--kelime-kurtarma-color)' },
+                { game: GunlukKelime, color: 'var(--gunluk-kelime-color)' },
             ]
         },
         {
@@ -44,6 +45,7 @@ const App = (() => {
                 { game: BilgiYilani, color: 'var(--bilgi-yilani-color)' },
                 { game: RitimSorulari, color: 'var(--ritim-color)' },
                 { game: Kesir2048, color: 'var(--kesir-color)' },
+                { game: SayiNinja, color: 'var(--sayi-ninja-color)' },
             ]
         },
         {
@@ -59,6 +61,7 @@ const App = (() => {
                 // Eğitsel seri (Faz 3): kilitsiz — fen gözlem/dikkat.
                 { game: BilimDedektifi, color: 'var(--bilim-dedektifi-color)' },
                 { game: EslestirmeUstasi, color: 'var(--eslestirme-color)' },
+                { game: LabirentAvcisi, color: 'var(--labirent-color)' },
             ]
         },
         {
@@ -93,6 +96,8 @@ const App = (() => {
                 { game: BilVeFethet, color: 'var(--bil-ve-fethet-color)' },
                 { game: BilgiTakimi, color: 'var(--bilgi-takimi-color)' },
                 { game: BilgiCiftligi, color: 'var(--bilgi-ciftligi-color)' },
+                { game: BilgiKulesi, color: 'var(--bilgi-kulesi-color)' },
+                { game: BilgiZiplamasi, color: 'var(--ziplamasi-color)' },
             ]
         },
     ];

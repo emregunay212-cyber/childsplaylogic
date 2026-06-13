@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bilgi Zıplaması — Doğru Platforma İn, Zirveye Tırman!</title>
+<!-- Portal standardı: tek dosya, harici bağımlılık YOK. Eğitsel seri Faz 5 / 4.16
+     (Doodle Jump esinli — dağ teması: Etek'ten Zirve'ye GERÇEKTEN tırmanıyorsun).
+     Tasarım: EGITSEL-OYUN-PLANI §4.16 — dokunma kontrolü varsayılan -->
+<style>
+:root{
+  --ink:#fff; --ink-dim:#d8e8f4; --gold:#ffd23f; --hot:#ff7a59; --ok:#5fd68b;
+  --panel:rgba(10,30,50,.55);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#7ec3ef;color:var(--ink);
+  font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;user-select:none;touch-action:none}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:12px}
+.screen{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:14px;text-align:center}
+.screen.show{display:flex}
+#screen-menu{background:linear-gradient(180deg,#aee3ff,#7ec3ef 50%,#5a9e5a)}
+#screen-menu h1{font-size:clamp(26px,7vw,44px);color:#0e3a5c;text-shadow:0 2px 0 rgba(255,255,255,.6)}
+#screen-menu .sub{color:#0e3a5c;opacity:.85;margin:6px 0 14px;font-size:clamp(13px,3.5vw,16px);max-width:470px}
+.bigBtn{background:var(--hot);color:#fff;font-size:18px;font-weight:800;padding:14px 32px;box-shadow:0 4px 0 #c2503a}
+.bigBtn:active{transform:translateY(3px);box-shadow:0 1px 0 #c2503a}
+.ghost{background:transparent;color:#0e3a5c;font-size:13px;padding:8px;text-decoration:underline}
+#bestLine{font-size:13px;color:#0e3a5c;margin-top:8px;min-height:17px;font-weight:700}
+#screen-game{padding:0;justify-content:flex-start}
+#topBar{position:fixed;top:0;left:0;right:0;padding:8px 10px;display:flex;flex-direction:column;gap:4px;z-index:6;pointer-events:none}
+#hudRow{display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:800}
+.chip{background:var(--panel);border-radius:9px;padding:4px 10px;white-space:nowrap;pointer-events:auto}
+#qLine{font-size:clamp(15px,4.4vw,19px);font-weight:900;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.5);text-align:center;min-height:24px}
+#cv{display:block;touch-action:none}
+#screen-result #resEmoji{font-size:52px}
+#screen-result{background:linear-gradient(180deg,#aee3ff,#7ec3ef 50%,#5a9e5a)}
+#screen-result h1,#screen-result #eduLine{color:#0e3a5c}
+#resScore{font-size:clamp(32px,9vw,48px);font-weight:900;color:#b8651b;text-shadow:0 2px 0 rgba(255,255,255,.5)}
+#resStats{background:#fff;color:#1d3b53;border-radius:14px;padding:14px 20px;font-size:15px;line-height:1.7;margin:10px 0;max-width:420px;box-shadow:0 4px 14px rgba(0,0,0,.15)}
+#eduLine{font-weight:800}
+#pauseVeil{position:fixed;inset:0;background:rgba(8,24,40,.82);display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:20;padding:20px;text-align:center}
+#pauseVeil.show{display:flex}
+</style>
+</head>
+<body>
+
+<div class="screen show" id="screen-menu">
+  <h1>🦘 BİLGİ ZIPLAMASI ☁️</h1>
+  <p class="sub">Karakter kendiliğinden zıplar — sen sağa-sola yönlendir (ekranın yarısına dokun ya da ok tuşları)! Her 10 platformda SORU katmanı: doğru cevabın platformuna in, yaylanıp fırla. Yanlış platform kırılır! Etek'ten uzaya tırman 🚀</p>
+  <button class="bigBtn" id="bPlay">🦘 TIRMAN</button>
+  <div id="bestLine"></div>
+</div>
+
+<div class="screen" id="screen-game">
+  <div id="topBar">
+    <div id="hudRow">
+      <span class="chip" id="hChip">⛰️ 0 m</span>
+      <span class="chip" id="okChip">✅ 0</span>
+      <button class="chip" id="bPause" style="pointer-events:auto">⏸️</button>
+    </div>
+    <div id="qLine"></div>
+  </div>
+  <canvas id="cv"></canvas>
+</div>
+
+<div id="pauseVeil">
+  <h2 style="font-size:26px">⏸️ Mola!</h2>
+  <p style="color:var(--ink-dim)">Bulutların üstünde dinleniyorsun.</p>
+  <button class="bigBtn" id="bResume">▶️ Devam Et</button>
+  <button class="ghost" id="bQuit" style="color:var(--ink-dim)">🏠 Menü</button>
+</div>
+
+<div class="screen" id="screen-result">
+  <div id="resEmoji">🦘</div>
+  <h1 style="font-size:25px" id="resTitle">Tırmanış Bitti!</h1>
+  <div id="resScore">0</div>
+  <div id="resStats"></div>
+  <div id="eduLine"></div>
+  <button class="bigBtn" id="bAgain" style="margin-top:12px">🔄 Tekrar Tırman</button>
+  <button class="ghost" id="bMenu">🏠 Menü</button>
+</div>
+
+<script>
+(function () {
+  if (window.storage && window.storage.get && window.storage.set) return;
+  window.storage = {
+    get: function (key) { try { var v = localStorage.getItem(key); return Promise.resolve(v != null ? { value: v } : null); } catch (e) { return Promise.resolve(null); } },
+    set: function (key, value) { try { localStorage.setItem(key, value); return Promise.resolve(); } catch (e) { return Promise.resolve(); } },
+    remove: function (key) { try { localStorage.removeItem(key); return Promise.resolve(); } catch (e) { return Promise.resolve(); } }
+  };
+})();
+</script>
+<script>
+"use strict";
+/* ================= CONFIG (EGITSEL-OYUN-PLANI §4.16 — aynen) ================= */
+const CONFIG = {
+  Q_EVERY: 10,                // her 10 platformda soru katmanı
+  Q_POINT: 100,               // doğru cevap × 100
+  SUPER_VY: -1450,            // doğru platform: süper zıplama (+3 platform yüksekliği)
+  JUMP_VY: -860,
+  GRAVITY: 1900,
+  MOVE_VX: 420,
+  PLAT_GAP: 95,
+  THEMES: [                   // tema değişimi: 500m orman → 1500m bulutlar → 3000m uzay (§4.16)
+    { h: 0,    top: '#aee3ff', bot: '#7ec3ef' },
+    { h: 500,  top: '#8fd0a8', bot: '#5a9e5a' },
+    { h: 1500, top: '#dceefc', bot: '#9fc3e8' },
+    { h: 3000, top: '#1a1a3e', bot: '#090920' },
+  ],
+};
+const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const shuffle = a => { for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+/* 3 şıklı kısa sorular (karışık ders) */
+function genQ(){
+  const k = rnd(0,3);
+  let q, ans, opts;
+  if (k===0){ const a=rnd(3,12),b=rnd(3,12); q=`${a} + ${b} = ?`; ans=String(a+b);
+    opts=[ans,String(a+b+rnd(1,3)),String(a+b-rnd(1,3))]; }
+  else if (k===1){ const a=rnd(2,9),b=rnd(2,9); q=`${a} × ${b} = ?`; ans=String(a*b);
+    opts=[ans,String(a*b+a),String(a*b-b)]; }
+  else if (k===2){ const W=[['cat','kedi'],['dog','köpek'],['sun','güneş'],['book','kitap'],['milk','süt'],['bird','kuş']];
+    const [en,tr]=pick(W); q=`'${en}' ne demek?`; ans=tr;
+    const others = W.filter(w=>w[1]!==tr); opts=[ans,pick(others)[1],pick(others)[1]];
+    while (new Set(opts).size<3) opts[2]=pick(others)[1]; }
+  else { const F=[['Hangisi canlı?','çiçek','taş','su'],['Hangisi sıvı?','süt','buz','tahta'],['Hangisi gezegen?','Mars','Ay','Güneş'],['Kaç mevsim var?','4','5','3']];
+    const f=pick(F); q=f[0]; ans=f[1]; opts=[f[1],f[2],f[3]]; }
+  const o = shuffle([...new Set(opts)].slice(0,3));
+  while (o.length<3) o.push(ans+' ');
+  return { q, o, a: o.indexOf(ans) };
+}
+
+/* ================= Audio ================= */
+const Audio2 = (() => {
+  let ctx = null;
+  function init(){ if (!ctx){ try { ctx = new (window.AudioContext||window.webkitAudioContext)(); } catch(e){} } if (ctx && ctx.state==='suspended') ctx.resume(); }
+  function tone(f,d,t,v,w){ if(!ctx)return; const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type=t||'triangle'; o.frequency.value=f;
+    g.gain.setValueAtTime(v||0.06, ctx.currentTime+(w||0));
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+(w||0)+d);
+    o.connect(g); g.connect(ctx.destination); o.start(ctx.currentTime+(w||0)); o.stop(ctx.currentTime+(w||0)+d+0.02); }
+  return { init,
+    jump: () => tone(440,0.07,'square',0.03),
+    superJump: () => { tone(520,0.1,'triangle',0.07); tone(780,0.14,'triangle',0.07,0.08); tone(1040,0.16,'triangle',0.06,0.18); },
+    crack: () => tone(180,0.2,'sawtooth',0.05),
+    fall: () => { tone(400,0.2,'sine',0.06); tone(280,0.3,'sine',0.06,0.18); tone(180,0.4,'sine',0.05,0.4); },
+    fanfare: () => [523,659,784,1046].forEach((f,i)=>tone(f,0.15,'triangle',0.07,i*0.11)) };
+})();
+const BilnetBridge = {
+  QUEUE_KEY: 'bilnet_score_queue',
+  async submitScore(p){ const rec={...p,ts:Date.now()};
+    try{ const r=await window.storage.get(this.QUEUE_KEY); const q=r&&r.value?JSON.parse(r.value):[];
+      q.push(rec); while(q.length>50)q.shift(); await window.storage.set(this.QUEUE_KEY,JSON.stringify(q)); }catch(e){} },
+};
+const STATS_KEY = 'ziplamasi_stats';
+let STATS = { plays:0, best:0, bestH:0, correct:0 };
+function loadStats(){ try{ window.storage.get(STATS_KEY).then(r=>{ if(r&&r.value){ try{ STATS=Object.assign(STATS,JSON.parse(r.value)); }catch(e){} } refreshBest(); }); }catch(e){} }
+function saveStats(){ try{ window.storage.set(STATS_KEY,JSON.stringify(STATS)); }catch(e){} }
+
+/* ================= Game ================= */
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx2 = cv.getContext('2d');
+const G = {
+  state:'menu',
+  px:0, py:0, vx:0, vy:0,
+  cam:0, maxH:0,
+  plats:[], platCount:0, q:null, qPlats:null, correct:0, wrong:0,
+  input:0, raf:0, lastTs:0,
+};
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('show')); $(id).classList.add('show'); }
+function layout(){ cv.width = innerWidth; cv.height = innerHeight; }
+function addPlat(y){
+  G.platCount++;
+  if (G.platCount % CONFIG.Q_EVERY === 0){
+    // SORU KATMANI: yan yana 3 cevap platformu (§4.16)
+    G.q = genQ();
+    $('qLine').textContent = '❓ ' + G.q.q;
+    const w = Math.min(110, cv.width/3 - 14);
+    const xs = [cv.width*0.17, cv.width*0.5, cv.width*0.83];
+    const plats = G.q.o.map((txt,i) => ({
+      x: xs[i]-w/2, y, w, broken:false, answer:true, txt, correct: i===G.q.a, used:false }));
+    G.plats.push(...plats);
+    G.qPlats = plats;
+    return;
+  }
+  const w = rnd(70, 100);
+  G.plats.push({ x: rnd(6, Math.max(7,cv.width-w-6)), y, w,
+    broken: G.platCount>15 && Math.random()<0.16, answer:false });
+}
+function startRound(){
+  G.state='playing';
+  layout();
+  G.px = cv.width/2; G.py = cv.height-120;
+  G.vx=0; G.vy=CONFIG.JUMP_VY;
+  G.cam=0; G.maxH=0; G.platCount=0; G.correct=0; G.wrong=0;
+  G.q=null; G.qPlats=null;
+  $('qLine').textContent='';
+  G.plats=[{ x:cv.width/2-60, y:cv.height-70, w:120, broken:false, answer:false }];
+  let y = cv.height-70;
+  while (y > -600){ y -= CONFIG.PLAT_GAP; addPlat(y); }
+  show('screen-game');
+  refreshHUD();
+  G.lastTs = performance.now();
+  if (!G.raf) G.raf = requestAnimationFrame(loop);
+}
+function refreshHUD(){
+  $('hChip').textContent = '⛰️ ' + Math.round(G.maxH/10) + ' m';
+  $('okChip').textContent = '✅ ' + G.correct;
+}
+function loop(ts){
+  if (G.state!=='playing'){ G.raf=0; return; }
+  const dt = Math.min(0.04,(ts-G.lastTs)/1000||0.016);
+  G.lastTs = ts;
+  // hareket
+  G.vx = G.input * CONFIG.MOVE_VX;
+  G.px += G.vx*dt;
+  if (G.px < -16) G.px = cv.width+16;          // yanlardan sarmal
+  if (G.px > cv.width+16) G.px = -16;
+  G.vy += CONFIG.GRAVITY*dt;
+  G.py += G.vy*dt;
+  // platform çarpışması (sadece düşerken)
+  if (G.vy > 0){
+    for (const p of G.plats){
+      if (p.used) continue;
+      const sy = p.y - G.cam;
+      if (G.py+18 >= sy && G.py+18 <= sy+16 && G.px > p.x-14 && G.px < p.x+p.w+14){
+        if (p.answer){
+          p.used = true;
+          if (p.correct){
+            G.correct++;
+            G.vy = CONFIG.SUPER_VY;            // süper zıplama (§4.16)
+            Audio2.superJump();
+            $('qLine').textContent = '🎉 Doğru! +100';
+            setTimeout(()=>{ if(G.state==='playing' && !G.q) $('qLine').textContent=''; },900);
+            G.q = null;
+            if (G.qPlats) G.qPlats.forEach(x=>{ if(!x.correct) x.gone=true; });
+          } else {
+            G.wrong++;
+            p.gone = true;                     // yanlış platform kırılır (§4.16)
+            Audio2.crack();
+            $('qLine').textContent = '💔 Yanlış platform kırıldı!';
+            continue;                           // düşüş sürer — altta normal platform varsa kurtulur
+          }
+        } else if (p.broken){
+          p.gone = true;
+          Audio2.crack();
+          continue;
+        } else {
+          G.vy = CONFIG.JUMP_VY;
+          Audio2.jump();
+        }
+        break;
+      }
+    }
+  }
+  G.plats = G.plats.filter(p => !p.gone);
+  // kamera: karakter üst 1/3'e çıkınca dünya kayar (§4.16 kamera takibi)
+  const screenY = G.py;
+  if (screenY < cv.height*0.38){
+    const dy = cv.height*0.38 - screenY;
+    G.py += dy;
+    G.cam -= dy;
+    G.maxH = Math.max(G.maxH, -G.cam);
+    for (const p of G.plats){} // platlar dünya koordinatında, cam ile çiziliyor
+    refreshHUD();
+  }
+  // platform geri dönüşümü: ekranın altına düşenler silinir, üste yenileri (§4.16 pool)
+  G.plats = G.plats.filter(p => p.y - G.cam < cv.height + 60);
+  let topY = Math.min(...G.plats.map(p=>p.y));
+  while (topY - G.cam > -200){ topY -= CONFIG.PLAT_GAP; addPlat(topY); }
+  // düşüş: ekranın altına
+  if (G.py > cv.height + 60) return endRound();
+  draw();
+  G.raf = requestAnimationFrame(loop);
+}
+function themeAt(h){
+  let t = CONFIG.THEMES[0];
+  for (const th of CONFIG.THEMES) if (h/10 >= th.h) t = th;
+  return t;
+}
+function draw(){
+  const th = themeAt(G.maxH);
+  const g = ctx2.createLinearGradient(0,0,0,cv.height);
+  g.addColorStop(0, th.top); g.addColorStop(1, th.bot);
+  ctx2.fillStyle = g;
+  ctx2.fillRect(0,0,cv.width,cv.height);
+  // uzayda yıldızlar
+  if (G.maxH/10 >= 3000){
+    ctx2.fillStyle='rgba(255,255,255,.8)';
+    for (let i=0;i<28;i++) ctx2.fillRect((i*173)%cv.width, ((i*97 - G.cam*0.2)%cv.height+cv.height)%cv.height, 2.5, 2.5);
+  }
+  // platformlar
+  for (const p of G.plats){
+    const sy = p.y - G.cam;
+    if (sy < -30 || sy > cv.height+30) continue;
+    ctx2.beginPath();
+    ctx2.roundRect(p.x, sy, p.w, 13, 7);
+    ctx2.fillStyle = p.answer ? (p.used ? '#999' : '#ffd23f') : p.broken ? '#c4886a' : '#5fae6e';
+    ctx2.fill();
+    ctx2.lineWidth=2.5;
+    ctx2.strokeStyle = p.answer ? '#a87413' : p.broken ? '#8a5a3e' : '#3f7e4e';
+    ctx2.stroke();
+    if (p.broken && !p.answer){
+      ctx2.strokeStyle='rgba(80,40,20,.5)';
+      ctx2.beginPath(); ctx2.moveTo(p.x+p.w*0.4, sy+2); ctx2.lineTo(p.x+p.w*0.55, sy+11); ctx2.stroke();
+    }
+    if (p.answer && p.txt){
+      ctx2.fillStyle = '#3c2a0e';
+      ctx2.font = `900 ${Math.min(15, p.w*1.6/Math.max(3,p.txt.length))}px system-ui`;
+      ctx2.textAlign='center';
+      ctx2.fillText(p.txt, p.x+p.w/2, sy-5);
+    }
+  }
+  // karakter (stilize kanguru-kaşif)
+  ctx2.font = '34px system-ui'; ctx2.textAlign='center';
+  ctx2.fillText(G.vy < 0 ? '🦘' : '🪂'.length ? '🦘' : '🦘', G.px, G.py);
+}
+function endRound(){
+  if (G.state!=='playing') return;
+  G.state='result';
+  Audio2.fall();
+  const h = Math.round(G.maxH/10);
+  const score = h + G.correct*CONFIG.Q_POINT;   // skor = yükseklik(m) + doğru×100 (§4.16)
+  STATS.plays++; STATS.correct += G.correct;
+  const isBest = score > STATS.best;
+  if (isBest) STATS.best = score;
+  if (h > STATS.bestH) STATS.bestH = h;
+  saveStats();
+  BilnetBridge.submitScore({ gameId:'bilgi-ziplamasi', score, tier: h>=3000?4:h>=1500?3:h>=500?2:1,
+    stats:{ height:h, correct:G.correct, wrong:G.wrong } });
+  $('resEmoji').textContent = isBest ? '🏆' : h>=3000 ? '🚀' : h>=1500 ? '☁️' : '🦘';
+  $('resTitle').textContent = h>=3000 ? 'UZAYA ULAŞTIN!' : h>=1500 ? 'Bulutları Aştın!' : 'Tırmanış Bitti!';
+  $('resScore').textContent = score;
+  $('resStats').innerHTML = `⛰️ Yükseklik: <b>${h} m</b> · ✅ Doğru: <b>${G.correct}</b> · 💔 Yanlış: <b>${G.wrong}</b>` +
+    (isBest?`<br>🏅 <b>YENİ REKOR!</b>`:'');
+  $('eduLine').textContent = G.correct>0 ? `Bilgiyle ${G.correct} kez yaylandın — Etek'ten yukarı GERÇEKTEN tırmandın! 🏔️` : 'Zıplamayı öğrendin — şimdi sorularla yüksel! 💪';
+  if (h>=1500) Audio2.fanfare();
+  show('screen-result');
+  refreshBest();
+}
+function refreshBest(){
+  $('bestLine').textContent = STATS.best>0 ? `🏅 Rekorun: ${STATS.best} puan (${STATS.bestH} m)` : '';
+}
+/* giriş: ekran yarıları (dokunma birincil — §4.16) + ok tuşları */
+cv.addEventListener('pointerdown', e => { G.input = e.clientX < innerWidth/2 ? -1 : 1; });
+cv.addEventListener('pointermove', e => { if (G.input!==0) G.input = e.clientX < innerWidth/2 ? -1 : 1; });
+cv.addEventListener('pointerup', () => { G.input = 0; });
+cv.addEventListener('pointercancel', () => { G.input = 0; });
+addEventListener('keydown', e => {
+  if (e.code==='ArrowLeft'||e.code==='KeyA') G.input=-1;
+  if (e.code==='ArrowRight'||e.code==='KeyD') G.input=1;
+  if ((e.code==='KeyP'||e.code==='Escape') && G.state==='playing') pauseGame();
+});
+addEventListener('keyup', e => {
+  if (['ArrowLeft','KeyA','ArrowRight','KeyD'].includes(e.code)) G.input=0;
+});
+$('bPlay').addEventListener('click', ()=>{ Audio2.init(); startRound(); });
+$('bAgain').addEventListener('click', startRound);
+$('bMenu').addEventListener('click', ()=>{ G.state='menu'; show('screen-menu'); refreshBest(); });
+function pauseGame(){ if(G.state!=='playing')return; G.state='paused'; $('pauseVeil').classList.add('show'); }
+$('bPause').addEventListener('click', pauseGame);
+$('bResume').addEventListener('click', ()=>{ if(G.state!=='paused')return; G.state='playing'; $('pauseVeil').classList.remove('show'); G.lastTs=performance.now(); if(!G.raf)G.raf=requestAnimationFrame(loop); });
+$('bQuit').addEventListener('click', ()=>{ $('pauseVeil').classList.remove('show'); G.state='menu'; show('screen-menu'); refreshBest(); });
+document.addEventListener('visibilitychange', ()=>{ if(document.hidden && G.state==='playing'){ pauseGame(); saveStats(); } });
+addEventListener('resize', ()=>{ if(G.state==='playing') layout(); });
+loadStats();
+</script>
+</body>
+</html>

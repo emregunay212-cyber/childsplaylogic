@@ -252,6 +252,22 @@ Tüm testler otomatik (jsdom) ile doğrulandı:
 - ✅ Menü akışı (yeniden başlat, ana menü, durum sıfırlama)
 - ✅ Ses entegrasyonu (çalışma zamanı hatası yok)
 
+## 🔧 DÜZELTMELER
+
+**2026-06-13 — Masaüstünde ülke seçilemiyor (kritik):**
+`svg.setPointerCapture` (pan/zoom) sentetik `click` olayını SVG'ye yeniden hedefliyordu;
+path'lere bağlı `click` dinleyicileri hiç çalışmıyordu → ne başlangıç ülkesi seçilebiliyor
+ne de oyun içinde saldırı hedefi tıklanabiliyordu. Çözüm (kaynak/game_template.html):
+1. Path-başına `click` dinleyicisi kaldırıldı.
+2. `pointerdown`'da basılan ülke (`e.target.closest('.country')`) `drag.t`'ye kaydedilir;
+   pinch başlarsa `drag.pinched` işaretlenir.
+3. `endPtr`'de hareketsiz + pinch'siz `pointerup` = seçim → `onCountryClick(id)`.
+4. **ID'ler STRING'dir** ("076" gibi baştaki sıfırlı ISO kodları) — sayıya çevirme
+   `attackableIds().has()` ve `S.own` anahtar eşleşmesini bozar. Ham string geçilir.
+5. `setPointerCapture` try/catch'e alındı (sentetik/uç durum pointerId'leri).
+Doğrulama: preview'da uçtan uca akış — seçim, sürükleme (seçim tetiklemez), pinch,
+tekerlek zoom, saldırı→10 soru→oransal fetih, NPC savunma savaşı. `?v=2` cache-bust.
+
 ---
 
 *Bu doküman, Claude Code veya başka bir geliştiriciyle çalışmaya devam etmek için

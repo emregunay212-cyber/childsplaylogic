@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Günlük Kelime — Bugünün Kelimesini Çöz!</title>
+<!-- Portal standardı: tek dosya, harici bağımlılık YOK. Eğitsel seri Faz 5 / 4.15
+     (Wordle esinli — TÜM OKUL aynı kelimeyi çözer: tarih bazlı seed, sunucu yok).
+     Tasarım: EGITSEL-OYUN-PLANI §4.15 -->
+<style>
+:root{
+  --bg1:#1d2a3a; --bg2:#121b27; --panel:#2a3c52; --ink:#f2f8ff; --ink-dim:#a8bdd2;
+  --gold:#ffd23f; --hot:#ff7a59; --green:#4f9e5f; --yellow:#c2a23a; --gray:#4a5664;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--ink);
+  font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;user-select:none;touch-action:manipulation}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:10px}
+#app{height:100%;display:flex;flex-direction:column;align-items:center;max-width:520px;margin:0 auto;padding:8px}
+#top{width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 2px}
+#top h1{font-size:clamp(17px,4.8vw,22px)}
+.chip{background:var(--panel);border-radius:9px;padding:5px 10px;font-size:12.5px;font-weight:800;white-space:nowrap}
+#modeRow{display:flex;gap:8px;margin:6px 0}
+.modeBtn{background:var(--panel);color:var(--ink-dim);padding:8px 18px;font-weight:800;font-size:14px;border:2px solid transparent}
+.modeBtn.on{color:var(--ink);border-color:var(--gold)}
+#gridWrap{flex:1;display:flex;align-items:center;justify-content:center;width:100%;min-height:0}
+#grid{display:grid;gap:6px}
+.cell{width:var(--cs);height:var(--cs);border:2.5px solid var(--gray);border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:calc(var(--cs)*0.5);text-transform:uppercase;transition:transform .12s}
+.cell.fill{border-color:#7a8a9a;animation:cellPop .12s}
+@keyframes cellPop{50%{transform:scale(1.1)}}
+.cell.g{background:var(--green);border-color:var(--green)}
+.cell.y{background:var(--yellow);border-color:var(--yellow)}
+.cell.x{background:var(--gray);border-color:var(--gray)}
+#msg{min-height:22px;font-weight:800;font-size:14px;color:var(--gold)}
+#kb{width:100%;display:flex;flex-direction:column;gap:5px;padding-bottom:8px}
+.kbRow{display:flex;gap:4px;justify-content:center}
+.key{flex:1;max-width:38px;height:46px;background:#5b6c80;color:#fff;font-weight:900;font-size:13px;border-radius:7px;display:flex;align-items:center;justify-content:center}
+.key.wide{max-width:58px;font-size:11.5px}
+.key.g{background:var(--green)} .key.y{background:var(--yellow)} .key.x{background:#2e3742}
+.veil{position:fixed;inset:0;background:rgba(8,14,22,.9);display:none;align-items:center;justify-content:center;z-index:30;padding:14px}
+.veil.show{display:flex}
+.card{background:var(--panel);border-radius:18px;padding:20px;width:min(440px,95vw);text-align:center;max-height:90vh;overflow:auto}
+.bigBtn{background:var(--hot);color:#fff;font-size:16px;font-weight:800;padding:12px 26px;box-shadow:0 4px 0 #c2503a;margin-top:12px}
+#meaningBox{background:rgba(0,0,0,.25);border-radius:12px;padding:12px;margin-top:10px;font-size:14px;line-height:1.6;text-align:left}
+#meaningBox b{color:var(--gold)}
+#distRow{display:flex;flex-direction:column;gap:4px;margin-top:10px;text-align:left;font-size:12px}
+.dBar{background:var(--green);border-radius:4px;padding:2px 6px;color:#fff;font-weight:800;min-width:20px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="top">
+    <h1>📅 GÜNLÜK KELİME</h1>
+    <span class="chip" id="streakChip">🔥 0</span>
+  </div>
+  <div id="modeRow">
+    <button class="modeBtn on" data-m="tr">🇹🇷 Türkçe (5 harf)</button>
+    <button class="modeBtn" data-m="en">🇬🇧 English (4 harf)</button>
+  </div>
+  <div id="msg">Bugünün kelimesini 6 denemede bul!</div>
+  <div id="gridWrap"><div id="grid"></div></div>
+  <div id="kb"></div>
+</div>
+
+<div class="veil" id="endVeil">
+  <div class="card">
+    <div style="font-size:46px" id="endEmoji">🎉</div>
+    <h2 id="endTitle">Bravo!</h2>
+    <p id="endSub" style="color:var(--ink-dim);font-size:13.5px;margin-top:4px"></p>
+    <div id="meaningBox"></div>
+    <div id="distRow"></div>
+    <p style="font-size:12px;color:var(--ink-dim);margin-top:10px">Yarın yeni kelime seni bekliyor — tüm okul aynı kelimeyi çözüyor! 🏫</p>
+    <button class="bigBtn" id="endOk">Tamam</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  if (window.storage && window.storage.get && window.storage.set) return;
+  window.storage = {
+    get: function (key) { try { var v = localStorage.getItem(key); return Promise.resolve(v != null ? { value: v } : null); } catch (e) { return Promise.resolve(null); } },
+    set: function (key, value) { try { localStorage.setItem(key, value); return Promise.resolve(); } catch (e) { return Promise.resolve(); } },
+    remove: function (key) { try { localStorage.removeItem(key); return Promise.resolve(); } catch (e) { return Promise.resolve(); } }
+  };
+})();
+</script>
+<script>
+"use strict";
+/* ================= CONFIG (EGITSEL-OYUN-PLANI §4.15 — aynen) ================= */
+const CONFIG = {
+  TRIES: 6,
+  POINT: tries => (7 - tries) * 50,    // (7 − deneme) × 50, günde 1 kez
+  EPOCH: Date.UTC(2026, 0, 1),         // tarih bazlı deterministik seçim — herkes aynı kelime
+};
+/* Kelime listeleri: müfredat öncelikli (İngilizce ünite kelimeleri buraya eklenebilir — §4.15 notu) */
+const TR_WORDS = [ // 5 harf + anlam + örnek cümle (eğitsel kapanış)
+  ['KALEM','Yazı yazma aracı','Yeni kalemimle ödevimi yaptım.'],
+  ['KİTAP','Okumak için sayfalardan oluşan eser','Kitap okumak hayal gücünü geliştirir.'],
+  ['ORMAN','Ağaçlarla kaplı geniş alan','Ormanda kuş sesleri duyduk.'],
+  ['DENİZ','Tuzlu büyük su kütlesi','Yazın denizde yüzmeyi severim.'],
+  ['BAHÇE','Çiçek ve sebze yetiştirilen alan','Bahçede domates yetiştirdik.'],
+  ['YILDIZ','Geceleri parlayan gök cismi','Gökyüzü yıldızlarla doluydu.'],
+  ['TOPRAK','Bitkilerin yetiştiği yer örtüsü','Tohumları toprağa ektik.'],
+  ['RÜZGAR','Havanın hareketi','Rüzgar uçurtmamızı yükseltti.'],
+  ['ŞEKER','Tatlı yiyecek maddesi','Bayramda şeker ikram ettik.'],
+  ['BULUT','Gökyüzündeki su buharı kümesi','Bulutlar yağmur getirdi.'],
+  ['KARGA','Siyah tüylü zeki kuş','Karga cevizi taşa vurarak kırdı.'],
+  ['TAVAN','Odanın üst yüzeyi','Tavana balonlar astık.'],
+  ['MASAL','Olağanüstü olayları anlatan öykü','Ninem bana masal anlattı.'],
+  ['BAYRAK','Bir ülkenin simgesi olan bez','Bayrağımızı gururla taşıdık.'],
+  ['ÇİÇEK','Bitkilerin renkli, kokulu bölümü','Anneme çiçek aldım.'],
+  ['DAKİKA','60 saniyelik zaman dilimi (kısa: DAKİK)','Dakik insanlar randevuya tam zamanında gelir.'],
+  ['DOST','Yakın, güvenilir arkadaş (4+1: DOSTU)','İyi dost kara günde belli olur.'],
+  ['KÖPRÜ','İki yakayı birleştiren yapı','Köprüden geçerken nehri izledik.'],
+  ['SABAH','Günün ilk bölümü','Sabah erkenden kalkıp kahvaltı ettik.'],
+  ['MEYVE','Ağaçların yenilebilir ürünü','Meyve yemek sağlığa iyi gelir.'],
+  ['BİLGİ','Öğrenilen şeylerin bütünü','Bilgi paylaştıkça çoğalır.'],
+  ['OYUN','Eğlenmek için yapılan etkinlik (4+1: OYUNU)','Teneffüste oyun oynadık.'],
+  ['ÇANTA','Eşya taşımaya yarayan gereç','Okul çantamı akşamdan hazırlarım.'],
+  ['PERDE','Pencereyi örten kumaş','Perdeyi açınca güneş içeri doldu.'],
+  ['SINIF','Ders yapılan oda','Sınıfımızı rengarenk süsledik.'],
+  ['DÜNYA','Üzerinde yaşadığımız gezegen','Dünya, Güneş etrafında döner.'],
+  ['HAVUÇ','Turuncu kök sebze','Tavşanlar havucu çok sever.'],
+  ['KIYMET','Değer (6 harfli yedek: KIYMET→ KIYME?)','Emeğin kıymetini bilmek gerekir.'],
+  ['ŞEHİR','Büyük yerleşim yeri','Şehirde trafik yoğundu.'],
+  ['VAPUR','Deniz yolcu taşıtı','Vapurla karşıya geçtik.'],
+];
+const EN_WORDS = [ // 4 harf + TR karşılık + örnek
+  ['BOOK','kitap','I read a book every night.'],
+  ['FISH','balık','The fish swims in the sea.'],
+  ['STAR','yıldız','I saw a bright star.'],
+  ['MOON','ay','The moon shines at night.'],
+  ['TREE','ağaç','The tree has green leaves.'],
+  ['BIRD','kuş','The bird sings in the morning.'],
+  ['MILK','süt','I drink milk for breakfast.'],
+  ['CAKE','pasta','We ate cake at the party.'],
+  ['DOOR','kapı','Please close the door.'],
+  ['RAIN','yağmur','The rain stopped at noon.'],
+  ['BLUE','mavi','The sky is blue today.'],
+  ['FROG','kurbağa','The frog jumps high.'],
+  ['SHIP','gemi','The ship sails away.'],
+  ['RING','yüzük','She wears a gold ring.'],
+  ['LION','aslan','The lion is the king of animals.'],
+  ['BEAR','ayı','The bear sleeps in winter.'],
+  ['DUCK','ördek','The duck swims in the lake.'],
+  ['CORN','mısır','We eat corn in summer.'],
+  ['SNOW','kar','Snow is white and cold.'],
+  ['WIND','rüzgar','The wind moves the clouds.'],
+  ['HAND','el','Wash your hands before lunch.'],
+  ['FOOT','ayak','My foot hurts after running.'],
+  ['GAME','oyun','We play a fun game.'],
+  ['HOME','ev','I go home after school.'],
+  ['KING','kral','The king lives in a castle.'],
+];
+const TR_KB = ['ERTYUIOPĞÜ','ASDFGHJKLŞİ','ZCVBNMÖÇ'];
+const EN_KB = ['QWERTYUIOP','ASDFGHJKL','ZXCVBNM'];
+
+/* ================= Audio ================= */
+const Audio2 = (() => {
+  let ctx = null;
+  function init(){ if (!ctx){ try { ctx = new (window.AudioContext||window.webkitAudioContext)(); } catch(e){} } if (ctx && ctx.state==='suspended') ctx.resume(); }
+  function tone(f,d,t,v,w){ if(!ctx)return; const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type=t||'triangle'; o.frequency.value=f;
+    g.gain.setValueAtTime(v||0.06, ctx.currentTime+(w||0));
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+(w||0)+d);
+    o.connect(g); g.connect(ctx.destination); o.start(ctx.currentTime+(w||0)); o.stop(ctx.currentTime+(w||0)+d+0.02); }
+  return { init,
+    key: () => tone(500,0.04,'square',0.03),
+    row: () => tone(420,0.1,'triangle',0.05),
+    win: () => [523,659,784,1046].forEach((f,i)=>tone(f,0.15,'triangle',0.08,i*0.11)),
+    lose: () => { tone(300,0.25,'sawtooth',0.05); tone(230,0.3,'sawtooth',0.05,0.2); } };
+})();
+const BilnetBridge = {
+  QUEUE_KEY: 'bilnet_score_queue',
+  async submitScore(p){ const rec={...p,ts:Date.now()};
+    try{ const r=await window.storage.get(this.QUEUE_KEY); const q=r&&r.value?JSON.parse(r.value):[];
+      q.push(rec); while(q.length>50)q.shift(); await window.storage.set(this.QUEUE_KEY,JSON.stringify(q)); }catch(e){} },
+};
+
+/* ================= Günün kelimesi (deterministik — sunucu YOK) ================= */
+function dayIndex(){
+  return Math.floor((Date.now() - CONFIG.EPOCH) / 86400000);
+}
+function dayKey(){
+  const d = new Date();
+  return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+}
+function todaysWord(mode){
+  const list = mode==='tr' ? TR_WORDS : EN_WORDS;
+  return list[((dayIndex() % list.length) + list.length) % list.length];
+}
+
+/* ================= Kalıcı durum ================= */
+const SAVE_KEY = 'gunlukkelime_save';
+const STATS_KEY = 'gunlukkelime_stats';
+let S = { day:'', tr:{rows:[],done:false,win:false}, en:{rows:[],done:false,win:false} };
+let STATS = { plays:0, wins:0, streak:0, lastWinDay:'', best:0, dist:[0,0,0,0,0,0] };
+function persist(){ try{ window.storage.set(SAVE_KEY, JSON.stringify(S)); }catch(e){} }
+function saveStats(){ try{ window.storage.set(STATS_KEY, JSON.stringify(STATS)); }catch(e){} }
+
+/* ================= Game ================= */
+const $ = id => document.getElementById(id);
+let mode = 'tr', cur = '', locked = false;
+const upTr = s => s.toLocaleUpperCase('tr-TR');
+function wordLen(){ return mode==='tr' ? 5 : 4; }
+function target(){ return todaysWord(mode)[0]; }
+
+function buildGrid(){
+  const L = wordLen();
+  const g = $('grid');
+  const cs = Math.min(58, Math.floor((Math.min(innerWidth,480) - 40) / L) - 6);
+  g.style.setProperty('--cs', cs+'px');
+  g.style.gridTemplateColumns = `repeat(${L}, ${cs}px)`;
+  g.innerHTML = '';
+  for (let r=0;r<CONFIG.TRIES;r++) for (let c=0;c<L;c++){
+    const el = document.createElement('div');
+    el.className='cell'; el.id = 'c'+r+'_'+c;
+    g.appendChild(el);
+  }
+  // önceki tahminleri geri yükle
+  const st = S[mode];
+  st.rows.forEach((row,r) => paintRow(r, row.guess, row.marks, true));
+  cur = '';
+  locked = st.done;
+  $('msg').textContent = st.done
+    ? (st.win ? 'Bugünü çözdün! Yarın yeni kelime 🎉' : 'Bugünlük bitti — yarın yeni şans!')
+    : 'Bugünün kelimesini 6 denemede bul!';
+  buildKb();
+}
+function buildKb(){
+  const rows = mode==='tr' ? TR_KB : EN_KB;
+  const kb = $('kb');
+  kb.innerHTML = '';
+  const marks = keyMarks();
+  rows.forEach((row,i) => {
+    const div = document.createElement('div');
+    div.className='kbRow';
+    if (i===2){
+      const ent = document.createElement('button');
+      ent.className='key wide'; ent.textContent='GİR';
+      ent.addEventListener('click', submit);
+      div.appendChild(ent);
+    }
+    row.split('').forEach(L => {
+      const k = document.createElement('button');
+      k.className = 'key' + (marks[L] ? ' '+marks[L] : '');
+      k.textContent = L;
+      k.addEventListener('click', () => typeKey(L));
+      div.appendChild(k);
+    });
+    if (i===2){
+      const del = document.createElement('button');
+      del.className='key wide'; del.textContent='⌫';
+      del.addEventListener('click', () => { cur = cur.slice(0,-1); renderCur(); });
+      div.appendChild(del);
+    }
+    kb.appendChild(div);
+  });
+}
+function keyMarks(){
+  const m = {};
+  for (const row of S[mode].rows){
+    row.guess.split('').forEach((L,i) => {
+      const k = row.marks[i];
+      if (k==='g') m[L]='g';
+      else if (k==='y' && m[L]!=='g') m[L]='y';
+      else if (!m[L]) m[L]='x';
+    });
+  }
+  return m;
+}
+function typeKey(L){
+  if (locked || cur.length >= wordLen()) return;
+  Audio2.init(); Audio2.key();
+  cur += L;
+  renderCur();
+}
+function renderCur(){
+  const r = S[mode].rows.length;
+  for (let c=0;c<wordLen();c++){
+    const el = $('c'+r+'_'+c);
+    el.textContent = cur[c]||'';
+    el.classList.toggle('fill', !!cur[c]);
+  }
+}
+function evalGuess(guess, ans){
+  const marks = Array(guess.length).fill('x');
+  const rest = ans.split('');
+  guess.split('').forEach((L,i) => { if (ans[i]===L){ marks[i]='g'; rest[i]=null; } });
+  guess.split('').forEach((L,i) => {
+    if (marks[i]==='g') return;
+    const j = rest.indexOf(L);
+    if (j>=0){ marks[i]='y'; rest[j]=null; }
+  });
+  return marks;
+}
+function paintRow(r, guess, marks, instant){
+  guess.split('').forEach((L,c) => {
+    const el = $('c'+r+'_'+c);
+    const apply = () => { el.textContent=L; el.classList.add(marks[c]); };
+    instant ? apply() : setTimeout(apply, c*150);
+  });
+}
+function submit(){
+  if (locked) return;
+  if (cur.length !== wordLen()){ $('msg').textContent = `${wordLen()} harf gerekli!`; return; }
+  Audio2.row();
+  const ans = target();
+  const marks = evalGuess(cur, ans);
+  const r = S[mode].rows.length;
+  S[mode].rows.push({ guess: cur, marks });
+  paintRow(r, cur, marks);
+  const win = cur === ans;
+  cur = '';
+  if (win || S[mode].rows.length >= CONFIG.TRIES){
+    S[mode].done = true; S[mode].win = win;
+    locked = true;
+    persist();
+    setTimeout(() => finish(win), wordLen()*150 + 350);
+  } else {
+    persist();
+    $('msg').textContent = `${CONFIG.TRIES - S[mode].rows.length} deneme hakkın kaldı`;
+  }
+  setTimeout(buildKb, wordLen()*150 + 100);
+}
+function finish(win){
+  const tries = S[mode].rows.length;
+  const w = todaysWord(mode);
+  const pts = win ? CONFIG.POINT(tries) : 0;
+  STATS.plays++;
+  if (win){
+    STATS.wins++;
+    STATS.dist[tries-1]++;
+    // ardışık gün serisi (ayrı rozet zinciri — §4.15)
+    const t = dayKey();
+    const yd = (()=>{ const d=new Date(); d.setDate(d.getDate()-1); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); })();
+    STATS.streak = STATS.lastWinDay === yd ? STATS.streak+1 : (STATS.lastWinDay === t ? STATS.streak : 1);
+    STATS.lastWinDay = t;
+    if (pts > STATS.best) STATS.best = pts;
+    Audio2.win();
+  } else Audio2.lose();
+  saveStats();
+  refreshStreak();
+  if (pts > 0) BilnetBridge.submitScore({ gameId:'gunluk-kelime', score:pts, tier:1,
+    stats:{ tries, mode, word:w[0] } });
+  $('endEmoji').textContent = win ? (tries<=2 ? '🤩' : '🎉') : '🌙';
+  $('endTitle').textContent = win ? `${tries}. denemede buldun!` : 'Bugünlük bu kadar!';
+  $('endSub').textContent = win ? `+${pts} puan · 🔥 Seri: ${STATS.streak} gün` : 'Cevabı birlikte öğrenelim:';
+  $('meaningBox').innerHTML = mode==='tr'
+    ? `<b>${w[0]}</b>: ${w[1]}<br><i>"${w[2]}"</i>`
+    : `<b>${w[0]}</b> = ${w[1]}<br><i>"${w[2]}"</i>`;
+  // deneme dağılımı
+  $('distRow').innerHTML = '<b style="font-size:12px">Deneme dağılımın:</b>' +
+    STATS.dist.map((n,i) => `<div style="display:flex;gap:6px;align-items:center"><span style="width:12px">${i+1}</span><div class="dBar" style="width:${Math.max(8, n / Math.max(1,...STATS.dist) * 100)}%">${n||''}</div></div>`).join('');
+  $('endVeil').classList.add('show');
+}
+function refreshStreak(){ $('streakChip').textContent = '🔥 ' + STATS.streak; }
+$('endOk').addEventListener('click', () => $('endVeil').classList.remove('show'));
+document.querySelectorAll('.modeBtn').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.modeBtn').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  mode = b.dataset.m;
+  buildGrid();
+}));
+addEventListener('keydown', e => {
+  if (e.key === 'Enter') return submit();
+  if (e.key === 'Backspace'){ cur = cur.slice(0,-1); renderCur(); return; }
+  const L = upTr(e.key);
+  const valid = (mode==='tr' ? TR_KB : EN_KB).join('').includes(L) && L.length===1;
+  if (valid) typeKey(L);
+});
+
+/* ---- başlat: gün döngüsü ---- */
+window.storage.get(SAVE_KEY).then(r => {
+  if (r && r.value){ try{ S = Object.assign(S, JSON.parse(r.value)); }catch(e){} }
+  const t = dayKey();
+  if (S.day !== t){ S = { day:t, tr:{rows:[],done:false,win:false}, en:{rows:[],done:false,win:false} }; persist(); }
+  return window.storage.get(STATS_KEY);
+}).then(r => {
+  if (r && r.value){ try{ STATS = Object.assign(STATS, JSON.parse(r.value)); }catch(e){} }
+  refreshStreak();
+  buildGrid();
+});
+document.addEventListener('visibilitychange', () => { if (document.hidden){ persist(); saveStats(); } });
+</script>
+</body>
+</html>

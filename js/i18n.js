@@ -57,6 +57,11 @@ const TR = {
         'bilgi-yilani': 'Bilgi Yılanı',
         'ritim-sorulari': 'Ritim Soruları',
         'kesir-2048': 'Kesir 2048',
+        'gunluk-kelime': 'Günlük Kelime',
+        'sayi-ninja': 'Sayı Ninja',
+        'bilgi-kulesi': 'Bilgi Kulesi',
+        'bilgi-ziplamasi': 'Bilgi Zıplaması',
+        'labirent-avcisi': 'Labirent Avcısı',
     },
 
     // Multiplayer strings
@@ -168,6 +173,11 @@ const TR = {
         'bilgi-yilani': 'Yılanı doğru cevap yemine sür — uza ve puanı kap!',
         'ritim-sorulari': 'Düşen karolardan doğru cevaba bas, melodini kur!',
         'kesir-2048': 'Kaydır ve birleştir: 1/8+1/8=1/4 → hedef 1 TAM!',
+        'gunluk-kelime': 'Bugünün kelimesini 6 denemede bul — tüm okul aynı kelimeyi çözüyor!',
+        'sayi-ninja': 'Havadaki sayılardan kurala uyanları kes, combo yap!',
+        'bilgi-kulesi': '12 soruluk kuleyi tırman — jokerler ve güvenli katlar seninle!',
+        'bilgi-ziplamasi': 'Zıpla, doğru cevabın platformuna in, uzaya kadar tırman!',
+        'labirent-avcisi': 'Labirentteki harfleri sırayla topla, buluttan kaç!',
     },
 
     // Kod Macerasi stringleri
