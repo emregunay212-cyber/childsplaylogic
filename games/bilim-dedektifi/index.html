@@ -312,8 +312,53 @@ const G = {
   state: 'menu', scene: null,
   score: 0, timeLeft: CONFIG.CASE_SEC, secT: null,
   found: 0, total: 0, hints: CONFIG.HINTS, frozen: 0,
-  quizI: 0, quizOk: 0,
+  quizI: 0, quizOk: 0, quizOrder: [0, 1, 2],
 };
+
+/* ================= Soru-tekrar önleme (talep: aynı soru öğrenciye tekrar gelmesin) =================
+   Her sahnenin quiz dizisinden gösterilecek 3 sorunun SIRASINI/SEÇİMİNİ,
+   son sorulanları hatırlayarak belirler. Soru içeriğine veya quiz akışına dokunmaz;
+   yalnızca mevcut quiz dizisini sarmalar. Tek dosya — harici bağımlılık eklenmez. */
+const ASKED_KEY = 'bilimdedektifi_asked';
+const ASKED_MEMORY = 8;          // her sahne için hatırlanan en yakın soru imzası sayısı
+const QUIZ_PICK = 3;             // her vakada gösterilen soru sayısı (mevcut davranış: 3)
+let ASKED = {};                  // { sceneId: [imza, ...] }  (imza = soru metni)
+function loadAsked(){
+  try { window.storage.get(ASKED_KEY).then(r => {
+    if (r && r.value){ try { const p = JSON.parse(r.value); if (p && typeof p === 'object') ASKED = p; } catch (e) {} }
+  }); } catch (e) {}
+}
+function saveAsked(){ try { window.storage.set(ASKED_KEY, JSON.stringify(ASKED)); } catch (e) {} }
+function shuffleInPlace(arr){
+  for (let i = arr.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); const t = arr[i]; arr[i] = arr[j]; arr[j] = t; }
+  return arr;
+}
+/* Verilen sahne için, son sorulanları öncelikli olarak ELEYEREK gösterilecek soru
+   indeks sırasını üretir. Havuz gösterimden büyükse tekrar tamamen önlenir;
+   eşitse (mevcut durum: 3 soru, 3 gösterim) en azından sıra değişir ve havuz
+   ileride büyürse otomatik olarak tekrarsız çalışır. Sınırlı denemeli yedek mantık. */
+function buildQuizOrder(scene){
+  const all = scene.quiz.map((q, i) => i);
+  const recent = (ASKED[scene.id] || []);
+  const sig = i => scene.quiz[i].q;
+  let pool = shuffleInPlace(all.slice());
+  // 1) Son sorulmamış olanları öne al
+  let fresh = pool.filter(i => recent.indexOf(sig(i)) === -1);
+  let used = pool.filter(i => recent.indexOf(sig(i)) !== -1);
+  let order = fresh.concat(used).slice(0, Math.min(QUIZ_PICK, all.length));
+  // 2) Sınırlı denemeyle (12) taze bir seçim elde etmeye çalış (havuz büyükse etkili)
+  for (let attempt = 0; attempt < 12; attempt++){
+    if (order.every(i => recent.indexOf(sig(i)) === -1)) break;
+    const cand = shuffleInPlace(all.slice());
+    const cFresh = cand.filter(i => recent.indexOf(sig(i)) === -1);
+    if (cFresh.length >= Math.min(QUIZ_PICK, all.length)){ order = cFresh.slice(0, QUIZ_PICK); break; }
+  }
+  // 3) Seçilen imzaları hafızaya yaz (en yakın ASKED_MEMORY tut)
+  const merged = (ASKED[scene.id] || []).concat(order.map(sig));
+  ASKED[scene.id] = merged.slice(Math.max(0, merged.length - ASKED_MEMORY));
+  saveAsked();
+  return order;
+}
 
 function renderMenu(){
   $('caseGrid').innerHTML = SCENES.map((s, i) => {
@@ -429,11 +474,12 @@ function startQuiz(){
   G.state = 'quiz';
   clearInterval(G.secT);
   G.quizI = 0; G.quizOk = 0;
+  G.quizOrder = buildQuizOrder(G.scene);   // soru-tekrar önleme: sıra/seçim burada belirlenir
   $('quizVeil').classList.add('show');
   showQuizQ();
 }
 function showQuizQ(){
-  const q = G.scene.quiz[G.quizI];
+  const q = G.scene.quiz[G.quizOrder[G.quizI]];
   $('qzInfo').textContent = `Soru ${G.quizI + 1}/3 · Doğru: ${G.quizOk}`;
   $('qzText').textContent = q.q;
   const box = $('qzOpts'); box.innerHTML = '';
@@ -491,6 +537,7 @@ addEventListener('resize', () => { if (G.state === 'playing') layoutScene(); });
 /* ---- başlat ---- */
 renderMenu();
 loadStats();
+loadAsked();
 </script>
 </body>
 </html>

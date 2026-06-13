@@ -290,6 +290,7 @@ const G = {
   score: 0, timeLeft: CONFIG.ROUND_SEC, secT: null,
   words: 0, bubblesPopped: 0, doneWords: [],
   pool: [], word: null, remaining: [], progress: 0,
+  seenWords: new Set(),      // tur içi tekrar-önleme: gösterilen kelimelerin imzaları
   cells: new Map(),          // "c,r" -> {c, r, L}
   D: 44, padX: 6, topPad: 8,
   proj: null, aim: { x: 0, y: -1, active: false },
@@ -339,9 +340,28 @@ function fillInitial(){
     for (let c = 0; c < rowCols(r); c++)
       G.cells.set(ckey(c, r), { c, r, L: randLetter() });
 }
-function newWord(){
+/* Tur içi tekrar-önleme: aynı kelime (imza = EN anahtarı) bir oyunda iki kez gelmez.
+   Deste (G.pool) zaten yerine koymadan dağıtır; bu sarmalayıcı, deste tükenip
+   yeniden karıldığında daha önce gösterilenleri atlar. Tüm tier görülmüşse
+   (deste tam tur attı) oyun kilitlenmesin diye sınırlı denemeden sonra izin verir. */
+function nextWordEntry(){
   if (!G.pool.length) G.pool = shuffle(WORDS[G.tier].slice());
-  const [en, tr, emoji] = G.pool.pop();
+  let entry = G.pool.pop();
+  let guard = 0;
+  while (entry && G.seenWords.has(entry[0]) && guard++ < 15){
+    if (!G.pool.length){
+      // deste bitti: görülmemiş kalmadıysa tekrara izin ver (graceful), yoksa yeniden karıştır
+      const fresh = WORDS[G.tier].filter(w => !G.seenWords.has(w[0]));
+      if (!fresh.length) break;
+      G.pool = shuffle(fresh.slice());
+    }
+    entry = G.pool.pop();
+  }
+  if (entry) G.seenWords.add(entry[0]);
+  return entry;
+}
+function newWord(){
+  const [en, tr, emoji] = nextWordEntry();
   G.word = { en: en.toUpperCase(), tr, emoji };
   G.remaining = G.word.en.split('');     // sırasızda multiset, sıralıda kuyruk
   G.progress = 0;
@@ -719,6 +739,7 @@ function startRound(){
   G.score = 0; G.timeLeft = CONFIG.ROUND_SEC;
   G.words = 0; G.bubblesPopped = 0; G.doneWords = [];
   G.pool = shuffle(WORDS[G.tier].slice());
+  G.seenWords = new Set();   // her yeni turda tekrar-önleme hafızasını sıfırla
   G.proj = null; G.shotsResolved = true;
   G.particles = []; G.fallers = []; G.floats = [];
   show('screen-game');

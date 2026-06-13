@@ -125,7 +125,7 @@ const LEVELS = [
 const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
 const pick = a => a[Math.floor(Math.random()*a.length)];
 const shuffle = a => { for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
-function ammoQ(){
+function ammoQRaw(){
   const k = rnd(0,2);
   let q, ans;
   if (k===0){ const a=rnd(4,12),b=rnd(4,12); q=`${a} + ${b} = ?`; ans=a+b; }
@@ -137,6 +137,21 @@ function ammoQ(){
   while (set.size<3){ const v=ans+rnd(-4,4); if(v>0) set.add(v); }
   const o = shuffle([...set].map(String));
   return { q, o, a:o.indexOf(String(ans)) };
+}
+/* Tekrar-önleme: son soruların imzasını (soru metni) hafızada tut; yeni üretilen
+   soru bunlardan biriyse sınırlı denemeyle yeniden üret. Fizik soru havuzu yalnızca
+   4 sabit içerdiğinden geçmiş penceresi küçük (3) ve deneme sayısı sınırlı tutulur —
+   havuz tükenirse oyun kilitlenmez, son üretilen soruyla devam eder. */
+const ASKED_HISTORY = [];
+const ASKED_MAX = 3;
+function ammoQ(){
+  let cand = ammoQRaw();
+  for (let tries=0; tries<14 && ASKED_HISTORY.indexOf(cand.q) !== -1; tries++){
+    cand = ammoQRaw();
+  }
+  ASKED_HISTORY.push(cand.q);
+  while (ASKED_HISTORY.length > ASKED_MAX) ASKED_HISTORY.shift();
+  return cand;
 }
 
 /* ================= Audio ================= */

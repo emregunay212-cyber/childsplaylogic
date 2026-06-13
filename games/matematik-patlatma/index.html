@@ -384,11 +384,9 @@ function shuffleBoard(){
 }
 function ensureSolvable(){
   if (hasValidChain(G.goal)) return;
-  // 1) yeni hedef dene (10 deneme)
-  for (let i = 0; i < 10; i++){
-    const g = CONFIG.TIERS[G.tier]();
-    if (hasValidChain(g)){ setGoal(g, true); return; }
-  }
+  // 1) yeni hedef dene — çözülebilir + son hedeflerle çakışmayanı tercih et
+  const fresh = freshGoal();
+  if (fresh){ setGoal(fresh, true); return; }
   // 2) taşları karıştır (gerekirse birkaç kez), hedefi yeniden çek
   for (let i = 0; i < 6; i++){
     shuffleBoard();
@@ -400,8 +398,43 @@ function ensureSolvable(){
   fillBoard();
 }
 
+/* ---- hedef tekrar-önleme (soru/hedef arka arkaya aynı gelmesin) ---- */
+const RECENT_GOALS = [];            // son hedef imzaları (en yeni sonda)
+const RECENT_GOAL_MAX = 8;          // en son ~8 hedefi hatırla (üst sınır)
+// Tier başına farklı hedef sayısı: hafıza bundan KÜÇÜK kalmalı ki her zaman
+// en az birkaç alternatif kalsın (küçük havuzda dedup tıkanmasın). T1: 6, T2/T3: ~11+.
+const TIER_GOAL_POOL = { 1: 6, 2: 11, 3: 18, 4: 30 };
+function goalMemCap(){
+  const pool = TIER_GOAL_POOL[G.tier] || RECENT_GOAL_MAX;
+  return Math.max(2, Math.min(RECENT_GOAL_MAX, pool - 2));   // havuzdan en az 2 boşluk bırak
+}
+function goalSig(g){ return g.mode + ':' + g.target; }
+function rememberGoal(g){
+  if (!g) return;
+  const sig = goalSig(g);
+  const i = RECENT_GOALS.indexOf(sig);
+  if (i !== -1) RECENT_GOALS.splice(i, 1);
+  RECENT_GOALS.push(sig);
+  const cap = goalMemCap();
+  while (RECENT_GOALS.length > cap) RECENT_GOALS.shift();
+}
+function isRecentGoal(g){ return RECENT_GOALS.indexOf(goalSig(g)) !== -1; }
+// Mevcut üreticiyi sarmala: hem ÇÖZÜLEBİLİR hem de son hedeflerle ÇAKIŞMAYAN
+// bir hedef bulmaya çalış. Bulamazsa çözülebilir olan ilk adayı döndür (deadlock yok).
+function freshGoal(){
+  let solvableFallback = null;
+  for (let i = 0; i < 14; i++){
+    const g = CONFIG.TIERS[G.tier]();
+    if (!hasValidChain(g)) continue;
+    if (!solvableFallback) solvableFallback = g;
+    if (!isRecentGoal(g)) return g;            // çözülebilir + tekrar değil → ideal
+  }
+  return solvableFallback;                      // tekrar-dışı bulunamadı → çözülebilir olanı kullan
+}
+
 /* ---- hedef ---- */
 function setGoal(g, silent){
+  rememberGoal(g);
   G.goal = g;
   const s = g.mode === 'sum' ? STRINGS.modeSum : g.mode === 'diff' ? STRINGS.modeDiff : STRINGS.modeProd;
   $('targetLabel').textContent = s.pre;
@@ -411,11 +444,9 @@ function setGoal(g, silent){
   if (!silent) Audio2.newTarget();
 }
 function newGoal(){
-  for (let i = 0; i < 14; i++){
-    const g = CONFIG.TIERS[G.tier]();
-    if (hasValidChain(g)){ setGoal(g); return; }
-  }
-  setGoal(CONFIG.TIERS[G.tier]());
+  const g = freshGoal();                         // çözülebilir + son hedeflerle çakışmayan
+  if (g){ setGoal(g); return; }
+  setGoal(CONFIG.TIERS[G.tier]());               // hiç çözülebilir bulunamadı → ham adayla devam
   ensureSolvable();
 }
 
@@ -635,6 +666,7 @@ function startRound(){
   G.score = 0; G.timeLeft = CONFIG.ROUND_SEC;
   G.chains = 0; G.tilesCleared = 0; G.longest = 0; G.boomCount = 0;
   G.chain = []; G.particles = []; G.dragging = false;
+  RECENT_GOALS.length = 0;                        // yeni turda hedef geçmişini sıfırla
   show('screen-game');
   layout(); fillBoard();
   newGoal(); ensureSolvable();

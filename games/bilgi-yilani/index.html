@@ -144,6 +144,22 @@ function genQ(tier, nFoods){
   return { q, opts: opts.map(String), ansIdx: opts.indexOf(ans) };
 }
 
+/* ---- soru tekrar-önleme (son ~10 soru hafızada; aynısı tekrar gelmesin) ----
+   genQ'yi sarmalar, içini bozmaz. İmza = soru metni. Sınırlı (12) denemeyle
+   yeniden üretir; havuz küçükse (örn. tier 1) sonsuz döngüye girmez. */
+const QUESTION_HISTORY = [];
+const QUESTION_HISTORY_MAX = 10;
+const QUESTION_RETRY_MAX = 12;
+function genQUnique(tier, nFoods){
+  let out = genQ(tier, nFoods);
+  for (let t = 0; t < QUESTION_RETRY_MAX && QUESTION_HISTORY.includes(out.q); t++){
+    out = genQ(tier, nFoods);
+  }
+  QUESTION_HISTORY.push(out.q);
+  while (QUESTION_HISTORY.length > QUESTION_HISTORY_MAX) QUESTION_HISTORY.shift();
+  return out;
+}
+
 /* ================= Audio ================= */
 const Audio2 = (() => {
   let ctx = null;
@@ -192,7 +208,7 @@ function layout(){
 }
 function newQuestion(){
   const T = CONFIG.TIERS[G.tier];
-  G.q = genQ(G.tier, T.foods);
+  G.q = genQUnique(G.tier, T.foods);
   $('qLine').textContent = G.q.q;
   spawnFoods();
 }

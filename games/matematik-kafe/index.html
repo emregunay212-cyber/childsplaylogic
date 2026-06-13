@@ -243,6 +243,27 @@ function genProblem(tier){
   };
 }
 
+/* ================= TEKRAR ÖNLEME (soru tekrarını engelle)
+   genProblem'i SARMALAR — iç mantığa dokunmadan, son ~10 sorunun imzasını (soru
+   metni) hafızada tutar; aynı soru tekrar üretilirse SINIRLI denemeyle yeniden
+   üretir. Procedural üreticide de çalışır çünkü imza = tam soru metni. */
+const RECENT_MAX = 10;        // hafızada tutulacak son soru sayısı
+const GEN_RETRY = 14;         // tekrar olmayan soru için maksimum deneme
+const recentQ = [];           // son üretilen soru imzaları (FIFO)
+function rememberQ(sig){
+  recentQ.push(sig);
+  while (recentQ.length > RECENT_MAX) recentQ.shift();
+}
+function genProblemUnique(tier){
+  let prob = genProblem(tier);
+  for (let i = 0; i < GEN_RETRY && recentQ.indexOf(prob.q) !== -1; i++){
+    prob = genProblem(tier);
+  }
+  rememberQ(prob.q);          // benzersiz bulunsa da bulunmasa da (havuz küçükse) kaydet
+  return prob;
+}
+function resetRecentQ(){ recentQ.length = 0; }
+
 /* ================= Audio ================= */
 const Audio2 = (() => {
   let ctx = null;
@@ -343,7 +364,7 @@ function renuMenuBoard(){
   $('menuBoard').innerHTML = MENU.map(u => `<span>${u.e} ${u.ad} <b style="color:#ffd23f">${u.f} TL</b></span>`).join('');
 }
 function newCustomer(){
-  return { face: pick(FACES), prob: genProblem(G.tier), patience: CONFIG.PATIENCE[G.tier], maxPat: CONFIG.PATIENCE[G.tier] };
+  return { face: pick(FACES), prob: genProblemUnique(G.tier), patience: CONFIG.PATIENCE[G.tier], maxPat: CONFIG.PATIENCE[G.tier] };
 }
 function fillQueue(){
   while (G.queue.length < CONFIG.QUEUE_SIZE) G.queue.push(newCustomer());
@@ -420,6 +441,7 @@ function startRound(){
   G.score = 0; G.timeLeft = CONFIG.ROUND_SEC;
   G.served = 0; G.lost = 0; G.tips = 0; G.wrongTries = 0;
   G.queue = [];
+  resetRecentQ();
   show('screen-game');
   renuMenuBoard();
   Numpad.mount($('npGrid'), $('npValue'), { onSubmit: serveAnswer });

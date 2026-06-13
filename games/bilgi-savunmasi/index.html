@@ -145,7 +145,28 @@ const CONFIG = {
 const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
 const pick = a => a[Math.floor(Math.random()*a.length)];
 const shuffle = a => { for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
-function quickQ(){   // hızlı panel: numeric/kısa (işlem akıcılığı — §4.19)
+/* ---- Soru-tekrar önleme (ardışık soruların imzasını tut, çakışırsa yeniden üret) ---- */
+const RETRY_MAX = 14;                 // çakışınca en fazla 14 deneme
+// Kanal başına "yakın geçmiş" penceresi. Mob bankası 8 sorulu olduğundan
+// pencere banka boyutundan KÜÇÜK tutulur, yoksa hep çakışır (her zaman seçecek yer kalsın).
+const recentQ = {
+  quick: { list:[], max:8 },  // procedural, devasa uzay → geniş pencere güvenli
+  mob:   { list:[], max:5 },  // 8 sorulu banka → 5'lik pencere (en az 3 seçenek hep boşta)
+};
+function resetRecentQ(){ recentQ.quick.list.length = 0; recentQ.mob.list.length = 0; }
+function remember(channel, sig){
+  const ch = recentQ[channel];
+  ch.list.push(sig);
+  while (ch.list.length > ch.max) ch.list.shift();
+}
+// Üretici fonksiyonu sarmalar; imzası son sorulardan biriyse sınırlı denemeyle yeniden üretir.
+function uniqueQ(channel, gen, sigOf){
+  let out = gen();
+  for (let i=0; i<RETRY_MAX && recentQ[channel].list.includes(sigOf(out)); i++) out = gen();
+  remember(channel, sigOf(out));
+  return out;
+}
+function _quickQ(){   // hızlı panel: numeric/kısa (işlem akıcılığı — §4.19)
   const k = rnd(0,2);
   let q, ans;
   if (k===0){ const a=rnd(3,12),b=rnd(3,12); q=`${a} + ${b} = ?`; ans=a+b; }
@@ -156,7 +177,9 @@ function quickQ(){   // hızlı panel: numeric/kısa (işlem akıcılığı — 
   const o = shuffle([...set]);
   return { q, o:o.map(String), a:o.indexOf(ans) };
 }
-function mobQ(){    // canavar/boss sorusu: tam 4 şıklı
+// Wrapper: aynı işlem sorusu (q metni) ardışık çıkmasın
+function quickQ(){ return uniqueQ('quick', _quickQ, x => x.q); }
+function _mobQ(){    // canavar/boss sorusu: tam 4 şıklı
   const B = [
     {q:'Hangisi canlıdır?',o:['Çiçek','Taş','Bulut','Su'],a:0},
     {q:"'dog' ne demek?",o:['kedi','köpek','kuş','balık'],a:1},
@@ -171,6 +194,8 @@ function mobQ(){    // canavar/boss sorusu: tam 4 şıklı
   const order = shuffle([0,1,2,3]);
   return { q:q.q, o:order.map(i=>q.o[i]), a:order.indexOf(q.a) };
 }
+// Wrapper: aynı canavar sorusu (q metni) ardışık çıkmasın
+function mobQ(){ return uniqueQ('mob', _mobQ, x => x.q); }
 
 /* ================= Audio ================= */
 const Audio2 = (() => {
@@ -446,6 +471,7 @@ function startRound(){
   G.towers={}; G.selTower=null;
   G.mobs.forEach(m=>m.el && m.el.remove()); G.mobs=[];
   G.bullets.forEach(b=>b.el && b.el.remove()); G.bullets=[];
+  resetRecentQ();
   show('screen-game');
   layout(); buildGrid(); buildShop();
   newEpQ();

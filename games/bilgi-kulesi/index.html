@@ -185,6 +185,24 @@ function loadStats(cb){ try{ window.storage.get(STATS_KEY).then(r=>{ if(r&&r.val
 function saveStats(){ try{ window.storage.set(STATS_KEY,JSON.stringify(STATS)); }catch(e){} }
 function rollDay(){ const t=dayKey(); if (STATS.day!==t){ STATS.day=t; STATS.triesToday=0; saveStats(); } }
 
+/* ====== Kalıcı soru-tekrar önleme (oturumlar arası) ======
+   "Hiçbir oyunda aynı soru öğrencinin karşısına tekrar gelmesin."
+   Oturum-içi engel zaten G.used ile var; bu katman daha önce ÇIKMIŞ
+   soruları tüm oyunlar boyunca hafızada tutar. Bir zorluk havuzu
+   tamamen tükenince SADECE o zorluğun kaydını sıfırlayıp döngüyü
+   nazikçe yeniden başlatır (oyun asla sorusuz kalmaz). */
+const SEEN_KEY = 'bilgikulesi_seen';
+let SEEN = new Set();
+function loadSeen(){ try{ window.storage.get(SEEN_KEY).then(r=>{ if(r&&r.value){ try{ const a=JSON.parse(r.value); if(Array.isArray(a)) SEEN=new Set(a); }catch(e){} } }); }catch(e){} }
+function saveSeen(){ try{ window.storage.set(SEEN_KEY, JSON.stringify([...SEEN])); }catch(e){} }
+function markSeen(sig){ SEEN.add(sig); saveSeen(); }
+/* belirli bir zorluk için tüm soruları görülmüş kabul ediliyorsa o zorluğu sıfırla */
+function recycleSeenForTier(z){
+  let changed=false;
+  for (const item of BANK){ if (item.z===z && SEEN.has(item.q)){ SEEN.delete(item.q); changed=true; } }
+  if (changed) saveSeen();
+}
+
 /* ================= Game ================= */
 const $ = id => document.getElementById(id);
 const G = { state:'menu', floor:0, jokers:{half:1,owl:1,second:1}, secondActive:false,
@@ -216,12 +234,34 @@ function paintTower(){
   }
 }
 function tierOfFloor(fl){ return fl<=3 ? 1 : fl<=6 ? 2 : fl<=9 ? 3 : 4; }
+/* Soru seçimi: önce oturum-içi (G.used) VE kalıcı (SEEN) dışındakiler;
+   sınırlı denemeyle uygun aday bulunur. Havuz tükenirse kademeli geri çekilme:
+   (1) bu zorlukta hiç görülmemiş + bu oyunda kullanılmamış,
+   (2) zorluk tüm oyunlarda tükenmişse o zorluğu geri dönüştür,
+   (3) en kötü ihtimalde bu oyunda kullanılmamış,
+   (4) yine de boşsa zorluktan herhangi biri. Oyun asla sorusuz kalmaz. */
+function pickQuestion(z){
+  const tierAll = BANK.filter(q => q.z===z);
+  let fresh = tierAll.filter(q => !G.used.has(q.q) && !SEEN.has(q.q));
+  // tüm zorluk tüm oyunlarda görülmüşse: o zorluğu sıfırla, oturum-içi kullanılmamışlardan seç
+  if (!fresh.length){
+    recycleSeenForTier(z);
+    fresh = tierAll.filter(q => !G.used.has(q.q) && !SEEN.has(q.q));
+  }
+  let pool = fresh.length ? fresh : tierAll.filter(q => !G.used.has(q.q));
+  if (!pool.length) pool = tierAll;
+  // sınırlı denemeli yeniden seçim: SEEN/used dışı bir aday yakalamaya çalış
+  let q = pick(pool);
+  for (let tries=0; tries<12 && (G.used.has(q.q) || SEEN.has(q.q)) && fresh.length; tries++){
+    q = pick(fresh);
+  }
+  return q;
+}
 function nextQuestion(){
   const z = tierOfFloor(G.floor+1);
-  let pool = BANK.filter(q => q.z===z && !G.used.has(q.q));
-  if (!pool.length) pool = BANK.filter(q => q.z===z);
-  const q = pick(pool);
+  const q = pickQuestion(z);
   G.used.add(q.q);
+  markSeen(q.q);
   // şıkları karıştır
   const order = shuffle([0,1,2,3]);
   G.cur = { q:q.q, o:order.map(i=>q.o[i]), a:order.indexOf(q.a) };
@@ -367,6 +407,7 @@ $('bQuitTop').addEventListener('click', ()=>{
 $('bPlay').addEventListener('click', ()=>{ Audio2.init(); startRun(); });
 document.addEventListener('visibilitychange', ()=>{ if (document.hidden) saveStats(); });
 loadStats();
+loadSeen();
 </script>
 </body>
 </html>

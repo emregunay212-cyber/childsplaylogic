@@ -172,7 +172,7 @@ const HYBRIDS = [
 ];
 const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
-function wordQuestion(cat){
+function wordQuestionRaw(cat){
   // kategoriler arası karışık: cat null ise rastgele kategori (fusion quizi)
   const c = cat || pick(Object.keys(CATS));
   const [en, tr] = pick(CATS[c].words);
@@ -186,7 +186,25 @@ function wordQuestion(cat){
   }
   while (set.size < 4){ const cc = pick(Object.keys(CATS)); const w = pick(CATS[cc].words); set.add(toEn ? w[0] : w[1]); }
   const o = [...set].sort(() => Math.random() - 0.5);
-  return { q: toEn ? `'${tr}' İngilizcede nedir?` : `'${en}' Türkçede nedir?`, o, a: o.indexOf(correct) };
+  return { q: toEn ? `'${tr}' İngilizcede nedir?` : `'${en}' Türkçede nedir?`, o, a: o.indexOf(correct), key: en };
+}
+/* Soru-tekrar önleme: son ~10 sorulan kelimenin imzasını (en anahtarı) tut,
+   tekrar gelirse sınırlı denemeyle yeniden üret. Üretici fonksiyonun içi bozulmaz. */
+const RECENT_Q_MAX = 10;     // hafıza penceresi
+const RECENT_Q_TRIES = 15;   // tekrar üretme deneme sınırı
+let recentQKeys = [];
+function rememberQ(key){
+  recentQKeys.push(key);
+  while (recentQKeys.length > RECENT_Q_MAX) recentQKeys.shift();
+}
+function wordQuestion(cat){
+  let q = wordQuestionRaw(cat);
+  let tries = 0;
+  while (recentQKeys.includes(q.key) && tries++ < RECENT_Q_TRIES){
+    q = wordQuestionRaw(cat);
+  }
+  rememberQ(q.key);
+  return q;
 }
 
 /* ================= Audio ================= */

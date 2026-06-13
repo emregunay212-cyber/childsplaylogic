@@ -310,9 +310,20 @@ function enQuestion(){
   return { d: 'en', q: toEn ? `'${tr}' İngilizcede nedir?` : `'${en}' Türkçede nedir?`, o, a: o.indexOf(correct) };
 }
 const asked = new Set();
+/* Prosedürel EN üretici tekrar-önleme: son ~10 EN sorusunu hatırla, sınırlı denemeyle yenisini üret */
+const askedEn = [];
+const EN_RECENT_MAX = 10;        // hafızada tutulacak son EN soru sayısı
+const EN_RETRY = 12;             // benzersiz soru için maksimum yeniden üretme denemesi
+function uniqueEnQuestion(){
+  let q = enQuestion();
+  for (let n = 0; n < EN_RETRY && askedEn.includes(q.q); n++) q = enQuestion();
+  askedEn.push(q.q);
+  while (askedEn.length > EN_RECENT_MAX) askedEn.shift();
+  return q;
+}
 function nextQuestion(ders){
   const d = ders === 'mix' ? pick(['mat', 'tr', 'fen', 'en']) : ders;
-  if (d === 'en') return enQuestion();
+  if (d === 'en') return uniqueEnQuestion();
   let pool = BANK.filter(x => x.d === d && !asked.has(x.q));
   if (!pool.length){ BANK.forEach(x => { if (x.d === d) asked.delete(x.q); }); pool = BANK.filter(x => x.d === d); }
   const q = pick(pool);
