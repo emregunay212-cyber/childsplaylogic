@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cevap Koşusu — Doğru Şeride Geç, Zirveye Koş!</title>
+<!-- Portal standardı: tek dosya, harici bağımlılık YOK. Eğitsel seri Faz 6 / 4.21
+     (Temple Run esinli, pseudo-3D segment yol — NEON DRIFT kodu repoda olmadığından
+     perspektif sıfırdan). Tasarım: EGITSEL-OYUN-PLANI §4.21 -->
+<style>
+:root{
+  --ink:#fff; --ink-dim:#d8e8f4; --gold:#ffd23f; --hot:#ff7a59; --ok:#5fd68b;
+  --panel:rgba(10,25,40,.6);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#222;color:var(--ink);
+  font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;user-select:none;touch-action:none}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:12px}
+.screen{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:14px;text-align:center}
+.screen.show{display:flex}
+#screen-menu{background:linear-gradient(180deg,#8fd0a8,#5a9e5a 55%,#3e6e3e)}
+#screen-menu h1{font-size:clamp(26px,7vw,44px);color:#0e3a2c;text-shadow:0 2px 0 rgba(255,255,255,.5)}
+#screen-menu .sub{color:#0e3a2c;opacity:.85;margin:6px 0 14px;font-size:clamp(13px,3.5vw,16px);max-width:480px}
+.bigBtn{background:var(--hot);color:#fff;font-size:18px;font-weight:800;padding:14px 32px;box-shadow:0 4px 0 #c2503a}
+.bigBtn:active{transform:translateY(3px);box-shadow:0 1px 0 #c2503a}
+.ghost{background:transparent;color:#0e3a2c;font-size:13px;padding:8px;text-decoration:underline}
+#bestLine{font-size:13px;color:#0e3a2c;margin-top:8px;min-height:17px;font-weight:700}
+#screen-game{padding:0;justify-content:flex-start}
+#topBar{position:fixed;top:0;left:0;right:0;padding:8px 10px;display:flex;flex-direction:column;gap:4px;z-index:6;pointer-events:none}
+#hudRow{display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:800}
+.chip{background:var(--panel);border-radius:9px;padding:4px 10px;white-space:nowrap;pointer-events:auto}
+#qLine{font-size:clamp(15px,4.4vw,19px);font-weight:900;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.6);text-align:center;min-height:24px}
+#cv{display:block;touch-action:none}
+#screen-result{background:linear-gradient(180deg,#8fd0a8,#5a9e5a 55%,#3e6e3e)}
+#screen-result h1,#screen-result #eduLine{color:#0e3a2c}
+#resScore{font-size:clamp(32px,9vw,48px);font-weight:900;color:#7a4a00;text-shadow:0 2px 0 rgba(255,255,255,.5)}
+#resStats{background:#fff;color:#1d3b2c;border-radius:14px;padding:14px 20px;font-size:15px;line-height:1.7;margin:10px 0;max-width:430px;box-shadow:0 4px 14px rgba(0,0,0,.15)}
+#eduLine{font-weight:800}
+#pauseVeil{position:fixed;inset:0;background:rgba(5,20,12,.85);display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:20;padding:20px;text-align:center}
+#pauseVeil.show{display:flex}
+</style>
+</head>
+<body>
+
+<div class="screen show" id="screen-menu">
+  <h1>🏃 CEVAP KOŞUSU 💨</h1>
+  <p class="sub">3 şeritli sonsuz koşu! Kaydır: ⬅️➡️ şerit değiştir, ⬆️ zıpla, ⬇️ kay. Her 15 saniyede YOL AYRIMI: soruyu oku, DOĞRU tabelanın şeridine geç — yanlış şerit çamurlu, 5 saniye yavaşlatır! Etek'ten başla, manzara Zirve'ye tırmansın. ⛰️</p>
+  <button class="bigBtn" id="bPlay">🏃 KOŞ</button>
+  <div id="bestLine"></div>
+</div>
+
+<div class="screen" id="screen-game">
+  <div id="topBar">
+    <div id="hudRow">
+      <span class="chip" id="distChip">🏁 0 m</span>
+      <span class="chip" id="coinChip">🪙 0</span>
+      <span class="chip" id="okChip">✅ 0</span>
+      <button class="chip" id="bPause" style="pointer-events:auto">⏸️</button>
+    </div>
+    <div id="qLine"></div>
+  </div>
+  <canvas id="cv"></canvas>
+</div>
+
+<div id="pauseVeil">
+  <h2 style="font-size:26px">⏸️ Mola!</h2>
+  <p style="color:var(--ink-dim)">Koşucu nefesleniyor.</p>
+  <button class="bigBtn" id="bResume">▶️ Devam Et</button>
+  <button class="ghost" id="bQuit" style="color:var(--ink-dim)">🏠 Menü</button>
+</div>
+
+<div class="screen" id="screen-result">
+  <div style="font-size:52px" id="resEmoji">🏃</div>
+  <h1 style="font-size:25px" id="resTitle">Koşu Bitti!</h1>
+  <div id="resScore">0</div>
+  <div id="resStats"></div>
+  <div id="eduLine"></div>
+  <button class="bigBtn" id="bAgain" style="margin-top:12px">🔄 Tekrar Koş</button>
+  <button class="ghost" id="bMenu">🏠 Menü</button>
+</div>
+
+<script>
+(function () {
+  if (window.storage && window.storage.get && window.storage.set) return;
+  window.storage = {
+    get: function (key) { try { var v = localStorage.getItem(key); return Promise.resolve(v != null ? { value: v } : null); } catch (e) { return Promise.resolve(null); } },
+    set: function (key, value) { try { localStorage.setItem(key, value); return Promise.resolve(); } catch (e) { return Promise.resolve(); } },
+    remove: function (key) { try { localStorage.removeItem(key); return Promise.resolve(); } catch (e) { return Promise.resolve(); } }
+  };
+})();
+</script>
+<script>
+"use strict";
+/* ================= CONFIG (EGITSEL-OYUN-PLANI §4.21 — aynen) ================= */
+const CONFIG = {
+  SPEED_MIN: 10, SPEED_MAX: 20,        // m/sn
+  SPEED_RAMP: 0.07,                     // sn başına hız artışı
+  FORK_START: 15, FORK_MIN: 10,         // yol ayrımı 15 sn → mesafeyle 10 sn'ye iner
+  FORK_POINT: 150,                      // doğru ayrım × 150
+  COIN_POINT: 5,                        // jeton × 5
+  MUD_MS: 5000, MUD_FACTOR: 0.45,       // yanlış ayrım: 5 sn yavaşlama (ölüm yok)
+  THEMES: [
+    { d: 0,    sky:'#aee3ff', ground:'#5a9e5a', road:'#8a6a4a' },
+    { d: 600,  sky:'#cfe8ff', ground:'#7da06a', road:'#7a5a3e' },
+    { d: 1500, sky:'#dceefc', ground:'#9aa8b8', road:'#6e6e7e' },
+    { d: 3000, sky:'#16163a', ground:'#2a2a4e', road:'#3e3e5e' },
+  ],
+};
+const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const shuffle = a => { for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+/* 3 şıklı kısa sorular (tabela boyutu — §4.21) */
+function genQ(){
+  const k = rnd(0,3);
+  let q, ans, opts;
+  if (k===0){ const a=rnd(3,12),b=rnd(3,12); q=`${a}+${b}=?`; ans=String(a+b); opts=[ans,String(a+b+2),String(a+b-2)]; }
+  else if (k===1){ const a=rnd(2,9),b=rnd(2,9); q=`${a}×${b}=?`; ans=String(a*b); opts=[ans,String(a*b+a),String(Math.max(1,a*b-b))]; }
+  else if (k===2){ const W=[['cat','kedi'],['dog','köpek'],['sun','güneş'],['book','kitap'],['fish','balık'],['star','yıldız']];
+    const [en,tr]=pick(W); q=`'${en}'?`; ans=tr;
+    const o2=W.filter(w=>w[1]!==tr); opts=[ans,pick(o2)[1],pick(o2)[1]];
+    while (new Set(opts).size<3) opts[2]=pick(o2)[1]; }
+  else { const F=[['En hızlı?','çita','kaplumbağa','salyangoz'],['Canlı olan?','ağaç','taş','bulut'],['Gece parlar?','ay','güneş','gökkuşağı']];
+    const f=pick(F); q=f[0]; ans=f[1]; opts=[f[1],f[2],f[3]]; }
+  const o = shuffle([...new Set(opts)]).slice(0,3);
+  while (o.length<3) o.push(ans+' ');
+  return { q, o, a:o.indexOf(ans) };
+}
+
+/* ================= Audio ================= */
+const Audio2 = (() => {
+  let ctx = null;
+  function init(){ if (!ctx){ try { ctx = new (window.AudioContext||window.webkitAudioContext)(); } catch(e){} } if (ctx && ctx.state==='suspended') ctx.resume(); }
+  function tone(f,d,t,v,w){ if(!ctx)return; const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type=t||'triangle'; o.frequency.value=f;
+    g.gain.setValueAtTime(v||0.06, ctx.currentTime+(w||0));
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+(w||0)+d);
+    o.connect(g); g.connect(ctx.destination); o.start(ctx.currentTime+(w||0)); o.stop(ctx.currentTime+(w||0)+d+0.02); }
+  return { init,
+    coin: () => tone(900,0.07,'square',0.04),
+    jump: () => tone(440,0.09,'square',0.04),
+    ok: () => { tone(660,0.1,'triangle',0.07); tone(880,0.13,'triangle',0.07,0.09); },
+    mud: () => { tone(180,0.3,'sawtooth',0.06); tone(140,0.35,'sawtooth',0.05,0.15); },
+    crash: () => { tone(220,0.25,'sawtooth',0.07); tone(150,0.35,'sawtooth',0.07,0.15); },
+    fanfare: () => [523,659,784,1046].forEach((f,i)=>tone(f,0.15,'triangle',0.07,i*0.11)) };
+})();
+const BilnetBridge = {
+  QUEUE_KEY: 'bilnet_score_queue',
+  async submitScore(p){ const rec={...p,ts:Date.now()};
+    try{ const r=await window.storage.get(this.QUEUE_KEY); const q=r&&r.value?JSON.parse(r.value):[];
+      q.push(rec); while(q.length>50)q.shift(); await window.storage.set(this.QUEUE_KEY,JSON.stringify(q)); }catch(e){} },
+};
+const STATS_KEY = 'cevapkosusu_stats';
+let STATS = { plays:0, best:0, bestDist:0, correct:0 };
+function loadStats(){ try{ window.storage.get(STATS_KEY).then(r=>{ if(r&&r.value){ try{ STATS=Object.assign(STATS,JSON.parse(r.value)); }catch(e){} } refreshBest(); }); }catch(e){} }
+function saveStats(){ try{ window.storage.set(STATS_KEY,JSON.stringify(STATS)); }catch(e){} }
+
+/* ================= Game (pseudo-3D segment yol) ================= */
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx2 = cv.getContext('2d');
+const G = {
+  state:'menu',
+  lane:1, targetLane:1, laneX:1,        // 0,1,2
+  jumpT:0, slideT:0,
+  speed:CONFIG.SPEED_MIN, dist:0, coins:0, correct:0, wrong:0,
+  mudUntil:0,
+  objs:[],                               // {z, lane, type:'log'|'rock'|'branch'|'coin'|'sign', txt?, correct?}
+  q:null, forkTimer:CONFIG.FORK_START, nextSpawn:0,
+  raf:0, lastTs:0,
+};
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('show')); $(id).classList.add('show'); }
+function layout(){ cv.width = innerWidth; cv.height = innerHeight; }
+/* perspektif projeksiyonu: z (m, 0=oyuncu) → ekran */
+const HORIZON = () => cv.height * 0.42;
+function project(z, lane){
+  const t = 1 / (1 + z * 0.14);                      // 0..1 (1=yakın)
+  const y = HORIZON() + (cv.height - HORIZON()) * t;
+  const roadW = cv.width * (0.16 + 0.84 * t);
+  const x = cv.width/2 + (lane - 1) * roadW * 0.3;
+  return { x, y, s: t, roadW };
+}
+function spawnRow(z){
+  // engel deseni: kütük (zıpla) / kaya (şerit değiştir) / alçak dal (kay) / jeton dizisi (§4.21)
+  const r = Math.random();
+  if (r < 0.34){
+    const lane = rnd(0,2);
+    G.objs.push({ z, lane, type: pick(['log','rock','branch']) });
+  } else if (r < 0.6){
+    const lane = rnd(0,2);
+    for (let i=0;i<4;i++) G.objs.push({ z: z+i*3, lane, type:'coin' });
+  } else if (r < 0.72){
+    const l1 = rnd(0,2); let l2 = rnd(0,2); while(l2===l1) l2=rnd(0,2);
+    G.objs.push({ z, lane:l1, type:pick(['log','rock']) });
+    G.objs.push({ z, lane:l2, type:pick(['rock','branch']) });
+  }
+}
+function spawnFork(){
+  G.q = genQ();
+  $('qLine').textContent = '❓ ' + G.q.q;
+  const z = 70;
+  for (let l=0;l<3;l++)
+    G.objs.push({ z, lane:l, type:'sign', txt:G.q.o[l], correct:l===G.q.a, used:false });
+}
+function startRound(){
+  G.state='playing';
+  layout();
+  G.lane=1; G.targetLane=1; G.laneX=1;
+  G.jumpT=0; G.slideT=0;
+  G.speed=CONFIG.SPEED_MIN; G.dist=0; G.coins=0; G.correct=0; G.wrong=0;
+  G.mudUntil=0; G.objs=[]; G.q=null;
+  G.forkTimer=CONFIG.FORK_START; G.nextSpawn=20;
+  $('qLine').textContent='';
+  show('screen-game');
+  refreshHUD();
+  G.lastTs = performance.now();
+  if (!G.raf) G.raf = requestAnimationFrame(loop);
+}
+function refreshHUD(){
+  $('distChip').textContent = '🏁 ' + Math.round(G.dist) + ' m';
+  $('coinChip').textContent = '🪙 ' + G.coins;
+  $('okChip').textContent = '✅ ' + G.correct;
+}
+function loop(ts){
+  if (G.state!=='playing'){ G.raf=0; return; }
+  const dt = Math.min(0.04,(ts-G.lastTs)/1000||0.016);
+  G.lastTs = ts;
+  const now = performance.now();
+  const mud = now < G.mudUntil;
+  const spd = G.speed * (mud ? CONFIG.MUD_FACTOR : 1);
+  G.speed = Math.min(CONFIG.SPEED_MAX, G.speed + CONFIG.SPEED_RAMP*dt);
+  G.dist += spd * dt;
+  // şerit yumuşak geçiş
+  G.laneX += (G.targetLane - G.laneX) * Math.min(1, dt*12);
+  // zıpla/kay zamanlayıcıları
+  if (G.jumpT > 0) G.jumpT -= dt;
+  if (G.slideT > 0) G.slideT -= dt;
+  // nesneler yaklaşır
+  for (const o of G.objs) o.z -= spd * dt;
+  // çarpışma / toplama (z 0 civarı)
+  for (const o of G.objs){
+    if (o.z > 1.2 || o.z < -1.2 || o.hit) continue;
+    if (o.type === 'sign'){
+      if (!o.used && o.z <= 0.6){
+        // tabela çizgisini geçti: oyuncunun şeridi neredeyse karar
+        G.objs.filter(s=>s.type==='sign').forEach(s=>s.used=true);
+        if (o.lane === Math.round(G.laneX) || true){
+          const chosen = G.objs.find(s=>s.type==='sign'&&s.lane===Math.round(G.laneX));
+          const okSign = chosen && chosen.correct;
+          if (okSign){ G.correct++; Audio2.ok(); $('qLine').textContent='🎉 Doğru yol!'; }
+          else { G.wrong++; G.mudUntil = now + CONFIG.MUD_MS; Audio2.mud(); $('qLine').textContent='💦 Çamurlu yol! 5 sn yavaşlama'; }
+          setTimeout(()=>{ if(G.state==='playing' && !G.q) $('qLine').textContent=''; }, 1400);
+          G.q = null;
+          G.objs = G.objs.filter(s=>s.type!=='sign');
+          refreshHUD();
+        }
+        break;
+      }
+      continue;
+    }
+    if (o.lane !== Math.round(G.laneX)) continue;
+    if (o.type === 'coin'){
+      if (Math.abs(o.z) < 0.9){ o.hit = true; G.coins++; Audio2.coin(); refreshHUD(); }
+      continue;
+    }
+    if (Math.abs(o.z) < 0.7){
+      const dodged = (o.type==='log' && G.jumpT>0) || (o.type==='branch' && G.slideT>0);
+      if (!dodged){
+        o.hit = true;
+        Audio2.crash();
+        return endRound();                     // engele çarpış koşuyu bitirir
+      }
+    }
+  }
+  G.objs = G.objs.filter(o => o.z > -3 && !o.hit);
+  // spawn ilerisi
+  if (G.dist > G.nextSpawn){
+    G.nextSpawn += rnd(14, 22);
+    if (!G.q) spawnRow(80);
+  }
+  // yol ayrımı zamanlayıcısı (15sn → 10sn) (§4.21)
+  if (!G.q){
+    G.forkTimer -= dt;
+    if (G.forkTimer <= 0){
+      spawnFork();
+      G.forkTimer = Math.max(CONFIG.FORK_MIN, CONFIG.FORK_START - G.dist/400);
+    }
+  }
+  refreshHUD();
+  draw();
+  G.raf = requestAnimationFrame(loop);
+}
+function theme(){
+  let t = CONFIG.THEMES[0];
+  for (const th of CONFIG.THEMES) if (G.dist >= th.d) t = th;
+  return t;
+}
+function draw(){
+  const th = theme();
+  const H = HORIZON();
+  // gök
+  const g = ctx2.createLinearGradient(0,0,0,H);
+  g.addColorStop(0, th.sky); g.addColorStop(1, '#ffffff22' && th.sky);
+  ctx2.fillStyle = th.sky;
+  ctx2.fillRect(0,0,cv.width,H);
+  // uzak dağlar (Zirve teması — dağ portala cuk oturur §4.21)
+  ctx2.fillStyle = 'rgba(255,255,255,.25)';
+  ctx2.beginPath();
+  ctx2.moveTo(0,H);
+  ctx2.lineTo(cv.width*0.2, H-46); ctx2.lineTo(cv.width*0.38, H);
+  ctx2.lineTo(cv.width*0.55, H-66); ctx2.lineTo(cv.width*0.74, H);
+  ctx2.lineTo(cv.width*0.86, H-38); ctx2.lineTo(cv.width, H);
+  ctx2.closePath(); ctx2.fill();
+  // zemin
+  ctx2.fillStyle = th.ground;
+  ctx2.fillRect(0,H,cv.width,cv.height-H);
+  // yol (trapez)
+  const near = project(0,1), far = project(90,1);
+  ctx2.beginPath();
+  ctx2.moveTo(cv.width/2 - near.roadW/2, near.y);
+  ctx2.lineTo(cv.width/2 - far.roadW/2, far.y);
+  ctx2.lineTo(cv.width/2 + far.roadW/2, far.y);
+  ctx2.lineTo(cv.width/2 + near.roadW/2, near.y);
+  ctx2.closePath();
+  ctx2.fillStyle = th.road; ctx2.fill();
+  // şerit çizgileri (akarak hız hissi)
+  ctx2.strokeStyle = 'rgba(255,255,255,.55)';
+  for (const laneB of [0.5, 1.5]){
+    const off = (G.dist*2) % 8;
+    for (let z=off; z<90; z+=8){
+      const p1 = project(z, laneB-1+0.0), p2 = project(Math.min(90,z+3.5), laneB-1+0.0);
+      const x1 = cv.width/2 + (laneB-1.5)*p1.roadW*0.3 + p1.roadW*0.15;
+      const x2 = cv.width/2 + (laneB-1.5)*p2.roadW*0.3 + p2.roadW*0.15;
+      ctx2.lineWidth = 3*p1.s+1;
+      ctx2.beginPath(); ctx2.moveTo(x1,p1.y); ctx2.lineTo(x2,p2.y); ctx2.stroke();
+    }
+  }
+  // nesneler (uzaktan yakına sırala)
+  const sorted = [...G.objs].sort((a,b)=>b.z-a.z);
+  ctx2.textAlign='center';
+  for (const o of sorted){
+    if (o.z < -1 || o.z > 90) continue;
+    const p = project(o.z, o.lane);
+    const s = p.s;
+    if (o.type==='coin'){
+      ctx2.font = `${Math.round(34*s+6)}px system-ui`;
+      ctx2.fillText('🪙', p.x, p.y - 18*s);
+    } else if (o.type==='log'){
+      ctx2.font = `${Math.round(44*s+8)}px system-ui`;
+      ctx2.fillText('🪵', p.x, p.y);
+    } else if (o.type==='rock'){
+      ctx2.font = `${Math.round(46*s+8)}px system-ui`;
+      ctx2.fillText('🪨', p.x, p.y);
+    } else if (o.type==='branch'){
+      ctx2.font = `${Math.round(42*s+8)}px system-ui`;
+      ctx2.fillText('🌿', p.x, p.y - 30*s);
+    } else if (o.type==='sign'){
+      const w = Math.max(46, 120*s), h = Math.max(22, 44*s);
+      ctx2.fillStyle = '#ffd23f';
+      ctx2.strokeStyle = '#a87413'; ctx2.lineWidth = 2.5;
+      ctx2.beginPath(); ctx2.roundRect(p.x-w/2, p.y-h-26*s, w, h, 7); ctx2.fill(); ctx2.stroke();
+      ctx2.fillStyle = '#7a4a00';
+      ctx2.fillRect(p.x-2.5, p.y-26*s, 5, 26*s);
+      ctx2.fillStyle = '#3c2a0e';
+      ctx2.font = `900 ${Math.max(11, Math.min(h*0.55, w*1.5/Math.max(3,o.txt.length)))}px system-ui`;
+      ctx2.fillText(o.txt, p.x, p.y-h/2-26*s+5);
+    }
+  }
+  // çamur efekti
+  if (performance.now() < G.mudUntil){
+    ctx2.fillStyle = 'rgba(90,60,20,.18)';
+    ctx2.fillRect(0,H,cv.width,cv.height-H);
+  }
+  // koşucu (stilize silüet — §4.21: 3 kare sprite yerine transform)
+  const pp = project(0, G.laneX);
+  const jumpY = G.jumpT>0 ? Math.sin(Math.min(1,(0.55-G.jumpT)/0.55)*Math.PI)*70 : 0;
+  const slide = G.slideT>0;
+  ctx2.font = `${slide?44:56}px system-ui`;
+  ctx2.fillText(slide ? '🛹' : '🏃', pp.x, pp.y - 6 - jumpY);
+  ctx2.textBaseline='alphabetic';
+}
+function endRound(){
+  if (G.state!=='playing') return;
+  G.state='result';
+  const score = Math.round(G.dist) + G.correct*CONFIG.FORK_POINT + G.coins*CONFIG.COIN_POINT;   // §4.21 skor formülü
+  STATS.plays++; STATS.correct += G.correct;
+  const isBest = score > STATS.best;
+  if (isBest) STATS.best = score;
+  if (G.dist > STATS.bestDist) STATS.bestDist = Math.round(G.dist);
+  saveStats();
+  BilnetBridge.submitScore({ gameId:'cevap-kosusu', score, tier: G.dist>=3000?4:G.dist>=1500?3:G.dist>=600?2:1,
+    stats:{ dist:Math.round(G.dist), correct:G.correct, wrong:G.wrong, coins:G.coins } });
+  $('resEmoji').textContent = isBest ? '🏆' : G.dist>=3000 ? '🏔️' : '🏃';
+  $('resTitle').textContent = G.dist>=3000 ? 'ZİRVEYE KOŞTUN!' : 'Koşu Bitti!';
+  $('resScore').textContent = score;
+  $('resStats').innerHTML = `🏁 Mesafe: <b>${Math.round(G.dist)} m</b> · ✅ Doğru ayrım: <b>${G.correct}</b> · 💦 Çamur: <b>${G.wrong}</b> · 🪙 <b>${G.coins}</b>` +
+    (isBest?`<br>🏅 <b>YENİ REKOR!</b>`:'');
+  $('eduLine').textContent = G.correct>0 ? `Koşarken ${G.correct} soruya doğru yön verdin! 🎉` : 'Ayakların ısındı — sorularla hızlan! 💪';
+  if (G.dist>=1500) Audio2.fanfare();
+  show('screen-result');
+  refreshBest();
+}
+function refreshBest(){
+  $('bestLine').textContent = STATS.best>0 ? `🏅 Rekorun: ${STATS.best} puan (${STATS.bestDist} m)` : '';
+}
+/* giriş: swipe 4 yön (§4.21) + ok tuşları */
+let touchStart=null;
+cv.addEventListener('pointerdown', e=>{ touchStart={x:e.clientX,y:e.clientY}; });
+cv.addEventListener('pointerup', e=>{
+  if (!touchStart || G.state!=='playing'){ touchStart=null; return; }
+  const dx=e.clientX-touchStart.x, dy=e.clientY-touchStart.y;
+  touchStart=null;
+  if (Math.abs(dx)<18 && Math.abs(dy)<18) return;
+  if (Math.abs(dx)>Math.abs(dy)) move(Math.sign(dx));
+  else dy<0 ? jump() : slide();
+});
+function move(d){ G.targetLane = Math.max(0, Math.min(2, G.targetLane + d)); }
+function jump(){ if (G.jumpT<=0 && G.slideT<=0){ G.jumpT=0.55; Audio2.jump(); } }
+function slide(){ if (G.slideT<=0 && G.jumpT<=0){ G.slideT=0.55; } }
+addEventListener('keydown', e=>{
+  if (G.state!=='playing') return;
+  if (e.code==='ArrowLeft'||e.code==='KeyA') move(-1);
+  if (e.code==='ArrowRight'||e.code==='KeyD') move(1);
+  if (e.code==='ArrowUp'||e.code==='KeyW'||e.code==='Space'){ e.preventDefault(); jump(); }
+  if (e.code==='ArrowDown'||e.code==='KeyS') slide();
+  if (e.code==='KeyP'||e.code==='Escape') pauseGame();
+});
+$('bPlay').addEventListener('click',()=>{ Audio2.init(); startRound(); });
+$('bAgain').addEventListener('click',startRound);
+$('bMenu').addEventListener('click',()=>{ G.state='menu'; show('screen-menu'); refreshBest(); });
+function pauseGame(){ if(G.state!=='playing')return; G.state='paused'; $('pauseVeil').classList.add('show'); }
+$('bPause').addEventListener('click',pauseGame);
+$('bResume').addEventListener('click',()=>{ if(G.state!=='paused')return; G.state='playing'; $('pauseVeil').classList.remove('show'); G.lastTs=performance.now(); if(!G.raf)G.raf=requestAnimationFrame(loop); });
+$('bQuit').addEventListener('click',()=>{ $('pauseVeil').classList.remove('show'); G.state='menu'; show('screen-menu'); refreshBest(); });
+document.addEventListener('visibilitychange',()=>{ if(document.hidden && G.state==='playing'){ pauseGame(); saveStats(); } });
+addEventListener('resize',()=>{ if(G.state==='playing') layout(); });
+loadStats();
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs><linearGradient id="ckBg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#aee3ff"/><stop offset="100%" stop-color="#5a9e5a"/></linearGradient></defs>
+  <rect x="6" y="6" width="88" height="88" rx="16" fill="url(#ckBg)"/>
+  <path d="M38 90 L46 34 L54 34 L62 90 Z" fill="#8a6a4a"/>
+  <line x1="50" y1="44" x2="50" y2="56" stroke="#fff" stroke-width="3"/>
+  <line x1="50" y1="64" x2="50" y2="76" stroke="#fff" stroke-width="3"/>
+  <rect x="20" y="22" width="26" height="14" rx="4" fill="#ffd23f" stroke="#a87413" stroke-width="2"/>
+  <text x="33" y="32" font-family="system-ui" font-size="9" font-weight="900" text-anchor="middle" fill="#3c2a0e">42</text>
+  <rect x="56" y="22" width="26" height="14" rx="4" fill="#ffd23f" stroke="#a87413" stroke-width="2"/>
+  <text x="69" y="32" font-family="system-ui" font-size="9" font-weight="900" text-anchor="middle" fill="#3c2a0e">40</text>
+  <text x="50" y="86" font-size="20" text-anchor="middle">🏃</text>
+</svg>

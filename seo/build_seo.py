@@ -220,6 +220,18 @@ GAMES = [
        teaches="Yazım sırası, planlama ve yön bulma",
        short="Labirentteki harfleri SIRAYLA topla — Unutkanlık Bulutu'na yakalanma!",
        about="Labirent Avcısı'nda noktalar yerine HARFLER var: hedef kelimeyi doğru sırayla toplamalısın. Yanlış harfe değersen sıra başa döner! Hayalet yok — onun yerine sevimli Unutkanlık Bulutu 🌫️ gezer; sana değerse 3 saniye kontrollerin TERS döner (korkutmaz, güldürür). Güç kapsülü bulutları 5 saniye dondurur. 3 farklı labirent, Zirve'de sahte çeldirici harfler! Kelime yazımı kas hafızasına işler. Ücretsiz, üyeliksiz."),
+  dict(slug="cevap-kosusu", name="Cevap Koşusu", cat="Karma / Koşu", age="7-12", players="Tek kişilik",
+       teaches="Tüm dersler + hızlı karar verme ve refleks",
+       short="3 şeritli sonsuz koşu — yol ayrımında DOĞRU tabelanın şeridine geç!",
+       about="Cevap Koşusu, sonsuz koşucu heyecanını bilgiyle birleştirir: 3 şeritli yolda koşar, kütüklerden zıplar, kayalardan kaçarsın. Her 15 saniyede YOL AYRIMI gelir — üç tabelada üç cevap; soruyu okuyup doğru tabelanın şeridine geçersen bonus, yanlış şerit çamurlu yol olur ve 5 saniye yavaşlarsın (ölüm yok!). Manzara mesafeyle değişir: orman, bulutlar ve UZAY. Dağ temalı portalın koşu hâli! Ücretsiz, üyeliksiz."),
+  dict(slug="bilgi-savunmasi", name="Bilgi Savunması", cat="Strateji / Matematik", age="8-12", players="Tek kişilik",
+       teaches="İşlem akıcılığı + kaynak yönetimi ve strateji",
+       short="Soru çöz, enerji üret, kuleler dik — Soru Canavarlarından bahçeni koru!",
+       about="Bilgi Savunması'nda savunma enerjisi BİLGİDEN gelir: alttaki hızlı soru panelinden her doğru cevap 25 enerji üretir; enerjiyle Fıstıkçı, Çifte, Duvar ve Bombacı kulelerini dikersin. Kuleler otomatik ateş eder ama bir canavar yaklaşırsa SON ŞANS hep vardır: canavarın üstüne dokun, sorusunu doğru cevapla, anında yok et — bilgi her zaman kazandırır! Etek'te 3 dalga, Zirve'de 7 dalga + 3 sorulu BOSS. Ücretsiz, üyeliksiz."),
+  dict(slug="fizik-firlatma", name="Fizik Fırlatma", cat="Fen / Fizik", age="8-12", players="Tek kişilik",
+       teaches="Açı, kuvvet ve yerçekimi — kinestetik fizik öğrenimi",
+       short="Sapanı çek, AÇI ve KUVVETİ sayılarla gör, 12 bölümde yıldızları vur!",
+       about="Fizik Fırlatma'da her atış bir fizik dersi: sapanı çekerken açı ve kuvvet SAYISAL olarak ekranda görünür (45° / kuvvet 70), bölüm sonunda 'en verimli açın' raporu gelir — deneme-yanılma değil, bilinçli ayar! Mermiler bilgiyle kazanılır: atış öncesi mini soruları çöz. 12 el yapımı bölüm; AY bölümlerinde yerçekimi düşüktür ve merminin süzülüşü kavramı kendiliğinden öğretir. Ücretsiz, üyeliksiz."),
 ]
 
 PAGE_TMPL = """<!DOCTYPE html>

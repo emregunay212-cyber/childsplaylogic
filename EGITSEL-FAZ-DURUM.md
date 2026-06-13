@@ -78,9 +78,9 @@
 
 | No | Oyun | İlham | Durum | Not |
 |---|---|---|---|---|
-| 4.21 | Cevap Koşusu 🏃 | Temple Run | ⬜ | "NEON DRIFT motoru" repoda YOK → pseudo-3D segment projeksiyonu sıfırdan gerekecek (teknik risk geri geldi) |
-| 4.19 | Bilgi Savunması 🌻 | Plants vs Zombies | ⬜ | Zindan Okçusu mermi/çarpışma/pool sistemleri taşınabilir; 2-3 oturum |
-| 4.20 | Fizik Fırlatma 🎯 | Angry Birds | ⬜ | 12 seviye JSON tasarımı paralel hazırlanmalı; tam rigid body GEREKMEZ |
+| 4.21 | **Cevap Koşusu** 🏃 | Temple Run | ✅ 2026-06-13 | §4.21 aynen: 3 şerit, pseudo-3D perspektif SIFIRDAN (NEON DRIFT yoktu), yol ayrımı 15sn→10sn, doğru×150 + jeton×5 + mesafe, yanlış=5sn çamur (ölüm yok), engeller kütük(zıpla)/kaya(şerit)/dal(kay), hız 10→20 m/sn, tema orman→bulut→UZAY, 4 yön swipe; kategori: Strateji & Macera |
+| 4.19 | **Bilgi Savunması** 🌻 | Plants vs Zombies | ✅ 2026-06-13 | §4.19 aynen: 5 şerit (mobil dikey 4), kuleler Fıstıkçı 50/Çifte 100/Duvar 75/Bombacı 150, enerji = hızlı soru paneli (25/doğru, 10sn yenilenir), kuleye ulaşan canavar SORUSUYLA manuel yok edilebilir (son şans — bilgi hep kazandırır), dalgalar t1:3→t4:7+BOSS(3 soru); kategori: Strateji & Macera |
+| 4.20 | **Fizik Fırlatma** 🎯 | Angry Birds | ✅ 2026-06-13 | §4.20 aynen: ÇİFTE eğitsel katman — mermi mini soruyla kazanılır + açı/kuvvet SAYISAL ekranda + bölüm sonu 'en verimli açın' raporu; 12 el yapımı bölüm (JSON dizilim), 2 AY bölümü (g×0.38 — kavramsal altın madeni), yörünge öngörüsü ilk 6 bölümde açık, hp'li kutu yıkımı (rigid body yok), yıldız=kalan mermi; kategori: Strateji & Macera |
 
 ---
 

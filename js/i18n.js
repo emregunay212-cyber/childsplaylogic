@@ -62,6 +62,9 @@ const TR = {
         'bilgi-kulesi': 'Bilgi Kulesi',
         'bilgi-ziplamasi': 'Bilgi Zıplaması',
         'labirent-avcisi': 'Labirent Avcısı',
+        'cevap-kosusu': 'Cevap Koşusu',
+        'bilgi-savunmasi': 'Bilgi Savunması',
+        'fizik-firlatma': 'Fizik Fırlatma',
     },
 
     // Multiplayer strings
@@ -178,6 +181,9 @@ const TR = {
         'bilgi-kulesi': '12 soruluk kuleyi tırman — jokerler ve güvenli katlar seninle!',
         'bilgi-ziplamasi': 'Zıpla, doğru cevabın platformuna in, uzaya kadar tırman!',
         'labirent-avcisi': 'Labirentteki harfleri sırayla topla, buluttan kaç!',
+        'cevap-kosusu': 'Koş, engellerden kaç, yol ayrımında doğru tabelaya gir!',
+        'bilgi-savunmasi': 'Soru çözerek enerji üret, kulelerini dik, bahçeni koru!',
+        'fizik-firlatma': 'Açıyı ve kuvveti ayarla, sapanla yıldız kutularını vur!',
     },
 
     // Kod Macerasi stringleri

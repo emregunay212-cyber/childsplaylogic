@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs><linearGradient id="bsBg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#aee3ff"/><stop offset="30%" stop-color="#7ec850"/></linearGradient></defs>
+  <rect x="6" y="6" width="88" height="88" rx="16" fill="url(#bsBg)"/>
+  <line x1="6" y1="50" x2="94" y2="50" stroke="rgba(0,0,0,.1)" stroke-width="2"/>
+  <line x1="6" y1="72" x2="94" y2="72" stroke="rgba(0,0,0,.1)" stroke-width="2"/>
+  <text x="24" y="46" font-size="20" text-anchor="middle">🌻</text>
+  <text x="24" y="70" font-size="18" text-anchor="middle">🥜</text>
+  <text x="74" y="46" font-size="20" text-anchor="middle">🧟</text>
+  <circle cx="48" cy="38" r="4" fill="#ffd23f"/>
+  <rect x="60" y="78" width="30" height="13" rx="4" fill="#fff" stroke="#cfe0b0" stroke-width="2"/>
+  <text x="75" y="88" font-family="system-ui" font-size="9" font-weight="900" text-anchor="middle" fill="#1d3a0e">7+5=?</text>
+  <text x="18" y="90" font-size="13" text-anchor="middle">⚡</text>
+</svg>
