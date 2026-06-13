@@ -265,8 +265,9 @@ function renderWordLine(){
 function startRound(){
   const T = CONFIG.TIERS[G.tier];
   G.state='playing';
+  show('screen-game');   // ÖNCE göster: cvWrap görünür olmalı ki layout doğru ölçsün
   G.map = pick(MAPS);
-  layout();
+  layout();              // canvas boyutu artık görünür cvWrap'ten hesaplanır (0/negatif boyut bug'ı düzeltildi)
   G.player = { fx:1, fy:1, x:1, y:1, dir:{x:0,y:0}, want:{x:0,y:0} };
   G.score=0; G.wordsDone=0; G.usedWords=[];
   G.reversedUntil=0; G.frozenUntil=0;
@@ -276,7 +277,6 @@ function startRound(){
     x:corners[i%3][0], y:corners[i%3][1], dir:{x:0,y:0} }));
   placeWord();
   refreshHUD();
-  show('screen-game');
   G.lastTs = performance.now();
   if (!G.raf) G.raf = requestAnimationFrame(loop);
 }

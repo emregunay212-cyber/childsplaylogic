@@ -224,14 +224,14 @@ function spawnFoods(){
 }
 function startRound(){
   G.state='playing';
-  layout();
+  show('screen-game');   // ÖNCE göster: cvWrap görünür olmalı ki layout doğru ölçsün
+  layout();              // canvas boyutu artık görünür cvWrap'ten hesaplanır (0/negatif boyut bug'ı düzeltildi)
   const mid = Math.floor(G.N/2);
   G.snake = [{x:mid,y:mid},{x:mid-1,y:mid},{x:mid-2,y:mid}];
   G.dir={x:1,y:0}; G.nextDir={x:1,y:0};
   G.score=0; G.correct=0; G.wrong=0;
   G.speed = CONFIG.BASE_SPEED * CONFIG.TIERS[G.tier].speedMul;
   G.acc=0;
-  show('screen-game');
   newQuestion();
   refreshHUD();
   G.lastTs = performance.now();
