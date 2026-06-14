@@ -33,6 +33,14 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:12px}
 #hudRow{display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:800}
 .chip{background:rgba(0,0,0,.25);border-radius:9px;padding:4px 10px;white-space:nowrap}
 #qLine{font-size:clamp(17px,5vw,23px);font-weight:900;color:var(--gold);text-align:center}
+/* SORU DEĞİŞİM BİLDİRİMİ: belirgin flash + üst bar flash (soru ansızın değişmesin, fark edilsin) */
+#qLine.qChange{animation:qChange .6s ease-out}
+@keyframes qChange{0%{transform:scale(1.42);color:#fff;text-shadow:0 0 18px var(--gold)}55%{transform:scale(1.12)}100%{transform:scale(1);color:var(--gold)}}
+#topBar.flash{animation:barFlash .55s ease-out}
+@keyframes barFlash{0%{background:var(--ok)}100%{background:var(--panel)}}
+#newQTag{position:fixed;left:50%;top:64px;transform:translateX(-50%) scale(.8);background:var(--hot);color:#fff;font-weight:900;font-size:clamp(13px,3.6vw,16px);padding:6px 18px;border-radius:22px;z-index:9;opacity:0;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+#newQTag.show{animation:newQPop .9s ease-out}
+@keyframes newQPop{0%{opacity:0;transform:translateX(-50%) translateY(-10px) scale(.8)}18%{opacity:1;transform:translateX(-50%) translateY(0) scale(1.06)}72%{opacity:1}100%{opacity:0;transform:translateX(-50%) translateY(-8px) scale(1)}}
 #lane{flex:1;position:relative;width:100%;max-width:520px;margin:0 auto;overflow:hidden;
   border-left:2px solid rgba(255,255,255,.08);border-right:2px solid rgba(255,255,255,.08)}
 .col{position:absolute;top:0;bottom:0;width:25%;border-right:1px solid rgba(255,255,255,.06)}
@@ -101,6 +109,7 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:12px}
     <div id="lives"></div>
   </div>
   <p id="keyHint">⌨️ Tuşlar: <b>A S D F</b> (veya <b>1 2 3 4</b>) · 📱 Dokun da olur!</p>
+  <div id="newQTag">🆕 Yeni Soru!</div>
 </div>
 
 <div id="pauseVeil">
@@ -197,6 +206,7 @@ const Audio2 = (() => {
     o.connect(g); g.connect(ctx.destination); o.start(ctx.currentTime+(w||0)); o.stop(ctx.currentTime+(w||0)+d+0.02); }
   return { init,
     note: i => tone(PENTA[i % PENTA.length], 0.22, 'triangle', 0.08),
+    newQ: () => { tone(523,0.09,'square',0.045); tone(784,0.12,'square',0.045,0.07); },
     bad: () => tone(150,0.25,'sawtooth',0.05),
     miss: () => tone(240,0.15,'sawtooth',0.04),
     fanfare: () => [523,659,784,1046].forEach((f,i)=>tone(f,0.15,'triangle',0.07,i*0.11)) };
@@ -238,7 +248,7 @@ function refreshHUD(){
   $('okChip').textContent = '✅ ' + G.correct + ' · ⏱️ ' + Math.max(0,G.timeLeft);
   $('lives').textContent = G.lives === Infinity ? '' : '❤️'.repeat(Math.max(0,G.lives));
 }
-function newQuestion(){
+function newQuestion(announce){
   // peş peşe aynı soru gelmesin: son sorulardan biriyse sınırlı denemeyle yeniden üret
   let q = genQ(G.tier);
   let tries = 0;
@@ -246,7 +256,15 @@ function newQuestion(){
   G.q = q;
   G.recentQ.push(q.q);
   while (G.recentQ.length > RECENT_Q_MAX) G.recentQ.shift();
-  $('qLine').textContent = G.q.q;
+  const ql = $('qLine');
+  ql.textContent = G.q.q;
+  // SORU DEĞİŞİM BİLDİRİMİ (ansız değişimi fark ettir): qLine flash + üst bar flash + "Yeni Soru" rozeti + ses
+  if (announce !== false){
+    ql.classList.remove('qChange'); void ql.offsetWidth; ql.classList.add('qChange');
+    const tb = $('topBar'); if (tb){ tb.classList.remove('flash'); void tb.offsetWidth; tb.classList.add('flash'); }
+    const tag = $('newQTag'); if (tag){ tag.classList.remove('show'); void tag.offsetWidth; tag.classList.add('show'); }
+    Audio2.newQ();
+  }
 }
 function spawnTile(){
   // her karo soru şıklarından biri; doğru karo %35 olasılıkla gelir (bulunabilir kalsın)
@@ -353,7 +371,7 @@ function startRound(){
   document.querySelectorAll('.tileK').forEach(e=>e.remove());
   G.tiles = [];
   show('screen-game');
-  newQuestion();
+  newQuestion(false);
   refreshHUD();
   clearInterval(G.secT);
   G.secT = setInterval(()=>{

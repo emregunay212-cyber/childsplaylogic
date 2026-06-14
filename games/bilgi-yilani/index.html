@@ -212,23 +212,31 @@ function newQuestion(){
   $('qLine').textContent = G.q.q;
   spawnFoods();
 }
-function freeCell(){
-  let guard = 0;
-  while (guard++ < 400){
-    const x = rnd(0, G.N-1), y = rnd(0, G.N-1);
-    // yılanın gövdesine ve kafasının 3 hücre önüne spawn ETME (§4.13 — haksız ölüm engeli)
-    if (G.snake.some(s => s.x===x && s.y===y)) continue;
-    const h = G.snake[0];
-    let bad = false;
-    for (let k=1;k<=3;k++){
-      let fx = h.x + G.dir.x*k, fy = h.y + G.dir.y*k;
-      if (CONFIG.TIERS[G.tier].wall==='wrap'){ fx=(fx+G.N)%G.N; fy=(fy+G.N)%G.N; }
-      if (fx===x && fy===y){ bad=true; break; }
-    }
-    if (bad) continue;
-    if (G.foods.some(f => f.x===x && f.y===y)) continue;
-    return { x, y };
+function cellOk(x,y){
+  // yılan gövdesi / kafasının 3 hücre önü / mevcut yem üstüne spawn ETME (§4.13 haksız ölüm + üst üste binme engeli)
+  if (G.snake.some(s => s.x===x && s.y===y)) return false;
+  const h = G.snake[0];
+  for (let k=1;k<=3;k++){
+    let fx = h.x + G.dir.x*k, fy = h.y + G.dir.y*k;
+    if (CONFIG.TIERS[G.tier].wall==='wrap'){ fx=(fx+G.N)%G.N; fy=(fy+G.N)%G.N; }
+    if (fx===x && fy===y) return false;
   }
+  if (G.foods.some(f => f.x===x && f.y===y)) return false;
+  return true;
+}
+function freeCell(){
+  // 1) hızlı rastgele dene
+  for (let guard=0; guard<200; guard++){
+    const x = rnd(0, G.N-1), y = rnd(0, G.N-1);
+    if (cellOk(x,y)) return { x, y };
+  }
+  // 2) GARANTİ: tüm uygun boş hücrelerden seç — asla {0,0} üst üste binme ("yem çıkmıyor"/kilitlenme bug'ı)
+  const free = [];
+  for (let y=0;y<G.N;y++) for (let x=0;x<G.N;x++) if (cellOk(x,y)) free.push({ x, y });
+  if (free.length) return pick(free);
+  // 3) son çare: yılan/yem dışı ilk hücre
+  for (let y=0;y<G.N;y++) for (let x=0;x<G.N;x++)
+    if (!G.snake.some(s=>s.x===x&&s.y===y) && !G.foods.some(f=>f.x===x&&f.y===y)) return { x, y };
   return { x: 0, y: 0 };
 }
 function spawnFoods(){
@@ -310,16 +318,21 @@ function draw(){
   ctx2.fillRect(0,0,cv.width,cv.height);
   ctx2.fillStyle = 'rgba(255,255,255,.03)';
   for (let x=0;x<G.N;x++) for (let y=0;y<G.N;y++) if ((x+y)%2===0) ctx2.fillRect(x*c,y*c,c,c);
-  // yemler — elma + cevap etiketi
+  // yemler — elma (hücrenin altı) + cevap sayısı (AYNI hücrenin üst kısmında, okunur rozet)
   for (const f of G.foods){
-    ctx2.font = `${Math.round(c*0.8)}px system-ui`;
+    const cx = f.x*c + c/2;
     ctx2.textAlign='center'; ctx2.textBaseline='middle';
-    ctx2.fillText('🍎', f.x*c+c/2, f.y*c+c/2);
-    ctx2.font = `900 ${Math.round(c*0.5)}px system-ui`;
-    ctx2.fillStyle='#fff';
-    ctx2.strokeStyle='rgba(0,0,0,.7)'; ctx2.lineWidth=3;
-    ctx2.strokeText(f.txt, f.x*c+c/2, f.y*c - c*0.25);
-    ctx2.fillText(f.txt, f.x*c+c/2, f.y*c - c*0.25);
+    // elma: hücrenin alt yarısında
+    ctx2.font = `${Math.round(c*0.56)}px system-ui`;
+    ctx2.fillText('🍎', cx, f.y*c + c*0.68);
+    // cevap sayısı: elmanın ÜSTÜNDE ama AYNI hücre içinde (üst komşu hücreye TAŞMAZ) + koyu rozet
+    ctx2.font = `900 ${Math.round(c*0.40)}px system-ui`;
+    const ty = f.y*c + c*0.30;
+    const tw = ctx2.measureText(f.txt).width;
+    ctx2.fillStyle = 'rgba(12,36,24,.88)';
+    ctx2.beginPath(); ctx2.roundRect(cx - tw/2 - c*0.12, ty - c*0.21, tw + c*0.24, c*0.42, c*0.11); ctx2.fill();
+    ctx2.fillStyle = '#ffe27a';
+    ctx2.fillText(f.txt, cx, ty);
   }
   // yılan
   G.snake.forEach((s,i) => {
