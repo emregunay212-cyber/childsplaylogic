@@ -104,7 +104,7 @@ const CONFIG = {
   START_AMMO_Q: 3,          // başlangıç: 3 soru = 3 mermi
   G_BASE: 1450,             // yerçekimi (bölüm çarpanıyla — "Ay bölümü" g düşük)
   POWER_MAX: 100,
-  V_PER_POWER: 10.6,        // kuvvet→hız: uzaktaki kutuları vurabilmek için artırıldı
+  V_PER_POWER: 14,          // kuvvet→hız: tam güçte en uzak kutuya (0.86×genişlik) rahat ulaşır
 };
 /* 12 el yapımı seviye (JSON tanımlı kutu dizilimleri — §4.20)
    b: kutular [x(0-1 sahne oranı), yerden kat, w, h(kat), hp] · s: yıldızlar · g: yerçekimi çarpanı */
@@ -202,10 +202,12 @@ const groundY = () => cv.height - 60;
    Soldan en az ~120px boşluk bırak (geniş çekme payı), ama hedefler 0.55–0.86 oranında
    olduğu için kabaca ekranın %22'sini geçme (mermi yine de uzağa atılabilsin). */
 const slingX = () => Math.max(120, Math.min(cv.width*0.22, 260));
-const slingY = () => groundY() - 70;
-/* Maksimum geriye çekme mesafesi: sapanın solundaki kullanılabilir alanla orantılı.
-   Geniş ekranda büyük, dar ekranda makul; POWER_MAX'a bu mesafede ulaşılır. */
-const maxDrag = () => Math.max(120, Math.min(slingX() - 16, 260));
+/* Sapan yerden YUKARIDA: mermiyi yukarı-açılı atmak için aşağı çekme alanı kalsın
+   (eski 70px çok azdı, fare ekran altına taşıyordu). */
+const slingY = () => groundY() - Math.max(90, cv.height*0.20);
+/* Maksimum geriye çekme mesafesi. Çekme CLAMP'lendiği (updateAim) için ekran-alanından
+   bağımsız makul bir değer; bu mesafede POWER_MAX'a ulaşılır, fazlası clamp'lenir. */
+const maxDrag = () => Math.max(150, Math.min(cv.height*0.32, 260));
 const unit = () => Math.min(56, cv.height/9);
 function renderMenu(){
   const g = $('lvlGrid');
@@ -440,18 +442,22 @@ function launchVel(){
 /* sapan girişi: sürükle → açı+kuvvet SAYISAL (§4.20 ikinci eğitsel katman) */
 cv.addEventListener('pointerdown', e=>{
   if (G.state!=='playing' || G.proj || G.ammo<=0) return;
-  G.drag = { x:e.clientX, y:e.clientY };
+  try { cv.setPointerCapture(e.pointerId); } catch(_){}   // fare/parmak canvas dışına çıksa da olayları yakala
   updateAim(e);
 });
 cv.addEventListener('pointermove', e=>{ if (G.drag) updateAim(e); });
 function updateAim(e){
-  G.drag = { x:e.clientX, y:e.clientY };
-  const dx = slingX() - e.clientX, dy = e.clientY - slingY();
-  G.angle = Math.max(5, Math.min(85, Math.atan2(dy, dx) * 180/Math.PI));
+  const sx = slingX(), sy = slingY();
+  let dx = sx - e.clientX, dy = e.clientY - sy;   // geri çekme vektörü (sol-aşağı = pozitif)
+  let pull = Math.hypot(dx, dy);
+  const md = maxDrag();
+  // CLAMP: fare ne kadar uzağa giderse gitsin çekme maxDrag ile sınırlı → güç 100'de kalır,
+  // görsel mermi ekran içinde durur, açı serbestçe ayarlanır (fare ekrandan çıksa bile sorun yok).
+  if (pull > md){ const k = md/pull; dx *= k; dy *= k; pull = md; }
+  G.angle = Math.max(5, Math.min(85, Math.atan2(Math.max(0,dy), Math.max(1,dx)) * 180/Math.PI));
   if (isNaN(G.angle)) G.angle = 45;
-  // Çekme mesafesini POWER_MAX'a oranla: maxDrag kadar çekince tam güç.
-  const pull = Math.hypot(dx, dy);
-  G.power = Math.max(15, Math.min(CONFIG.POWER_MAX, (pull/maxDrag())*CONFIG.POWER_MAX));
+  G.power = Math.max(15, Math.min(CONFIG.POWER_MAX, (pull/md)*CONFIG.POWER_MAX));
+  G.drag = { x: sx - dx, y: sy + dy };   // clamp'li görsel çekme noktası (hep ekran içinde)
   Audio2.stretch(G.power);
   refreshHUD();
 }
