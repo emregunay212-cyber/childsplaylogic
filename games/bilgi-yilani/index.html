@@ -175,6 +175,12 @@ function saveStats(){ try{ window.storage.set(STATS_KEY,JSON.stringify(STATS)); 
 /* ================= Game ================= */
 const $ = id => document.getElementById(id);
 const cv = $('cv'), ctx2 = cv.getContext('2d');
+const FOOD_IMG = new Image(); let foodReady = false;   // yem görseli (Kenney Food Kit, CC0); yüklenmezse emoji yedeği
+FOOD_IMG.onload = () => { foodReady = true; };
+FOOD_IMG.src = 'assets/apple.png';
+const BOARD_IMG = new Image(); let boardPat = null;    // zemin dokusu (SBS Tiny Texture, CC0)
+BOARD_IMG.onload = () => { try { boardPat = ctx2.createPattern(BOARD_IMG, 'repeat'); } catch(e){} };
+BOARD_IMG.src = 'assets/board.png';
 const G = {
   state:'menu', tier:1, N:20, cell:20,
   snake:[], dir:{x:1,y:0}, nextDir:{x:1,y:0},
@@ -290,16 +296,25 @@ function loop(ts){
 }
 function draw(){
   const c = G.cell;
-  ctx2.fillStyle = '#0e2c1c';
-  ctx2.fillRect(0,0,cv.width,cv.height);
-  ctx2.fillStyle = 'rgba(255,255,255,.03)';
+  if (boardPat){
+    ctx2.fillStyle = boardPat; ctx2.fillRect(0,0,cv.width,cv.height);            // SBS dokusu
+    ctx2.fillStyle = 'rgba(12,40,26,.62)'; ctx2.fillRect(0,0,cv.width,cv.height); // koyu-yeşil wash: palet uyumu + okunurluk
+  } else {
+    ctx2.fillStyle = '#0e2c1c'; ctx2.fillRect(0,0,cv.width,cv.height);            // doku yüklenmezse düz zemin
+  }
+  ctx2.fillStyle = 'rgba(255,255,255,.045)';                                      // ızgara izi (hücreler okunsun)
   for (let x=0;x<G.N;x++) for (let y=0;y<G.N;y++) if ((x+y)%2===0) ctx2.fillRect(x*c,y*c,c,c);
   // yemler — elma + cevap etiketi
   for (const f of G.foods){
-    ctx2.font = `${Math.round(c*0.8)}px system-ui`;
     ctx2.textAlign='center'; ctx2.textBaseline='middle';
-    ctx2.globalAlpha = 1; ctx2.fillStyle = '#fff';   // elma emojisi damalı zeminin %3 saydamlığını ALMASIN
-    ctx2.fillText('🍎', f.x*c+c/2, f.y*c+c/2);
+    ctx2.globalAlpha = 1; ctx2.fillStyle = '#fff';
+    if (foodReady){
+      const s = c*1.2;                                   // tasarlanmış yem görseli — büyütüldü (görünürlük)
+      ctx2.drawImage(FOOD_IMG, f.x*c+(c-s)/2, f.y*c+(c-s)/2, s, s);
+    } else {
+      ctx2.font = `${Math.round(c*0.8)}px system-ui`;     // görsel yüklenmezse emoji yedeği
+      ctx2.fillText('🍎', f.x*c+c/2, f.y*c+c/2);
+    }
     ctx2.font = `900 ${Math.round(c*0.5)}px system-ui`;
     ctx2.fillStyle='#fff';
     ctx2.strokeStyle='rgba(0,0,0,.7)'; ctx2.lineWidth=3;
