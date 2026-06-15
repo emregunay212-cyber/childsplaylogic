@@ -222,7 +222,8 @@ function startRound(){
   show('screen-game');
   refreshHUD();
   G.lastTs = performance.now();
-  if (!G.raf) G.raf = requestAnimationFrame(loop);
+  if (G.raf) cancelAnimationFrame(G.raf);   // bayat rAF id'si restart'ta döngüyü engelliyordu (siyah ekran) → temiz başlat
+  G.raf = requestAnimationFrame(loop);
 }
 function refreshHUD(){
   $('distChip').textContent = '🏁 ' + Math.round(G.dist) + ' m';
