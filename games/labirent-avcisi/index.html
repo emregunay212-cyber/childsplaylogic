@@ -278,7 +278,11 @@ function startRound(){
   placeWord();
   refreshHUD();
   G.lastTs = performance.now();
-  if (!G.raf) G.raf = requestAnimationFrame(loop);
+  // endRound() loop'un İÇİNDEN return ettiği için son frame "G.raf=requestAnimationFrame" satırına
+  // ulaşamaz → G.raf bayat (ateşlenmiş) bir id'de kalır. Eski "if(!G.raf)" guard'ı bu yüzden 2. turda
+  // döngüyü hiç başlatmıyordu (boş ekran). Her tur başında bayatı iptal et, döngüyü kesin yeniden kur.
+  cancelAnimationFrame(G.raf);
+  G.raf = requestAnimationFrame(loop);
 }
 function refreshHUD(){
   $('scoreChip').textContent = '⭐ ' + G.score;

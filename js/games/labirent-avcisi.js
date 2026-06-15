@@ -12,7 +12,7 @@ const LabirentAvcisi = (() => {
         container = gameArea;
         clear(gameArea);
         iframe = document.createElement('iframe');
-        iframe.src = 'games/labirent-avcisi/index.html?v=3';
+        iframe.src = 'games/labirent-avcisi/index.html?v=4';
         iframe.className = 'la-iframe';
         iframe.setAttribute('allow', 'fullscreen; autoplay');
         iframe.setAttribute('tabindex', '0');
