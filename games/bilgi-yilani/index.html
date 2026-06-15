@@ -298,6 +298,7 @@ function draw(){
   for (const f of G.foods){
     ctx2.font = `${Math.round(c*0.8)}px system-ui`;
     ctx2.textAlign='center'; ctx2.textBaseline='middle';
+    ctx2.globalAlpha = 1; ctx2.fillStyle = '#fff';   // elma emojisi damalı zeminin %3 saydamlığını ALMASIN
     ctx2.fillText('🍎', f.x*c+c/2, f.y*c+c/2);
     ctx2.font = `900 ${Math.round(c*0.5)}px system-ui`;
     ctx2.fillStyle='#fff';
