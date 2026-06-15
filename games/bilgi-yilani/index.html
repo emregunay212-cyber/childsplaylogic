@@ -302,8 +302,11 @@ function draw(){
     ctx2.font = `900 ${Math.round(c*0.5)}px system-ui`;
     ctx2.fillStyle='#fff';
     ctx2.strokeStyle='rgba(0,0,0,.7)'; ctx2.lineWidth=3;
-    ctx2.strokeText(f.txt, f.x*c+c/2, f.y*c - c*0.25);
-    ctx2.fillText(f.txt, f.x*c+c/2, f.y*c - c*0.25);
+    // etiket normalde elmanın üstünde; üst satırda taşacaksa ALTINA al (ekran dışı kalmasın)
+    let ly = f.y*c - c*0.25;
+    if (ly < c*0.5) ly = f.y*c + c*1.25;
+    ctx2.strokeText(f.txt, f.x*c+c/2, ly);
+    ctx2.fillText(f.txt, f.x*c+c/2, ly);
   }
   // yılan
   G.snake.forEach((s,i) => {
