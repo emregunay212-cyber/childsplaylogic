@@ -310,22 +310,41 @@ function playerChooser(p){
   const want = { x: G.player.want.x*rev, y: G.player.want.y*rev };
   if ((want.x||want.y) && !wall(p.fx+want.x, p.fy+want.y)) p.dir = want;
 }
+/* labirent-farkında takip (§4.17): eski "basit AI" (Manhattan-greedy %30) YETERSİZDİ —
+   düz mesafe duvarları yok saydığı için bulut duvar cebinde salınıp oyuncuya HİÇ
+   ulaşamıyordu; dolayısıyla temas hiç olmuyor, kontrol-ters efekti hiç tetiklenmiyordu.
+   Çözüm: BFS ile oyuncuya giden en kısa yolun İLK adımını bul (15×17 grid → çok ucuz). */
+function bfsNextStep(c){
+  const sx=c.fx, sy=c.fy, tx=G.player.fx, ty=G.player.fy;
+  if (sx===tx && sy===ty) return null;
+  const idx=(x,y)=>y*W+x, start=idx(sx,sy);
+  const prev=new Map(); prev.set(start,-1);
+  const q=[[sx,sy]]; let head=0;
+  const dirs=[{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}];
+  while (head < q.length){
+    const [x,y]=q[head++];
+    if (x===tx && y===ty){                    // hedefe ulaştık: parent'ı start olan hücreye kadar geri izle
+      let cur=idx(x,y), cx=x, cy=y;
+      while (prev.get(cur) !== start){ cur=prev.get(cur); cx=cur%W; cy=(cur-cx)/W; }
+      return { x:Math.sign(cx-sx), y:Math.sign(cy-sy) };
+    }
+    for (const d of dirs){
+      const nx=x+d.x, ny=y+d.y;
+      if (!wall(nx,ny) && !prev.has(idx(nx,ny))){ prev.set(idx(nx,ny), idx(x,y)); q.push([nx,ny]); }
+    }
+  }
+  return null;
+}
 function cloudChooser(c){
   if (performance.now() < G.frozenUntil){ c.dir={x:0,y:0}; return; }
-  // basit AI: rastgele + %30 oyuncuya yönelme (A* GEREKMEZ — §4.17)
   const dirs = [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}].filter(d=>!wall(c.fx+d.x,c.fy+d.y));
   if (!dirs.length){ c.dir={x:0,y:0}; return; }
-  if (Math.random() < 0.3){
-    dirs.sort((a,b)=>{
-      const da = Math.abs(c.fx+a.x-G.player.fx)+Math.abs(c.fy+a.y-G.player.fy);
-      const db = Math.abs(c.fx+b.x-G.player.fx)+Math.abs(c.fy+b.y-G.player.fy);
-      return da-db;
-    });
-    c.dir = dirs[0];
-  } else {
-    const noBack = dirs.filter(d => !(d.x===-c.dir.x && d.y===-c.dir.y));
-    c.dir = pick(noBack.length?noBack:dirs);
+  if (Math.random() < 0.7){                   // çoğunlukla oyuncuyu KOVALA (gerçek yol bulma)
+    const step = bfsNextStep(c);
+    if (step && (step.x||step.y)){ c.dir = step; return; }
   }
+  const noBack = dirs.filter(d => !(d.x===-c.dir.x && d.y===-c.dir.y));  // kalan %30: serbest dolaş (geri dönme)
+  c.dir = pick(noBack.length?noBack:dirs);
 }
 function loop(ts){
   if (G.state!=='playing'){ G.raf=0; return; }
