@@ -12,7 +12,7 @@ const BilgiYilani = (() => {
         container = gameArea;
         clear(gameArea);
         iframe = document.createElement('iframe');
-        iframe.src = 'games/bilgi-yilani/index.html?v=2';
+        iframe.src = 'games/bilgi-yilani/index.html?v=5';
         iframe.className = 'by-iframe';
         iframe.setAttribute('allow', 'fullscreen; autoplay');
         iframe.setAttribute('tabindex', '0');

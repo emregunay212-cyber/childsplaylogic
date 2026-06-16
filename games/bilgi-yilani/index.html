@@ -175,18 +175,23 @@ function saveStats(){ try{ window.storage.set(STATS_KEY,JSON.stringify(STATS)); 
 /* ================= Game ================= */
 const $ = id => document.getElementById(id);
 const cv = $('cv'), ctx2 = cv.getContext('2d');
-const FOOD_IMG = new Image(); let foodReady = false;   // yem görseli (Kenney Food Kit, CC0); yüklenmezse emoji yedeği
-FOOD_IMG.onload = () => { foodReady = true; };
-FOOD_IMG.src = 'assets/apple.png';
+const FRUITS_IMG = new Image(); let fruitsReady = false;   // 8-meyve sprite-sheet (AI üretimi + magenta key); yüklenmezse renkli disk yedeği
+FRUITS_IMG.onload = () => { fruitsReady = true; };
+FRUITS_IMG.src = 'assets/fruits.png';
+const FRUIT_N = 8, FRUIT_FW = 256;                        // yatay şerit: 8 kare × 256px
+const FRUIT_FALLBACK = ['#e0392f','#f4d23f','#8e54c9','#f3902a','#3fae5e','#e7404f','#f1d233','#c0392b'];
+const HEAD_IMG = new Image(); let headReady = false;     // AI yılan kafası (top-down, magenta key); yüklenmezse kod-kafa
+HEAD_IMG.onload = () => { headReady = true; };
+HEAD_IMG.src = 'assets/snake_head.png';
 const BOARD_IMG = new Image(); let boardPat = null;    // zemin dokusu (SBS Tiny Texture, CC0)
-BOARD_IMG.onload = () => { try { boardPat = ctx2.createPattern(BOARD_IMG, 'repeat'); } catch(e){} };
+BOARD_IMG.onload = () => { try { boardPat = ctx2.createPattern(BOARD_IMG, 'repeat'); } catch(e){} if (G.boardCanvas) buildBoardCache(); };
 BOARD_IMG.src = 'assets/board.png';
 const G = {
   state:'menu', tier:1, N:20, cell:20,
-  snake:[], dir:{x:1,y:0}, nextDir:{x:1,y:0},
+  snake:[], dir:{x:1,y:0}, dirQueue:[],
   foods:[], q:null,
   score:0, correct:0, wrong:0, speed:CONFIG.BASE_SPEED,
-  acc:0, lastTs:0, raf:0,
+  acc:0, lastTs:0, raf:0, boardCanvas:null,
 };
 function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('show')); $(id).classList.add('show'); }
 function layout(){
@@ -195,6 +200,7 @@ function layout(){
   const size = Math.min(wrap.width-10, wrap.height-10, 540);
   G.cell = Math.floor(size / G.N);
   cv.width = cv.height = G.cell * G.N;
+  buildBoardCache();   // (D) statik zemini bir kez önbelleğe al
 }
 function newQuestion(){
   const T = CONFIG.TIERS[G.tier];
@@ -223,9 +229,10 @@ function freeCell(){
 }
 function spawnFoods(){
   G.foods = [];
+  const pool = shuffle(Array.from({length:FRUIT_N}, (_,i)=>i));   // soru başına farklı meyveler
   G.q.opts.forEach((txt, i) => {
     const c = freeCell();
-    G.foods.push({ x:c.x, y:c.y, txt, correct: i === G.q.ansIdx });
+    G.foods.push({ x:c.x, y:c.y, txt, correct: i === G.q.ansIdx, fruit: pool[i % FRUIT_N] });
   });
 }
 function startRound(){
@@ -234,7 +241,7 @@ function startRound(){
   layout();              // canvas boyutu artık görünür cvWrap'ten hesaplanır (0/negatif boyut bug'ı düzeltildi)
   const mid = Math.floor(G.N/2);
   G.snake = [{x:mid,y:mid},{x:mid-1,y:mid},{x:mid-2,y:mid}];
-  G.dir={x:1,y:0}; G.nextDir={x:1,y:0};
+  G.dir={x:1,y:0}; G.dirQueue=[];
   G.score=0; G.correct=0; G.wrong=0;
   G.speed = CONFIG.BASE_SPEED * CONFIG.TIERS[G.tier].speedMul;
   G.acc=0;
@@ -249,7 +256,7 @@ function refreshHUD(){
   $('okChip').textContent = '✅ ' + G.correct;
 }
 function step(){
-  G.dir = G.nextDir;
+  if (G.dirQueue.length) G.dir = G.dirQueue.shift();   // kuyruktan bir yön al
   const T = CONFIG.TIERS[G.tier];
   let nx = G.snake[0].x + G.dir.x, ny = G.snake[0].y + G.dir.y;
   if (T.wall === 'wrap'){ nx = (nx+G.N)%G.N; ny = (ny+G.N)%G.N; }
@@ -294,51 +301,107 @@ function loop(ts){
   draw();
   G.raf = requestAnimationFrame(loop);
 }
+/* ---- görsel yardımcılar (güzelleştirme katmanı v2) ---- */
+function circle(x,y,r){ ctx2.beginPath(); ctx2.arc(x,y,r,0,Math.PI*2); ctx2.fill(); }
+function buildBoardCache(){   // (D) statik zemini bir kez offscreen'e çiz (kare-başı gradient/döngü kalkar)
+  const w=cv.width, h=cv.height, c=G.cell;
+  const bc=document.createElement('canvas'); bc.width=w; bc.height=h;
+  const b=bc.getContext('2d');
+  const g=b.createLinearGradient(0,0,0,h);
+  g.addColorStop(0,'#2f7d4f'); g.addColorStop(1,'#184e31');
+  b.fillStyle=g; b.fillRect(0,0,w,h);
+  for (let x=0;x<G.N;x++) for (let y=0;y<G.N;y++) if ((x+y)%2===0){ b.fillStyle='rgba(255,255,255,.055)'; b.fillRect(x*c,y*c,c,c); }
+  if (boardPat){ b.globalAlpha=0.10; b.fillStyle=boardPat; b.fillRect(0,0,w,h); b.globalAlpha=1; }
+  const vg=b.createRadialGradient(w/2,h/2,w*0.30,w/2,h/2,w*0.72);
+  vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,.34)');
+  b.fillStyle=vg; b.fillRect(0,0,w,h);
+  G.boardCanvas=bc;
+}
+function drawBoard(){ if (G.boardCanvas) ctx2.drawImage(G.boardCanvas,0,0); }   // (D) sadece blit
+function bodyColor(t){   // t: 0=baş .. 1=kuyruk (AI kafa yeşiliyle eşlenmiş: #6ac83d→#3f7824)
+  const r=Math.round(0x6a+(0x3f-0x6a)*t),
+        g=Math.round(0xc8+(0x78-0xc8)*t),
+        b=Math.round(0x3d+(0x24-0x3d)*t);
+  return `rgb(${r},${g},${b})`;
+}
+function drawSnake(){
+  const c=G.cell, snk=G.snake, n=snk.length;
+  if (!n) return;
+  const pts=snk.map(s=>({x:s.x*c+c/2, y:s.y*c+c/2}));
+  const adj=(i,j)=>Math.abs(snk[i].x-snk[j].x)+Math.abs(snk[i].y-snk[j].y)===1; // wrap atlamasını bağlama
+  const bw=c*0.80, ow=bw+Math.max(3,c*0.12);
+  ctx2.lineJoin='round'; ctx2.lineCap='round';
+  // 1) koyu dış hat (kapsül zinciri)
+  ctx2.strokeStyle='#0b3a23'; ctx2.lineWidth=ow;
+  for (let i=0;i<n-1;i++) if (adj(i,i+1)){ ctx2.beginPath(); ctx2.moveTo(pts[i].x,pts[i].y); ctx2.lineTo(pts[i+1].x,pts[i+1].y); ctx2.stroke(); }
+  ctx2.fillStyle='#0b3a23'; for (let i=1;i<n;i++) circle(pts[i].x,pts[i].y,ow/2);
+  // 2) renkli gövde (baş→kuyruk degrade)
+  for (let i=0;i<n-1;i++) if (adj(i,i+1)){ ctx2.strokeStyle=bodyColor(i/Math.max(1,n-1)); ctx2.lineWidth=bw; ctx2.beginPath(); ctx2.moveTo(pts[i].x,pts[i].y); ctx2.lineTo(pts[i+1].x,pts[i+1].y); ctx2.stroke(); }
+  for (let i=1;i<n;i++){ ctx2.fillStyle=bodyColor(i/Math.max(1,n-1)); circle(pts[i].x,pts[i].y,bw/2); }
+  // 3) parlak sırt çizgisi (gloss)
+  ctx2.strokeStyle='rgba(255,255,255,.22)'; ctx2.lineWidth=bw*0.36;
+  for (let i=0;i<n-1;i++) if (adj(i,i+1)){ ctx2.beginPath(); ctx2.moveTo(pts[i].x,pts[i].y); ctx2.lineTo(pts[i+1].x,pts[i+1].y); ctx2.stroke(); }
+  // 4) baş — AI sprite (yöne döner); yüklenmemişse kod-kafa yedeği
+  if (headReady) drawHeadSprite(pts[0], G.dir, c); else drawHead(pts[0], G.dir, c);
+}
+function drawHeadSprite(p, dir, c){
+  const s = c*1.6, ang = Math.atan2(dir.x, -dir.y);   // sprite yukarı bakar → yöne döndür
+  ctx2.save(); ctx2.translate(p.x, p.y); ctx2.rotate(ang);
+  ctx2.drawImage(HEAD_IMG, -s/2, -s/2, s, s);
+  ctx2.restore();
+}
+function drawHead(p,dir,c){
+  const r=c*0.54, ex=dir.x, ey=dir.y, px=-dir.y, py=dir.x;
+  // çatallı dil (ara ara çıkar)
+  if ((performance.now()%1000)<340){
+    ctx2.strokeStyle='#ff436b'; ctx2.lineCap='round'; ctx2.lineWidth=Math.max(2,r*0.14);
+    const bx=p.x+ex*r*0.8, by=p.y+ey*r*0.8, tx=p.x+ex*r*1.5, ty=p.y+ey*r*1.5;
+    ctx2.beginPath(); ctx2.moveTo(bx,by); ctx2.lineTo(tx,ty); ctx2.stroke();
+    ctx2.beginPath();
+    ctx2.moveTo(tx,ty); ctx2.lineTo(tx+ex*r*0.3+px*r*0.22, ty+ey*r*0.3+py*r*0.22);
+    ctx2.moveTo(tx,ty); ctx2.lineTo(tx+ex*r*0.3-px*r*0.22, ty+ey*r*0.3-py*r*0.22);
+    ctx2.stroke();
+  }
+  // dış hat + baş (radyal degrade)
+  ctx2.fillStyle='#0b3a23'; circle(p.x,p.y,r+Math.max(2,c*0.07));
+  const g=ctx2.createRadialGradient(p.x-ex*r*0.25,p.y-ey*r*0.25,r*0.2,p.x,p.y,r);
+  g.addColorStop(0,'#7ff0b3'); g.addColorStop(1,'#42c587');
+  ctx2.fillStyle=g; circle(p.x,p.y,r);
+  // gözler (beyaz + bebek + ışıltı)
+  const eo=r*0.34, es=r*0.5, ew=r*0.32;
+  for (const s of [1,-1]){
+    const cx=p.x+ex*eo+px*es*s, cy=p.y+ey*eo+py*es*s;
+    ctx2.fillStyle='#fff'; circle(cx,cy,ew);
+    ctx2.fillStyle='#0c2418'; circle(cx+ex*ew*0.45, cy+ey*ew*0.45, ew*0.55);
+    ctx2.fillStyle='#fff'; circle(cx+ex*ew*0.2-px*ew*0.3, cy+ey*ew*0.2-py*ew*0.3, ew*0.2);
+  }
+}
 function draw(){
   const c = G.cell;
-  if (boardPat){
-    ctx2.fillStyle = boardPat; ctx2.fillRect(0,0,cv.width,cv.height);            // SBS dokusu
-    ctx2.fillStyle = 'rgba(12,40,26,.62)'; ctx2.fillRect(0,0,cv.width,cv.height); // koyu-yeşil wash: palet uyumu + okunurluk
-  } else {
-    ctx2.fillStyle = '#0e2c1c'; ctx2.fillRect(0,0,cv.width,cv.height);            // doku yüklenmezse düz zemin
-  }
-  ctx2.fillStyle = 'rgba(255,255,255,.045)';                                      // ızgara izi (hücreler okunsun)
-  for (let x=0;x<G.N;x++) for (let y=0;y<G.N;y++) if ((x+y)%2===0) ctx2.fillRect(x*c,y*c,c,c);
-  // yemler — elma + cevap etiketi
+  drawBoard();
+  // yemler — meyve sprite + cevap etiketi (okunur hap zeminli)
+  ctx2.font = `900 ${Math.round(c*0.46)}px system-ui`;   // (E) sabit → döngü dışında bir kez
+  ctx2.textAlign='center'; ctx2.textBaseline='middle';
   for (const f of G.foods){
-    ctx2.textAlign='center'; ctx2.textBaseline='middle';
-    ctx2.globalAlpha = 1; ctx2.fillStyle = '#fff';
-    if (foodReady){
-      const s = c*1.2;                                   // tasarlanmış yem görseli — büyütüldü (görünürlük)
-      ctx2.drawImage(FOOD_IMG, f.x*c+(c-s)/2, f.y*c+(c-s)/2, s, s);
+    const cx = f.x*c+c/2, cy = f.y*c+c/2;
+    if (fruitsReady){
+      const s = c*1.3;                                   // meyve sprite — hücreden biraz taşar (görünürlük)
+      ctx2.drawImage(FRUITS_IMG, f.fruit*FRUIT_FW, 0, FRUIT_FW, FRUIT_FW, cx-s/2, cy-s/2, s, s);
     } else {
-      ctx2.font = `${Math.round(c*0.8)}px system-ui`;     // görsel yüklenmezse emoji yedeği
-      ctx2.fillText('🍎', f.x*c+c/2, f.y*c+c/2);
+      ctx2.fillStyle = FRUIT_FALLBACK[f.fruit] || '#e0392f';   // sheet yüklenmezse renkli disk
+      ctx2.beginPath(); ctx2.arc(cx, cy, c*0.42, 0, Math.PI*2); ctx2.fill();
     }
-    ctx2.font = `900 ${Math.round(c*0.5)}px system-ui`;
+    // sayı etiketi: koyu hap + beyaz yazı (her zeminde okunur)
+    const tw = ctx2.measureText(f.txt).width, ph = c*0.5;
+    let ly = f.y*c - c*0.18;
+    if (ly < c*0.55) ly = f.y*c + c*1.18;                // üstte taşarsa altına al
+    ctx2.fillStyle='rgba(8,28,18,.82)';
+    ctx2.beginPath(); ctx2.roundRect(cx-tw/2-c*0.16, ly-ph/2, tw+c*0.32, ph, ph*0.4); ctx2.fill();
     ctx2.fillStyle='#fff';
-    ctx2.strokeStyle='rgba(0,0,0,.7)'; ctx2.lineWidth=3;
-    // etiket normalde elmanın üstünde; üst satırda taşacaksa ALTINA al (ekran dışı kalmasın)
-    let ly = f.y*c - c*0.25;
-    if (ly < c*0.5) ly = f.y*c + c*1.25;
-    ctx2.strokeText(f.txt, f.x*c+c/2, ly);
-    ctx2.fillText(f.txt, f.x*c+c/2, ly);
+    ctx2.fillText(f.txt, cx, ly);
   }
   // yılan
-  G.snake.forEach((s,i) => {
-    const t = i / Math.max(1, G.snake.length-1);
-    ctx2.fillStyle = i===0 ? '#9ff7c4' : `rgb(${Math.round(110-40*t)},${Math.round(231-80*t)},${Math.round(160-60*t)})`;
-    const pad = i===0 ? 1 : 2;
-    ctx2.beginPath();
-    ctx2.roundRect(s.x*c+pad, s.y*c+pad, c-pad*2, c-pad*2, c*0.3);
-    ctx2.fill();
-    if (i===0){
-      ctx2.fillStyle='#0c2418';
-      const ex = G.dir.x, ey = G.dir.y;
-      ctx2.beginPath(); ctx2.arc(s.x*c+c/2+ex*c*0.18-ey*c*0.15, s.y*c+c/2+ey*c*0.18+ex*c*0.15, c*0.08,0,7); ctx2.fill();
-      ctx2.beginPath(); ctx2.arc(s.x*c+c/2+ex*c*0.18+ey*c*0.15, s.y*c+c/2+ey*c*0.18-ex*c*0.15, c*0.08,0,7); ctx2.fill();
-    }
-  });
+  drawSnake();
   ctx2.textBaseline='alphabetic';
 }
 function endRound(reason){
@@ -365,12 +428,19 @@ function refreshBest(){
 }
 /* ---- giriş: swipe (mobil) / ok tuşları ---- */
 let touchStart = null;
-cv.addEventListener('pointerdown', e => { touchStart = {x:e.clientX, y:e.clientY}; });
+cv.addEventListener('pointerdown', e => { try{window.focus();}catch(_){}; touchStart = {x:e.clientX, y:e.clientY}; });
+cv.addEventListener('pointermove', e => {   // (C) sürüklerken dön — parmak kalkmasını bekleme
+  if (!touchStart) return;
+  const dx = e.clientX-touchStart.x, dy = e.clientY-touchStart.y;
+  if (Math.abs(dx) < 13 && Math.abs(dy) < 13) return;
+  setDir(Math.abs(dx) > Math.abs(dy) ? {x:Math.sign(dx),y:0} : {x:0,y:Math.sign(dy)});
+  touchStart = {x:e.clientX, y:e.clientY};   // başlangıcı sıfırla → 2. dönüş mümkün
+});
 cv.addEventListener('pointerup', e => {
   if (!touchStart) return;
   const dx = e.clientX-touchStart.x, dy = e.clientY-touchStart.y;
   touchStart = null;
-  if (Math.abs(dx) < 18 && Math.abs(dy) < 18) return;
+  if (Math.abs(dx) < 14 && Math.abs(dy) < 14) return;
   setDir(Math.abs(dx) > Math.abs(dy) ? {x:Math.sign(dx),y:0} : {x:0,y:Math.sign(dy)});
 });
 addEventListener('keydown', e => {
@@ -381,8 +451,17 @@ addEventListener('keydown', e => {
 });
 function setDir(d){
   if (G.state!=='playing') return;
-  if (d.x === -G.dir.x && d.y === -G.dir.y) return;   // geri dönüş yok
-  G.nextDir = d;
+  const ref = G.dirQueue.length ? G.dirQueue[G.dirQueue.length-1] : G.dir;   // ters/eşitlik SON kuyruğa göre
+  if (d.x===ref.x && d.y===ref.y) return;        // aynı yön → yoksay (spam engeli)
+  if (d.x===-ref.x && d.y===-ref.y) return;      // 180° geri dönüş yok
+  if (G.dirQueue.length>=2) return;              // kuyruk dolu (max 2)
+  G.dirQueue.push(d);
+  maybeEarlyStep();
+}
+function maybeEarlyStep(){   // taze dönüş + hücrenin geç yarısı → bir adımı HEMEN işle (gecikmeyi kırar)
+  if (G.state!=='playing' || !G.dirQueue.length || G.acc < 0.5) return;
+  G.acc -= 1; step();                  // loop()'un while'ıyla aynı muhasebe (faz kayar, hız sabit)
+  if (G.state==='playing') draw();     // anında görsel geri bildirim
 }
 document.querySelectorAll('.tierBtn').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('.tierBtn').forEach(x=>x.classList.remove('on'));
