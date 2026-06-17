@@ -76,12 +76,18 @@ const SonKartUI = (() => {
     N.feed = E('div', 'sk-feed');
 
     const table = E('div', 'sk-table');
-    N.colorInd = E('div', 'sk-color-ind'); N.colorInd.append((N.swatch = E('span', 'swatch')), (N.colorName = E('span', 'cname', 'Renk')));
-    const pileDraw = E('div', 'sk-pile'); pileDraw.append(E('div', 'lbl', 'Deste'), (N.draw = E('div', 'sk-draw-card')));
+    N.dir = E('div', 'sk-dir');                       // küçük yön göstergesi (köşe)
+    // Deste (çekme yığını)
+    const pileDraw = E('div', 'sk-pile');
+    pileDraw.append(E('div', 'lbl', 'Çek'), (N.draw = E('div', 'sk-draw-card')));
     N.draw.onclick = () => handlers.onDraw && handlers.onDraw();
-    const pileDisc = E('div', 'sk-pile'); pileDisc.append(E('div', 'lbl', 'Yığın'), (N.discard = E('div', 'sk-discwrap')));
-    N.dir = E('div', 'sk-dir');
-    table.append(N.colorInd, pileDraw, pileDisc, N.dir);
+    // Açılan kart (üstteki kart) + altında aktif renk
+    const pileDisc = E('div', 'sk-pile pile-disc');
+    N.discard = E('div', 'sk-discwrap');
+    N.colorInd = E('div', 'sk-color-ind');
+    N.colorInd.append((N.swatch = E('span', 'swatch')), (N.colorName = E('span', 'cname', 'Renk')));
+    pileDisc.append(E('div', 'lbl', 'Açılan kart'), N.discard, N.colorInd);
+    table.append(N.dir, pileDraw, pileDisc);
     N.table = table;
 
     const handwrap = E('div', 'sk-handwrap');
