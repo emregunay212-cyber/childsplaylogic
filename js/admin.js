@@ -6,6 +6,9 @@
 (function () {
     const auth = firebase.auth();
     const cfgRef = db.ref('adminConfig');
+    // adminConfig'e YAZMA yetkisi RTDB kurallarında yalnızca bu e-postaya verili
+    // (database.rules.json). Başka hesapla panel açılırsa her kayıt PERMISSION_DENIED verir.
+    const ADMIN_EMAIL = 'admin@bilnetoyun.com';
     let cfg = {};
 
     // ── küçük DOM yardımcısı (innerHTML yok → XSS-güvenli) ──
@@ -177,15 +180,19 @@
         $('snd-off').addEventListener('click', () => setSound('off'));
 
         auth.onAuthStateChanged((user) => {
-            if (user) {
+            if (user && user.email === ADMIN_EMAIL) {
                 $('login-view').classList.add('hidden');
                 $('panel-view').classList.remove('hidden');
                 $('who').textContent = user.email || '';
+                $('login-err').textContent = '';
                 renderStats();
                 subscribeCfg();
             } else {
+                // Giriş yok VEYA yönetici hesabı değil → paneli açma (aksi halde her
+                // kayıt PERMISSION_DENIED verir). Yönetici e-postasıyla giriş gerekir.
                 $('panel-view').classList.add('hidden');
                 $('login-view').classList.remove('hidden');
+                if (user) $('login-err').textContent = 'Bu hesap (' + (user.email || 'bilinmiyor') + ') yönetici değil. Lütfen ' + ADMIN_EMAIL + ' ile giriş yapın.';
             }
         });
     }
