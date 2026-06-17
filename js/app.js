@@ -748,6 +748,10 @@ const App = (() => {
         // Kilitli oyun guard'ı — kartı bypass eden tüm yollar için tek koruma noktası.
         // bypassLock=true: landing/deep-link ile gelen ziyaretçi kilidi atlar.
         const entry = gameRegistry.find(e => e.game.id === game.id);
+        if (entry && entry.comingSoon) {   // kapalı oyun: kart da, derin-bağlantı (?oyun=) da — hiçbir yoldan açılmaz
+            try { AudioManager.play('tap'); } catch (e) {}
+            return;
+        }
         if (entry && !bypassLock && !isGameUnlocked(entry)) {
             try { AudioManager.play('tap'); } catch (e) {}
             return;
