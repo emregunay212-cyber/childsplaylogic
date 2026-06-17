@@ -28,7 +28,7 @@ const LOCK_CATALOG = [
     { key: 'mp:ates-buz',      id: 'ates-buz',       stars: 65, type: 'online' },
     { key: 'mp:altin-avi',     id: 'altin-avi',      stars: 70, type: 'online' },
     { key: 'mp:hava-hokeyi',   id: 'hava-hokeyi',    stars: 75, type: 'online' },
-    { key: 'mp:son-kart',      id: 'son-kart',       stars: 40, type: 'online' },
+    // Son Kart: eşiksiz/açık (kullanıcı isteği) — kilit kaydı yok = herkese açık.
 ];
 
 // key -> gerekli yıldız (hızlı arama)
