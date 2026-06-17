@@ -94,7 +94,7 @@
             );
             list.appendChild(el('div', { class: 'lock-row' },
                 nameWrap,
-                el('div', { class: 'lr-th', text: g.stars + ' yıldız' }),
+                el('div', { class: 'lr-th', text: g.stars > 0 ? (g.stars + ' yıldız') : 'Eşiksiz' }),
                 seg
             ));
         });

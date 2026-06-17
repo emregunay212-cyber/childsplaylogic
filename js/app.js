@@ -778,6 +778,30 @@ const App = (() => {
         activeMpGame = null;
     }
 
+    // Şu an oynanan oyunun katalog girdisi (online: activeMpGame; solo: body.dataset.activeGame)
+    function activeGameEntry() {
+        if (activeMpGame) return mpGamesList.find(e => e.game === activeMpGame) || null;
+        const id = document.body.dataset.activeGame;
+        if (id) return gameRegistry.find(e => e.game && e.game.id === id) || null;
+        return null;
+    }
+
+    // Basit bildirim (admin kilitleyince "oyundan atıldın" mesajı vb.)
+    let _toastTimer = null;
+    function appToast(msg) {
+        let t = document.getElementById('app-toast');
+        if (!t) {
+            t = document.createElement('div');
+            t.id = 'app-toast';
+            t.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:rgba(20,20,30,.92);color:#fff;padding:12px 20px;border-radius:999px;font-weight:700;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.4);max-width:90%;text-align:center;transition:opacity .25s;';
+            document.body.appendChild(t);
+        }
+        t.textContent = msg;
+        t.style.opacity = '1';
+        clearTimeout(_toastTimer);
+        _toastTimer = setTimeout(() => { t.style.opacity = '0'; }, 3200);
+    }
+
     function navigateToHub() {
         // Oyun-içi kayıtları (Zindan vb.) çıkışta buluta yansıt (Google kullanıcısı)
         try { if (typeof Auth !== 'undefined' && Auth.flushGameSaves) Auth.flushGameSaves(); } catch (e) {}
@@ -830,7 +854,16 @@ const App = (() => {
         if (adminConfig.sound === 'off') { AudioManager.setEnabled(false); document.getElementById('btn-sound')?.classList.add('muted'); }
         else if (adminConfig.sound === 'on') { AudioManager.setEnabled(true); document.getElementById('btn-sound')?.classList.remove('muted'); }
         updateStarCounter();
-        if (currentView === 'hub') renderHubGrid();
+        if (currentView === 'hub') {
+            renderHubGrid();
+        } else if (currentView === 'game') {
+            // Oyun oynanırken admin kilitlerse ("Kilit" = komple kapat) oyuncuyu hub'a at
+            const entry = activeGameEntry();
+            if (entry && !isGameUnlocked(entry)) {
+                navigateToHub();
+                appToast('Bu oyun yönetici tarafından kapatıldı.');
+            }
+        }
     }
 
     return { init, updateStarCounter, showHub };
