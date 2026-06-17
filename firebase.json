@@ -10,7 +10,11 @@
       "**/node_modules/**",
       "server/**",
       "fabrika/**",
-      "**/*.bat"
+      "**/*.bat",
+      "**/tools/_*",
+      "games/cevap-kosusu/index-3d.html",
+      "games/cevap-kosusu/lib/**",
+      "games/cevap-kosusu/assets3d/**"
     ],
     "headers": [
       {
