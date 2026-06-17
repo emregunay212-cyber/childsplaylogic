@@ -79,6 +79,15 @@
             }
           }
         }
+      },
+      "son-kart": {
+        ".indexOn": ["state"],
+        "$code": {
+          "state": { ".validate": "newData.isString() && newData.val().length <= 24" },
+          "names": {
+            "$pid": { ".validate": "newData.isString() && newData.val().length <= 24" }
+          }
+        }
       }
     },
     "users": {

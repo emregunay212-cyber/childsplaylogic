@@ -1,0 +1,287 @@
+/* ============================================
+   SON KART — Stil (özgün, emoji yok)
+   ============================================ */
+:root {
+  --c-r: #e23b34; --c-y: #f4c20d; --c-g: #36b44a; --c-b: #2e8fe6;
+  --felt-1: #1f6b4a; --felt-2: #16523a;
+  --ink: #1d2433; --panel: #ffffff;
+  --gold: #ffce5a; --gold-deep: #d99a1e;
+  --radius: 12px;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; }
+body {
+  font-family: 'Baloo 2', 'Segoe UI', system-ui, sans-serif;
+  color: #fff;
+  background:
+    radial-gradient(120% 90% at 50% 0%, var(--felt-1), var(--felt-2));
+  overflow: hidden;
+  user-select: none;
+}
+#sk-app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+
+/* ── Ekranlar ── */
+.sk-screen { position: absolute; inset: 0; display: none; flex-direction: column; }
+.sk-screen.active { display: flex; }
+
+/* ── Genel buton ── */
+.sk-btn {
+  font: inherit; font-weight: 800; border: none; cursor: pointer;
+  padding: 14px 22px; border-radius: 999px; color: #fff;
+  background: linear-gradient(180deg, #ff8a3d, #f4651a);
+  box-shadow: 0 4px 0 #c84a0e, 0 6px 14px rgba(0,0,0,.3);
+  transition: transform .08s, box-shadow .08s; letter-spacing: .3px;
+}
+.sk-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #c84a0e, 0 3px 8px rgba(0,0,0,.3); }
+.sk-btn.ghost { background: rgba(255,255,255,.12); box-shadow: 0 4px 0 rgba(0,0,0,.25); }
+.sk-btn.small { padding: 9px 16px; font-size: .9rem; }
+.sk-btn:disabled { filter: grayscale(.6) brightness(.8); cursor: default; box-shadow: 0 4px 0 rgba(0,0,0,.25); }
+
+/* ── Menü ── */
+#screen-menu { align-items: center; justify-content: center; gap: 18px; padding: 24px; }
+.sk-logo { text-align: center; margin-bottom: 6px; }
+.sk-logo h1 {
+  margin: 0; font-size: clamp(2.4rem, 9vw, 4rem); font-weight: 800;
+  letter-spacing: 1px; text-shadow: 0 3px 0 rgba(0,0,0,.25);
+}
+.sk-logo .tag { opacity: .85; font-weight: 600; }
+.sk-menu-cards { display: flex; gap: 10px; margin-bottom: 8px; }
+.sk-menu-cards .sk-card { width: 64px; }
+.sk-menu-list { display: flex; flex-direction: column; gap: 12px; width: min(340px, 86vw); }
+.sk-menu-list .sk-btn { width: 100%; font-size: 1.1rem; }
+.sk-sub { display: flex; flex-direction: column; gap: 12px; width: min(340px, 86vw); align-items: stretch; }
+.sk-field { display: flex; gap: 8px; }
+.sk-field input {
+  flex: 1; font: inherit; font-weight: 700; text-transform: uppercase; letter-spacing: 4px;
+  text-align: center; padding: 12px; border-radius: 12px; border: 2px solid rgba(255,255,255,.4);
+  background: rgba(0,0,0,.25); color: #fff;
+}
+.sk-bots { display: flex; gap: 8px; align-items: center; justify-content: center; }
+.sk-chip {
+  width: 44px; height: 44px; border-radius: 12px; border: 2px solid rgba(255,255,255,.35);
+  background: rgba(0,0,0,.2); color: #fff; font-weight: 800; font-size: 1.1rem; cursor: pointer;
+}
+.sk-chip.on { background: #ff8a3d; border-color: #fff; }
+.sk-hint { text-align: center; opacity: .85; font-size: .9rem; min-height: 1.2em; }
+.sk-back { position: absolute; top: 14px; left: 14px; }
+
+/* ── Lobi ── */
+#screen-lobby { align-items: center; justify-content: center; gap: 16px; padding: 24px; }
+.sk-code-box { text-align: center; }
+.sk-code-box .code {
+  font-size: clamp(2.4rem, 12vw, 4rem); font-weight: 800; letter-spacing: 10px;
+  background: rgba(0,0,0,.28); padding: 8px 22px; border-radius: 14px; display: inline-block;
+}
+.sk-players { display: flex; flex-direction: column; gap: 8px; width: min(340px, 86vw); }
+.sk-prow {
+  display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,.1);
+  padding: 10px 14px; border-radius: 12px; font-weight: 700;
+}
+.sk-prow .dot { width: 12px; height: 12px; border-radius: 50%; background: #5dd86f; box-shadow: 0 0 8px #5dd86f; }
+.sk-prow .dot.off { background: #888; box-shadow: none; }
+.sk-prow .host-tag { margin-left: auto; font-size: .75rem; opacity: .8; }
+
+/* ── Oyun ekranı ── */
+#screen-game { display: none; }
+#screen-game.active { display: grid; grid-template-rows: auto 1fr auto; height: 100%; }
+.sk-topbar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; }
+.sk-topbar .sk-status { flex: 1; text-align: center; font-weight: 800; font-size: clamp(.95rem,3.4vw,1.2rem); }
+.sk-opponents { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; padding: 6px 8px; }
+.sk-opp {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 6px 10px; border-radius: 12px; background: rgba(0,0,0,.18); min-width: 78px;
+}
+.sk-opp.turn { background: rgba(255,200,80,.28); box-shadow: 0 0 0 2px #ffce5a inset; }
+.sk-opp.gone { opacity: .45; }
+.sk-opp .nm { font-weight: 800; font-size: .85rem; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sk-opp .cnt { font-size: .78rem; opacity: .9; }
+.sk-opp .mini { display: flex; }
+.sk-opp .mini .sk-cardback { width: 22px; height: 31px; margin-left: -12px; border-radius: 5px; border-width: 2px; }
+.sk-opp .said { font-size: .7rem; font-weight: 800; color: #ffec99; }
+
+/* Masa */
+.sk-table { display: flex; align-items: center; justify-content: center; gap: clamp(14px, 6vw, 48px); position: relative; }
+.sk-pile { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.sk-pile .lbl { font-size: .72rem; opacity: .8; font-weight: 700; }
+.sk-draw-card { cursor: pointer; position: relative; }
+.sk-draw-card .cnt {
+  position: absolute; bottom: -8px; right: -8px; background: #1d2433; color: #fff;
+  font-size: .72rem; font-weight: 800; padding: 2px 7px; border-radius: 999px; border: 2px solid #fff;
+}
+.sk-color-ind {
+  position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: .8rem;
+  background: rgba(0,0,0,.3); padding: 4px 10px; border-radius: 999px;
+}
+.sk-color-ind .swatch { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #fff; }
+.sk-dir { position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); opacity: .85; }
+.sk-dir svg { width: 30px; height: 30px; }
+
+/* El */
+.sk-handwrap { padding: 6px 0 10px; }
+.sk-actions { display: flex; justify-content: center; gap: 10px; padding: 0 8px 6px; min-height: 0; }
+.sk-uno-btn {
+  background: linear-gradient(180deg, #ffd24a, #f5a623); color: #5b3b00;
+  box-shadow: 0 4px 0 #c47f12, 0 6px 14px rgba(0,0,0,.3); animation: unoPulse 1s infinite;
+}
+@keyframes unoPulse { 0%,100%{ transform: scale(1);} 50%{ transform: scale(1.06);} }
+.sk-hand {
+  display: flex; justify-content: center; align-items: flex-end; gap: 0;
+  padding: 8px 12px; overflow-x: auto; overflow-y: hidden; min-height: 132px;
+}
+.sk-hand .sk-card { margin-left: -22px; transition: transform .12s; flex: 0 0 auto; }
+.sk-hand .sk-card:first-child { margin-left: 0; }
+.sk-hand .sk-card.playable { cursor: pointer; }
+.sk-hand .sk-card.playable:hover { transform: translateY(-14px); }
+.sk-hand .sk-card.dim { filter: brightness(.62) saturate(.7); }
+.sk-hand.myturn .sk-card.playable { box-shadow: 0 0 0 3px #ffe27a, 0 6px 16px rgba(0,0,0,.4); }
+
+/* ── KART ── */
+.sk-card {
+  --w: 92px;
+  width: var(--w); aspect-ratio: 63 / 88; border-radius: 11%;
+  background: var(--cardcol, #999); border: 4px solid #fff;
+  position: relative; box-shadow: 0 4px 10px rgba(0,0,0,.35);
+  color: #fff; overflow: hidden; flex: 0 0 auto;
+}
+.sk-card.c-r { --cardcol: var(--c-r); }
+.sk-card.c-y { --cardcol: var(--c-y); }
+.sk-card.c-g { --cardcol: var(--c-g); }
+.sk-card.c-b { --cardcol: var(--c-b); }
+.sk-card.c-w { --cardcol: #25262e; }
+.sk-card .oval {
+  position: absolute; inset: 14% 10%; background: rgba(255,255,255,.92);
+  border-radius: 50%; transform: rotate(-22deg);
+}
+.sk-card.c-w .oval { background: transparent; }
+.sk-card .center {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: calc(var(--w) * .52); line-height: 1;
+  color: var(--cardcol); text-shadow: none; z-index: 2;
+}
+.sk-card.c-y .center { color: #b8860b; }
+.sk-card .center svg { width: calc(var(--w) * .5); height: calc(var(--w) * .5); }
+.sk-card .corner {
+  position: absolute; font-weight: 800; font-size: calc(var(--w) * .2); line-height: 1; z-index: 3;
+  color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.4);
+}
+.sk-card .corner svg { width: calc(var(--w) * .18); height: calc(var(--w) * .18); }
+.sk-card .corner.tl { top: 5%; left: 7%; }
+.sk-card .corner.br { bottom: 5%; right: 7%; transform: rotate(180deg); }
+/* Joker dört-renk pinwheel */
+.sk-card.c-w .quad { position: absolute; inset: 14% 10%; border-radius: 50%; transform: rotate(-22deg); overflow: hidden; }
+.sk-card.c-w .quad i { position: absolute; width: 50%; height: 50%; }
+.sk-card.c-w .quad i:nth-child(1){ top:0; left:0; background: var(--c-r);}
+.sk-card.c-w .quad i:nth-child(2){ top:0; right:0; background: var(--c-b);}
+.sk-card.c-w .quad i:nth-child(3){ bottom:0; left:0; background: var(--c-g);}
+.sk-card.c-w .quad i:nth-child(4){ bottom:0; right:0; background: var(--c-y);}
+.sk-card.c-w .center { color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.6); }
+
+/* Kart arkası */
+.sk-cardback {
+  width: 92px; aspect-ratio: 63/88; border-radius: 11%; border: 4px solid #fff;
+  background:
+    repeating-linear-gradient(45deg, #2a2c3a 0 8px, #34374a 8px 16px);
+  position: relative; box-shadow: 0 4px 10px rgba(0,0,0,.35); flex: 0 0 auto;
+}
+.sk-cardback::after {
+  content: ''; position: absolute; inset: 20%; border-radius: 50%; transform: rotate(-22deg);
+  background: linear-gradient(135deg, var(--c-r), var(--c-y) 30%, var(--c-g) 60%, var(--c-b));
+  opacity: .9; box-shadow: 0 0 0 3px rgba(255,255,255,.85) inset;
+}
+
+/* Modal */
+.sk-modal {
+  position: absolute; inset: 0; background: rgba(0,0,0,.55); display: none;
+  align-items: center; justify-content: center; z-index: 50; backdrop-filter: blur(2px);
+}
+.sk-modal.show { display: flex; }
+.sk-modal .box { background: #2a3550; padding: 22px; border-radius: 18px; text-align: center; box-shadow: 0 14px 40px rgba(0,0,0,.5); }
+.sk-modal .box h3 { margin: 0 0 14px; }
+.sk-colors { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.sk-colors button { width: 76px; height: 76px; border-radius: 16px; border: 4px solid #fff; cursor: pointer; }
+.sk-colors .pr { background: var(--c-r); } .sk-colors .py { background: var(--c-y); }
+.sk-colors .pg { background: var(--c-g); } .sk-colors .pb { background: var(--c-b); }
+
+/* Sonuç */
+.sk-result { text-align: center; }
+.sk-result h2 { font-size: clamp(1.8rem, 8vw, 3rem); margin: 0 0 6px; }
+.sk-result .row { display: flex; gap: 12px; justify-content: center; margin-top: 18px; }
+
+/* Toast */
+.sk-toast {
+  position: absolute; left: 50%; top: 64px; transform: translateX(-50%);
+  background: rgba(0,0,0,.72); padding: 8px 16px; border-radius: 999px; font-weight: 700;
+  z-index: 60; pointer-events: none; opacity: 0; transition: opacity .2s; max-width: 90%;
+}
+.sk-toast.show { opacity: 1; }
+
+@media (max-width: 480px) {
+  .sk-card { --w: 76px; }
+  .sk-cardback { width: 76px; }
+  .sk-hand .sk-card { margin-left: -28px; }
+  .sk-feed .feed-chip:nth-child(n+3) { display: none; }   /* mobilde son 2 hamle */
+}
+
+/* ── Joker kart etiketi (ne işe yaradığı net olsun) ── */
+.sk-card .cardtag {
+  position: absolute; bottom: 6%; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,.58); color: #fff; font-weight: 800;
+  font-size: calc(var(--w) * .135); letter-spacing: .4px; padding: 1px 6px;
+  border-radius: 6px; white-space: nowrap; z-index: 4;
+}
+
+/* ── Sıra afişi (kimin sırası net) ── */
+.sk-turnbanner {
+  flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-weight: 800; font-size: clamp(.95rem, 3.6vw, 1.25rem);
+  background: rgba(0,0,0,.22); border-radius: 999px; padding: 7px 14px;
+  transition: background .2s, box-shadow .2s, color .2s;
+}
+.sk-turnbanner .tb-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; flex: 0 0 auto; }
+.sk-turnbanner .tb-main { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sk-turnbanner.mine {
+  color: var(--gold);
+  background: linear-gradient(180deg, rgba(255,206,90,.30), rgba(217,154,30,.26));
+  animation: bannerPulse 1.5s ease-in-out infinite;
+}
+@keyframes bannerPulse {
+  0%,100% { box-shadow: 0 0 0 2px var(--gold) inset, 0 0 12px rgba(255,206,90,.35); }
+  50%     { box-shadow: 0 0 0 2px var(--gold) inset, 0 0 26px rgba(255,206,90,.65); }
+}
+
+/* ── Son hamleler akışı ── */
+.sk-feed { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; padding: 2px 8px 4px; min-height: 22px; }
+.feed-chip { font-size: .72rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: rgba(0,0,0,.22); color: #d7e0d8; opacity: .65; }
+.feed-chip.fresh { opacity: 1; color: #fff; background: rgba(255,206,90,.20); box-shadow: 0 0 0 1px rgba(255,206,90,.5) inset; }
+
+/* ── Sıradaki rakip işareti ── */
+.sk-opp .turn-pip { font-size: .58rem; font-weight: 900; letter-spacing: 1px; color: #1d2433; background: var(--gold); padding: 1px 7px; border-radius: 999px; }
+.sk-opp.turn { animation: oppPulse 1.5s ease-in-out infinite; }
+@keyframes oppPulse { 0%,100% { box-shadow: 0 0 0 2px #ffce5a inset; } 50% { box-shadow: 0 0 0 2px #ffce5a inset, 0 0 16px rgba(255,206,90,.5); } }
+
+/* ── Aktif renk göstergesi + yığın halkası ── */
+.sk-color-ind .cname { font-weight: 800; }
+.sk-discwrap { display: inline-block; line-height: 0; border-radius: 14px; transition: box-shadow .25s; }
+.sk-discwrap[data-color="r"] { box-shadow: 0 0 0 3px var(--c-r), 0 0 20px rgba(226,59,52,.55); }
+.sk-discwrap[data-color="y"] { box-shadow: 0 0 0 3px var(--c-y), 0 0 20px rgba(244,194,13,.55); }
+.sk-discwrap[data-color="g"] { box-shadow: 0 0 0 3px var(--c-g), 0 0 20px rgba(54,180,74,.55); }
+.sk-discwrap[data-color="b"] { box-shadow: 0 0 0 3px var(--c-b), 0 0 20px rgba(46,143,230,.55); }
+
+/* ── Atılan kart vurgusu ── */
+.sk-card.pop { animation: cardPop .34s cubic-bezier(.2,.9,.3,1.45); }
+@keyframes cardPop { 0% { transform: scale(.5) rotate(-12deg); opacity: .25; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+
+/* ── Kurallar paneli ── */
+.sk-rules { max-width: min(520px, 92vw); max-height: 86vh; display: flex; flex-direction: column; text-align: left; padding: 0; overflow: hidden; }
+.rules-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 15px 18px; border-bottom: 1px solid rgba(255,255,255,.12); }
+.rules-head h2 { margin: 0; font-size: 1.35rem; }
+.rules-body { overflow-y: auto; padding: 12px 18px 20px; }
+.rules-body h3 { margin: 16px 0 8px; color: var(--gold); font-size: 1.05rem; }
+.rule-intro { opacity: .92; line-height: 1.5; margin: 0 0 4px; }
+.rule-row { display: flex; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.07); }
+.rule-tx .rule-t { font-weight: 800; }
+.rule-tx .rule-d { font-size: .85rem; opacity: .85; line-height: 1.4; }
+.rules-body > .rule-d { font-size: .9rem; opacity: .9; line-height: 1.5; }
+.rule-legend { margin: 6px 0 0; padding-left: 18px; }
+.rule-legend li { margin-bottom: 8px; font-size: .85rem; line-height: 1.45; opacity: .9; }

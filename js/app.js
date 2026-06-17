@@ -23,7 +23,8 @@ const App = (() => {
                 { game: HarfTanima, color: 'var(--harf-color)' },
                 { game: HeceBirlestirme, color: 'var(--hece-color)' },
                 // Eğitsel seri (Faz 0+): kilitsiz — İngilizce kelime öğretimi.
-                { game: KelimeMadeni3D, color: 'var(--kelime-madeni-color)' },
+                // Şimdilik kapalı (kullanıcı isteği, 2026-06-16) — yeniden açmak için "comingSoon: true"yu kaldır.
+                { game: KelimeMadeni3D, color: 'var(--kelime-madeni-color)', comingSoon: true },
                 { game: KelimeBalonu, color: 'var(--kelime-balonu-color)' },
                 { game: KelimeCanavarlari, color: 'var(--kelime-canavar-color)' },
                 { game: KelimeKurtarma, color: 'var(--kelime-kurtarma-color)' },
@@ -285,6 +286,7 @@ const App = (() => {
         { id: 'hava-hokeyi', game: HavaHokeyi },
         { id: 'altin-avi', game: AltinAvi },
         { id: 'kelimelik', game: Kelimelik },
+        { id: 'son-kart', game: SonKart, badge: '2-4 Oyuncu' },
     ];
 
     let currentView = 'splash';
@@ -647,6 +649,8 @@ const App = (() => {
                 <div class="card-title">${TR.games[id]}</div>
                 <div class="card-stars"><span style="font-size:0.7rem;color:#888">Online</span></div>
             `;
+            // 2'den fazla oyuncuya izin veren oyunlar için rozet metnini değiştir (örn. "2-4 Oyuncu")
+            if (entry.badge) { const b = card.querySelector('.mp-badge'); if (b) b.textContent = entry.badge; }
             card.style.animationDelay = `${cardIndex * 0.06}s`;
             cardIndex++;
 
@@ -726,7 +730,7 @@ const App = (() => {
         gameArea.innerHTML = '';
 
         // Altın Avı ve Kelimelik kendi lobilerini/odalarını yönetir (paylaşılan Lobby kullanmaz)
-        if (game.id === 'altin-avi' || game.id === 'kelimelik') {
+        if (game.id === 'altin-avi' || game.id === 'kelimelik' || game.id === 'son-kart') {
             activeMpGame = game;
             game.init(gameArea, {});
             return;

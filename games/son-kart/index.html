@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Son Kart</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+
+<!-- Firebase (online mod) -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+<script>
+  // Firebase: ana site ile aynı proje. Yoksa (offline) solo yine çalışır.
+  try {
+    const cfg = {
+      apiKey: "AIzaSyBFF2v3Rm0vwvwQwtApmXgjQa6DYM_HDAw",
+      authDomain: "childsplaylogic.firebaseapp.com",
+      databaseURL: "https://childsplaylogic-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "childsplaylogic",
+      storageBucket: "childsplaylogic.firebasestorage.app",
+      messagingSenderId: "27619900067",
+      appId: "1:27619900067:web:bf0f3aa99670b6a9dfdd16"
+    };
+    if (window.firebase && firebase.apps && !firebase.apps.length) firebase.initializeApp(cfg);
+    window.SK_DB = (window.firebase && firebase.database) ? firebase.database() : null;
+  } catch (e) { window.SK_DB = null; }
+
+  // window.storage shim — bağımsız çalışınca localStorage'a düşer (siteyle ortak sözleşme).
+  (function () {
+    if (window.storage && window.storage.get && window.storage.set) return;
+    window.storage = {
+      get: function (k) { try { var v = localStorage.getItem(k); return Promise.resolve(v != null ? { value: v } : null); } catch (e) { return Promise.resolve(null); } },
+      set: function (k, v) { try { localStorage.setItem(k, v); return Promise.resolve(); } catch (e) { return Promise.resolve(); } },
+      remove: function (k) { try { localStorage.removeItem(k); } catch (e) {} return Promise.resolve(); }
+    };
+  })();
+</script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="js/deck.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/bot.js"></script>
+  <script src="js/net.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
