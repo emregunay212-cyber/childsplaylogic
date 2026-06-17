@@ -774,6 +774,19 @@ function makePlayer(L){return{x:W/2,y:H/2,r:15,hp:L.maxHp,maxHp:L.maxHp,moveSpee
   incendiary:0,incendiaryCd:0,
   /* Spec #8 Berserk Meter: hasar aldıkça dolar, max'ta 5s hyper-bolt modu. */
   berserk:0,berserkActive:0,berserkFireTimer:0,
+  /* ===== FÜZYON 2.0 — yeni-mekanik bayrakları (hepsi koşu başı kapalı, fusion apply set eder) ===== */
+  frenzyOn:false,frenzy:0,        // Berserker A: vuruş kombosu
+  salvoOn:false,salvo:0,          // Berserker B: her 4. atış 3'lü salvo
+  critDetonate:false,             // Nişan A: kritik → AoE patlama
+  markOn:false,                   // Nişan B: kritik → av damgası
+  shieldMax:0,shield:0,shieldRe:0,// Muhafız A: rejen kalkan
+  thornsOn:false,thornTrail:0,    // Muhafız B: diken-nova + hasarlı iz
+  splinterOn:false,clusterBounce:false, // Ricochet A/B
+  whirlwind:false,groundSlam:false,     // Kılıç A/B
+  arcOrbs:false,arcTimer:0,stormOrb:false,stormOrbTimer:0, // Elementalist A/B
+  ionStorm:false,ionTimer:0,volcanic:false,volcTimer:0,    // İnferno A/B
+  tornado:0,tornadoAng:0,         // Fırtına B: dönen vorteks
+  incendiaryDmg:0,eruption:0,     // Alev A (hasarlı tuzak) / B (patlama)
   xp:0,level:1,xpToNext:8,anim:0};}
 
 /* ============================ ENEMIES ============================ */
@@ -885,9 +898,16 @@ function fire(){
      Cooldown ile spam'i engelle. variant 1 dar, variant 2 geniş alan. */
   if(player.rear&&player.incendiary&&player.incendiaryCd<=0){
     const back=aimAngle+Math.PI;
-    const r=player.incendiary===2?72:48;
-    slowZones.push({x:player.x+Math.cos(back)*40,y:player.y+Math.sin(back)*40,r,life:3.5});
+    const r=(player.incendiary===2?72:48)+(player.incendiaryDmg?14:0);
+    const z={x:player.x+Math.cos(back)*40,y:player.y+Math.sin(back)*40,r,life:3.5};
+    if(player.incendiaryDmg){z.dmg=player.dmg*0.30;z.tick=0;} /* Alev A: Cehennem Tuzağı — yavaşlatma + hasar */
+    slowZones.push(z);
     player.incendiaryCd=0.55;
+  }
+  if(player.rear&&player.eruption&&player.incendiaryCd<=0){ /* Alev B: Magma Patlaması — arka ok anında patlar */
+    const back=aimAngle+Math.PI, ex=player.x+Math.cos(back)*46, ey=player.y+Math.sin(back)*46;
+    pNovas.push({x:ex,y:ey,r:6,spd:460,maxR:88,dmg:player.dmg*0.7,hits:new Set()});
+    burst(ex,ey,'#ff7a3a',16,260,0.45,4);player.incendiaryCd=0.5;
   }
   /* Spec #3 görsel temizlik:
      - 4-5 ok: alpha 0.85, size ×0.92
@@ -903,16 +923,25 @@ function fire(){
   for(const s of shots){const a=aimAngle+s.off, sd=player.r-s.back;
     pProj.push({x:player.x+Math.cos(a)*sd,y:player.y+Math.sin(a)*sd+muzY,
       vx:Math.cos(a)*player.arrowSpeed,vy:Math.sin(a)*player.arrowSpeed,
-      r:Math.min(14,player.arrowSize*sizeMul),dmg:player.dmg*dmgMul*lowHp,
+      r:Math.min(14,player.arrowSize*sizeMul),dmg:player.dmg*dmgMul*lowHp*(1+0.20*(player.frenzy||0)), /* Berserker A: frenzy hasar zammı */
       pierce:player.pierce+(wave?2:0),
       chainBounce:player.chainBounce||0,wallBounce:player.wallBounce||0,
       ang:a,life:wave?1.1:1.6,hits:new Set(),alpha,wave});}
+  if(player.salvoOn){player.salvo=(player.salvo||0)+1;if(player.salvo>=4){player.salvo=0;for(let k=-1;k<=1;k++){const a=aimAngle+k*0.12;pProj.push({x:player.x+Math.cos(a)*player.r,y:player.y+Math.sin(a)*player.r+muzY,vx:Math.cos(a)*player.arrowSpeed*1.1,vy:Math.sin(a)*player.arrowSpeed*1.1,r:Math.min(14,player.arrowSize),dmg:player.dmg*0.7,pierce:player.pierce,chainBounce:0,wallBounce:0,ang:a,life:1.4,hits:new Set(),alpha:1});}burst(player.x,player.y,'#ff9f43',10,240,0.3,3);}} /* Berserker B: Yaylım Ateşi — her 4. atış 3'lü salvo */
   burst(player.x+Math.cos(aimAngle)*player.r,player.y+Math.sin(aimAngle)*player.r+muzY,wave?'#9beaff':'#ffe08a',wave?5:3,wave?220:160,0.25,wave?3.5:2.5);
   sfx.shoot();
+}
+function spawnSplinters(pr){ /* Ricochet A: 2 parça-ok üret (parça tekrar bölünmez) */
+  const base=Math.atan2(pr.vy,pr.vx),sp=Math.hypot(pr.vx,pr.vy)*0.85;
+  for(const off of [0.6,-0.6]){const a=base+off;
+    pProj.push({x:pr.x,y:pr.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:Math.max(3,pr.r*0.72),dmg:pr.dmg*0.5,
+      pierce:0,chainBounce:0,wallBounce:0,ang:a,life:0.5,hits:new Set(),alpha:0.9,col:'#ffd27a',splinterChild:true});}
 }
 
 /* ============================ DAMAGE ============================ */
 function damageEnemy(e,d,fx,fy,crit){
+  if(player.frenzyOn)player.frenzy=Math.min(1,player.frenzy+0.04); /* Berserker A: her vuruş frenzy doldurur */
+  if(e.marked>0)d*=1.35; /* Nişan B: Av Damgası — damgalı düşman tüm kaynaklardan +%35 alır */
   if(e.dmgRed)d*=(1-e.dmgRed); /* zırhlı elite hasar azaltma */
   e.hp-=d;e.flash=0.12;
   if(e._dmgRef&&e._dmgRef.life>0.3){e._dmgRef.val+=Math.round(d);e._dmgRef.life=0.65;e._dmgRef.y=e.y-e.r-4;if(crit){e._dmgRef.color='#ffd166';e._dmgRef.scale=1.4;}}
@@ -936,6 +965,7 @@ function goldDrop(baseVal){
 }
 function killEnemy(e){
   e.dead=true;kills++;score+=e.xp*15+5;
+  if(e.marked>0){for(let i=0;i<6;i++){const a=i*(TAU/6);pProj.push({x:e.x,y:e.y,vx:Math.cos(a)*340,vy:Math.sin(a)*340,r:4,dmg:player.dmg*0.6,pierce:0,chainBounce:0,wallBounce:0,ang:a,life:0.45,hits:new Set(),alpha:0.9,col:'#ff8fd6',splinterChild:true});}burst(e.x,e.y,'#ff5ccd',12,240,0.4,3.5);} /* Av Damgası: damgalı ölünce şarapnel saçar */
   runGold+=goldDrop(GOLDVAL[e.type]);
   burst(e.x,e.y,e.color,e.type==='boss'?40:randInt(8,14),e.type==='boss'?340:200,0.6,e.type==='boss'?5:3.5);
   const drops=e.type==='boss'?6:e.type==='tank'?2:1, val=e.type==='boss'?5:e.xp;
@@ -977,6 +1007,13 @@ function hurtPlayer(d,fx,fy){
   const truePart=d*ENRAGE_TRUE_PCT*enrageStacks;
   const mitigated=(d-truePart)*(1-player.def);
   d=mitigated+truePart;
+  if(player.thornsOn){pNovas.push({x:player.x,y:player.y,r:player.r,spd:500,maxR:120,dmg:player.dmg*0.9,hits:new Set()});burst(player.x,player.y,'#9beaff',12,220,0.4,3.5);} /* Muhafız B: Diken Zırhı — vurulunca diken-nova */
+  if(player.shieldMax>0){player.shieldRe=2.2; /* Muhafız A: Aegis — kalkan hasarı emer; 2.2s hasarsızda dolar */
+    if(player.shield>0){
+      if(player.shield>=d){player.shield-=d;player.invuln=0.5;player.hitFlash=0.15;shake=Math.max(shake,4);return;}
+      d-=player.shield;player.shield=0;pNovas.push({x:player.x,y:player.y,r:player.r,spd:560,maxR:150,dmg:player.dmg,hits:new Set()});burst(player.x,player.y,'#bfe8ff',26,300,0.6,5);shake=Math.max(shake,9); /* kalkan kırılınca şok dalgası */
+    }
+  }
   player.hp-=d;player.invuln=0.7;player.hitFlash=0.2;shake=9;flashV=0.35;player.regenLock=1.5; /* hasar alınca yenilenme 1.5s durur (tank-and-heal ölümsüzlüğünü kapatır) */
   /* Spec #8: Berserk meter — sustained damage'i izle. 100'e ulaşırsa 5s hyper-bolt. */
   player.berserk=Math.min(100,player.berserk+d*1.8);
@@ -1059,13 +1096,13 @@ function update(dt){
         burst(p.x+Math.cos(a)*p.r,p.y+Math.sin(a)*p.r,'#ff3060',6,260,0.3,4);sfx.zap();
       }
     }
-  }else if(!moving&&enemies.length&&p.fireTimer>=p.fireInterval){
+  }else if(!moving&&enemies.length&&p.fireTimer>=p.fireInterval*(1-0.30*(p.frenzy||0))){ /* Berserker A: frenzy atış hızını artırır */
     p.fireTimer=0;fire();
     if(p.stormVolley){
       const need=p.stormVolley===1?2.5:1.5;
       if(p.stillTimer>=need){
-        const dmg=p.dmg*(p.stormVolley===1?1.2:0.7);
-        const maxR=p.stormVolley===1?Math.max(W,H)*0.45:Math.max(W,H)*0.28;
+        const dmg=p.dmg*(p.stormVolley===1?1.6:0.7); /* Fırtına A: Yıkıcı Şok+ güçlendirildi */
+        const maxR=p.stormVolley===1?Math.max(W,H)*0.55:Math.max(W,H)*0.28;
         pNovas.push({x:p.x,y:p.y,r:p.r,spd:560,maxR,dmg,hits:new Set()});
         p.stillTimer=0;shake=Math.max(shake,p.stormVolley===1?7:4);sfx.zap();
       }
@@ -1074,17 +1111,20 @@ function update(dt){
 
   // melee swing — auto-hits any enemy hugging the player (works while moving too)
   if(p.meleeTimer<=0){
-    let near=false;
-    for(const e of enemies){if(!e.dead&&dist(e.x,e.y,p.x,p.y)<p.meleeRange+e.r){near=true;break;}}
+    const mRange=p.meleeRange*(p.whirlwind?1.8:1); /* Kılıç A: Kasırga — geniş yarıçap */
+    let near=false,nearCount=0;
+    for(const e of enemies){if(!e.dead&&dist(e.x,e.y,p.x,p.y)<mRange+e.r){near=true;nearCount++;}}
     if(near){
       p.meleeTimer=p.meleeInterval;p.meleeFx=0.22;
       const mdmg=p.dmg*p.meleeMul;
-      for(const e of enemies){if(e.dead)continue;const dd=dist(e.x,e.y,p.x,p.y);if(dd<p.meleeRange+e.r){
+      for(const e of enemies){if(e.dead)continue;const dd=dist(e.x,e.y,p.x,p.y);if(dd<mRange+e.r){
         let dm=mdmg,crit=false;if(Math.random()<p.crit){dm*=p.critDmg;crit=true;}
         damageEnemy(e,dm,e.x,e.y,crit);
         if(!e.dead){const a=Math.atan2(e.y-p.y,e.x-p.x);e.x+=Math.cos(a)*10;e.y+=Math.sin(a)*10;}
       }}
       burst(p.x,p.y,'#fff3d0',10,230,0.35,3);shake=Math.max(shake,3);sfx.melee();
+      if(p.whirlwind)pNovas.push({x:p.x,y:p.y,r:p.r,spd:520,maxR:mRange+34,dmg:mdmg*0.5,hits:new Set()}); /* Kılıç A: halka şok dalgası */
+      if(p.groundSlam&&nearCount>=3){pNovas.push({x:p.x,y:p.y,r:p.r,spd:600,maxR:mRange+70,dmg:mdmg*0.8,hits:new Set()});slowZones.push({x:p.x,y:p.y,r:mRange+60,life:1.4});shake=Math.max(shake,8);} /* Kılıç B: Yer Yarması — kalabalıkta dev slam */
     }
   }
 
@@ -1132,6 +1172,8 @@ function update(dt){
         pr.hits.add(e);
         let d=pr.dmg,crit=false;if(Math.random()<p.crit){d*=p.critDmg;crit=true;}
         damageEnemy(e,d,pr.x,pr.y,crit);
+        if(crit&&p.critDetonate){pNovas.push({x:pr.x,y:pr.y,r:6,spd:430,maxR:80,dmg:d*0.55,hits:new Set()});burst(pr.x,pr.y,'#ffd166',9,200,0.3,3.4);pr.pierce++;} /* Nişan A: İnfaz Patlaması — kritik AoE + pierce iade */
+        if(crit&&p.markOn&&!e.dead){e.marked=4;burst(e.x,e.y,'#ff5ccd',4,120,0.25,2.5);} /* Nişan B: Av Damgası */
         if(p.knockback&&!e.dead){const kb=p.knockback*(e.type==='boss'?0:e.type==='tank'?0.3:1),ka=Math.atan2(e.y-pr.y,e.x-pr.x);e.x+=Math.cos(ka)*kb;e.y+=Math.sin(ka)*kb;} /* Ağır Ok geri itme (boss bağışık, tank az) */
         /* Spec #7 vampiric shadow: zincir geçişinde kritik vurmuşsa can çal.
            variant 1: +5 can ama mevcut HP -%5 (max'ın), variant 2: +3 can penaltı yok.
@@ -1140,6 +1182,10 @@ function update(dt){
           const heal=p.vampShadow===1?5:3;
           p.hp=Math.min(p.maxHp,p.hp+heal);
           if(p.vampShadow===1)p.hp=Math.max(1,p.hp-p.maxHp*0.05);
+        }
+        if(!pr.splinterChild&&(pr.pierce>0||pr.chainBounce>0)){
+          if(p.splinterOn)spawnSplinters(pr);                  /* Ricochet A: Şarapnel */
+          if(p.clusterBounce)pNovas.push({x:pr.x,y:pr.y,r:5,spd:370,maxR:56,dmg:pr.dmg*0.5,hits:new Set()}); /* Ricochet B: Misket */
         }
         if(pr.pierce>0)pr.pierce--;
         else if(pr.chainBounce>0){pr.chainBounce--;let nb=null,bd=1e9;for(const o of enemies){if(o.dead||pr.hits.has(o))continue;const dd=dist(o.x,o.y,pr.x,pr.y);if(dd<bd){bd=dd;nb=o;}}if(nb){const a=Math.atan2(nb.y-pr.y,nb.x-pr.x),sp=Math.hypot(pr.vx,pr.vy);pr.vx=Math.cos(a)*sp;pr.vy=Math.sin(a)*sp;pr.ang=a;}else pr.life=0;}
@@ -1156,7 +1202,7 @@ function update(dt){
     if(e.dead)continue;
     e.flash=Math.max(0,e.flash-dt);e.touchCd=Math.max(0,e.touchCd-dt);e.born=Math.max(0,e.born-dt);if(e.cast>0)e.cast-=dt;
     if(e.healPulse>0)e.healPulse=Math.max(0,e.healPulse-dt);
-    if(e._orbCd>0)e._orbCd=Math.max(0,e._orbCd-dt);if(e._sawCd>0)e._sawCd=Math.max(0,e._sawCd-dt);
+    if(e._orbCd>0)e._orbCd=Math.max(0,e._orbCd-dt);if(e._sawCd>0)e._sawCd=Math.max(0,e._sawCd-dt);if(e._tornCd>0)e._tornCd=Math.max(0,e._tornCd-dt);if(e.marked>0)e.marked=Math.max(0,e.marked-dt);
     e.spin+=dt*(e.type==='boss'?1.2:2.4);e.anim+=dt;
     const ang=Math.atan2(p.y-e.y,p.x-e.x),d=dist(e.x,e.y,p.x,p.y);
     if(p.x<e.x-2)e.face=-1;else if(p.x>e.x+2)e.face=1;
@@ -1246,6 +1292,9 @@ function update(dt){
   }
 
   // --- BECERİLER (skills) ---
+  // Füzyon 2.0: sayaç/decay
+  if(p.frenzyOn)p.frenzy=Math.max(0,p.frenzy-dt*0.5); /* Berserker A: kombo düşer */
+  if(p.shieldMax>0&&p.shield<p.shieldMax){p.shieldRe-=dt;if(p.shieldRe<=0){p.shield=p.shieldMax;burst(p.x,p.y,'#bfe8ff',16,220,0.5,4);}} /* Muhafız A: kalkan dolar */
   // Döner toplar
   if(p.orbs>0){
     p.orbAng+=dt*2.7;const R=p.r+34;
@@ -1259,6 +1308,14 @@ function update(dt){
         }
       }
     }
+    if(p.arcOrbs){p.arcTimer-=dt;if(p.arcTimer<=0&&enemies.length){p.arcTimer=0.55; /* Elementalist A: Tesla Yörünge — toplar yakına yıldırım yayar */
+      for(let i=0;i<p.orbs;i++){const a=p.orbAng+i*(TAU/p.orbs),ox=p.x+Math.cos(a)*R,oy=p.y+Math.sin(a)*R;
+        let tgt=null,bd=1e9;for(const e of enemies){if(e.dead)continue;const dd=dist(e.x,e.y,ox,oy);if(dd<150&&dd<bd){bd=dd;tgt=e;}}
+        if(tgt){let dm=p.dmg*0.6,crit=false;if(Math.random()<p.crit){dm*=p.critDmg;crit=true;}damageEnemy(tgt,dm,tgt.x,tgt.y,crit);bolts.push({x1:ox,y1:oy,x2:tgt.x,y2:tgt.y,life:0.16});}}
+      sfx.zap&&sfx.zap();}}
+    if(p.stormOrb){p.stormOrbTimer-=dt;if(p.stormOrbTimer<=0){p.stormOrbTimer=0.4; /* Elementalist B: Yıldırım Topu — elektrikli hasarlı iz */
+      const i=randInt(0,p.orbs-1),a=p.orbAng+i*(TAU/p.orbs),ox=p.x+Math.cos(a)*R,oy=p.y+Math.sin(a)*R;
+      slowZones.push({x:ox,y:oy,r:34,life:1.6,dmg:p.dmg*0.22,tick:0});}}
   }
   // Zincir yıldırım
   if(p.lightning>0){
@@ -1289,6 +1346,12 @@ function update(dt){
       p.auraTick=0.4;const dm=p.dmg*0.22*(1+(p.aura-1)*0.35);
       for(const e of enemies){if(e.dead)continue;if(dist(e.x,e.y,p.x,p.y)<p._auraR+e.r){damageEnemy(e,dm,e.x,e.y,false);}}
     }
+    if(p.ionStorm){p.ionTimer-=dt;if(p.ionTimer<=0&&enemies.length){p.ionTimer=0.9; /* İnferno A: İyon Fırtınası — alana zincir yıldırım + yavaşlatma */
+      let first=null,bd=1e9;for(const e of enemies){if(e.dead)continue;const dd=dist(e.x,e.y,p.x,p.y);if(dd<p._auraR+50&&dd<bd){bd=dd;first=e;}}
+      if(first){const used=new Set();let cur=first,prev={x:p.x,y:p.y};
+        for(let c=0;c<3&&cur;c++){used.add(cur);let dm=p.dmg*0.9,crit=false;if(Math.random()<p.crit){dm*=p.critDmg;crit=true;}damageEnemy(cur,dm,cur.x,cur.y,crit);bolts.push({x1:prev.x,y1:prev.y,x2:cur.x,y2:cur.y,life:0.18});prev={x:cur.x,y:cur.y};let nx=null,nd=1e9;for(const e of enemies){if(e.dead||used.has(e))continue;const dd=dist(e.x,e.y,prev.x,prev.y);if(dd<150&&dd<nd){nd=dd;nx=e;}}cur=nx;}sfx.zap&&sfx.zap();}
+      slowZones.push({x:p.x,y:p.y,r:p._auraR,life:1.0});}}
+    if(p.volcanic){p.volcTimer-=dt;if(p.volcTimer<=0){p.volcTimer=1.4;pNovas.push({x:p.x,y:p.y,r:p.r,spd:480,maxR:p._auraR+70,dmg:p.dmg*0.8,hits:new Set()});burst(p.x,p.y,'#ff7a3a',14,240,0.4,4);sfx.zap&&sfx.zap();}} /* İnferno B: Volkanik Nova */
   }
   // Testere Halkası — geniş, güçlü döner bıçak (orb kalıbı, daha büyük/sert)
   if(p.saws>0){
@@ -1321,6 +1384,14 @@ function update(dt){
       p.holyTimer=Math.max(1.6,3-p.holy*0.4);
       slowZones.push({x:p.x,y:p.y,r:60+p.holy*12,life:2.6,dmg:p.dmg*0.30,tick:0,holy:true});
     }
+  }
+  // Fırtına B: Sürekli Kasırga — dönen büyük vorteks (sürekli hasar + içe çek)
+  if(p.tornado){
+    p.tornadoAng+=dt*2.2;const R=p.r+70,ox=p.x+Math.cos(p.tornadoAng)*R,oy=p.y+Math.sin(p.tornadoAng)*R;
+    p._tornadoX=ox;p._tornadoY=oy;
+    for(const e of enemies){if(e.dead)continue;const dd=dist(ox,oy,e.x,e.y);
+      if(dd<48+e.r){if((e._tornCd||0)<=0){let dm=p.dmg*0.9,crit=false;if(Math.random()<p.crit){dm*=p.critDmg;crit=true;}damageEnemy(e,dm,ox,oy,crit);e._tornCd=0.2;}
+        const a=Math.atan2(oy-e.y,ox-e.x);e.x+=Math.cos(a)*3;e.y+=Math.sin(a)*3;}}
   }
   enemies=enemies.filter(e=>!e.dead);
 
@@ -1371,7 +1442,7 @@ function render(){
     curAccent=biomeTint?biomeTint.accent:'rgba(140,110,210,0.5)';
     let sx=0,sy=0;if(shake>0.4){sx=rand(-shake,shake);sy=rand(-shake,shake);}
     ctx.save();ctx.translate(sx,sy);
-    drawFloor();drawObstacles();drawHazards();drawSlowZones();drawAura();drawNovas();drawPNovas();drawGems();drawEProj();drawEnemies();drawPlayer();drawOrbs();drawBolts();drawPProj();drawParticles();drawDmg();
+    drawFloor();drawObstacles();drawHazards();drawSlowZones();drawAura();drawNovas();drawPNovas();drawGems();drawEProj();drawEnemies();drawPlayer();drawOrbs();drawFusionFx();drawBolts();drawPProj();drawParticles();drawDmg();
     ctx.restore();
     drawJoystick();
   }
@@ -1433,6 +1504,14 @@ function drawOrbs(){
     ctx.fillStyle=g;ctx.beginPath();ctx.arc(ox,oy,9,0,TAU);ctx.fill();
   }
   ctx.restore();
+}
+function drawFusionFx(){ /* füzyon 2.0 görselleri: frenzy hale + Aegis kalkan + kasırga vorteksi */
+  const p=player;if(!p)return;
+  if(p.frenzyOn&&p.frenzy>0.05){ctx.save();const R=p.r+14+6*p.frenzy;ctx.globalAlpha=0.25+0.4*p.frenzy;ctx.strokeStyle='#ff3060';ctx.shadowColor='#ff3060';ctx.shadowBlur=14;ctx.lineWidth=2+2*p.frenzy;ctx.beginPath();ctx.arc(p.x,p.y,R,0,TAU);ctx.stroke();ctx.restore();}
+  if(p.shieldMax>0&&p.shield>0){ctx.save();const fr=p.shield/p.shieldMax,R=p.r+11;ctx.globalAlpha=0.35+0.45*fr;ctx.strokeStyle='#bfe8ff';ctx.shadowColor='#7ad0ff';ctx.shadowBlur=12;ctx.lineWidth=3;ctx.beginPath();ctx.arc(p.x,p.y,R,0,TAU);ctx.stroke();ctx.globalAlpha=0.12*fr;ctx.fillStyle='#bfe8ff';ctx.beginPath();ctx.arc(p.x,p.y,R,0,TAU);ctx.fill();ctx.restore();}
+  if(p.tornado&&p._tornadoX!=null){ctx.save();ctx.translate(p._tornadoX,p._tornadoY);ctx.shadowColor='#9beaff';ctx.shadowBlur=14;ctx.globalAlpha=0.8;
+    for(let k=0;k<3;k++){const rr2=44-k*12,aa=p.tornadoAng*3+k*1.5;ctx.strokeStyle=k%2?'#cfeeff':'#7ad0ff';ctx.lineWidth=3-k*0.6;ctx.beginPath();for(let t=0;t<=TAU+0.01;t+=0.3){const r2=rr2*(0.7+0.3*Math.sin(t*3+aa)),x=Math.cos(t+aa)*r2,y=Math.sin(t+aa)*r2;t===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();}
+    ctx.restore();}
 }
 function drawBolts(){
   if(!bolts.length)return;
@@ -1910,38 +1989,36 @@ const UPGRADES=[
 ];
 /* ============================ BİRLEŞİMLER (FUSIONS) ============================ */
 /* İki uyumlu beceri maks seviyeye gelince açılır; oyuncu hangi tarafın daha çok artacağını seçer */
+/* FÜZYON 2.0 — her füzyonun 2 varyantı da AYRI bir YENİ MEKANİK (artık "+aynı stat" yok).
+   Varyant apply'ları p.<bayrak> set eder; mekanik motor hook'larında işler (hepsi koşu başı kapalı). */
 const FUSIONS=[
   {id:'fz_berserk',need:['dmg','as'],icon:'🔥',name:'Berserker',variants:[
-    {label:'Güç ağırlıklı',desc:'Hasar +%18, Atış hızı +%8',apply:p=>{p.dmg*=1.18;p.fireInterval*=0.92;}},
-    {label:'Hız ağırlıklı',desc:'Atış hızı +%22, Hasar +%8',apply:p=>{p.fireInterval*=0.78;p.dmg*=1.08;}}]},
+    {label:'Kan Çılgınlığı',desc:'Vurdukça öfke dolar → atış hızı +%30 & hasar +%20 (vurmayınca düşer)',apply:p=>{p.frenzyOn=true;}},
+    {label:'Yaylım Ateşi',desc:'Her 4. atışta aim hattına 3lü hızlı ok salvosu fırlatır',apply:p=>{p.salvoOn=true;}}]},
   {id:'fz_marks',need:['crit','pierce'],icon:'🎯',name:'Nişan Ustası',variants:[
-    {label:'Kritik ağırlıklı',desc:'Kritik hasar +%55, Delme +1',apply:p=>{p.critDmg+=0.55;p.pierce++;}},
-    {label:'Delme ağırlıklı',desc:'Delme +2, Kritik şans +%6',apply:p=>{p.pierce+=2;p.crit=Math.min(0.85,p.crit+0.06);}}]},
+    {label:'İnfaz Patlaması',desc:'Kritik vuruşlar isabet yerinde patlar (AoE) ve ok delip geçer',apply:p=>{p.critDetonate=true;p.crit=Math.min(0.85,p.crit+0.05);}},
+    {label:'Av Damgası',desc:'Kritik düşmanı damgalar: damgalı +%35 hasar alır, ölünce şarapnel saçar',apply:p=>{p.markOn=true;p.critDmg+=0.2;}}]},
   {id:'fz_bastion',need:['hp','move'],icon:'🛡️',name:'Muhafız',variants:[
-    {label:'Dayanıklılık',desc:'Maks. can +70 (dolar), Hareket +%6',apply:p=>{p.maxHp+=70;p.hp+=70;p.moveSpeed*=1.06;}},
-    {label:'Çeviklik',desc:'Hareket +%16, Maks. can +30 (dolar)',apply:p=>{p.moveSpeed*=1.16;p.maxHp+=30;p.hp+=30;}}]},
+    {label:'Aegis Kalkanı',desc:'Hasarı emen kalkan (hasarsızda dolar); kırılınca düşmanları iten şok dalgası',apply:p=>{p.shieldMax=80;p.shield=80;p.shieldRe=0;p.maxHp+=20;p.hp+=20;}},
+    {label:'Diken Zırhı',desc:'Vurulunca etrafına diken-patlaması; hızlı koşunca hasarlı iz bırakır',apply:p=>{p.thornsOn=true;p.moveSpeed*=1.10;}}]},
   {id:'fz_arrow',need:['pierce','bounce'],icon:'🪃',name:'Ricochet',variants:[
-    {label:'Delme ağırlıklı',desc:'Delme +2, Sıçrama +1',apply:p=>{p.pierce+=2;p.chainBounce++;}},
-    {label:'Sıçrama ağırlıklı',desc:'Sıçrama +2, Delme +1',apply:p=>{p.chainBounce+=2;p.pierce++;}}]},
+    {label:'Şarapnel',desc:'Oklar delince/sekince 2 parça-oka bölünür (yayılan kıyım)',apply:p=>{p.splinterOn=true;}},
+    {label:'Misket Bombası',desc:'Oklar her geçişte küçük patlama bırakır',apply:p=>{p.clusterBounce=true;}}]},
   {id:'fz_melee',need:['palausta','hizlipala'],icon:'⚔️',name:'Kılıç Üstadı',variants:[
-    {label:'Hasar ağırlıklı',desc:'Yakın hasar +%60, hız +%15',apply:p=>{p.meleeMul+=0.6;p.meleeInterval*=0.85;}},
-    {label:'Hız ağırlıklı',desc:'Yakın hız +%35, hasar +%25',apply:p=>{p.meleeInterval*=0.65;p.meleeMul+=0.25;}}]},
+    {label:'Kasırga',desc:'Yakın vuruş 360° geniş alanı biçer + iten halka şok dalgası',apply:p=>{p.whirlwind=true;p.meleeInterval*=0.85;}},
+    {label:'Yer Yarması',desc:'3+ düşman sarınca dev slam: hepsini iter ve yavaşlatır',apply:p=>{p.groundSlam=true;p.meleeMul+=0.3;}}]},
   {id:'fz_elem',need:['orb','light'],icon:'🌀',name:'Elementalist',variants:[
-    {label:'Top ağırlıklı',desc:'+1 Döner Top ve +1 Yıldırım',apply:p=>{p.orbs++;p.lightning++;}},
-    {label:'Yıldırım ağırlıklı',desc:'+1 Yıldırım ve +1 Top',apply:p=>{p.lightning++;p.orbs++;}}]},
+    {label:'Tesla Yörünge',desc:'Dönen toplar ara sıra yakın düşmana yıldırım yayar',apply:p=>{p.arcOrbs=true;}},
+    {label:'Yıldırım Topu',desc:'Toplar geçtiği yere elektrikli hasarlı alan bırakır',apply:p=>{p.stormOrb=true;}}]},
   {id:'fz_inferno',need:['aura','light'],icon:'☄️',name:'İnferno',variants:[
-    {label:'Aura ağırlıklı',desc:'+1 Aura ve +1 Yıldırım',apply:p=>{p.aura++;p.lightning++;}},
-    {label:'Yıldırım ağırlıklı',desc:'+1 Yıldırım ve +1 Aura',apply:p=>{p.lightning++;p.aura++;}}]},
-  /* Storm Volley: 2.5s hareketsiz ateşte şokdalgası. NOT: eski need ['as','dmg'] berserk ile birebir
-     çakışıyordu → asla görünmüyordu (ölü). need ['big','spd'] yapıldı (çakışmaz, zayıf yeteneklere amaç verir). */
-  {id:'fz_storm_volley',need:['big','spd'],icon:'🌪️',name:'Fırtına Yaylımı',variants:[
-    {label:'Yıkıcı şok',desc:'2.5s sabit kalınca ateşin şokdalgası fırlatır (boss hariç)',apply:p=>{p.stormVolley=1;p.stormCharge=0;}},
-    {label:'Hızlı şok',desc:'1.5s sabit kalınca ateşin küçük şokdalgası fırlatır',apply:p=>{p.stormVolley=2;p.stormCharge=0;}}]},
-  /* 'fz_vamp_shadow' KALDIRILDI — 'lifekill' yok; ulaşılamaz/ölü füzyondu (can-çalma mekaniği çıkarılmıştı). */
-  /* Spec #7 — C) Incendiary Singularity: rear + aura → rear oklar gravity flare bırakır, slow alanı. */
+    {label:'İyon Fırtınası',desc:'Aura alanına periyodik zincir yıldırım + düşmanları yavaşlatır',apply:p=>{p.ionStorm=true;}},
+    {label:'Volkanik Nova',desc:'Aura ara sıra dışa hasarlı ateş şok dalgası patlatır',apply:p=>{p.volcanic=true;}}]},
+  {id:'fz_storm_volley',need:['big','spd'],icon:'🌪️',name:'Fırtına',variants:[
+    {label:'Yıkıcı Şok',desc:'Sabit durup ateş edince güçlü şok dalgası fırlatır (güçlendirildi)',apply:p=>{p.stormVolley=1;p.stormCharge=0;}},
+    {label:'Sürekli Kasırga',desc:'Etrafında dönen kasırga vorteksi sürekli hasar verir ve düşmanı içe çeker',apply:p=>{p.tornado=1;}}]},
   {id:'fz_incendiary',need:['rear','aura'],icon:'🌋',name:'Alev Kapanı',variants:[
-    {label:'Daha çok alev',desc:'Arka oklar yere alev kapanı bırakır (alanda yavaşlatır)',apply:p=>{p.incendiary=1;}},
-    {label:'Daha büyük alan',desc:'Arka oklar geniş alanlı alev kapanı bırakır',apply:p=>{p.incendiary=2;}}]},
+    {label:'Cehennem Tuzağı',desc:'Arka oklar geniş, HASAR veren + yavaşlatan alev tuzağı bırakır',apply:p=>{p.incendiary=1;p.incendiaryDmg=1;}},
+    {label:'Magma Patlaması',desc:'Arka oklar yere düşünce anında ateş patlaması yaratır',apply:p=>{p.eruption=1;}}]},
 ];
 function capOf(id){const u=UPGRADES.find(x=>x.id===id);return u?(u.cap||3):3;}
 /* ===== EVRİM (Faz B) — cap'lenmiş bir beceriyi boss ölünce üst-forma yükselt (fusion'dan ayrı, boss-kapılı güç sıçraması) ===== */
