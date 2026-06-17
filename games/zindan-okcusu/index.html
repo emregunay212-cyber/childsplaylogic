@@ -272,7 +272,7 @@
   </div>
   <div id="stageLabel"></div>
 </div>
-<div id="miniBtns"><div class="mini" id="muteBtn">🔊</div><div class="mini" id="pauseBtn">❚❚</div></div>
+<div id="miniBtns"><div class="mini" id="skillBtn" title="Beceriler (Tab)">🎯</div><div class="mini" id="muteBtn">🔊</div><div class="mini" id="pauseBtn">❚❚</div></div>
 
 <!-- HUB -->
 <div class="screen" id="hub">
@@ -359,6 +359,42 @@
     <button class="btn" id="resumeBtn">Devam</button>
     <button class="btn ghost" id="quitBtn">Üsse Dön</button>
   </div>
+</div>
+
+<!-- Beceri Paneli (Tab) -->
+<style>
+#skillPanel h2{font-family:'Cinzel';color:#ffd980;font-size:clamp(22px,6vw,34px);margin:0 0 4px;text-shadow:0 0 22px rgba(255,200,90,.4);}
+#skillNote{font-size:12px;color:#9beaff;margin-bottom:14px;max-width:520px;line-height:1.4;}
+#skillSlots{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;max-width:560px;}
+.sk-slot{width:96px;min-height:104px;border-radius:14px;padding:10px 6px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;
+  background:linear-gradient(180deg,rgba(40,32,62,.96),rgba(22,18,36,.96));border:1.5px solid var(--panel-brd);position:relative;}
+.sk-slot.empty{opacity:.4;border-style:dashed;justify-content:center;}
+.sk-slot .ic{font-size:30px;filter:drop-shadow(0 0 8px var(--skc,rgba(255,200,90,.5)));}
+.sk-slot .nm{font-size:12px;font-weight:700;color:var(--skc,#ffd980);line-height:1.15;}
+.sk-slot .lv{font-size:10px;font-weight:800;color:#0c0a14;background:#f5c451;padding:1px 6px;border-radius:6px;}
+.sk-slot .cont{font-size:9px;color:var(--muted);line-height:1.25;}
+.sk-slot.sk-fuse{border-color:#ff5ccd;box-shadow:0 0 12px rgba(255,92,205,.35);}
+#skillPassives{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;align-items:center;max-width:540px;margin:12px 0 4px;}
+.sk-chip{font-size:11px;color:var(--muted);background:rgba(255,255,255,.05);border:1px solid var(--panel-brd);border-radius:20px;padding:3px 9px;}
+#fusionGuide{display:flex;flex-direction:column;gap:6px;max-width:540px;width:100%;margin:14px 0;}
+#fusionGuide .fg-title{font-family:'Cinzel';color:#ff8fd6;font-size:15px;margin:2px 0;text-align:center;}
+.fg-row{display:flex;align-items:center;gap:8px;font-size:12px;padding:7px 10px;border-radius:10px;text-align:left;
+  background:rgba(255,255,255,.04);border:1px solid var(--panel-brd);}
+.fg-row .fg-ic{font-size:20px;}.fg-row .fg-body{flex:1;line-height:1.3;}
+.fg-row .fg-st{font-size:11px;font-weight:800;white-space:nowrap;}
+.fg-ready{border-color:#5dff8f;background:rgba(93,255,143,.08);}.fg-ready .fg-st{color:#5dff8f;}
+.fg-part{border-color:#ffd166;background:rgba(255,209,102,.07);}.fg-part .fg-st{color:#ffd166;}
+.fg-done{border-color:#ff5ccd;background:rgba(255,92,205,.08);}.fg-done .fg-st{color:#ff8fd6;}
+.fg-lock{opacity:.5;}.fg-lock .fg-st{color:var(--muted);}
+@media(max-width:420px){.sk-slot{width:29vw;min-height:92px;}.sk-slot .ic{font-size:26px;}}
+</style>
+<div class="overlay" id="skillPanel">
+  <h2>🎯 BECERİLERİM</h2>
+  <div id="skillNote">Birleşen güçler korunur — efektleri oyun boyunca karakterinde kalır. Oyun bitince sıfırlanır.</div>
+  <div id="skillSlots"></div>
+  <div id="skillPassives"></div>
+  <div id="fusionGuide"></div>
+  <button class="btn ghost" id="skillClose">Kapat (Tab)</button>
 </div>
 
 <!-- Stage clear -->
@@ -467,8 +503,8 @@ const VARIANTS={
     {key:'savage',name:'Vahşi Mühür',desc:'Kritik hasar',stats:(f,rm,hi,my)=>({crit:0.025*f, critDmg:0.35*rm+(my?0.25*rm:0)})},
   ],
   bot:[
-    {key:'swift',name:'Rüzgar Botu',desc:'Hızlı hareket',stats:(f,rm,hi,my)=>({moveMul:1+0.085*f, ...(my?{maxHp:10*f}:{})})},
-    {key:'sturdy',name:'Demir Çizme',desc:'Hareket + can',stats:(f,rm,hi,my)=>({moveMul:1+0.05*f, maxHp:13*f})},
+    {key:'swift',name:'Rüzgar Botu',desc:'Hızlı hareket + savunma',stats:(f,rm,hi,my)=>({moveMul:1+0.085*f, def:0.015*rm, ...(my?{maxHp:10*f}:{})})},
+    {key:'sturdy',name:'Demir Çizme',desc:'Hareket + can + savunma',stats:(f,rm,hi,my)=>({moveMul:1+0.05*f, maxHp:13*f, def:0.03*rm+(hi?0.02*rm:0)})},
   ],
   tilsim:[
     {key:'greed',name:'Altın Tılsım',desc:'Altın kazancı',stats:(f,rm,hi,my)=>({goldBonus:0.20*rm, xpBonus:0.06*rm, ...(my?{crit:0.04*rm}:{})})},
@@ -682,8 +718,9 @@ const moveJoy={active:false,id:null,bx:0,by:0,cx:0,cy:0};
 let inputDir={x:0,y:0,mag:0};
 addEventListener('keydown',e=>{
   const k=e.key.toLowerCase();keys[k]=true;
-  if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
-  if(k==='p'||k==='escape'){if(state===ST.PLAYING)doPause();else if(state===ST.PAUSED)doResume();}
+  if(['arrowup','arrowdown','arrowleft','arrowright',' ','tab'].includes(k))e.preventDefault();
+  if(k==='tab'){if(skillOpen)closeSkillPanel();else openSkillPanel();return;}
+  if(k==='p'||k==='escape'){if(skillOpen){closeSkillPanel();return;}if(state===ST.PLAYING)doPause();else if(state===ST.PAUSED)doResume();}
 });
 addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
 cv.addEventListener('touchstart',e=>{
@@ -2140,7 +2177,7 @@ function resolveWheel(type){
 function closeWheel(){$('wheel').classList.remove('show');afterPick();}
 
 /* ============================ FLOW ============================ */
-function hideAllOverlays(){['hub','map','equip','talents'].forEach(i=>$(i).classList.remove('show'));['levelup','pause','stageclear','gameover'].forEach(i=>$(i).classList.remove('show'));$('hud').style.display='none';$('miniBtns').classList.remove('show');}
+function hideAllOverlays(){['hub','map','equip','talents'].forEach(i=>$(i).classList.remove('show'));['levelup','pause','stageclear','gameover','skillPanel'].forEach(i=>$(i).classList.remove('show'));skillOpen=false;$('hud').style.display='none';$('miniBtns').classList.remove('show');}
 function updateGoldDisplays(){document.querySelectorAll('.goldval').forEach(el=>el.textContent=fmt(save.gold));}
 
 function goHub(){hideAllOverlays();biomeTint=null;state=ST.HUB;renderHub();renderAsc();$('hub').classList.add('show');}
@@ -2218,6 +2255,59 @@ function startEndless(){
 }
 function doPause(){if(state!==ST.PLAYING)return;state=ST.PAUSED;$('pause').classList.add('show');}
 function doResume(){if(state!==ST.PAUSED)return;state=ST.PLAYING;$('pause').classList.remove('show');}
+/* ===== Oyun içi Beceri Paneli (Tab) — aktif slotlar + birleştirme rehberi ===== */
+let skillOpen=false;
+function upgDef(id){return UPGRADES.find(u=>u.id===id)||FUSIONS.find(f=>f.id===id)||null;}
+function abilityName(id){const d=upgDef(id);return d?d.name:id;}
+function clrNode(n){while(n.firstChild)n.removeChild(n.firstChild);}
+function mkEl(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
+function renderSkillPanel(){
+  const p=player;if(!p)return;
+  /* --- 5 aktif slot kutusu --- */
+  const slots=$('skillSlots');clrNode(slots);
+  const actIds=Object.keys(p.picks).filter(isActiveId);
+  for(let i=0;i<MAX_SKILL_SLOTS;i++){
+    const id=actIds[i],box=mkEl('div','sk-slot');
+    if(id){
+      const d=upgDef(id),isFus=FUSIONS.some(f=>f.id===id),cnt=p.picks[id]||1,cap=capOf(id);
+      if(isFus)box.classList.add('sk-fuse');
+      if(d&&d.c)box.style.setProperty('--skc',d.c);
+      box.appendChild(mkEl('div','ic',d?d.icon:'❔'));
+      box.appendChild(mkEl('div','nm',d?d.name:id));
+      box.appendChild(mkEl('div','lv',isFus?'BİRLEŞİM':'Lv '+cnt+'/'+cap));
+      if(isFus){const f=FUSIONS.find(x=>x.id===id);box.appendChild(mkEl('div','cont','İçerir: '+f.need.map(abilityName).join(' + ')));}
+    }else{box.classList.add('empty');box.appendChild(mkEl('div','ic','➕'));box.appendChild(mkEl('div','cont','Boş slot'));}
+    slots.appendChild(box);
+  }
+  /* --- pasif beceriler (slotsuz) --- */
+  const pas=$('skillPassives');clrNode(pas);
+  const pasIds=Object.keys(p.picks).filter(id=>!isActiveId(id));
+  if(pasIds.length){
+    const lbl=mkEl('span','sk-chip','🔧 Pasif:');lbl.style.cssText='background:none;border:none;color:#8fffc0;font-weight:800';pas.appendChild(lbl);
+    for(const id of pasIds){const d=upgDef(id),c=p.picks[id]||1;pas.appendChild(mkEl('span','sk-chip',(d?d.icon+' '+d.name:id)+(c>1?' ×'+c:'')));}
+  }
+  /* --- birleştirme rehberi --- */
+  const fg=$('fusionGuide');clrNode(fg);fg.appendChild(mkEl('div','fg-title','⚡ Birleştirme Rehberi'));
+  for(const f of FUSIONS){
+    const isOwned=owned.has(f.id);
+    if(!isOwned&&f.need.some(id=>fusedAway.has(id)))continue; /* bu koşuda erişilemez (başka füzyona gitti) */
+    const ready=f.need.every(id=>(p.picks[id]||0)>=capOf(id));
+    const haveAny=f.need.some(id=>(p.picks[id]||0)>0);
+    const needTxt=f.need.map(id=>{const c=p.picks[id]||0,cp=capOf(id);return abilityName(id)+' ('+Math.min(c,cp)+'/'+cp+')';}).join(' + ');
+    let cls,st,rest;
+    if(isOwned){cls='fg-done';st='✔ YAPILDI';rest='İçerir: '+f.need.map(abilityName).join(' + ');}
+    else if(ready){cls='fg-ready';st='HAZIR ✓';rest=needTxt+' · Seviye atlayınca seç!';}
+    else if(haveAny){cls='fg-part';st='EKSİK';rest=needTxt;}
+    else{cls='fg-lock';st='—';rest='Gerekir: '+f.need.map(abilityName).join(' + ');}
+    const row=mkEl('div','fg-row '+cls);
+    row.appendChild(mkEl('span','fg-ic',f.icon));
+    const body=mkEl('span','fg-body');body.appendChild(mkEl('b',null,f.name));body.appendChild(document.createTextNode(' — '+rest));
+    row.appendChild(body);row.appendChild(mkEl('span','fg-st',st));
+    fg.appendChild(row);
+  }
+}
+function openSkillPanel(){if(state!==ST.PLAYING||!player)return;state=ST.PAUSED;renderSkillPanel();$('skillPanel').classList.add('show');skillOpen=true;}
+function closeSkillPanel(){if(!skillOpen)return;$('skillPanel').classList.remove('show');skillOpen=false;if(state===ST.PAUSED)state=ST.PLAYING;}
 function quitCombat(){
   if(isCombat()){save.gold+=Math.round(runGold);if(mode==='endless'&&score>save.bestEndless)save.bestEndless=score;runGold=0;persist();}
   goHub();
@@ -2365,8 +2455,11 @@ $('resumeBtn').onclick=doResume;
 $('quitBtn').onclick=quitCombat;
 $('scMap').onclick=goMap;
 $('goHomeBtn').onclick=goHub;
-$('pauseBtn').onclick=()=>state===ST.PLAYING?doPause():doResume();
+$('pauseBtn').onclick=()=>{if(skillOpen)return closeSkillPanel();return state===ST.PLAYING?doPause():doResume();};
 $('muteBtn').onclick=()=>{muted=!muted;$('muteBtn').textContent=muted?'🔇':'🔊';};
+$('skillBtn').onclick=()=>skillOpen?closeSkillPanel():openSkillPanel();
+$('skillClose').onclick=closeSkillPanel;
+$('skillPanel').onclick=e=>{if(e.target===$('skillPanel'))closeSkillPanel();};
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&state===ST.PLAYING)doPause();});
 window.playChapter=playChapter;window.selectItem=selectItem;window.doEquip=doEquip;window.doUnequip=doUnequip;window.doSell=doSell;window.doUpgrade=doUpgrade;window.goEquip=goEquip;window.goHub=goHub;window.goTalents=goTalents;window.buyTalent=buyTalent;
 
