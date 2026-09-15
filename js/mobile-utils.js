@@ -1,5 +1,5 @@
 /* ============================================
-   Mobile Utils — Canvas DPR + Touch Yardımcıları
+   Mobile Utils — Canvas DPR + Touch Yardımcıları + tık/klavye etkinleştirme (bindActivate)
    ============================================ */
 
 const MobileUtils = (() => {
@@ -142,6 +142,17 @@ const MobileUtils = (() => {
     document.addEventListener('mouseup', release);
   }
 
+  // Bir öğeyi tıkla VE klavyeyle (Enter / Boşluk) etkinleştirir — role="button" + tabindex="0"
+  // taşıyan div'ler (hub kartları, jeton çipi) için. Gerçek <button> zaten bunu kendisi yapar.
+  // Boşlukta preventDefault: sayfa kaymasın. app.js ve bilnet-meta.js kullanır.
+  function bindActivate(el, fn) {
+    if (!el || typeof fn !== 'function') return;
+    el.addEventListener('click', fn);
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(e); }
+    });
+  }
+
   return {
     getDPR,
     isTouchDevice,
@@ -152,5 +163,6 @@ const MobileUtils = (() => {
     attachGlobalAudioUnlock,
     unlockAudio,
     bindHoldButton,
+    bindActivate,
   };
 })();

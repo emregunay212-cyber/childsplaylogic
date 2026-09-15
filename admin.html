@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>BilnetOyun — Yönetim Paneli</title>
-    <link rel="stylesheet" href="css/admin.css?v=1">
+    <title>Bilnet Oyun — Yönetim Paneli</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/css/imza.css">
+    <link rel="stylesheet" href="css/admin.css?v=2">
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -16,7 +18,7 @@
         <div id="login-view">
             <form id="login-form" class="login-box">
                 <h1>Yönetim Paneli</h1>
-                <p class="sub">BilnetOyun — admin girişi</p>
+                <p class="sub">Bilnet Oyun — admin girişi</p>
                 <div class="field">
                     <label for="email">E-posta</label>
                     <input id="email" type="email" autocomplete="username" placeholder="admin@bilnetoyun.com" required>
@@ -80,9 +82,18 @@
 
     <div id="toast" class="toast"></div>
 
-    <script src="js/firebase-config.js?v=2"></script>
+    <!-- egweblab marka imzası — sayfanın en altı (css/imza.css; koyu tema tonları css/admin.css) -->
+    <div class="imza-band">
+        <a class="imza" href="https://egweblab.com.tr" target="_blank" rel="noopener">
+            <img class="imza__mark" src="/assets/logo-96.png" width="20" height="20" alt="" decoding="async">
+            <span class="imza__ust">Tasarım ve yazılım</span>
+            <span class="imza__ad">egweblab<span class="imza__tld">.com.tr</span></span>
+        </a>
+    </div>
+
+    <script src="js/firebase-config.js?v=3"></script>
     <script src="js/i18n.js?v=5"></script>
     <script src="js/lock-catalog.js?v=5"></script>
-    <script src="js/admin.js?v=4"></script>
+    <script src="js/admin.js?v=5"></script>
 </body>
 </html>

@@ -15,6 +15,10 @@ const firebaseConfig = {
     appId: "1:27619900067:web:bf0f3aa99670b6a9dfdd16"
 };
 
+// Yönetici hesabı (TEK KAYNAK): admin.js (panel girişi) ve auth.js (hub'daki panel bağlantısı)
+// bu e-postayı karşılaştırır. RTDB kurallarında adminConfig yazma yetkisi de yalnız bu hesapta.
+const ADMIN_EMAIL = 'admin@bilnetoyun.com';
+
 let db = null;
 window.FIREBASE_OK = false;
 try {

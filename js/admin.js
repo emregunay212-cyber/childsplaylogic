@@ -16,9 +16,8 @@
     }
     const auth = firebase.auth();
     const cfgRef = db.ref('adminConfig');
-    // adminConfig'e YAZMA yetkisi RTDB kurallarında yalnızca bu e-postaya verili
-    // (database.rules.json). Başka hesapla panel açılırsa her kayıt PERMISSION_DENIED verir.
-    const ADMIN_EMAIL = 'admin@bilnetoyun.com';
+    // adminConfig'e YAZMA yetkisi RTDB kurallarında yalnızca ADMIN_EMAIL'e (js/firebase-config.js)
+    // verili (database.rules.json). Başka hesapla panel açılırsa her kayıt PERMISSION_DENIED verir.
     let cfg = {};
 
     // ── küçük DOM yardımcısı (innerHTML yok → XSS-güvenli) ──
@@ -117,6 +116,8 @@
     }
 
     function bulkLocks(val) {
+        // Kilit anında tüm cihazlara gider: oyun ortasındaki öğrenci uyarılıp hub'a döner → onay iste
+        if (val === 'lock' && !confirm('Tüm oyunlar kilitlenecek; oyun ortasındaki öğrenciler ana ekrana döner. Devam?')) return;
         if (val === 'auto') {
             cfgRef.child('locks').remove()
                 .then(() => toast('Tüm override\'lar temizlendi (otomatik).', 'ok'))

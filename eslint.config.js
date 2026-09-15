@@ -39,6 +39,7 @@ const hubCoreGlobals = {
     Particles: 'readonly',          // js/particles.js
     Progress: 'readonly',           // js/progress.js
     HubToast: 'readonly',           // js/errors.js (A4)
+    ADMIN_EMAIL: 'readonly',        // js/firebase-config.js (A6)
     TR: 'readonly',                 // js/i18n.js
 };
 

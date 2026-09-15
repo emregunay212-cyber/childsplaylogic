@@ -104,19 +104,19 @@ const Lobby = (() => {
 
     const settingsHTML = isHavaHokeyi ? `
         <div class="lobby-setting">
-          <p style="text-align:center;color:#888;font-size:0.9rem;">Tokmağı kaydır · ilk 7 golü atan kazanır</p>
+          <p style="text-align:center;color:var(--text-muted);font-size:0.9rem;">Tokmağı kaydır · ilk 7 golü atan kazanır</p>
         </div>
     ` : isZiplaCoop ? `
         <div class="lobby-setting">
-          <p style="text-align:center;color:#888;font-size:0.9rem;">Host = Mario, Guest = Luigi · birlikte 12 bölüm</p>
+          <p style="text-align:center;color:var(--text-muted);font-size:0.9rem;">Host = Mario, Guest = Luigi · birlikte 12 bölüm</p>
         </div>
     ` : isAtesBuz ? `
         <div class="lobby-setting">
-          <p style="text-align:center;color:#888;font-size:0.9rem;">Host = Ates, Guest = Buz | 5 seviye</p>
+          <p style="text-align:center;color:var(--text-muted);font-size:0.9rem;">Host = Ates, Guest = Buz | 5 seviye</p>
         </div>
     ` : isPenalti ? `
         <div class="lobby-setting">
-          <p style="text-align:center;color:#888;font-size:0.9rem;">⚽ 5'er penaltı atışı + seri penaltı</p>
+          <p style="text-align:center;color:var(--text-muted);font-size:0.9rem;">⚽ 5'er penaltı atışı + seri penaltı</p>
         </div>
     ` : isSatranc ? `
         <div class="lobby-setting">
@@ -351,7 +351,8 @@ const Lobby = (() => {
   function doRenderWordSetup(rawWordLength, opponentName) {
     Multiplayer.offAll();
     // Güvenlik (XSS): wordLength Firebase'deki lobiden gelir, kuralda doğrulanmıyor → tam sayıya zorla
-    const wordLength = parseInt(rawWordLength, 10) || 5;
+    // ve lobi seçeneği aralığına (3-8 harf) sıkıştır: Array(1e9) / negatif uzunluk DOM'u kilitlemesin
+    const wordLength = Math.min(Math.max(parseInt(rawWordLength, 10) || 5, 3), 8);
     let currentWord = '';
 
     container.innerHTML = `

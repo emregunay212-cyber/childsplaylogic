@@ -143,12 +143,6 @@
     100% { border-color: #FF6B6B; }
 }
 
-/* Hafif süzülme (idle kartlar) */
-@keyframes gentleFloat {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-3px); }
-}
-
 /* Eğlenceli sallanma (hover) */
 @keyframes wiggleHover {
     0%, 100% { transform: rotate(0deg); }
@@ -189,11 +183,33 @@
     100% { background-position: 0% 50%; }
 }
 
-/* Reduced motion */
+/* Reduced motion — hedefli: dekoratif hareket gider, anlamlı geri bildirim kalır.
+   (Eski global 0.01ms öldürme yıldız/ilerleme geri bildirimini de siliyordu.) */
 @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
+    /* 1) Dekoratif sonsuz döngüler durur: bulut, güneş nabzı, CTA parıltısı, ok süzülmesi,
+          kelebek, lobi ikonu, sıra rozeti nabzı, çip sallanması */
+    .cloud, .sun, .splash-sun, .login-sun, .splash-btn, .splash-btn::after,
+    .hub .butterfly, .lobby-icon, .mp-turn-badge, .hub-nav-chip:hover {
+        animation: none !important;
     }
+    /* 2) Giriş koreografisi atlanır: içerik anında yerinde (kayma/ölçek/kademe yok) */
+    .game-card, .splash-content, .login-card, .user-menu, .complete-card,
+    .lock-modal, .lock-modal-card,
+    .lobby-main, .lobby-create, .lobby-waiting, .lobby-list-screen, .word-setup, .lobby-loading-screen {
+        animation-duration: 0.01ms !important;
+        animation-delay: 0s !important;
+    }
+    /* 3) Durum geçişleri kısa ve düz (150 ms): hover/basma/odak geri bildirimi korunur */
+    .game-card, .popular-card, .hub-nav-chip, .top-btn, .coin-counter, .user-toggle,
+    .splash-btn, .login-btn, .complete-btn, .lm-btn, .imza,
+    .pill, .kb-key, .word-box, .guess-cell, .harf-cell, .mp-turn-badge, .lobby-refresh-btn {
+        transition-duration: 150ms !important;
+        transition-timing-function: ease-out !important;
+    }
+    /* Hover'da uzaysal kaldırma yok; gölge/kenarlık ve basma ölçeği (%3) yeter */
+    .game-card:hover, .game-card:focus-visible, .popular-card:hover { transform: none !important; }
+    .game-card:active, .popular-card:active { transform: scale(0.97) !important; }
+    /* KASTEN korunur: starEarned, successPulse, numberPop, wiggle (hata), lm-bar-fill (ilerleme
+       çubuğu), oyun içi hücre açılışları. (Kilitli karta dokunma zıplaması da 2. kuralla sönümlenir;
+       geri bildirimi zaten açılan kilit penceresi verir.) */
 }

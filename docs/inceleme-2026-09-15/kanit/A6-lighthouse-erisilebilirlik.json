@@ -1,0 +1,93 @@
+{
+  "note": "A6 Lighthouse (chrome-devtools MCP, desktop). before = master (280d85e) yerel sunucu; after = A6+A5a+A7 çalışma ağacı.",
+  "before": {
+    "loginNavigation": {
+      "lighthouseVersion": "13.4.1",
+      "fetchTime": "2026-09-15T07:04:26.488Z",
+      "gatherMode": "navigation",
+      "scores": {
+        "accessibility": 93,
+        "best-practices": 100,
+        "seo": 100,
+        "agentic-browsing": 100
+      },
+      "accessibilityFailures": [
+        {
+          "id": "meta-viewport",
+          "title": "`[user-scalable=\"no\"]` is used in the `<meta name=\"viewport\">` element or the `[maximum-scale]` attribute is less than 5.",
+          "items": [
+            "head > meta"
+          ]
+        }
+      ]
+    },
+    "hubSnapshot": {
+      "lighthouseVersion": "13.4.1",
+      "fetchTime": "2026-09-15T07:04:57.959Z",
+      "gatherMode": "snapshot",
+      "scores": {
+        "accessibility": 89,
+        "best-practices": 100,
+        "seo": 100,
+        "agentic-browsing": 100
+      },
+      "accessibilityFailures": [
+        {
+          "id": "color-contrast",
+          "title": "Background and foreground colors do not have a sufficient contrast ratio.",
+          "items": [
+            "div#app > header#top-bar > h1.top-title > span.top-sub"
+          ]
+        },
+        {
+          "id": "heading-order",
+          "title": "Heading elements are not in a sequentially-descending order",
+          "items": [
+            "main#hub > div#hub-grid > div.hub-category-header > h3"
+          ]
+        },
+        {
+          "id": "meta-viewport",
+          "title": "`[user-scalable=\"no\"]` is used in the `<meta name=\"viewport\">` element or the `[maximum-scale]` attribute is less than 5.",
+          "items": [
+            "head > meta"
+          ]
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "title": "Elements with visible text labels do not have matching accessible names.",
+          "items": [
+            "div#app > header#top-bar > div.top-right > div#coin-counter",
+            "div#app > main#hub > div#hub-grid > div.game-card"
+          ]
+        }
+      ]
+    }
+  },
+  "after": {
+    "loginNavigation": {
+      "lighthouseVersion": "13.4.1",
+      "fetchTime": "2026-09-15T07:06:46.099Z",
+      "gatherMode": "navigation",
+      "scores": {
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100,
+        "agentic-browsing": 100
+      },
+      "accessibilityFailures": []
+    },
+    "hubSnapshot": {
+      "lighthouseVersion": "13.4.1",
+      "fetchTime": "2026-09-15T07:17:02.264Z",
+      "gatherMode": "snapshot",
+      "scores": {
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100,
+        "agentic-browsing": 100
+      },
+      "accessibilityFailures": []
+    }
+  }
+}
