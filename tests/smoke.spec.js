@@ -95,6 +95,7 @@ async function expectGameViewOpen(page, slug, kind) {
     await expect(page.locator('#game-container'), `oyun görünümü açılmalı: ${slug} (kilit/admin "lock"?)`).toBeVisible();
     await expect(page.locator('#hub'), 'hub gizlenmeli').toBeHidden();
     await expect(page.locator('#game-area > *').first(), 'oyun #game-area içine bir şey çizmeli').toBeAttached();
+    await expect(page.locator('#game-area .game-loading'), 'tembel yükleme tamamlanmalı (yükleniyor kutusu kalkmalı)').toHaveCount(0);
     if (kind === 'solo') {
         // js/app.js startGame → body[data-active-game]; js/engine.js → #game-title = TR.games[id]
         await expect(page.locator('body')).toHaveAttribute('data-active-game', slug);
