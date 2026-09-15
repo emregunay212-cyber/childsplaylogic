@@ -50,6 +50,13 @@ jobs:
           CI: true
           SITE_ROOT: .build-check
 
+      # İstemci tarafı temizlikçi (js/janitor.js): sahte db ile — canlı RTDB'ye dokunmaz.
+      - name: Temizlikçi testi — hash'li çıktı üzerinde
+        run: npm run test:janitor
+        env:
+          CI: true
+          SITE_ROOT: .build-check
+
       # Kırmızı koşuda adli kayıt: trace (ilk retry), ekran görüntüsü, video, error-context.md
       - name: Hata artefaktları
         if: failure()

@@ -3,23 +3,18 @@
    3 sn çalışır; yakalanmamış JS hatası ya da (404 dışı) console.error → FAIL.
    + admin.html giriş formu, + oyunlar/index.html bağlantı sayısı.
 
-   Kurulum tarayıcı UI'sı üzerinden değil, depolama tohumuyla yapılır (hızlı, deterministik):
-   - sessionStorage bo_guest_mode=1 → giriş kartı atlanır (js/auth.js resumeGuest)
-   - localStorage oyun_bahcesi_progress → tüm kilitler öğretmen-izniyle açık; böylece
-     test canlı adminConfig'e ("auto"/"unlock") bağımlı değildir. Yalnız açık admin
-     "lock" bir oyunu hub'a geri atar — o da gerçek bir durumdur, test onu gösterir.
-   - localStorage oyun_bahcesi_lastResetToken → canlı resetToken tohumu silmesin.
+   Kurulum tarayıcı UI'sı üzerinden değil, depolama tohumuyla yapılır (hızlı, deterministik;
+   anahtarlar ve gerekçe: tests/helpers/guest-seed.js): misafir oturumu, tüm kilitler
+   öğretmen-izniyle açık (test canlı adminConfig'e bağımlı değildir — yalnız açık admin "lock"
+   bir oyunu hub'a geri atar, o da gerçek bir durumdur, test onu gösterir), resetToken
+   koruması ve temizlikçi eşiği (js/janitor.js canlı RTDB'de silme yapmasın).
    ============================================ */
 'use strict';
 
 const { test: base, expect } = require('@playwright/test');
 const { getActiveSlugs } = require('./helpers/slugs');
+const { seedGuest } = require('./helpers/guest-seed');
 const tolerated = require('./helpers/tolerated-404');
-
-// Depolama anahtarları — kaynak: js/auth.js:11, js/progress.js:6, js/app.js applyAdminConfig
-const GUEST_KEY = 'bo_guest_mode';
-const PROGRESS_KEY = 'oyun_bahcesi_progress';
-const RESET_TOKEN_KEY = 'oyun_bahcesi_lastResetToken';
 
 // Oyun açıldıktan sonra hata toplamak için gözlem penceresi. Senkronizasyon beklemesi
 // DEĞİL (görünürlük ayrıca koşulla beklenir); init/ilk kare hatalarını yakalamak için.
@@ -43,15 +38,7 @@ const hubOnlyOnline = online.filter((slug) => solo.includes(slug));
 // ── Fixture'lar: misafir oturumu tohumu + hata toplayıcı ──
 const test = base.extend({
     context: async ({ context }, use) => {
-        await context.addInitScript(({ guestKey, progressKey, resetKey, lockKeys }) => {
-            const teacherUnlocks = Object.fromEntries(lockKeys.map((k) => [k, true]));
-            const progress = { version: 1, games: {}, totalStars: 0, settings: { soundEnabled: true, teacherUnlocks } };
-            try { sessionStorage.setItem(guestKey, '1'); } catch (e) { /* depolama kapalıysa giriş kartı görünür → test bunu yakalar */ }
-            try {
-                localStorage.setItem(progressKey, JSON.stringify(progress));
-                localStorage.setItem(resetKey, String(Number.MAX_SAFE_INTEGER));
-            } catch (e) { /* aynı */ }
-        }, { guestKey: GUEST_KEY, progressKey: PROGRESS_KEY, resetKey: RESET_TOKEN_KEY, lockKeys: allLockKeys });
+        await seedGuest(context, allLockKeys);
         await use(context);
     },
 

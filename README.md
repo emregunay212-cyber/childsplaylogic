@@ -78,6 +78,9 @@ Oyunu kapatmak: `js/app.js` kaydına `comingSoon: true`, `games_data.py`'de `act
 - Firebase'den gelen ad/lobi alanları `innerHTML` öncesi kaçışlanır (PR #16); yeni kod `textContent` ya da `escapeHTML` kullanmalı.
 - `vercel.json` CSP **Report-Only** — zorlayıcı moda geçiş A9c'de (27 iframe sayfası satır içi `<script>` taşıyor).
 - Sırlar: `js/firebase-config.js`'teki Firebase web yapılandırması herkese açık istemci anahtarıdır; gizli anahtar, token ya da servis hesabı repoda **bulunmaz**, eklenmez.
+- İstemci tarafı temizlikçi (`js/janitor.js`): ücretsiz Spark planında Cloud Functions yok; herkese okunur `lobbies` ve `rooms/*` altında çocuk takma adları birikmesin diye temizliği ziyaretçi tarayıcısı yapar — `createdAt` 24 saatten eski (ya da hiç olmayan) kayıtlar yol başına en çok 60'ar silinir.
+- Kapılar: yalnız Firebase açık, çevrimiçi ve üst pencerede; cihaz başına 6 saatte bir (`localStorage bo_janitor_last`); `js/app.js` oturum çözülünce boşta zamanda planlar (`requestIdleCallback`), oyun başlatma yolunda değil; asla fırlatmaz (`[Janitor]` console.info/warn).
+- Silme yetkisi mevcut kurallardan gelir (anahtar deseni tutan tekil kayıt); yalnız desene uyan anahtarlar tek çok-yollu `update({k:null})` ile silinir. `database.rules.json` `.indexOn`'a `createdAt` eklendi — `firebase deploy --only database` yapılana kadar sorgu istemcide süzülür (çalışır, SDK "unspecified index" uyarır). Test: `npm run test:janitor` (sahte db, canlıya dokunmaz).
 
 ## Belgeler
 

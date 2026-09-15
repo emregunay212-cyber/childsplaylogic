@@ -78,7 +78,8 @@
     "lobbies": {
       ".read": true,
       ".indexOn": [
-        "state"
+        "state",
+        "createdAt"
       ],
       "$lobbyId": {
         ".write": "$lobbyId.matches(/^[A-Z]{5}$/)",
@@ -133,7 +134,8 @@
       ".read": true,
       "altin-avi": {
         ".indexOn": [
-          "state"
+          "state",
+          "createdAt"
         ],
         "$code": {
           ".write": "$code.matches(/^[A-Z]{5}$/)",
@@ -154,7 +156,8 @@
       },
       "son-kart": {
         ".indexOn": [
-          "state"
+          "state",
+          "createdAt"
         ],
         "$code": {
           ".write": "$code.matches(/^[A-Z2-9]{4}$/)",
@@ -170,7 +173,8 @@
       },
       "kelimelik": {
         ".indexOn": [
-          "state"
+          "state",
+          "createdAt"
         ],
         "$code": {
           ".write": "$code.matches(/^[A-Z2-9]{4}$/)",
