@@ -11,6 +11,7 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import build_seo as b  # noqa: E402
+import games_data as gd  # noqa: E402
 
 SAMPLE = dict(slug="ornek-oyun", name="Örnek Oyun", cat="Matematik", age="7-10", players="Tek kişilik",
               teaches="Toplama ve çıkarma", short="Kısa bir tanıtım cümlesi.", about="Uzun açıklama metni.")
@@ -97,6 +98,19 @@ class JsonLdTests(unittest.TestCase):
         self.assertEqual(vg["numberOfPlayers"], {"@type": "QuantitativeValue", "minValue": 5, "maxValue": 30})
         self.assertEqual(vg["dateModified"], "2026-09-15")
         self.assertEqual(vg["applicationCategory"], "GameApplication")
+
+    def test_org_node_has_parent_school_and_social_sameas(self):
+        org = self.graph(game())[1]
+        self.assertEqual(org["@id"], "https://bilnetoyun.com/#org")
+        parent = org["parentOrganization"]
+        self.assertEqual(parent["@type"], "EducationalOrganization")
+        self.assertEqual(parent["name"], "Bilnet Okulları Balıkesir Kampüsü")
+        self.assertEqual(parent["url"], "https://balikesir.bilnetokullari.com/")
+        self.assertEqual(parent["sameAs"], ["https://www.instagram.com/bilnetbalikesir/",
+                                            "https://www.facebook.com/bilnetbalikesir",
+                                            "https://twitter.com/bilnetbalikesir"])
+        self.assertNotIn("sameAs", org)            # Bilnet Oyun'un kendi sosyal hesabi yok
+        self.assertNotIn("email", json.dumps(org))  # e-posta yayimlanmamis
 
     def test_breadcrumb_last_item_has_no_url(self):
         crumbs = self.graph(game())[2]["itemListElement"]
@@ -275,12 +289,37 @@ class StaticPageTests(unittest.TestCase):
         self.assertIn("Son güncelleme: 15 Eylül 2026", by["gizlilik"])
         self.assertIn("okul yönetiminin onayıyla güncellenir", by["gizlilik"])
         self.assertIn("europe-west1", by["gizlilik"])
-        self.assertIn("<!-- TODO(sahip): resmî e-posta / okul sitesi bağlantısı -->", by["iletisim"])
+        self.assertNotIn("TODO", by["iletisim"])                              # sahip bilgileri geldi
         self.assertIn('href="https://egweblab.com.tr"', by["hakkinda"])
         self.assertIn("57 oyun", by["hakkinda"])
         for html in by.values():
-            self.assertNotRegex(html, r"[\w.+-]+@[\w-]+\.[\w.]+")        # e-posta uydurulmaz
-            self.assertNotRegex(html, r"\+?\d[\d ]{9,}\d")                 # telefon uydurulmaz
+            self.assertNotRegex(html, r"[\w.+-]+@[\w-]+\.[\w.]+")        # e-posta yayımlanmamış, uydurulmaz
+            # Yalnız yayımlı çağrı merkezi numarası; başka telefon uydurulmaz
+            rest = html.replace(gd.SCHOOL_PHONE, "").replace("tel:+908502601245", "")
+            self.assertNotRegex(rest, r"\+?\d[\d ]{9,}\d")
+
+    def test_real_static_school_links_and_kvkk_sections(self):
+        by = {p["slug"]: b.build_static(p, "2026-09-15", 57) for p in b.STATIC_PAGES}
+        contact = 'href="https://balikesir.bilnetokullari.com/tr/kampus-iletisim"'
+        for slug in ("gizlilik", "iletisim"):
+            self.assertIn(contact, by[slug], slug)
+            self.assertIn('<a href="tel:+908502601245">0 850 260 12 45</a>', by[slug], slug)
+        self.assertIn('href="https://balikesir.bilnetokullari.com/"', by["hakkinda"])
+        self.assertIn('href="https://bilnetokullari.com/"', by["hakkinda"])
+        for _, url in gd.SCHOOL_SOCIAL:
+            self.assertIn(f'href="{url}"', by["iletisim"])
+        # KVKK md. 10 zorunlu basliklari: veri sorumlusu, amac/hukuki sebep, aktarim, haklar (md. 11)
+        for sid in ("veri-sorumlusu", "hukuki-sebep", "aktarim", "saklama", "haklar", "cocuk-verisi"):
+            self.assertIn(f'<section id="{sid}">', by["gizlilik"], sid)
+        self.assertIn("Bilnet Okulları Balıkesir Kampüsü", by["gizlilik"])
+        self.assertIn("md. 9", by["gizlilik"])                                 # yurt disi aktarim durustce
+        self.assertIn("24 saat", by["gizlilik"])                               # oda kayitlari saklama
+        # Okunabilirlik: <= 1400 kelime (etiketler ve HTML varliklari sayilmaz)
+        gizlilik = [p for p in b.STATIC_PAGES if p["slug"] == "gizlilik"][0]
+        text = gizlilik["lead"] + " " + gizlilik.get("note", "") + " " + " ".join(
+            h2 + " " + " ".join(blocks) for h2, _, blocks in gizlilik["sections"])
+        words = re.sub(r"&\w+;", " ", re.sub(r"<[^>]+>", " ", text)).split()
+        self.assertLessEqual(len(words), 1400)
 
     def test_validate_static_rejects_bad_slug_and_duplicate_ids(self):
         good = b.STATIC_PAGES

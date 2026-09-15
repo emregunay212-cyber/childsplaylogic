@@ -31,57 +31,108 @@ Alanlar:
 #   sections    : [(h2, bolum-id, [paragraf, ...])] — paragraf "<" ile basliyorsa oldugu gibi
 #                 basilir (liste/yorum), yoksa <p> icine alinir. Icerik guvenilir yazar HTML'idir;
 #                 {toplam_oyun} yer tutucusu uretimde oyun sayisiyla doldurulur.
-# Icerik js/auth.js, js/progress.js, js/lobby.js, js/multiplayer.js, database.rules.json ve
-# js/firebase-config.js ile birebir dogrulanmistir; kod degisirse metin de degismeli.
+# Gizlilik metni (KVKK md. 10 aydinlatma) js/auth.js, js/progress.js, js/lobby.js, js/multiplayer.js,
+# games/kelimelik/net.js, games/son-kart/js/net.js, js/games/altin-avi.js, database.rules.json,
+# js/firebase-config.js, index.html ve vercel.json ile birebir dogrulanmistir; kod degisirse metin de
+# degismeli. "24 saati gecen kayitlar otomatik temizlikle silinir" cumlesi, ayni anda eklenen uygulama-ici
+# temizlik isine (sonraki ziyaretcide, parti parti) dayanir; sure garantisi ("en gec") verilmez.
+# Okul bilgileri (SCHOOL_*) sahip tarafindan dogrulanmis yayimli kaynaklardir; e-posta yayimlanmamistir,
+# uydurulmaz. Sirket/sicil unvani kampus sitesinden dogrulanamadigi icin yalniz kampus adi kullanilir.
+SCHOOL_NAME = "Bilnet Okulları Balıkesir Kampüsü"
+SCHOOL_URL = "https://balikesir.bilnetokullari.com/"
+SCHOOL_CONTACT_URL = "https://balikesir.bilnetokullari.com/tr/kampus-iletisim"
+SCHOOL_CORP_URL = "https://bilnetokullari.com/"
+SCHOOL_PHONE = "0 850 260 12 45"          # Bilnet Okulları çağrı merkezi (yayımlı)
+SCHOOL_PHONE_TEL = "tel:+908502601245"
+SCHOOL_SOCIAL = [                          # (etiket, URL) — Organization JSON-LD sameAs ile aynı liste
+  ("Instagram", "https://www.instagram.com/bilnetbalikesir/"),
+  ("Facebook", "https://www.facebook.com/bilnetbalikesir"),
+  ("X (Twitter)", "https://twitter.com/bilnetbalikesir"),
+]
+
+def _contact(text):
+  return f'<a href="{SCHOOL_CONTACT_URL}" target="_blank" rel="noopener">{text}</a>'
+
+
+_CONTACT_LINK = _contact("kampüs iletişim sayfası")
+_PHONE_LINK = f'<a href="{SCHOOL_PHONE_TEL}">{SCHOOL_PHONE}</a>'
+_SOCIAL_LI = "".join(f'<li><a href="{u}" target="_blank" rel="noopener">{n}</a></li>\n' for n, u in SCHOOL_SOCIAL)
+
 STATIC_PAGES = [
   dict(slug="gizlilik", title="Gizlilik ve Kişisel Verilerin Korunması", nav="Gizlilik",
-       description="Bilnet Oyun'da hangi veriler işlenir, nerede saklanır, haklarınız nelerdir? Misafir, Google girişi ve online oyunlar için sade KVKK bilgilendirmesi.",
-       lead="Bu sayfa, Bilnet Oyun'u kullanırken hangi verilerin ne amaçla işlendiğini, nerede saklandığını ve haklarınızı sade bir dille açıklar. Ebeveynler ve öğretmenler için yazılmıştır.",
+       description="KVKK aydınlatma metni: Bilnet Oyun'da hangi veri işlenir, nereye aktarılır, ne kadar saklanır, haklarınız neler? Misafir, Google girişi, online oyun.",
+       lead="Bu aydınlatma metni, 6698 sayılı Kişisel Verilerin Korunması Kanunu'nun (KVKK) 10. maddesi uyarınca Bilnet Oyun'u kullanırken hangi verilerin hangi amaçla işlendiğini, kimlere aktarıldığını, ne kadar saklandığını ve haklarınızı sade bir dille açıklar. Veliler ve öğretmenler için yazılmıştır.",
        note="Bu metin bilgilendirme amaçlıdır ve okul yönetiminin onayıyla güncellenir.",
        sections=[
-         ("Kimiz?", "kimiz", [
-           "Bilnet Oyun, <strong>Bilnet Okulları</strong>'nın anaokulu, ilkokul ve ortaokul öğrencileri için hazırlanmış ücretsiz eğitici oyun platformudur. Oyunlar tarayıcıda çalışır; kurulum ya da üyelik gerekmez. Kişisel verilerle ilgili her türlü soru ve başvuru okul yönetimi üzerinden alınır (bkz. <a href=\"/iletisim/\">İletişim</a>).",
+         ("Veri sorumlusu ve iletişim", "veri-sorumlusu", [
+           f"Bilnet Oyun (bilnetoyun.com), <strong>{SCHOOL_NAME}</strong>'nün 4–12 yaş öğrencileri için hazırlanmış ücretsiz eğitici oyun platformudur. KVKK kapsamında veri sorumlusu <strong>{SCHOOL_NAME}</strong>'dür.",
+           f"Kişisel verilerle ilgili soru ve başvurular için: {_CONTACT_LINK} ya da Bilnet Okulları çağrı merkezi <strong>{_PHONE_LINK}</strong>. Öğrenci ve veliler önce okuldaki bilişim öğretmenine de başvurabilir (bkz. <a href=\"/iletisim/\">İletişim</a>).",
+         ]),
+         ("Bir bakışta: ne zaman hangi veri?", "ozet", [
+           "<ul>\n"
+           "<li><strong>Misafir olarak oynarken:</strong> ad, e-posta ya da başka bir kişisel bilgi istenmez; ilerleme sunucuya gönderilmez.</li>\n"
+           "<li><strong>Google ile giriş yaparsanız:</strong> Google hesabındaki ad, e-posta ve profil fotoğrafı (Firebase Authentication) ile hesaba bağlı oyun ilerlemesi.</li>\n"
+           "<li><strong>Çok oyunculu oyunlarda:</strong> yazılan takma ad, oda kodu ve oyun durumu; oyun süresince herkese görünür.</li>\n"
+           "<li><strong>Skor tablolarında:</strong> isteğe bağlı yazılan ad (en fazla 16 karakter) ve skor; herkese açık.</li>\n"
+           "<li><strong>Her ziyarette:</strong> sayfayı ve altyapıyı sunan hizmetler teknik zorunluluk olarak cihazın IP adresini görür (bkz. Aktarım).</li>\n"
+           "</ul>",
          ]),
          ("Misafir olarak oynarken", "misafir", [
-           "Giriş ekranında <strong>Misafir</strong> seçilirse ad, e-posta ya da başka bir kişisel bilgi istenmez; yıldız ve ilerleme verisi sunucuya gönderilmez. Kazanılan yıldızlar yalnızca kullandığınız tarayıcının yerel deposunda (localStorage) tutulur.",
-           "Misafir oturumu geçicidir: sekme kapatılıp yeniden misafir girişi yapıldığında ilerleme sıfırdan başlar. Böylece paylaşımlı cihazlarda (sınıf tableti gibi) bir öğrencinin ilerlemesi bir sonrakine görünmez.",
+           "Giriş ekranında <strong>Misafir</strong> seçildiğinde hiçbir kişisel veri istenmez ve toplanmaz. Kazanılan yıldızlar yalnızca kullandığınız tarayıcının yerel deposunda tutulur; sunucuya gönderilmez.",
+           "Misafir oturumu geçicidir: yeni bir misafir girişinde ilerleme sıfırdan başlar. Böylece sınıf tableti gibi paylaşımlı cihazlarda bir öğrencinin ilerlemesi bir sonrakine görünmez.",
          ]),
          ("Google ile giriş yaparsanız", "google-girisi", [
-           "Google girişi isteğe bağlıdır. Giriş yapıldığında <strong>Firebase Authentication</strong> üzerinden Google hesabındaki <strong>ad, e-posta adresi ve profil fotoğrafı</strong> alınır. Bunlar yalnızca hesap menüsünde göstermek ve ilerlemeyi hesaba bağlamak için kullanılır; başka bir amaçla işlenmez.",
-           "Yıldızlar, ayarlar ve oyun içi kayıtlar (bölüm ilerlemesi, en yüksek skorlar) <strong>Firebase Realtime Database</strong>'de, Google Cloud'un Belçika (europe-west1) bölgesinde, hesaba özel bir alanda saklanır. Veritabanı kuralları gereği bu alanı uygulama üzerinden yalnızca hesabın sahibi okuyabilir ve yazabilir; yönetici paneli dâhil başka hiçbir arayüz bu alanı görmez. Veritabanına doğrudan erişim yalnızca sistemi işleten teknik sorumluda (Firebase yönetim konsolu) bulunur.",
-           "Aynı hesapla başka bir cihazdan girildiğinde ilerleme kaldığı yerden devam eder. <strong>Çıkış yap</strong> seçildiğinde bu cihazdaki kopya silinir; buluttaki kayıt, silinmesi istenene kadar durur. Uygulama içinde hesap silme düğmesi yoktur; silme talebi okul üzerinden iletilir.",
+           "Google girişi isteğe bağlıdır ve yalnızca sizin (çocuk için velisinin) düğmeye basmasıyla başlar. Giriş yapıldığında <strong>Firebase Authentication</strong> üzerinden Google hesabındaki <strong>ad, e-posta adresi ve profil fotoğrafı</strong> alınır. Amaç: hesabı tanımak, hesap menüsünde göstermek ve ilerlemeyi hesaba bağlamak. Uygulama bu bilgileri kendi veritabanına yazmaz, başka bir amaçla işlemez.",
+           "Yıldızlar, ayarlar ve oyun içi kayıtlar (bölüm ilerlemesi, en yüksek skorlar, jeton ve günlük seri) <strong>Firebase Realtime Database</strong>'de, hesap kimliğine bağlı, hesaba özel bir alanda saklanır. Veritabanı kuralları gereği bu alanı uygulama üzerinden yalnızca hesabın sahibi okuyabilir ve yazabilir; yönetici paneli dâhil başka hiçbir arayüz göremez. Doğrudan erişim yalnızca sistemi işleten teknik sorumluda (Firebase yönetim konsolu) bulunur.",
+           "Aynı hesapla başka bir cihazdan girildiğinde ilerleme kaldığı yerden devam eder. <strong>Çıkış yap</strong> seçildiğinde bu cihazdaki kopya silinir; buluttaki kayıt, silinmesi istenene kadar durur. Uygulama içinde hesap silme düğmesi yoktur; silme talebi yukarıdaki iletişim yollarıyla iletilir.",
            "Çocukların Google girişini okulun verdiği ya da velinin gözetimindeki bir hesapla yapması önerilir.",
          ]),
          ("Çok oyunculu oyunlarda", "cok-oyunculu", [
-           "Online oyunlarda (Kelime Tahmin, Harf Tahmin, Satranç, Kod Macerası, Penaltı Online, Ateş &amp; Buz, Zıpla Topla Online, Hava Hokeyi, Altın Avı, Kelimelik, Son Kart) oyuncu bir <strong>takma ad</strong> yazar. Bu takma ad, oda kodu ve oyun durumu (hamleler, skor, tahmin edilen kelimeler) oyun süresince Firebase Realtime Database'de tutulur; <strong>lobi listesinde ve rakip oyunculara görünür</strong>. Bu bölümdeki kayıtlar teknik olarak hesapsız da okunabilir; bu yüzden takma ad olarak gerçek ad-soyad, sınıf ya da okul numarası yazılmamalıdır.",
-           "Kayıtlar geçicidir ve hiçbiri bir hesapla ilişkilendirilmez: lobi tabanlı oyunlarda (Kelime Tahmin, Harf Tahmin, Penaltı Online, Ateş &amp; Buz, Hava Hokeyi, Zıpla Topla Online, Kod Macerası Online, Satranç Online, Altın Avı) oyun bitince ya da odadan çıkılınca kayıt silinir; bağlantı koptuğunda çevrimiçi kaydı kendiliğinden kaldırılır. <strong>Son Kart</strong> ve <strong>Kelimelik</strong>'te başlamış bir oda, oyun bittikten sonra da bir süre veritabanında kalabilir; bu kayıtlar elle yapılan temizliklerde silinir ve silinmeleri okul üzerinden de istenebilir. Takma ad, bir sonraki oyunda yeniden yazmamak için yalnızca kendi cihazınızda saklanır.",
+           "Online oyunlarda (Kelime Tahmin, Harf Tahmin, Satranç, Kod Macerası, Penaltı Online, Ateş &amp; Buz, Zıpla Topla Online, Hava Hokeyi, Altın Avı, Kelimelik, Son Kart) oyuncu bir <strong>takma ad</strong> yazar. Takma ad, oda kodu ve oyun durumu (hamleler, skor, tahmin edilen kelimeler, çevrimiçi olma bilgisi) oyun süresince Firebase Realtime Database'de tutulur; <strong>lobi listesinde ve rakip oyunculara görünür</strong>. Bu bölüm hesapsız da okunabildiği için takma ad olarak gerçek ad-soyad, sınıf ya da okul numarası yazılmamalıdır.",
+           "Bu kayıtlar hiçbir hesapla ilişkilendirilmez ve geçicidir. Lobi tabanlı oyunlarda kayıt oyun bitince ya da odadan çıkılınca silinir; bağlantı koptuğunda çevrimiçi kaydı kendiliğinden kaldırılır. Kelimelik ve Son Kart'ta başlamış bir oda oyun bittikten sonra da kalabilir. 24 saati geçen tüm lobi ve oda kayıtları otomatik temizlikle silinir. Takma ad, bir sonraki oyunda yeniden yazmamak için yalnızca kendi cihazınızda saklanır.",
          ]),
          ("Skor tabloları", "skor-tablolari", [
-           "Tetris, Eğim ve SpaceWaves'te oyun sonunda <strong>Skoru Kaydet</strong> seçilirse yazılan ad (en fazla 16 karakter) ve skor, herkese açık skor tablosuna eklenir. Kayıt tamamen isteğe bağlıdır; kaydetmeden de oynanabilir. Eklenen bir kayıt uygulama içinden değiştirilemez ya da silinemez; silme talebi okul üzerinden iletilir.",
+           "Tetris, Eğim ve SpaceWaves'te oyun sonunda <strong>Skoru Kaydet</strong> seçilirse yazılan ad (en fazla 16 karakter) ve skor, herkese açık skor tablosuna eklenir. Kayıt tamamen isteğe bağlıdır; kaydetmeden de oynanabilir. Eklenen kayıt uygulama içinden değiştirilemez ya da silinemez; silme talebi okul üzerinden iletilir. Buraya da gerçek ad yazılmaması önerilir.",
          ]),
-         ("Reklam, analitik ve izleme", "izleme", [
-           "Bilnet Oyun'da <strong>reklam gösterilmez</strong>; Google Analytics benzeri analitik araçlar, izleme pikselleri ya da sosyal medya eklentileri <strong>kullanılmaz</strong>. Kullanıcı profili çıkarılmaz; veriler pazarlama amacıyla kimseyle paylaşılmaz ve satılmaz.",
-           "Site kendi adına çerez bırakmaz. Google girişi kullanılırsa oturum bilgisi tarayıcının yerel deposunda tutulur; giriş penceresi Google'ın kendi çerez ve gizlilik politikasına tabidir.",
+         ("Toplama yöntemi ve hukuki sebep", "hukuki-sebep", [
+           "Veriler yalnızca sizin platformu kullanmanızla — misafir ya da Google girişi seçmeniz, takma ad ya da skor adı yazmanız, oyun oynamanız — elektronik ortamda, otomatik yollarla toplanır. Form doldurulmaz; üçüncü kaynaklardan veri alınmaz.",
+           "Google girişi, ilerleme senkronu, çok oyunculu oyun ve skor tablosu verileri, talep ettiğiniz hizmetin sunulabilmesi için gereklidir (KVKK md. 5/2-c, sözleşmenin ifası). Altyapı hizmetlerinin gördüğü IP adresi gibi teknik veriler, hizmetin güvenli ve kesintisiz çalıştırılması için işlenir (md. 5/2-f, meşru menfaat). Bunların hiçbiri zorunlu değildir: Google girişi, online oyunlar ve skor kaydı isteğe bağlıdır ve kullanıcının kendi eylemiyle başlar; misafir olarak, hiçbir kişisel veri vermeden oynanabilir.",
          ]),
-         ("Kullanılan üçüncü taraf hizmetler", "ucuncu-taraf", [
-           "Platform yalnızca hizmetin çalışması için gereken şu altyapıları kullanır; her biri, bağlanan tarayıcının <strong>IP adresini</strong> teknik zorunluluk olarak görür:",
+         ("Aktarım ve yurt dışı", "aktarim", [
+           "Platform kendi sunucusunda kişisel veri tutmaz; verileri aşağıdaki hizmetler barındırır ya da işler. Bu hizmetlerin tamamı yurt dışında kuruludur; dolayısıyla veriler KVKK md. 9 kapsamında yurt dışına aktarılır. Bu hizmetler olmadan oyunlar çalışmaz; hangi verinin nereye gittiğini bilerek karar verebilmeniz için hepsini açıkça listeliyoruz:",
            "<ul>\n"
-           "<li><strong>Google Firebase</strong> (Authentication ve Realtime Database) — giriş, ilerleme senkronu, çok oyunculu oyunlar ve merkezi yönetici ayarları. Site açılır açılmaz yönetici ayarlarını okumak için bağlanır. Oyun verileri (Realtime Database) Google Cloud'un Belçika (europe-west1) bölgesinde tutulur; hesap kaydı Firebase Authentication hizmetinde saklanır. Yazılım kitaplığı www.gstatic.com'dan yüklenir.</li>\n"
-           "<li><strong>Yazı tipleri</strong> — Fredoka, Nunito ve Altın Avı'nın Cinzel/Bebas Neue yazı tipleri ana sayfa, açılış sayfaları ve oyunların çoğunda bilnetoyun.com'un kendi sunucusundan yüklenir. <strong>Ateş &amp; Buz, Kelimelik, Son Kart ve Zindan Okçusu</strong> açıldığında yazı tipleri Google Fonts'tan (fonts.googleapis.com, fonts.gstatic.com) yüklenir; bu istekte tarayıcının IP adresi Google'a iletilir.</li>\n"
-           "<li><strong>cdnjs.cloudflare.com ve unpkg.com</strong> — Satranç (chess.js) ve LEGO World 3D (three.js) oyunlarının kitaplıkları buradan yüklenir.</li>\n"
-           "<li><strong>upload.wikimedia.org</strong> — Satranç oyunundaki taş görselleri Wikimedia Commons'tan yüklenir.</li>\n"
-           "<li><strong>Vercel</strong> — site bu barındırma hizmetinden sunulur; sağlayıcı, hizmetin işletilmesi için standart sunucu kayıtları tutabilir.</li>\n"
+           "<li><strong>Google Firebase</strong> (Realtime Database ve Authentication) — giriş, ilerleme senkronu, çok oyunculu oyunlar, skor tabloları ve merkezi yönetici ayarları. Oyun verileri Google Cloud'un Belçika (europe-west1) bölgesinde tutulur; Google hesabına ait kayıt (ad, e-posta, fotoğraf) Firebase Authentication'da saklanır ve bölgesi Google tarafından belirlenir. Site açılır açılmaz yönetici ayarlarını okumak için Firebase'e bağlanır; yazılım kitaplığı www.gstatic.com'dan yüklenir.</li>\n"
+           "<li><strong>Vercel</strong> — site bu barındırma hizmeti ve dünya çapındaki dağıtım ağı üzerinden sunulur; sağlayıcı, hizmetin işletilmesi ve güvenliği için standart sunucu kayıtları (IP adresi, istek zamanı) tutabilir.</li>\n"
+           "<li><strong>Yazı tipleri</strong> — ana sayfa, oyun sayfaları ve oyunların çoğu yazı tiplerini bilnetoyun.com'un kendi sunucusundan yükler. Yalnızca <strong>Ateş &amp; Buz, Kelimelik, Son Kart ve Zindan Okçusu</strong> açıldığında yazı tipleri Google Fonts'tan (fonts.googleapis.com, fonts.gstatic.com) yüklenir; bu istekte IP adresi Google'a iletilir.</li>\n"
+           "<li><strong>cdnjs.cloudflare.com ve unpkg.com</strong> — Satranç (chess.js) ve LEGO World 3D (three.js) kitaplıkları yalnızca bu oyunlar açıldığında buradan yüklenir.</li>\n"
+           "<li><strong>upload.wikimedia.org</strong> — Satranç taş görselleri Wikimedia Commons'tan yüklenir.</li>\n"
            "</ul>",
+           "Bu isteklerde ilgili sağlayıcı, teknik zorunluluk olarak tarayıcının IP adresini ve tarayıcı bilgisini görür; platform Firebase dışındaki hiçbir sağlayıcıya ad, e-posta ya da ilerleme verisi göndermez. Veriler bunların dışında hiçbir kişi ya da kurumla paylaşılmaz, satılmaz.",
+         ]),
+         ("Saklama süreleri", "saklama", [
+           "<ul>\n"
+           "<li><strong>Misafir ilerlemesi:</strong> yalnızca cihazınızda; yeni misafir girişinde ya da tarayıcı verileri temizlendiğinde silinir.</li>\n"
+           "<li><strong>Google hesabına bağlı ilerleme ve hesap kaydı:</strong> hesabın silinmesi talep edilene kadar; cihazdaki kopya çıkışta silinir.</li>\n"
+           "<li><strong>Lobi ve oda kayıtları</strong> (takma ad, oyun durumu): lobi tabanlı oyunlarda oyun bitince; Kelimelik ve Son Kart odaları oyun sonrası kalabilir; 24 saati geçen tüm kayıtlar otomatik temizlikle silinir.</li>\n"
+           "<li><strong>Takma ad (cihazda):</strong> siz değiştirene ya da tarayıcı verileri temizlenene kadar.</li>\n"
+           "<li><strong>Skor tablosu kayıtları:</strong> silme talebine kadar.</li>\n"
+           "<li><strong>Sağlayıcıların teknik sunucu kayıtları:</strong> ilgili sağlayıcının kendi saklama politikasına göre, kısa süreli.</li>\n"
+           "</ul>",
+         ]),
+         ("Reklam, çerez ve izleme", "izleme", [
+           "Bilnet Oyun'da <strong>reklam gösterilmez</strong>; Google Analytics benzeri analitik araçlar, izleme pikselleri ya da sosyal medya eklentileri <strong>kullanılmaz</strong>. Kullanıcı profili çıkarılmaz; kamera, mikrofon ve konum izni istenmez.",
+           "Site kendi adına çerez bırakmaz. Google girişi kullanılırsa oturum bilgisi tarayıcının yerel deposunda tutulur; giriş penceresi Google'ın kendi çerez ve gizlilik politikasına tabidir.",
          ]),
          ("Yönetici paneli", "yonetici-paneli", [
            "Yönetici paneli yalnızca <strong>yetkili okul personeli</strong> tarafından kullanılır ve üç iş yapar: oyunları kilitlemek ya da açmak, ses ayarını belirlemek ve gerektiğinde tüm cihazlarda ilerlemeyi sıfırlamak. Panel öğrenci hesaplarına, adlarına ya da ilerleme kayıtlarına <strong>erişmez</strong>; veritabanı kuralları bu erişime izin vermez.",
          ]),
          ("Haklarınız ve başvuru", "haklar", [
-           "6698 sayılı Kişisel Verilerin Korunması Kanunu'nun 11. maddesi kapsamında, kendinize ya da velisi olduğunuz çocuğa ait veriler için şu haklara sahipsiniz: verinin işlenip işlenmediğini <strong>öğrenme</strong>, işlenmişse bilgi <strong>isteme</strong>, eksik ya da yanlış verinin <strong>düzeltilmesini</strong> isteme, verinin <strong>silinmesini</strong> isteme ve işlemeye <strong>itiraz</strong> etme.",
-           "Başvurular okulunuzdaki bilişim öğretmeni ya da okul yönetimi üzerinden alınır; yol için <a href=\"/iletisim/\">İletişim</a> sayfasına bakın. Google hesabına bağlı kayıtlar ve skor tablosu girdileri talep üzerine silinebilir.",
+           "KVKK'nın 11. maddesi uyarınca, kendinize ya da velisi olduğunuz çocuğa ait veriler için veri sorumlusuna başvurarak: verinin işlenip işlenmediğini <strong>öğrenme</strong>, işlenmişse bilgi <strong>isteme</strong>, amacına uygun kullanılıp kullanılmadığını öğrenme, yurt içinde ya da yurt dışında aktarıldığı üçüncü kişileri bilme, eksik ya da yanlış verinin <strong>düzeltilmesini</strong> isteme, verinin <strong>silinmesini</strong> ya da yok edilmesini isteme, bu işlemlerin aktarıldığı üçüncü kişilere bildirilmesini isteme, yalnızca otomatik sistemlerle analiz sonucu aleyhinize çıkan bir sonuca <strong>itiraz</strong> etme ve kanuna aykırı işleme nedeniyle zarara uğradıysanız tazmin talep etme haklarına sahipsiniz.",
+           f"Başvurunuzu {_contact("kampüs iletişim sayfasındaki")} yollarla ya da çağrı merkezi <strong>{_PHONE_LINK}</strong> üzerinden iletebilirsiniz; öğrenci ve veliler için okuldaki bilişim öğretmeni de aracı olur. Başvurular KVKK md. 13 uyarınca en geç 30 gün içinde ücretsiz sonuçlandırılır. Başvurunuz reddedilir ya da yanıtsız kalırsa Kişisel Verileri Koruma Kurulu'na şikâyet hakkınız vardır (md. 14). Google hesabına bağlı kayıtlar, skor tablosu girdileri ve oda kayıtları talep üzerine silinir.",
          ]),
-         ("Yaş ve gözetim", "yas", [
-           "Bilnet Oyun 4–12 yaş grubu için tasarlanmıştır. Google girişi ve online oyunlar dâhil tüm kullanımda ebeveyn ya da öğretmen gözetimi önerilir. Çocuklara çevrimiçi oyunlarda gerçek adını, okulunu ve iletişim bilgilerini paylaşmaması gerektiğini hatırlatın.",
+         ("Çocuk verisi ve veli sorumluluğu", "cocuk-verisi", [
+           "Bilnet Oyun 4–12 yaş grubu için tasarlanmıştır; kullanıcıları çocuktur ve veriler bu bilinçle en aza indirilmiştir: oynamak için hesap gerekmez; doğum tarihi, adres, telefon ya da fotoğraf yüklemesi istenmez. Google girişi ve online oyunlar dâhil tüm kullanımda ebeveyn ya da öğretmen gözetimi önerilir.",
+           "Google girişi, takma ad ve skor kaydı gibi seçimler çocuk adına veli tarafından ya da veli gözetiminde yapılmalıdır. Çocuklara çevrimiçi oyunlarda gerçek adını, okulunu, sınıfını ve iletişim bilgilerini paylaşmaması gerektiğini hatırlatın. Bir çocuğun verisinin izinsiz işlendiğini düşünüyorsanız yukarıdaki başvuru yollarıyla silme talebinde bulunabilirsiniz.",
          ]),
          ("Değişiklikler", "degisiklikler", [
            "Bu metin platformda yapılan değişikliklere göre güncellenir; güncel sürüm her zaman bu adreste yayımlanır. <strong>Son güncelleme: 15 Eylül 2026.</strong>",
@@ -89,8 +140,8 @@ STATIC_PAGES = [
        ]),
   dict(slug="hakkinda", title="Bilnet Oyun Hakkında", nav="Hakkında", schema_type="AboutPage",
        page_title="Bilnet Oyun Hakkında – Ücretsiz Eğitici Oyun Platformu",
-       description="Bilnet Okulları'nın 4-12 yaş için ücretsiz, üyeliksiz eğitici oyun platformu: {toplam_oyun} oyun, yıldız sistemi, öğretmen kilitleri. Tarayıcıda çalışır.",
-       lead="Bilnet Oyun, Bilnet Okulları'nın anaokulundan ortaokula tüm öğrencileri için hazırladığı ücretsiz eğitici oyun platformudur.",
+       description="Bilnet Okulları Balıkesir Kampüsü'nün 4-12 yaş için ücretsiz, üyeliksiz eğitici oyun platformu: {toplam_oyun} oyun, yıldız sistemi, öğretmen kilitleri.",
+       lead=f"Bilnet Oyun, {SCHOOL_NAME}'nün anaokulundan ortaokula tüm öğrencileri için hazırladığı ücretsiz eğitici oyun platformudur.",
        sections=[
          ("Ne sunuyoruz?", "oyunlar", [
            "Platformda harf ve kelime, sayı ve matematik, hafıza, kodlama, fen, İngilizce, strateji ve sanat alanlarında <strong>{toplam_oyun} oyun</strong> bulunur; bir kısmı iki ya da daha çok oyunculu online oyunlardır. Her oyun tarayıcıda çalışır; telefon, tablet ve bilgisayarda kurulum gerektirmez. Tam liste <a href=\"/oyunlar/\">Tüm Oyunlar</a> sayfasındadır.",
@@ -100,20 +151,29 @@ STATIC_PAGES = [
            "Oyunlar yıldız kazandırır. Bazı oyunlar belirli sayıda yıldız toplanınca açılır; böylece çocuk kolaydan zora doğal bir sırayla ilerler. Öğretmenler yönetici panelinden oyunları sınıf için topluca açabilir ya da kilitleyebilir ve ses ayarını belirleyebilir.",
          ]),
          ("Kim yaptı?", "kim-yapti", [
-           "Bilnet Oyun, Bilnet Okulları için geliştirildi ve okul topluluğuna ücretsiz sunulur. Tasarım ve yazılım: <a href=\"https://egweblab.com.tr\" target=\"_blank\" rel=\"noopener\">egweblab</a>. Soru ve önerilerin için <a href=\"/iletisim/\">İletişim</a> sayfasına bak.",
+           f"Bilnet Oyun, <a href=\"{SCHOOL_URL}\" target=\"_blank\" rel=\"noopener\">{SCHOOL_NAME}</a> için geliştirildi ve okul topluluğuna ücretsiz sunulur. Kampüs, <a href=\"{SCHOOL_CORP_URL}\" target=\"_blank\" rel=\"noopener\">Bilnet Okulları</a> ailesinin parçasıdır. Tasarım ve yazılım: <a href=\"https://egweblab.com.tr\" target=\"_blank\" rel=\"noopener\">egweblab</a>. Soru ve önerilerin için <a href=\"/iletisim/\">İletişim</a> sayfasına bak.",
          ]),
        ]),
   dict(slug="iletisim", title="İletişim", nav="İletişim", schema_type="ContactPage",
        page_title="İletişim – Soru, Öneri ve Hata Bildirimi | Bilnet Oyun",
-       description="Bilnet Oyun için soru, öneri ve hata bildirimi: okulunuzdaki bilişim öğretmenine nasıl ulaşırsınız, hata bildirirken hangi bilgileri yazmalısınız?",
-       lead="Soru, öneri ve hata bildirimleri için önce okulunuzdaki bilişim öğretmenine, ardından Bilnet Okulları yönetimine ulaşabilirsiniz.",
+       description="Bilnet Oyun için soru, öneri, hata bildirimi ve KVKK talepleri: Bilnet Okulları Balıkesir Kampüsü iletişim sayfası, çağrı merkezi ve sosyal hesaplar.",
+       lead=f"Soru, öneri ve hata bildirimleri için önce okulunuzdaki bilişim öğretmenine, ardından {SCHOOL_NAME}'ne ulaşabilirsiniz.",
        sections=[
          ("Kime yazmalı?", "kime", [
            "<ul>\n"
            "<li><strong>Öğrenci ve veliler:</strong> okulunuzdaki bilişim (bilgisayar) öğretmenine söyleyin; platformla ilgili geri bildirimleri o iletir.</li>\n"
-           "<li><strong>Öğretmenler ve okul personeli:</strong> Bilnet Okulları yönetimi üzerinden platform sorumlusuna ulaşın.</li>\n"
+           "<li><strong>Öğretmenler ve okul personeli:</strong> okul yönetimi üzerinden platform sorumlusuna ulaşın.</li>\n"
            "</ul>",
-           "<!-- TODO(sahip): resmî e-posta / okul sitesi bağlantısı -->",
+         ]),
+         ("Okula ulaşın", "okul", [
+           f"Bilnet Oyun'u <a href=\"{SCHOOL_URL}\" target=\"_blank\" rel=\"noopener\">{SCHOOL_NAME}</a> sunar. Okulun resmî iletişim yolları:",
+           "<ul>\n"
+           f"<li><strong>Kampüs iletişim sayfası:</strong> <a href=\"{SCHOOL_CONTACT_URL}\" target=\"_blank\" rel=\"noopener\">balikesir.bilnetokullari.com/tr/kampus-iletisim</a></li>\n"
+           f"<li><strong>Çağrı merkezi:</strong> {_PHONE_LINK}</li>\n"
+           f"<li><strong>Kurumsal site:</strong> <a href=\"{SCHOOL_CORP_URL}\" target=\"_blank\" rel=\"noopener\">bilnetokullari.com</a></li>\n"
+           "</ul>",
+           "Kampüsün sosyal hesapları:",
+           "<ul>\n" + _SOCIAL_LI + "</ul>",
          ]),
          ("Hata bildirirken şunları yazın", "hata-bildirimi", [
            "Sorunu hızlı çözebilmemiz için şu üç bilgi yeterlidir:",
@@ -124,7 +184,7 @@ STATIC_PAGES = [
            "</ol>",
          ]),
          ("Kişisel verilerle ilgili talepler", "kvkk-talep", [
-           "Bilgi alma, düzeltme ve silme talepleri de aynı yoldan iletilir. Hangi verilerin tutulduğunu <a href=\"/gizlilik/\">Gizlilik ve Kişisel Verilerin Korunması</a> sayfasında bulabilirsiniz.",
+           f"Bilgi alma, düzeltme ve silme talepleri {_contact("kampüs iletişim sayfasındaki")} yollarla ya da çağrı merkezi üzerinden iletilir; KVKK gereği en geç 30 gün içinde ücretsiz yanıtlanır. Hangi verilerin tutulduğunu <a href=\"/gizlilik/\">Gizlilik ve Kişisel Verilerin Korunması</a> sayfasında bulabilirsiniz.",
          ]),
        ]),
 ]
