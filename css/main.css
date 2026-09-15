@@ -117,6 +117,14 @@ html, body {
     --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
     --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
     --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);   /* güçlü ease-out: basma/hover geri bildirimi */
+    --dur-fast: 120ms;                             /* basma */
+    --dur-base: 200ms;                             /* hover, durum değişimi */
+
+    /* Tipografi & ikincil metin (hub.css / multiplayer.css / satranc.css bunları bekler) */
+    --font-heading: 'Fredoka', 'Nunito', sans-serif;
+    --font-body: 'Nunito', 'Segoe UI', sans-serif;
+    --text-muted: #5F6B73;                         /* beyazda 5.5:1 — ipucu/etiket metni */
 }
 
 html, body {
@@ -141,9 +149,16 @@ button {
     font-family: 'Fredoka', 'Nunito', sans-serif;
     cursor: pointer;
     border: none;
-    outline: none;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+}
+
+/* Odak halkası: klavye/ekran okuyucu kullanıcısı için her etkileşimli öğede TEK görünür halka
+   (WCAG 2.4.7). Fare/dokunmada :focus-visible tetiklenmez. :where → sıfır özgüllük; kendi
+   halkasını çizen bileşen (.imza) ezer. */
+:where(button, [role="button"], a, input, select, textarea, [tabindex]):focus-visible {
+    outline: 3px solid var(--neutral);
+    outline-offset: 3px;
 }
 
 /* Utility Classes */
@@ -225,8 +240,8 @@ button {
 .splash-subtitle {
     font-family: 'Fredoka', sans-serif;
     font-size: clamp(1rem, 2.5vw, 1.4rem);
-    color: rgba(255,255,255,0.8);
-    text-shadow: 1px 1px 0 rgba(0,0,0,0.1);
+    color: var(--text-warm);
+    text-shadow: none;
     margin-bottom: 32px;
     font-weight: 500;
 }
@@ -243,8 +258,9 @@ button {
     box-shadow:
         0 6px 0 #D94848,
         0 8px 20px rgba(0,0,0,0.2);
-    transition: all 0.15s ease;
-    animation: bounceIn 0.6s var(--ease-spring) both 0.4s,
+    transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+    /* backwards (both değil): giriş bitince animasyon transform'u bırakır → :active basma çalışır */
+    animation: bounceIn 0.6s var(--ease-spring) backwards 0.4s,
                pulseGlow 2s ease-in-out 1.2s infinite;
     min-height: 64px;
 }
@@ -347,7 +363,7 @@ button {
 }
 .login-note {
     font-size: 0.82rem;
-    color: #9099a3;
+    color: #5B6672;   /* beyazda 5.9:1 (eski #9099a3 2.9:1) */
     line-height: 1.5;
     margin: 8px 2px 0;
 }
@@ -420,7 +436,7 @@ button {
 }
 .user-menu-email {
     font-size: 0.78rem;
-    color: #9099a3;
+    color: #5B6672;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -540,7 +556,7 @@ button {
     background: none;
     color: var(--text-warm);
     border-radius: var(--radius-sm);
-    transition: all 0.2s var(--ease-smooth);
+    transition: transform var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out);
 }
 
 .top-btn svg {
@@ -572,7 +588,7 @@ button {
 .top-sub {
     font-size: 0.65rem;
     font-weight: 600;
-    opacity: 0.6;
+    color: var(--text-muted);   /* %60 saydam kahve 3.2:1 idi → 5.5:1 */
     letter-spacing: 1px;
     text-align: center;
 }
@@ -669,7 +685,7 @@ button {
     width: 60px;
     height: 60px;
     fill: var(--star-empty);
-    transition: all 0.4s var(--ease-spring);
+    transition: fill 0.4s var(--ease-spring), filter 0.4s var(--ease-spring);
 }
 
 .complete-stars .star.earned {
@@ -694,7 +710,7 @@ button {
     padding: 12px 28px;
     border-radius: var(--radius-md);
     color: white;
-    transition: all 0.2s var(--ease-smooth);
+    transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
     min-width: 140px;
     box-shadow: 0 4px 0 rgba(0,0,0,0.15);
 }

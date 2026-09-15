@@ -33,7 +33,7 @@
     font-weight: 600;
     color: #666;
     cursor: pointer;
-    transition: all 0.25s;
+    transition: transform var(--dur-base) var(--ease-out), background-color var(--dur-base), border-color var(--dur-base), box-shadow var(--dur-base), color var(--dur-base);
     white-space: nowrap;
     flex-shrink: 0;
     min-height: 36px;
@@ -88,10 +88,16 @@
     gap: 6px;
 }
 .popular-empty {
+    /* Gökyüzü zemininde gri 2:1 idi → beyaz hap + koyu gri (5.3:1) */
+    width: fit-content;
+    margin: 0 auto;
     font-size: 0.9rem;
-    color: #888;
+    font-weight: 600;
+    color: var(--text-muted);
     text-align: center;
-    padding: 0.5rem;
+    padding: 8px 18px;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 999px;
 }
 
 .popular-scroll {
@@ -118,13 +124,17 @@
     border-radius: 20px;
     box-shadow: 0 3px 12px rgba(0,0,0,0.08);
     cursor: pointer;
-    transition: all 0.25s;
+    transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), border-color var(--dur-base);
     border: 3px solid transparent;
 }
 .popular-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 20px rgba(0,0,0,0.12);
     border-color: rgba(102,126,234,0.3);
+}
+.popular-card:active {
+    transform: scale(0.97);
+    transition-duration: var(--dur-fast);
 }
 .popular-icon {
     width: 52px;
@@ -233,17 +243,13 @@
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-card);
     cursor: pointer;
-    transition: all 0.3s var(--ease-bounce);
-    animation: cardEnter 0.5s var(--ease-spring) both,
-               gentleFloat var(--float-duration, 3.5s) ease-in-out 0.6s infinite;
+    transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), border-color var(--dur-base);
+    /* Giriş: backwards (both değil) → animasyon bitince transform serbest kalır, :hover/:active çalışır.
+       Sonsuz süzülme (gentleFloat) kaldırıldı: 58 kart sürekli compositing + hover'ı eziyordu. */
+    animation: cardEnter 0.5s var(--ease-spring) backwards;
     border: 3px solid transparent;
     overflow: hidden;
 }
-
-.game-card:nth-child(odd) { --float-duration: 3.2s; }
-.game-card:nth-child(even) { --float-duration: 4.1s; }
-.game-card:nth-child(3n) { --float-duration: 3.7s; }
-.game-card:nth-child(4n+1) { --float-duration: 4.5s; }
 
 .game-card::before {
     content: '';
@@ -259,12 +265,13 @@
 .game-card:hover, .game-card:focus-visible {
     transform: scale(1.08) translateY(-6px);
     box-shadow: 0 12px 36px rgba(0,0,0,0.18);
-    animation-play-state: paused;
 }
 
+/* Basma geri bildirimi: 120 ms güçlü ease-out — çocuk bastığında kart "dinlediğini" gösterir */
 .game-card:active {
-    transform: scale(0.95);
+    transform: scale(0.97);
     box-shadow: var(--shadow-sm);
+    transition-duration: var(--dur-fast);
 }
 
 /* Kart ikonu */
@@ -312,7 +319,7 @@
 .card-stars svg {
     width: 22px;
     height: 22px;
-    transition: all 0.3s var(--ease-spring);
+    transition: fill 0.3s var(--ease-spring), filter 0.3s var(--ease-spring);
 }
 
 .card-stars svg.earned {
@@ -450,7 +457,7 @@
     font-family: var(--font-heading);
     font-size: 0.74rem;
     font-weight: 700;
-    color: var(--text-muted, #888);
+    color: var(--text-muted);
     letter-spacing: 0.02em;
 }
 .card-lock-progress .lp-star {
@@ -562,7 +569,7 @@
 .hub-category-header:first-child {
     margin-top: 0;
 }
-.hub-category-header h3 {
+.hub-category-header h2 {
     font-family: 'Fredoka', sans-serif;
     font-size: 1.15rem;
     font-weight: 600;
@@ -573,8 +580,8 @@
     gap: 0.5rem;
     text-shadow: 0 1px 0 rgba(255,255,255,0.6);
 }
-.hub-category-header h3::before,
-.hub-category-header h3::after {
+.hub-category-header h2::before,
+.hub-category-header h2::after {
     content: '';
     flex: 1;
     height: 3px;
@@ -620,9 +627,10 @@
 }
 
 /* ── Meta katman v1: jeton çipi + ilerleme paneli (EGITSEL-OYUN-PLANI §3) ── */
-.coin-counter { cursor: pointer; }
+.coin-counter { cursor: pointer; transition: transform var(--dur-base) var(--ease-out); }
 .coin-counter .coin-icon { font-size: 17px; line-height: 1; }
 .coin-counter:hover { transform: scale(1.06); }
+.coin-counter:active { transform: scale(0.97); transition-duration: var(--dur-fast); }
 
 .meta-panel { position: fixed; inset: 0; background: rgba(10, 30, 50, .55); display: none;
     align-items: center; justify-content: center; z-index: 1200; padding: 18px; }
@@ -631,7 +639,7 @@
     overflow: auto; padding: 18px 18px 14px; box-shadow: 0 14px 44px rgba(0, 0, 0, .35); color: #1d3b53; }
 .meta-head { display: flex; justify-content: space-between; align-items: center; }
 .meta-head h2 { font-size: 20px; }
-.meta-head button { background: none; border: none; font-size: 20px; cursor: pointer; color: #7a93a8; }
+.meta-head button { background: none; border: none; font-size: 20px; cursor: pointer; color: #4F6B84; }
 .meta-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
 .meta-stat { background: #eef6fc; border-radius: 12px; padding: 9px 6px; text-align: center; }
 .meta-stat span { display: block; font-size: 11.5px; color: #5e7a90; font-weight: 700; }
@@ -643,7 +651,7 @@
 .mp-nm { font-weight: 800; white-space: nowrap; }
 .mp-ln { color: #5e7a90; margin-left: auto; text-align: right; }
 .mp-empty { justify-content: center; color: #5e7a90; }
-.meta-note { font-size: 12px; color: #7a93a8; margin-top: 12px; line-height: 1.5; }
+.meta-note { font-size: 12px; color: #4F6B84; margin-top: 12px; line-height: 1.5; }   /* 5.6:1 (eski 3.2:1) */
 
 .meta-toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(80px);
     background: #143c5c; color: #fff; padding: 11px 20px; border-radius: 14px; font-weight: 700;
@@ -654,8 +662,91 @@
 /* ── Meta v2: rozetler ── */
 .meta-sub { font-size: 14px; margin: 12px 0 7px; }
 .meta-badges { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
-.mp-badge { background: #f6fafd; border-radius: 10px; padding: 8px 4px; text-align: center;
+/* .meta-badge (eski .mp-badge): online kartlardaki "2 Oyuncu" rozetiyle (multiplayer.css .mp-badge) çakışıyordu */
+.meta-badge { background: #f6fafd; border-radius: 10px; padding: 8px 4px; text-align: center;
     opacity: .45; filter: grayscale(.6); }
-.mp-badge.on { opacity: 1; filter: none; background: #fff6dd; box-shadow: 0 0 0 2px #f0d98c inset; }
-.mp-badge span { font-size: 22px; display: block; }
-.mp-badge small { font-size: 10.5px; font-weight: 700; color: #5e7a90; line-height: 1.2; display: block; margin-top: 2px; }
+.meta-badge.on { opacity: 1; filter: none; background: #fff6dd; box-shadow: 0 0 0 2px #f0d98c inset; }
+.meta-badge span { font-size: 22px; display: block; }
+.meta-badge small { font-size: 10.5px; font-weight: 700; color: #5e7a90; line-height: 1.2; display: block; margin-top: 2px; }
+
+/* ── Ana sayfa altbilgisi (A5a): .hub kaydırma kapsayıcısı içinde, kartların altında.
+      Tarayıcı + veli için; sessiz: küçük punto, mürekkep tonu, tek beyaz yaprak. ── */
+.hub-footer {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 var(--space-lg) var(--space-md);
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+}
+.hub-footer-inner {
+    background: rgba(255, 255, 255, 0.78);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-sm);
+}
+.hub-footer-lead {
+    max-width: 68ch;
+    margin: 0 0 var(--space-lg);
+    color: var(--text-dark);
+}
+.hub-footer-lead strong { font-family: var(--font-heading); font-weight: 600; }
+.hub-footer a {
+    color: var(--text-muted);
+    text-decoration: underline;
+    text-decoration-color: rgba(95, 107, 115, 0.35);
+    text-underline-offset: 2px;
+    border-radius: 4px;
+    transition: color var(--dur-base) var(--ease-out), text-decoration-color var(--dur-base) var(--ease-out);
+}
+.hub-footer a:hover,
+.hub-footer a:focus-visible {
+    color: var(--text-dark);
+    text-decoration-color: currentColor;
+}
+.hub-footer-lead a { color: var(--text-warm); font-weight: 700; }
+.hub-footer-nav {
+    /* Çok sütunlu akış: 17 bağlantılı "Strateji" grubu tek sütun olarak dengelenir (grid'de
+       ikinci satırı tek başına uzatıyordu); grup bölünmez */
+    column-width: 150px;
+    column-gap: var(--space-lg);
+}
+.hub-footer-group {
+    break-inside: avoid;
+    margin-bottom: var(--space-md);
+}
+.hub-footer-group h3 {
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-warm);
+    margin: 0 0 var(--space-xs);
+}
+.hub-footer-group ul { list-style: none; margin: 0; padding: 0; }
+.hub-footer-group li { margin: 0; padding: 1px 0; }
+.hub-footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs) var(--space-lg);
+    margin-top: var(--space-lg);
+    padding-top: var(--space-md);
+    border-top: 1px solid rgba(45, 52, 54, 0.12);
+    font-weight: 700;
+}
+@media (max-width: 600px) {
+    .hub-footer { padding: 0 var(--space-md) var(--space-sm); }
+    .hub-footer-inner { padding: var(--space-md); }
+    .hub-footer-nav { column-count: 2; column-width: auto; }
+}
+
+/* İmza bandı hub'da (css/imza.css): sabit arka planın (.hub-bg z-index 0) üstünde kalsın;
+   çim üstünde durduğu için ikincil ton da mürekkep (yeşilde ≥5.5:1; #5F6B73 2.4:1 idi) */
+.hub .imza-band {
+    position: relative;
+    z-index: 1;
+    --imza-muted: var(--text-dark);
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+}

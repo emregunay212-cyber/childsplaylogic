@@ -159,6 +159,9 @@ const BilnetMeta = (() => {
     function refreshChip() {
         const el = document.getElementById('total-coins');
         if (el) el.textContent = M.coins;
+        // Erişilebilir ad görünen sayıyı içersin (WCAG 2.5.3): "12 jeton — ilerleme panelini aç"
+        const chip = document.getElementById('coin-counter');
+        if (chip) chip.setAttribute('aria-label', M.coins + ' jeton — ilerleme panelini aç');
     }
     let toastT = null;
     function toast(msg) {
@@ -195,14 +198,28 @@ const BilnetMeta = (() => {
         if (bl) {
             bl.innerHTML = BADGES.map(b => {
                 const on = M.badges.includes(b.id);
-                return `<div class="mp-badge${on ? ' on' : ''}" title="${b.k}"><span>${on ? b.e : '🔒'}</span><small>${b.ad}</small></div>`;
+                return `<div class="meta-badge${on ? ' on' : ''}" title="${b.k}"><span>${on ? b.e : '🔒'}</span><small>${b.ad}</small></div>`;
             }).join('');
         }
+        // Erişilebilirlik: görünürken aria-hidden kalkar, odak "Kapat"a gider, Escape kapatır,
+        // kapanınca odak jeton çipine döner.
+        ov.setAttribute('aria-hidden', 'false');
         ov.classList.add('show');
+        document.addEventListener('keydown', onPanelKey);
+        const closeBtn = document.getElementById('mp-close');
+        if (closeBtn) { try { closeBtn.focus(); } catch (e) {} }
     }
     function closePanel() {
         const ov = document.getElementById('meta-panel');
-        if (ov) ov.classList.remove('show');
+        if (!ov || !ov.classList.contains('show')) return;
+        ov.classList.remove('show');
+        ov.setAttribute('aria-hidden', 'true');
+        document.removeEventListener('keydown', onPanelKey);
+        const chip = document.getElementById('coin-counter');
+        if (chip) { try { chip.focus(); } catch (e) {} }
+    }
+    function onPanelKey(e) {
+        if (e.key === 'Escape') { e.preventDefault(); closePanel(); }
     }
 
     function init() {
@@ -211,8 +228,8 @@ const BilnetMeta = (() => {
         dailyLogin();
         processQueue();
         refreshChip();
-        const chip = document.getElementById('coin-counter');
-        if (chip) chip.addEventListener('click', openPanel);
+        // Jeton çipi role="button" + tabindex="0" bir div: tık + Enter/Boşluk (js/mobile-utils.js)
+        MobileUtils.bindActivate(document.getElementById('coin-counter'), openPanel);
         const closeBtn = document.getElementById('mp-close');
         if (closeBtn) closeBtn.addEventListener('click', closePanel);
         const ov = document.getElementById('meta-panel');

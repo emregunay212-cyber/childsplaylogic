@@ -29,7 +29,8 @@ const HarfTahmin = (() => {
   function init(gameArea, data) {
     container = gameArea;
     // Güvenlik (XSS): wordLength Firebase'deki lobiden gelir, kuralda doğrulanmıyor → tam sayıya zorla
-    gameData = { ...data, wordLength: parseInt(data.wordLength, 10) || 5 };
+    // ve 3-8 aralığına sıkıştır (lobby.js doRenderWordSetup ile aynı sınır)
+    gameData = { ...data, wordLength: Math.min(Math.max(parseInt(data.wordLength, 10) || 5, 3), 8) };
     myRevealed = Array(gameData.wordLength).fill(null);
     opRevealed = Array(gameData.wordLength).fill(null);
     myGuessedLetters = [];

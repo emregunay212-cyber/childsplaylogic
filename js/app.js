@@ -3,6 +3,12 @@
    ============================================ */
 
 const App = (() => {
+    // Hub kart giriş animasyonu kademesi (renderHubGrid)
+    const STAGGER_MAX_CARDS = 12;
+    const STAGGER_STEP_MS = 40;
+    // Yönetici oyunu oyun ortasında kilitlerse: uyarı → bu kadar sonra hub'a dön
+    const LOCK_KICK_DELAY_MS = 5000;
+
     // Oyun kategorileri
     const categoryIcons = {
         letters: 'assets/images/categories/letters.png',
@@ -162,6 +168,17 @@ const App = (() => {
         return Progress.getTotalStars() >= req;
     }
 
+    // Tık + klavye (Enter/Boşluk) etkinleştirme — role="button" div kartlar ve çipler için.
+    // Tek tanım js/mobile-utils.js'te (bilnet-meta.js de aynı yardımcıyı kullanır).
+    function bindActivate(el, fn) { MobileUtils.bindActivate(el, fn); }
+
+    // Kart ikonu yüklenemezse (ör. eksik SVG) kırık resim yerine kategori ikonuna düş
+    function withIconFallback(card, fallbackSrc) {
+        const img = card.querySelector('.card-icon img, .popular-icon img');
+        if (!img) return;
+        img.onerror = () => { img.onerror = null; img.src = fallbackSrc; };
+    }
+
     // Tek path'li bir SVG ikonu DOM ile güvenli şekilde üretir (innerHTML yok)
     function svgIcon(cls, pathD) {
         const ns = 'http://www.w3.org/2000/svg';
@@ -179,11 +196,10 @@ const App = (() => {
 
     // Bir karta kilitli görünümü uygular: gri + "Kilitli" rozeti + "X / N" ilerleme + tıkta bump.
     // Hem tek-oyunculu (createGameCard) hem online (createMPCard) kartlarda kullanılır.
-    function applyLockedState(card, entry, displayId) {
+    function applyLockedState(card, entry) {
         card.classList.add('locked');
         card.setAttribute('aria-disabled', 'true');
-        card.setAttribute('aria-label', TR.games[displayId] + ' (kilitli)');
-
+        // Erişilebilir ad görünen metinden gelir: "Kilitli <ad> X / N" (ayrı aria-label çelişirdi)
         const badge = document.createElement('div');
         badge.className = 'lock-badge';
         badge.appendChild(svgIcon('lock-ico', LOCK_PATH));
@@ -209,14 +225,14 @@ const App = (() => {
             card.classList.remove('cs-bump'); void card.offsetWidth; card.classList.add('cs-bump');
             showLockInfo(entry);
         };
-        card.addEventListener('click', onTap);
-        card.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTap(); }
-        });
+        bindActivate(card, onTap);
     }
 
     // ── Kilitli oyun bilgi penceresi: neden kilitli + nasıl açılır ──
+    // Erişilebilirlik: açılınca odak "Tamam"a gider, Escape kapatır, kapanınca odak karta döner;
+    // tek düğmeli diyalog → Tab odağı düğmede tutar (odak arkadaki sayfaya kaçmaz).
     let lockModalEl = null;
+    let lockModalReturnFocus = null;
     function ensureLockModal() {
         if (lockModalEl) return lockModalEl;
         const ov = document.createElement('div');
@@ -233,10 +249,14 @@ const App = (() => {
 
         const title = document.createElement('h2');
         title.className = 'lm-title';
+        title.id = 'lm-title';
         title.textContent = 'Bu Oyun Kilitli';
+        ov.setAttribute('aria-labelledby', 'lm-title');
 
         const msg = document.createElement('p');
         msg.className = 'lm-msg';
+        msg.id = 'lm-msg';
+        ov.setAttribute('aria-describedby', 'lm-msg');
 
         const bar = document.createElement('div');
         bar.className = 'lm-bar';
@@ -265,13 +285,23 @@ const App = (() => {
         card.appendChild(btn);
         ov.appendChild(card);
         ov.addEventListener('click', (e) => { if (e.target === ov) hideLockInfo(); });
+        ov.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') { e.preventDefault(); hideLockInfo(); }
+            else if (e.key === 'Tab') { e.preventDefault(); btn.focus(); }
+        });
         document.body.appendChild(ov);
 
-        ov._msg = msg; ov._bar = bar; ov._fill = fill; ov._barLabel = barLabel; ov._hint = hint;
+        ov._msg = msg; ov._bar = bar; ov._fill = fill; ov._barLabel = barLabel; ov._hint = hint; ov._btn = btn;
         lockModalEl = ov;
         return ov;
     }
-    function hideLockInfo() { if (lockModalEl) lockModalEl.classList.add('hidden'); }
+    function hideLockInfo() {
+        if (!lockModalEl || lockModalEl.classList.contains('hidden')) return;
+        lockModalEl.classList.add('hidden');
+        const back = lockModalReturnFocus;
+        lockModalReturnFocus = null;
+        if (back && back.isConnected) { try { back.focus(); } catch (e) {} }
+    }
     function showLockInfo(entry) {
         const key = lockKey(entry);
         const need = LOCK_STARS_BY_KEY[key];
@@ -296,7 +326,9 @@ const App = (() => {
             ov._barLabel.classList.remove('hidden');
             ov._hint.textContent = 'İpucu: Diğer (açık) oyunları oynayarak yıldız topla!';
         }
+        lockModalReturnFocus = document.activeElement;
         ov.classList.remove('hidden');
+        try { ov._btn.focus(); } catch (e) {}
     }
 
     // Multiplayer games list
@@ -592,7 +624,7 @@ const App = (() => {
                 <div class="popular-scroll">
                     ${popular.filter(p => p.stars > 0).map(({ game, stars, maxStars }) => `
                         <div class="popular-card" data-game="${game.id}" role="button" tabindex="0">
-                            <div class="popular-icon"><img src="assets/images/hub/${game.id}.svg" alt="${TR.games[game.id]}" draggable="false"></div>
+                            <div class="popular-icon"><img src="assets/images/hub/${game.id}.svg" alt="" draggable="false"></div>
                             <div class="popular-info">
                                 <div class="popular-name">${TR.games[game.id]}</div>
                                 <div class="popular-stars">⭐ ${stars}/${maxStars}</div>
@@ -605,8 +637,9 @@ const App = (() => {
         container.querySelectorAll('.popular-card').forEach(card => {
             const gameId = card.dataset.game;
             const entry = gameRegistry.find(g => g.game.id === gameId);
+            withIconFallback(card, categoryIcons.home);
             if (entry) {
-                card.onclick = () => { AudioManager.play('tap'); startGame(entry.game); };
+                bindActivate(card, () => { AudioManager.play('tap'); startGame(entry.game); });
             }
         });
     }
@@ -616,14 +649,17 @@ const App = (() => {
         grid.innerHTML = '';
         let cardIndex = 0;
 
-        function createGameCard(gameEntry) {
+        // Giriş kademesi: ilk 12 kart 40 ms arayla, kalanı birlikte (58 kart × 60 ms = 3.5 s bekleme idi)
+        function staggerDelay(i) { return Math.min(i, STAGGER_MAX_CARDS) * STAGGER_STEP_MS + 'ms'; }
+
+        function createGameCard(gameEntry, fallbackIcon) {
             const { game, comingSoon } = gameEntry;
             const card = document.createElement('div');
             card.className = 'game-card';
             card.dataset.game = game.id;
             card.setAttribute('role', 'button');
             card.setAttribute('tabindex', '0');
-            card.setAttribute('aria-label', TR.games[game.id] + (comingSoon ? ' (yakında)' : ''));
+            // aria-label yok: erişilebilir ad görünen metin (rozet + başlık + durum) — WCAG 2.5.3
 
             let starsHTML = '';
             for (let i = 1; i <= (game.levels?.length || 3); i++) {
@@ -633,12 +669,13 @@ const App = (() => {
             }
 
             card.innerHTML = `
-                <div class="card-icon"><img src="assets/images/hub/${game.id}.svg" alt="${TR.games[game.id]}" draggable="false"></div>
+                <div class="card-icon"><img src="assets/images/hub/${game.id}.svg" alt="" draggable="false"></div>
                 <div class="card-title">${TR.games[game.id]}</div>
                 <div class="card-stars">${starsHTML}</div>
             `;
 
-            card.style.animationDelay = `${cardIndex * 0.06}s`;
+            withIconFallback(card, fallbackIcon);
+            card.style.animationDelay = staggerDelay(cardIndex);
             cardIndex++;
 
             if (comingSoon) {
@@ -662,23 +699,17 @@ const App = (() => {
                     try { AudioManager.play('tap'); } catch (e) {}
                     card.classList.remove('cs-bump'); void card.offsetWidth; card.classList.add('cs-bump');
                 };
-                card.addEventListener('click', bump);
-                card.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); bump(); }
-                });
+                bindActivate(card, bump);
                 return card;
             }
 
             // Kilitli oyun: yıldız eşiği dolmamış ve öğretmen izni yok → gri kart, "Kilitli" rozeti, ilerleme
             if (!isGameUnlocked(gameEntry)) {
-                applyLockedState(card, gameEntry, game.id);
+                applyLockedState(card, gameEntry);
                 return card;
             }
 
-            card.addEventListener('click', () => { AudioManager.play('tap'); startGame(game); });
-            card.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); AudioManager.play('tap'); startGame(game); }
-            });
+            bindActivate(card, () => { AudioManager.play('tap'); startGame(game); });
             return card;
         }
 
@@ -689,39 +720,38 @@ const App = (() => {
             card.dataset.game = id;
             card.setAttribute('role', 'button');
             card.setAttribute('tabindex', '0');
-            card.setAttribute('aria-label', TR.games[id]);
             card.innerHTML = `
                 <div class="mp-badge">2 Oyuncu</div>
-                <div class="card-icon"><img src="assets/images/hub/${id}.svg" alt="${TR.games[id]}" draggable="false"></div>
+                <div class="card-icon"><img src="assets/images/hub/${id}.svg" alt="" draggable="false"></div>
                 <div class="card-title">${TR.games[id]}</div>
-                <div class="card-stars"><span style="font-size:0.7rem;color:#888">Online</span></div>
+                <div class="card-stars"><span style="font-size:0.7rem;color:var(--text-muted)">Online</span></div>
             `;
             // 2'den fazla oyuncuya izin veren oyunlar için rozet metnini değiştir (örn. "2-4 Oyuncu")
             if (entry.badge) { const b = card.querySelector('.mp-badge'); if (b) b.textContent = entry.badge; }
-            card.style.animationDelay = `${cardIndex * 0.06}s`;
+            withIconFallback(card, categoryIcons.online);
+            card.style.animationDelay = staggerDelay(cardIndex);
             cardIndex++;
 
             // Çevrimdışı (Firebase yok): online kart gri + "Çevrimdışı" rozeti, tıkta yalnız uyarı
             if (!isFirebaseOk()) {
-                applyOfflineState(card, id);
+                applyOfflineState(card);
                 return card;
             }
 
             // Kilitli online oyun: gri kart + "Kilitli" rozeti + ilerleme (mp-badge CSS ile gizlenir)
             if (!isGameUnlocked(entry)) {
-                applyLockedState(card, entry, id);
+                applyLockedState(card, entry);
                 return card;
             }
 
-            card.addEventListener('click', () => { AudioManager.play('tap'); startMultiplayerGame(game); });
+            bindActivate(card, () => { AudioManager.play('tap'); startMultiplayerGame(game); });
             return card;
         }
 
         // Online kart, Firebase yokken: sessizce başarısız olmak yerine görünür "kapalı" durumu
-        function applyOfflineState(card, displayId) {
+        function applyOfflineState(card) {
             card.classList.add('offline');
             card.setAttribute('aria-disabled', 'true');
-            card.setAttribute('aria-label', TR.games[displayId] + ' (çevrimdışı — açılamıyor)');
             const badge = document.createElement('div');
             badge.className = 'offline-badge';
             badge.textContent = 'Çevrimdışı';
@@ -731,10 +761,7 @@ const App = (() => {
                 card.classList.remove('cs-bump'); void card.offsetWidth; card.classList.add('cs-bump');
                 appToast('Çevrimdışısın — online oyunlar şu an açılamıyor.');
             };
-            card.addEventListener('click', onTap);
-            card.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTap(); }
-            });
+            bindActivate(card, onTap);
         }
 
         const showAll = activeCategory === 'all';
@@ -748,20 +775,20 @@ const App = (() => {
 
                 const header = document.createElement('div');
                 header.className = 'hub-category-header';
-                const h3 = document.createElement('h3');
-                h3.style.setProperty('--cat-color', category.color);
+                const h2 = document.createElement('h2');   // h1 (üst bar) → h2 bölüm (h3 atlaması yok)
+                h2.style.setProperty('--cat-color', category.color);
                 const catImg = document.createElement('img');
                 catImg.src = category.icon;
-                catImg.alt = category.title;
+                catImg.alt = '';                            // dekoratif: başlık metni zaten adı taşıyor
                 catImg.className = 'cat-header-icon';
                 catImg.draggable = false;
-                h3.appendChild(catImg);
-                h3.appendChild(document.createTextNode(' ' + category.title));
-                header.appendChild(h3);
+                h2.appendChild(catImg);
+                h2.appendChild(document.createTextNode(' ' + category.title));
+                header.appendChild(h2);
                 grid.appendChild(header);
 
                 category.games.forEach((entry) => {
-                    grid.appendChild(createGameCard(entry));
+                    grid.appendChild(createGameCard(entry, category.icon));
                 });
             });
         }
@@ -770,16 +797,16 @@ const App = (() => {
         if (showAll || showMP) {
             const mpHeader = document.createElement('div');
             mpHeader.className = 'hub-category-header mp-section-header';
-            const mpH3 = document.createElement('h3');
-            mpH3.style.setProperty('--cat-color', '#5B4A8A');
+            const mpH2 = document.createElement('h2');
+            mpH2.style.setProperty('--cat-color', '#5B4A8A');
             const mpImg = document.createElement('img');
             mpImg.src = categoryIcons.online;
-            mpImg.alt = 'Online';
+            mpImg.alt = '';
             mpImg.className = 'cat-header-icon';
             mpImg.draggable = false;
-            mpH3.appendChild(mpImg);
-            mpH3.appendChild(document.createTextNode(' ' + TR.multiplayerTitle));
-            mpHeader.appendChild(mpH3);
+            mpH2.appendChild(mpImg);
+            mpH2.appendChild(document.createTextNode(' ' + TR.multiplayerTitle));
+            mpHeader.appendChild(mpH2);
             grid.appendChild(mpHeader);
 
             mpGamesList.forEach((entry) => {
@@ -916,10 +943,30 @@ const App = (() => {
     //   dağıtım anında hiçbir kullanıcı yıldız kaybetmez.
     // - Jeton damgadan yeniyse: tek save ile sıfırla + damgala → Google'da buluta gider;
     //   başka cihaz/replaceAll sonrası aynı karşılaştırma yapılır, yeni sıfırlama yine kazanır.
+    // - Profil damgasızsa ama cihazda ESKİ anahtar (A4 öncesi 'oyun_bahcesi_lastResetToken') varsa,
+    //   o cihazın en son gördüğü jetonla karşılaştırılır: yeni jeton → sıfırla; değilse yalnız damgala.
+    const LEGACY_RESET_KEY = 'oyun_bahcesi_lastResetToken';
+    function readLegacyResetToken() {
+        let raw = null;
+        try { raw = localStorage.getItem(LEGACY_RESET_KEY); } catch (e) { return null; }
+        if (raw === null) return null;
+        const n = parseInt(raw, 10);
+        return Number.isFinite(n) ? n : null;
+    }
     function applyResetTokenIfNewer() {
         const tok = Number(adminConfig.resetToken) || 0;
         const seen = Progress.getResetToken();
-        if (seen === null) { Progress.markResetSeen(tok); return; }
+        if (seen === null) {
+            const legacy = readLegacyResetToken();
+            if (legacy !== null && tok > legacy) {
+                Progress.applyReset(tok);
+                appToast('Yıldızlar yönetici tarafından sıfırlandı.');
+            } else {
+                Progress.markResetSeen(tok);
+            }
+            try { localStorage.removeItem(LEGACY_RESET_KEY); } catch (e) {}   // artık profil damgası geçerli
+            return;
+        }
         if (tok > seen) {
             Progress.applyReset(tok);
             appToast('Yıldızlar yönetici tarafından sıfırlandı.');
@@ -938,13 +985,26 @@ const App = (() => {
         if (currentView === 'hub') {
             renderHubGrid();
         } else if (currentView === 'game') {
-            // Oyun oynanırken admin kilitlerse ("Kilit" = komple kapat) oyuncuyu hub'a at
+            // Oyun oynanırken admin kilitlerse ("Kilit" = komple kapat): önce uyar, 5 sn sonra hub'a at
             const entry = activeGameEntry();
-            if (entry && !isGameUnlocked(entry)) {
-                navigateToHub();
-                appToast('Bu oyun yönetici tarafından kapatıldı.');
-            }
+            if (entry && !isGameUnlocked(entry)) scheduleLockKick(entry);
         }
+    }
+
+    // Uyarı + gecikmeli çıkış. Süre dolunca yeniden bakılır: admin bu arada açtıysa ya da oyuncu
+    // zaten başka bir (açık) oyuna/hub'a geçtiyse hiçbir şey yapılmaz.
+    let lockKickTimer = null;
+    function scheduleLockKick(entry) {
+        if (lockKickTimer) return;   // aynı kilit için ikinci uyarı yok
+        appToast('Bu oyun yönetici tarafından kapatıldı — 5 saniye içinde ana ekrana dönülecek.');
+        lockKickTimer = setTimeout(() => {
+            lockKickTimer = null;
+            if (currentView !== 'game') return;
+            const now = activeGameEntry();
+            if (!now || now !== entry || isGameUnlocked(now)) return;
+            navigateToHub();
+            appToast('Bu oyun yönetici tarafından kapatıldı.');
+        }, LOCK_KICK_DELAY_MS);
     }
 
     return { init, updateStarCounter, showHub };

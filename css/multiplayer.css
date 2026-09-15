@@ -23,7 +23,7 @@
   padding: 0.6rem 1.2rem;
   position: relative;
 }
-.mp-section-header h3 {
+.mp-section-header h2 {
   font-family: var(--font-heading);
   font-size: 1.35rem;
   color: #5B4A8A;
@@ -33,8 +33,8 @@
   gap: 0.6rem;
   text-shadow: 0 1px 0 rgba(255,255,255,0.6);
 }
-.mp-section-header h3::before,
-.mp-section-header h3::after {
+.mp-section-header h2::before,
+.mp-section-header h2::after {
   content: '';
   flex: 1;
   height: 3px;
@@ -59,11 +59,6 @@
   right: 8px;
   letter-spacing: 0.03em;
   box-shadow: 0 2px 6px rgba(255,99,72,0.35);
-  animation: badgePulse 2.5s ease-in-out infinite;
-}
-@keyframes badgePulse {
-  0%, 100% { box-shadow: 0 2px 6px rgba(255,99,72,0.35); }
-  50% { box-shadow: 0 2px 12px rgba(255,99,72,0.55); }
 }
 
 /* ── Shared Lobby Containers ── */
@@ -277,7 +272,7 @@
   font-size: 1.05rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.18s, color 0.18s, border-color 0.18s, box-shadow 0.18s;
   color: #5B4A8A;
   min-width: 48px;
   box-shadow: 0 3px 0 #E0D8F0;
@@ -449,7 +444,7 @@
   font-weight: 600;
   cursor: pointer;
   color: #5B4A8A;
-  transition: all 0.2s;
+  transition: background-color 0.2s, border-color 0.2s;
 }
 .lobby-refresh-btn:hover {
   background: #F0EBFA;
@@ -500,7 +495,7 @@
   color: #3D2E6B;
   background: white;
   box-shadow: 0 3px 0 #E0D8F0;
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 .word-box.filled {
   border-color: #9B7DEE;
@@ -544,7 +539,7 @@
   color: #3D2E6B;
   cursor: pointer;
   box-shadow: 0 3px 0 #D5D0E5;
-  transition: all 0.1s;
+  transition: transform 0.1s, box-shadow 0.1s, background-color 0.1s, color 0.1s, opacity 0.1s;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -610,7 +605,7 @@
   font-size: 0.78rem;
   font-weight: 700;
   white-space: nowrap;
-  transition: all 0.3s;
+  transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
 }
 .mp-turn-badge.your-turn {
   background: linear-gradient(160deg, #4CD964, #2ECC71);
@@ -686,7 +681,7 @@
   border: 3px solid #E0D8F0;
   background: white;
   box-shadow: 0 2px 0 #E8E0F5;
-  transition: all 0.2s;
+  transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s, color 0.2s;
 }
 .guess-cell.typed {
   border-color: #9B7DEE;
@@ -797,7 +792,7 @@
   font-family: var(--font-heading);
   font-size: 1.35rem;
   font-weight: 700;
-  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: background-color 0.35s, border-color 0.35s, box-shadow 0.35s, color 0.35s, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .harf-cell.hidden {
   background: linear-gradient(170deg, #F0EBFA, #E8E0F5);

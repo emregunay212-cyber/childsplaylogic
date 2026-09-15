@@ -97,9 +97,10 @@ const Auth = (() => {
     }
 
     // ── Google girişinde buluttan yükle; yereli EZ (cloud-only) ──
+    // Bulut okuması başarısızsa (izin/ağ) hata YUTULMAZ: fırlatılır → applyGoogle'ın catch'i
+    // toast gösterir; boş blob ile sıfırlama/buluta tohumlama yapılmaz (bulut kaydı ezilmez).
     async function loadCloudIntoLocal(uid) {
-        let snap = null;
-        try { snap = await cloudRef(uid).once('value'); } catch (e) {}
+        const snap = await cloudRef(uid).once('value');
         const val = snap && snap.val();
         if (val) {
             Progress.setSyncHook(null);     // yüklerken buluta geri-yankı yapma
@@ -245,10 +246,13 @@ const Auth = (() => {
     function signOut() {
         try { sessionStorage.removeItem(GUEST_KEY); } catch (e) {}
         Progress.setSyncHook(null);
+        clearTimeout(pushTimer);            // bekleyen bulut yazımı, kullanıcı null'landıktan sonra çalışmasın
+        pushTimer = null;
         Progress.resetAll();                // paylaşımlı cihaz: yereli temizle
         clearGameSaves();                   // oyun kayıtlarını da temizle
         const wasGoogle = (mode === 'google');
         mode = null; currentUser = null;
+        renderAdminLink(null);
         if (wasGoogle && auth) {
             // başarı → onAuthStateChanged(null) → showLoginScreen; hata → yine giriş ekranına düş
             auth.signOut().catch((e) => { console.error('Çıkış yapılamadı:', e); showLoginScreen(); });
@@ -301,7 +305,31 @@ const Auth = (() => {
         }
     }
 
+    // Yönetici hesabı mı? (js/firebase-config.js ADMIN_EMAIL — admin.js ile aynı sabit)
+    function isAdmin() {
+        return !!(currentUser && currentUser.email && currentUser.email === ADMIN_EMAIL);
+    }
+
+    // Üst bardaki "Yönetim Paneli" bağlantısı yalnız yönetici oturumunda DOM'da bulunur;
+    // diğer herkes için hiç eklenmez (eskiden statik HTML'de herkese görünüyordu).
+    function renderAdminLink(user) {
+        const existing = $('btn-admin');
+        if (existing) existing.remove();
+        if (!user || !isAdmin()) return;
+        const chip = $('user-chip');
+        if (!chip || !chip.parentNode) return;
+        const a = document.createElement('a');
+        a.id = 'btn-admin';
+        a.className = 'top-btn admin-btn';
+        a.href = 'admin.html';
+        a.title = 'Yönetim Paneli';
+        a.setAttribute('aria-label', 'Yönetim paneli');
+        a.appendChild(svgIcon('M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z'));
+        chip.parentNode.insertBefore(a, chip);
+    }
+
     function renderUserChip(user) {
+        renderAdminLink(user);
         const chip = $('user-chip');
         if (!chip) return;
         closeMenu();
@@ -381,6 +409,7 @@ const Auth = (() => {
         signOut,
         getMode: () => mode,
         isGuest: () => mode === 'guest',
+        isAdmin,
         getUser: () => currentUser,
         flushGameSaves: pushGameSaves,   // app.js oyundan çıkışta çağırır
     };
