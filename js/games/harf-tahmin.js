@@ -28,9 +28,10 @@ const HarfTahmin = (() => {
 
   function init(gameArea, data) {
     container = gameArea;
-    gameData = data;
-    myRevealed = Array(data.wordLength).fill(null);
-    opRevealed = Array(data.wordLength).fill(null);
+    // Güvenlik (XSS): wordLength Firebase'deki lobiden gelir, kuralda doğrulanmıyor → tam sayıya zorla
+    gameData = { ...data, wordLength: parseInt(data.wordLength, 10) || 5 };
+    myRevealed = Array(gameData.wordLength).fill(null);
+    opRevealed = Array(gameData.wordLength).fill(null);
     myGuessedLetters = [];
     opGuessedLetters = [];
     myHits = new Set();

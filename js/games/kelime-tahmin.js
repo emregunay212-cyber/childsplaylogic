@@ -91,7 +91,7 @@ const KelimeTahmin = (() => {
     // My previous guesses
     for (const g of myGuesses) {
       rows.push(`<div class="guess-row completed">${g.results.map(r =>
-        `<div class="guess-cell ${r.status}">${escapeHTML(r.letter)}</div>`
+        `<div class="guess-cell ${escapeHTML(r.status)}">${escapeHTML(r.letter)}</div>`
       ).join('')}</div>`);
     }
     // Current input row (if not game over)
