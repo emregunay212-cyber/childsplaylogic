@@ -41,6 +41,7 @@ const hubCoreGlobals = {
     HubToast: 'readonly',           // js/errors.js (A4)
     AssetLoader: 'readonly',        // js/loader.js (A9)
     ADMIN_EMAIL: 'readonly',        // js/firebase-config.js (A6)
+    Janitor: 'readonly',            // js/janitor.js (istemci tarafı temizlikçi)
     TR: 'readonly',                 // js/i18n.js
 };
 

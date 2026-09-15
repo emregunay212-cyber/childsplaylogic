@@ -444,6 +444,9 @@ const App = (() => {
         if (authEntered) { showHub(); return; }   // çıkış sonrası yeniden giriş → hub
         authEntered = true;
         if (!tryDeepLink()) showHub();
+        // Bayat lobi/oda temizliği (Spark planı, Cloud Functions yok): boşta zamanda planlanır,
+        // oyun başlatma yolunda çağrılmaz; kapılar/6 saat eşiği js/janitor.js'te. Asla fırlatmaz.
+        if (window.Janitor) window.Janitor.schedule();
     }
 
     function tryDeepLink() {
