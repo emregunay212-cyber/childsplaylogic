@@ -50,3 +50,22 @@ Her adım tek PR, Vercel önizlemede doğrulanır, kabul geçidinden (reality-ch
 - `curl` 200: `/server/ws-server.js`, `/server/package.json`, `/BASLAT-SERVER.bat`, `/EGITSEL-OYUN-PLANI.md`, `/_bank_tmp.txt`, `/database.rules.json`, `/firebase.json`.
 - Konsol: `assets/images/hub/zipla-topla-coop.svg` 404 (hub ve Son Kart sayfasında).
 - Ekran görüntüleri: masaüstü hub (giriş kartı → 4 sütun ızgara), mobil 375px (3 satırlık yapışkan üst bar ~160px, "Hadi Başlayalım" başlığı altında kalıyor), Son Kart menüsü. Dosya olarak kaydedilmedi; A6 adımında `kanit/` klasörüne alınacak.
+
+## Durum 15 Eylül 2026 (öğleden sonra)
+
+Sabahki bulguların 8 PR'ı `master`'da (`gh pr list --state all`; HEAD `258202c` = PR #19 merge). Aşağıdaki maddeler **merge edilmiş kodu** anlatır; canlı `curl` doğrulaması bu belgede tekrar yapılmadı (A1 PR gövdesindeki önizleme doğrulaması esas).
+
+| Bulgu | Şimdi | PR |
+|---|---|---|
+| 1 RTDB herkese yazılabilir | `lobbies`/`players`/`rooms/*` koleksiyon-düzeyi `.write:true` kaldırıldı; anahtar biçimi (`^[A-Z]{5}$`, `^[A-Z2-9]{4}$`, `^P[a-z0-9]{10,16}$`) ve sayı tipi doğrulaması; `leaderboards/tetris` eklendi. Kurallar canlıda (`firebase deploy --only database`). **Eski veri temizliği yapılmadı — sahip onayında.** | #13 merged |
+| 2 Vercel'de başlık yok, dahili dosyalar açık | `vercel.json`: nosniff, `X-Frame-Options`, Referrer-Policy, Permissions-Policy, HSTS, **CSP Report-Only**, js/css 1 saat / görsel 1 hafta önbellek, `trailingSlash`; `.vercelignore`: `*.md`, `*.py`, `seo/`, `docs/`, `plans/`, `tests/`, `.github/`, `database.rules.json`, `firebase.json` … yayın dışı; Türkçe `404.html`. `server/` ve `_bank_tmp.txt` repodan silindi. | #12, #14 merged |
+| 3 Depolanmış XSS | Oyuncu adları ve lobi alanları `innerHTML` öncesi kaçışlanıyor (`0c44fa0`). | #16 merged |
+| 4 Hub tek hata noktası | Kayıt defteri tembel thunk (`js/app.js` `resolveEntries`): bozuk modül yalnız kendi kartını düşürür; Firebase yoksa misafir moduna düşüş; bozuk `localStorage` ilerleme kurtarma; sıfırlama × bulut senkron yarışı. | #18 merged |
+| 7 SEO | `seo/games_data.py` tek veri kaynağı (56 kayıt, 1 `active=False`); `@graph` JSON-LD; title ≤60 / description ≤150; `son-kart`, `hava-hokeyi`, `zipla-topla-coop` landing'leri; sitemap 57 `<loc>`; `llms.txt` üretiliyor; 27 iframe `games/*/index.html` `noindex` + canonical. Ana sayfa title/description/footer → PR #21 (açık). | #17, #15 merged |
+| Test/CI yok | `npm run lint` (eslint flat config, 0 hata / 44 uyarı), `npm run test:smoke` (Playwright, **60/60**: 46 solo + 9 online derin bağlantı + 2 online hub yolu + admin + `/oyunlar/` + katalog), GitHub Actions her PR'da. | #19 merged |
+| 6 Erişilebilirlik · egweblab imzası 0/83 | İmza: `404.html`, `/oyunlar/` hub ve 56 landing'de (`css/imza.css`, üretici şablonu). Hub `index.html` + `admin.html` imzası, zoom kilidi, `:focus-visible`, 7 kontrast, klavye, `zipla-topla-coop.svg`, Lighthouse Erişilebilirlik 100 (`kanit/`) → **PR #21 açık**, geçit incelemesi sürüyor. | #12, #17 merged · #21 açık |
+| Gizlilik/KVKK sayfası yok | `/gizlilik/`, `/hakkinda/`, `/iletisim/` üreticiden (`STATIC_PAGES`), sitemap 60 → **PR #20 açık**; metin okul onayı bekliyor. | #20 açık |
+| 5 Performans (802 KB JS, 0 defer) | **Değişmedi** — A9a/b/c PR #21 sonrası. | — |
+| Belgeler gerçeği anlatmıyor | `EGITSEL-FAZ-DURUM.md` "Güncelleme 15 Eylül 2026", `EGITSEL-OYUN-PLANI.md` §3.4/§4.16/§6.2/§6.3/DoD notları, `LEGO-WORLD-GAME-SPEC.md` arşiv bandı, kök `README.md`, plan durumu. | A11b (bu commit) |
+
+Karar bekleyenler listesine eklenenler: RTDB eski veri temizlik komutu (sahip), KVKK metni gözden geçirme (okul), iki cihazlı Google sıfırlama testi — bkz. `plans/bilnetoyun-duzeltme-2026-09-15.md` "Karar gerektiren noktalar" 6-8.

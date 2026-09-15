@@ -127,6 +127,10 @@ Tüm oyunların üstünde çalışan ortak ilerleme sistemi. Bu, Facebook oyunla
 
 ### 3.4 Sınıf Ligi (Pasif Rekabet Çekirdeği)
 
+> **Durum (15 Eylül 2026): planlandı, kod yok.** §3.4 ve §3.5 için repoda sınıf kodu, lig havuzu ya da turnuva
+> düğümü bulunmaz (`database.rules.json`'da ilgili düğüm yok; `js/bilnet-meta.js` başlık yorumu "Sınıf ligi/turnuva (v2)
+> … o aşamada database.rules.json güncellenir" der). `EGITSEL-FAZ-DURUM.md` M2 satırı "ERTELENDİ" ile tutarlı.
+
 - Her öğrenci kayıt olurken **sınıf kodu** girer (öğretmen dağıtır: `5A-2026` gibi)
 - Bireysel skorlar sınıfın haftalık havuzuna eklenir
 - Pazartesi 00:00'da lig sıfırlanır, önceki haftanın şampiyonu duyurulur
@@ -540,6 +544,10 @@ Etek-Zirve ayrımı YOK — tek günlük kelime, okul geneli eşitlik
 ### 4.16 BİLGİ ZIPLAMASI 🦘☁️
 **İlham:** Doodle Jump · **Efor:** ⭐⭐ Orta
 
+> **Durum (15 Eylül 2026): kaldırıldı.** Faz 5'te yayınlandı (`dc08a80`), ardından `8977765` (2026-06-13,
+> "bilgi-ziplamasi kaldirildi") ile oyun dosyası, sarmalayıcı, hub kaydı ve SEO sayfası silindi. Canlıda 21 değil **20**
+> plan oyunu var; bu bölüm tasarım kaydı olarak duruyor.
+
 **Eğitsel dönüşüm:**
 - Karakter otomatik zıplar, oyuncu sağa-sola yönlendirir
 - Platformlar üç tip: normal (boş), CEVAP platformu (üzerinde cevap yazar), kırık
@@ -743,7 +751,13 @@ const BilnetBridge = {
 };
 ```
 
-### 6.2 Firestore Şeması (mevcut altyapı)
+### 6.2 Firestore Şeması (öneri — mevcut altyapı DEĞİL)
+
+> **Düzeltme (15 Eylül 2026):** Portal **Firebase Realtime Database** kullanır, Firestore değil
+> (`js/multiplayer.js:1` "Firebase RTDB", `firebase.database.ServerValue.TIMESTAMP`; `js/bilnet-meta.js:5-9` mimari kararı;
+> kurallar `database.rules.json`). Aşağıdaki şema uygulanmadı: meta katman v1 istemci tarafında çalışır ve
+> `users/{uid}` altındaki mevcut `gameSaves` senkronunu (`js/auth.js`) kullanır. Şema, ileride sunucu tarafı
+> lig/skor katmanı yazılırsa RTDB'ye uyarlanacak bir öneri olarak kalır.
 
 ```
 users/{uid}
@@ -765,6 +779,10 @@ monsters/{uid}                         // sadece Kelime Canavarları
 **Latency notu:** Hiçbir oyun gerçek zamanlı okuma yapmaz. Skorlar yazma ağırlıklı (fire-and-forget), liderlik tabloları 5 dk cache'li okunur. Mevcut Firebase latency sorunu bu mimaride hissedilmez.
 
 ### 6.3 Güvenlik
+
+> **Durum (15 Eylül 2026): planlandı, kod yok.** Repoda Cloud Function (`functions/` dizini) yok; skor doğrulama ve
+> rate limit uygulanmadı — eğitsel skorlar yalnız istemcide `bilnet_score_queue` → `js/bilnet-meta.js` ile jetona çevrilir.
+> Bugün var olan sunucu tarafı doğrulama yalnız `database.rules.json`'daki lobi/oda/skor-tablosu kurallarıdır (PR #13, A2).
 
 - Skor doğrulama: istemci skoru + `stats` tutarlılık kontrolü Cloud Function ile (`score ≤ correct × maxPuan × maxCombo` sınırı)
 - Rate limit: dakikada max 2 skor yazımı/kullanıcı
@@ -838,6 +856,24 @@ Düşük eforlu oyunlar — her biri 1 oturum, portal içerik sayısını hızla
 - [ ] Hiçbir serbest metin girişi / sosyal özellik yok
 - [ ] 60 sn'lik bir oturum bile anlamlı (teneffüs testi)
 
+> **Kanıt durumu (15 Eylül 2026, plan adımı A11b):** Kutular bilinçli olarak **boş bırakıldı** — repoda 20 oyunun
+> hiçbiri için bu 8 ölçütü tek tek kanıtlayan test/ekran görüntüsü yok (`docs/inceleme-2026-09-15/02-gerceklik-kontrolu.md`
+> "Yanlış / tutarsız" 5). Bugün elde olan kanıt ve karşılığı:
+> - **Kanıtlı — ama DoD kutularından hiçbirinin tam karşılığı değil:** Playwright duman testi 60/60 (PR #19, merged;
+>   `tests/smoke.spec.js`): aktif her oyun `/?oyun=<slug>` ile açılıyor ve 3 sn boyunca yakalanmamış JS hatası üretmiyor
+>   (masaüstü Chromium; mobil viewport, tier, offline, oyun sonu ekranı ölçülmüyor). Lighthouse Erişilebilirlik 100
+>   (PR #21, **açık**; `docs/inceleme-2026-09-15/kanit/A6-lighthouse-erisilebilirlik.json`): yalnız **hub** sayfası,
+>   oyun içi değil.
+> - **Kısmi (kod var, test yok):** "Bridge entegrasyonu" — 20 oyunun hepsinde `BilnetBridge`/`bilnet_score_queue`
+>   geçiyor (`grep -c "bilnet_score_queue\|BilnetBridge" games/<slug>/index.html` ≥ 3), skor gönderimi test edilmedi.
+>   "Skor kuyruklanır" — kuyruk `bilnet_score_queue` (`js/bilnet-meta.js:20`); çevrimdışı senaryo test edilmedi.
+>   "FALLBACK_QUESTIONS gömülü" — bu adla yalnız 2/20 oyunda (`grep -c FALLBACK games/*/index.html`: bilgi-madencisi,
+>   bilgi-yilani); diğerleri gömülü bankayı farklı adla taşıyor, ölçüt adıyla doğrulanamıyor.
+> - **Açık (kanıt yok):** 360px mobil, 4 tier farkı, oyun sonu özet ekranı, serbest metin/sosyal özellik yokluğu,
+>   60 sn teneffüs testi — her biri için oyun başına kanıt gerekir (mobil + masaüstü ekran görüntüsü, tier turu).
+> Kutu işaretlemek için gereken asgari: oyun başına `docs/inceleme-2026-09-15/kanit/` altında 360px ve masaüstü
+> görüntü + tier/offline turu notu; ya da bu ölçütleri kapsayan Playwright senaryoları.
+
 ---
 
 ## 8. CLAUDE CODE İÇİN ÇALIŞMA TALİMATLARI
@@ -852,3 +888,4 @@ Düşük eforlu oyunlar — her biri 1 oturum, portal içerik sayısını hızla
 ---
 
 *Son güncelleme: 12 Haziran 2026 · Hazırlayan: Claude (Emre Günay ile birlikte) · bilnetoyun.com Eğitsel Dönüşüm Projesi v1.0*
+*Belge senkronu: 15 Eylül 2026 (A11b) — yalnız §3.4, §4.16, §6.2, §6.3 durum notları ve Definition of Done kanıt notu eklendi; tasarım metni değişmedi. Güncel durum: `EGITSEL-FAZ-DURUM.md` "Güncelleme 15 Eylül 2026".*

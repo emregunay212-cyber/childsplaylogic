@@ -1,5 +1,11 @@
 # 🧱 LEGO World — Anaokulu Seviyesi Eğitsel Oyun
 
+> **ARŞİV — uygulanmadı.** Bu spec (Nisan 2026, `0c37127`) Phaser 3/PixiJS + Next.js route + Firestore öngörüyordu;
+> gerçek uygulama aynı gün ayrı commit'le **Three.js 3D** olarak yazıldı (`js/games/lego-world.js:2` "3D Açık Dünya (Three.js)",
+> `b2680e7`) ve hub'da vanilla JS modülü olarak çalışır (Next.js, Phaser, Firestore yok — portal RTDB kullanır).
+> Aşağıdaki 41 görev kutusu bu yüzden boş; belge tasarım fikri kaydı olarak duruyor, yol haritası değildir
+> (`docs/inceleme-2026-09-15/02-gerceklik-kontrolu.md` "Yanlış / tutarsız" 7; belge senkronu 15 Eylül 2026, A11b).
+
 ## Proje Özeti
 
 Mevcut siteye entegre edilecek, anaokulu seviyesinde LEGO ve temel kodlama mantığı öğreten bir 2.5D web oyunu. Oyuncu, canlı bir mini dünyada LEGO karakteriyle gezer, LEGO parçaları toplar, hasarlı binaları tamir eder ve basit kodlama mantığını (sıralama, döngü, koşul) keşfeder.
