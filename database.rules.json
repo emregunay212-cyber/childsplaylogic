@@ -10,7 +10,9 @@
       ".read": false,
       "space-waves": {
         ".read": true,
-        ".indexOn": ["score"],
+        ".indexOn": [
+          "score"
+        ],
         "$entryId": {
           ".write": "!data.exists() && newData.exists()",
           ".validate": "newData.hasChildren(['name','score','timestamp'])",
@@ -23,12 +25,16 @@
           "timestamp": {
             ".validate": "newData.val() == now"
           },
-          "$other": { ".validate": false }
+          "$other": {
+            ".validate": false
+          }
         }
       },
       "egim": {
         ".read": true,
-        ".indexOn": ["score"],
+        ".indexOn": [
+          "score"
+        ],
         "$entryId": {
           ".write": "!data.exists() && newData.exists()",
           ".validate": "newData.hasChildren(['name','score','timestamp'])",
@@ -41,51 +47,140 @@
           "timestamp": {
             ".validate": "newData.val() == now"
           },
-          "$other": { ".validate": false }
+          "$other": {
+            ".validate": false
+          }
+        }
+      },
+      "tetris": {
+        ".read": true,
+        ".indexOn": [
+          "score"
+        ],
+        "$entryId": {
+          ".write": "!data.exists() && newData.exists()",
+          ".validate": "newData.hasChildren(['name','score','timestamp'])",
+          "name": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 16"
+          },
+          "score": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000000"
+          },
+          "timestamp": {
+            ".validate": "newData.val() == now"
+          },
+          "$other": {
+            ".validate": false
+          }
         }
       }
     },
     "lobbies": {
       ".read": true,
-      ".write": true,
-      ".indexOn": ["state"],
+      ".indexOn": [
+        "state"
+      ],
       "$lobbyId": {
-        "hostName":  { ".validate": "newData.isString() && newData.val().length <= 24" },
-        "guestName": { ".validate": "newData.isString() && newData.val().length <= 24" },
-        "state":     { ".validate": "newData.isString() && newData.val().length <= 24" },
-        "gameType":  { ".validate": "newData.isString() && newData.val().length <= 32" }
+        ".write": "$lobbyId.matches(/^[A-Z]{5}$/)",
+        "id": {
+          ".validate": "newData.isString() && newData.val().matches(/^[A-Z]{5}$/)"
+        },
+        "hostName": {
+          ".validate": "newData.isString() && newData.val().length <= 24"
+        },
+        "guestName": {
+          ".validate": "newData.isString() && newData.val().length <= 24"
+        },
+        "state": {
+          ".validate": "newData.isString() && newData.val().length <= 24"
+        },
+        "gameType": {
+          ".validate": "newData.isString() && newData.val().length <= 32"
+        },
+        "wordLength": {
+          ".validate": "newData.isNumber()"
+        },
+        "maxTurns": {
+          ".validate": "newData.isNumber()"
+        },
+        "gridSize": {
+          ".validate": "newData.isNumber()"
+        },
+        "totalRounds": {
+          ".validate": "newData.isNumber()"
+        }
       }
     },
     "players": {
       ".read": true,
-      ".write": true,
       "$playerId": {
-        "name":     { ".validate": "newData.isString() && newData.val().length <= 24" },
-        "online":   { ".validate": "newData.isBoolean()" },
-        "lastSeen": { ".validate": "newData.isNumber()" },
-        "$other":   { ".validate": false }
+        ".write": "$playerId.matches(/^P[a-z0-9]{10,16}$/)",
+        "name": {
+          ".validate": "newData.isString() && newData.val().length <= 24"
+        },
+        "online": {
+          ".validate": "newData.isBoolean()"
+        },
+        "lastSeen": {
+          ".validate": "newData.isNumber()"
+        },
+        "$other": {
+          ".validate": false
+        }
       }
     },
     "rooms": {
       ".read": true,
-      ".write": true,
       "altin-avi": {
-        ".indexOn": ["state"],
+        ".indexOn": [
+          "state"
+        ],
         "$code": {
-          "state":    { ".validate": "newData.isString() && newData.val().length <= 24" },
+          ".write": "$code.matches(/^[A-Z]{5}$/)",
+          "state": {
+            ".validate": "newData.isString() && newData.val().length <= 24"
+          },
           "players": {
             "$playerId": {
-              "name": { ".validate": "newData.isString() && newData.val().length <= 24" }
+              "name": {
+                ".validate": "newData.isString() && newData.val().length <= 24"
+              },
+              "gold": {
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 999999"
+              }
             }
           }
         }
       },
       "son-kart": {
-        ".indexOn": ["state"],
+        ".indexOn": [
+          "state"
+        ],
         "$code": {
-          "state": { ".validate": "newData.isString() && newData.val().length <= 24" },
+          ".write": "$code.matches(/^[A-Z2-9]{4}$/)",
+          "state": {
+            ".validate": "newData.isString() && newData.val().length <= 24"
+          },
           "names": {
-            "$pid": { ".validate": "newData.isString() && newData.val().length <= 24" }
+            "$pid": {
+              ".validate": "newData.isString() && newData.val().length <= 24"
+            }
+          }
+        }
+      },
+      "kelimelik": {
+        ".indexOn": [
+          "state"
+        ],
+        "$code": {
+          ".write": "$code.matches(/^[A-Z2-9]{4}$/)",
+          "state": {
+            ".validate": "newData.isString() && newData.val().length <= 24"
+          },
+          "names": {
+            "$pid": {
+              ".validate": "newData.isString() && newData.val().length <= 24"
+            }
           }
         }
       }
