@@ -4,3 +4,5 @@ logs/
 *.log
 .firebase/
 __pycache__/
+test-results/
+playwright-report/
