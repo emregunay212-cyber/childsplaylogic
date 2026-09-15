@@ -22,12 +22,20 @@ const KodMacerasiMP = (() => {
     let guestScore = 0;
     let gameOver = false;
 
+    // Güvenlik (XSS): rakip adı Firebase'den gelir; innerHTML'e basmadan önce kaçışla
+    function escapeHTML(s){
+        return String(s == null ? '' : s)
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+            .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
     function init(gameArea, data) {
         container = gameArea;
         gameData = data;
-        currentRound = data.currentRound || 1;
-        hostScore = data.hostScore || 0;
-        guestScore = data.guestScore || 0;
+        // Sayısal lobi alanları kuralda doğrulanmıyor → sayıya zorla (innerHTML'e giriyorlar)
+        currentRound = Number(data.currentRound) || 1;
+        hostScore = Number(data.hostScore) || 0;
+        guestScore = Number(data.guestScore) || 0;
         myFinished = false;
         opFinished = false;
         gameOver = false;
@@ -70,8 +78,8 @@ const KodMacerasiMP = (() => {
             opRobotPos = data.opRobotPos;
             opFinished = data.opFinished || false;
             myFinished = data.myFinished || false;
-            hostScore = data.hostScore || 0;
-            guestScore = data.guestScore || 0;
+            hostScore = Number(data.hostScore) || 0;
+            guestScore = Number(data.guestScore) || 0;
 
             renderOpponentGrid();
             renderScorebar();
@@ -85,13 +93,13 @@ const KodMacerasiMP = (() => {
         });
 
         Multiplayer.on('NEW_ROUND', (data) => {
-            currentRound = data.round;
+            currentRound = Number(data.round) || 1;
             myPuzzle = data.myPuzzle;
             opPuzzle = data.opPuzzle;
             myRobotPos = data.myRobotPos || { x: myPuzzle.start.x, y: myPuzzle.start.y };
             opRobotPos = data.opRobotPos || { x: opPuzzle.start.x, y: opPuzzle.start.y };
-            hostScore = data.hostScore || 0;
-            guestScore = data.guestScore || 0;
+            hostScore = Number(data.hostScore) || 0;
+            guestScore = Number(data.guestScore) || 0;
             myFinished = false;
             opFinished = false;
             roundResultShown = false;
@@ -223,8 +231,8 @@ const KodMacerasiMP = (() => {
         const opScore = gameData.yourRole === 'host' ? guestScore : hostScore;
         el.innerHTML = `
             <span class="kod-mp-score my-score">🟠 Sen: ${myScore}</span>
-            <span class="kod-mp-round">Tur ${currentRound}/${gameData.totalRounds || 3}</span>
-            <span class="kod-mp-score op-score">🔵 ${gameData.opponentName}: ${opScore}</span>
+            <span class="kod-mp-round">Tur ${currentRound}/${Number(gameData.totalRounds) || 3}</span>
+            <span class="kod-mp-score op-score">🔵 ${escapeHTML(gameData.opponentName)}: ${opScore}</span>
         `;
     }
 
@@ -362,8 +370,8 @@ const KodMacerasiMP = (() => {
             AudioManager.play('error');
         }
 
-        const myScore = gameData.yourRole === 'host' ? (data.hostScore || hostScore) : (data.guestScore || guestScore);
-        const opScore = gameData.yourRole === 'host' ? (data.guestScore || guestScore) : (data.hostScore || hostScore);
+        const myScore = gameData.yourRole === 'host' ? (Number(data.hostScore) || hostScore) : (Number(data.guestScore) || guestScore);
+        const opScore = gameData.yourRole === 'host' ? (Number(data.guestScore) || guestScore) : (Number(data.hostScore) || hostScore);
 
         const bgGrad = isWinner ? 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
             : isDraw ? 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)'
@@ -390,7 +398,7 @@ const KodMacerasiMP = (() => {
                             <div class="kod-gameover-vs">VS</div>
                             <div class="kod-gameover-player">
                                 <div class="kod-gameover-avatar" style="background:#2196F3;">🔵</div>
-                                <span class="kod-gameover-name">${gameData.opponentName}</span>
+                                <span class="kod-gameover-name">${escapeHTML(gameData.opponentName)}</span>
                                 <span class="kod-gameover-pts">${opScore}</span>
                             </div>
                         </div>

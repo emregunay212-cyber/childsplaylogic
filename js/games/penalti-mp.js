@@ -44,6 +44,13 @@ const PenaltiMP = (() => {
   let isAnimating = false;
   let isSuddenDeath = false;
 
+  // Güvenlik (XSS): rakip adı Firebase'den gelir; innerHTML'e basmadan önce kaçışla
+  function escapeHTML(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
   function init(gameArea, data) {
     container = gameArea;
     gameData = data;
@@ -200,8 +207,8 @@ const PenaltiMP = (() => {
 
   // ── Skor Tablosu ──
   function buildScoreboard() {
-    const hostName = myRole === 'host' ? 'Sen' : (gameData.opponentName || 'Rakip');
-    const guestName = myRole === 'guest' ? 'Sen' : (gameData.opponentName || 'Rakip');
+    const hostName = myRole === 'host' ? 'Sen' : escapeHTML(gameData.opponentName || 'Rakip');
+    const guestName = myRole === 'guest' ? 'Sen' : escapeHTML(gameData.opponentName || 'Rakip');
 
     const maxDots = isSuddenDeath ? Math.max(hostShots.length, guestShots.length, TOTAL_ROUNDS + 1) : TOTAL_ROUNDS;
 
@@ -365,11 +372,12 @@ const PenaltiMP = (() => {
   function setupListeners() {
     Multiplayer.on('PENALTY_RESULT', (data) => {
       // data: { round, shooter, shotZone, keeperZone, goal, hostScore, guestScore, hostShots, guestShots, currentShooter, currentRound, isSuddenDeath }
-      hostScore = data.hostScore;
-      guestScore = data.guestScore;
+      // Sayısal lobi alanları kuralda doğrulanmıyor → sayıya zorla (innerHTML'e giriyorlar)
+      hostScore = Number(data.hostScore) || 0;
+      guestScore = Number(data.guestScore) || 0;
       hostShots = data.hostShots || [];
       guestShots = data.guestShots || [];
-      currentRound = data.currentRound;
+      currentRound = Number(data.currentRound) || 1;
       currentShooter = data.currentShooter;
       isSuddenDeath = data.isSuddenDeath || false;
 
@@ -438,13 +446,13 @@ const PenaltiMP = (() => {
         <h2>${resultClass === 'win' ? '🏆' : resultClass === 'draw' ? '🤝' : '😢'} ${resultText}</h2>
         <div class="pen-mp-final-score">
           <div class="pen-mp-final-team">
-            <span class="pen-mp-final-name">${myRole === 'host' ? 'Sen' : (gameData.opponentName || 'Rakip')}</span>
-            <span class="pen-mp-final-num">${data.hostScore || hostScore}</span>
+            <span class="pen-mp-final-name">${myRole === 'host' ? 'Sen' : escapeHTML(gameData.opponentName || 'Rakip')}</span>
+            <span class="pen-mp-final-num">${Number(data.hostScore) || hostScore}</span>
           </div>
           <span class="pen-mp-final-dash">-</span>
           <div class="pen-mp-final-team">
-            <span class="pen-mp-final-name">${myRole === 'guest' ? 'Sen' : (gameData.opponentName || 'Rakip')}</span>
-            <span class="pen-mp-final-num">${data.guestScore || guestScore}</span>
+            <span class="pen-mp-final-name">${myRole === 'guest' ? 'Sen' : escapeHTML(gameData.opponentName || 'Rakip')}</span>
+            <span class="pen-mp-final-num">${Number(data.guestScore) || guestScore}</span>
           </div>
         </div>
         <div class="mp-game-over-btns">

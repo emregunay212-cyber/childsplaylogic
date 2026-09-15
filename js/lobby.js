@@ -257,17 +257,23 @@ const Lobby = (() => {
         listContainer.innerHTML = `<div class="lobby-empty">${TR.mp.noRooms}</div>`;
         return;
       }
-      listContainer.innerHTML = data.lobbies.map(l => `
+      listContainer.innerHTML = data.lobbies.map(l => {
+        // Güvenlik (XSS): sayısal lobi alanları Firebase'den gelir ve kuralda doğrulanmıyor → sayıya zorla
+        const gridSize = Number(l.gridSize) || 6;
+        const wordLength = Number(l.wordLength) || 5;
+        const maxTurns = Number(l.maxTurns) || 10;
+        return `
         <div class="lobby-list-card">
           <div class="lobby-list-info">
             <span class="lobby-list-icon">${l.gameType === 'penalti-mp' ? '⚽' : l.gameType === 'ates-buz' ? '🔥' : l.gameType === 'hava-hokeyi' ? '🏒' : l.gameType === 'zipla-topla-coop' ? '🏃' : l.gameType === 'kod-macerasi' ? '🤖' : l.gameType === 'kelime-tahmin' ? '🔤' : l.gameType === 'satranc' ? '♟️' : '🔡'}</span>
             <div>
               <strong>${escapeHTML(l.hostName)}</strong>
-              <span class="lobby-list-detail">${l.gameType === 'penalti-mp' ? '5 atış' : l.gameType === 'ates-buz' ? '5 seviye' : l.gameType === 'hava-hokeyi' ? 'İlk 7 gol' : l.gameType === 'zipla-topla-coop' ? '12 bölüm co-op' : l.gameType === 'kod-macerasi' ? l.gridSize+'x'+l.gridSize+' grid' : l.gameType === 'satranc' ? 'Satranç' : l.wordLength+' harf · '+(l.maxTurns>=999?'∞':l.maxTurns)+' tur'}</span>
+              <span class="lobby-list-detail">${l.gameType === 'penalti-mp' ? '5 atış' : l.gameType === 'ates-buz' ? '5 seviye' : l.gameType === 'hava-hokeyi' ? 'İlk 7 gol' : l.gameType === 'zipla-topla-coop' ? '12 bölüm co-op' : l.gameType === 'kod-macerasi' ? gridSize+'x'+gridSize+' grid' : l.gameType === 'satranc' ? 'Satranç' : wordLength+' harf · '+(maxTurns>=999?'∞':maxTurns)+' tur'}</span>
             </div>
           </div>
-          <button class="lobby-join-btn" data-id="${l.id}">${TR.mp.join}</button>
-        </div>`).join('');
+          <button class="lobby-join-btn" data-id="${escapeHTML(l.id)}">${TR.mp.join}</button>
+        </div>`;
+      }).join('');
 
       listContainer.querySelectorAll('.lobby-join-btn').forEach(btn => {
         btn.onclick = () => {
@@ -342,8 +348,10 @@ const Lobby = (() => {
     showLoading(TR.mp.loading);
   }
 
-  function doRenderWordSetup(wordLength, opponentName) {
+  function doRenderWordSetup(rawWordLength, opponentName) {
     Multiplayer.offAll();
+    // Güvenlik (XSS): wordLength Firebase'deki lobiden gelir, kuralda doğrulanmıyor → tam sayıya zorla
+    const wordLength = parseInt(rawWordLength, 10) || 5;
     let currentWord = '';
 
     container.innerHTML = `

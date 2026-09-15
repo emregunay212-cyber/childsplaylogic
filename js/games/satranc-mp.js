@@ -18,6 +18,13 @@ const SatrancMP = (() => {
     let capturedByOp = [];
     let gameOver = false;
 
+    // Güvenlik (XSS): rakip adı ve rakip hamlesi Firebase'den gelir; innerHTML'e basmadan önce kaçışla
+    function escapeHTML(s){
+        return String(s == null ? '' : s)
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+            .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
     function init(gameArea, data) {
         container = gameArea;
         gameData = data;
@@ -73,7 +80,7 @@ const SatrancMP = (() => {
     function renderCapturedMP(pieces) {
         return pieces.filter(p => p).map(p => {
             const url = ChessEngine.getPieceSVG(p);
-            if (url) return `<img src="${url}" class="chess-captured-piece" alt="${p}" draggable="false">`;
+            if (url) return `<img src="${url}" class="chess-captured-piece" alt="${escapeHTML(p)}" draggable="false">`;
             return ChessEngine.getSymbol(p);
         }).join('');
     }
@@ -92,7 +99,7 @@ const SatrancMP = (() => {
 
         const topInfo = document.createElement('div');
         topInfo.className = 'chess-player-info opponent';
-        topInfo.innerHTML = `<span>🔵 ${gameData.opponentName}</span><span class="chess-captured">${renderCapturedMP(capturedByOp)}</span>`;
+        topInfo.innerHTML = `<span>🔵 ${escapeHTML(gameData.opponentName)}</span><span class="chess-captured">${renderCapturedMP(capturedByOp)}</span>`;
         container.appendChild(topInfo);
 
         const boardEl = document.createElement('div');
