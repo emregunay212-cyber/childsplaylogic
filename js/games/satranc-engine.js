@@ -33,6 +33,7 @@ const ChessEngine = (() => {
     let sfWorker = null;
     let sfReady = false;
     let sfResolve = null;
+    let sfTimer = null;
 
     // Stockfish'i başlat (lazy load - sadece gerektiğinde)
     function initStockfish() {
@@ -67,6 +68,7 @@ const ChessEngine = (() => {
                     // bestmove yanıtı
                     if (line.startsWith('bestmove') && sfResolve) {
                         const move = line.split(' ')[1];
+                        clearTimeout(sfTimer); sfTimer = null;
                         sfResolve(move);
                         sfResolve = null;
                     }
@@ -96,18 +98,23 @@ const ChessEngine = (() => {
                 return;
             }
 
-            sfResolve = resolve;
+            // Önceki istek hâlâ bekliyorsa (olmamalı) onu boşa düşür; zaman aşımı isteğe özgü
+            if (sfResolve) { try { sfResolve(null); } catch (e) {} }
+            clearTimeout(sfTimer);
+            const myResolve = resolve;
+            sfResolve = myResolve;
 
             sfWorker.postMessage('ucinewgame');
             sfWorker.postMessage(`setoption name Skill Level value ${skillLevel}`);
             sfWorker.postMessage(`position fen ${fen}`);
             sfWorker.postMessage(`go depth ${depth}`);
 
-            // Timeout - 10 saniye sonra iptal
-            setTimeout(() => {
-                if (sfResolve) {
-                    sfResolve(null);
+            // Timeout - 10 saniye sonra iptal (yalnız BU isteği; eskiden unutulan zaman aşımı
+            // sonraki hamlenin sözünü null'a çözüp yedek AI'yı sessizce devreye sokuyordu)
+            sfTimer = setTimeout(() => {
+                if (sfResolve === myResolve) {
                     sfResolve = null;
+                    myResolve(null);
                 }
             }, 10000);
         });

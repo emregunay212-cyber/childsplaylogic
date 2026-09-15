@@ -1356,9 +1356,11 @@ function finishBattle(){
       title = 'BERABERE'; cls = 'draw'; emoji = '🤝';
       detail = 'Saldırı sonuçsuz kaldı, topraklar değişmedi.';
     } else {
-      loseTerritory(-fark/10);
+      // Kayıp saldırı moduyla aynı tabloda ((5-n)/10, en fazla %50): NPC skoru 8'e çıkınca fark/10 %80'e varıyordu
+      const lossFrac = Math.min(0.5, Math.max(0.1, (5 - Math.min(n, 5)) / 10));
+      loseTerritory(lossFrac);
       title = 'TOPRAK KAYBETTİN'; cls = 'lose'; emoji = '🏚️';
-      detail = `${e.n} saldırısı başarılı oldu. Toprağının %${Math.round(-fark*10)}'${-fark===5?'si':'i'} gitti.`;
+      detail = `${e.n} saldırısı başarılı oldu. Toprağının %${Math.round(lossFrac*100)}'${lossFrac===.5?'si':'i'} gitti.`;
     }
   }
   $('resEmoji').textContent = emoji;

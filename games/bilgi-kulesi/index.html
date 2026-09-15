@@ -246,11 +246,14 @@ function nextQuestion(){
 }
 function startFuse(){
   clearInterval(G.fuseT);
-  const t0 = Date.now();
+  let t0 = Date.now(), last = t0;
   $('fuse').style.width='100%';
   G.fuseT = setInterval(()=>{
-    if (document.hidden) return;
-    const left = 1 - (Date.now()-t0)/(CONFIG.Q_TIME*1000);
+    const now = Date.now();
+    if (document.hidden){ last = now; return; }
+    if (now - last > 400) t0 += now - last;   // sekme gizliyken geçen süre sayılmaz (dönüşte anında yanlış sayılıyordu)
+    last = now;
+    const left = 1 - (now-t0)/(CONFIG.Q_TIME*1000);
     $('fuse').style.width = Math.max(0,left*100)+'%';
     if (left<=0) answer(-1, null);
   },100);

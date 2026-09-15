@@ -49,21 +49,21 @@ Sütunlar: K1 statik · K2 canlı · bulgu sayısı K/Y/O/D · düzeltme
 | 30 | Yaratıcılık | emoji-yapici | [x] | [x] | 0/1/1/0 (+1 şüpheli) | PR |
 | 31 | Strateji | kod-macerasi | [x] | [x] | 0/2/0/0 (+1 şüpheli) | PR |
 | 32 | Strateji | lego-macerasi | [x] | [x] | 1/1/0/1 | PR |
-| 33 | Strateji | lego-world | [ ] | [x] | | |
-| 34 | Strateji | satranc | [ ] | [x] | | |
-| 35 | Strateji | zipla-topla | [ ] | [x] | | |
-| 36 | Strateji | space-waves | [ ] | [x] | | |
-| 37 | Strateji | egim | [ ] | [x] | | |
-| 38 | Strateji | buz-kulesi | [ ] | [x] | | |
-| 39 | Strateji | penalti | [ ] | [x] | | |
-| 40 | Strateji | zindan-okcusu (iframe) | [ ] | [x] | | |
-| 41 | Strateji | bil-ve-fethet (iframe) | [ ] | [x] | | |
-| 42 | Strateji | bilgi-takimi (iframe) | [ ] | [x] | | |
-| 43 | Strateji | bilgi-ciftligi (iframe) | [ ] | [x] | | |
-| 44 | Strateji | bilgi-kulesi (iframe) | [ ] | [x] | | |
-| 45 | Strateji | cevap-kosusu (iframe) | [ ] | [x] | | |
-| 46 | Strateji | bilgi-savunmasi (iframe) | [ ] | [x] | | |
-| 47 | Strateji | fizik-firlatma (iframe) | [ ] | [x] | | |
+| 33 | Strateji | lego-world | [x] | [x] | 0/2/3/1 (+1 şüpheli) | PR |
+| 34 | Strateji | satranc | [x] | [x] | 0/1/1/2 | PR |
+| 35 | Strateji | zipla-topla | [x] | [x] | 0/1/2/0 (+1 şüpheli) | PR |
+| 36 | Strateji | space-waves | [x] | [x] | 0/0/2/0 (+1 şüpheli) | — |
+| 37 | Strateji | egim | [x] | [x] | 0/0/2/0 | — |
+| 38 | Strateji | buz-kulesi | [x] | [x] | 0/1/1/0 | PR |
+| 39 | Strateji | penalti | [x] | [x] | 0/1/0/1 | PR |
+| 40 | Strateji | zindan-okcusu (iframe) | [x] | [x] | 0/0/2/0 (+1 şüpheli) | — |
+| 41 | Strateji | bil-ve-fethet (iframe) | [x] | [x] | 0/1/1/1 (+1 şüpheli) | PR |
+| 42 | Strateji | bilgi-takimi (iframe) | [x] | [x] | 0/1/0/1 | PR |
+| 43 | Strateji | bilgi-ciftligi (iframe) | [x] | [x] | 0/1 (karar)/0/0 (+1 şüpheli) | — |
+| 44 | Strateji | bilgi-kulesi (iframe) | [x] | [x] | 0/1/1/0 (+1 şüpheli) | PR |
+| 45 | Strateji | cevap-kosusu (iframe) | [x] | [x] | 0/0/0/2 | — |
+| 46 | Strateji | bilgi-savunmasi (iframe) | [x] | [x] | 1/0/0/0 (+1 şüpheli) | PR |
+| 47 | Strateji | fizik-firlatma (iframe) | [x] | [x] | 0/0/1/1 | — |
 | 48 | Online | kelime-tahmin | [ ] | [ ] | | |
 | 49 | Online | harf-tahmin | [ ] | [ ] | | |
 | 50 | Online | kod-macerasi (mp) | [ ] | [ ] | | |

@@ -1097,7 +1097,10 @@ const App = (() => {
         }, LOCK_KICK_DELAY_MS);
     }
 
-    return { init, updateStarCounter, showHub };
+    // Oyunlar hub'a dönerken TAM temizlik yolu (motor destroy, MP kapat, kaydırma kilidi aç, tam ekrandan çık).
+    // Eski `App.showHub` ham showHub'dı: buz-kulesi "Hub'a Dön" ile çıkınca klavye dinleyicileri ve
+    // mobil kaydırma kilidi kalıyordu.
+    return { init, updateStarCounter, showHub: navigateToHub, navigateToHub };
 })();
 
 // Sayfa yüklendiğinde başlat
