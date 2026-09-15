@@ -39,7 +39,7 @@
   right: 12px;
   display: flex;
   gap: 8px;
-  font-family: 'Comic Sans MS', 'Baloo', system-ui, sans-serif;
+  font-family: 'Fredoka', 'Nunito', system-ui, sans-serif;
   transition: transform 0.2s ease;
 }
 .sw-hud.sw-hud-flash { transform: scale(1.05); }
@@ -128,7 +128,7 @@
   width: 560px;
   color: #fff;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06);
-  font-family: 'Comic Sans MS', 'Baloo', system-ui, sans-serif;
+  font-family: 'Fredoka', 'Nunito', system-ui, sans-serif;
   max-height: 92%;
   overflow-y: auto;
 }

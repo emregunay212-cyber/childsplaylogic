@@ -1,0 +1,316 @@
+{
+  "base": "http://127.0.0.1:8790",
+  "at": "2026-09-15T08:58:48.844Z",
+  "hub": {
+    "cards": 58,
+    "googleFontRequests": [],
+    "cdnRequests": [],
+    "gameScriptsAtLoad": [],
+    "thirdPartyHosts": [
+      "www.gstatic.com"
+    ],
+    "scriptTags": [
+      {
+        "src": "https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js",
+        "defer": true
+      },
+      {
+        "src": "https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js",
+        "defer": true
+      },
+      {
+        "src": "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js",
+        "defer": true
+      },
+      {
+        "src": "js/errors.js",
+        "defer": true
+      },
+      {
+        "src": "js/firebase-config.js?v=3",
+        "defer": true
+      },
+      {
+        "src": "js/i18n.js?v=7",
+        "defer": true
+      },
+      {
+        "src": "js/audio.js",
+        "defer": true
+      },
+      {
+        "src": "js/mobile-utils.js?v=4",
+        "defer": true
+      },
+      {
+        "src": "js/progress.js?v=3",
+        "defer": true
+      },
+      {
+        "src": "js/particles.js",
+        "defer": true
+      },
+      {
+        "src": "js/drag.js",
+        "defer": true
+      },
+      {
+        "src": "js/engine.js",
+        "defer": true
+      },
+      {
+        "src": "js/multiplayer.js?v=2",
+        "defer": true
+      },
+      {
+        "src": "js/lobby.js?v=4",
+        "defer": true
+      },
+      {
+        "src": "js/loader.js",
+        "defer": true
+      },
+      {
+        "src": "js/lock-catalog.js?v=5",
+        "defer": true
+      },
+      {
+        "src": "js/auth.js?v=7",
+        "defer": true
+      },
+      {
+        "src": "js/bilnet-meta.js?v=2",
+        "defer": true
+      },
+      {
+        "src": "js/app.js?v=23",
+        "defer": true
+      }
+    ],
+    "fonts": {
+      "fredoka600": true,
+      "nunito400": true,
+      "cinzel": true,
+      "cinzelDecorative": true,
+      "bebas": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  "cardOpenReopen": {
+    "firstOpenRequests": [
+      "js/games/tetris.js",
+      "css/tetris.css"
+    ],
+    "reopenGameRequests": [],
+    "activeGame": "tetris",
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  "legoWorld": {
+    "slug": "lego-world",
+    "gameAreaChildren": 2,
+    "title": "LEGO World 3D",
+    "googleFontRequests": [],
+    "cdnRequests": [
+      "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js",
+      "https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"
+    ],
+    "lazyJs": [
+      "js/games/lego-world.js"
+    ],
+    "lazyCss": [
+      "css/lego-world.css"
+    ],
+    "localFonts": [
+      "assets/fonts/fredoka-v17-latin.woff2",
+      "assets/fonts/nunito-v32-latin.woff2",
+      "assets/fonts/nunito-v32-latin-ext.woff2",
+      "assets/fonts/fredoka-v17-latin-ext.woff2"
+    ],
+    "fonts": {
+      "fredoka600": true,
+      "nunito400": true,
+      "cinzel": true,
+      "cinzelDecorative": true,
+      "bebas": true
+    },
+    "consoleErrors": [],
+    "pageErrors": [],
+    "probe": {
+      "three": "128",
+      "gltf": "function",
+      "canvas": true
+    }
+  },
+  "satranc": {
+    "slug": "satranc",
+    "gameAreaChildren": 1,
+    "title": "Satranç",
+    "googleFontRequests": [],
+    "cdnRequests": [
+      "https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"
+    ],
+    "lazyJs": [
+      "js/games/satranc-engine.js",
+      "js/games/satranc.js"
+    ],
+    "lazyCss": [
+      "css/satranc.css"
+    ],
+    "localFonts": [
+      "assets/fonts/fredoka-v17-latin.woff2",
+      "assets/fonts/nunito-v32-latin.woff2",
+      "assets/fonts/nunito-v32-latin-ext.woff2",
+      "assets/fonts/fredoka-v17-latin-ext.woff2"
+    ],
+    "fonts": {
+      "fredoka600": true,
+      "nunito400": true,
+      "cinzel": true,
+      "cinzelDecorative": true,
+      "bebas": true
+    },
+    "consoleErrors": [],
+    "pageErrors": [],
+    "probe": {
+      "chess": "function",
+      "board": false
+    }
+  },
+  "altinAvi": {
+    "slug": "altin-avi",
+    "gameAreaChildren": 1,
+    "title": "Altın Avı",
+    "googleFontRequests": [],
+    "cdnRequests": [],
+    "lazyJs": [
+      "js/games/altin-avi-questions.js",
+      "js/games/altin-avi.js?v=4"
+    ],
+    "lazyCss": [
+      "css/altin-avi.css?v=4",
+      "css/fonts-altin-avi.css"
+    ],
+    "localFonts": [
+      "assets/fonts/fredoka-v17-latin.woff2",
+      "assets/fonts/nunito-v32-latin.woff2",
+      "assets/fonts/nunito-v32-latin-ext.woff2",
+      "assets/fonts/fredoka-v17-latin-ext.woff2",
+      "assets/fonts/cinzel-v26-latin.woff2",
+      "assets/fonts/cinzel-decorative-v19-700-latin.woff2",
+      "assets/fonts/cinzel-v26-latin-ext.woff2"
+    ],
+    "fonts": {
+      "fredoka600": true,
+      "nunito400": true,
+      "cinzel": true,
+      "cinzelDecorative": true,
+      "bebas": false
+    },
+    "consoleErrors": [],
+    "pageErrors": [],
+    "probe": {
+      "ff": "\"Cinzel Decorative\", Georgia, serif"
+    }
+  },
+  "bilgiCiftligi": {
+    "slug": "bilgi-ciftligi",
+    "gameAreaChildren": 1,
+    "title": "Bilgi Çiftliği",
+    "googleFontRequests": [],
+    "cdnRequests": [],
+    "lazyJs": [
+      "js/games/bilgi-ciftligi.js"
+    ],
+    "lazyCss": [
+      "css/bilgi-ciftligi.css"
+    ],
+    "localFonts": [
+      "assets/fonts/fredoka-v17-latin.woff2",
+      "assets/fonts/nunito-v32-latin.woff2",
+      "assets/fonts/nunito-v32-latin-ext.woff2",
+      "assets/fonts/fredoka-v17-latin-ext.woff2"
+    ],
+    "fonts": {
+      "fredoka600": true,
+      "nunito400": true,
+      "cinzel": true,
+      "cinzelDecorative": true,
+      "bebas": true
+    },
+    "consoleErrors": [],
+    "pageErrors": [],
+    "probe": {
+      "iframe": true,
+      "src": "http://127.0.0.1:8790/games/bilgi-ciftligi/index.html?v=1"
+    }
+  },
+  "landing": {
+    "url": "http://127.0.0.1:8790/oyunlar/tetris/",
+    "googleFontRequests": [],
+    "localFonts": [
+      "assets/fonts/nunito-v32-latin.woff2",
+      "assets/fonts/fredoka-v17-latin.woff2",
+      "assets/fonts/nunito-v32-latin-ext.woff2"
+    ],
+    "fonts": {
+      "fredoka600": true,
+      "nunito400": true,
+      "cinzel": true,
+      "cinzelDecorative": true,
+      "bebas": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  "notFound": {
+    "url": "http://127.0.0.1:8790/404.html",
+    "googleFontRequests": [],
+    "localFonts": [
+      "assets/fonts/fredoka-v17-latin.woff2",
+      "assets/fonts/nunito-v32-latin.woff2",
+      "assets/fonts/nunito-v32-latin-ext.woff2"
+    ],
+    "fonts": {
+      "fredoka600": true,
+      "nunito400": true,
+      "cinzel": true,
+      "cinzelDecorative": true,
+      "bebas": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  "gizlilik": {
+    "url": "http://127.0.0.1:8790/gizlilik/",
+    "googleFontRequests": [],
+    "localFonts": [
+      "assets/fonts/nunito-v32-latin.woff2",
+      "assets/fonts/fredoka-v17-latin.woff2",
+      "assets/fonts/nunito-v32-latin-ext.woff2",
+      "assets/fonts/fredoka-v17-latin-ext.woff2"
+    ],
+    "fonts": {
+      "fredoka600": true,
+      "nunito400": true,
+      "cinzel": true,
+      "cinzelDecorative": true,
+      "bebas": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  "loadFailureRetry": {
+    "toast": "Oyun yüklenemedi — bağlantını kontrol edip tekrar dene.",
+    "backToHub": true,
+    "retryOpened": true,
+    "consoleErrorsDuringFailure": [
+      "Failed to load resource: net::ERR_FAILED",
+      "[Hub] Kaynak yüklenemedi: SCRIPT http://127.0.0.1:8790/js/games/tetris.js",
+      "[AssetLoader] Kaynak yüklenemedi: js/games/tetris.js",
+      "[Hub] Oyun yüklenemedi: tetris Error: Kaynak yüklenemedi: js/games/tetris.js\n    at HTMLScriptElement.fail (http://127.0.0.1:8790/js/loader.js:37:29)"
+    ],
+    "pageErrors": []
+  }
+}

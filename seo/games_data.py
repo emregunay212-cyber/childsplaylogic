@@ -67,7 +67,7 @@ STATIC_PAGES = [
            "Platform yalnızca hizmetin çalışması için gereken şu altyapıları kullanır; her biri, bağlanan tarayıcının <strong>IP adresini</strong> teknik zorunluluk olarak görür:",
            "<ul>\n"
            "<li><strong>Google Firebase</strong> (Authentication ve Realtime Database) — giriş, ilerleme senkronu, çok oyunculu oyunlar ve merkezi yönetici ayarları. Site açılır açılmaz yönetici ayarlarını okumak için bağlanır. Oyun verileri (Realtime Database) Google Cloud'un Belçika (europe-west1) bölgesinde tutulur; hesap kaydı Firebase Authentication hizmetinde saklanır. Yazılım kitaplığı www.gstatic.com'dan yüklenir.</li>\n"
-           "<li><strong>Google Fonts</strong> — yazı tipi dosyaları fonts.googleapis.com ve fonts.gstatic.com'dan yüklenir.</li>\n"
+           "<li><strong>Yazı tipleri</strong> — Fredoka, Nunito ve Altın Avı'nın Cinzel/Bebas Neue yazı tipleri ana sayfa, açılış sayfaları ve oyunların çoğunda bilnetoyun.com'un kendi sunucusundan yüklenir. <strong>Ateş &amp; Buz, Kelimelik, Son Kart ve Zindan Okçusu</strong> açıldığında yazı tipleri Google Fonts'tan (fonts.googleapis.com, fonts.gstatic.com) yüklenir; bu istekte tarayıcının IP adresi Google'a iletilir.</li>\n"
            "<li><strong>cdnjs.cloudflare.com ve unpkg.com</strong> — Satranç (chess.js) ve LEGO World 3D (three.js) oyunlarının kitaplıkları buradan yüklenir.</li>\n"
            "<li><strong>upload.wikimedia.org</strong> — Satranç oyunundaki taş görselleri Wikimedia Commons'tan yüklenir.</li>\n"
            "<li><strong>Vercel</strong> — site bu barındırma hizmetinden sunulur; sağlayıcı, hizmetin işletilmesi için standart sunucu kayıtları tutabilir.</li>\n"

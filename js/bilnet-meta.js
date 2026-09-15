@@ -246,5 +246,5 @@ const BilnetMeta = (() => {
     return { init, processQueue, openPanel, _debug: () => M };
 })();
 
-document.addEventListener('DOMContentLoaded', BilnetMeta.init);
-if (document.readyState !== 'loading') BilnetMeta.init();
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', BilnetMeta.init);
+else BilnetMeta.init();

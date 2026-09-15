@@ -114,8 +114,9 @@ class PageTests(unittest.TestCase):
         html = b.build_page(game(), "2026-09-15")
         self.assertIn('<a class="play" href="/?oyun=ornek-oyun">', html)
         self.assertIn('content="index, follow, max-image-preview:large"', html)
-        for needle in ("imza-band", "/css/landing.css", "/css/imza.css", '"@graph"', "fonts.googleapis.com"):
+        for needle in ("imza-band", "/css/landing.css", "/css/imza.css", '"@graph"', "/css/fonts.css"):
             self.assertIn(needle, html)
+        self.assertNotIn("fonts.googleapis.com", html)   # A9a: yazı tipleri self-host
         self.assertTrue(html.rstrip().endswith("</div>\n</body>\n</html>"))
         self.assertLess(html.index("</footer>"), html.index("imza-band"))   # imza en altta
 

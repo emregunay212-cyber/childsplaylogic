@@ -43,7 +43,7 @@
   right: 8px;
   display: flex;
   gap: 6px;
-  font-family: 'Comic Sans MS', 'Baloo', system-ui, sans-serif;
+  font-family: 'Fredoka', 'Nunito', system-ui, sans-serif;
   pointer-events: none;
 }
 
@@ -207,7 +207,7 @@
   max-width: 320px;
   text-align: center;
   color: #fff;
-  font-family: 'Comic Sans MS', system-ui, sans-serif;
+  font-family: 'Fredoka', 'Nunito', system-ui, sans-serif;
   box-shadow: 0 10px 40px rgba(0,0,0,0.5);
 }
 .zt-rotate-icon {
@@ -268,7 +268,7 @@
   max-width: 88%;
   min-width: 300px;
   color: #fff;
-  font-family: 'Comic Sans MS', system-ui, sans-serif;
+  font-family: 'Fredoka', 'Nunito', system-ui, sans-serif;
   box-shadow: 0 25px 80px rgba(0,0,0,0.6);
   text-align: center;
 }

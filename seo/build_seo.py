@@ -39,7 +39,8 @@ TITLE_MAX = 60
 DESC_MAX = 150
 TODAY = datetime.date.today().isoformat()
 
-FONTS_HREF = "https://fonts.googleapis.com/css2?family=Fredoka:wght@600&family=Nunito:wght@400;700;800;900&display=swap"
+# Yazi tipleri self-host (A9a): /css/fonts.css (Fredoka + Nunito, assets/fonts/*.woff2). Google Fonts istegi yok.
+FONTS_HREF = "/css/fonts.css"
 
 # egweblab marka imzasi — global kural: her sayfanin en altinda, metin ve baglanti degismez.
 IMZA_HTML = """<div class="imza-band">
@@ -277,9 +278,7 @@ def jsonld_static(p, url, desc, date):
 # ---------------------------------------------------------------- sablonlar
 HEAD_COMMON = f"""<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="{FONTS_HREF}" rel="stylesheet">
+<link rel="stylesheet" href="{FONTS_HREF}">
 <link rel="stylesheet" href="/css/landing.css">
 <link rel="stylesheet" href="/css/imza.css">"""
 

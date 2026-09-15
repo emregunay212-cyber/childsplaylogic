@@ -68,6 +68,38 @@
     animation: fadeIn 0.3s ease both;
 }
 
+/* ── Oyun yükleniyor (A9b: oyunun JS/CSS'i ilk açılışta iner; js/app.js renderLoadingHint) ──
+   150 ms'den kısa yüklemelerde hiç görünmez (titreme yok). Halka + tek satır metin; alt yazı
+   rengi var(--text-muted) (5.5:1). Hareket azaltma: dönüş yavaşlar ama kalır — "bekle" bilgisi
+   dekoratif değil, anlamlı geri bildirimdir. */
+.game-loading {
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-md);
+    text-align: center;
+    animation: fadeIn 0.25s ease both;
+}
+.game-loading-spinner {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 4px solid rgba(45, 52, 54, 0.12);
+    border-top-color: var(--neutral);
+    animation: gameLoadingSpin 0.9s linear infinite;
+}
+.game-loading-text {
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    color: var(--text-muted);
+}
+@keyframes gameLoadingSpin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+    .game-loading { animation: none; }
+    .game-loading-spinner { animation-duration: 2s; }
+}
+
 /* Oyun Toolbar */
 .game-toolbar {
     position: absolute;
