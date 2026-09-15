@@ -5,6 +5,7 @@
      npm run test:smoke                    → tests/static-server.js 8000'de kendiliğinden kalkar
      PORT=8765 npm run test:smoke          → 8000 doluysa başka port
      BASE_URL=https://… npm run test:smoke → dış ortam (Vercel önizleme); yerel sunucu başlatılmaz
+     SITE_ROOT=.build-check npm run test:smoke → hash'li build çıktısı üzerinde (CI böyle koşar; A10b)
    Sunucu neden Node (server.py değil): tests/static-server.js başlığına bak (dinleme kuyruğu).
    ============================================ */
 'use strict';
@@ -12,6 +13,8 @@
 const { defineConfig, devices } = require('@playwright/test');
 
 const PORT = Number(process.env.PORT || 8000);
+// Sunulacak kök: varsayılan depo kökü; `SITE_ROOT=.build-check` ile tools/build.js çıktısı (hash'li URL'ler).
+const SITE_ROOT = process.env.SITE_ROOT || '.';
 // 127.0.0.1 (localhost değil): Ubuntu runner'da "localhost" önce ::1'e çözülebilir → yalnız CI'da
 // görülen ERR_CONNECTION_REFUSED flake'ini kökten önler; sunucu da 127.0.0.1'e bağlanır.
 const BASE_URL = process.env.BASE_URL || `http://127.0.0.1:${PORT}`;
@@ -49,9 +52,11 @@ module.exports = defineConfig({
 
     // Dış BASE_URL verilmişse yerel sunucu başlatma.
     webServer: process.env.BASE_URL ? undefined : {
-        command: `node tests/static-server.js --port ${PORT}`,
+        command: `node tests/static-server.js --port ${PORT} --root ${SITE_ROOT}`,
         url: `${BASE_URL}/`,
-        reuseExistingServer: true,   // elle açık sunucu (server.py dahil) varsa onu kullan
+        // Elle açık sunucu (server.py dahil) varsa onu kullan — SITE_ROOT verilmişse HAYIR: yanlış kökü
+        // sessizce test etmektense port doluysa açıkça düşsün (PORT=8766 ile başka porta geç).
+        reuseExistingServer: !process.env.SITE_ROOT,
         timeout: 30000,
         stdout: 'ignore',
         stderr: 'pipe',

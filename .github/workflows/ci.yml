@@ -1,5 +1,6 @@
-# CI — her pull request'te lint + duman testi (A10a).
-# A10b: bu iş "required check" yapılır (master branch protection) → kırmızıyken merge edilemez.
+# CI — her pull request'te lint + hash'li build kontrolü + duman testi (A10a/A10b).
+# Bu iş master branch protection'da "required check"tir (A10b) → kırmızıyken merge edilemez.
+# Duman testi hash'li build ÇIKTISI (.build-check) üzerinde koşar: Vercel'in yayınladığı şey test edilir.
 name: CI
 
 on:
@@ -36,10 +37,18 @@ jobs:
       - name: Lint (no-undef = hata, no-unused-vars = uyarı)
         run: npm run lint
 
-      - name: Duman testi (tüm aktif oyunlar, admin.html, oyunlar/index.html)
+      # tools/build.js birim testleri (tarayıcısız) + deploy simülasyonu: kök .build-check'e
+      # kopyalanır, her yerel js/css/html başvurusu ?h=<hash> alır, çıktı doğrulanır (--check).
+      - name: Hash'li build (deploy simülasyonu) + doğrulama
+        run: |
+          npm run test:build
+          npm run build:check
+
+      - name: Duman testi — hash'li çıktı üzerinde (tüm aktif oyunlar, admin.html, oyunlar/index.html)
         run: npm run test:smoke
         env:
           CI: true
+          SITE_ROOT: .build-check
 
       # Kırmızı koşuda adli kayıt: trace (ilk retry), ekran görüntüsü, video, error-context.md
       - name: Hata artefaktları

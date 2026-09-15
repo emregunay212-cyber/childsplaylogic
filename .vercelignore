@@ -1,5 +1,6 @@
 # Yayına ÇIKMAYACAK dosyalar (Vercel). firebase.json'daki ignore listesi Vercel'de geçersizdir; tek kaynak burasıdır.
 # Açık kalması gerekenler: robots.txt, sitemap.xml, llms.txt, BingSiteAuth.xml, IndexNow anahtar dosyası (1cbb4632-….txt), games/**/words.txt
+# tools/ (tools/build.js + tools/lib/) YAYINDA KALIR: Vercel buildCommand onu çalıştırır (A10b) — buraya tools/ EKLEME. games/*/tools/ ayrı.
 fabrika/
 server/
 seo/
@@ -26,3 +27,4 @@ eslint.config.js
 playwright.config.js
 test-results/
 playwright-report/
+.build-check/

@@ -4,13 +4,19 @@
   "private": true,
   "description": "bilnetoyun.com — statik çocuk oyunları hub'ı (vanilla HTML/JS/CSS). Lint + Playwright duman testi.",
   "scripts": {
-    "lint": "eslint js/ games/",
+    "lint": "eslint js/ games/ tools/",
+    "build": "node tools/build.js",
+    "build:check": "node tools/build.js --out .build-check --check",
     "test": "playwright test",
-    "test:smoke": "playwright test tests/smoke.spec.js"
+    "test:smoke": "playwright test tests/smoke.spec.js",
+    "test:build": "playwright test tests/build.spec.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
     "eslint": "^10.10.0",
     "globals": "^17.12.0"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

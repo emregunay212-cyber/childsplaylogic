@@ -32,7 +32,7 @@ const App = (() => {
     //           sayısı gösteriyor demektir → burayı güncelle). Online oyunlarda yok.
     //  files  : oyun açılınca yüklenecek JS/CSS (js/loader.js). Sıra = çalışma sırası; ortak
     //           bağımlılık (kod-macerasi-shared, satranc-engine, zipla-topla-levels, …) önce.
-    //           `?v=` değerleri eski index.html etiketlerinden aynen taşındı (önbellek kırma).
+    //           `?v=` elle artırılmaz: deploy'da tools/build.js her yola içerik hash'i (?h=) ekler (A10b).
     // tests/helpers/slugs.js comingSoon kayıtlarını `game:` ilk anahtar olacak biçimde okur → `game:` ilk anahtar kalır.
     const CHESS_JS = 'https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js';
     const THREE_JS = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
