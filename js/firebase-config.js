@@ -1,5 +1,9 @@
 /* ============================================
    Firebase Configuration
+   --------------------------------------------
+   SDK gstatic'ten yüklenir (index.html <head>). Filtreli ağlarda (okul) engellenebilir;
+   o durumda hub yine açılmalı: tek kişilik oyunlar yerel çalışır, giriş/bulut/online kapalı.
+   window.FIREBASE_OK → auth.js / app.js / admin.js bu bayrağa bakar; db yoksa null kalır.
    ============================================ */
 const firebaseConfig = {
     apiKey: "AIzaSyBFF2v3Rm0vwvwQwtApmXgjQa6DYM_HDAw",
@@ -11,5 +15,17 @@ const firebaseConfig = {
     appId: "1:27619900067:web:bf0f3aa99670b6a9dfdd16"
 };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+let db = null;
+window.FIREBASE_OK = false;
+try {
+    if (typeof firebase === 'undefined') {
+        console.warn('Firebase SDK yüklenemedi — çevrimdışı mod (tek kişilik oyunlar açık).');
+    } else {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.database();
+        window.FIREBASE_OK = true;
+    }
+} catch (e) {
+    db = null;
+    console.error('Firebase başlatılamadı — çevrimdışı mod:', e);
+}

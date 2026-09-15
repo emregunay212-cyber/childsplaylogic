@@ -459,6 +459,59 @@
     fill: #FFC107;
 }
 
+/* ── Çevrimdışı (Firebase yüklenemedi): bant + online kartların kapalı hâli ── */
+.offline-banner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    max-width: 900px;
+    margin: var(--space-md) auto 0;
+    padding: var(--space-sm) var(--space-md);
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text-warm);
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+}
+.offline-banner::before {
+    content: '';
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-round);
+    background: var(--error);
+}
+@media (max-width: 600px) {
+    .offline-banner { margin-left: var(--space-md); margin-right: var(--space-md); }
+}
+.game-card.offline { cursor: default; }
+.game-card.offline .card-icon img {
+    filter: grayscale(0.85) brightness(0.93);
+    opacity: 0.72;
+}
+.game-card.offline .card-title { opacity: 0.7; }
+.game-card.offline .mp-badge { display: none; }
+.offline-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    background: linear-gradient(135deg, #8E8E93 0%, #B6B6BE 100%);
+    color: #fff;
+    font-family: var(--font-heading);
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 10px;
+    letter-spacing: 0.03em;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.22);
+}
+
 /* ── Kilitli oyun bilgi penceresi ── */
 .lock-modal {
     position: fixed; inset: 0; z-index: 1000;
