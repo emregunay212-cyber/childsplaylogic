@@ -29,7 +29,7 @@ module.exports = defineConfig({
     use: {
         baseURL: BASE_URL,
         locale: 'tr-TR',
-        // Hub kartları sonsuz `gentleFloat` animasyonuyla sürekli hareket eder (css/hub.css:238);
+        // Hub kartlarının giriş animasyonu ve dekoratif geçişler tıklama anında "not stable" üretebilir (css/hub.css);
         // Playwright tıklamadan önce "element stable" bekler → 30 sn'ye kadar yarış (1/180 koşuda
         // görüldü). Site prefers-reduced-motion'ı destekler (css/animations.css:193): animasyonlar
         // tek kareye iner, tıklama deterministik olur. Duman testi hareketi değil JS hatasını ölçer.
