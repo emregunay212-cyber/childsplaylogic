@@ -4,6 +4,22 @@
 **Oluşturuldu:** 2026-09-15 · **Mod:** git + GitHub CLI (dal → PR → Vercel önizleme → merge) · **Depo:** `C:\Users\emreg\Documents\bilnetoyun` (`origin` = github.com/emregunay212-cyber/childsplaylogic, dal `master`)
 **Durum takibi:** her adımın başındaki kutu işaretlenir; adım bitmeden sonrakine geçilmez (protokol kuralı).
 
+## Revizyon 1 — 15 Eyl 2026 gece, blueprint düşmanca gözden geçirmesi sonrası
+
+Gözden geçirme kararı DÜZELTMELİ idi; uygulanan değişiklikler:
+- **Önizleme erişimi:** Vercel Deployment Protection (SSO) açık → `curl <preview>` çalışmaz. Çözüm: Vercel MCP `get_access_to_vercel_url` ile `_vercel_share` bağlantısı → çerez kavanozuyla curl. Rich Results Test yalnız prod'da.
+- **Firebase CLI yolları:** Git Bash'te `MSYS_NO_PATHCONV=1` şart; yedekler repo DIŞINA (`~/.claude/backups/rtdb-20260915/`, depo herkese açık).
+- **A2:** yıkıcı `PUT null` sondası yerine `PATCH {"probe-x":null}`; gerçek biçimler: lobi `^[A-Z]{5}$` (alfabe `ABCDEFGHJKLMNPRSTUVYZ`), oda `^[A-Z2-9]{4}$`, oyuncu `^P[a-z0-9]{10,16}$`; durumlar büyük harf `WAITING/WORD_SETUP/PLAYING/FINISHED`; `ab/hh/zt` = `lobbies/<kod>/` alt düğümleri → `$other:false` yok; `email_verified` eklenmedi (admin e-posta/şifre hesabı kilitlenirdi); temizlik **kullanıcı onayına** bırakıldı (komut yedek klasöründe). Ajan: `engineering-database-optimizer` Postgres odaklı → RTDB işi koordinatör + security auditor yaptı.
+- **A1:** `cleanUrls` alınmadı (27 iframe `index.html?v=N` → her açılışta 308 olurdu); CSP'ye `worker-src 'self' blob:` eklendi; görsel önbelleği 1 hafta (1 yıl değil). İmza CSS'i ayrı `css/imza.css` (landing/admin `main.css` yüklemiyor).
+- **A3:** `escapeHTML` `Lobby` IIFE'sine özel → MP dosyalarında `textContent` ya da yerel yardımcı.
+- **A5 → A5a** (index.html title/description/footer 53 link + footer'ı `.hub` içine al), **A5b** (`build_seo.py` şablon/JSON-LD/llms/yeni kayıtlar), **A5c** (27 `games/*/index.html` noindex+canonical).
+- **A9 → A9a** (font self-host), **A9b** (defer + tembel yükleme), **A9c** (CSP: 27 oyun sayfası satır içi `<script>` taşıyor → `/games/(.*)` için ayrı `'unsafe-inline'`li başlık ya da dış dosyaya taşıma kararı). "CSP raporu 0" kriteri A9b'den çıktı. Ölçüt: "gzip transfer, Firebase compat hariç".
+- **A10 → A10a** (package.json + eslint + Playwright duman testi; giriş kapısı için `sessionStorage bo_guest_mode=1`, `comingSoon` slug'ları atla) **A9'dan ÖNCE**; **A10b** (hash build + immutable + CI zorunlu + master branch protection) sonra.
+- **Değişmez eklendi:** admin paneli dumanı (giriş + kilitle/aç) — A1/A2/A4/A5 dokunuyor.
+- **Karar listesine eklendi:** hile (`hands/deck` herkese okunur), SRI, iframe'de ikinci Firebase kopyası, `www.` 307, konsol ayarları.
+- Süre gerçekleri: A2 5-6 saat, A6 6-8 saat.
+- Merge: otomatik mod sınıflandırıcısı `gh pr merge`'ü engelliyor → PR'lar önizlemede doğrulanmış + güvenlik incelemeli hâlde kullanıcı merge'üne bırakılır.
+
 ## Değişmezler (her adımdan sonra doğrulanır)
 
 1. 57 oyun hub'dan açılır, konsolda hata yok (Adım 10'a kadar elle: `/?oyun=<slug>` ile 5 örnek + değişen oyunlar; sonra Playwright).
@@ -19,7 +35,7 @@ A2 rules  ──┼─ (paralel, birbirinden bağımsız)
 A3 xss    ──┤
 A4 hub-dayaniklilik ─┘
       ↓
-A6 ux-hizli → A5 seo → A7 imza → A8 gizlilik → A9 tembel-yukleme → A10 tooling
+A6 ux-hizli → A5a/b/c seo → A7 imza → A8 gizlilik → A10a duman-testi → A9a/b/c tembel-yukleme → A10b hash-build
       (hepsi index.html'e dokunur → SERİ, bu sırayla)
 A11 temizlik+belge (A1 sonrası herhangi bir an; belge senkronu en son)
 A12 faz-2-ux (ayrı blueprint; A6-A9 bittikten sonra)
@@ -33,7 +49,7 @@ Canlı site **Vercel** (`Server: Vercel`, `master`'a push = otomatik deploy). `f
 
 ---
 
-## A1 — Vercel yapılandırması: başlıklar, ignore, 404, URL biçimi  `[ ]`
+## A1 — Vercel yapılandırması: başlıklar, ignore, 404, URL biçimi  `[x] PR #12 — önizlemede doğrulandı, merge bekliyor`
 
 **Öncelik:** P0 · **Model:** default · **Ajan:** `engineering-backend-architect` · **Bağımlılık:** yok · **Süre:** 2 saat
 **Bağlam:** Güvenlik başlıkları, önbellek ve dosya gizleme yalnız `firebase.json`'da → canlıda yok. Dahili dosyalar herkese açık (bkz. `docs/inceleme-2026-09-15/01-guvenlik.md` "YÜKSEK — Depo dosyaları canlıda açık"). 404 sayfası Vercel'in İngilizce jenerik sayfası.
@@ -45,7 +61,7 @@ Canlı site **Vercel** (`Server: Vercel`, `master`'a push = otomatik deploy). `f
 **Doğrulama:** dal push → Vercel önizleme URL'sinde: `curl -sI <preview>/ | grep -iE "x-frame|x-content|referrer|content-security"` → 4 başlık; `curl -s -o /dev/null -w '%{http_code}' <preview>/database.rules.json` → 404 (server/, _bank_tmp.txt, EGITSEL-OYUN-PLANI.md, docs/, plans/ için de); `<preview>/bu-sayfa-yok` → 404 + Türkçe sayfa; `<preview>/oyunlar/kelimelik` → 308 → `/oyunlar/kelimelik/`; 5 oyun açılır (CSP report-only olduğu için kırılma olmamalı; konsolda CSP raporlarını not al → A9'da giderilecek).
 **Çıkış kriteri:** yukarıdaki curl'ler canlıda (merge sonrası) da aynı. **Geri alma:** `vercel.json` ve `404.html` sil, `.vercelignore`'u eski hâline getir, push.
 
-## A2 — Firebase RTDB kuralları: koleksiyon-düzeyi yazmayı kapat  `[ ]`
+## A2 — Firebase RTDB kuralları: koleksiyon-düzeyi yazmayı kapat  `[x] canlıda deploy edildi 15 Eyl; PR #13; veri temizliği kullanıcı onayında`
 
 **Öncelik:** KRİTİK · **Model:** strongest · **Ajan:** `engineering-database-optimizer` + `security-ai-generated-code-auditor` · **Bağımlılık:** yok · **Süre:** 3 saat
 **Bağlam:** `lobbies`, `players`, `rooms` `.write: true` → kimliksiz silme/spam/isim taklidi; canlıda 1.480 eski lobi ve ~700 odada çocuk isimleri anonim okunabiliyor (`01-guvenlik.md` KRİTİK). Kural taslağı aynı dosyada.
