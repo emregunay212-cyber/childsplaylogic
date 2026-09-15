@@ -1,0 +1,74 @@
+/* ============================================
+   egweblab marka imzası — her sayfanın en altında, tek bağlantı.
+   Bağımsız dosya: main.css yüklemeyen sayfalar (oyunlar/*, 404) da kullanır.
+   ============================================ */
+.imza-band {
+    --imza-ink: var(--text-dark, #2D3436);
+    --imza-muted: #5F6B73;
+    --imza-line: rgba(45, 52, 54, 0.12);
+    --imza-white: #FFFFFF;
+    --imza-mono: ui-monospace, "Cascadia Mono", "Consolas", "Menlo", monospace;
+    --imza-ease: var(--ease-smooth, cubic-bezier(0.4, 0, 0.2, 1));
+    display: flex;
+    justify-content: center;
+    padding: 4px 16px 8px;
+    line-height: 1;
+}
+.imza {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: transparent;
+    text-decoration: none;
+    color: var(--imza-ink);
+    transition: background-color 180ms var(--imza-ease);
+}
+.imza__mark {
+    width: 20px;
+    height: 20px;
+    display: block;
+    transition: transform 180ms var(--imza-ease);
+}
+.imza__ust {
+    font-family: var(--imza-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--imza-muted);
+}
+.imza__ad {
+    font-family: var(--font-body, "Nunito", "Segoe UI", sans-serif);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--imza-ink);
+}
+.imza__tld {
+    color: var(--imza-muted);
+    font-weight: 600;
+    transition: color 180ms var(--imza-ease);
+}
+.imza:hover,
+.imza:focus-visible {
+    background: var(--imza-white);
+    box-shadow: 0 0 0 1px var(--imza-line);
+    outline: none;
+}
+.imza:focus-visible {
+    box-shadow: 0 0 0 3px var(--neutral, #3498DB);
+}
+.imza:hover .imza__mark,
+.imza:focus-visible .imza__mark {
+    transform: scale(1.1);
+}
+.imza:hover .imza__tld,
+.imza:focus-visible .imza__tld {
+    color: var(--imza-ink);
+}
+@media (prefers-reduced-motion: reduce) {
+    .imza, .imza__mark, .imza__tld { transition: none; }
+}
+@media print {
+    .imza-band { display: none !important; }
+}

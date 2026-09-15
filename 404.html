@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#4AABE0">
+    <title>Sayfa bulunamadı — Bilnet Oyun</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/imza.css">
+    <style>
+        :root {
+            --text-dark: #2D3436;
+            --text-warm: #5D4037;
+            --muted: #5F6B73;
+            --neutral: #3498DB;
+            --sky-top: #87CEEB;
+            --sky-bottom: #C9E8F7;
+            --grass: #7EC850;
+            --card: #FFFFFF;
+            --font-heading: "Fredoka", "Nunito", sans-serif;
+            --font-body: "Nunito", "Segoe UI", sans-serif;
+            --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { min-height: 100%; }
+        body {
+            font-family: var(--font-body);
+            color: var(--text-dark);
+            background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 62%, var(--grass) 62%, var(--grass) 100%);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            min-height: 100dvh;
+            padding: 16px;
+        }
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .kart {
+            width: min(100%, 440px);
+            background: var(--card);
+            border-radius: 28px;
+            padding: 36px 28px 30px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        }
+        .gunes {
+            width: 72px; height: 72px; margin: 0 auto 18px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #FFF3B0, #FFD93D 60%, #F4B400);
+            box-shadow: 0 0 0 10px rgba(255, 217, 61, 0.28);
+        }
+        .kod {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: 0.18em;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+        h1 {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: clamp(1.6rem, 5vw, 2.1rem);
+            line-height: 1.15;
+            color: #E67E22;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 1.02rem;
+            line-height: 1.55;
+            color: var(--text-warm);
+            margin-bottom: 22px;
+        }
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-height: 52px; padding: 0 28px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+            color: #FFFFFF;
+            font-family: var(--font-heading);
+            font-weight: 600;
+            font-size: 1.05rem;
+            text-decoration: none;
+            box-shadow: 0 6px 18px rgba(255, 107, 107, 0.35);
+            transition: transform 120ms var(--ease-smooth), box-shadow 120ms var(--ease-smooth);
+        }
+        .btn:hover { box-shadow: 0 8px 22px rgba(255, 107, 107, 0.45); }
+        .btn:active { transform: scale(0.97); }
+        .btn:focus-visible { outline: 3px solid var(--neutral); outline-offset: 3px; }
+        .alt { margin-top: 14px; margin-bottom: 0; font-size: 0.92rem; color: var(--muted); }
+        .alt a { color: var(--neutral); font-weight: 700; }
+        .alt a:focus-visible { outline: 3px solid var(--neutral); outline-offset: 2px; border-radius: 4px; }
+        @media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+    </style>
+</head>
+<body>
+    <main>
+        <section class="kart" aria-labelledby="baslik">
+            <div class="gunes" aria-hidden="true"></div>
+            <div class="kod">HATA 404</div>
+            <h1 id="baslik">Bu sayfa saklambaç oynuyor!</h1>
+            <p>Aradığın sayfa taşınmış ya da hiç olmamış olabilir. Oyunlara dönüp yeni bir macera seçebilirsin.</p>
+            <a class="btn" href="/">Oyunlara dön</a>
+            <p class="alt">Tüm oyunların listesi: <a href="/oyunlar/">bilnetoyun.com/oyunlar</a></p>
+        </section>
+    </main>
+    <div class="imza-band">
+        <a class="imza" href="https://egweblab.com.tr" target="_blank" rel="noopener">
+            <img class="imza__mark" src="/assets/logo-96.png" width="20" height="20" alt="" decoding="async">
+            <span class="imza__ust">Tasarım ve yazılım</span>
+            <span class="imza__ad">egweblab<span class="imza__tld">.com.tr</span></span>
+        </a>
+    </div>
+</body>
+</html>
