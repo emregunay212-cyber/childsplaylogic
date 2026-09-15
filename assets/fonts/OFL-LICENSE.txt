@@ -1,0 +1,36 @@
+Bu klasördeki yazı tipleri SIL Open Font License 1.1 (OFL) ile lisanslıdır ve
+Google Fonts'un sunduğu woff2 dosyalarının birebir kopyasıdır (15 Eylül 2026'da,
+modern Chrome UA ile https://fonts.googleapis.com/css2 çıktısındaki src URL'lerinden indirildi).
+Alt kümeler: latin + latin-ext (Türkçe: ı latin'de; ş ğ İ ç ö ü latin-ext'te).
+Lisans metni: https://openfontlicense.org/open-font-license-official-text/
+
+Fredoka (Milena Brandão, Hafontia) — https://fonts.google.com/specimen/Fredoka
+  Değişken (wght 300-700), v17
+  fredoka-v17-latin.woff2      ← https://fonts.gstatic.com/s/fredoka/v17/X7n64b87HvSqjb_WIi2yDCRwoQ_k7367_DWu89U.woff2
+  fredoka-v17-latin-ext.woff2  ← https://fonts.gstatic.com/s/fredoka/v17/X7n64b87HvSqjb_WIi2yDCRwoQ_k7367_DWg89XyHw.woff2
+
+Nunito (Vernon Adams, Cyreal, Jacques Le Bailly) — https://fonts.google.com/specimen/Nunito
+  Değişken (wght 200-1000), v32
+  nunito-v32-latin.woff2       ← https://fonts.gstatic.com/s/nunito/v32/XRXV3I6Li01BKofINeaB.woff2
+  nunito-v32-latin-ext.woff2   ← https://fonts.gstatic.com/s/nunito/v32/XRXV3I6Li01BKofIO-aBXso.woff2
+
+Yalnız Altın Avı (css/fonts-altin-avi.css, oyun açılınca yüklenir):
+
+Cinzel (Natanael Gama) — https://fonts.google.com/specimen/Cinzel
+  Değişken (wght 400-900), v26
+  cinzel-v26-latin.woff2       ← https://fonts.gstatic.com/s/cinzel/v26/8vIJ7ww63mVu7gt79mT7.woff2
+  cinzel-v26-latin-ext.woff2   ← https://fonts.gstatic.com/s/cinzel/v26/8vIJ7ww63mVu7gt7-GT7LEc.woff2
+
+Cinzel Decorative (Natanael Gama) — https://fonts.google.com/specimen/Cinzel+Decorative
+  Statik 400 ve 700, v19 (900 kullanılmıyor, indirilmedi)
+  cinzel-decorative-v19-400-latin.woff2      ← https://fonts.gstatic.com/s/cinzeldecorative/v19/daaCSScvJGqLYhG8nNt8KPPswUAPni7TTMw.woff2
+  cinzel-decorative-v19-400-latin-ext.woff2  ← https://fonts.gstatic.com/s/cinzeldecorative/v19/daaCSScvJGqLYhG8nNt8KPPswUAPni7dTMx7aA.woff2
+  cinzel-decorative-v19-700-latin.woff2      ← https://fonts.gstatic.com/s/cinzeldecorative/v19/daaHSScvJGqLYhG8nNt8KPPswUAPniZoadlESTE.woff2
+  cinzel-decorative-v19-700-latin-ext.woff2  ← https://fonts.gstatic.com/s/cinzeldecorative/v19/daaHSScvJGqLYhG8nNt8KPPswUAPniZoadlKSTG7lQ.woff2
+
+Bebas Neue (Ryoichi Tsunekawa, Dharma Type) — https://fonts.google.com/specimen/Bebas+Neue
+  Statik 400, v16
+  bebas-neue-v16-latin.woff2     ← https://fonts.gstatic.com/s/bebasneue/v16/JTUSjIg69CK48gW7PXoo9Wlhyw.woff2
+  bebas-neue-v16-latin-ext.woff2 ← https://fonts.gstatic.com/s/bebasneue/v16/JTUSjIg69CK48gW7PXoo9Wdhyzbi.woff2
+
+Toplam: 12 dosya, ~219 KB (hub ilk yükte yalnız Fredoka + Nunito ≈ 109 KB).

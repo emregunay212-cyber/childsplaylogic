@@ -46,7 +46,7 @@
   display: flex;
   justify-content: space-between;
   gap: 6px;
-  font-family: 'Comic Sans MS', 'Baloo', system-ui, sans-serif;
+  font-family: 'Fredoka', 'Nunito', system-ui, sans-serif;
   pointer-events: none;
   z-index: 4;
 }
@@ -99,7 +99,7 @@
   top: 38%;
   left: 50%;
   transform: translate(-50%, -50%) scale(0.6);
-  font-family: 'Comic Sans MS', 'Fredoka', system-ui, sans-serif;
+  font-family: 'Fredoka', 'Nunito', system-ui, sans-serif;
   font-size: 44px;
   font-weight: 900;
   color: #FFD54F;
@@ -226,7 +226,7 @@
   max-width: 88%;
   min-width: 280px;
   color: #fff;
-  font-family: 'Comic Sans MS', system-ui, sans-serif;
+  font-family: 'Fredoka', 'Nunito', system-ui, sans-serif;
   box-shadow: 0 25px 80px rgba(0, 30, 80, 0.6);
   text-align: center;
 }

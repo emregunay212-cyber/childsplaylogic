@@ -1,0 +1,933 @@
+{
+  "label": "sonra",
+  "url": "http://127.0.0.1:8790/",
+  "measuredAt": "2026-09-15T08:52:04.472Z",
+  "loadMs": 493,
+  "perf": {
+    "domContentLoadedMs": 488,
+    "loadEventMs": 488,
+    "first-paint": 272,
+    "first-contentful-paint": 272,
+    "fonts": {
+      "fredoka600": true,
+      "nunito400": true
+    },
+    "scriptTags": 19,
+    "styleTags": 8,
+    "hubCards": 58
+  },
+  "totals": {
+    "requests": 96,
+    "transferKB": 939.1,
+    "rawKB": 919,
+    "gzipKB": 607.8
+  },
+  "jsGzipKBExcludingFirebase": 59.6,
+  "byCategory": {
+    "document": {
+      "requests": 1,
+      "transferKB": 30.6,
+      "rawKB": 30.4,
+      "gzipKB": 8.1
+    },
+    "local-font": {
+      "requests": 4,
+      "transferKB": 107.3,
+      "rawKB": 106.5,
+      "gzipKB": 106.5
+    },
+    "local-css": {
+      "requests": 8,
+      "transferKB": 117.6,
+      "rawKB": 115.8,
+      "gzipKB": 27.8
+    },
+    "firebase-compat": {
+      "requests": 3,
+      "transferKB": 96.3,
+      "rawKB": 96.3,
+      "gzipKB": 96.3
+    },
+    "image": {
+      "requests": 64,
+      "transferKB": 372.5,
+      "rawKB": 358.9,
+      "gzipKB": 309.6
+    },
+    "local-js": {
+      "requests": 16,
+      "transferKB": 214.8,
+      "rawKB": 211.2,
+      "gzipKB": 59.6
+    }
+  },
+  "thirdPartyHosts": [
+    "www.gstatic.com"
+  ],
+  "rows": [
+    {
+      "url": "http://127.0.0.1:8790/assets/images/categories/online.png",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 50306,
+      "raw": 50091,
+      "gzip": 50091
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/categories/numbers.png",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 48435,
+      "raw": 48220,
+      "gzip": 48220
+    },
+    {
+      "url": "https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js",
+      "type": "script",
+      "status": 200,
+      "category": "firebase-compat",
+      "transfer": 48152,
+      "raw": 48152,
+      "gzip": 48152
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/categories/home.png",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 43222,
+      "raw": 43007,
+      "gzip": 43007
+    },
+    {
+      "url": "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js",
+      "type": "script",
+      "status": 200,
+      "category": "firebase-compat",
+      "transfer": 40259,
+      "raw": 40259,
+      "gzip": 40259
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/fonts/nunito-v32-latin.woff2",
+      "type": "font",
+      "status": 200,
+      "category": "local-font",
+      "transfer": 39344,
+      "raw": 39128,
+      "gzip": 39128
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/categories/creativity.png",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 36526,
+      "raw": 36311,
+      "gzip": 36311
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/fonts/nunito-v32-latin-ext.woff2",
+      "type": "font",
+      "status": 200,
+      "category": "local-font",
+      "transfer": 35804,
+      "raw": 35588,
+      "gzip": 35588
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/categories/puzzles.png",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 31732,
+      "raw": 31517,
+      "gzip": 31517
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/categories/strategy.png",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 31722,
+      "raw": 31507,
+      "gzip": 31507
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/fonts/fredoka-v17-latin.woff2",
+      "type": "font",
+      "status": 200,
+      "category": "local-font",
+      "transfer": 29948,
+      "raw": 29732,
+      "gzip": 29732
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/categories/letters.png",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 26547,
+      "raw": 26332,
+      "gzip": 26332
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/logo-96.png",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 21338,
+      "raw": 21123,
+      "gzip": 21123
+    },
+    {
+      "url": "http://127.0.0.1:8790/js/app.js?v=23",
+      "type": "script",
+      "status": 200,
+      "category": "local-js",
+      "transfer": 58252,
+      "raw": 58016,
+      "gzip": 15723
+    },
+    {
+      "url": "http://127.0.0.1:8790/js/multiplayer.js?v=2",
+      "type": "script",
+      "status": 200,
+      "category": "local-js",
+      "transfer": 46954,
+      "raw": 46718,
+      "gzip": 10286
+    },
+    {
+      "url": "https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js",
+      "type": "script",
+      "status": 200,
+      "category": "firebase-compat",
+      "transfer": 10185,
+      "raw": 10185,
+      "gzip": 10185
+    },
+    {
+      "url": "http://127.0.0.1:8790/",
+      "type": "document",
+      "status": 200,
+      "category": "document",
+      "transfer": 31345,
+      "raw": 31115,
+      "gzip": 8305
+    },
+    {
+      "url": "http://127.0.0.1:8790/css/hub.css?v=5",
+      "type": "stylesheet",
+      "status": 200,
+      "category": "local-css",
+      "transfer": 26084,
+      "raw": 25855,
+      "gzip": 6213
+    },
+    {
+      "url": "http://127.0.0.1:8790/js/auth.js?v=7",
+      "type": "script",
+      "status": 200,
+      "category": "local-js",
+      "transfer": 19918,
+      "raw": 19682,
+      "gzip": 5980
+    },
+    {
+      "url": "http://127.0.0.1:8790/css/main.css?v=10",
+      "type": "stylesheet",
+      "status": 200,
+      "category": "local-css",
+      "transfer": 21354,
+      "raw": 21125,
+      "gzip": 5651
+    },
+    {
+      "url": "http://127.0.0.1:8790/css/games.css?v=3",
+      "type": "stylesheet",
+      "status": 200,
+      "category": "local-css",
+      "transfer": 25507,
+      "raw": 25278,
+      "gzip": 5498
+    },
+    {
+      "url": "http://127.0.0.1:8790/css/multiplayer.css?v=2",
+      "type": "stylesheet",
+      "status": 200,
+      "category": "local-css",
+      "transfer": 26048,
+      "raw": 25819,
+      "gzip": 4990
+    },
+    {
+      "url": "http://127.0.0.1:8790/js/i18n.js?v=7",
+      "type": "script",
+      "status": 200,
+      "category": "local-js",
+      "transfer": 15398,
+      "raw": 15162,
+      "gzip": 4902
+    },
+    {
+      "url": "http://127.0.0.1:8790/js/lobby.js?v=4",
+      "type": "script",
+      "status": 200,
+      "category": "local-js",
+      "transfer": 19874,
+      "raw": 19638,
+      "gzip": 4650
+    },
+    {
+      "url": "http://127.0.0.1:8790/js/bilnet-meta.js?v=2",
+      "type": "script",
+      "status": 200,
+      "category": "local-js",
+      "transfer": 13352,
+      "raw": 13116,
+      "gzip": 4603
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/fonts/fredoka-v17-latin-ext.woff2",
+      "type": "font",
+      "status": 200,
+      "category": "local-font",
+      "transfer": 4791,
+      "raw": 4576,
+      "gzip": 4576
+    },
+    {
+      "url": "http://127.0.0.1:8790/js/progress.js?v=3",
+      "type": "script",
+      "status": 200,
+      "category": "local-js",
+      "transfer": 9133,
+      "raw": 8898,
+      "gzip": 2827
+    },
+    {
+      "url": "http://127.0.0.1:8790/css/responsive.css?v=2",
+      "type": "stylesheet",
+      "status": 200,
+      "category": "local-css",
+      "transfer": 9245,
+      "raw": 9017,
+      "gzip": 2324
+    },
+    {
+      "url": "http://127.0.0.1:8790/css/animations.css?v=2",
+      "type": "stylesheet",
+      "status": 200,
+      "category": "local-css",
+      "transfer": 7287,
+      "raw": 7059,
+      "gzip": 2131
+    },
+    {
+      "url": "http://127.0.0.1:8790/js/mobile-utils.js?v=4",
+      "type": "script",
+      "status": 200,
+      "category": "local-js",
+      "transfer": 6435,
+      "raw": 6200,
+      "gzip": 2049
+    },
+    {
+      "url": "http://127.0.0.1:8790/js/engine.js",
+      "type": "script",
+      "status": 200,
+      "category": "local-js",
+      "transfer": 5864,
+      "raw": 5629,
+      "gzip": 1620
+    },
+    {
+      "url": "http://127.0.0.1:8790/js/loader.js",
+      "type": "script",
+      "status": 200,
+      "category": "local-js",
+      "transfer": 4005,
+      "raw": 3770,
+      "gzip": 1613
+    },
+    {
+      "url": "http://127.0.0.1:8790/js/lock-catalog.js?v=5",
+      "type": "script",
+      "status": 200,
+      "category": "local-js",
+      "transfer": 3039,
+      "raw": 2804,
+      "gzip": 1314
+    },
+    {
+      "url": "http://127.0.0.1:8790/js/particles.js",
+      "type": "script",
+      "status": 200,
+      "category": "local-js",
+      "transfer": 4575,
+      "raw": 4340,
+      "gzip": 1305
+    },
+    {
+      "url": "http://127.0.0.1:8790/js/errors.js",
+      "type": "script",
+      "status": 200,
+      "category": "local-js",
+      "transfer": 3127,
+      "raw": 2892,
+      "gzip": 1271
+    },
+    {
+      "url": "http://127.0.0.1:8790/js/drag.js",
+      "type": "script",
+      "status": 200,
+      "category": "local-js",
+      "transfer": 4950,
+      "raw": 4715,
+      "gzip": 1080
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/egim.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 4164,
+      "raw": 3946,
+      "gzip": 1074
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/buz-kulesi.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 3781,
+      "raw": 3563,
+      "gzip": 1066
+    },
+    {
+      "url": "http://127.0.0.1:8790/js/audio.js",
+      "type": "script",
+      "status": 200,
+      "category": "local-js",
+      "transfer": 3290,
+      "raw": 3055,
+      "gzip": 947
+    },
+    {
+      "url": "http://127.0.0.1:8790/js/firebase-config.js?v=3",
+      "type": "script",
+      "status": 200,
+      "category": "local-js",
+      "transfer": 1834,
+      "raw": 1599,
+      "gzip": 869
+    },
+    {
+      "url": "http://127.0.0.1:8790/css/imza.css",
+      "type": "stylesheet",
+      "status": 200,
+      "category": "local-css",
+      "transfer": 2314,
+      "raw": 2086,
+      "gzip": 836
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/kelime-madeni-3d.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 2021,
+      "raw": 1803,
+      "gzip": 835
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/bilgi-madencisi.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 2515,
+      "raw": 2297,
+      "gzip": 835
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/altin-avi.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 3979,
+      "raw": 3761,
+      "gzip": 810
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/space-waves.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 2806,
+      "raw": 2588,
+      "gzip": 789
+    },
+    {
+      "url": "http://127.0.0.1:8790/css/fonts.css",
+      "type": "stylesheet",
+      "status": 200,
+      "category": "local-css",
+      "transfer": 2580,
+      "raw": 2352,
+      "gzip": 782
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/matematik-patlatma.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1976,
+      "raw": 1758,
+      "gzip": 760
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/kelime-balonu.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 2378,
+      "raw": 2160,
+      "gzip": 749
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/bil-ve-fethet.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1615,
+      "raw": 1397,
+      "gzip": 731
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/son-kart.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 2651,
+      "raw": 2433,
+      "gzip": 657
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/zindan-okcusu.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1882,
+      "raw": 1664,
+      "gzip": 626
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/kelimelik.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 2187,
+      "raw": 1969,
+      "gzip": 583
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/harf-tahmin.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 2586,
+      "raw": 2368,
+      "gzip": 574
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/matematik-kafe.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1404,
+      "raw": 1186,
+      "gzip": 563
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/ates-buz.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 2000,
+      "raw": 1782,
+      "gzip": 563
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/lego-world.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1712,
+      "raw": 1494,
+      "gzip": 560
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/tetris.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 2817,
+      "raw": 2599,
+      "gzip": 559
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/lego-macerasi.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1939,
+      "raw": 1721,
+      "gzip": 525
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/siralama.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1683,
+      "raw": 1465,
+      "gzip": 518
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/hava-hokeyi.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1575,
+      "raw": 1357,
+      "gzip": 517
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/kesir-2048.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1532,
+      "raw": 1314,
+      "gzip": 516
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/fizik-firlatma.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1192,
+      "raw": 975,
+      "gzip": 507
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/boyama.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1423,
+      "raw": 1205,
+      "gzip": 501
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/bilgi-takimi.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1279,
+      "raw": 1061,
+      "gzip": 498
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/zipla-topla-coop.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1924,
+      "raw": 1706,
+      "gzip": 486
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/hafiza-kartlari.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1586,
+      "raw": 1368,
+      "gzip": 480
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/penalti-mp.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1362,
+      "raw": 1144,
+      "gzip": 479
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/bilgi-savunmasi.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1265,
+      "raw": 1047,
+      "gzip": 476
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/kelime-tahmin.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1690,
+      "raw": 1472,
+      "gzip": 476
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/renk-eslestirme.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1220,
+      "raw": 1002,
+      "gzip": 474
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/sayi-ninja.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1143,
+      "raw": 926,
+      "gzip": 460
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/sayi-sayma.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1601,
+      "raw": 1383,
+      "gzip": 456
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/labirent-avcisi.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1008,
+      "raw": 791,
+      "gzip": 453
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/ritim-sorulari.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1191,
+      "raw": 974,
+      "gzip": 452
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/sekil-bulmaca.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1077,
+      "raw": 860,
+      "gzip": 450
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/cevap-kosusu.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1275,
+      "raw": 1057,
+      "gzip": 449
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/bilgi-kulesi.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1102,
+      "raw": 885,
+      "gzip": 444
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/bilgi-yilani.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 998,
+      "raw": 781,
+      "gzip": 438
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/gunluk-kelime.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1367,
+      "raw": 1149,
+      "gzip": 433
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/harf-tanima.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1105,
+      "raw": 888,
+      "gzip": 424
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/kelime-kurtarma.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1010,
+      "raw": 793,
+      "gzip": 415
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/bilim-dedektifi.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1020,
+      "raw": 803,
+      "gzip": 415
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/sayilarla-boyama.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1811,
+      "raw": 1593,
+      "gzip": 415
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/eslestirme-ustasi.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1096,
+      "raw": 879,
+      "gzip": 413
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/kelime-canavarlari.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1030,
+      "raw": 813,
+      "gzip": 411
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/bilgi-ciftligi.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1276,
+      "raw": 1058,
+      "gzip": 405
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/kod-macerasi.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1364,
+      "raw": 1146,
+      "gzip": 387
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/desen.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1136,
+      "raw": 919,
+      "gzip": 377
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/zipla-topla.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1388,
+      "raw": 1170,
+      "gzip": 374
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/hece-birlestirme.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1080,
+      "raw": 863,
+      "gzip": 360
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/jigsaw.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1084,
+      "raw": 867,
+      "gzip": 312
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/matematik.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 780,
+      "raw": 563,
+      "gzip": 298
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/penalti.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 703,
+      "raw": 486,
+      "gzip": 296
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/emoji-yapici.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 745,
+      "raw": 528,
+      "gzip": 279
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/tuval.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 1060,
+      "raw": 843,
+      "gzip": 268
+    },
+    {
+      "url": "http://127.0.0.1:8790/assets/images/hub/satranc.svg",
+      "type": "image",
+      "status": 200,
+      "category": "image",
+      "transfer": 979,
+      "raw": 762,
+      "gzip": 261
+    }
+  ]
+}

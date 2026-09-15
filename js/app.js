@@ -20,26 +20,42 @@ const App = (() => {
         online: 'assets/images/categories/online.png',
     };
 
-    // Kayıt defteri: oyun modülleri TEMBEL referansla ({ game: () => HarfTanima }) tutulur ve
-    // aşağıda resolveEntries() ile tek tek çözülür. Bir oyun dosyası yüklenemez, parse edilemez
-    // ya da IIFE'si fırlatırsa yalnız o kart düşer (console.warn), hub ölmez.
-    // Neden window['HarfTanima'] değil: modüller top-level const → window'a bağlanmaz;
-    // eval/Function ile ad çözmek ise ileride (A1/A9) CSP'yi kırar.
+    // ── Kayıt defteri (A4 tembel referans + A9b tembel YÜKLEME) ──
+    // Her girdi: game (thunk), id, levels, files, color?, comingSoon?, badge?
+    //  game   : modüle TEMBEL referans. Dosyalar `files` ile yüklenmeden çözülmez (loadGame);
+    //           dosya inmez/parse edilmez/IIFE fırlatırsa yalnız o oyun açılmaz (toast), hub ölmez.
+    //           Neden window['HarfTanima'] değil: modüller top-level const → window'a bağlanmaz;
+    //           eval/Function ile ad çözmek ise CSP'yi (vercel.json) kırar.
+    //  id     : oyunun slug'ı (= modül.id): TR.games, kilit anahtarı, hub ikonu, derin bağlantı.
+    //  levels : seviye sayısı (= modül.levels.length) — kartın yıldız satırı modül yüklenmeden
+    //           çizilir. Modül yüklenince doğrulanır; uyuşmazsa console.error (kart yanlış yıldız
+    //           sayısı gösteriyor demektir → burayı güncelle). Online oyunlarda yok.
+    //  files  : oyun açılınca yüklenecek JS/CSS (js/loader.js). Sıra = çalışma sırası; ortak
+    //           bağımlılık (kod-macerasi-shared, satranc-engine, zipla-topla-levels, …) önce.
+    //           `?v=` değerleri eski index.html etiketlerinden aynen taşındı (önbellek kırma).
+    // tests/helpers/slugs.js comingSoon kayıtlarını `game:` ilk anahtar olacak biçimde okur → `game:` ilk anahtar kalır.
+    const CHESS_JS = 'https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js';
+    const THREE_JS = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+    const GLTF_LOADER_JS = 'https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js';
+    const KOD_MACERASI_SHARED = ['js/games/kod-macerasi-shared.js', 'css/kod-macerasi.css'];
+    const SATRANC_SHARED = [CHESS_JS, 'js/games/satranc-engine.js', 'css/satranc.css'];
+    const ZIPLA_TOPLA_FILES = ['js/games/zipla-topla-levels.js', 'js/games/zipla-topla.js?v=6', 'css/zipla-topla.css?v=3'];
+
     const gameCategoryDefs = [
         {
             title: 'Harfler & Kelimeler',
             icon: categoryIcons.letters,
             color: '#45B7D1',
             games: [
-                { game: () => HarfTanima, color: 'var(--harf-color)' },
-                { game: () => HeceBirlestirme, color: 'var(--hece-color)' },
+                { game: () => HarfTanima, id: 'harf-tanima', levels: 3, files: ['js/games/harf-tanima.js'], color: 'var(--harf-color)' },
+                { game: () => HeceBirlestirme, id: 'hece-birlestirme', levels: 3, files: ['js/games/hece-birlestirme.js'], color: 'var(--hece-color)' },
                 // Eğitsel seri (Faz 0+): kilitsiz — İngilizce kelime öğretimi.
                 // Şimdilik kapalı (kullanıcı isteği, 2026-06-16) — yeniden açmak için "comingSoon: true"yu kaldır.
-                { game: () => KelimeMadeni3D, color: 'var(--kelime-madeni-color)', comingSoon: true },
-                { game: () => KelimeBalonu, color: 'var(--kelime-balonu-color)' },
-                { game: () => KelimeCanavarlari, color: 'var(--kelime-canavar-color)' },
-                { game: () => KelimeKurtarma, color: 'var(--kelime-kurtarma-color)' },
-                { game: () => GunlukKelime, color: 'var(--gunluk-kelime-color)' },
+                { game: () => KelimeMadeni3D, id: 'kelime-madeni-3d', levels: 1, files: ['js/games/kelime-madeni-3d.js', 'css/kelime-madeni-3d.css'], color: 'var(--kelime-madeni-color)', comingSoon: true },
+                { game: () => KelimeBalonu, id: 'kelime-balonu', levels: 1, files: ['js/games/kelime-balonu.js', 'css/kelime-balonu.css'], color: 'var(--kelime-balonu-color)' },
+                { game: () => KelimeCanavarlari, id: 'kelime-canavarlari', levels: 1, files: ['js/games/kelime-canavarlari.js', 'css/kelime-canavarlari.css'], color: 'var(--kelime-canavar-color)' },
+                { game: () => KelimeKurtarma, id: 'kelime-kurtarma', levels: 1, files: ['js/games/kelime-kurtarma.js', 'css/kelime-kurtarma.css'], color: 'var(--kelime-kurtarma-color)' },
+                { game: () => GunlukKelime, id: 'gunluk-kelime', levels: 1, files: ['js/games/gunluk-kelime.js', 'css/gunluk-kelime.css'], color: 'var(--gunluk-kelime-color)' },
             ]
         },
         {
@@ -47,17 +63,17 @@ const App = (() => {
             icon: categoryIcons.numbers,
             color: '#4ECDC4',
             games: [
-                { game: () => SayiSayma, color: 'var(--sayi-color)' },
-                { game: () => Matematik, color: 'var(--matematik-color)' },
-                { game: () => Desen, color: 'var(--desen-color)' },
+                { game: () => SayiSayma, id: 'sayi-sayma', levels: 3, files: ['js/games/sayi-sayma.js'], color: 'var(--sayi-color)' },
+                { game: () => Matematik, id: 'matematik', levels: 3, files: ['js/games/matematik.js'], color: 'var(--matematik-color)' },
+                { game: () => Desen, id: 'desen', levels: 3, files: ['js/games/desen.js'], color: 'var(--desen-color)' },
                 // Eğitsel seri Faz 1 (4.1, 4.2): kilitsiz — işlem akıcılığı.
-                { game: () => BilgiMadencisi, color: 'var(--bilgi-madencisi-color)' },
-                { game: () => MatematikPatlatma, color: 'var(--matematik-patlatma-color)' },
-                { game: () => MatematikKafe, color: 'var(--matematik-kafe-color)' },
-                { game: () => BilgiYilani, color: 'var(--bilgi-yilani-color)' },
-                { game: () => RitimSorulari, color: 'var(--ritim-color)' },
-                { game: () => Kesir2048, color: 'var(--kesir-color)' },
-                { game: () => SayiNinja, color: 'var(--sayi-ninja-color)' },
+                { game: () => BilgiMadencisi, id: 'bilgi-madencisi', levels: 1, files: ['js/games/bilgi-madencisi.js', 'css/bilgi-madencisi.css'], color: 'var(--bilgi-madencisi-color)' },
+                { game: () => MatematikPatlatma, id: 'matematik-patlatma', levels: 1, files: ['js/games/matematik-patlatma.js', 'css/matematik-patlatma.css'], color: 'var(--matematik-patlatma-color)' },
+                { game: () => MatematikKafe, id: 'matematik-kafe', levels: 1, files: ['js/games/matematik-kafe.js', 'css/matematik-kafe.css'], color: 'var(--matematik-kafe-color)' },
+                { game: () => BilgiYilani, id: 'bilgi-yilani', levels: 1, files: ['js/games/bilgi-yilani.js', 'css/bilgi-yilani.css'], color: 'var(--bilgi-yilani-color)' },
+                { game: () => RitimSorulari, id: 'ritim-sorulari', levels: 1, files: ['js/games/ritim-sorulari.js', 'css/ritim-sorulari.css'], color: 'var(--ritim-color)' },
+                { game: () => Kesir2048, id: 'kesir-2048', levels: 1, files: ['js/games/kesir-2048.js', 'css/kesir-2048.css'], color: 'var(--kesir-color)' },
+                { game: () => SayiNinja, id: 'sayi-ninja', levels: 1, files: ['js/games/sayi-ninja.js', 'css/sayi-ninja.css'], color: 'var(--sayi-ninja-color)' },
             ]
         },
         {
@@ -65,15 +81,15 @@ const App = (() => {
             icon: categoryIcons.puzzles,
             color: '#A55EEA',
             games: [
-                { game: () => HafizaKartlari, color: 'var(--hafiza-color)' },
-                { game: () => SekilBulmaca, color: 'var(--sekil-color)' },
-                { game: () => Siralama, color: 'var(--siralama-color)' },
-                { game: () => Jigsaw, color: 'var(--jigsaw-color)' },
-                { game: () => Tetris, color: 'var(--tetris-color)' },
+                { game: () => HafizaKartlari, id: 'hafiza-kartlari', levels: 10, files: ['js/games/hafiza-kartlari.js'], color: 'var(--hafiza-color)' },
+                { game: () => SekilBulmaca, id: 'sekil-bulmaca', levels: 3, files: ['js/games/sekil-bulmaca.js'], color: 'var(--sekil-color)' },
+                { game: () => Siralama, id: 'siralama', levels: 3, files: ['js/games/siralama.js'], color: 'var(--siralama-color)' },
+                { game: () => Jigsaw, id: 'jigsaw', levels: 3, files: ['js/games/jigsaw.js'], color: 'var(--jigsaw-color)' },
+                { game: () => Tetris, id: 'tetris', levels: 1, files: ['js/games/tetris.js', 'css/tetris.css'], color: 'var(--tetris-color)' },
                 // Eğitsel seri (Faz 3): kilitsiz — fen gözlem/dikkat.
-                { game: () => BilimDedektifi, color: 'var(--bilim-dedektifi-color)' },
-                { game: () => EslestirmeUstasi, color: 'var(--eslestirme-color)' },
-                { game: () => LabirentAvcisi, color: 'var(--labirent-color)' },
+                { game: () => BilimDedektifi, id: 'bilim-dedektifi', levels: 1, files: ['js/games/bilim-dedektifi.js', 'css/bilim-dedektifi.css'], color: 'var(--bilim-dedektifi-color)' },
+                { game: () => EslestirmeUstasi, id: 'eslestirme-ustasi', levels: 1, files: ['js/games/eslestirme-ustasi.js', 'css/eslestirme-ustasi.css'], color: 'var(--eslestirme-color)' },
+                { game: () => LabirentAvcisi, id: 'labirent-avcisi', levels: 1, files: ['js/games/labirent-avcisi.js', 'css/labirent-avcisi.css'], color: 'var(--labirent-color)' },
             ]
         },
         {
@@ -81,11 +97,11 @@ const App = (() => {
             icon: categoryIcons.creativity,
             color: '#FF78C4',
             games: [
-                { game: () => RenkEslestirme, color: 'var(--renk-color)' },
-                { game: () => Boyama, color: 'var(--boyama-color)' },
-                { game: () => Tuval, color: 'var(--tuval-color)' },
-                { game: () => SayilarlaBoyama, color: 'var(--sayilarla-boyama-color)' },
-                { game: () => EmojiYapici, color: 'var(--emoji-yapici-color)' },
+                { game: () => RenkEslestirme, id: 'renk-eslestirme', levels: 3, files: ['js/games/renk-eslestirme.js'], color: 'var(--renk-color)' },
+                { game: () => Boyama, id: 'boyama', levels: 10, files: ['js/games/boyama.js'], color: 'var(--boyama-color)' },
+                { game: () => Tuval, id: 'tuval', levels: 3, files: ['js/games/tuval.js', 'css/tuval.css'], color: 'var(--tuval-color)' },
+                { game: () => SayilarlaBoyama, id: 'sayilarla-boyama', levels: 6, files: ['js/games/sayilarla-boyama.js?v=2', 'css/sayilarla-boyama.css'], color: 'var(--sayilarla-boyama-color)' },
+                { game: () => EmojiYapici, id: 'emoji-yapici', levels: 1, files: ['js/games/emoji-yapici.js?v=4', 'css/emoji-yapici.css?v=2'], color: 'var(--emoji-yapici-color)' },
             ]
         },
         {
@@ -93,63 +109,47 @@ const App = (() => {
             icon: categoryIcons.strategy,
             color: '#27AE60',
             games: [
-                { game: () => KodMacerasi, color: 'var(--kodmacerasi-color)' },
-                { game: () => LegoMacerasi, color: 'var(--lego-color)' },
-                { game: () => LegoWorld, color: 'var(--lego-world-color)' },
-                { game: () => Satranc, color: 'var(--satranc-color)' },
+                { game: () => KodMacerasi, id: 'kod-macerasi', levels: 3, files: [...KOD_MACERASI_SHARED, 'js/games/kod-macerasi.js'], color: 'var(--kodmacerasi-color)' },
+                { game: () => LegoMacerasi, id: 'lego-macerasi', levels: 3, files: ['js/games/lego-macerasi.js'], color: 'var(--lego-color)' },
+                { game: () => LegoWorld, id: 'lego-world', levels: 9, files: [THREE_JS, GLTF_LOADER_JS, 'js/games/lego-world.js', 'css/lego-world.css'], color: 'var(--lego-world-color)' },
+                { game: () => Satranc, id: 'satranc', levels: 1, files: [...SATRANC_SHARED, 'js/games/satranc.js'], color: 'var(--satranc-color)' },
                 // Kilit eşikleri js/lock-catalog.js'te (LOCK_CATALOG). Buradaki sıra = görünüm sırası.
-                { game: () => ZiplaTopla, color: 'var(--zipla-topla-color)' },
-                { game: () => SpaceWaves, color: 'var(--space-waves-color)' },
-                { game: () => Egim, color: 'var(--egim-color)' },
-                { game: () => BuzKulesi, color: 'var(--buz-kulesi-color)' },
-                { game: () => Penalti, color: 'var(--penalti-color)' },
-                { game: () => ZindanOkcusu, color: 'var(--zindan-okcusu-color)' },
+                { game: () => ZiplaTopla, id: 'zipla-topla', levels: 12, files: ZIPLA_TOPLA_FILES, color: 'var(--zipla-topla-color)' },
+                { game: () => SpaceWaves, id: 'space-waves', levels: 1, files: ['js/games/space-waves-questions.js', 'js/games/space-waves.js', 'css/space-waves.css?v=2'], color: 'var(--space-waves-color)' },
+                { game: () => Egim, id: 'egim', levels: 1, files: ['js/games/egim.js?v=2', 'css/egim.css?v=2'], color: 'var(--egim-color)' },
+                { game: () => BuzKulesi, id: 'buz-kulesi', levels: 1, files: ['js/games/buz-kulesi.js', 'css/buz-kulesi.css?v=2'], color: 'var(--buz-kulesi-color)' },
+                { game: () => Penalti, id: 'penalti', levels: 9, files: ['js/games/penalti.js', 'css/penalti.css'], color: 'var(--penalti-color)' },
+                { game: () => ZindanOkcusu, id: 'zindan-okcusu', levels: 1, files: ['js/games/zindan-okcusu.js?v=7', 'css/zindan-okcusu.css'], color: 'var(--zindan-okcusu-color)' },
                 // Eğitsel seri (Faz 0+): kilitsiz — eğitsel içeriğe engelsiz erişim.
-                { game: () => BilVeFethet, color: 'var(--bil-ve-fethet-color)' },
-                { game: () => BilgiTakimi, color: 'var(--bilgi-takimi-color)' },
-                { game: () => BilgiCiftligi, color: 'var(--bilgi-ciftligi-color)' },
-                { game: () => BilgiKulesi, color: 'var(--bilgi-kulesi-color)' },
-                { game: () => CevapKosusu, color: 'var(--cevap-kosusu-color)' },
-                { game: () => BilgiSavunmasi, color: 'var(--savunma-color)' },
-                { game: () => FizikFirlatma, color: 'var(--firlatma-color)' },
+                { game: () => BilVeFethet, id: 'bil-ve-fethet', levels: 1, files: ['js/games/bil-ve-fethet.js', 'css/bil-ve-fethet.css'], color: 'var(--bil-ve-fethet-color)' },
+                { game: () => BilgiTakimi, id: 'bilgi-takimi', levels: 1, files: ['js/games/bilgi-takimi.js', 'css/bilgi-takimi.css'], color: 'var(--bilgi-takimi-color)' },
+                { game: () => BilgiCiftligi, id: 'bilgi-ciftligi', levels: 1, files: ['js/games/bilgi-ciftligi.js', 'css/bilgi-ciftligi.css'], color: 'var(--bilgi-ciftligi-color)' },
+                { game: () => BilgiKulesi, id: 'bilgi-kulesi', levels: 1, files: ['js/games/bilgi-kulesi.js', 'css/bilgi-kulesi.css'], color: 'var(--bilgi-kulesi-color)' },
+                { game: () => CevapKosusu, id: 'cevap-kosusu', levels: 1, files: ['js/games/cevap-kosusu.js', 'css/cevap-kosusu.css'], color: 'var(--cevap-kosusu-color)' },
+                { game: () => BilgiSavunmasi, id: 'bilgi-savunmasi', levels: 1, files: ['js/games/bilgi-savunmasi.js', 'css/bilgi-savunmasi.css'], color: 'var(--savunma-color)' },
+                { game: () => FizikFirlatma, id: 'fizik-firlatma', levels: 1, files: ['js/games/fizik-firlatma.js', 'css/fizik-firlatma.css'], color: 'var(--firlatma-color)' },
             ]
         },
     ];
 
-    // Tembel referansın adı (uyarı metni için): "() => Tetris" → "Tetris"
+    // Tembel referansın adı (hata metni için): "() => Tetris" → "Tetris"
     function thunkName(fn) {
         const m = /=>\s*([\w$]+)/.exec(String(fn));
         return m ? m[1] : String(fn);
     }
 
-    // Girdiyi çöz: { game: () => Mod, ...rest } → { game: Mod, ...rest }; modül yoksa null
-    function resolveEntry(entry) {
-        let game = null;
-        try { game = entry.game(); } catch (e) { game = null; }   // ReferenceError/TDZ = dosya yüklenmedi ya da fırlattı
-        if (!game || typeof game !== 'object' || !game.id) {
-            console.warn('Oyun modülü eksik: ' + thunkName(entry.game) + ' — kartı atlanıyor (dosya yüklenemedi ya da hata verdi).');
-            return null;
-        }
-        return Object.assign({}, entry, { game });
-    }
-    function resolveEntries(entries) { return entries.map(resolveEntry).filter(Boolean); }
+    // Kategori şekli korunur ({ title, icon, color, games:[{ game, id, levels, files, … }] }).
+    // Kartlar yalnız statik alanlardan (id/levels) çizilir; modül oyun açılınca yüklenir (loadGame).
+    const gameCategories = gameCategoryDefs;
 
-    // Kategori şekli korunur ({ title, icon, color, games:[{ game, color, comingSoon }] })
-    const gameCategories = gameCategoryDefs.map(cat => Object.assign({}, cat, { games: resolveEntries(cat.games) }));
-
-    // Flat registry for backward compatibility
+    // Düz liste (derin bağlantı, popüler oyunlar, kilit guard'ı)
     const gameRegistry = gameCategories.flatMap(cat => cat.games);
 
-    // Bir oyun girdisinin görüntü kimliği (tek-oyunculu: game.id, online: entry.id) — TR.games için.
-    function entryId(entry) {
-        return (entry && entry.id) || (entry && entry.game && entry.game.id);
-    }
-
-    // Kilit/override anahtarı: online girdiler 'mp:' önekli (solo/online id çakışmasını önler).
-    // js/lock-catalog.js'teki LOCK_CATALOG key'leriyle birebir eşleşir.
+    // Kilit/override anahtarı: online girdiler (entry.online) 'mp:' önekli — solo/online id
+    // çakışmasını önler (satranc, kod-macerasi). js/lock-catalog.js LOCK_CATALOG key'leriyle birebir.
     function lockKey(entry) {
         if (!entry) return '';
-        return entry.id ? ('mp:' + entry.id) : (entry.game && entry.game.id);
+        return entry.online ? ('mp:' + entry.id) : entry.id;
     }
 
     // Merkezi admin ayarları (Firebase /adminConfig). Cihaz bunu okuyup uygular.
@@ -334,25 +334,66 @@ const App = (() => {
     // Multiplayer games list
     // Online oyunların kilit eşikleri js/lock-catalog.js'te (LOCK_CATALOG, 'mp:' önekli key).
     const mpGameDefs = [
-        { id: 'kelime-tahmin', game: () => KelimeTahmin },
-        { id: 'harf-tahmin', game: () => HarfTahmin },
-        { id: 'kod-macerasi', game: () => KodMacerasiMP },
-        { id: 'satranc', game: () => SatrancMP },
-        { id: 'penalti-mp', game: () => PenaltiMP },
-        { id: 'ates-buz', game: () => AtesBuz },
-        { id: 'zipla-topla-coop', game: () => ZiplaToplaCoop },
-        { id: 'hava-hokeyi', game: () => HavaHokeyi },
-        { id: 'altin-avi', game: () => AltinAvi },
-        { id: 'kelimelik', game: () => Kelimelik },
-        { id: 'son-kart', game: () => SonKart, badge: '2-4 Oyuncu' },
+        { game: () => KelimeTahmin, id: 'kelime-tahmin', files: ['js/games/kelime-tahmin.js?v=2'] },
+        { game: () => HarfTahmin, id: 'harf-tahmin', files: ['js/games/harf-tahmin.js?v=3'] },
+        { game: () => KodMacerasiMP, id: 'kod-macerasi', files: [...KOD_MACERASI_SHARED, 'js/games/kod-macerasi-mp.js'] },
+        { game: () => SatrancMP, id: 'satranc', files: [...SATRANC_SHARED, 'js/games/satranc-mp.js'] },
+        { game: () => PenaltiMP, id: 'penalti-mp', files: ['js/games/penalti-mp.js', 'css/penalti.css'] },
+        { game: () => AtesBuz, id: 'ates-buz', files: ['js/games/ates-buz.js', 'css/ates-buz.css'] },
+        { game: () => ZiplaToplaCoop, id: 'zipla-topla-coop', files: ZIPLA_TOPLA_FILES },   // ZiplaToplaCoop zipla-topla.js içinde tanımlı
+        { game: () => HavaHokeyi, id: 'hava-hokeyi', files: ['js/games/hava-hokeyi.js', 'css/hava-hokeyi.css'] },
+        // Cinzel/Cinzel Decorative/Bebas Neue yalnız bu oyunda: css/fonts-altin-avi.css (self-host) burada yüklenir
+        { game: () => AltinAvi, id: 'altin-avi', files: ['js/games/altin-avi-questions.js', 'js/games/altin-avi.js?v=4', 'css/altin-avi.css?v=4', 'css/fonts-altin-avi.css'] },
+        { game: () => Kelimelik, id: 'kelimelik', files: ['js/games/kelimelik.js?v=2'] },
+        { game: () => SonKart, id: 'son-kart', files: ['js/games/son-kart.js?v=2'], badge: '2-4 Oyuncu' },
     ];
-    const mpGamesList = resolveEntries(mpGameDefs);   // şekil: { id, game, badge? }
+    const mpGamesList = mpGameDefs.map(e => Object.assign({}, e, { online: true }));   // şekil: { game, id, files, online, badge? }
+    // Kendi lobisini/odasını yöneten online oyunlar (paylaşılan Lobby kullanmaz)
+    const SELF_LOBBY_GAMES = new Set(['altin-avi', 'kelimelik', 'son-kart']);
+
+    // ── Modül çözümleme + tembel yükleme ──
+    // Yüklenen modüller girdiye göre önbelleklenir (girdi nesnesi değiştirilmez).
+    const moduleCache = new Map();   // entry → modül
+
+    function resolveModule(entry) {
+        const cached = moduleCache.get(entry);
+        if (cached) return cached;
+        let game = null;
+        try { game = entry.game(); } catch (e) { game = null; }   // ReferenceError/TDZ = dosya yüklenmedi ya da fırlattı
+        if (!game || typeof game !== 'object' || !game.id) {
+            console.error('Oyun modülü eksik: ' + thunkName(entry.game) + ' (' + entry.id + ') — dosya yüklendi ama modül tanımlı değil ya da hata verdi.');
+            return null;
+        }
+        if (game.id !== entry.id) {
+            console.error('Kayıt defteri uyuşmazlığı: ' + entry.id + ' girdisi ' + game.id + ' modülünü çözdü (js/app.js).');
+        }
+        if (entry.levels && game.levels && game.levels.length !== entry.levels) {
+            console.error('Kayıt defteri uyuşmazlığı: ' + entry.id + ' levels=' + entry.levels + ', modül ' + game.levels.length + ' seviye — kart yanlış sayıda yıldız gösteriyor; js/app.js\'i güncelle.');
+        }
+        moduleCache.set(entry, game);
+        return game;
+    }
+
+    // Girdinin dosyalarını (JS/CSS) yükler, modülü çözer. Sonuç: Promise<modül>; hata → reject.
+    function loadGame(entry) {
+        const cached = moduleCache.get(entry);
+        if (cached) return Promise.resolve(cached);
+        return window.AssetLoader.load(entry.files).then(() => {
+            const game = resolveModule(entry);
+            if (!game) throw new Error('Oyun modülü çözülemedi: ' + entry.id);
+            return game;
+        });
+    }
 
     let currentView = 'splash';
     let activeCategory = 'all';
     // GameEngine/Multiplayer dışında, kendi Firebase dinleyicisiyle çalışan
     // multiplayer oyun (örn. Altın Avı). Geçişlerde destroy edilmeli.
-    let activeMpGame = null;
+    let activeMpGame = null;     // modül
+    let activeMpEntry = null;    // kayıt defteri girdisi (kilit/atma için)
+    // Tembel yükleme yarışı: her başlatma bir sıra numarası alır; dosyalar inene kadar kullanıcı
+    // başka karta/hub'a geçtiyse (numara değişti ya da görünüm oyun değil) geç gelen yükleme başlatılmaz.
+    let startSeq = 0;
 
     function init() {
         // Parçacık sistemi başlat
@@ -409,7 +450,7 @@ const App = (() => {
         let slug;
         try { slug = new URLSearchParams(location.search).get('oyun'); } catch (e) { return false; }
         if (!slug) return false;
-        const sp = gameRegistry.find(e => e.game && e.game.id === slug);
+        const sp = gameRegistry.find(e => e.id === slug);
         const mp = mpGamesList.find(e => e.id === slug);
         if (!sp && !mp) return false;            // bilinmeyen slug → normal splash akışı
         if (mp && !isFirebaseOk()) {             // çevrimdışı: online oyun açılamaz → hub + uyarı
@@ -421,8 +462,8 @@ const App = (() => {
         showHub();
         // Landing/deep-link (?oyun=) ile gelen ziyaretçi kilidi ATLAR (SEO → doğrudan oyna).
         // Uygulama içi kart tıklamaları kilide tabi kalır (guard yalnız bypassLock=true ile atlanır).
-        if (sp) startGame(sp.game, 1, true);
-        else if (mp) startMultiplayerGame(mp.game, true);
+        if (sp) startGame(sp, 1, true);
+        else if (mp) startMultiplayerGame(mp, true);
         return true;
     }
 
@@ -590,11 +631,11 @@ const App = (() => {
     }
 
     function getPopularGames() {
-        // Get all games with their star counts, pick top 5
-        const allGames = gameRegistry.map(({ game }) => ({
-            game,
-            stars: Progress.getGameTotalStars(game.id),
-            maxStars: (game.levels?.length || 3) * 3,
+        // Get all games with their star counts, pick top 5 (statik alanlar: modül yüklenmeden)
+        const allGames = gameRegistry.map((entry) => ({
+            entry,
+            stars: Progress.getGameTotalStars(entry.id),
+            maxStars: (entry.levels || 3) * 3,
         }));
         // Sort by stars desc, then by maxStars for tiebreaker
         allGames.sort((a, b) => b.stars - a.stars || b.maxStars - a.maxStars);
@@ -622,11 +663,11 @@ const App = (() => {
             <div class="popular-section">
                 <div class="popular-header"><span>🔥</span> En Çok Oynanan</div>
                 <div class="popular-scroll">
-                    ${popular.filter(p => p.stars > 0).map(({ game, stars, maxStars }) => `
-                        <div class="popular-card" data-game="${game.id}" role="button" tabindex="0">
-                            <div class="popular-icon"><img src="assets/images/hub/${game.id}.svg" alt="" draggable="false"></div>
+                    ${popular.filter(p => p.stars > 0).map(({ entry, stars, maxStars }) => `
+                        <div class="popular-card" data-game="${entry.id}" role="button" tabindex="0">
+                            <div class="popular-icon"><img src="assets/images/hub/${entry.id}.svg" alt="" draggable="false"></div>
                             <div class="popular-info">
-                                <div class="popular-name">${TR.games[game.id]}</div>
+                                <div class="popular-name">${TR.games[entry.id]}</div>
                                 <div class="popular-stars">⭐ ${stars}/${maxStars}</div>
                             </div>
                         </div>
@@ -636,10 +677,10 @@ const App = (() => {
 
         container.querySelectorAll('.popular-card').forEach(card => {
             const gameId = card.dataset.game;
-            const entry = gameRegistry.find(g => g.game.id === gameId);
+            const entry = gameRegistry.find(g => g.id === gameId);
             withIconFallback(card, categoryIcons.home);
             if (entry) {
-                bindActivate(card, () => { AudioManager.play('tap'); startGame(entry.game); });
+                bindActivate(card, () => { AudioManager.play('tap'); startGame(entry); });
             }
         });
     }
@@ -653,24 +694,25 @@ const App = (() => {
         function staggerDelay(i) { return Math.min(i, STAGGER_MAX_CARDS) * STAGGER_STEP_MS + 'ms'; }
 
         function createGameCard(gameEntry, fallbackIcon) {
-            const { game, comingSoon } = gameEntry;
+            // Kart yalnız statik alanlardan çizilir (id, levels); modül oyun açılınca yüklenir (A9b)
+            const { id, comingSoon } = gameEntry;
             const card = document.createElement('div');
             card.className = 'game-card';
-            card.dataset.game = game.id;
+            card.dataset.game = id;
             card.setAttribute('role', 'button');
             card.setAttribute('tabindex', '0');
             // aria-label yok: erişilebilir ad görünen metin (rozet + başlık + durum) — WCAG 2.5.3
 
             let starsHTML = '';
-            for (let i = 1; i <= (game.levels?.length || 3); i++) {
-                const s = Progress.getLevelStars(game.id, i);
+            for (let i = 1; i <= (gameEntry.levels || 3); i++) {
+                const s = Progress.getLevelStars(id, i);
                 const cls = s > 0 ? 'earned' : 'empty';
                 starsHTML += `<svg class="${cls}" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`;
             }
 
             card.innerHTML = `
-                <div class="card-icon"><img src="assets/images/hub/${game.id}.svg" alt="" draggable="false"></div>
-                <div class="card-title">${TR.games[game.id]}</div>
+                <div class="card-icon"><img src="assets/images/hub/${id}.svg" alt="" draggable="false"></div>
+                <div class="card-title">${TR.games[id]}</div>
                 <div class="card-stars">${starsHTML}</div>
             `;
 
@@ -709,12 +751,12 @@ const App = (() => {
                 return card;
             }
 
-            bindActivate(card, () => { AudioManager.play('tap'); startGame(game); });
+            bindActivate(card, () => { AudioManager.play('tap'); startGame(gameEntry); });
             return card;
         }
 
         function createMPCard(entry) {
-            const { id, game } = entry;
+            const { id } = entry;
             const card = document.createElement('div');
             card.className = 'game-card';
             card.dataset.game = id;
@@ -744,7 +786,7 @@ const App = (() => {
                 return card;
             }
 
-            bindActivate(card, () => { AudioManager.play('tap'); startMultiplayerGame(game); });
+            bindActivate(card, () => { AudioManager.play('tap'); startMultiplayerGame(entry); });
             return card;
         }
 
@@ -815,62 +857,105 @@ const App = (() => {
         }
     }
 
-    function startMultiplayerGame(game, bypassLock = false) {
+    // ── Oyun görünümüne geç + yükleme durumu ──
+    // Görünüm HEMEN değişir (hub gizli, oyun kapsayıcısı açık); dosyalar inerken kısa bir
+    // gecikmeden sonra yükleniyor göstergesi çizilir (önbellekten anında gelen oyunlarda titreme yok).
+    const LOADING_HINT_DELAY_MS = 150;
+
+    function showGameView(entry) {
+        cleanupActiveMpGame();
+        currentView = 'game';
+        document.getElementById('hub').classList.add('hidden');
+        document.getElementById('hub-nav').classList.add('hidden');
+        document.getElementById('game-container').classList.remove('hidden');
+        document.getElementById('top-bar').classList.add('hidden');
+        const title = document.getElementById('game-title');
+        if (title) title.textContent = TR.games[entry.id] || entry.id;   // GameEngine.startGame yeniden yazar
+        const gameArea = document.getElementById('game-area');
+        gameArea.innerHTML = '';
+        return gameArea;
+    }
+
+    function renderLoadingHint(gameArea, entry) {
+        gameArea.innerHTML = '';
+        const box = document.createElement('div');
+        box.className = 'game-loading';
+        box.setAttribute('role', 'status');
+        box.setAttribute('aria-live', 'polite');
+        const spinner = document.createElement('div');
+        spinner.className = 'game-loading-spinner';
+        spinner.setAttribute('aria-hidden', 'true');
+        const text = document.createElement('p');
+        text.className = 'game-loading-text';
+        text.textContent = (TR.games[entry.id] || entry.id) + ' yükleniyor…';
+        box.appendChild(spinner);
+        box.appendChild(text);
+        gameArea.appendChild(box);
+    }
+
+    // Dosyaları yükle; bu arada kullanıcı başka yere geçtiyse (seq değişti / görünüm oyun değil)
+    // hiçbir şey başlatma. Hata: konsol + toast, hub'a dön (kart yeniden tıklanınca tekrar dener).
+    function loadThenStart(entry, gameArea, onLoaded) {
+        const seq = ++startSeq;
+        const hintTimer = setTimeout(() => { if (seq === startSeq && currentView === 'game') renderLoadingHint(gameArea, entry); }, LOADING_HINT_DELAY_MS);
+        return loadGame(entry)
+            .then((game) => {
+                if (seq !== startSeq || currentView !== 'game') return;   // bayat yükleme
+                gameArea.innerHTML = '';
+                onLoaded(game);
+            })
+            .catch((err) => {
+                console.error('[Hub] Oyun yüklenemedi: ' + entry.id, err);
+                if (seq !== startSeq) return;
+                appToast('Oyun yüklenemedi — bağlantını kontrol edip tekrar dene.');
+                if (currentView === 'game') navigateToHub();
+            })
+            .finally(() => clearTimeout(hintTimer));
+    }
+
+    function startMultiplayerGame(entry, bypassLock = false) {
         // Firebase yoksa online oyun hiçbir yoldan açılmaz (kart zaten kapalı; bu son koruma)
         if (!isFirebaseOk()) { appToast('Çevrimdışısın — online oyunlar şu an açılamıyor.'); return; }
         // Kilitli online oyun guard'ı (bypassLock=true: landing/deep-link ziyaretçisi atlar)
-        const entry = mpGamesList.find(e => e.game === game);
-        if (entry && !bypassLock && !isGameUnlocked(entry)) { try { AudioManager.play('tap'); } catch (e) {} return; }
-        cleanupActiveMpGame();
-        currentView = 'game';
-        document.getElementById('hub').classList.add('hidden');
-        document.getElementById('hub-nav').classList.add('hidden');
-        document.getElementById('game-container').classList.remove('hidden');
-        document.getElementById('top-bar').classList.add('hidden');
+        if (!bypassLock && !isGameUnlocked(entry)) { try { AudioManager.play('tap'); } catch (e) {} return; }
+        const gameArea = showGameView(entry);
 
-        const gameArea = document.getElementById('game-area');
-        gameArea.innerHTML = '';
-
-        // Altın Avı ve Kelimelik kendi lobilerini/odalarını yönetir (paylaşılan Lobby kullanmaz)
-        if (game.id === 'altin-avi' || game.id === 'kelimelik' || game.id === 'son-kart') {
-            activeMpGame = game;
-            game.init(gameArea, {});
-            return;
-        }
-
-        Lobby.show(game.id, gameArea, {
-            onGameStart: (data) => {
+        loadThenStart(entry, gameArea, (game) => {
+            // Altın Avı, Kelimelik ve Son Kart kendi lobilerini/odalarını yönetir (paylaşılan Lobby kullanmaz)
+            if (SELF_LOBBY_GAMES.has(entry.id)) {
                 activeMpGame = game;
-                game.init(gameArea, data);
+                activeMpEntry = entry;
+                game.init(gameArea, {});
+                return;
             }
+            Lobby.show(entry.id, gameArea, {
+                onGameStart: (data) => {
+                    activeMpGame = game;
+                    activeMpEntry = entry;
+                    game.init(gameArea, data);
+                }
+            });
         });
     }
 
-    function startGame(game, level = 1, bypassLock = false) {
+    function startGame(entry, level = 1, bypassLock = false) {
         // Kilitli oyun guard'ı — kartı bypass eden tüm yollar için tek koruma noktası.
         // bypassLock=true: landing/deep-link ile gelen ziyaretçi kilidi atlar.
-        const entry = gameRegistry.find(e => e.game.id === game.id);
-        if (entry && entry.comingSoon) {   // kapalı oyun: kart da, derin-bağlantı (?oyun=) da — hiçbir yoldan açılmaz
+        if (entry.comingSoon) {   // kapalı oyun: kart da, derin-bağlantı (?oyun=) da — hiçbir yoldan açılmaz
             try { AudioManager.play('tap'); } catch (e) {}
             return;
         }
-        if (entry && !bypassLock && !isGameUnlocked(entry)) {
+        if (!bypassLock && !isGameUnlocked(entry)) {
             try { AudioManager.play('tap'); } catch (e) {}
             return;
         }
-        cleanupActiveMpGame();
-        currentView = 'game';
-
-        document.getElementById('hub').classList.add('hidden');
-        document.getElementById('hub-nav').classList.add('hidden');
-        document.getElementById('game-container').classList.remove('hidden');
-        document.getElementById('top-bar').classList.add('hidden');
+        const gameArea = showGameView(entry);
 
         try { MobileUtils.lockBodyScroll(); } catch (e) {}
         // CSS targeting için aktif oyun kimliği — portrait mobile auto-rotation
-        if (game && game.id) document.body.dataset.activeGame = game.id;
+        document.body.dataset.activeGame = entry.id;
 
-        GameEngine.startGame(game, level);
+        loadThenStart(entry, gameArea, (game) => { GameEngine.startGame(game, level); });
     }
 
     function cleanupActiveMpGame() {
@@ -878,13 +963,14 @@ const App = (() => {
             try { activeMpGame.destroy(); } catch (e) {}
         }
         activeMpGame = null;
+        activeMpEntry = null;
     }
 
-    // Şu an oynanan oyunun katalog girdisi (online: activeMpGame; solo: body.dataset.activeGame)
+    // Şu an oynanan oyunun katalog girdisi (online: activeMpEntry; solo: body.dataset.activeGame)
     function activeGameEntry() {
-        if (activeMpGame) return mpGamesList.find(e => e.game === activeMpGame) || null;
+        if (activeMpGame) return activeMpEntry;
         const id = document.body.dataset.activeGame;
-        if (id) return gameRegistry.find(e => e.game && e.game.id === id) || null;
+        if (id) return gameRegistry.find(e => e.id === id) || null;
         return null;
     }
 
