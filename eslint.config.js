@@ -39,6 +39,7 @@ const hubCoreGlobals = {
     Particles: 'readonly',          // js/particles.js
     Progress: 'readonly',           // js/progress.js
     HubToast: 'readonly',           // js/errors.js (A4)
+    AssetLoader: 'readonly',        // js/loader.js (A9)
     ADMIN_EMAIL: 'readonly',        // js/firebase-config.js (A6)
     TR: 'readonly',                 // js/i18n.js
 };
@@ -79,6 +80,7 @@ module.exports = [
             'node_modules/**',
             'test-results/**',
             'playwright-report/**',
+            '.build-check/**',                    // tools/build.js --out çıktısı (A10b)
             'js/lib/**',                          // stockfish.js (vendor, minified)
             'games/kelime-madeni-3d/three.min.js', // vendor, minified
             'fabrika/**',                          // üretim araçları/kaynak — siteye çıkmaz
@@ -171,9 +173,9 @@ module.exports = [
         },
     },
 
-    // ── Test altyapısı (Playwright) ve bu yapılandırma ──
+    // ── Test altyapısı (Playwright), build aracı (tools/build.js, A10b) ve bu yapılandırma ──
     {
-        files: ['tests/**/*.js', 'playwright.config.js', 'eslint.config.js'],
+        files: ['tests/**/*.js', 'tools/**/*.js', 'playwright.config.js', 'eslint.config.js'],
         languageOptions: {
             sourceType: 'commonjs',
             globals: { ...globals.node },

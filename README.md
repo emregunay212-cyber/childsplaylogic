@@ -22,6 +22,7 @@ Bu dosya (ve tüm `*.md`) `.vercelignore` ile yayın dışıdır.
 | `assets/images/hub/<slug>.svg` | Hub kart ikonları | |
 | `admin.html` + `js/admin.js` | Öğretmen/yönetici paneli: oyun kilitle-aç, ilerleme sıfırla → RTDB `adminConfig` | |
 | `tests/`, `playwright.config.js`, `eslint.config.js`, `.github/workflows/ci.yml` | Lint + Playwright duman testi + CI (PR #19) | |
+| `tools/build.js` (+ `tools/lib/`) | Deploy anında içerik hash'li önbellek kırma: her yerel js/css/html başvurusu `?h=<hash>` (A10b). `--out .build-check` kopyaya üretir, `--check` çıktıyı doğrular | Vercel `buildCommand`; bağımlılıksız, Node ≥ 20; `.vercelignore`'a **eklenmez** |
 | `docs/inceleme-2026-09-15/`, `plans/` | 15 Eylül 2026 denetim raporları ve düzeltme blueprint'i | |
 | `fabrika/` | Eğitsel olmayan oyunların tek dosyalık satış build'leri (ayrı README) | Yayın dışı |
 
@@ -32,23 +33,26 @@ python server.py                       # http://localhost:8000 — no-store baş
 node tests/static-server.js --port 8765 # bağımlılıksız Node alternatifi (Playwright bunu kullanır)
 ```
 
-Derleme yok; dosyayı düzenle, sayfayı yenile. Cache-bust `?v=N` etiketleri (`index.html`, sarmalayıcılar) elle artırılır — hash'li build A10b'de.
+Derleme yok; dosyayı düzenle, sayfayı yenile. Önbellek kırma **deploy anında** olur (A10b): Vercel `node tools/build.js --check` çalıştırır; her yerel js/css/html başvurusuna (`index.html`/`admin.html`/`games/*/index.html` etiketleri, `js/app.js` kayıt defteri `files`, iframe sarmalayıcıları, `games/ates-buz` ES-modül import'ları, `js/lib/stockfish.js`) içerik hash'i `?h=<sha256 ilk 10>` eklenir; js/css `immutable` 1 yıl önbelleklenir. Depodaki `?v=N` etiketleri isteğe bağlıdır — **artık elle artırılmaz**, build ne bulursa hash ile değiştirir.
 
 ## Testler
 
 ```bash
 npm ci                                  # Node 20 (CI ile aynı)
 npx playwright install chromium         # ilk kurulumda bir kez
-npm run lint                            # eslint js/ games/ — no-undef hata, no-unused-vars uyarı
+npm run lint                            # eslint js/ games/ tools/ — no-undef hata, no-unused-vars uyarı
+npm run build:check                     # deploy simülasyonu: kök → .build-check (hash'li), çıktı doğrulanır (?v= kalıntısı/eski hash = hata)
+npm run test:build                      # tools/build.js birim testleri (idempotence, döngü, eksik dosya, --out)
 npm run test:smoke                      # her aktif oyun /?oyun=<slug> ile açılır, 3 sn hatasız çalışmalı (60 test)
+SITE_ROOT=.build-check PORT=8766 npm run test:smoke   # aynı test hash'li çıktı üzerinde (CI böyle koşar)
 python seo/test_build_seo.py            # üretici birim testleri
 ```
 
-`BASE_URL=https://<vercel-önizleme> npm run test:smoke` dış ortamda koşar. CI (`ci.yml`) her PR'da lint + duman testini çalıştırır; `required check` A10b'de.
+`BASE_URL=https://<vercel-önizleme> npm run test:smoke` dış ortamda koşar. CI (`ci.yml`) her PR'da lint + `test:build` + `build:check` + duman testini (hash'li çıktı üzerinde) çalıştırır; iş adı `eslint + Playwright duman testi` master'da **required check**tir (branch protection, A10b) — kırmızıyken merge edilemez, force-push ve dal silme kapalı.
 
 ## Deploy
 
-- **Site:** `master`'a push → Vercel otomatik deploy. Yapılandırma `vercel.json` (güvenlik başlıkları, CSP **Report-Only**, önbellek, `trailingSlash`); yayın dışı dosyalar `.vercelignore` (tek kaynak — `firebase.json`'daki ignore listesi Vercel'de geçersiz).
+- **Site:** `master`'a push → Vercel otomatik deploy. Yapılandırma `vercel.json` (güvenlik başlıkları, CSP **Report-Only**, önbellek, `trailingSlash`; `buildCommand: node tools/build.js --check` yerinde hash ekler, `outputDirectory: "."`, install yok); yayın dışı dosyalar `.vercelignore` (tek kaynak — `firebase.json`'daki ignore listesi Vercel'de geçersiz; `tools/` yayında kalmalı, build oradan koşar). Önbellek: js/css `public, max-age=31536000, immutable` (URL hash'li), görseller 1 hafta, HTML varsayılan (`max-age=0, must-revalidate`).
 - **Veritabanı kuralları:** `database.rules.json` → `firebase deploy --only database` (proje `childsplaylogic`, `.firebaserc`). Git Bash'te `MSYS_NO_PATHCONV=1` ön eki şart. `firebase.json` hosting bloğu yalnız isteğe bağlı `childsplaylogic.web.app` yansısı içindir.
 - PR akışı: dal → PR → Vercel önizleme → geçit incelemesi → sahip merge'ü (`plans/bilnetoyun-duzeltme-2026-09-15.md` "Değişmezler").
 
