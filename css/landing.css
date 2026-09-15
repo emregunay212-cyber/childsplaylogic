@@ -1,0 +1,181 @@
+/* ============================================
+   bilnetoyun.com — /oyunlar/ açılış sayfaları + /oyunlar/ hub'ı ortak stili
+   Üretici: seo/build_seo.py (PAGE_TMPL, HUB_TMPL). Elle sayfa düzenleme yok;
+   görünüm değişecekse burası değişir. Palet css/main.css ailesiyle uyumlu,
+   ama bu sayfalar main.css yüklemez → token'lar burada kendi kendine yeter.
+   ============================================ */
+:root {
+    --l-bg-top: #eaf4fb;
+    --l-bg-bottom: #dcebf7;
+    --l-surface: #ffffff;
+    --l-ink: #1f2a44;
+    --l-ink-soft: #27364f;          /* uzun metin */
+    --l-muted: #475569;             /* tagline, kart açıklaması */
+    --l-muted-2: #526178;           /* kırıntı, altbilgi — açık zeminde ≥ 5:1 */
+    --l-link: #1a5fb4;
+    --l-link-hover: #124a90;
+    --l-chip-bg: #eaf2fb;
+    --l-chip-line: #c5dcf3;
+    --l-accent: #9a5b00;            /* hub kart etiketi — beyazda ≥ 5:1 (eski #f5a623 2:1 idi) */
+    --l-cta-top: #ffd24a;
+    --l-cta-bottom: #f5a623;
+    --l-cta-ink: #3a2a00;
+    --l-cta-shadow: rgba(245, 166, 35, .40);
+    --l-cta-shadow-hover: rgba(245, 166, 35, .52);
+    --l-shadow-card: 0 10px 34px rgba(40, 60, 110, .12);
+    --l-shadow-card-sm: 0 8px 24px rgba(40, 60, 110, .10);
+    --l-shadow-card-hover: 0 14px 32px rgba(40, 60, 110, .16);
+    --l-radius-card: 20px;
+    --l-radius-tile: 16px;
+    --l-radius-cta: 14px;
+    --l-focus: #1a5fb4;
+    --l-font-body: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --l-font-display: 'Fredoka', 'Nunito', system-ui, sans-serif;
+    --l-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --l-t-fast: 140ms;
+    --l-t-base: 200ms;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: var(--l-font-body);
+    background: linear-gradient(160deg, var(--l-bg-top), var(--l-bg-bottom)) fixed;
+    color: var(--l-ink);
+    line-height: 1.7;
+}
+
+::selection { background: var(--l-cta-top); color: var(--l-cta-ink); }
+
+a { color: var(--l-link); text-decoration: none; text-underline-offset: 0.18em; }
+a:hover { color: var(--l-link-hover); text-decoration: underline; }
+a:focus-visible { outline: 3px solid var(--l-focus); outline-offset: 3px; border-radius: 6px; }
+
+.wrap { max-width: 760px; margin: 0 auto; padding: 18px 18px 8px; }
+.wrap--hub { max-width: 920px; padding: 20px 20px 8px; }
+
+/* ---- Üst bağlantı + kırıntı ---- */
+header a, a.home { font-weight: 800; }
+.crumb { font-size: 13px; color: var(--l-muted-2); margin: 6px 0 18px; }
+
+/* ---- Landing kartı ---- */
+.card {
+    background: var(--l-surface);
+    border-radius: var(--l-radius-card);
+    padding: 22px;
+    box-shadow: var(--l-shadow-card);
+}
+h1 {
+    font-family: var(--l-font-display);
+    font-weight: 600;
+    font-size: clamp(24px, 6vw, 38px);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    margin: .1em 0 .25em;
+    text-wrap: balance;
+}
+.tagline { color: var(--l-muted); font-size: 16px; margin: 0 0 16px; }
+
+/* Ana çağrı: dokunma alanı ≥ 52px; hover kalkar, basınca hafif çöker */
+.play {
+    display: inline-block;
+    background: linear-gradient(180deg, var(--l-cta-top), var(--l-cta-bottom));
+    color: var(--l-cta-ink);
+    font-weight: 900;
+    font-size: 18px;
+    padding: 14px 30px;
+    border-radius: var(--l-radius-cta);
+    text-decoration: none;
+    box-shadow: 0 8px 22px var(--l-cta-shadow);
+    margin: 6px 0 18px;
+    transition: transform var(--l-t-fast) var(--l-ease-out), box-shadow var(--l-t-base) var(--l-ease-out);
+}
+.play:hover { color: var(--l-cta-ink); text-decoration: none; transform: translateY(-2px); box-shadow: 0 12px 26px var(--l-cta-shadow-hover); }
+.play:active { transform: scale(0.97); box-shadow: 0 6px 16px var(--l-cta-shadow); transition-duration: 60ms; }
+.play:focus-visible { outline: 3px solid var(--l-focus); outline-offset: 4px; border-radius: var(--l-radius-cta); }
+
+/* Pasif oyun (active=False): CTA yerine durum notu */
+.soon {
+    display: inline-block;
+    background: var(--l-chip-bg);
+    border: 1px dashed var(--l-chip-line);
+    color: var(--l-link);
+    font-weight: 800;
+    font-size: 16px;
+    padding: 12px 20px;
+    border-radius: var(--l-radius-cta);
+    margin: 6px 0 18px;
+}
+
+.meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+.meta span {
+    background: var(--l-chip-bg);
+    color: var(--l-link);
+    border: 1px solid var(--l-chip-line);
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 13px;
+    font-weight: 700;
+}
+.about { font-size: 16px; color: var(--l-ink-soft); max-width: 68ch; }
+.more { margin-top: 22px; font-size: 15px; }
+.more a { font-weight: 700; }
+
+/* ---- Hub ---- */
+.wrap--hub h1 { margin-top: 8px; }
+.lead { max-width: 68ch; }
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 14px;
+    margin-top: 18px;
+}
+.g {
+    display: block;
+    background: var(--l-surface);
+    border-radius: var(--l-radius-tile);
+    padding: 16px;
+    box-shadow: var(--l-shadow-card-sm);
+    text-decoration: none;
+    color: inherit;
+    transition: transform var(--l-t-fast) var(--l-ease-out), box-shadow var(--l-t-base) var(--l-ease-out);
+}
+.g:hover { color: inherit; text-decoration: none; transform: translateY(-2px); box-shadow: var(--l-shadow-card-hover); }
+.g:active { transform: scale(0.98); transition-duration: 60ms; }
+.g:focus-visible { outline: 3px solid var(--l-focus); outline-offset: 3px; border-radius: var(--l-radius-tile); }
+.g h2 {
+    font-family: var(--l-font-display);
+    font-weight: 600;
+    font-size: 19px;
+    line-height: 1.25;
+    margin: 0 0 6px;
+    color: var(--l-link);
+}
+.g:hover h2 { color: var(--l-link-hover); }
+.g p { margin: 0; font-size: 14px; color: var(--l-muted); }
+.g .t { display: inline-block; margin-top: 8px; font-size: 12px; font-weight: 800; color: var(--l-accent); }
+
+/* ---- Altbilgi ---- */
+footer { margin-top: 26px; font-size: 13px; color: var(--l-muted-2); text-align: center; }
+footer a { font-weight: 700; }
+
+@media (max-width: 420px) {
+    .wrap { padding: 14px 16px 8px; }
+    .card { padding: 18px; }
+    .play { display: block; text-align: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .play, .g { transition: none; }
+    .play:hover, .g:hover { transform: none; }
+}
+
+@media print {
+    body { background: #fff; }
+    .card, .g { box-shadow: none; border: 1px solid #ddd; }
+    .play, .more { display: none; }
+}
