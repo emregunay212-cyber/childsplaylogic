@@ -28,6 +28,7 @@ const HarfTahmin = (() => {
 
   function init(gameArea, data) {
     container = gameArea;
+    pendingLetter = null;
     // Güvenlik (XSS): wordLength Firebase'deki lobiden gelir, kuralda doğrulanmıyor → tam sayıya zorla
     // ve 3-8 aralığına sıkıştır (lobby.js doRenderWordSetup ile aynı sınır)
     gameData = { ...data, wordLength: Math.min(Math.max(parseInt(data.wordLength, 10) || 5, 3), 8) };
@@ -108,8 +109,13 @@ const HarfTahmin = (() => {
     });
   }
 
+  let pendingLetter = null;   // gönderilmiş, sonucu henüz gelmemiş harf
   function guessLetter(letter) {
-    if (gameOver || !isMyTurn || myHits.has(letter) || myMisses.has(letter)) return;
+    if (gameOver || !isMyTurn || pendingLetter || myHits.has(letter) || myMisses.has(letter)) return;
+    // Senkron kilit: art arda iki farklı harf gönderilirse sunucu tarafı oku→yaz yarışında ilk harf
+    // kayboluyordu (multiplayer.js transaction kullanmıyor). Sonuç (LETTER_RESULT) gelene kadar klavye kapalı.
+    pendingLetter = letter;
+    updateTurnDisplay();
     Multiplayer.send('GUESS_LETTER', { letter });
     // Sıra değişimini server'dan gelen event'e bırak
     // Doğru tahminse sıra değişmeyecek, yanlışsa WAIT_TURN gelecek
@@ -123,7 +129,7 @@ const HarfTahmin = (() => {
     }
     container.querySelectorAll('.kb-key').forEach(key => {
       const k = key.dataset.key;
-      key.disabled = !isMyTurn || myHits.has(k) || myMisses.has(k);
+      key.disabled = !isMyTurn || !!pendingLetter || myHits.has(k) || myMisses.has(k);
     });
   }
 
@@ -169,6 +175,7 @@ const HarfTahmin = (() => {
     Multiplayer.on('LETTER_RESULT', (data) => {
       if (data.guesser === gameData.yourRole) {
         // My guess result
+        pendingLetter = null;   // kilit açılır
         myGuessedLetters.push(data.letter);
         if (data.hit) {
           myHits.add(data.letter);
@@ -218,10 +225,11 @@ const HarfTahmin = (() => {
 
     Multiplayer.on('ERROR', (data) => {
       showToast(data.message);
+      pendingLetter = null;   // gönderim reddedildi → klavye açılır
       if (data.code === 'ALREADY_GUESSED') {
         isMyTurn = true;
-        updateTurnDisplay();
       }
+      updateTurnDisplay();
     });
   }
 

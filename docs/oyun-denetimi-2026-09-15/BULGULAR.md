@@ -175,3 +175,31 @@ Biçim: `[KRİTİK|YÜKSEK|ORTA|DÜŞÜK|ŞÜPHELİ] dosya:satır — sorun — 
 - kod-macerasi / lego-macerasi: yukarıda (oturum jetonu).
 - Online K2 (iki sekme): kelime-tahmin — Test1 oda kurdu (kod YSRYG), Test2 "Lobiye Katıl" listesinden katıldı, iki taraf kelime yazdı, sıra Test1'e geçti ✔. Lobi takma adı serbest metin (A8b kararı, Faz 2 seçici).
 
+## Kategori 6 — Online (16 Eyl gece) — K1 ajanlar + K2 (kelime-tahmin iki sekme)
+### Altyapı — js/multiplayer.js / js/lobby.js
+- [KRİTİK→düzeltildi] js/multiplayer.js:1030-1037 — GAME_OVER sonrası 5 sn'lik lobi silme zamanlayıcısı canlı `currentLobbyId`'yi okuyordu: 5 sn dolmadan "Tekrar Oyna" ile yeni lobiye girilirse **yeni lobi siliniyor**, dinleyici kapanıyor, iki oyuncu da sessizce kopuyordu (penalti-mp ajanı da bağımsız buldu). Düzeltme: biten lobi id'si yakalanır.
+- [YÜKSEK→düzeltildi] :255-335 joinLobby — transaction yoktu: iki oyuncu aynı odaya aynı anda katılınca ikisi de "guest" oluyordu. Düzeltme: `guestId` transaction ile alınır, kaybedene LOBBY_FULL.
+- [YÜKSEK→düzeltildi] :235-253,790-800 — host misafir gelmeden sekmeyi kapatmışsa misafir sonsuza dek "rakip bekleniyor"da kalıyordu (oppEverSeen hiç true olmuyor); liste bayat WAITING odaları gösteriyordu. Düzeltme: liste 1 saatten eski / presence'sız odaları gizler; misafir katılımından 20 sn içinde host presence yoksa OPPONENT_LEFT.
+- [YÜKSEK, karar] database.rules.json:78-113 — `lobbies` herkese okunur ve hostWord/guestWord/pendingShot/hostState gibi alanlar doğrulanmıyor: oda kodunu bilen rakip kelimeyi/atışı tahminden önce okuyabilir, alanlara keyfi yazabilir. Aynı sınıf: rooms/kelimelik `racks`, rooms/son-kart `hands`, rooms/altin-avi `questions.correctIdx` + `gold` yazımı. Misafir oyuncular kimliksiz (auth yok) olduğundan rol bazlı `.read` kuralı yazılamaz; gerçek çözüm commit-reveal (hash) ya da sunucu hakemi (Blaze). **Karar 5 (Faz 1) ile aynı: bilinen hile yüzeyi, çocuk hedef kitlesinde kabul edildi.** Bu PR'da alan doğrulaması eklenmedi (kural değişikliği ayrı PR + deploy).
+- [ORTA] update/set çağrıları `.catch`'siz (ağ hatasında sessiz takılma) — bırakıldı (Faz 2: ERROR emit).
+### kelime-tahmin — K2 ✔ (oda kur/katıl/kelime/sıra)
+- [ORTA→düzeltildi] js/games/kelime-tahmin.js:26-38 — wordLength 3-8'e kırpılmıyordu (bozuk lobide Array(NaN) RangeError). Düzeltme: harf-tahmin ile aynı kırpma.
+### harf-tahmin
+- [YÜKSEK→düzeltildi] js/games/harf-tahmin.js:111-116 — harf gönderiminde klavye senkron kilitlenmiyordu; art arda iki farklı harfte sunucu tarafı oku→yaz yarışıyla ilk harf kayboluyordu. Düzeltme: `pendingLetter` kilidi (sonuç/hata gelince açılır).
+### kod-macerasi-mp
+- [YÜKSEK→düzeltildi] js/multiplayer.js:694-706 submitMove — iki oyuncu aynı anda bitirince ikisi de kendi skorunu +1 yazıyor, kazanan son yazana kalıyordu. Düzeltme: tur kazananı `winner` transaction'ı ile belirlenir. [ŞÜPHELİ] :954-970 tur ilerletme zinciri presence yazımıyla ikinci kez planlanabilir (aynı değer).
+### satranc-mp
+- [YÜKSEK→düzeltildi] js/multiplayer.js:710-722 chessMove — gönderenin rengi ile sıra doğrulanmıyordu (konsoldan rakip adına hamle). Düzeltme: hostColor'dan türeyen renk === game.turn().
+### penalti-mp
+- [YÜKSEK, karar] pendingShot/pendingKeeper herkese okunur (yukarıdaki kural kararı). Atış çözümü transaction'lı ✔.
+### altin-avi
+- [YÜKSEK, karar] questions.correctIdx okunur, gold doğrudan yazılabilir (kural kararı). [ORTA] :648-661 endsAt host yerel saatiyle (serverTimeOffset yok) — bırakıldı. [DÜŞÜK] "[you]", LOBBY/RANKING… İngilizce kalıntılar.
+### zipla-topla-coop
+- [YÜKSEK→düzeltildi] js/games/zipla-topla.js:761 — online modda ölen oyuncu partnerin yanında değil bölüm başında doğuyor, ortalama kamera ilerideki partneri kenara çekiyordu. Düzeltme: online'da da partner-yakını doğuş. [ORTA] host durumu ~30/sn değişmese de yazılıyor (bırakıldı). [ŞÜPHELİ] `zt` alt ağacı doğrulanmıyor (kural kararı).
+### hava-hokeyi
+- [YÜKSEK→düzeltildi] games/hava-hokeyi/index.html:505-524 — maç bittikten sonra da host+guest saniyede ~55 `set()` yazmaya devam ediyordu (Spark kotası). Düzeltme: PH_OVER'da host son durumu bir kez yollar, sonra iki taraf da susar. [ŞÜPHELİ] `hh` alt ağacı doğrulanmıyor; presence hub'ın iframe sökmesine bağlı (canlıda bakılmalı).
+### ates-buz
+- [YÜKSEK, karar] games/ates-buz/js/game.js:330-351 — dokunmatik düğmeler yalnız fireboy'u sürüyor; tablet/telefonda offline modda watergirl kontrol edilemiyor → bölüm bitmiyor (iki kapı gerekli). Tasarım kararı: ikinci dokunmatik pad ya da dokunmatikte yalnız online mod. Ağ modeli (host-authoritative, throttle, presence+grace) temiz ✔. [DÜŞÜK] network.js ölü yayın fonksiyonları.
+### kelimelik / son-kart
+- [YÜKSEK, karar] rooms/kelimelik racks + rooms/son-kart hands herkese okunur/yazılır (kural kararı, Karar 5). [ORTA] her ikisinde de AFK oyuncu için tur zaman aşımı yok (yalnız presence kaybı). Motorlar (harf/kelime, UNO kuralları, bağlantı kopması otoritesi) temiz ✔; kelimelik i/İ normalizasyonu doğru ✔, createdAt sunucu damgası ✔.
+

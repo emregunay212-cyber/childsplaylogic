@@ -758,7 +758,7 @@ const ZiplaTopla = (() => {
         // Aksi halde (eş de düşüyor/havada ya da solo) güvenli başlangıca dön —
         // böylece iki oyuncu aynı çukura düşünce zincirleme ölüm/can tükenmesi olmaz.
         const partnerSafe = partner && partner.onGround && !isOverHole(partner.x, partner.w);
-        if (mode === 'coop' && partnerSafe) {
+        if ((mode === 'coop' || mode === 'online') && partnerSafe) {   // online'da da partnerin yanında doğ (kamera sıçramasın)
             p.x = partner.x;
             p.y = partner.y;
         } else {

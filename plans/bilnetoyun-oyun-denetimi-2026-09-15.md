@@ -64,17 +64,17 @@ Sütunlar: K1 statik · K2 canlı · bulgu sayısı K/Y/O/D · düzeltme
 | 45 | Strateji | cevap-kosusu (iframe) | [x] | [x] | 0/0/0/2 | — |
 | 46 | Strateji | bilgi-savunmasi (iframe) | [x] | [x] | 1/0/0/0 (+1 şüpheli) | PR |
 | 47 | Strateji | fizik-firlatma (iframe) | [x] | [x] | 0/0/1/1 | — |
-| 48 | Online | kelime-tahmin | [ ] | [ ] | | |
-| 49 | Online | harf-tahmin | [ ] | [ ] | | |
-| 50 | Online | kod-macerasi (mp) | [ ] | [ ] | | |
-| 51 | Online | satranc (mp) | [ ] | [ ] | | |
-| 52 | Online | penalti-mp | [ ] | [ ] | | |
-| 53 | Online | ates-buz (iframe) | [ ] | [ ] | | |
-| 54 | Online | zipla-topla-coop | [ ] | [ ] | | |
-| 55 | Online | hava-hokeyi (iframe) | [ ] | [ ] | | |
-| 56 | Online | altin-avi | [ ] | [ ] | | |
-| 57 | Online | kelimelik (iframe) | [ ] | [ ] | | |
-| 58 | Online | son-kart (iframe) | [ ] | [ ] | | |
+| 48 | Online | kelime-tahmin | [x] | [x] | 0/3 (2 altyapı)/1/0 | PR |
+| 49 | Online | harf-tahmin | [x] | [ ] | 0/1/0/0 | PR |
+| 50 | Online | kod-macerasi (mp) | [x] | [ ] | 0/1/0/0 (+1 şüpheli) | PR |
+| 51 | Online | satranc (mp) | [x] | [ ] | 0/1/0/0 | PR |
+| 52 | Online | penalti-mp | [x] | [ ] | 0/1 (karar)/0/0 | PR (altyapı) |
+| 53 | Online | ates-buz (iframe) | [x] | [ ] | 0/1 (karar)/0/1 | — |
+| 54 | Online | zipla-topla-coop | [x] | [ ] | 0/1/1/0 (+1 şüpheli) | PR |
+| 55 | Online | hava-hokeyi (iframe) | [x] | [ ] | 0/1/0/0 (+2 şüpheli) | PR |
+| 56 | Online | altin-avi | [x] | [ ] | 0/1 (karar)/1/1 | — |
+| 57 | Online | kelimelik (iframe) | [x] | [ ] | 0/1 (karar)/1/0 | — |
+| 58 | Online | son-kart (iframe) | [x] | [ ] | 0/1 (karar)/1/0 | — |
 
 ## Plan mutasyon protokolü
 Bir oyun atlanır/bölünürse tabloya `[atlandı: gerekçe]`; kategori PR'ı merge olunca "Düzeltme" sütununa PR numarası; commit mesajı `docs(plan): …`.
