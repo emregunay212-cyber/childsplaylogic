@@ -1,0 +1,52 @@
+# CI — her pull request'te lint + duman testi (A10a).
+# A10b: bu iş "required check" yapılır (master branch protection) → kırmızıyken merge edilemez.
+name: CI
+
+on:
+  pull_request:
+
+# Aynı PR'a yeni push gelince eski koşuyu iptal et (runner dakikası + hız).
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint-and-smoke:
+    name: eslint + Playwright duman testi
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Bağımlılıklar
+        run: npm ci
+
+      - name: Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Lint (no-undef = hata, no-unused-vars = uyarı)
+        run: npm run lint
+
+      - name: Duman testi (tüm aktif oyunlar, admin.html, oyunlar/index.html)
+        run: npm run test:smoke
+        env:
+          CI: true
+
+      # Kırmızı koşuda adli kayıt: trace (ilk retry), ekran görüntüsü, video, error-context.md
+      - name: Hata artefaktları
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: test-results/
+          retention-days: 14
+          if-no-files-found: ignore
