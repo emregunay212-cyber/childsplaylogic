@@ -24,16 +24,16 @@ Sütunlar: K1 statik · K2 canlı · bulgu sayısı K/Y/O/D · düzeltme
 | 5 | Harfler | kelime-canavarlari (iframe) | [x] | [x] | 0/0/1/2 (+1 şüpheli) | — |
 | 6 | Harfler | kelime-kurtarma (iframe) | [x] | [x] | 1/1/2/1 | PR (kategori 1) |
 | 7 | Harfler | gunluk-kelime (iframe) | [x] | [x] | 2/0/1/1 | PR (kategori 1) |
-| 8 | Sayılar | sayi-sayma | [ ] | [ ] | | |
-| 9 | Sayılar | matematik | [ ] | [ ] | | |
-| 10 | Sayılar | desen | [ ] | [ ] | | |
-| 11 | Sayılar | bilgi-madencisi (iframe) | [ ] | [ ] | | |
-| 12 | Sayılar | matematik-patlatma (iframe) | [ ] | [ ] | | |
-| 13 | Sayılar | matematik-kafe (iframe) | [ ] | [ ] | | |
-| 14 | Sayılar | bilgi-yilani (iframe) | [ ] | [ ] | | |
-| 15 | Sayılar | ritim-sorulari (iframe) | [ ] | [ ] | | |
-| 16 | Sayılar | kesir-2048 (iframe) | [ ] | [ ] | | |
-| 17 | Sayılar | sayi-ninja (iframe) | [ ] | [ ] | | |
+| 8 | Sayılar | sayi-sayma | [x] | [x] | 0/1/1/0 | PR (kategori 1-2) |
+| 9 | Sayılar | matematik | [x] | [x] | 0/0/2/0 | PR (kategori 1-2) |
+| 10 | Sayılar | desen | [x] | [x] | 0/0/2/1 | PR (kategori 1-2) |
+| 11 | Sayılar | bilgi-madencisi (iframe) | [x] | [x] | 0/0/2/1 (+1 şüpheli) | — |
+| 12 | Sayılar | matematik-patlatma (iframe) | [x] | [x] | 0/1/1/0 (+1 şüpheli) | PR (kategori 1-2) |
+| 13 | Sayılar | matematik-kafe (iframe) | [x] | [x] | 0/0/0/2 | — |
+| 14 | Sayılar | bilgi-yilani (iframe) | [x] | [x] | 0/1/1/1 (+1 şüpheli) | PR (kategori 1-2) |
+| 15 | Sayılar | ritim-sorulari (iframe) | [x] | [x] | 1/0/1/0 (+1 şüpheli) | PR (kategori 1-2) |
+| 16 | Sayılar | kesir-2048 (iframe) | [x] | [x] | 0/1/2/1 | PR (kategori 1-2) |
+| 17 | Sayılar | sayi-ninja (iframe) | [x] | [x] | 0/1/1/1 | PR (kategori 1-2) |
 | 18 | Bulmaca | hafiza-kartlari | [ ] | [ ] | | |
 | 19 | Bulmaca | sekil-bulmaca | [ ] | [ ] | | |
 | 20 | Bulmaca | siralama | [ ] | [ ] | | |

@@ -121,8 +121,9 @@ const HarfTanima = (() => {
                     }
                 } else {
                     btn.classList.add('wrong');
+                    btn.disabled = true;   // çift dokunuş iki hata saymasın
                     callbacks.onWrong();
-                    later(() => btn.classList.remove('wrong'), 500);
+                    later(() => { btn.classList.remove('wrong'); btn.disabled = false; }, 500);
                 }
             });
 

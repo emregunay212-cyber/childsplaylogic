@@ -372,7 +372,8 @@ document.querySelectorAll('.modeBtn').forEach(b => b.addEventListener('click', (
 addEventListener('keydown', e => {
   if (e.key === 'Enter') return submit();
   if (e.key === 'Backspace'){ cur = cur.slice(0,-1); renderCur(); return; }
-  const L = upTr(e.key);
+  // İngilizce modda ASCII büyütme: küçük "i" tr-TR ile "İ" olur ve EN klavyede bulunmazdı (FISH/BIRD/SHIP yazılamıyordu)
+  const L = mode==='tr' ? upTr(e.key) : String(e.key).toUpperCase().replace('İ','I');
   const valid = (mode==='tr' ? TR_KB : EN_KB).join('').includes(L) && L.length===1;
   if (valid) typeKey(L);
 });

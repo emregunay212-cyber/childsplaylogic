@@ -21,10 +21,13 @@ const Jigsaw = (() => {
   ];
 
   let container, callbacks, currentLevel, placedCount, pictureData, pieces;
+  let timers = [];
+  function later(fn, ms) { const t = setTimeout(() => { timers = timers.filter(x => x !== t); fn(); }, ms); timers.push(t); return t; }
 
   function init(gameArea, level, cbs) {
     container = gameArea;
     callbacks = cbs;
+    timers.forEach(clearTimeout); timers = [];
     currentLevel = levels[level - 1];
     placedCount = 0;
     const pic = PICTURES[Math.floor(Math.random() * PICTURES.length)];
@@ -45,9 +48,16 @@ const Jigsaw = (() => {
     const size = currentLevel.gridSize;
     const cellSize = Math.min(70, 280 / size);
 
+    // Örnek resim: parçaların NEREYE gideceği başka türlü bilinemez (emoji ızgarası rastgele
+    // bir "resim"; ipucu olmadan oyun tamamen tahmindi). Küçük referans ızgarası tahtanın üstünde.
+    const refCell = Math.max(18, Math.round(cellSize * 0.42));
     container.innerHTML = `
       <div class="jig-game">
         <div class="jig-progress">Yerleştirilen: ${placedCount}/${currentLevel.totalPieces}</div>
+        <div class="jig-ref-label">Örnek — aynısını yap:</div>
+        <div class="jig-ref" aria-label="Örnek resim" style="grid-template-columns: repeat(${size}, ${refCell}px); grid-template-rows: repeat(${size}, ${refCell}px);">
+          ${pictureData.map(p => `<div class="jig-ref-cell" style="width:${refCell}px;height:${refCell}px;font-size:${Math.round(refCell * 0.62)}px;">${p.emoji}</div>`).join('')}
+        </div>
         <div class="jig-board" id="jig-board" style="grid-template-columns: repeat(${size}, ${cellSize}px); grid-template-rows: repeat(${size}, ${cellSize}px);">
           ${pictureData.map((p, i) => `
             <div class="jig-cell ${p.placed ? 'jig-placed' : ''}" data-idx="${i}" style="width:${cellSize}px;height:${cellSize}px;font-size:${cellSize * 0.55}px;">
@@ -92,8 +102,7 @@ const Jigsaw = (() => {
           cell.classList.add('jig-placed', 'jig-pop');
           selectedPiece.el.remove();
           selectedPiece = null;
-          callbacks.onCorrect();
-          AudioManager.play('success');
+          callbacks.onCorrect();   // sesi motor çalar
           Particles.sparkle(cell.getBoundingClientRect().left + cell.offsetWidth / 2, cell.getBoundingClientRect().top, 5);
 
           // Update progress
@@ -101,7 +110,7 @@ const Jigsaw = (() => {
           if (prog) prog.textContent = `Yerleştirilen: ${placedCount}/${currentLevel.totalPieces}`;
 
           if (placedCount >= currentLevel.totalPieces) {
-            setTimeout(() => {
+            later(() => {
               Particles.celebrate();
               callbacks.onComplete();
             }, 600);
@@ -110,14 +119,16 @@ const Jigsaw = (() => {
           // Wrong placement
           cell.classList.add('jig-wrong');
           callbacks.onWrong();
-          AudioManager.play('error');
-          setTimeout(() => cell.classList.remove('jig-wrong'), 500);
+          later(() => cell.classList.remove('jig-wrong'), 500);
         }
       };
     });
   }
 
-  function destroy() { if (container) container.innerHTML = ''; }
+  function destroy() {
+    timers.forEach(clearTimeout); timers = [];
+    if (container) container.innerHTML = '';
+  }
 
   return { id, levels, init, destroy };
 })();

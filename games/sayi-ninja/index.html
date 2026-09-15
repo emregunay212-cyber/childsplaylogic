@@ -376,6 +376,7 @@ cv.addEventListener('pointerdown', e => {
   Audio2.init();
   cutting = true;
   G.cutThisStroke = 0;
+  G.blade = [];   // önceki vuruşun izi silinir: iki dokunuş arasındaki "hayalet" çizgi nesne kesmesin
   addBlade(e);
 });
 cv.addEventListener('pointermove', e => { if (cutting) addBlade(e); });

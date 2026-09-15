@@ -8,8 +8,9 @@ const GameEngine = (() => {
     let state = 'IDLE'; // IDLE, PLAYING, COMPLETED
     let score = { correct: 0, wrong: 0, total: 0 };
     // Oyun örneği sayacı: her startGame/destroy bir nesil ilerletir. Modüllerin geciken
-    // setTimeout/rAF'ları (harf-tanima 600/800 ms, hece 400/800/1200 ms…) eski neslin
-    // callback'lerini çağırırsa yok sayılır — yeni oyunun puanına/yıldızına karışamaz.
+    // setTimeout/rAF'ları eski neslin callback'lerini çağırırsa yok sayılır — BAŞKA bir oyunun
+    // puanına/yıldızına karışamaz. (Modül `callbacks`'i init'te yeniden atadığından aynı oyunun
+    // <1 s içinde yeniden başlatılmasında zamanlayıcı temizliği modülün kendi işidir.)
     let generation = 0;
 
     function startGame(game, level = 1) {
