@@ -18,3 +18,4 @@ firebase.json
 .firebaserc
 games/*/tools/
 games/*/kaynak/
+**/test_*.js

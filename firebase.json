@@ -9,9 +9,19 @@
       "**/.*",
       "**/node_modules/**",
       "server/**",
+      "seo/**",
+      "docs/**",
+      "plans/**",
+      "tests/**",
       "fabrika/**",
+      "**/*.md",
+      "**/*.py",
       "**/*.bat",
-      "**/tools/_*"
+      "**/test_*.js",
+      "_bank_tmp.txt",
+      "database.rules.json",
+      "**/tools/**",
+      "**/kaynak/**"
     ],
     "headers": [
       {
