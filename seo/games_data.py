@@ -34,7 +34,8 @@ Alanlar:
 # Gizlilik metni (KVKK md. 10 aydinlatma) js/auth.js, js/progress.js, js/lobby.js, js/multiplayer.js,
 # games/kelimelik/net.js, games/son-kart/js/net.js, js/games/altin-avi.js, database.rules.json,
 # js/firebase-config.js, index.html ve vercel.json ile birebir dogrulanmistir; kod degisirse metin de
-# degismeli. "En gec 24 saat" oda temizligi, ayni anda eklenen uygulama-ici temizlik isine dayanir.
+# degismeli. "24 saati gecen kayitlar otomatik temizlikle silinir" cumlesi, ayni anda eklenen uygulama-ici
+# temizlik isine (sonraki ziyaretcide, parti parti) dayanir; sure garantisi ("en gec") verilmez.
 # Okul bilgileri (SCHOOL_*) sahip tarafindan dogrulanmis yayimli kaynaklardir; e-posta yayimlanmamistir,
 # uydurulmaz. Sirket/sicil unvani kampus sitesinden dogrulanamadigi icin yalniz kampus adi kullanilir.
 SCHOOL_NAME = "Bilnet Okulları Balıkesir Kampüsü"
@@ -88,7 +89,7 @@ STATIC_PAGES = [
          ]),
          ("Çok oyunculu oyunlarda", "cok-oyunculu", [
            "Online oyunlarda (Kelime Tahmin, Harf Tahmin, Satranç, Kod Macerası, Penaltı Online, Ateş &amp; Buz, Zıpla Topla Online, Hava Hokeyi, Altın Avı, Kelimelik, Son Kart) oyuncu bir <strong>takma ad</strong> yazar. Takma ad, oda kodu ve oyun durumu (hamleler, skor, tahmin edilen kelimeler, çevrimiçi olma bilgisi) oyun süresince Firebase Realtime Database'de tutulur; <strong>lobi listesinde ve rakip oyunculara görünür</strong>. Bu bölüm hesapsız da okunabildiği için takma ad olarak gerçek ad-soyad, sınıf ya da okul numarası yazılmamalıdır.",
-           "Bu kayıtlar hiçbir hesapla ilişkilendirilmez ve geçicidir: oyun bitince ya da odadan çıkılınca silinir; bağlantı koptuğunda çevrimiçi kaydı kendiliğinden kaldırılır. Yarım kalan ya da terk edilmiş odalar en geç 24 saat içinde otomatik olarak silinir. Takma ad, bir sonraki oyunda yeniden yazmamak için yalnızca kendi cihazınızda saklanır.",
+           "Bu kayıtlar hiçbir hesapla ilişkilendirilmez ve geçicidir. Lobi tabanlı oyunlarda kayıt oyun bitince ya da odadan çıkılınca silinir; bağlantı koptuğunda çevrimiçi kaydı kendiliğinden kaldırılır. Kelimelik ve Son Kart'ta başlamış bir oda oyun bittikten sonra da kalabilir. 24 saati geçen tüm lobi ve oda kayıtları otomatik temizlikle silinir. Takma ad, bir sonraki oyunda yeniden yazmamak için yalnızca kendi cihazınızda saklanır.",
          ]),
          ("Skor tabloları", "skor-tablolari", [
            "Tetris, Eğim ve SpaceWaves'te oyun sonunda <strong>Skoru Kaydet</strong> seçilirse yazılan ad (en fazla 16 karakter) ve skor, herkese açık skor tablosuna eklenir. Kayıt tamamen isteğe bağlıdır; kaydetmeden de oynanabilir. Eklenen kayıt uygulama içinden değiştirilemez ya da silinemez; silme talebi okul üzerinden iletilir. Buraya da gerçek ad yazılmaması önerilir.",
@@ -112,7 +113,7 @@ STATIC_PAGES = [
            "<ul>\n"
            "<li><strong>Misafir ilerlemesi:</strong> yalnızca cihazınızda; yeni misafir girişinde ya da tarayıcı verileri temizlendiğinde silinir.</li>\n"
            "<li><strong>Google hesabına bağlı ilerleme ve hesap kaydı:</strong> hesabın silinmesi talep edilene kadar; cihazdaki kopya çıkışta silinir.</li>\n"
-           "<li><strong>Lobi ve oda kayıtları</strong> (takma ad, oyun durumu): oyun bitince; en geç 24 saat içinde otomatik olarak.</li>\n"
+           "<li><strong>Lobi ve oda kayıtları</strong> (takma ad, oyun durumu): lobi tabanlı oyunlarda oyun bitince; Kelimelik ve Son Kart odaları oyun sonrası kalabilir; 24 saati geçen tüm kayıtlar otomatik temizlikle silinir.</li>\n"
            "<li><strong>Takma ad (cihazda):</strong> siz değiştirene ya da tarayıcı verileri temizlenene kadar.</li>\n"
            "<li><strong>Skor tablosu kayıtları:</strong> silme talebine kadar.</li>\n"
            "<li><strong>Sağlayıcıların teknik sunucu kayıtları:</strong> ilgili sağlayıcının kendi saklama politikasına göre, kısa süreli.</li>\n"
@@ -130,7 +131,7 @@ STATIC_PAGES = [
            f"Başvurunuzu {_contact("kampüs iletişim sayfasındaki")} yollarla ya da çağrı merkezi <strong>{_PHONE_LINK}</strong> üzerinden iletebilirsiniz; öğrenci ve veliler için okuldaki bilişim öğretmeni de aracı olur. Başvurular KVKK md. 13 uyarınca en geç 30 gün içinde ücretsiz sonuçlandırılır. Başvurunuz reddedilir ya da yanıtsız kalırsa Kişisel Verileri Koruma Kurulu'na şikâyet hakkınız vardır (md. 14). Google hesabına bağlı kayıtlar, skor tablosu girdileri ve oda kayıtları talep üzerine silinir.",
          ]),
          ("Çocuk verisi ve veli sorumluluğu", "cocuk-verisi", [
-           "Bilnet Oyun 4–12 yaş grubu için tasarlanmıştır; kullanıcıları çocuktur ve veriler bu bilinçle en aza indirilmiştir: oynamak için hesap gerekmez; doğum tarihi, adres, telefon ya da fotoğraf istenmez. Google girişi ve online oyunlar dâhil tüm kullanımda ebeveyn ya da öğretmen gözetimi önerilir.",
+           "Bilnet Oyun 4–12 yaş grubu için tasarlanmıştır; kullanıcıları çocuktur ve veriler bu bilinçle en aza indirilmiştir: oynamak için hesap gerekmez; doğum tarihi, adres, telefon ya da fotoğraf yüklemesi istenmez. Google girişi ve online oyunlar dâhil tüm kullanımda ebeveyn ya da öğretmen gözetimi önerilir.",
            "Google girişi, takma ad ve skor kaydı gibi seçimler çocuk adına veli tarafından ya da veli gözetiminde yapılmalıdır. Çocuklara çevrimiçi oyunlarda gerçek adını, okulunu, sınıfını ve iletişim bilgilerini paylaşmaması gerektiğini hatırlatın. Bir çocuğun verisinin izinsiz işlendiğini düşünüyorsanız yukarıdaki başvuru yollarıyla silme talebinde bulunabilirsiniz.",
          ]),
          ("Değişiklikler", "degisiklikler", [
