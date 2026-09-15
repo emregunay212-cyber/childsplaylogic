@@ -198,6 +198,7 @@ function refreshHUD(){
   $('wordChip').textContent = '📚 ' + G.words;
 }
 function newWord(){
+  clearTimeout(loseTimer);
   let pool = WORDS[G.tier].filter(w => !G.usedWords.has(w.w));
   if (!pool.length){ G.usedWords.clear(); pool = WORDS[G.tier]; }
   G.word = pick(pool);
@@ -251,7 +252,8 @@ function guess(L, btn){
     G.balloons--;
     Audio2.pop();
     const bals = $('balloons').children;
-    if (bals.length) { bals[bals.length-1].classList.add('pop'); setTimeout(renderBalloons, 320); }
+    // Balon i = G.balloons (0 tabanlı): art arda iki yanlışta ikisi de ayrı balonu patlatır
+    if (bals[G.balloons]) { bals[G.balloons].classList.add('pop'); setTimeout(renderBalloons, 320); }
     refreshHUD();
     if (G.balloons <= 0) loseWord();
   }
@@ -276,13 +278,16 @@ function winWord(){
   STATS.saved++;
   endScreen(true, pts);
 }
+let loseTimer = null;
 function loseWord(){
   G.state = 'result';
   // YUMUŞAK kayıp: karakter düşmez, paraşütle süzülür (§4.12)
   Audio2.chute();
   $('hero').textContent = '🪂';
   $('balloonGuy').style.transform = 'translateY(46vh)';
-  setTimeout(() => endScreen(false, 0), 1500);
+  // Paraşüt inerken 🏠 → BAŞLA yapılırsa eski zamanlayıcı yeni turu sonuç ekranına kesmesin
+  clearTimeout(loseTimer);
+  loseTimer = setTimeout(() => { if (G.state === 'result') endScreen(false, 0); }, 1500);
 }
 function endScreen(win, pts){
   STATS.plays++;
@@ -319,7 +324,9 @@ $('bQuitTop').addEventListener('click',()=>{ G.state='menu'; show('screen-menu')
 // fiziksel klavye desteği
 addEventListener('keydown', e => {
   if (G.state !== 'playing') return;
-  const L = upperTr(e.key);
+  if (!e.key || e.key.length !== 1) return;
+  // İngilizce kelimede klavye ASCII: küçük "i" tr-TR ile "İ" olur ve I tuşuyla eşleşmezdi
+  const L = G.word.tr ? upperTr(e.key) : e.key.toUpperCase().replace('İ', 'I');
   const btn = [...$('kb').children].find(b => b.textContent === L && !b.disabled && b.className.includes('key'));
   if (btn) guess(L, btn);
 });

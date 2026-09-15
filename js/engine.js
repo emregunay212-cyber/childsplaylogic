@@ -7,6 +7,10 @@ const GameEngine = (() => {
     let currentLevel = 1;
     let state = 'IDLE'; // IDLE, PLAYING, COMPLETED
     let score = { correct: 0, wrong: 0, total: 0 };
+    // Oyun örneği sayacı: her startGame/destroy bir nesil ilerletir. Modüllerin geciken
+    // setTimeout/rAF'ları (harf-tanima 600/800 ms, hece 400/800/1200 ms…) eski neslin
+    // callback'lerini çağırırsa yok sayılır — yeni oyunun puanına/yıldızına karışamaz.
+    let generation = 0;
 
     function startGame(game, level = 1) {
         if (currentGame && currentGame.destroy) {
@@ -18,17 +22,23 @@ const GameEngine = (() => {
         state = 'PLAYING';
         score = { correct: 0, wrong: 0, total: 0 };
 
-        const gameArea = document.getElementById('game-area');
-        gameArea.innerHTML = '';
+        // Her oyun örneğine TAZE bir #game-area: eski düğüm kopartılır, önceki oyunun
+        // geciken zamanlayıcıları ellerindeki kopuk düğüme yazar, yeni ekranı silemez.
+        // id/class korunur (CSS .game-area), hub #game-area'yı her seferinde yeniden bulur.
+        const oldArea = document.getElementById('game-area');
+        const gameArea = oldArea.cloneNode(false);
+        oldArea.replaceWith(gameArea);
 
         // Toolbar güncelle
         document.getElementById('game-title').textContent = TR.games[game.id] || game.id;
         updateToolbarLevel(game, level);
         updateToolbarStars(0);
 
-        // Oyunu başlat
+        // Oyunu başlat — callback'ler bu nesle bağlı
+        const gen = ++generation;
+        const bound = (fn) => (...args) => { if (gen === generation) return fn(...args); };
         if (game.init) {
-            game.init(gameArea, level, { onCorrect, onWrong, onComplete });
+            game.init(gameArea, level, { onCorrect: bound(onCorrect), onWrong: bound(onWrong), onComplete: bound(onComplete) });
         }
     }
 
@@ -65,8 +75,12 @@ const GameEngine = (() => {
     }
 
     function calculateStars() {
-        if (score.total === 0) return 3;
-        const accuracy = score.correct / score.total;
+        // Deneme doğruluğu: doğru / (doğru + yanlış). Yanlışta turu tekrar ettiren oyunlarda
+        // (harf-tanima, hece…) her tur sonunda doğru sayısı toplam'a eşitleniyordu →
+        // kaç hata olursa olsun 3 yıldız çıkıyordu; 2/1 yıldız ekranları hiç görünmüyordu.
+        const attempts = score.correct + score.wrong;
+        if (attempts === 0) return 3;
+        const accuracy = score.correct / attempts;
         if (accuracy >= 0.95) return 3;
         if (accuracy >= 0.7) return 2;
         return 1;
@@ -154,6 +168,7 @@ const GameEngine = (() => {
         if (currentGame && currentGame.destroy) {
             currentGame.destroy();
         }
+        generation++;   // hub'a dönüş: geciken callback'ler ölü
         currentGame = null;
         state = 'IDLE';
     }

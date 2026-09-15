@@ -102,29 +102,29 @@ const TR_WORDS = [ // 5 harf + anlam + örnek cümle (eğitsel kapanış)
   ['ORMAN','Ağaçlarla kaplı geniş alan','Ormanda kuş sesleri duyduk.'],
   ['DENİZ','Tuzlu büyük su kütlesi','Yazın denizde yüzmeyi severim.'],
   ['BAHÇE','Çiçek ve sebze yetiştirilen alan','Bahçede domates yetiştirdik.'],
-  ['YILDIZ','Geceleri parlayan gök cismi','Gökyüzü yıldızlarla doluydu.'],
-  ['TOPRAK','Bitkilerin yetiştiği yer örtüsü','Tohumları toprağa ektik.'],
-  ['RÜZGAR','Havanın hareketi','Rüzgar uçurtmamızı yükseltti.'],
+  ['GÜNEŞ','Gündüz ışık ve ısı veren yıldız','Güneş doğunca kuşlar ötmeye başladı.'],
+  ['TARLA','Ekin ekilen geniş toprak','Tarlada başaklar sararmıştı.'],
+  ['KİRAZ','Kırmızı, çekirdekli yaz meyvesi','Kiraz ağacından bir avuç kiraz topladık.'],
   ['ŞEKER','Tatlı yiyecek maddesi','Bayramda şeker ikram ettik.'],
   ['BULUT','Gökyüzündeki su buharı kümesi','Bulutlar yağmur getirdi.'],
   ['KARGA','Siyah tüylü zeki kuş','Karga cevizi taşa vurarak kırdı.'],
   ['TAVAN','Odanın üst yüzeyi','Tavana balonlar astık.'],
   ['MASAL','Olağanüstü olayları anlatan öykü','Ninem bana masal anlattı.'],
-  ['BAYRAK','Bir ülkenin simgesi olan bez','Bayrağımızı gururla taşıdık.'],
+  ['BALIK','Suda yaşayan, yüzgeçli hayvan','Akvaryumdaki balık kırmızıydı.'],
   ['ÇİÇEK','Bitkilerin renkli, kokulu bölümü','Anneme çiçek aldım.'],
-  ['DAKİKA','60 saniyelik zaman dilimi (kısa: DAKİK)','Dakik insanlar randevuya tam zamanında gelir.'],
-  ['DOST','Yakın, güvenilir arkadaş (4+1: DOSTU)','İyi dost kara günde belli olur.'],
+  ['ZAMAN','Geçip giden süre','Zamanı iyi kullanmak gerekir.'],
+  ['KÖPEK','Sadık, evcil hayvan','Köpeğimiz topu getirmeyi çok sever.'],
   ['KÖPRÜ','İki yakayı birleştiren yapı','Köprüden geçerken nehri izledik.'],
   ['SABAH','Günün ilk bölümü','Sabah erkenden kalkıp kahvaltı ettik.'],
   ['MEYVE','Ağaçların yenilebilir ürünü','Meyve yemek sağlığa iyi gelir.'],
   ['BİLGİ','Öğrenilen şeylerin bütünü','Bilgi paylaştıkça çoğalır.'],
-  ['OYUN','Eğlenmek için yapılan etkinlik (4+1: OYUNU)','Teneffüste oyun oynadık.'],
+  ['ARMUT','Sarı, tatlı bir meyve','Armut dalından düşünce yuvarlandı.'],
   ['ÇANTA','Eşya taşımaya yarayan gereç','Okul çantamı akşamdan hazırlarım.'],
   ['PERDE','Pencereyi örten kumaş','Perdeyi açınca güneş içeri doldu.'],
   ['SINIF','Ders yapılan oda','Sınıfımızı rengarenk süsledik.'],
   ['DÜNYA','Üzerinde yaşadığımız gezegen','Dünya, Güneş etrafında döner.'],
   ['HAVUÇ','Turuncu kök sebze','Tavşanlar havucu çok sever.'],
-  ['KIYMET','Değer (6 harfli yedek: KIYMET→ KIYME?)','Emeğin kıymetini bilmek gerekir.'],
+  ['TAVUK','Yumurtlayan kümes hayvanı','Tavuk sabah erkenden yem yedi.'],
   ['ŞEHİR','Büyük yerleşim yeri','Şehirde trafik yoğundu.'],
   ['VAPUR','Deniz yolcu taşıtı','Vapurla karşıya geçtik.'],
 ];
@@ -176,13 +176,17 @@ const Audio2 = (() => {
 const BilnetBridge = {
   QUEUE_KEY: 'bilnet_score_queue',
   async submitScore(p){ const rec={...p,ts:Date.now()};
-    try{ const r=await window.storage.get(this.QUEUE_KEY); const q=r&&r.value?JSON.parse(r.value):[];
+    try{ const r=await window.storage.get(this.QUEUE_KEY); let q=[];
+      try{ q=r&&r.value?JSON.parse(r.value):[]; if(!Array.isArray(q)) q=[]; }catch(e){ q=[]; }   // bozuk kuyruk sıfırlanır, puan sessizce kaybolmaz
       q.push(rec); while(q.length>50)q.shift(); await window.storage.set(this.QUEUE_KEY,JSON.stringify(q)); }catch(e){} },
 };
 
 /* ================= Günün kelimesi (deterministik — sunucu YOK) ================= */
 function dayIndex(){
-  return Math.floor((Date.now() - CONFIG.EPOCH) / 86400000);
+  // Yerel takvim günü (dayKey ile aynı kaynak). Date.now() UTC günüydü: TR'de 00:00-03:00 arası
+  // tahta "yeni gün" diye sıfırlanıyor ama kelime dünkü kalıyordu → aynı kelime iki kez kazanılıyordu.
+  const d = new Date();
+  return Math.floor((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - CONFIG.EPOCH) / 86400000);
 }
 function dayKey(){
   const d = new Date();

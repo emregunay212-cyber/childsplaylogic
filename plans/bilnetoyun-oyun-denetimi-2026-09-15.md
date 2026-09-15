@@ -17,13 +17,13 @@ Sütunlar: K1 statik · K2 canlı · bulgu sayısı K/Y/O/D · düzeltme
 
 | # | Kategori | Oyun | K1 | K2 | K/Y/O/D | Düzeltme |
 |---|---|---|---|---|---|---|
-| 1 | Harfler | harf-tanima | [ ] | [ ] | | |
-| 2 | Harfler | hece-birlestirme | [ ] | [ ] | | |
+| 1 | Harfler | harf-tanima | [x] | [x] | 0/1/1/2 (+sistem 2Y) | PR (kategori 1) |
+| 2 | Harfler | hece-birlestirme | [x] | [x] | 1/1/0/1 | PR (kategori 1) |
 | 3 | Harfler | kelime-madeni-3d | atlandı (comingSoon) | — | | |
-| 4 | Harfler | kelime-balonu (iframe) | [ ] | [ ] | | |
-| 5 | Harfler | kelime-canavarlari (iframe) | [ ] | [ ] | | |
-| 6 | Harfler | kelime-kurtarma (iframe) | [ ] | [ ] | | |
-| 7 | Harfler | gunluk-kelime (iframe) | [ ] | [ ] | | |
+| 4 | Harfler | kelime-balonu (iframe) | [x] | [x] | 0/0/3/3 (+2 şüpheli) | — |
+| 5 | Harfler | kelime-canavarlari (iframe) | [x] | [x] | 0/0/1/2 (+1 şüpheli) | — |
+| 6 | Harfler | kelime-kurtarma (iframe) | [x] | [x] | 1/1/2/1 | PR (kategori 1) |
+| 7 | Harfler | gunluk-kelime (iframe) | [x] | [x] | 2/0/1/1 | PR (kategori 1) |
 | 8 | Sayılar | sayi-sayma | [ ] | [ ] | | |
 | 9 | Sayılar | matematik | [ ] | [ ] | | |
 | 10 | Sayılar | desen | [ ] | [ ] | | |
