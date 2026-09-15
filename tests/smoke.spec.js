@@ -65,6 +65,9 @@ const test = base.extend({
             if (msg.type() !== 'error') return;
             const text = msg.text();
             const url = (msg.location() && msg.location().url) || '';
+            // A4 hata yakalayıcısı (js/errors.js) görsel yükleme hatalarını da console.error basar → tolere edilen 404 gibi ele al
+            const hubImg = text.match(/^\[Hub\] Kaynak yüklenemedi: (?:IMG|IMAGE|img) (\S+)/);
+            if (hubImg) { tolerated.record({ url: hubImg[1], test: testInfo.title }); return; }
             if (/^Failed to load resource/.test(text) && /status of 404\b/.test(text)) {
                 tolerated.record({ url, test: testInfo.title });   // kritik olanı 'response' dinleyicisi ayrıca düşürür
                 return;

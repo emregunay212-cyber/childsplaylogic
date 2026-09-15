@@ -26,9 +26,10 @@ function extractStringArray(source, constName) {
 }
 
 // js/app.js kayıt defterinde `{ game: X, …, comingSoon: true }` olan modül adları.
+// A4 sonrası kayıtlar tembel thunk: `{ game: () => X, … }` — ok da eşleşir.
 function comingSoonModuleNames(appSource) {
     return Array.from(
-        appSource.matchAll(/\{\s*game:\s*([A-Za-z0-9_$]+)[^}]*comingSoon:\s*true/g),
+        appSource.matchAll(/\{\s*game:\s*(?:\(\)\s*=>\s*)?([A-Za-z0-9_$]+)[^}]*comingSoon:\s*true/g),
         (m) => m[1],
     );
 }

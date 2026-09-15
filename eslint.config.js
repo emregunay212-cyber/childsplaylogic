@@ -38,6 +38,7 @@ const hubCoreGlobals = {
     Multiplayer: 'readonly',        // js/multiplayer.js
     Particles: 'readonly',          // js/particles.js
     Progress: 'readonly',           // js/progress.js
+    HubToast: 'readonly',           // js/errors.js (A4)
     TR: 'readonly',                 // js/i18n.js
 };
 
