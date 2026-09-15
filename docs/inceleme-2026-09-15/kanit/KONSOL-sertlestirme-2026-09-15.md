@@ -16,9 +16,14 @@ Değişiklik yapılmadı. "Kayıt olmayı kapat" anahtarı **tüm sağlayıcıla
 ilk kez Google ile giren öğrenci hesap oluşturamazdı. `js/admin.js:161` `auth/invalid-credential`
 kodunu zaten karşılıyor.
 
-Not (yapılmadı, sahip kararı): `authorizedDomains` listesinde 15 bayat Firebase Hosting önizleme
-kanalı (`childsplaylogic--zindan*.web.app`, `--zipla-coop-test-*`) + `childsplaylogic.web.app`
-(hosting kapalı) + `localhost` duruyor.
+Ek (15 Eyl gece, sahip: "faydası/zararı yoksa temizle"): `authorizedDomains` 19 → 3.
+Silinen 16: 15 bayat Hosting önizleme kanalı (`childsplaylogic--zindan*.web.app`, `--zipla-coop-test-*`;
+`firebase hosting:channel:list` yalnız `live` gösteriyor, kanal URL'leri 404) + `childsplaylogic.web.app`
+(hosting kapalı, 404). Kalan: `localhost` (geliştirme), `childsplaylogic.firebaseapp.com` (authDomain —
+`js/firebase-config.js:10`, iki iframe oyunu aynı), `bilnetoyun.com`.
+`PATCH …/config?updateMask=authorizedDomains` → GET ile doğrulandı. Yedek: `gcp-20260915/auth-authorizedDomains.onceki.json`.
+Canlı doğrulama: bilnetoyun.com'da `signInWithPopup` → firebaseapp.com handler → **accounts.google.com** açıldı
+(`auth/unauthorized-domain` yok); giriş yapılmadı, pencere kapatıldı. Janitor canlıda çalıştı: `rooms/kelimelik 5/5 silindi`.
 
 ## 2. Google Cloud API anahtarı — HTTP referrer kısıtı: UYGULANDI
 Anahtar: "Browser key (auto created by Firebase)" `cb2f3e96-…`, keyString kodla aynı
