@@ -1,16 +1,18 @@
 # 🎓 Eğitsel Oyun Serisi — Faz Durum Takibi
 
-> Ana tasarım dokümanı: [EGITSEL-OYUN-PLANI.md](EGITSEL-OYUN-PLANI.md) (21 oyun, mekanikler, standartlar, Bridge API).
+> Ana tasarım dokümanı: [EGITSEL-OYUN-PLANI.md](EGITSEL-OYUN-PLANI.md) (21 oyun tasarımı — canlıda **20**: 4.16 Bilgi Zıplaması `8977765` ile kaldırıldı; mekanikler, standartlar, Bridge API).
 > Bu dosya yalnızca DURUM takibi içindir — mekanik kararlar ana dokümanda, değiştirilmez.
 >
 > **Çalışma kuralı (ana doküman §8.1):** Her oyun ayrı oturumda geliştirilir.
-> **Kilit politikası (onaylı):** Eğitsel seri oyunları KİLİTSİZ yayınlanır (lock-catalog'a girilmez);
+> **Kilit politikası (onaylı):** Eğitsel seri oyunları KİLİTSİZ yayınlanır (yıldız eşiği 0);
 > mevcut eğlence oyunlarının yıldız merdiveni aynen korunur.
+> Not (2026-06-17, `d9b2990`): `js/lock-catalog.js` artık TÜM oyunları listeler (eğitsel seri dahil, eşik 0) —
+> admin paneli her oyunu kapatıp açabilir; "lock-catalog'a girilmez" ifadesi bu tarihten sonra geçersiz.
 >
-> Son güncelleme: 2026-06-13
+> Son güncelleme: 2026-09-15 (belge senkronu, plan adımı A11b — bkz. en alttaki "Güncelleme 15 Eylül 2026"; önceki: 2026-06-13)
 
 ## Durum Lejantı
-⬜ Bekliyor · 🔨 Geliştiriliyor · ✅ Canlıda · 🧊 Uzak ufuk (planlı, tarih yok)
+⬜ Bekliyor · 🔨 Geliştiriliyor · ✅ Canlıda · ⛔ Kapalı (kodda `comingSoon: true`, hub'dan ve `?oyun=` derin bağlantıdan açılmaz) · 🧊 Uzak ufuk (planlı, tarih yok)
 
 ---
 
@@ -19,7 +21,7 @@
 | No | İş | Durum | Oturum | Not |
 |---|---|---|---|---|
 | F0.1 | **Bil ve Fethet** entegrasyonu | ✅ | 2026-06-13 | Google Fonts CDN kaldırıldı (sistem fontu); visibilitychange otomatik duraklatma; `bilfethet_save`/`bilfethet_stats` kayıt + "Devam Et"; kaynak pipeline `games/bil-ve-fethet/kaynak/` (index.html elle DÜZENLENMEZ — `python build.py`); kategori: Strateji & Macera |
-| F0.2 | **Kelime Madeni 3D** uygunlaştırma + entegrasyon | ✅ | 2026-06-13 | Three.js r128 YEREL (`games/kelime-madeni-3d/three.min.js` — tek-dosya standardına gerekçeli istisna: niyet CDN/internet bağımlılığını yasaklamak, aynı klasörden ikinci dosya kabul); dünya kaydı RLE+base64 (~60KB) + "Devam Et/Yeni Dünya"; 10. görevde skor özeti overlay; `kelimemadeni_save`/`kelimemadeni_stats`; kategori: Harfler & Kelimeler |
+| F0.2 | **Kelime Madeni 3D** uygunlaştırma + entegrasyon | ⛔ | 2026-06-13 | **KAPALI — canlıda değil.** Entegrasyon 2026-06-13'te tamamlandı, 2026-06-17'de kullanıcı isteğiyle kapatıldı: `js/app.js:32` `comingSoon: true` (`6352b27`), derin bağlantı ve sitemap yolu da kapatıldı (`91b3822`); `seo/games_data.py:155` `active=False` → `/oyunlar/kelime-madeni-3d/` noindex + "Çok yakında" (`b6dde87`). Yeniden açmak için `comingSoon` kaldırılır + `active=True` + `python seo/build_seo.py`. Entegrasyon notları: Three.js r128 YEREL (`games/kelime-madeni-3d/three.min.js` — tek-dosya standardına gerekçeli istisna: niyet CDN/internet bağımlılığını yasaklamak, aynı klasörden ikinci dosya kabul); dünya kaydı RLE+base64 (~60KB) + "Devam Et/Yeni Dünya"; 10. görevde skor özeti overlay; `kelimemadeni_save`/`kelimemadeni_stats`; kategori: Harfler & Kelimeler |
 | F0.3 | Bil ve Fethet dokunmatik pan/zoom iyileştirme | ⬜ | — | Çalışıyor ama optimize değil (pointer event'e geçiş) — düşük öncelik |
 | F0.4 | Bil ve Fethet ONLINE mod (oyunun kendi Faz 3-4'ü) | 🧊 | — | Firebase lobi + eşzamanlı düello + Voronoi ülke bölme + başkent koruması — bkz. `games/bil-ve-fethet/CLAUDE.md` §8, `PROJE-DURUM.md` |
 | F0.5 | Kelime Madeni kendi Faz 1-3 kalanları | 🧊 | — | Kelime bankasını JSON'dan yükleme (1.221'lik banka + ünite seçimi), ses ayarları, gece/gündüz, öğretmen paneli — bkz. `games/kelime-madeni-3d/CLAUDE.md` §4 |
@@ -92,15 +94,17 @@
 5. `css/main.css` renk değişkeni + `css/hub.css` kart şeridi + `css/<slug>.css` iframe stili
 6. `assets/images/hub/<slug>.svg` ikon
 7. `js/auth.js` → `GAME_SAVE_KEYS`'e kayıt anahtarları (bulut senkron)
-8. `seo/build_seo.py` GAMES girdisi + `TODAY` güncelle + `python seo/build_seo.py`
+8. `seo/games_data.py` `GAMES` girdisi + `python seo/build_seo.py` — **2026-09-15 (`b6dde87`, A5b) itibarıyla:** oyun listesi `build_seo.py`'den `games_data.py`'ye taşındı (tek veri kaynağı); `TODAY` elle güncellenmez (`datetime.date.today()`), `lastmod` git'ten okunur; üretilen `oyunlar/**`, `sitemap.xml`, `llms.txt` elle düzenlenmez
+9. `js/lock-catalog.js` `SOLO_GAMES`/`ONLINE_GAMES` (hub sırası; eşik yoksa 0 = kilitsiz) — duman testi slug'ları buradan türetir (`tests/helpers/slugs.js`)
 
 **Kayıt anahtarı standardı:** `<oyunkisaadi>_save` + `<oyunkisaadi>_stats` — meta katman v1 stats anahtarlarını okuyacak.
 
 ## Açık Teknik Kararlar (meta katman v1 oturumunda)
 
-- [ ] Backend: ana doküman Firestore şeması (§6.2) ↔ portal RTDB gerçeği → Bridge `sendToBackend` RTDB'ye uyarlanacak
-- [ ] Soru bankası dönüştürücü: ana doküman §2 şeması ↔ `fabrika/soru-bankasi/soru-bankasi-{matematik,kelime,fen}.json` şeması (Python)
-- [ ] Günlük jeton tavanı (50) ve skor doğrulama (rate limit + tutarlılık) — §3.1, §6.3
+- [ ] Backend: ana doküman Firestore şeması (§6.2) ↔ portal RTDB gerçeği → Bridge `sendToBackend` RTDB'ye uyarlanacak — *15 Eyl 2026: hâlâ açık; oyunlardaki `BilnetBridge.flushQueue` boş taslak (`games/bilgi-madencisi/index.html:374`), skor `bilnet_score_queue` üzerinden yalnız istemcide tüketiliyor (`js/bilnet-meta.js`)*
+- [ ] Soru bankası dönüştürücü: ana doküman §2 şeması ↔ `fabrika/soru-bankasi/soru-bankasi-{matematik,kelime,fen}.json` şeması (Python) — *15 Eyl 2026: repoda böyle bir dönüştürücü yok*
+- [x] Günlük jeton tavanı (50) — **yapıldı:** `js/bilnet-meta.js:21` `const DAILY_CAP = 50` (`f39b743`, meta v1); panelde "bugün / 50" gösterimi (`bilnet-meta.js:176`)
+- [ ] Skor doğrulama (rate limit + tutarlılık) — §6.3; *15 Eyl 2026: Cloud Function yok, `database.rules.json`'da eğitsel skor düğümü yok — kod yok*
 
 ## Bakım Notları (kullanıcı geri bildirimi düzeltmeleri)
 
@@ -121,3 +125,49 @@ Ayrıntı: `games/kelime-madeni-3d/CLAUDE.md` v2.2 bölümü. Node duman testi r
 > ⚠️ Bu iki işin KODU, eşzamanlı çalışan başka bir oturumun `git add -A` süpürmesiyle
 > `22f4498`(faz2)–`ccd4196`(faz4) commitlerinin içine karıştı — commit mesajları bu işleri
 > anlatmaz; içerik doğrulandı ve sağlamdır. Ders: AYNI repoda iki oturum paralel çalışmamalı.
+
+---
+
+## Güncelleme 15 Eylül 2026 (belge senkronu — plan adımı A11b)
+
+Bu bölüm, 2026-06-13'te donan durum dosyasını git geçmişiyle eşitler (`docs/inceleme-2026-09-15/02-gerceklik-kontrolu.md`
+"Yanlış / tutarsız" 1-2-3-6-12). Yukarıdaki tablolar tarihsel kayıt olarak korunur; bugünkü gerçek buradadır.
+
+### Sayım
+- Ana dokümandaki 21 tasarımdan **20'si canlıda**; 4.16 Bilgi Zıplaması `8977765` (2026-06-13) ile kaldırıldı
+  (`games/bilgi-ziplamasi/`, `js/games/bilgi-ziplamasi.js`, hub/SEO kayıtları silindi). `a17ab44` mesajındaki
+  "21 OYUNLUK SERİ CANLIDA" bu commit'ten sonra geçersiz.
+- Kelime Madeni 3D (F0.2) **kapalı** — bkz. lejant ⛔ ve F0.2 satırı.
+- Hub geneli (eğitsel + eğlence): 46 solo + 11 online = 57 oynanabilir, 1 kapalı (`js/lock-catalog.js`: 47 `SOLO_GAMES` + 11 `ONLINE_GAMES`).
+
+### 2026-06-13 sonrası commit'ler (durum dosyasında yoktu)
+| Tarih | Commit | Ne |
+|---|---|---|
+| 06-15 | `48fc00b` | Cevap Koşusu: "tekrar koş" sonrası siyah ekran — bayat rAF id'si düzeltildi |
+| 06-15 | `96a8573`, `f2646ea` | Labirent Avcısı: 2. tur boş ekran (rAF döngüsü yeniden başlamıyordu); bulutlar oyuncuya ulaşamıyordu → BFS takip |
+| 06-15 / 06-16 | `9e41321`, `bf33a58` (+ `17c2436`, `d990964`) | Bilgi Yılanı: profesyonel görseller (elma sprite + doku zemin, AI meyve+kafa), saydamlık ve etiket taşması düzeltmeleri |
+| 06-17 | `6352b27`, `d7e1a8b`, `49fc425` | **Son Kart** (plan dışı): UNO tarzı 2-4 kişilik online+solo kart oyunu; yıldız eşiği kaldırıldı; masa/sıra düzeni |
+| 06-17 | `d9b2990` | Admin paneli: tüm oyunlar yönetilebilir (`js/lock-catalog.js` tek kaynak) + kilitlenince oyuncuyu at |
+| 06-17 | `83c7823`, `6d2d5d8` | Zindan Okçusu: füzyon 2.0 (her füzyon 2 farklı mekanik, 18 mekanik); bota savunma + beceri paneli (Tab) |
+| 06-17 | `91b3822`, `3c26443` | Kelime Madeni 3D derin bağlantı/SEO yolu kapatıldı; admin paneli yönetici e-postasına kapatıldı |
+| 09-13 | `79423c3` | IndexNow anahtar dosyası (`1cbb4632-….txt`) |
+
+### 15 Eylül 2026 sertleştirme PR'ları (`gh pr list --state all`)
+| PR | Adım | Ne | Durum |
+|---|---|---|---|
+| #12 | A1 | `vercel.json` güvenlik/önbellek başlıkları, `.vercelignore` ile dahili dosyalar kapatıldı, Türkçe `404.html` | merged |
+| #13 | A2 | `database.rules.json`: koleksiyon-düzeyi `.write:true` kaldırıldı, anahtar biçimi/tip doğrulaması; canlıya `firebase deploy --only database` | merged (eski veri temizliği sahip onayında) |
+| #14 | A11a | Ölü kod: `server/` (kullanılmayan WS sunucusu) ve `_bank_tmp.txt` silindi | merged |
+| #15 | A5c | 27 `games/*/index.html` → `noindex` + canonical `/oyunlar/<slug>/` | merged |
+| #16 | A3 | Depolanmış XSS: oyuncu adları ve lobi alanları `innerHTML` öncesi kaçışlanıyor | merged |
+| #17 | A5b | SEO üretici: `seo/games_data.py` tek veri kaynağı, `@graph` JSON-LD, `active` bayrağı, `son-kart`/`hava-hokeyi`/`zipla-topla-coop` kayıtları, `llms.txt` üretimi, landing imza bandı | merged |
+| #18 | A4 | Hub dayanıklılığı: Firebase'siz açılış, bozuk kayıt kurtarma, tek bozuk modül izolasyonu, sıfırlama/senkron yarışı | merged |
+| #19 | A10a | `package.json` + eslint flat config + Playwright duman testi (60/60) + GitHub Actions CI | merged |
+| #20 | A8a | `/gizlilik/`, `/hakkinda/`, `/iletisim/` (üreticiden), footer + sitemap | **açık** |
+| #21 | A6+A5a+A7 | Hub erişilebilirlik/UX hızlı kazanımlar, ana sayfa meta + footer, hub/admin imza bandı, `kanit/` ekran görüntüleri + Lighthouse | **açık** (geçit incelemesi sürüyor) |
+
+### Hosting gerçeği
+Canlı site **Vercel**'den yayınlanır: `master`'a push = otomatik deploy (`server.py:5`, `vercel.json`, `.vercelignore`).
+`firebase.json`/`.firebaserc` yalnız **RTDB kuralları** (`firebase deploy --only database`) ve isteğe bağlı
+`childsplaylogic.web.app` yansısı içindir; oradaki hosting başlıkları/ignore listesi canlı sitede geçerli değildir
+(`docs/inceleme-2026-09-15/02-gerceklik-kontrolu.md` "Hosting gerçeği"). Ayrıntı: kök `README.md`.
