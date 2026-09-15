@@ -307,8 +307,11 @@ const KelimelikGame = (() => {
   }
 
   /* ---------------- ONLINE ---------------- */
+  // createdAt sunucu damgası (diğer üç yol gibi): js/janitor.js bayatlığı sunucu saatine göre ölçer;
+  // istemci saati (Date.now) kaymış olsa da oda yanlışlıkla "24 saatten eski" görünmez.
+  function serverTs() { try { return window.firebase.database.ServerValue.TIMESTAMP; } catch (e) { return Date.now(); } }
   function buildInitial(id, name) {
-    return { code: NET.code(), state: 'WAITING', createdAt: Date.now(), hostId: id, pids: [id], names: { [id]: name }, scores: { [id]: 0 }, racks: {}, bag: E.newBag(), board: [], turn: null, passes: 0, last: null, winner: null };
+    return { code: NET.code(), state: 'WAITING', createdAt: serverTs(), hostId: id, pids: [id], names: { [id]: name }, scores: { [id]: 0 }, racks: {}, bag: E.newBag(), board: [], turn: null, passes: 0, last: null, winner: null };
   }
   function takeN(arr, n) { return arr.splice(Math.max(0, arr.length - n)); }
   function dealFn(rm, id, name) {

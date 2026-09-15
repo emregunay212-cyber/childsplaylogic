@@ -13,15 +13,23 @@
    reddedilen yol hepsini düşürür → anahtar süzgeci şart. createdAt istemcide de denetlenir
    (savunma: indeks/sorgu ne döndürürse döndürsün taze kayıt silinmez).
 
+   Saat: kesim istemci saatiyle DEĞİL sunucu saatiyle alınır — `.info/serverTimeOffset`
+   (sunucu − istemci, ms) okunur, şimdi = Date.now() + offset. Kayıtların createdAt'ı sunucu
+   damgasıdır (ServerValue.TIMESTAMP); saati 25 saat ileri bir istemci aksi hâlde 1 saatlik canlı
+   odayı silerdi. Offset okunamazsa (bağlantı yok / zaman aşımı / sayı değil) HİÇBİR ŞEY silinmez,
+   koşu { skipped: 'clock' } ile biter ve eşik damgası yazılmaz (kapalı-güvenli; sonraki açılışta
+   yeniden denenir).
+
    Kapılar (sessiz, console.debug): window.FIREBASE_OK, navigator.onLine, üst pencere (iframe
-   değil), cihaz başına 6 saatte bir (localStorage bo_janitor_last; koşu BAŞINDA yazılır → ağ
-   hatasında yeniden deneme fırtınası yok), eşzamanlı koşu yok. Asla fırlatmaz, söz asla
-   reddedilmez (js/errors.js unhandledrejection'ı console.error basar). Yol başına hata
+   değil), cihaz başına 6 saatte bir (localStorage bo_janitor_last; saat alınır alınmaz, silmeden
+   ÖNCE yazılır → ağ hatasında yeniden deneme fırtınası yok), eşzamanlı koşu yok. Asla fırlatmaz,
+   söz asla reddedilmez (js/errors.js unhandledrejection'ı console.error basar). Yol başına hata
    console.warn, özet console.info('[Janitor] …').
 
    Çağıran: js/app.js proceedAfterAuth → Janitor.schedule() — requestIdleCallback (yoksa 4 sn
    sonra); oyun başlatma yolunda çağrılmaz. Test (tests/janitor.spec.js): Janitor.run({ db, now,
-   force }) ile sahte db enjekte edilir; canlı veritabanına dokunulmaz.
+   force, clockTimeoutMs }) ile sahte db enjekte edilir (now = istemci saati); canlı veritabanına
+   dokunulmaz.
 
    Sunucu tarafı: database.rules.json `.indexOn: ["state","createdAt"]` dağıtılana kadar SDK
    sorguyu istemcide süzer ("Using an unspecified index" uyarısı) — çalışır ama düğümün tamamını
@@ -33,7 +41,9 @@
     const BATCH = 60;                          // yol başına koşu başına en fazla kayıt
     const IDLE_TIMEOUT_MS = 30000;             // requestIdleCallback: en geç bu kadar sonra
     const FALLBACK_DELAY_MS = 4000;            // requestIdleCallback yoksa (Safari)
-    const LAST_KEY = 'bo_janitor_last';        // localStorage: son koşu (ms epoch)
+    const CLOCK_TIMEOUT_MS = 10000;            // .info/serverTimeOffset bu sürede gelmezse koşu yok (bağlantı kurulamadı)
+    const CLOCK_PATH = '.info/serverTimeOffset';
+    const LAST_KEY = 'bo_janitor_last';        // localStorage: son koşu (istemci saati, ms epoch)
 
     // database.rules.json `$lobbyId` / `$code` .write desenleriyle birebir aynı olmalı.
     const TARGETS = [
@@ -62,13 +72,30 @@
     }
 
     // null → koş; string → atlama nedeni (test ve konsol için okunur ad).
-    function gate(opts, now) {
+    function gate(opts, clientNow) {
         if (running) return 'running';
         if (window.FIREBASE_OK !== true) return 'firebase';
         if (navigator.onLine === false) return 'offline';
         if (!isTopWindow()) return 'iframe';
-        if (!opts.force && now - readLast() < THROTTLE_MS) return 'throttle';
+        if (!opts.force && clientNow - readLast() < THROTTLE_MS) return 'throttle';
         return null;
+    }
+
+    // Sunucu saati: istemci saati + .info/serverTimeOffset. Bağlantı yoksa SDK bu okumayı
+    // el sıkışmaya kadar bekletir → zaman aşımı; sayı gelmezse hata. Her iki hâl → 'clock'.
+    function serverNow(handle, clientNow, timeoutMs) {
+        let timer = null;
+        const read = Promise.resolve()
+            .then(() => handle.ref(CLOCK_PATH).once('value'))
+            .then((snap) => {
+                const offset = snap && typeof snap.val === 'function' ? snap.val() : snap;
+                if (typeof offset !== 'number' || !Number.isFinite(offset)) throw new Error(CLOCK_PATH + ' sayı değil: ' + offset);
+                return clientNow + offset;
+            });
+        const timeout = new Promise((_, reject) => {
+            timer = setTimeout(() => reject(new Error(CLOCK_PATH + ' zaman aşımı (' + timeoutMs + ' ms)')), timeoutMs);
+        });
+        return Promise.race([read, timeout]).finally(() => clearTimeout(timer));
     }
 
     // Tek yol: bayat + yetim kayıtları sorgula, desene uyan anahtarları tek update ile sil.
@@ -102,16 +129,25 @@
     }
 
     async function execute(opts) {
-        const now = typeof opts.now === 'number' ? opts.now : Date.now();
-        const reason = gate(opts, now);
+        const clientNow = typeof opts.now === 'number' ? opts.now : Date.now();
+        const reason = gate(opts, clientNow);
         if (reason) { console.debug('[Janitor] atlandı: ' + reason); return { skipped: reason }; }
         const handle = opts.db || (typeof db !== 'undefined' ? db : null);   // db: js/firebase-config.js
         if (!handle) { console.debug('[Janitor] atlandı: db'); return { skipped: 'db' }; }
 
         running = true;
-        writeLast(now);
+        let now;
+        try {
+            now = await serverNow(handle, clientNow, typeof opts.clockTimeoutMs === 'number' ? opts.clockTimeoutMs : CLOCK_TIMEOUT_MS);
+        } catch (e) {
+            running = false;
+            console.warn('[Janitor] sunucu saati alınamadı, temizlik yapılmadı:', e);
+            console.debug('[Janitor] atlandı: clock');
+            return { skipped: 'clock' };
+        }
+        writeLast(clientNow);   // eşik istemci saatine göre (cihaz-içi karşılaştırma); silmeden önce yazılır
         const cutoff = now - STALE_MS;
-        const result = { now, cutoff, scanned: 0, deleted: 0, failed: 0, paths: {} };
+        const result = { now, cutoff, offset: now - clientNow, scanned: 0, deleted: 0, failed: 0, paths: {} };
         try {
             for (const target of TARGETS) {
                 try {
@@ -134,9 +170,10 @@
 
     /**
      * Temizliği çalıştırır. Asla fırlatmaz; söz her zaman çözülür:
-     * { skipped: 'running'|'firebase'|'offline'|'iframe'|'throttle'|'db'|'error' } ya da
-     * { now, cutoff, scanned, deleted, failed, paths: { [yol]: { scanned, deleted, error? } } }.
-     * opts: { db?: sahte/alternatif veritabanı, now?: ms epoch, force?: eşiği atla }
+     * { skipped: 'running'|'firebase'|'offline'|'iframe'|'throttle'|'db'|'clock'|'error' } ya da
+     * { now (sunucu), cutoff, offset, scanned, deleted, failed, paths: { [yol]: { scanned, deleted, error? } } }.
+     * opts: { db?: sahte/alternatif veritabanı, now?: istemci saati (ms epoch), force?: eşiği atla,
+     *         clockTimeoutMs?: .info/serverTimeOffset bekleme süresi }
      */
     function run(opts) {
         return execute(opts || {}).catch((e) => {
@@ -159,5 +196,5 @@
         }
     }
 
-    window.Janitor = { run, schedule, STALE_MS, THROTTLE_MS, BATCH, LAST_KEY };
+    window.Janitor = { run, schedule, STALE_MS, THROTTLE_MS, BATCH, CLOCK_TIMEOUT_MS, LAST_KEY };
 })();

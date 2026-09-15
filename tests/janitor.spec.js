@@ -7,7 +7,9 @@
    eşikle atlanır (bo_janitor_last = şimdi; tests/helpers/guest-seed.js) — testler eşiği ancak o
    koşunun "atlandı" günlüğü görüldükten sonra sıfırlar (openHub), böylece gerçek db'ye koşu
    sızmaz. Sahte veritabanı RTDB sorgu sıralamasını taklit eder: createdAt'ı olmayan çocuk en
-   başta (null önce), sayılar artan, endAt dahil, limitToFirst; update({k:null}) kaydı siler.
+   başta (null önce), sayılar artan, endAt dahil, limitToFirst; update({k:null}) kaydı siler;
+   `.info/serverTimeOffset` (sunucu − istemci, ms) varsayılan 0 — saat kayması testinde gerçek
+   Firebase'in raporlayacağı değer verilir (istemci 25 sa ileri → −25 sa).
    Çalıştırma: npm run test:janitor
    ============================================ */
 'use strict';
@@ -79,10 +81,14 @@ const clearThrottle = (page) => page.evaluate((k) => localStorage.removeItem(k),
 const readThrottle = (page) => page.evaluate((k) => Number(localStorage.getItem(k)), JANITOR_LAST_KEY);
 
 // Sayfada sahte veritabanı kurar: window[name] = { ref, log, data }.
-// data: { [yol]: { [anahtar]: kayıt } }; failOnce: once('value')'su reddedilecek yollar (izin hatası simülasyonu).
-function installFakeDb(page, name, data, failOnce = []) {
-    return page.evaluate(({ name, data, failOnce }) => {
-        const log = { queries: [], updates: [] };
+// data: { [yol]: { [anahtar]: kayıt } }
+// opts.failOnce: once('value')'su reddedilecek yollar (izin hatası simülasyonu)
+// opts.serverTimeOffset: .info/serverTimeOffset değeri (ms, varsayılan 0) ya da 'reject' | 'nan' | 'hang'
+function installFakeDb(page, name, data, opts = {}) {
+    const failOnce = opts.failOnce || [];
+    const serverTimeOffset = opts.serverTimeOffset === undefined ? 0 : opts.serverTimeOffset;
+    return page.evaluate(({ name, data, failOnce, serverTimeOffset }) => {
+        const log = { queries: [], updates: [], clockReads: 0 };
         const rank = (v) => (v && typeof v.createdAt === 'number' ? v.createdAt : -Infinity);   // RTDB: null önce
         const cmp = (a, b) => {
             const ra = rank(a.val); const rb = rank(b.val);
@@ -102,6 +108,17 @@ function installFakeDb(page, name, data, failOnce = []) {
             };
         }
         function ref(path) {
+            if (path === '.info/serverTimeOffset') {
+                return {
+                    once() {
+                        log.clockReads += 1;
+                        if (serverTimeOffset === 'reject') return Promise.reject(new Error('.info okunamadı (sahte)'));
+                        if (serverTimeOffset === 'nan') return Promise.resolve({ val: () => 'abc' });
+                        if (serverTimeOffset === 'hang') return new Promise(() => {});
+                        return Promise.resolve({ val: () => serverTimeOffset });
+                    },
+                };
+            }
             const q = { orderBy: null, endAt: null, limit: null };
             const api = {
                 orderByChild(field) { q.orderBy = field; return api; },
@@ -123,7 +140,7 @@ function installFakeDb(page, name, data, failOnce = []) {
             return api;
         }
         window[name] = { ref, log, data };
-    }, { name, data, failOnce });
+    }, { name, data, failOnce, serverTimeOffset });
 }
 
 const runJanitor = (page, name, opts = {}) => page.evaluate(
@@ -170,9 +187,10 @@ test.describe('js/janitor.js — istemci tarafı temizlikçi', () => {
             stale: window.Janitor.STALE_MS,
             throttle: window.Janitor.THROTTLE_MS,
             batch: window.Janitor.BATCH,
+            clock: window.Janitor.CLOCK_TIMEOUT_MS,
             key: window.Janitor.LAST_KEY,
         }));
-        expect(api).toEqual({ run: 'function', schedule: 'function', stale: DAY, throttle: 6 * HOUR, batch: 60, key: JANITOR_LAST_KEY });
+        expect(api).toEqual({ run: 'function', schedule: 'function', stale: DAY, throttle: 6 * HOUR, batch: 60, clock: 10000, key: JANITOR_LAST_KEY });
 
         // Atlanan koşu eşik damgasını YENİLEMEZ: tohum (sayfa açılışındaki Date.now()) olduğu gibi durur.
         const stamp = await readThrottle(page);
@@ -192,7 +210,7 @@ test.describe('js/janitor.js — istemci tarafı temizlikçi', () => {
         const result = await runJanitor(page, '__fakeDb', { now });
         expect(result.skipped, 'koşmalı (kapı/eşik yok)').toBeUndefined();
         expect(result).toEqual({
-            now, cutoff: now - DAY, scanned: 8, deleted: 5, failed: 0,
+            now, cutoff: now - DAY, offset: 0, scanned: 8, deleted: 5, failed: 0,
             paths: {
                 'lobbies': { scanned: 4, deleted: 3 },
                 'rooms/altin-avi': { scanned: 1, deleted: 1 },
@@ -202,6 +220,7 @@ test.describe('js/janitor.js — istemci tarafı temizlikçi', () => {
         });
 
         const log = await readLog(page, '__fakeDb');
+        expect(log.clockReads, 'sunucu saati koşu başına bir kez okunur').toBe(1);
         const query = (path) => ({ path, event: 'value', orderBy: 'createdAt', endAt: now - DAY, limit: 60 });
         expect(log.queries).toEqual([query('lobbies'), query('rooms/altin-avi'), query('rooms/son-kart'), query('rooms/kelimelik')]);
         expect(log.updates).toEqual([
@@ -303,7 +322,7 @@ test.describe('js/janitor.js — istemci tarafı temizlikçi', () => {
     test('dayanıklılık: bir yol reddedilse diğerleri temizlenir; söz asla reddedilmez, hata console.warn', async ({ page, logs: con }) => {
         await openHub(page);
         const now = await page.evaluate(() => Date.now());
-        await installFakeDb(page, '__partial', sampleData(now), ['rooms/altin-avi']);
+        await installFakeDb(page, '__partial', sampleData(now), { failOnce: ['rooms/altin-avi'] });
         await page.evaluate(() => { window.FIREBASE_OK = true; });
         await clearThrottle(page);
 
@@ -314,15 +333,21 @@ test.describe('js/janitor.js — istemci tarafı temizlikçi', () => {
         expect(con.warnings.some((t) => t.startsWith('[Janitor] rooms/altin-avi temizlenemedi'))).toBe(true);
         expect(con.infos.some((t) => /^\[Janitor\] .*rooms\/altin-avi HATA .*→ 4 silindi, 1 yol hatalı$/.test(t)), con.infos.join('\n')).toBe(true);
 
-        // Eşzamanlı olmayan senkron patlama (ref() fırlatır): dört yol da hatalı, söz yine çözülür
-        const broken = await page.evaluate(() => window.Janitor.run({ db: { ref() { throw new Error('boom'); } }, force: true }));
+        // Senkron patlama (yol ref()'i fırlatır; saat okunur): dört yol da hatalı, söz yine çözülür
+        const broken = await page.evaluate(() => window.Janitor.run({
+            db: { ref(p) { if (p === '.info/serverTimeOffset') return { once: () => Promise.resolve({ val: () => 0 }) }; throw new Error('boom'); } },
+            force: true,
+        }));
         expect(broken).toMatchObject({ scanned: 0, deleted: 0, failed: 4 });
 
         // Koşu sırasında ikinci çağrı: 'running' ile atlanır (eşzamanlı koşu yok)
         const overlap = await page.evaluate(() => {
             let release;
             const gate = new Promise((r) => { release = r; });
-            const slow = { ref() { return { orderByChild() { return this; }, endAt() { return this; }, limitToFirst() { return this; }, once() { return gate.then(() => ({ forEach() {} })); } }; } };
+            const slow = { ref(p) {
+                if (p === '.info/serverTimeOffset') return { once: () => Promise.resolve({ val: () => 0 }) };
+                return { orderByChild() { return this; }, endAt() { return this; }, limitToFirst() { return this; }, once() { return gate.then(() => ({ forEach() {} })); } };
+            } };
             const a = window.Janitor.run({ db: slow, force: true });
             const b = window.Janitor.run({ db: slow, force: true });
             release();
@@ -330,6 +355,44 @@ test.describe('js/janitor.js — istemci tarafı temizlikçi', () => {
         });
         expect(overlap).toEqual({ a: 0, b: { skipped: 'running' } });
         con.assertClean();   // unhandledrejection olsaydı js/errors.js console.error basardı
+    });
+
+    test('saat: kesim sunucu saatiyle — istemci saati 25 saat ileri olsa da canlı kayıt silinmez; offset okunamazsa hiçbir şey silinmez (kapalı-güvenli)', async ({ page, logs: con }) => {
+        await openHub(page);
+        const now = await page.evaluate(() => Date.now());   // gerçek (sunucu) zaman: kayıtların createdAt'ı buna göre (ServerValue.TIMESTAMP)
+        await page.evaluate(() => { window.FIREBASE_OK = true; });
+
+        // İstemci saati 25 saat ileri: gerçek Firebase .info/serverTimeOffset = sunucu − istemci = −25 sa raporlar.
+        // İstemci saatiyle kesim olsaydı cutoff = now + 1 sa → 1 saatlik FGHIJ (canlı oda) silinirdi.
+        await installFakeDb(page, '__skew', sampleData(now), { serverTimeOffset: -25 * HOUR });
+        await clearThrottle(page);
+        const skewed = await runJanitor(page, '__skew', { now: now + 25 * HOUR });
+        expect(skewed).toMatchObject({ now, cutoff: now - DAY, offset: -25 * HOUR, scanned: 8, deleted: 5, failed: 0 });
+        const skewLog = await readLog(page, '__skew');
+        expect(skewLog.queries.map((q) => q.endAt), 'sorgu kesimi sunucu saatine göre').toEqual([now - DAY, now - DAY, now - DAY, now - DAY]);
+        const skewLeft = await page.evaluate(() => Object.keys(window.__skew.data.lobbies).sort());
+        expect(skewLeft, 'canlı FGHIJ (1 sa) yerinde').toEqual(['FGHIJ', 'bad-key']);
+        expect(await readThrottle(page), 'eşik damgası istemci saatiyle (cihaz-içi karşılaştırma)').toBe(now + 25 * HOUR);
+
+        // Offset alınamıyor (ret / sayı değil / bağlantı yok → zaman aşımı): sorgu yok, silme yok, damga yok
+        for (const [mode, extra] of [['reject', {}], ['nan', {}], ['hang', { clockTimeoutMs: 200 }]]) {
+            const name = '__clock_' + mode;
+            await installFakeDb(page, name, sampleData(now), { serverTimeOffset: mode });
+            await clearThrottle(page);
+            expect(await runJanitor(page, name, Object.assign({ now }, extra)), mode).toEqual({ skipped: 'clock' });
+            const log = await readLog(page, name);
+            expect(log.clockReads, mode).toBe(1);
+            expect(log.queries, mode + ': yol sorgusu olmamalı').toEqual([]);
+            expect(log.updates, mode + ': silme olmamalı').toEqual([]);
+            expect(await readThrottle(page), mode + ': damga yazılmaz → sonraki açılışta yeniden denenir').toBe(0);
+        }
+        expect(con.warnings.filter((t) => t.startsWith('[Janitor] sunucu saati alınamadı'))).toHaveLength(3);
+        expect(con.debugs.filter((t) => t === SKIP_PREFIX + 'clock')).toHaveLength(3);
+
+        // Zaman aşımından sonra kilit kalmaz: sağlıklı db ile koşu yeniden mümkün
+        await installFakeDb(page, '__after', sampleData(now));
+        expect((await runJanitor(page, '__after', { now })).deleted).toBe(5);
+        con.assertClean();
     });
 
     test('parti: yol başına koşu başına en fazla 60 kayıt (limitToFirst); kalanı sonraki koşuda', async ({ page, logs: con }) => {
