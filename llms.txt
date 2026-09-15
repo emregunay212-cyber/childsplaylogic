@@ -63,3 +63,9 @@
 - [Son Kart](https://bilnetoyun.com/oyunlar/son-kart/): UNO tarzı kart oyunu: rengi ya da sayıyı eşleştir, elini ilk bitiren kazanır. Bota karşı ya da 2-4 kişi online.
 - [Hava Hokeyi](https://bilnetoyun.com/oyunlar/hava-hokeyi/): Arkadaşınla online hava hokeyi: tokmağı kaydır, diski rakibin kalesine sok — ilk 7 golü atan kazanır!
 - [Zıpla Topla Online](https://bilnetoyun.com/oyunlar/zipla-topla-coop/): Mario tarzı platformlarda 2 kişilik online co-op: arkadaşınla birlikte zıpla, 12 bölümü beraber bitir!
+
+## Sayfalar
+
+- [Gizlilik ve Kişisel Verilerin Korunması](https://bilnetoyun.com/gizlilik/)
+- [Bilnet Oyun Hakkında](https://bilnetoyun.com/hakkinda/)
+- [İletişim](https://bilnetoyun.com/iletisim/)

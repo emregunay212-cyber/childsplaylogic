@@ -180,5 +180,133 @@ class DataTests(unittest.TestCase):
         self.assertEqual((text, date, source), ("x" + b.TODAY, b.TODAY, "bugun"))
 
 
+STATIC_SAMPLE = dict(
+    slug="ornek-sayfa", title="Örnek Sayfa Başlığı", nav="Örnek", description="Kısa açıklama {toplam_oyun} oyun.",
+    lead="Giriş cümlesi.", note="Uyarı <notu>.",
+    sections=[("Birinci Bölüm", "birinci", ["Düz paragraf {toplam_oyun}.", "<ul>\n<li>madde</li>\n</ul>"]),
+              ("İkinci Bölüm", "ikinci", ["<!-- yorum -->", "Son paragraf."])])
+
+
+def static(**over):
+    return {**STATIC_SAMPLE, **over}
+
+
+class StaticPageTests(unittest.TestCase):
+    def graph(self, html):
+        return json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', html, re.S).group(1))["@graph"]
+
+    def test_title_defaults_to_brand_suffix_and_page_title_wins(self):
+        self.assertEqual(b.static_title(static()), "Örnek Sayfa Başlığı | Bilnet Oyun")
+        self.assertEqual(b.static_title(static(page_title="Özel Başlık")), "Özel Başlık")
+
+    def test_placeholder_filled_in_description_lead_and_body(self):
+        html = b.build_static(static(lead="Toplam {toplam_oyun} oyun."), "2026-09-15", 57)
+        self.assertIn('content="Kısa açıklama 57 oyun."', html)
+        self.assertIn('<p class="tagline">Toplam 57 oyun.</p>', html)
+        self.assertIn("<p>Düz paragraf 57.</p>", html)
+
+    def test_page_skeleton_canonical_robots_imza(self):
+        html = b.build_static(static(), "2026-09-15", 57)
+        self.assertIn('<html lang="tr">', html)
+        self.assertIn('<link rel="canonical" href="https://bilnetoyun.com/ornek-sayfa/">', html)
+        self.assertIn('content="index, follow, max-image-preview:large"', html)
+        self.assertIn("<h1>Örnek Sayfa Başlığı</h1>", html)
+        self.assertIn('<a href="/">Ana Sayfa</a> › Örnek</nav>', html)
+        self.assertNotIn('class="play"', html)                                  # CTA yok
+        for needle in ("imza-band", "/css/landing.css", "/css/imza.css", 'class="card doc"'):
+            self.assertIn(needle, html)
+        self.assertLess(html.index("</footer>"), html.index("imza-band"))       # imza en altta
+        self.assertTrue(html.rstrip().endswith("</div>\n</body>\n</html>"))
+
+    def test_sections_note_and_raw_blocks(self):
+        html = b.build_static(static(), "2026-09-15", 57)
+        self.assertIn('<section id="birinci">\n<h2>Birinci Bölüm</h2>\n<p>Düz paragraf 57.</p>\n<ul>\n<li>madde</li>\n</ul>\n</section>', html)
+        self.assertIn("<!-- yorum -->", html)                                    # ham blok oldugu gibi
+        self.assertIn('<p class="note" role="note">Uyarı &lt;notu&gt;.</p>', html)  # not escape'lenir
+        self.assertNotIn('class="note"', b.build_static(static(note=None), "2026-09-15", 57))
+
+    def test_toc_only_for_long_pages(self):
+        self.assertNotIn('class="toc"', b.build_static(static(), "2026-09-15", 57))
+        long_page = static(sections=[(f"Bölüm {i}", f"b{i}", ["p"]) for i in range(b.TOC_MIN_SECTIONS)])
+        html = b.build_static(long_page, "2026-09-15", 57)
+        self.assertIn('<nav class="toc" aria-label="Bu sayfada">', html)
+        self.assertIn('<a href="#b0">Bölüm 0</a>', html)
+
+    def test_jsonld_webpage_org_breadcrumb(self):
+        nodes = self.graph(b.build_static(static(), "2026-09-15", 57))
+        self.assertEqual([n["@type"] for n in nodes], ["WebPage", "Organization", "BreadcrumbList"])
+        page = nodes[0]
+        self.assertEqual(page["@id"], "https://bilnetoyun.com/ornek-sayfa/#page")
+        self.assertEqual(page["publisher"], {"@id": "https://bilnetoyun.com/#org"})
+        self.assertEqual(page["dateModified"], "2026-09-15")
+        self.assertEqual(page["description"], "Kısa açıklama 57 oyun.")
+        crumbs = nodes[2]["itemListElement"]
+        self.assertEqual([c["name"] for c in crumbs], ["Ana Sayfa", "Örnek Sayfa Başlığı"])
+        self.assertNotIn("item", crumbs[-1])
+
+    def test_jsonld_about_page_points_to_org(self):
+        page = self.graph(b.build_static(static(schema_type="AboutPage"), "2026-09-15", 57))[0]
+        self.assertEqual(page["@type"], "AboutPage")
+        self.assertEqual(page["mainEntity"], {"@id": "https://bilnetoyun.com/#org"})
+
+    def test_footers_everywhere_link_static_pages_by_short_label(self):
+        links = b.static_links()
+        for p in b.STATIC_PAGES:
+            self.assertIn(f'<a href="/{p["slug"]}/">{b.static_nav(p)}</a>', links)
+        for html in (b.build_page(game(), "2026-09-15"), b.build_hub([game()], "2026-09-15"),
+                     b.build_static(static(), "2026-09-15", 57)):
+            self.assertIn('<a href="/gizlilik/">Gizlilik</a>', html)
+            self.assertIn('<a href="/iletisim/">İletişim</a>', html)
+
+    def test_real_static_pages_present_valid_and_within_limits(self):
+        self.assertEqual([p["slug"] for p in b.STATIC_PAGES], ["gizlilik", "hakkinda", "iletisim"])
+        b.validate_static_pages()
+        total = b.total_games([g for g in b.GAMES if b.is_active(g)])
+        for p in b.STATIC_PAGES:
+            self.assertLessEqual(len(b.static_title(p)), b.TITLE_MAX, p["slug"])
+            self.assertLessEqual(len(b.static_description(p, total)), b.DESC_MAX, p["slug"])
+            html = b.build_static(p, "2026-09-15", total)
+            self.assertNotIn("{toplam_oyun}", html)
+            json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', html, re.S).group(1))
+
+    def test_real_static_content_facts(self):
+        by = {p["slug"]: b.build_static(p, "2026-09-15", 57) for p in b.STATIC_PAGES}
+        self.assertIn("Son güncelleme: 15 Eylül 2026", by["gizlilik"])
+        self.assertIn("okul yönetiminin onayıyla güncellenir", by["gizlilik"])
+        self.assertIn("europe-west1", by["gizlilik"])
+        self.assertIn("<!-- TODO(sahip): resmî e-posta / okul sitesi bağlantısı -->", by["iletisim"])
+        self.assertIn('href="https://egweblab.com.tr"', by["hakkinda"])
+        self.assertIn("57 oyun", by["hakkinda"])
+        for html in by.values():
+            self.assertNotRegex(html, r"[\w.+-]+@[\w-]+\.[\w.]+")        # e-posta uydurulmaz
+            self.assertNotRegex(html, r"\+?\d[\d ]{9,}\d")                 # telefon uydurulmaz
+
+    def test_validate_static_rejects_bad_slug_and_duplicate_ids(self):
+        good = b.STATIC_PAGES
+        try:
+            b.STATIC_PAGES = [static(slug="oyunlar")]
+            with self.assertRaises(ValueError):
+                b.validate_static_pages()
+            b.STATIC_PAGES = [static(sections=[("A", "ayni", ["p"]), ("B", "ayni", ["p"])])]
+            with self.assertRaises(ValueError):
+                b.validate_static_pages()
+        finally:
+            b.STATIC_PAGES = good
+
+    def test_sitemap_counts_static_pages(self):
+        active = [g for g in b.GAMES if b.is_active(g)]
+        entries = [("https://bilnetoyun.com/", "2026-09-15"), ("https://bilnetoyun.com/oyunlar/", "2026-09-15")]
+        entries += [(b.static_url(p), "2026-09-15") for p in b.STATIC_PAGES]
+        entries += [(b.page_url(g), "2026-09-15") for g in active]
+        xml = b.build_sitemap(entries)
+        self.assertEqual(xml.count("<loc>"), 2 + len(b.STATIC_PAGES) + len(active))
+        self.assertIn("<loc>https://bilnetoyun.com/gizlilik/</loc>", xml)
+
+    def test_llms_lists_static_pages(self):
+        txt = b.build_llms([game()])
+        self.assertIn("## Sayfalar", txt)
+        self.assertIn("- [Gizlilik ve Kişisel Verilerin Korunması](https://bilnetoyun.com/gizlilik/)", txt)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=1)
