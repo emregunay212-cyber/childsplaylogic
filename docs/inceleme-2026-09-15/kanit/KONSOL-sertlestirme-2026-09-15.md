@@ -58,9 +58,15 @@ https://www.bilnetoyun.com/          → 308 → https://bilnetoyun.com/
 https://www.bilnetoyun.com/oyunlar/  → 308 → https://bilnetoyun.com/oyunlar/
 http://www.bilnetoyun.com/           → 308 → https://www.bilnetoyun.com/ → 308 → apex
 ```
-Bulgu (yapılmadı, sahip kararı): `childsplaylogic.com` → 307 → `www.childsplaylogic.com`, orası siteyi
-**200 ile kopya** sunuyor (canonical bilnetoyun.com'u gösterdiği için zarar sınırlı). Orada Google girişi
-zaten çalışmıyor (`authorizedDomains`'te yok + artık referrer engeli). Öneri: ikisi de 308 → bilnetoyun.com.
+Ek (15 Eyl gece, sahip: "childsplaylogic.com'u hiç kullanmıyorum"): `childsplaylogic.com` → 307 →
+`www.childsplaylogic.com` idi ve orası siteyi **200 ile kopya** sunuyordu. `PATCH /v9/projects/childsplaylogic/domains/<d>`
+`{"redirect":"bilnetoyun.com","redirectStatusCode":308}` ikisine de uygulandı:
+```
+https://childsplaylogic.com/                        → 308 → https://bilnetoyun.com/
+https://www.childsplaylogic.com/                    → 308 → https://bilnetoyun.com/
+https://www.childsplaylogic.com/oyunlar/kelimelik/  → 308 → https://bilnetoyun.com/oyunlar/kelimelik/ → 200
+```
+Domain silinmedi (eski bağlantı/yer imi/Google kaydı kırılmasın, sinyal bilnetoyun.com'a aksın).
 
 ## 4. Firebase bütçe alarmı: GEREKMİYOR (Spark)
 `GET cloudbilling.googleapis.com/v1/projects/childsplaylogic/billingInfo`
