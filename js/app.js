@@ -14,21 +14,26 @@ const App = (() => {
         online: 'assets/images/categories/online.png',
     };
 
-    const gameCategories = [
+    // Kayıt defteri: oyun modülleri TEMBEL referansla ({ game: () => HarfTanima }) tutulur ve
+    // aşağıda resolveEntries() ile tek tek çözülür. Bir oyun dosyası yüklenemez, parse edilemez
+    // ya da IIFE'si fırlatırsa yalnız o kart düşer (console.warn), hub ölmez.
+    // Neden window['HarfTanima'] değil: modüller top-level const → window'a bağlanmaz;
+    // eval/Function ile ad çözmek ise ileride (A1/A9) CSP'yi kırar.
+    const gameCategoryDefs = [
         {
             title: 'Harfler & Kelimeler',
             icon: categoryIcons.letters,
             color: '#45B7D1',
             games: [
-                { game: HarfTanima, color: 'var(--harf-color)' },
-                { game: HeceBirlestirme, color: 'var(--hece-color)' },
+                { game: () => HarfTanima, color: 'var(--harf-color)' },
+                { game: () => HeceBirlestirme, color: 'var(--hece-color)' },
                 // Eğitsel seri (Faz 0+): kilitsiz — İngilizce kelime öğretimi.
                 // Şimdilik kapalı (kullanıcı isteği, 2026-06-16) — yeniden açmak için "comingSoon: true"yu kaldır.
-                { game: KelimeMadeni3D, color: 'var(--kelime-madeni-color)', comingSoon: true },
-                { game: KelimeBalonu, color: 'var(--kelime-balonu-color)' },
-                { game: KelimeCanavarlari, color: 'var(--kelime-canavar-color)' },
-                { game: KelimeKurtarma, color: 'var(--kelime-kurtarma-color)' },
-                { game: GunlukKelime, color: 'var(--gunluk-kelime-color)' },
+                { game: () => KelimeMadeni3D, color: 'var(--kelime-madeni-color)', comingSoon: true },
+                { game: () => KelimeBalonu, color: 'var(--kelime-balonu-color)' },
+                { game: () => KelimeCanavarlari, color: 'var(--kelime-canavar-color)' },
+                { game: () => KelimeKurtarma, color: 'var(--kelime-kurtarma-color)' },
+                { game: () => GunlukKelime, color: 'var(--gunluk-kelime-color)' },
             ]
         },
         {
@@ -36,17 +41,17 @@ const App = (() => {
             icon: categoryIcons.numbers,
             color: '#4ECDC4',
             games: [
-                { game: SayiSayma, color: 'var(--sayi-color)' },
-                { game: Matematik, color: 'var(--matematik-color)' },
-                { game: Desen, color: 'var(--desen-color)' },
+                { game: () => SayiSayma, color: 'var(--sayi-color)' },
+                { game: () => Matematik, color: 'var(--matematik-color)' },
+                { game: () => Desen, color: 'var(--desen-color)' },
                 // Eğitsel seri Faz 1 (4.1, 4.2): kilitsiz — işlem akıcılığı.
-                { game: BilgiMadencisi, color: 'var(--bilgi-madencisi-color)' },
-                { game: MatematikPatlatma, color: 'var(--matematik-patlatma-color)' },
-                { game: MatematikKafe, color: 'var(--matematik-kafe-color)' },
-                { game: BilgiYilani, color: 'var(--bilgi-yilani-color)' },
-                { game: RitimSorulari, color: 'var(--ritim-color)' },
-                { game: Kesir2048, color: 'var(--kesir-color)' },
-                { game: SayiNinja, color: 'var(--sayi-ninja-color)' },
+                { game: () => BilgiMadencisi, color: 'var(--bilgi-madencisi-color)' },
+                { game: () => MatematikPatlatma, color: 'var(--matematik-patlatma-color)' },
+                { game: () => MatematikKafe, color: 'var(--matematik-kafe-color)' },
+                { game: () => BilgiYilani, color: 'var(--bilgi-yilani-color)' },
+                { game: () => RitimSorulari, color: 'var(--ritim-color)' },
+                { game: () => Kesir2048, color: 'var(--kesir-color)' },
+                { game: () => SayiNinja, color: 'var(--sayi-ninja-color)' },
             ]
         },
         {
@@ -54,15 +59,15 @@ const App = (() => {
             icon: categoryIcons.puzzles,
             color: '#A55EEA',
             games: [
-                { game: HafizaKartlari, color: 'var(--hafiza-color)' },
-                { game: SekilBulmaca, color: 'var(--sekil-color)' },
-                { game: Siralama, color: 'var(--siralama-color)' },
-                { game: Jigsaw, color: 'var(--jigsaw-color)' },
-                { game: Tetris, color: 'var(--tetris-color)' },
+                { game: () => HafizaKartlari, color: 'var(--hafiza-color)' },
+                { game: () => SekilBulmaca, color: 'var(--sekil-color)' },
+                { game: () => Siralama, color: 'var(--siralama-color)' },
+                { game: () => Jigsaw, color: 'var(--jigsaw-color)' },
+                { game: () => Tetris, color: 'var(--tetris-color)' },
                 // Eğitsel seri (Faz 3): kilitsiz — fen gözlem/dikkat.
-                { game: BilimDedektifi, color: 'var(--bilim-dedektifi-color)' },
-                { game: EslestirmeUstasi, color: 'var(--eslestirme-color)' },
-                { game: LabirentAvcisi, color: 'var(--labirent-color)' },
+                { game: () => BilimDedektifi, color: 'var(--bilim-dedektifi-color)' },
+                { game: () => EslestirmeUstasi, color: 'var(--eslestirme-color)' },
+                { game: () => LabirentAvcisi, color: 'var(--labirent-color)' },
             ]
         },
         {
@@ -70,11 +75,11 @@ const App = (() => {
             icon: categoryIcons.creativity,
             color: '#FF78C4',
             games: [
-                { game: RenkEslestirme, color: 'var(--renk-color)' },
-                { game: Boyama, color: 'var(--boyama-color)' },
-                { game: Tuval, color: 'var(--tuval-color)' },
-                { game: SayilarlaBoyama, color: 'var(--sayilarla-boyama-color)' },
-                { game: EmojiYapici, color: 'var(--emoji-yapici-color)' },
+                { game: () => RenkEslestirme, color: 'var(--renk-color)' },
+                { game: () => Boyama, color: 'var(--boyama-color)' },
+                { game: () => Tuval, color: 'var(--tuval-color)' },
+                { game: () => SayilarlaBoyama, color: 'var(--sayilarla-boyama-color)' },
+                { game: () => EmojiYapici, color: 'var(--emoji-yapici-color)' },
             ]
         },
         {
@@ -82,28 +87,49 @@ const App = (() => {
             icon: categoryIcons.strategy,
             color: '#27AE60',
             games: [
-                { game: KodMacerasi, color: 'var(--kodmacerasi-color)' },
-                { game: LegoMacerasi, color: 'var(--lego-color)' },
-                { game: LegoWorld, color: 'var(--lego-world-color)' },
-                { game: Satranc, color: 'var(--satranc-color)' },
+                { game: () => KodMacerasi, color: 'var(--kodmacerasi-color)' },
+                { game: () => LegoMacerasi, color: 'var(--lego-color)' },
+                { game: () => LegoWorld, color: 'var(--lego-world-color)' },
+                { game: () => Satranc, color: 'var(--satranc-color)' },
                 // Kilit eşikleri js/lock-catalog.js'te (LOCK_CATALOG). Buradaki sıra = görünüm sırası.
-                { game: ZiplaTopla, color: 'var(--zipla-topla-color)' },
-                { game: SpaceWaves, color: 'var(--space-waves-color)' },
-                { game: Egim, color: 'var(--egim-color)' },
-                { game: BuzKulesi, color: 'var(--buz-kulesi-color)' },
-                { game: Penalti, color: 'var(--penalti-color)' },
-                { game: ZindanOkcusu, color: 'var(--zindan-okcusu-color)' },
+                { game: () => ZiplaTopla, color: 'var(--zipla-topla-color)' },
+                { game: () => SpaceWaves, color: 'var(--space-waves-color)' },
+                { game: () => Egim, color: 'var(--egim-color)' },
+                { game: () => BuzKulesi, color: 'var(--buz-kulesi-color)' },
+                { game: () => Penalti, color: 'var(--penalti-color)' },
+                { game: () => ZindanOkcusu, color: 'var(--zindan-okcusu-color)' },
                 // Eğitsel seri (Faz 0+): kilitsiz — eğitsel içeriğe engelsiz erişim.
-                { game: BilVeFethet, color: 'var(--bil-ve-fethet-color)' },
-                { game: BilgiTakimi, color: 'var(--bilgi-takimi-color)' },
-                { game: BilgiCiftligi, color: 'var(--bilgi-ciftligi-color)' },
-                { game: BilgiKulesi, color: 'var(--bilgi-kulesi-color)' },
-                { game: CevapKosusu, color: 'var(--cevap-kosusu-color)' },
-                { game: BilgiSavunmasi, color: 'var(--savunma-color)' },
-                { game: FizikFirlatma, color: 'var(--firlatma-color)' },
+                { game: () => BilVeFethet, color: 'var(--bil-ve-fethet-color)' },
+                { game: () => BilgiTakimi, color: 'var(--bilgi-takimi-color)' },
+                { game: () => BilgiCiftligi, color: 'var(--bilgi-ciftligi-color)' },
+                { game: () => BilgiKulesi, color: 'var(--bilgi-kulesi-color)' },
+                { game: () => CevapKosusu, color: 'var(--cevap-kosusu-color)' },
+                { game: () => BilgiSavunmasi, color: 'var(--savunma-color)' },
+                { game: () => FizikFirlatma, color: 'var(--firlatma-color)' },
             ]
         },
     ];
+
+    // Tembel referansın adı (uyarı metni için): "() => Tetris" → "Tetris"
+    function thunkName(fn) {
+        const m = /=>\s*([\w$]+)/.exec(String(fn));
+        return m ? m[1] : String(fn);
+    }
+
+    // Girdiyi çöz: { game: () => Mod, ...rest } → { game: Mod, ...rest }; modül yoksa null
+    function resolveEntry(entry) {
+        let game = null;
+        try { game = entry.game(); } catch (e) { game = null; }   // ReferenceError/TDZ = dosya yüklenmedi ya da fırlattı
+        if (!game || typeof game !== 'object' || !game.id) {
+            console.warn('Oyun modülü eksik: ' + thunkName(entry.game) + ' — kartı atlanıyor (dosya yüklenemedi ya da hata verdi).');
+            return null;
+        }
+        return Object.assign({}, entry, { game });
+    }
+    function resolveEntries(entries) { return entries.map(resolveEntry).filter(Boolean); }
+
+    // Kategori şekli korunur ({ title, icon, color, games:[{ game, color, comingSoon }] })
+    const gameCategories = gameCategoryDefs.map(cat => Object.assign({}, cat, { games: resolveEntries(cat.games) }));
 
     // Flat registry for backward compatibility
     const gameRegistry = gameCategories.flatMap(cat => cat.games);
@@ -275,19 +301,20 @@ const App = (() => {
 
     // Multiplayer games list
     // Online oyunların kilit eşikleri js/lock-catalog.js'te (LOCK_CATALOG, 'mp:' önekli key).
-    const mpGamesList = [
-        { id: 'kelime-tahmin', game: KelimeTahmin },
-        { id: 'harf-tahmin', game: HarfTahmin },
-        { id: 'kod-macerasi', game: KodMacerasiMP },
-        { id: 'satranc', game: SatrancMP },
-        { id: 'penalti-mp', game: PenaltiMP },
-        { id: 'ates-buz', game: AtesBuz },
-        { id: 'zipla-topla-coop', game: ZiplaToplaCoop },
-        { id: 'hava-hokeyi', game: HavaHokeyi },
-        { id: 'altin-avi', game: AltinAvi },
-        { id: 'kelimelik', game: Kelimelik },
-        { id: 'son-kart', game: SonKart, badge: '2-4 Oyuncu' },
+    const mpGameDefs = [
+        { id: 'kelime-tahmin', game: () => KelimeTahmin },
+        { id: 'harf-tahmin', game: () => HarfTahmin },
+        { id: 'kod-macerasi', game: () => KodMacerasiMP },
+        { id: 'satranc', game: () => SatrancMP },
+        { id: 'penalti-mp', game: () => PenaltiMP },
+        { id: 'ates-buz', game: () => AtesBuz },
+        { id: 'zipla-topla-coop', game: () => ZiplaToplaCoop },
+        { id: 'hava-hokeyi', game: () => HavaHokeyi },
+        { id: 'altin-avi', game: () => AltinAvi },
+        { id: 'kelimelik', game: () => Kelimelik },
+        { id: 'son-kart', game: () => SonKart, badge: '2-4 Oyuncu' },
     ];
+    const mpGamesList = resolveEntries(mpGameDefs);   // şekil: { id, game, badge? }
 
     let currentView = 'splash';
     let activeCategory = 'all';
@@ -306,8 +333,12 @@ const App = (() => {
             document.getElementById('btn-sound')?.classList.add('muted');
         }
 
-        // Merkezi admin ayarlarını dinlemeye başla (Firebase /adminConfig)
+        // Merkezi admin ayarlarını dinlemeye başla (Firebase /adminConfig). Uygulanması
+        // oturum çözülene kadar ertelenir (proceedAfterAuth) — sıfırlama × bulut senkron yarışı.
         subscribeAdminConfig();
+
+        // Firebase yok (SDK engellendi): bant + online kartlar kapalı; tek kişilik oyunlar açık
+        if (!isFirebaseOk()) showOfflineBanner();
 
         // Mobil: ilk dokunuşta audio context kilidini aç (iOS gereği)
         try { MobileUtils.attachGlobalAudioUnlock(); } catch (e) {}
@@ -320,9 +351,21 @@ const App = (() => {
         Auth.init(proceedAfterAuth);
     }
 
+    function isFirebaseOk() { return window.FIREBASE_OK === true; }
+
+    function showOfflineBanner() {
+        const b = document.getElementById('offline-banner');
+        if (b) b.classList.remove('hidden');
+    }
+
     // Auth oturumu hazır (Google yüklendi / misafir seçildi) → app'e gir
     let authEntered = false;
+    let authResolved = false;      // profil (yerel ya da buluttan) yerine oturdu → adminConfig uygulanabilir
+    let adminConfigLoaded = false; // ilk /adminConfig anlık görüntüsü geldi (subscribeAdminConfig)
     function proceedAfterAuth() {
+        authResolved = true;
+        // Sıfırlama jetonu artık DOĞRU profille (replaceAll sonrası) karşılaştırılır
+        if (adminConfigLoaded) applyAdminConfig();
         updateStarCounter();
         try { hideSplash(); } catch (e) {}
         if (authEntered) { showHub(); return; }   // çıkış sonrası yeniden giriş → hub
@@ -337,6 +380,10 @@ const App = (() => {
         const sp = gameRegistry.find(e => e.game && e.game.id === slug);
         const mp = mpGamesList.find(e => e.id === slug);
         if (!sp && !mp) return false;            // bilinmeyen slug → normal splash akışı
+        if (mp && !isFirebaseOk()) {             // çevrimdışı: online oyun açılamaz → hub + uyarı
+            appToast('Çevrimdışısın — online oyunlar şu an açılamıyor.');
+            return false;
+        }
         try { AudioManager.init(); } catch (e) {}
         try { hideSplash(); } catch (e) {}
         showHub();
@@ -654,6 +701,12 @@ const App = (() => {
             card.style.animationDelay = `${cardIndex * 0.06}s`;
             cardIndex++;
 
+            // Çevrimdışı (Firebase yok): online kart gri + "Çevrimdışı" rozeti, tıkta yalnız uyarı
+            if (!isFirebaseOk()) {
+                applyOfflineState(card, id);
+                return card;
+            }
+
             // Kilitli online oyun: gri kart + "Kilitli" rozeti + ilerleme (mp-badge CSS ile gizlenir)
             if (!isGameUnlocked(entry)) {
                 applyLockedState(card, entry, id);
@@ -662,6 +715,26 @@ const App = (() => {
 
             card.addEventListener('click', () => { AudioManager.play('tap'); startMultiplayerGame(game); });
             return card;
+        }
+
+        // Online kart, Firebase yokken: sessizce başarısız olmak yerine görünür "kapalı" durumu
+        function applyOfflineState(card, displayId) {
+            card.classList.add('offline');
+            card.setAttribute('aria-disabled', 'true');
+            card.setAttribute('aria-label', TR.games[displayId] + ' (çevrimdışı — açılamıyor)');
+            const badge = document.createElement('div');
+            badge.className = 'offline-badge';
+            badge.textContent = 'Çevrimdışı';
+            card.appendChild(badge);
+            const onTap = () => {
+                try { AudioManager.play('tap'); } catch (e) {}
+                card.classList.remove('cs-bump'); void card.offsetWidth; card.classList.add('cs-bump');
+                appToast('Çevrimdışısın — online oyunlar şu an açılamıyor.');
+            };
+            card.addEventListener('click', onTap);
+            card.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTap(); }
+            });
         }
 
         const showAll = activeCategory === 'all';
@@ -716,6 +789,8 @@ const App = (() => {
     }
 
     function startMultiplayerGame(game, bypassLock = false) {
+        // Firebase yoksa online oyun hiçbir yoldan açılmaz (kart zaten kapalı; bu son koruma)
+        if (!isFirebaseOk()) { appToast('Çevrimdışısın — online oyunlar şu an açılamıyor.'); return; }
         // Kilitli online oyun guard'ı (bypassLock=true: landing/deep-link ziyaretçisi atlar)
         const entry = mpGamesList.find(e => e.game === game);
         if (entry && !bypassLock && !isGameUnlocked(entry)) { try { AudioManager.play('tap'); } catch (e) {} return; }
@@ -786,20 +861,11 @@ const App = (() => {
         return null;
     }
 
-    // Basit bildirim (admin kilitleyince "oyundan atıldın" mesajı vb.)
-    let _toastTimer = null;
+    // Basit bildirim (admin kilitleyince "oyundan atıldın" mesajı vb.) — js/errors.js'teki
+    // paylaşılan toast (#app-toast, stil css/main.css). errors.js yüklenmediyse konsola düşer.
     function appToast(msg) {
-        let t = document.getElementById('app-toast');
-        if (!t) {
-            t = document.createElement('div');
-            t.id = 'app-toast';
-            t.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:rgba(20,20,30,.92);color:#fff;padding:12px 20px;border-radius:999px;font-weight:700;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.4);max-width:90%;text-align:center;transition:opacity .25s;';
-            document.body.appendChild(t);
-        }
-        t.textContent = msg;
-        t.style.opacity = '1';
-        clearTimeout(_toastTimer);
-        _toastTimer = setTimeout(() => { t.style.opacity = '0'; }, 3200);
+        if (window.HubToast) HubToast.show(msg);
+        else console.warn('[toast]', msg);
     }
 
     function navigateToHub() {
@@ -827,29 +893,44 @@ const App = (() => {
         if (counter) counter.textContent = total;
     }
 
-    // Firebase /adminConfig'i dinle — merkezi admin ayarları (kilitler/sıfırlama/ses)
+    // Firebase /adminConfig'i dinle — merkezi admin ayarları (kilitler/sıfırlama/ses).
+    // İlk anlık görüntü gelene kadar adminConfigLoaded=false: sıfırlama karşılaştırması
+    // yapılmaz (eski jetonu bilmeden profil damgalanmasın). Oturum çözülmeden de uygulanmaz.
     function subscribeAdminConfig() {
         try {
-            if (typeof db === 'undefined' || !db) return;
+            if (!isFirebaseOk() || typeof db === 'undefined' || !db) return;
             db.ref('adminConfig').on('value', (snap) => {
                 adminConfig = snap.val() || {};
-                applyAdminConfig();
-            }, () => { /* okuma reddedildi/çevrimdışı → adminConfig boş kalır, yerel mantık sürer */ });
-        } catch (e) { /* Firebase yoksa yerel mantıkla devam */ }
+                adminConfigLoaded = true;
+                if (authResolved) applyAdminConfig();   // aksi hâlde proceedAfterAuth uygular
+            }, (err) => {
+                // okuma reddedildi/çevrimdışı → adminConfig boş kalır, yerel mantık sürer
+                console.warn('adminConfig okunamadı — yerel kilit mantığı sürüyor:', err);
+            });
+        } catch (e) { console.error('adminConfig aboneliği kurulamadı:', e); }
+    }
+
+    // Global sıfırlama: jeton PROFİLDE (Progress blob → bulut) damgalanır, cihazda değil.
+    // - Profil hiç damgalanmamışsa (eski kayıt / yeni hesap / az önce sıfırlanmış blob):
+    //   mevcut jeton sıfırlama YAPILMADAN damgalanır → eski sıfırlamalar geriye dönük uygulanmaz,
+    //   dağıtım anında hiçbir kullanıcı yıldız kaybetmez.
+    // - Jeton damgadan yeniyse: tek save ile sıfırla + damgala → Google'da buluta gider;
+    //   başka cihaz/replaceAll sonrası aynı karşılaştırma yapılır, yeni sıfırlama yine kazanır.
+    function applyResetTokenIfNewer() {
+        const tok = Number(adminConfig.resetToken) || 0;
+        const seen = Progress.getResetToken();
+        if (seen === null) { Progress.markResetSeen(tok); return; }
+        if (tok > seen) {
+            Progress.applyReset(tok);
+            appToast('Yıldızlar yönetici tarafından sıfırlandı.');
+        }
     }
 
     // Merkezi ayarları cihaza uygula: global sıfırlama sinyali, ses, kilit yeniden render
+    // Yalnız oturum çözüldükten (authResolved) ve ilk adminConfig geldikten sonra çağrılır.
     function applyAdminConfig() {
-        // Global sıfırlama: token yerelde görülenden büyükse ilerlemeyi bir kez sıfırla
-        const tok = adminConfig.resetToken;
-        if (tok) {
-            let seen = 0;
-            try { seen = parseInt(localStorage.getItem('oyun_bahcesi_lastResetToken') || '0', 10); } catch (e) {}
-            if (tok > seen) {
-                Progress.resetAll();
-                try { localStorage.setItem('oyun_bahcesi_lastResetToken', String(tok)); } catch (e) {}
-            }
-        }
+        if (!authResolved || !adminConfigLoaded) return;
+        applyResetTokenIfNewer();
         // Ses zorlaması (admin 'on'/'off' dayatabilir; yoksa cihazın kendi ayarı)
         if (adminConfig.sound === 'off') { AudioManager.setEnabled(false); document.getElementById('btn-sound')?.classList.add('muted'); }
         else if (adminConfig.sound === 'on') { AudioManager.setEnabled(true); document.getElementById('btn-sound')?.classList.remove('muted'); }

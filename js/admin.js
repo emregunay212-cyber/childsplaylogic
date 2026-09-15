@@ -4,6 +4,16 @@
    - Kilitler + global sıfırlama + ses merkezi; istatistik = bu cihaz
    ============================================ */
 (function () {
+    // Panel Firebase'siz çalışamaz: SDK yüklenemediyse ölü sayfa yerine açık mesaj
+    if (!window.FIREBASE_OK) {
+        console.error('Admin: Firebase SDK yüklenemedi — panel kullanılamıyor.');
+        const showMsg = () => {
+            const box = document.getElementById('login-err');
+            if (box) box.textContent = 'Firebase yüklenemedi (çevrimdışı ya da engelli ağ). Yönetim paneli şu an kullanılamıyor.';
+        };
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', showMsg); else showMsg();
+        return;
+    }
     const auth = firebase.auth();
     const cfgRef = db.ref('adminConfig');
     // adminConfig'e YAZMA yetkisi RTDB kurallarında yalnızca bu e-postaya verili
@@ -159,6 +169,9 @@
             cfg = snap.val() || {};
             renderLocks();
             renderSound();
+        }, (e) => {
+            console.error('adminConfig okunamadı:', e);
+            toast('Ayarlar okunamadı: ' + fbErr(e), 'bad');
         });
     }
 
@@ -170,7 +183,9 @@
             const pw = $('pw').value;
             auth.signInWithEmailAndPassword(email, pw).catch(err => { $('login-err').textContent = mapAuthErr(err); });
         });
-        $('logout').addEventListener('click', () => auth.signOut());
+        $('logout').addEventListener('click', () => {
+            auth.signOut().catch(e => { console.error('Çıkış yapılamadı:', e); toast('Çıkış yapılamadı: ' + fbErr(e), 'bad'); });
+        });
         $('btn-reset').addEventListener('click', doReset);
         $('bulk-unlock').addEventListener('click', () => bulkLocks('unlock'));
         $('bulk-lock').addEventListener('click', () => bulkLocks('lock'));

@@ -4,10 +4,22 @@
      kaldığı yerden devam.
    - Misafir: kayıt yok; her girişte 0 yıldız (yerel/efemer, buluta yazılmaz).
    "Sadece bulut" modeli: Google girişinde yerel ilerleme bulutla DEĞİŞTİRİLİR.
+   - Firebase yoksa (SDK engellendi / başlatılamadı — window.FIREBASE_OK=false):
+     giriş ekranı atlanır, oturum anında misafir olarak çözülür; tek kişilik oyunlar açık.
    ============================================ */
 const Auth = (() => {
-    const auth = firebase.auth();
-    const provider = new firebase.auth.GoogleAuthProvider();
+    // SDK yüklenemediyse auth=null kalır; init() doğrudan misafir moduna düşer.
+    let auth = null;
+    let provider = null;
+    try {
+        if (window.FIREBASE_OK && typeof firebase !== 'undefined') {
+            auth = firebase.auth();
+            provider = new firebase.auth.GoogleAuthProvider();
+        }
+    } catch (e) {
+        auth = null; provider = null;
+        console.error('Firebase Auth başlatılamadı — misafir moduna düşülüyor:', e);
+    }
     const GUEST_KEY = 'bo_guest_mode';   // sessionStorage: aynı sekme oturumu misafir
 
     let mode = null;          // 'google' | 'guest' | null
@@ -28,6 +40,14 @@ const Auth = (() => {
     function cloudRef(uid) { return db.ref('users/' + uid + '/progress'); }
     function gameSavesRef(uid) { return db.ref('users/' + uid + '/gameSaves'); }
 
+    // Bulut yazımı başarısız: konsola ayrıntı, kullanıcıya (tekrarsız) kısa uyarı — sessizce yutulmaz
+    function cloudFail(what) {
+        return (e) => {
+            console.error(what + ':', e);
+            if (window.HubToast) HubToast.once('Bulut kaydı yapılamadı — ilerlemen şimdilik bu cihazda.');
+        };
+    }
+
     // Oyun kayıtlarını buluta yansıt (yalnız değişen anahtarlar; debounced) — yalnız Google
     function pushGameSaves() {
         if (mode !== 'google' || !currentUser) return;
@@ -39,7 +59,8 @@ const Auth = (() => {
             if (v !== prev) { updates[k] = v; lastGameSave[k] = v; }   // null → Firebase anahtarı siler
         }
         if (!Object.keys(updates).length) return;
-        try { gameSavesRef(currentUser.uid).update(updates); } catch (e) {}
+        const fail = cloudFail('Oyun kayıtları buluta yazılamadı');
+        try { gameSavesRef(currentUser.uid).update(updates).catch(fail); } catch (e) { fail(e); }
     }
     function scheduleGameSavePush() { clearTimeout(gsTimer); gsTimer = setTimeout(pushGameSaves, 1000); }
 
@@ -70,7 +91,8 @@ const Auth = (() => {
         if (mode !== 'google' || !currentUser) return;
         clearTimeout(pushTimer);
         pushTimer = setTimeout(() => {
-            try { cloudRef(currentUser.uid).set(data); } catch (e) {}
+            const fail = cloudFail('İlerleme buluta yazılamadı');
+            try { cloudRef(currentUser.uid).set(data).catch(fail); } catch (e) { fail(e); }
         }, 800);
     }
 
@@ -107,7 +129,10 @@ const Auth = (() => {
                 else { lastGameSave[k] = null; }
             }
         }
-        if (Object.keys(seed).length) { try { gameSavesRef(uid).update(seed); } catch (e) {} }
+        if (Object.keys(seed).length) {
+            const fail = cloudFail('Oyun kayıtları buluta tohumlanamadı');
+            try { gameSavesRef(uid).update(seed).catch(fail); } catch (e) { fail(e); }
+        }
     }
 
     function applyGoogle(user) {
@@ -117,6 +142,9 @@ const Auth = (() => {
         loadCloudIntoLocal(user.uid).then(() => {
             renderUserChip(user);
             if (onReady) onReady();
+        }).catch((e) => {
+            console.error('Google oturumu açılırken hata:', e);
+            if (window.HubToast) HubToast.show('Giriş tamamlanamadı — sayfayı yenilemeyi dene.');
         });
     }
 
@@ -146,6 +174,15 @@ const Auth = (() => {
         onReady = readyCb;
         wireButtons();
         wireGameSaveSync();
+        if (!auth) {
+            // Firebase yok: giriş ekranı anlamsız → anında misafir. Aynı sekmede yenileme
+            // oturum içi yıldızları korur (resumeGuest); ilk açılış temiz misafir (applyGuest).
+            console.warn('Auth: Firebase yok — misafir modunda devam ediliyor (tek kişilik oyunlar açık).');
+            let isGuest = false;
+            try { isGuest = sessionStorage.getItem(GUEST_KEY) === '1'; } catch (e) {}
+            if (isGuest) resumeGuest(); else applyGuest();
+            return;
+        }
         auth.onAuthStateChanged((user) => {
             if (user && !user.isAnonymous) {
                 // Token yenilemesi vb. → aynı kullanıcıysa yeniden yükleme yapma
@@ -176,6 +213,12 @@ const Auth = (() => {
         $('login-screen') && $('login-screen').classList.remove('hidden');
         $('splash-screen') && $('splash-screen').classList.add('hidden');
         $('app') && $('app').classList.add('hidden');
+        if (!auth) {
+            // Çevrimdışı (misafir çıkış yaptı): Google düğmesi işe yaramaz → kapalı + açıklama
+            const g = $('login-google');
+            if (g) g.disabled = true;
+            showError({ code: 'auth/sdk-missing' });
+        }
     }
     function hideLoginScreen() {
         $('login-screen') && $('login-screen').classList.add('hidden');
@@ -183,6 +226,7 @@ const Auth = (() => {
 
     function signInGoogle() {
         hideError();
+        if (!auth) { showError({ code: 'auth/sdk-missing' }); return; }
         const btn = $('login-google');
         if (btn) btn.disabled = true;
         auth.signInWithPopup(provider)
@@ -205,8 +249,9 @@ const Auth = (() => {
         clearGameSaves();                   // oyun kayıtlarını da temizle
         const wasGoogle = (mode === 'google');
         mode = null; currentUser = null;
-        if (wasGoogle) {
-            auth.signOut().catch(() => {}); // → onAuthStateChanged(null) → showLoginScreen
+        if (wasGoogle && auth) {
+            // başarı → onAuthStateChanged(null) → showLoginScreen; hata → yine giriş ekranına düş
+            auth.signOut().catch((e) => { console.error('Çıkış yapılamadı:', e); showLoginScreen(); });
         } else {
             showLoginScreen();
         }
@@ -322,6 +367,7 @@ const Auth = (() => {
         if (code === 'auth/network-request-failed') msg = 'İnternet bağlantısı yok gibi görünüyor. Tekrar dene.';
         else if (code === 'auth/popup-blocked') msg = 'Açılır pencere engellendi. Tarayıcı iznini verip tekrar dene.';
         else if (code === 'auth/unauthorized-domain') msg = 'Bu site Google girişine henüz yetkili değil (yöneticiye bildir).';
+        else if (code === 'auth/sdk-missing') msg = 'Çevrimdışısın — Google girişi şu an kullanılamıyor. Misafir olarak oynayabilirsin.';
         box.textContent = msg;
         box.classList.remove('hidden');
     }

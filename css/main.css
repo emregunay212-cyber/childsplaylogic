@@ -149,6 +149,28 @@ button {
 /* Utility Classes */
 .hidden { display: none !important; }
 
+/* Uygulama bildirimi (#app-toast — js/errors.js HubToast; app.js/auth.js kullanır).
+   Durağan hâlde görünmez; .show ile belirir. Görünüm eski satır-içi stille birebir. */
+#app-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%);
+    z-index: 99999;
+    max-width: 90%;
+    padding: 12px 20px;
+    border-radius: 999px;
+    background: rgba(20, 20, 30, 0.92);
+    color: var(--text-light);
+    font-weight: 700;
+    text-align: center;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s var(--ease-smooth);
+}
+#app-toast.show { opacity: 1; }
+
 /* ============================================
    SPLASH SCREEN
    ============================================ */
