@@ -49,7 +49,8 @@ const Particles = (() => {
             } else if (p.type === 'sparkle') {
                 ctx.fillStyle = p.color;
                 ctx.beginPath();
-                ctx.arc(0, 0, p.size * p.life, 0, Math.PI * 2);
+                // life bir kare boyunca eksiye düşebilir (süzme sonraki karede) → negatif yarıçap IndexSizeError fırlatır
+                ctx.arc(0, 0, Math.max(0, p.size * p.life), 0, Math.PI * 2);
                 ctx.fill();
             }
 

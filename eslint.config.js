@@ -49,7 +49,7 @@ const hubCoreGlobals = {
 // ve paylaşılan motorlar (ChessEngine, KodMacerasiCore) bunlara adıyla başvurur.
 const gameModuleGlobals = Object.fromEntries([
     // Tek oyunculu (gameCategories sırasıyla)
-    'HarfTanima', 'HeceBirlestirme', 'KelimeMadeni3D', 'KelimeBalonu', 'KelimeCanavarlari',
+    'HarfTanima', 'KlavyeKasifi', 'HeceBirlestirme', 'KelimeMadeni3D', 'KelimeBalonu', 'KelimeCanavarlari',
     'KelimeKurtarma', 'GunlukKelime',
     'SayiSayma', 'Matematik', 'Desen', 'BilgiMadencisi', 'MatematikPatlatma', 'MatematikKafe',
     'BilgiYilani', 'RitimSorulari', 'Kesir2048', 'SayiNinja',

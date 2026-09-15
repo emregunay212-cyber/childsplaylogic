@@ -48,6 +48,7 @@ const App = (() => {
             color: '#45B7D1',
             games: [
                 { game: () => HarfTanima, id: 'harf-tanima', levels: 3, files: ['js/games/harf-tanima.js'], color: 'var(--harf-color)' },
+                { game: () => KlavyeKasifi, id: 'klavye-kasifi', levels: 3, files: ['js/games/klavye-kasifi.js', 'css/klavye-kasifi.css'], color: 'var(--klavye-color)' },
                 { game: () => HeceBirlestirme, id: 'hece-birlestirme', levels: 3, files: ['js/games/hece-birlestirme.js'], color: 'var(--hece-color)' },
                 // Eğitsel seri (Faz 0+): kilitsiz — İngilizce kelime öğretimi.
                 // Şimdilik kapalı (kullanıcı isteği, 2026-06-16) — yeniden açmak için "comingSoon: true"yu kaldır.

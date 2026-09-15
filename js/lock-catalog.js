@@ -14,7 +14,7 @@
 
 // Hub sırasına göre tüm tek-oyunculu oyunlar
 const SOLO_GAMES = [
-    'harf-tanima', 'hece-birlestirme', 'kelime-madeni-3d', 'kelime-balonu', 'kelime-canavarlari',
+    'harf-tanima', 'klavye-kasifi', 'hece-birlestirme', 'kelime-madeni-3d', 'kelime-balonu', 'kelime-canavarlari',
     'kelime-kurtarma', 'gunluk-kelime', 'sayi-sayma', 'matematik', 'desen', 'bilgi-madencisi',
     'matematik-patlatma', 'matematik-kafe', 'bilgi-yilani', 'ritim-sorulari', 'kesir-2048', 'sayi-ninja',
     'hafiza-kartlari', 'sekil-bulmaca', 'siralama', 'jigsaw', 'tetris', 'bilim-dedektifi',

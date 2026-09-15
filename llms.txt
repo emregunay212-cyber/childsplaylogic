@@ -1,12 +1,12 @@
 # Bilnet Oyun
 
-> Bilnet Okulları'nın 4-12 yaş çocuklar için ücretsiz, üyeliksiz eğitici oyun platformu. 57 oyun doğrudan tarayıcıda çalışır; kurulum, indirme ve hesap gerekmez. Türkçe arayüz; telefon, tablet ve bilgisayarda oynanır. Dersler: matematik, Türkçe, İngilizce, fen, kodlama, strateji, hafıza ve sanat; tek kişilik ve online çok oyunculu modlar.
+> Bilnet Okulları'nın 4-12 yaş çocuklar için ücretsiz, üyeliksiz eğitici oyun platformu. 58 oyun doğrudan tarayıcıda çalışır; kurulum, indirme ve hesap gerekmez. Türkçe arayüz; telefon, tablet ve bilgisayarda oynanır. Dersler: matematik, Türkçe, İngilizce, fen, kodlama, strateji, hafıza ve sanat; tek kişilik ve online çok oyunculu modlar.
 
 - Ana sayfa: https://bilnetoyun.com/
 - Tüm oyunlar: https://bilnetoyun.com/oyunlar/
 - Site haritası: https://bilnetoyun.com/sitemap.xml
 
-## Oyunlar (55 sayfa; Satranç ve Kod Macerası için 2 kişilik online sürüm de var, ayrı sayfası yok)
+## Oyunlar (56 sayfa; Satranç ve Kod Macerası için 2 kişilik online sürüm de var, ayrı sayfası yok)
 
 - [Satranç](https://bilnetoyun.com/oyunlar/satranc/): Yapay zekâya karşı 9 seviyede satranç oyna.
 - [Penaltı](https://bilnetoyun.com/oyunlar/penalti/): Kaleciye penaltı at, 9 seviyede gol krallığına ulaş.
@@ -18,6 +18,7 @@
 - [Renk Eşleştirme](https://bilnetoyun.com/oyunlar/renk-eslestirme/): Renkleri eşleştir, okul öncesi renk bilgini geliştir.
 - [Sayı Sayma](https://bilnetoyun.com/oyunlar/sayi-sayma/): Nesneleri say, sayıları eğlenerek öğren.
 - [Harf Tanıma](https://bilnetoyun.com/oyunlar/harf-tanima/): Harfleri tanı, okumaya ilk adımı at.
+- [Klavye Kâşifi](https://bilnetoyun.com/oyunlar/klavye-kasifi/): Yanan tuşu bul, harfe bas, resmi kazan — klavyeye ilk adım.
 - [Hece Birleştirme](https://bilnetoyun.com/oyunlar/hece-birlestirme/): Heceleri birleştirip kelime kur, okumayı pekiştir.
 - [Şekil Bulmaca](https://bilnetoyun.com/oyunlar/sekil-bulmaca/): Şekilleri doğru yere yerleştir, bulmacayı çöz.
 - [Sıralama](https://bilnetoyun.com/oyunlar/siralama/): Nesneleri doğru sıraya diz, mantığını geliştir.

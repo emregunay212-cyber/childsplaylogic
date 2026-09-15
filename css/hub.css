@@ -336,6 +336,7 @@
 .game-card[data-game="renk-eslestirme"]::before { background: var(--renk-color); }
 .game-card[data-game="sayi-sayma"]::before { background: var(--sayi-color); }
 .game-card[data-game="harf-tanima"]::before { background: var(--harf-color); }
+.game-card[data-game="klavye-kasifi"]::before { background: var(--klavye-color); }
 .game-card[data-game="sekil-bulmaca"]::before { background: var(--sekil-color); }
 .game-card[data-game="boyama"]::before { background: var(--boyama-color); }
 .game-card[data-game="siralama"]::before { background: var(--siralama-color); }
