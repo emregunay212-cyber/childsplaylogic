@@ -59,7 +59,7 @@ python seo/test_build_seo.py            # üretici birim testleri
 ## Yeni oyun ekleme
 
 1. `js/games/<slug>.js` modülü (+ iframe oyunuysa `games/<slug>/index.html`, `css/<slug>.css`).
-2. `index.html`'e `<link>`/`<script>` etiketi; `js/app.js` `gameCategoryDefs` içine `{ game: () => Modul, color: 'var(--<slug>-color)' }`; `js/i18n.js` `TR.games['<slug>']` adı; `css/main.css` renk değişkeni, `css/hub.css` kart şeridi.
+2. `js/app.js` `gameCategoryDefs` içine `{ game: () => Modul, id, levels, files: ['js/games/<slug>.js', 'css/<slug>.css'], color: 'var(--<slug>-color)' }` — dosyalar `files` ile tembel yüklenir (A9b), `index.html`'e etiket **eklenmez**; `js/i18n.js` `TR.games['<slug>']` adı + `TR.instructions` yönergesi; `css/main.css` renk değişkeni, `css/hub.css` kart şeridi; `eslint.config.js` `gameModuleGlobals`'e modül adı.
 3. `js/lock-catalog.js` → `SOLO_GAMES` ya da `ONLINE_GAMES` (hub sırasına göre; eşik gerekiyorsa `STARS_BY_KEY`).
 4. `assets/images/hub/<slug>.svg` ikonu; kayıt anahtarları varsa `js/auth.js` `GAME_SAVE_KEYS`.
 5. `seo/games_data.py` `GAMES` kaydı (`slug, name, cat, age, players, teaches, short, about`; online sürüm varsa `also_online=True`).
