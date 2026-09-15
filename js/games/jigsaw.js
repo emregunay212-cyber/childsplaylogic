@@ -93,6 +93,7 @@ const Jigsaw = (() => {
         if (!selectedPiece) return;
         const idx = parseInt(cell.dataset.idx);
         const target = pictureData[idx];
+        if (target.placed) return;   // dolu hücreye dokunmak hata sayılmasın (yıldızı haksız düşürüyordu)
 
         if (selectedPiece.row === target.row && selectedPiece.col === target.col) {
           // Correct placement

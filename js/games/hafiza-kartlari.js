@@ -24,10 +24,13 @@ const HafizaKartlari = (() => {
     let totalPairs = 0;
     let lockBoard = false;
     let attempts = 0;
+    let timers = [];
+    function later(fn, ms) { const t = setTimeout(() => { timers = timers.filter(x => x !== t); fn(); }, ms); timers.push(t); return t; }
 
     function init(gameArea, level, cbs) {
         container = gameArea;
         callbacks = cbs;
+        timers.forEach(clearTimeout); timers = [];
         flippedCards = [];
         matchedPairs = 0;
         lockBoard = false;
@@ -53,8 +56,14 @@ const HafizaKartlari = (() => {
         grid.className = 'memory-grid';
         const [rows, cols] = config.grid;
         grid.classList.add(`grid-${rows}x${cols}`);
-        const cardSize = cols <= 2 ? '120px' : cols <= 3 ? '100px' : cols <= 4 ? '80px' : cols <= 5 ? '68px' : cols <= 6 ? '58px' : '50px';
+        // Kart boyutu ekrana sığmalı: 375 px telefonda 5+ sütun sabit px ile taşıyor, sağdaki
+        // kartlar .game-area overflow-x:hidden ardında kalıp tıklanamıyordu (seviye 6-10 bitirilemezdi)
+        const preferred = cols <= 2 ? 120 : cols <= 3 ? 100 : cols <= 4 ? 80 : cols <= 5 ? 68 : cols <= 6 ? 58 : 50;
+        const gap = 16;
+        const avail = Math.max(200, (container.clientWidth || window.innerWidth) - 32);
+        const cardSize = Math.max(36, Math.min(preferred, Math.floor((avail - gap * (cols - 1)) / cols))) + 'px';
         grid.style.gridTemplateColumns = `repeat(${cols}, ${cardSize})`;
+        grid.style.setProperty('--card-size', cardSize);
         grid.style.justifyContent = 'center';
 
         GameEngine.setTotal(config.pairs);
@@ -118,11 +127,11 @@ const HafizaKartlari = (() => {
 
             if (matchedPairs === totalPairs) {
                 const stars = calculateMemoryStars();
-                setTimeout(() => callbacks.onComplete(stars), 500);
+                later(() => callbacks.onComplete(stars), 500);
             }
         } else {
             callbacks.onWrong();
-            setTimeout(() => {
+            later(() => {
                 card1.classList.remove('flipped');
                 card2.classList.remove('flipped');
                 flippedCards = [];
@@ -139,6 +148,7 @@ const HafizaKartlari = (() => {
     }
 
     function destroy() {
+        timers.forEach(clearTimeout); timers = [];
         if (container) container.innerHTML = '';
         flippedCards = [];
         lockBoard = false;

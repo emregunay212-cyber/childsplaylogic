@@ -345,8 +345,9 @@
 .memory-card {
     position: relative;
     aspect-ratio: 1;
-    min-width: 60px;
-    min-height: 60px;
+    /* --card-size: hafiza-kartlari.js ekrana göre hesaplar (dar ekranda 60 px altına iner) */
+    min-width: var(--card-size, 60px);
+    min-height: var(--card-size, 60px);
     cursor: pointer;
     transition: transform 0.15s ease;
 }
@@ -770,6 +771,7 @@
 
 .hece-success { animation: bounceIn 0.5s; }
 .hece-wrong { animation: shake 0.4s; }
+.drop-zone.shake-wrong { animation: shake 0.4s; border-color: #E74C3C !important; }
 .hece-word-reveal {
     font-family: 'Fredoka', sans-serif; font-size: 2rem; font-weight: 700;
     color: #2ECC71; padding: 1rem; animation: bounceIn 0.5s;

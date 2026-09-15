@@ -30,9 +30,13 @@ const Siralama = (() => {
     let totalRounds = 3;
     let selectedSlot = null;
 
+    let timers = [];
+    function later(fn, ms) { const t = setTimeout(() => { timers = timers.filter(x => x !== t); fn(); }, ms); timers.push(t); return t; }
+
     function init(gameArea, level, cbs) {
         container = gameArea;
         callbacks = cbs;
+        timers.forEach(clearTimeout); timers = [];
         roundsPlayed = 0;
         totalRounds = levels[level - 1].rounds;
         GameEngine.setTotal(totalRounds);
@@ -205,9 +209,9 @@ const Siralama = (() => {
             roundsPlayed++;
 
             if (roundsPlayed >= totalRounds) {
-                setTimeout(() => callbacks.onComplete(), 800);
+                later(() => callbacks.onComplete(), 800);
             } else {
-                setTimeout(() => startRound(GameEngine.getCurrentLevel()), 1200);
+                later(() => startRound(GameEngine.getCurrentLevel()), 1200);
             }
         } else {
             // Yanlış sıralama - reset
@@ -218,7 +222,7 @@ const Siralama = (() => {
                 slot.style.animation = 'wiggle 0.4s ease';
             });
 
-            setTimeout(() => {
+            later(() => {
                 slots.forEach(slot => {
                     if (slot._sourceBtn) {
                         slot._sourceBtn.disabled = false;
@@ -237,6 +241,7 @@ const Siralama = (() => {
     }
 
     function destroy() {
+        timers.forEach(clearTimeout); timers = [];
         if (container) container.innerHTML = '';
         nextSlotIndex = 0;
     }

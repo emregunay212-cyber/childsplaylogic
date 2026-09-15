@@ -106,3 +106,53 @@ Biçim: `[KRİTİK|YÜKSEK|ORTA|DÜŞÜK|ŞÜPHELİ] dosya:satır — sorun — 
 - [ORTA] :49,123 — ⏸️ Mola ~22 px. Bırakıldı.
 - [ŞÜPHELİ] :401-402 `ensureSolvable` son çare `fillBoard` sonrası yeniden doğrulamıyor (çok düşük olasılık).
 
+## Kategori 3 — Bulmaca & Mantık (15 Eyl gece)
+
+### Önizleme doğrulaması (PR #34, kategori 1-2 düzeltmeleri)
+- hece-birlestirme: 2 yanlış denemeden sonra doğru sıra ↺ Tekrar OLMADAN kabul edildi (Kelime 2/6) ✔
+- harf-tanima: 1 yanlış + 5 doğru → **2 yıldız "Harika!"**, kayıt 2 ✔ (eskiden 3 "Mükemmel!")
+- particles: 5 doğru cevap kıvılcımından sonra konsolda `radius provided … negative` yok, toast yok ✔
+
+### 18. hafiza-kartlari — K2 ✔ (2×2: yanlış çift kapanıyor, çiftler eşleşiyor, 1 hata ile 3 yıldız — customStars, tasarım)
+### 19. sekil-bulmaca — K2 ✔ (gerçek fare sürüklemesiyle yıldız yerine oturdu, doğru=1; ilk doğru bırakmada üretimde "Bir şeyler ters gitti" toast'ı = particles bulgusu)
+### 20. siralama — K2 ✔ (yanlış sıra → yanlış+1 ve sıfırlama; doğru sıra → tur 2)
+### 21. jigsaw — K2 ✔ / [YÜKSEK→düzeltildi] js/games/jigsaw.js:9-45 — "Resim" rastgele emoji ızgarası ama ekranda hiçbir referans yok; parçanın nereye gideceği bilinemez, oyun tamamen tahmin (4 parça için ortalama çok sayıda hata → deneme bazlı yıldızla 1 yıldız). Düzeltme: tahtanın üstünde "Örnek — aynısını yap" mini ızgarası (`.jig-ref`); çift ses kaldırıldı; `later()`.
+### 22. tetris — K2 ✔ (dokunmatik düğmelerle sol/sağ/düşür çalıştı, puan 24)
+### 23. bilim-dedektifi (iframe) — K2 ✔ (Orman vakası: yanlış nesne 5 sn donma, 5 omurgalı bulundu → mini quiz açıldı). [DÜŞÜK] vaka kartları `div` (klavye erişimi yok).
+### 24. eslestirme-ustasi (iframe) — K2 ✔ (yanlış çift kapandı, 👟+shoe eşleşti 1/6)
+### 25. labirent-avcisi (iframe) — K2 ✔ (ok tuşuyla hareket, harf hedefi HUD'da)
+
+### Kategori 3 — K1 bulguları (ajanlar) ve düzeltmeler
+- hafiza-kartlari: [YÜKSEK→düzeltildi] js/games/hafiza-kartlari.js:56-58 — kart boyutu sabit px; 375 px telefonda 5+ sütunlu seviyelerde (6-10) sağ kartlar .game-area overflow-x:hidden ardında kalıp tıklanamıyordu → seviye bitirilemezdi. Düzeltme: boyut ekran genişliğine göre (--card-size), CSS min 60 px kaldırıldı. [YÜKSEK→düzeltildi] :125-145 800 ms zamanlayıcı destroy'da iptal → later(). [DÜŞÜK] klavye erişimi yok (hub geneli).
+- sekil-bulmaca: [YÜKSEK→düzeltildi] js/games/sekil-bulmaca.js:121-136 — dokun-dokun yolu yarımdı: parçaya dokunup silüete dokunmak hiçbir şey yapmıyordu (sürüklemeyen çocuk için seviye bitmiyordu). Düzeltme: silüet tıklaması seçili parçayı handleDrop'a verir; yanlışta titreşim. [ORTA] js/drag.js:6-9 tek activeElement — iki parmakla iki parça sürüklenirse biri asılı kalır. Bırakıldı (Faz 2 drag.js pointerId haritası). [DÜŞÜK] klavye yok.
+- siralama: [YÜKSEK→düzeltildi] js/games/siralama.js:210,239 — 1200 ms tur geçişi destroy'da iptal edilmiyordu (aynı oyunu hemen yeniden açınca yeni turu siliyordu) → later(). [ORTA] :11,50 — 3. seviye "mixed" tipi uygulanmamış, 1. seviyeyle aynı havuz/yönerge (yalnız 5 öğe). Bırakıldı (içerik kararı). [DÜŞÜK] nextSlotIndex ölü kod.
+- jigsaw: [YÜKSEK→düzeltildi] js/games/jigsaw.js:91-97 — dolu hücreye dokunmak "yanlış" sayılıyordu (16 parçayı hatasız yerleştiren çocuk tek sızma dokunuşla 2 yıldız). Düzeltme: target.placed → yok say.
+- tetris: [YÜKSEK→düzeltildi] js/games/tetris.js:234-237 — klavyede basılı tutmada OS tekrar keydown'ları startMove'u yeniden başlatıp DAS/ARR'ı sıfırlıyordu (tepkisiz his). Düzeltme: !e.repeat. [ORTA] onComplete hiç çağrılmıyor → seviye noktası/yıldız sayacı tetris'i saymaz (sonsuz oyun; ürün kararı). [ORTA] js/mobile-utils.js:142 bindHoldButton her girişte document'e mouseup dinleyicisi bırakıyor (etkisi düşük). [ŞÜPHELİ] :434 450 ms game-over modalı izlenmiyor.
+- bilim-dedektifi: [YÜKSEK→düzeltildi] games/bilim-dedektifi/index.html:345-381 — süre donma sırasında biterse #freezeVeil kalıcı kalıyor, "Tekrar Oyna"daki yeni vaka buz örtüsüyle kilitli açılıyordu. Düzeltme: startCase örtüyü kaldırır. [ORTA] .caseCard div, klavye yok. [DÜŞÜK] küçük nesneler (~24 px) + 5 sn ceza.
+- eslestirme-ustasi: [YÜKSEK→düzeltildi] games/eslestirme-ustasi/index.html:229-261 — eşleşmeme zamanlayıcısı (750 ms) menüye dönüp yeni tur başlatılınca yeni turun G.open'ını sıfırlıyor, bir kart kalıcı açık/eşleşemez kalıyordu (tur bitirilemez). Düzeltme: tur jetonu (G.roundTok) + G.state şartı; usta önizlemesi de korumalı. [ORTA] :211 çoklu glif cevaplar küçültülmüyor, dar kartta taşabilir. [ŞÜPHELİ] .screen overflow:auto yok.
+- labirent-avcisi: rAF/labirent bağlanabilirliği/dokunma temiz (3 harita BFS ile doğrulandı). [ORTA] .screen/#pauseVeil overflow:auto yok + touch-action:none (kısa ekranda düğmeye ulaşılamayabilir); ⏸️ ~24 px. [DÜŞÜK] kapsül harfle aynı hücreye düşebilir.
+
+## Kategori 4 — Yaratıcılık (16 Eyl gece)
+### 26. renk-eslestirme — K1 ✔ K2 ✔
+- [YÜKSEK→düzeltildi] js/games/renk-eslestirme.js:13,90-93 — Kart üstündeki emoji karttan bağımsız rastgele seçiliyordu: "Yeşil nerede?" sorusunda yeşil kartta 🌸, sarı kartta 🔵, kırmızı kartta 🎈 (K2 ekran görüntüsü). Renk öğrenen 4 yaş için yanıltıcı. Düzeltme: renge göre emoji havuzu; 3. seviyede (metin modu) zemin beyaz, rengi yalnız nesne taşır. Ajan notu: ☂️/🎀 platforma göre belirsiz → 🔮/🦩 ile değiştirildi.
+- [ORTA→düzeltildi] :118-133 — tur kazanılınca kalan kartlar kilitlenmiyordu (geçişte dokunuş haksız yanlış). Zamanlayıcılar later().
+### 27. boyama — K1 ✔ K2 ✔ (Ev resmi 6 bölge boyandı)
+- [YÜKSEK→düzeltildi] js/games/boyama.js:109-115,221-232 — Tamamlanan resimler yalnız bellekteydi, onComplete/Progress hiç yazılmıyordu: hub kartı 10 yıldız satırı hep boş, ✅ işaretleri yenilemede kayboluyordu. Düzeltme: resim i tamamlanınca Progress.setLevelStars('boyama', i+1, 3) + sayaç; galeri ✅'leri Progress'ten okunur.
+- [ORTA→düzeltildi] :268-273 — ↩ geri al bölgeyi griye döndürünce sayaç düşmüyordu → gri bölge kalırken "tamamlandı". Düzeltme: placeholder renge dönüşte sayaç azalır.
+### 28. tuval — K1 ✔ K2 ✔ (çapraz sürüklemede 3 ayrık hücre boyandı = boşluk bulgusu)
+- [YÜKSEK→düzeltildi] js/games/tuval.js:82-92 — Boyama yalnız pointerenter ile; hızlı sürüklemede ara hücreler atlanıyor; dokunmatikte ilk hücrenin örtük pointer capture'ı yüzünden sürükleme hiç ilerlemiyor olabilir. Düzeltme: capture bırakılır, pointermove + elementFromPoint + Bresenham ara hücre doldurma.
+- [YÜKSEK→düzeltildi] :55-60,138-142 — Aktif Lv düğmesine tekrar basmak ve Temizle tek dokunuşla çizimi geri dönüşsüz siliyordu. Düzeltme: aynı seviye yok sayılır; Temizle iki adımlı ("Emin misin? Tekrar bas", 3 sn).
+- [ORTA] css/tuval.css:63-65 palet 32 px (44 altı). Bırakıldı (Faz 2).
+### 29. sayilarla-boyama — K1 ✔ K2 ✔ (gerçek dokunuşla hücre boyandı; .click() bilerek çalışmıyor — pointer tabanlı)
+- [YÜKSEK→düzeltildi] js/games/sayilarla-boyama.js:293-298 — bitişte onComplete 500 ms gecikmeliydi; bu pencerede "Ana Sayfa"ya basılırsa yıldız hiç yazılmıyordu. Düzeltme: hemen çağrılır.
+- [ORTA] :296 yıldız eşiği hücre sayısına oranlanmıyor (Kalp 40 / Kelebek 89 aynı 2-6 hata toleransı). Bırakıldı (denge kararı). [ORTA] 375 px'te 11 sütunlu resimlerde hücre ~29 px. Faz 2.
+### 30. emoji-yapici — K1 ✔ K2 ✔ (sekmeler, sürpriz, koleksiyon)
+- [YÜKSEK→düzeltildi] js/games/emoji-yapici.js:220-430 — "Koleksiyonum" yalnız bellekteydi: Tekrar Oyna / hub / yenileme koleksiyonu siliyordu; silme yoktu. Düzeltme: emojiyapici_save localStorage (doğrulama + bozuk JSON koruması + 24 sınırı), Google girişinde bulut senkronu (auth.js GAME_SAVE_KEYS), her yüzde ✕ sil.
+- [ORTA] css/emoji-yapici.css:35-46 sekmeler ~30 px (44 altı). Faz 2. [ŞÜPHELİ] değiştirmeden 4 kez "Ekle" de kutlamayı tetikliyor (kasıtlı basitlik olabilir).
+
+## Kategori 5 — Strateji & Macera (16 Eyl gece)
+- kod-macerasi: [YÜKSEK→düzeltildi] css/kod-macerasi.css:6-12 — .kod-grid-wrap .game-area dikey flex içinde büzülüp overflow:hidden ile alt satırları gizliyordu: K2'de 3×3 ızgaranın robot satırı görünmüyordu (wrap 81 px, robot hücresi 217-271 px). Düzeltme: flex-shrink:0 (alan kaydırılır).
+- lego-macerasi: [KRİTİK→düzeltildi] js/app.js:113 — kayıt defteri yalnız JS yüklüyordu; stiller css/kod-macerasi.css içinde (.lego-*, .kod-*) → oyun tamamen stilsiz açılıyordu (ızgara yok, düz liste; K2 ekran görüntüsü). Tembel yükleme (A9b) regresyonu. Düzeltme: CSS dosyası files'a eklendi; betikle 30 hub-native oyun tarandı, başka eksik CSS bağımlılığı yok.
+- lego-world: 3D sahne yüklendi (three.js CDN). [DÜŞÜK] ekranda kontrol ipucu yok. satranc: zorluk seçimi + hamle + AI yanıtı çalışıyor; [ORTA] taş görselleri upload.wikimedia.org'dan (gizlilik metninde beyan edilmiş; çevrimdışı/erişim riski; self-host + CC BY-SA atıf önerilir). zipla-topla, space-waves, egim, buz-kulesi, penalti (gol +1), zindan-okcusu (menü; sıfırlama confirm'li), bil-ve-fethet, bilgi-takimi, bilgi-ciftligi, bilgi-kulesi, cevap-kosusu, bilgi-savunmasi, fizik-firlatma: açıldı, menü/ilk etkileşim çalışıyor; K1 ajan sonuçları aşağıda.
+
+- kod-macerasi / lego-macerasi (K1): [YÜKSEK→düzeltildi] js/games/kod-macerasi.js:182-210, js/games/lego-macerasi.js:396-476 — destroy bekleyen zamanlayıcıları (tur geçişi 1000 ms, hata sıfırlama 1500 ms, adım animasyonu 450 ms) iptal etmiyordu; hub'a dönüp hemen tekrar girince tur sessizce 2'ye atlıyor, bloklar/inşaat paneli sıfırlanıyor, yıldız yanlış hesaplanıyordu. Düzeltme: oturum jetonu (init/destroy ilerletir) — eski oturumun animasyon bitişi ve zamanlayıcıları yok sayılır. [ŞÜPHELİ] kod-macerasi-shared.js:322-331 REPEAT ilk blokta sessizce hiçbir şey yapmıyor (tasarım?). [DÜŞÜK] ↺ 40 px.

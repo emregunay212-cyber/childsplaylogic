@@ -34,36 +34,36 @@ Sütunlar: K1 statik · K2 canlı · bulgu sayısı K/Y/O/D · düzeltme
 | 15 | Sayılar | ritim-sorulari (iframe) | [x] | [x] | 1/0/1/0 (+1 şüpheli) | PR (kategori 1-2) |
 | 16 | Sayılar | kesir-2048 (iframe) | [x] | [x] | 0/1/2/1 | PR (kategori 1-2) |
 | 17 | Sayılar | sayi-ninja (iframe) | [x] | [x] | 0/1/1/1 | PR (kategori 1-2) |
-| 18 | Bulmaca | hafiza-kartlari | [ ] | [ ] | | |
-| 19 | Bulmaca | sekil-bulmaca | [ ] | [ ] | | |
-| 20 | Bulmaca | siralama | [ ] | [ ] | | |
-| 21 | Bulmaca | jigsaw | [ ] | [ ] | | |
-| 22 | Bulmaca | tetris | [ ] | [ ] | | |
-| 23 | Bulmaca | bilim-dedektifi (iframe) | [ ] | [ ] | | |
-| 24 | Bulmaca | eslestirme-ustasi (iframe) | [ ] | [ ] | | |
-| 25 | Bulmaca | labirent-avcisi (iframe) | [ ] | [ ] | | |
-| 26 | Yaratıcılık | renk-eslestirme | [ ] | [ ] | | |
-| 27 | Yaratıcılık | boyama | [ ] | [ ] | | |
-| 28 | Yaratıcılık | tuval | [ ] | [ ] | | |
-| 29 | Yaratıcılık | sayilarla-boyama | [ ] | [ ] | | |
-| 30 | Yaratıcılık | emoji-yapici | [ ] | [ ] | | |
-| 31 | Strateji | kod-macerasi | [ ] | [ ] | | |
-| 32 | Strateji | lego-macerasi | [ ] | [ ] | | |
-| 33 | Strateji | lego-world | [ ] | [ ] | | |
-| 34 | Strateji | satranc | [ ] | [ ] | | |
-| 35 | Strateji | zipla-topla | [ ] | [ ] | | |
-| 36 | Strateji | space-waves | [ ] | [ ] | | |
-| 37 | Strateji | egim | [ ] | [ ] | | |
-| 38 | Strateji | buz-kulesi | [ ] | [ ] | | |
-| 39 | Strateji | penalti | [ ] | [ ] | | |
-| 40 | Strateji | zindan-okcusu (iframe) | [ ] | [ ] | | |
-| 41 | Strateji | bil-ve-fethet (iframe) | [ ] | [ ] | | |
-| 42 | Strateji | bilgi-takimi (iframe) | [ ] | [ ] | | |
-| 43 | Strateji | bilgi-ciftligi (iframe) | [ ] | [ ] | | |
-| 44 | Strateji | bilgi-kulesi (iframe) | [ ] | [ ] | | |
-| 45 | Strateji | cevap-kosusu (iframe) | [ ] | [ ] | | |
-| 46 | Strateji | bilgi-savunmasi (iframe) | [ ] | [ ] | | |
-| 47 | Strateji | fizik-firlatma (iframe) | [ ] | [ ] | | |
+| 18 | Bulmaca | hafiza-kartlari | [x] | [x] | 0/2/0/1 | PR |
+| 19 | Bulmaca | sekil-bulmaca | [x] | [x] | 0/1/1/1 | PR |
+| 20 | Bulmaca | siralama | [x] | [x] | 0/1/1/1 | PR |
+| 21 | Bulmaca | jigsaw | [x] | [x] | 0/2/0/0 | PR |
+| 22 | Bulmaca | tetris | [x] | [x] | 0/1/2/0 (+1 şüpheli) | PR |
+| 23 | Bulmaca | bilim-dedektifi (iframe) | [x] | [x] | 0/1/1/1 | PR |
+| 24 | Bulmaca | eslestirme-ustasi (iframe) | [x] | [x] | 0/1/1/0 (+1 şüpheli) | PR |
+| 25 | Bulmaca | labirent-avcisi (iframe) | [x] | [x] | 0/0/2/1 | — |
+| 26 | Yaratıcılık | renk-eslestirme | [x] | [x] | 0/1/1/0 | PR |
+| 27 | Yaratıcılık | boyama | [x] | [x] | 0/1/1/0 | PR |
+| 28 | Yaratıcılık | tuval | [x] | [x] | 0/2/1/0 | PR |
+| 29 | Yaratıcılık | sayilarla-boyama | [x] | [x] | 0/1/2/0 | PR |
+| 30 | Yaratıcılık | emoji-yapici | [x] | [x] | 0/1/1/0 (+1 şüpheli) | PR |
+| 31 | Strateji | kod-macerasi | [x] | [x] | 0/2/0/0 (+1 şüpheli) | PR |
+| 32 | Strateji | lego-macerasi | [x] | [x] | 1/1/0/1 | PR |
+| 33 | Strateji | lego-world | [ ] | [x] | | |
+| 34 | Strateji | satranc | [ ] | [x] | | |
+| 35 | Strateji | zipla-topla | [ ] | [x] | | |
+| 36 | Strateji | space-waves | [ ] | [x] | | |
+| 37 | Strateji | egim | [ ] | [x] | | |
+| 38 | Strateji | buz-kulesi | [ ] | [x] | | |
+| 39 | Strateji | penalti | [ ] | [x] | | |
+| 40 | Strateji | zindan-okcusu (iframe) | [ ] | [x] | | |
+| 41 | Strateji | bil-ve-fethet (iframe) | [ ] | [x] | | |
+| 42 | Strateji | bilgi-takimi (iframe) | [ ] | [x] | | |
+| 43 | Strateji | bilgi-ciftligi (iframe) | [ ] | [x] | | |
+| 44 | Strateji | bilgi-kulesi (iframe) | [ ] | [x] | | |
+| 45 | Strateji | cevap-kosusu (iframe) | [ ] | [x] | | |
+| 46 | Strateji | bilgi-savunmasi (iframe) | [ ] | [x] | | |
+| 47 | Strateji | fizik-firlatma (iframe) | [ ] | [x] | | |
 | 48 | Online | kelime-tahmin | [ ] | [ ] | | |
 | 49 | Online | harf-tahmin | [ ] | [ ] | | |
 | 50 | Online | kod-macerasi (mp) | [ ] | [ ] | | |
