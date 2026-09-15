@@ -26,7 +26,7 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from games_data import GAMES, STATIC_PAGES  # noqa: E402
+from games_data import GAMES, STATIC_PAGES, SCHOOL_NAME, SCHOOL_URL, SCHOOL_SOCIAL  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = "https://bilnetoyun.com"
@@ -185,10 +185,13 @@ def jsonld_graph(*nodes):
 
 
 def jsonld_org():
-    # TODO(A8): parentOrganization (Bilnet Okullari resmi site) ve sameAs (sosyal hesaplar)
-    # URL'leri sahipten gelince eklenecek — uydurma/tahmini URL girilmez.
+    """Bilnet Oyun + ust kurum. Okul URL'leri games_data.SCHOOL_* (sahip dogrulamali tek kaynak).
+    sameAs sosyal hesaplar (@bilnetbalikesir) kampusun profilleri -> parentOrganization altinda;
+    Bilnet Oyun'un kendi sosyal hesabi yok, uydurulmaz."""
     return {"@type": "Organization", "@id": ORG_ID, "name": "Bilnet Oyun",
-            "url": SITE + "/", "logo": f"{SITE}/icon-512.png"}
+            "url": SITE + "/", "logo": f"{SITE}/icon-512.png",
+            "parentOrganization": {"@type": "EducationalOrganization", "name": SCHOOL_NAME, "url": SCHOOL_URL,
+                                   "sameAs": [u for _, u in SCHOOL_SOCIAL]}}
 
 
 def jsonld_breadcrumb(*items):
