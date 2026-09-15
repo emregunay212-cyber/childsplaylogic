@@ -54,7 +54,7 @@ STATIC_PAGES = [
          ]),
          ("Çok oyunculu oyunlarda", "cok-oyunculu", [
            "Online oyunlarda (Kelime Tahmin, Harf Tahmin, Satranç, Kod Macerası, Penaltı Online, Ateş &amp; Buz, Zıpla Topla Online, Hava Hokeyi, Altın Avı, Kelimelik, Son Kart) oyuncu bir <strong>takma ad</strong> yazar. Bu takma ad, oda kodu ve oyun durumu (hamleler, skor, tahmin edilen kelimeler) oyun süresince Firebase Realtime Database'de tutulur; <strong>lobi listesinde ve rakip oyunculara görünür</strong>. Bu bölümdeki kayıtlar teknik olarak hesapsız da okunabilir; bu yüzden takma ad olarak gerçek ad-soyad, sınıf ya da okul numarası yazılmamalıdır.",
-           "Kayıtlar geçicidir: oyun bitince ya da odadan çıkılınca oda silinir, bağlantı koptuğunda çevrimiçi kaydı kendiliğinden kaldırılır ve hiçbiri bir hesapla ilişkilendirilmez. Yarım bırakılan oyunlardan kalan kayıtların silinmesi okul üzerinden istenebilir. Takma ad, bir sonraki oyunda yeniden yazmamak için yalnızca kendi cihazınızda saklanır.",
+           "Kayıtlar geçicidir ve hiçbiri bir hesapla ilişkilendirilmez: lobi tabanlı oyunlarda (Kelime Tahmin, Harf Tahmin, Penaltı Online, Ateş &amp; Buz, Hava Hokeyi, Zıpla Topla Online, Kod Macerası Online, Satranç Online, Altın Avı) oyun bitince ya da odadan çıkılınca kayıt silinir; bağlantı koptuğunda çevrimiçi kaydı kendiliğinden kaldırılır. <strong>Son Kart</strong> ve <strong>Kelimelik</strong>'te başlamış bir oda, oyun bittikten sonra da bir süre veritabanında kalabilir; bu kayıtlar elle yapılan temizliklerde silinir ve silinmeleri okul üzerinden de istenebilir. Takma ad, bir sonraki oyunda yeniden yazmamak için yalnızca kendi cihazınızda saklanır.",
          ]),
          ("Skor tabloları", "skor-tablolari", [
            "Tetris, Eğim ve SpaceWaves'te oyun sonunda <strong>Skoru Kaydet</strong> seçilirse yazılan ad (en fazla 16 karakter) ve skor, herkese açık skor tablosuna eklenir. Kayıt tamamen isteğe bağlıdır; kaydetmeden de oynanabilir. Eklenen bir kayıt uygulama içinden değiştirilemez ya da silinemez; silme talebi okul üzerinden iletilir.",
@@ -66,9 +66,11 @@ STATIC_PAGES = [
          ("Kullanılan üçüncü taraf hizmetler", "ucuncu-taraf", [
            "Platform yalnızca hizmetin çalışması için gereken şu altyapıları kullanır; her biri, bağlanan tarayıcının <strong>IP adresini</strong> teknik zorunluluk olarak görür:",
            "<ul>\n"
-           "<li><strong>Google Firebase</strong> (Authentication ve Realtime Database) — giriş, ilerleme senkronu, çok oyunculu oyunlar ve merkezi yönetici ayarları. Site açılır açılmaz yönetici ayarlarını okumak için bağlanır. Veriler Google Cloud'un Belçika (europe-west1) bölgesinde tutulur; yazılım kitaplığı www.gstatic.com'dan yüklenir.</li>\n"
+           "<li><strong>Google Firebase</strong> (Authentication ve Realtime Database) — giriş, ilerleme senkronu, çok oyunculu oyunlar ve merkezi yönetici ayarları. Site açılır açılmaz yönetici ayarlarını okumak için bağlanır. Oyun verileri (Realtime Database) Google Cloud'un Belçika (europe-west1) bölgesinde tutulur; hesap kaydı Firebase Authentication hizmetinde saklanır. Yazılım kitaplığı www.gstatic.com'dan yüklenir.</li>\n"
            "<li><strong>Google Fonts</strong> — yazı tipi dosyaları fonts.googleapis.com ve fonts.gstatic.com'dan yüklenir.</li>\n"
            "<li><strong>cdnjs.cloudflare.com ve unpkg.com</strong> — Satranç (chess.js) ve LEGO World 3D (three.js) oyunlarının kitaplıkları buradan yüklenir.</li>\n"
+           "<li><strong>upload.wikimedia.org</strong> — Satranç oyunundaki taş görselleri Wikimedia Commons'tan yüklenir.</li>
+"
            "<li><strong>Vercel</strong> — site bu barındırma hizmetinden sunulur; sağlayıcı, hizmetin işletilmesi için standart sunucu kayıtları tutabilir.</li>\n"
            "</ul>",
          ]),
