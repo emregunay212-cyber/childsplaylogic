@@ -7,6 +7,7 @@ Veri: seo/games_data.py (GAMES, STATIC_PAGES). Bu dosya yalniz sablon + uretim.
 Uretir:
   oyunlar/<slug>/index.html   her kayit (active=False -> noindex + "Cok yakinda", CTA yok)
   oyunlar/index.html          hub (yalniz aktif oyunlar; CollectionPage + ItemList)
+  <slug>/index.html           STATIC_PAGES (gizlilik/hakkinda/iletisim; WebPage JSON-LD, CTA yok)
   sitemap.xml                 ana sayfa + hub + STATIC_PAGES + aktif oyunlar (lastmod git'ten)
   llms.txt                    aktif oyunlar, Turkce karakterler korunur
 
@@ -123,8 +124,26 @@ def play_modes(g):
     return "MultiPlayer" if online else "SinglePlayer"
 
 
+def static_url(p):
+    return f"{SITE}/{p['slug']}/"
+
+
+def static_nav(p):
+    return p.get("nav") or p["title"]
+
+
 def static_links():
-    return "".join(f' · <a href="/{p["slug"]}/">{esc(p["title"])}</a>' for p in STATIC_PAGES)
+    return "".join(f' · <a href="/{p["slug"]}/">{esc(static_nav(p))}</a>' for p in STATIC_PAGES)
+
+
+def total_games(active):
+    """Sitede duyurulan toplam oyun sayisi: aktif sayfalar + ayni sayfada online surumu olanlar."""
+    return len(active) + sum(1 for g in active if g.get("also_online"))
+
+
+def fill(text, total):
+    """Statik sayfa metnindeki yer tutucular (veri dosyasinda belgelenir)."""
+    return text.replace("{toplam_oyun}", str(total))
 
 
 # ---------------------------------------------------------------- git / tazelik
@@ -239,6 +258,22 @@ def jsonld_hub(active, desc, date):
     return jsonld_graph(page, jsonld_org(), jsonld_breadcrumb(("Ana Sayfa", SITE + "/"), ("Oyunlar", None)))
 
 
+def jsonld_static(p, url, desc, date):
+    page = {
+        "@type": p.get("schema_type", "WebPage"),
+        "@id": url + "#page",
+        "name": p["title"],
+        "url": url,
+        "description": desc,
+        "inLanguage": "tr",
+        "dateModified": date,
+        "publisher": {"@id": ORG_ID},
+    }
+    if page["@type"] == "AboutPage":
+        page["mainEntity"] = {"@id": ORG_ID}
+    return jsonld_graph(page, jsonld_org(), jsonld_breadcrumb(("Ana Sayfa", SITE + "/"), (p["title"], None)))
+
+
 # ---------------------------------------------------------------- sablonlar
 HEAD_COMMON = f"""<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -344,6 +379,54 @@ HUB_TMPL = """<!DOCTYPE html>
 </html>
 """
 
+STATIC_TMPL = """<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#4AABE0">
+<title>{title}</title>
+<meta name="description" content="{desc}">
+<meta name="author" content="Bilnet Oyun">
+<link rel="canonical" href="{url}">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:title" content="{ogt}">
+<meta property="og:description" content="{desc}">
+<meta property="og:url" content="{url}">
+<meta property="og:site_name" content="Bilnet Oyun">
+<meta property="og:image" content="{og_image}">
+<meta property="og:image:width" content="{og_w}">
+<meta property="og:image:height" content="{og_h}">
+<meta property="og:locale" content="tr_TR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{ogt}">
+<meta name="twitter:description" content="{desc}">
+<meta name="twitter:image" content="{og_image}">
+{head_common}
+<script type="application/ld+json">
+{jsonld}
+</script>
+</head>
+<body>
+<div class="wrap wrap--doc">
+<header><a href="/">🎮 Bilnet Oyun</a></header>
+<nav class="crumb" aria-label="Sayfa yolu"><a href="/">Ana Sayfa</a> › {nav}</nav>
+<main class="card doc">
+<h1>{h1}</h1>
+<p class="tagline">{lead}</p>
+{note}{toc}{sections}
+<div class="more">▸ <a href="/oyunlar/">Tüm eğitici oyunları gör</a></div>
+</main>
+<footer>Bilnet Oyun — Bilnet Okulları Eğitici Oyun Platformu · <a href="/">Ana Sayfa</a> · <a href="/oyunlar/">Oyunlar</a>{static_links}</footer>
+</div>
+{imza}
+</body>
+</html>
+"""
+
+TOC_MIN_SECTIONS = 5      # bu kadar ve daha cok bolumu olan sayfaya "Bu sayfada" atlama menusu
+
 CTA_ACTIVE = '<a class="play" href="/?oyun={slug}">▶ Hemen Oyna (Ücretsiz)</a>'
 CTA_SOON = '<p class="soon" role="status"><span aria-hidden="true">⏳</span> Çok yakında — bu oyun hazırlanıyor</p>'
 HOWTO_ACTIVE = ("“Hemen Oyna” butonuna dokun — kurulum, indirme veya üyelik gerekmez. "
@@ -367,6 +450,47 @@ def build_page(g, date):
         players=esc(g["players"]), age=esc(g["age"]), cat=esc(g["cat"]), teaches=esc(g["teaches"]),
         about=esc(g["about"]),
         howto=(HOWTO_ACTIVE if active else HOWTO_SOON).format(name=name),
+        static_links=static_links(), imza=IMZA_HTML)
+
+
+def static_title(p):
+    return p.get("page_title") or f"{p['title']} | Bilnet Oyun"
+
+
+def static_description(p, total):
+    return fill(p["description"], total)
+
+
+def render_block(text, total):
+    """Paragraf metni <p> icine alinir; '<' ile baslayan blok (liste, yorum) oldugu gibi basilir."""
+    text = fill(text, total)
+    return text if text.lstrip().startswith("<") else f"<p>{text}</p>"
+
+
+def render_sections(p, total):
+    out = []
+    for h2, sid, blocks in p["sections"]:
+        body = "\n".join(render_block(b, total) for b in blocks)
+        out.append(f'<section id="{sid}">\n<h2>{esc(h2)}</h2>\n{body}\n</section>')
+    return "\n".join(out)
+
+
+def render_toc(p):
+    if len(p["sections"]) < TOC_MIN_SECTIONS:
+        return ""
+    links = "\n".join(f'<a href="#{sid}">{esc(h2)}</a>' for h2, sid, _ in p["sections"])
+    return f'<nav class="toc" aria-label="Bu sayfada">\n{links}\n</nav>\n'
+
+
+def build_static(p, date, total):
+    url = static_url(p)
+    desc = static_description(p, total)
+    note = f'<p class="note" role="note">{esc(p["note"])}</p>\n' if p.get("note") else ""
+    return STATIC_TMPL.format(
+        title=esc(static_title(p)), desc=esc(desc), url=url, ogt=esc(f"{p['title']} | Bilnet Oyun"),
+        og_image=OG_IMAGE, og_w=OG_W, og_h=OG_H, head_common=HEAD_COMMON,
+        jsonld=jsonld_static(p, url, desc, date), nav=esc(static_nav(p)), h1=esc(p["title"]),
+        lead=esc(fill(p["lead"], total)), note=note, toc=render_toc(p), sections=render_sections(p, total),
         static_links=static_links(), imza=IMZA_HTML)
 
 
@@ -408,7 +532,7 @@ def games_heading(active):
 
 
 def build_llms(active):
-    total = len(active) + sum(1 for g in active if g.get("also_online"))
+    total = total_games(active)
     lines = [
         "# Bilnet Oyun",
         "",
@@ -441,6 +565,26 @@ def validate_data():
         age_range(g)
         if not re.fullmatch(r"[a-z0-9-]+", g["slug"]):
             raise ValueError(f"Gecersiz slug: {g['slug']}")
+    validate_static_pages()
+
+
+STATIC_REQUIRED = ("slug", "title", "description", "lead", "sections")
+STATIC_RESERVED = {"oyunlar", "games", "css", "js", "assets", "admin", "seo", "docs", "plans", "fabrika"}
+
+
+def validate_static_pages():
+    slugs = [p["slug"] for p in STATIC_PAGES]
+    if len(set(slugs)) != len(slugs):
+        raise ValueError(f"Tekrarlayan statik slug: {slugs}")
+    for p in STATIC_PAGES:
+        missing = [k for k in STATIC_REQUIRED if not p.get(k)]
+        if missing:
+            raise ValueError(f"Statik sayfa {p.get('slug')}: eksik alan {missing}")
+        if not re.fullmatch(r"[a-z0-9-]+", p["slug"]) or p["slug"] in STATIC_RESERVED:
+            raise ValueError(f"Gecersiz statik slug: {p['slug']}")
+        ids = [sid for _, sid, _ in p["sections"]]
+        if len(set(ids)) != len(ids) or not all(re.fullmatch(r"[a-z0-9-]+", i) for i in ids):
+            raise ValueError(f"Statik sayfa {p['slug']}: bolum id'leri benzersiz ve [a-z0-9-] olmali: {ids}")
 
 
 def limit_problems(label, title, desc):
@@ -478,23 +622,34 @@ def main():
     hub_text, hub_date, _ = render_fresh(hub_rel, lambda d: build_hub(active, d))
     problems += limit_problems("oyunlar/", hub_title(len(active)), hub_description(len(active)))
 
+    total = total_games(active)
+    statics = []
+    for p in STATIC_PAGES:
+        rel = f"{p['slug']}/index.html"
+        text, date, _ = render_fresh(rel, lambda d, p=p: build_static(p, d, total))
+        problems += limit_problems(f"{p['slug']}/", static_title(p), static_description(p, total))
+        statics.append((rel, text, date, p))
+
     if problems:
         print(f"HATA: title > {TITLE_MAX} / description > {DESC_MAX} karakter — hicbir dosya yazilmadi:")
         print("\n".join(problems))
         sys.exit(1)
 
     entries = [(SITE + "/", last_commit_date("index.html") or TODAY), (SITE + "/oyunlar/", hub_date)]
-    entries += [(f"{SITE}/{p['slug']}/", last_commit_date(f"{p['slug']}/index.html") or TODAY) for p in STATIC_PAGES]
+    entries += [(static_url(p), date) for _, _, date, p in statics]
     entries += [(page_url(g), date) for _, _, date, _, g in pages if is_active(g)]
 
     for rel, text, _, _, _ in pages:
         write(rel, text)
     write(hub_rel, hub_text)
+    for rel, text, _, _ in statics:
+        write(rel, text)
     write("sitemap.xml", build_sitemap(entries))
     write("llms.txt", build_llms(active))
 
     fresh = sum(1 for _, _, _, source, _ in pages if source == "bugun")
     print(f"OK: {len(pages)} landing ({len(active)} aktif, {len(inactive)} pasif/noindex) + hub + "
+          f"{len(statics)} statik sayfa ({', '.join(p['slug'] for p in STATIC_PAGES)}) + "
           f"sitemap.xml ({len(entries)} URL) + llms.txt ({len(active)} oyun) uretildi.")
     print(f"Kontrol: title en uzun {longest[0]}/{TITLE_MAX}, description en uzun {longest[1]}/{DESC_MAX}, sinir asimi 0.")
     print(f"lastmod: {fresh} sayfa degisti -> bugun ({TODAY}); {len(pages) - fresh} sayfa HEAD ile ayni -> son commit tarihi.")
