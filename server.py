@@ -2,7 +2,7 @@
 """Geliştirme için statik sunucu — tarayıcı cache'ini kapatır (no-store) ve eş zamanlı
 istekleri thread'lerle işler (ThreadingHTTPServer). Böylece JS/CSS değişiklikleri anında
 yansır ve çok sayıda paralel istek sayfayı kilitlemez. Yalnız yerel geliştirme içindir;
-canlıda Firebase Hosting kullanılır. Kullanım: python server.py"""
+canlıda Vercel kullanılır (master'a push = otomatik deploy; firebase.json yalnız RTDB kuralları için). Kullanım: python server.py"""
 import http.server
 
 PORT = 8000
