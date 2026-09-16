@@ -78,6 +78,12 @@ const ModulAdi = (() => {
   Oyun deseni: `const Audio2 = (() => { const { init, tone } = EduKit.audio; return { init, ok: () => tone(660, 0.1, 'triangle', 0.07), … }; })();` — ses adları/frekanslar oyunda kalır, zarf kit'te.
 - Kit CSS token'ları `css/tokens.css`'in KOPYASIdır (iframe'e tokens.css ulaşmaz); yeni token gerekirse tokens.css'ten kopyalanır, test (`edu-kit.spec.js`) ad+değer eşitliğini denetler. Kit sürümü `EduKit.version` (semver; API kırılırsa majör).
 
+### Online iframe oyunu → Firebase köprüsü (`window.BilnetBridge`, B6)
+
+- Iframe sayfası Firebase SDK'sını ve config'i **yüklemez** (config tek yerde: `js/firebase-config.js`; `grep apiKey games/` 0). Hub'ın köprüsü: `window.BilnetBridge = { firebase, db, ready(): Promise<db|null>, uid(): string|null, displayName(): string }` — `ready()` **asla reddetmez** (çevrimdışı/SRI engeli → `null`), `uid()` misafirde `null` (B7 anonim auth doldurur), `displayName()` Google adı → `mp_name` → `'Oyuncu'`.
+- Iframe deseni (`games/kelimelik/net.js`, `games/son-kart/js/net.js`, `games/ates-buz/js/network.js`, `games/hava-hokeyi/index.html`): `try { b = window.parent !== window && window.parent.BilnetBridge } catch {}` (çapraz-origin fırlatır) → `db = b ? await b.ready() : null`; sunucu damgası `b.firebase.database.ServerValue.TIMESTAMP`. Bağımsız açılışta (`/games/<slug>/`, parent yok) online **desteklenmez** (Karar 6): düğmeler `disabled` + "Bu oyun Bilnet Oyun içinden oynanır" + `/?oyun=<slug>` bağlantısı; solo/alıştırma çalışır. Test: `npm run test:bridge` (CI) · canlı iki cihaz `BRIDGE_LIVE=1 npm run test:bridge-live`.
+- Vendor kütüphane (three, chess, GLTFLoader) yalnız `js/lib/` (README tablosu + sha256); `data/games.json files` dış URL kabul etmez (`CDN_HOSTS = []`), CSP `script-src` dış origin yalnız gstatic + apis.google.com.
+
 ### Yeni oyun ekleme (README "Yeni oyun ekleme" + düzeltme)
 
 README "Yeni oyun ekleme" (B2a sonrası) güncel; kısa sıra:

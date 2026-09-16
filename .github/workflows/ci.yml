@@ -68,6 +68,11 @@ jobs:
       # EduKit (B5): 20 eğitsel iframe oyunu — kit yüklü, satır içi script 0, CSP provası (tests/edu-kit.spec.js)
       - run: CI=true SITE_ROOT=.build-check npm run test:edu-kit
 
+      # BilnetBridge (B6): kelimelik/son-kart SDK'yı hub'dan alır (iframe'den gstatic isteği 0), bağımsız açılışta
+      # online kapalı + hub bağlantısı, 4 iframe sayfasında CSP satır içi envanteri (tests/bridge.spec.js).
+      # Canlı iki cihaz testi (tests/bridge-live.spec.js) CI'da koşmaz: BRIDGE_LIVE=1 ile elle.
+      - run: CI=true SITE_ROOT=.build-check npm run test:bridge
+
       - name: Duman testi — hash'li çıktı üzerinde (tüm aktif oyunlar, admin.html, oyunlar/index.html)
         run: npm run test:smoke
         env:
