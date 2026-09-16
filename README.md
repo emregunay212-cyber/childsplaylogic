@@ -14,7 +14,8 @@ Bu dosya (ve tüm `*.md`) `.vercelignore` ile yayın dışıdır.
 | `tools/build-catalog.js` | JSON → `js/catalog.js` (`GAME_SECTIONS/GAME_CATALOG/GAME_MODULES`, ÜRETİLMİŞ) + `index.html` altbilgi grupları (`<!-- catalog:start/end -->`); şema doğrular; `--check` fark varsa çıkış 1 | `npm run catalog` / `catalog:check`; bağımlılıksız; `.vercelignore` ile yayın dışı |
 | `index.html` + `js/app.js` | Hub (SPA). Kayıt defteri `gameCategoryDefs`/`mpGameDefs` `GAME_CATALOG`'dan türetilir — her oyun tembel thunk `{ game: GAME_MODULES[ad], id, levels, files, color: var(--kat-<bölüm>), comingSoon: !active }`; `resolveModule()` bozuk modülü yalnız kendi kartından düşürür | Derin bağlantı: `/?oyun=<slug>` (`tryDeepLink`) |
 | `js/games/<id>.js` | Oyun modülü. Ya hub içinde doğrudan çalışır (`const id = '<slug>'`, `init/destroy`) ya da `games/<id>/index.html`'i iframe'e gömen sarmalayıcıdır (örn. `js/games/bilgi-ciftligi.js`) | 62 modül |
-| `games/<id>/` | iframe'de çalışan bağımsız tek-dosya oyunlar (27); hepsi `noindex` + canonical `/oyunlar/<id>/` (PR #15) | Bazılarında `kaynak/` + `build.py` ya da `tools/` — üretilen `index.html` elle düzenlenmez |
+| `games/<id>/` | iframe'de çalışan bağımsız oyunlar (27); hepsi `noindex` + canonical `/oyunlar/<id>/` (PR #15). 20 eğitsel oyun (B5): `index.html` + `game.js` (satır içi script 0), kit `games/_shared/` | Bazılarında `kaynak/` + `build.py` ya da `tools/` — üretilen `index.html` elle düzenlenmez |
+| `games/_shared/edu-kit.js` + `edu-kit.css` | Eğitsel iframe oyunlarının ortak çekirdeği (B5): `window.EduKit` — tek AudioContext + `tone`, `pick/shuffle/randInt`, `window.storage` köprüsü, `onHidden` (visibilitychange + pagehide), `toast`; CSS: tokens.css kopyası `:root` (ham hex yalnız burada), `:focus-visible`, reduced-motion | API sözleşmesi CLAUDE.md; `npm run test:edu-kit` (kit + satır içi script 0 + CSP provası); üretilmiş değil, elle düzenlenir |
 | `js/lock-catalog.js` | Kilit listesi + yıldız eşikleri (`GAME_CATALOG`'dan türetilir; API aynı: `SOLO_GAMES/ONLINE_GAMES/LOCK_CATALOG/LOCK_STARS_BY_KEY`); hub ve admin paneli bunu okur | Eşik = JSON `stars` / `online.stars`; 0 = açık |
 | `js/auth.js`, `js/firebase-config.js`, `js/multiplayer.js`, `js/lobby.js` | Google girişi / misafir modu, `users/{uid}/gameSaves` bulut senkronu (`GAME_SAVE_KEYS`), Firebase **Realtime Database** lobi/oda | Firestore yok |
 | `js/bilnet-meta.js` | Eğitsel meta katman: jeton (`DAILY_CAP = 50`), giriş serisi, rozetler — istemci tarafı | |
@@ -49,12 +50,13 @@ npm run catalog:check                   # data/games.json şeması + js/catalog.
 npm run sri:check                       # Firebase SDK (gstatic) integrity hash'leri hâlâ doğru mu (CI koşar); yenileme: node tools/sri-check.js --print
 npm run build:check                     # deploy simülasyonu: kök → .build-check (hash'li), çıktı doğrulanır (?v= kalıntısı/eski hash = hata)
 npm run test:build                      # tools/build.js birim testleri (idempotence, döngü, eksik dosya, --out)
-npm run test:smoke                      # her aktif oyun /?oyun=<slug> ile açılır, 3 sn hatasız çalışmalı (60 test)
+npm run test:smoke                      # her aktif oyun /?oyun=<slug> ile açılır, 3 sn hatasız çalışmalı (61 test)
+npm run test:edu-kit                    # 20 eğitsel iframe oyunu: hub iframe + bağımsız açılış + CSP provası (script-src self, satır içi ihlal 0), edu-kit.css token eşitliği (63 test)
 SITE_ROOT=.build-check PORT=8766 npm run test:smoke   # aynı test hash'li çıktı üzerinde (CI böyle koşar)
 python seo/test_build_seo.py            # üretici birim testleri
 ```
 
-`BASE_URL=https://<vercel-önizleme> npm run test:smoke` dış ortamda koşar. CI (`ci.yml`) her PR'da lint + `catalog:check` + `sri:check` + SEO üretimi tazelik kontrolü (`python seo/build_seo.py && git diff --exit-code -I lastmod …`) + `test:build` + `build:check` + duman testini (hash'li çıktı üzerinde) çalıştırır; iş adı `eslint + Playwright duman testi` master'da **required check**tir (branch protection, A10b) — kırmızıyken merge edilemez, force-push ve dal silme kapalı.
+`BASE_URL=https://<vercel-önizleme> npm run test:smoke` dış ortamda koşar. CI (`ci.yml`) her PR'da lint + `catalog:check` + `sri:check` + SEO üretimi tazelik kontrolü (`python seo/build_seo.py && git diff --exit-code -I lastmod …`) + `test:build` + `build:check` + `test:edu-kit` + duman testini (ikisi de hash'li çıktı üzerinde) çalıştırır; iş adı `eslint + Playwright duman testi` master'da **required check**tir (branch protection, A10b) — kırmızıyken merge edilemez, force-push ve dal silme kapalı.
 
 ## Deploy
 
@@ -81,7 +83,7 @@ Oyunu kapatmak: JSON kaydında `active: false` (tek bayrak: hub'da "Yakında" ka
 
 - RTDB kuralları (PR #13): kök `.read/.write: false`; `lobbies`, `players`, `rooms/*` yalnız anahtar biçimi tutan tekil kayıtlara yazılır (`^[A-Z]{5}$`, `^[A-Z2-9]{4}$`, `^P[a-z0-9]{10,16}$`), lobi sayı alanları tip doğrulamalı; `users/{uid}` yalnız sahibine; `leaderboards/*` yalnız yeni kayıt, `timestamp == now`. Lobi/oda verisi tasarım gereği herkese okunur.
 - Firebase'den gelen ad/lobi alanları `innerHTML` öncesi kaçışlanır (PR #16); yeni kod `textContent` ya da `escapeHTML` kullanmalı.
-- `vercel.json` CSP **Report-Only** — zorlayıcı moda geçiş A9c'de (27 iframe sayfası satır içi `<script>` taşıyor).
+- `vercel.json` CSP **Report-Only** — zorlayıcı moda geçiş B9'da. Satır içi `<script>` taşıyan iframe sayfası B5 sonrası 6 (bil-ve-fethet, zindan-okcusu, kelime-madeni-3d, hava-hokeyi; kelimelik + son-kart B6); 20 eğitsel oyun `script-src 'self'` altında ihlalsiz (`npm run test:edu-kit` CSP provası).
 - Üçüncü taraf script (B8a): Firebase compat SDK gstatic'ten `integrity="sha384-…" crossorigin="anonymous"` ile yüklenir (Karar 5: vendor değil, SRI); hash uyuşmazsa tarayıcı script'i engeller, hub A4 çevrimdışı modunda açılır (tek kişilik oyunlar), CI `sri:check` kırmızı olur. chess.js ve GLTFLoader `js/lib/` altında yerel; unpkg CSP'den düştü, cdnjs yalnız three.min.js için (B6'ya kadar).
 - Sırlar: `js/firebase-config.js`'teki Firebase web yapılandırması herkese açık istemci anahtarıdır; gizli anahtar, token ya da servis hesabı repoda **bulunmaz**, eklenmez.
 - İstemci tarafı temizlikçi (`js/janitor.js`): ücretsiz Spark planında Cloud Functions yok; herkese okunur `lobbies` ve `rooms/*` altında çocuk takma adları birikmesin diye temizliği ziyaretçi tarayıcısı yapar — `createdAt` 24 saatten eski (ya da hiç olmayan) kayıtlar yol başına en çok 60'ar silinir.
