@@ -357,8 +357,9 @@
             </div>
         </main>
 
-        <!-- Meta katman: jeton/ilerleme paneli + bildirim (EGITSEL-OYUN-PLANI §3) -->
-        <div id="meta-panel" class="meta-panel" role="dialog" aria-modal="true" aria-labelledby="mp-title" aria-hidden="true">
+        <!-- Meta katman: jeton/ilerleme paneli + bildirim (EGITSEL-OYUN-PLANI §3).
+             <dialog> — js/dialog.js açar/kapatır (B3): odak, Escape, inert arka plan orada; burada özel kod yok. -->
+        <dialog id="meta-panel" class="dialog meta-panel" aria-labelledby="mp-title">
             <div class="meta-card">
                 <div class="meta-head">
                     <h2 id="mp-title">🎓 Eğitsel İlerlemen</h2>
@@ -374,7 +375,7 @@
                 <div class="meta-badges" id="mp-badges"></div>
                 <p class="meta-note">Her oyunda skorunun 1/100'ü kadar jeton kazanırsın (günde en çok 50). Her gün gir, serini büyüt! Jeton dükkânı ve rozetler yakında. 🛍️</p>
             </div>
-        </div>
+        </dialog>
         <div id="meta-toast" class="meta-toast"></div>
 
         <!-- Oyun Container -->
@@ -400,21 +401,23 @@
             <div id="game-area" class="game-area"></div>
         </div>
 
-        <!-- Seviye Tamamlama Overlay -->
-        <div id="level-complete" class="level-complete hidden">
+        <!-- Seviye Tamamlama: <dialog>, js/engine.js → Dialog.open(dismissible:false) — Escape kapatmaz
+             (çocuk kazara çıkmasın); ilk odak "Sonraki Seviye" (son seviyede "Tekrar Oyna"). -->
+        <dialog id="level-complete" class="dialog level-complete" aria-labelledby="complete-title">
             <div class="complete-card">
                 <h2 class="complete-title" id="complete-title">Aferin!</h2>
                 <div class="complete-stars" id="complete-stars"></div>
                 <div class="complete-buttons">
-                    <button id="btn-replay" class="complete-btn replay-btn">Tekrar Oyna</button>
-                    <button id="btn-next" class="complete-btn next-btn">Sonraki Seviye</button>
-                    <button id="btn-hub" class="complete-btn hub-btn">Oyunlar</button>
+                    <button id="btn-replay" class="complete-btn replay-btn" type="button">Tekrar Oyna</button>
+                    <button id="btn-next" class="complete-btn next-btn" type="button">Sonraki Seviye</button>
+                    <button id="btn-hub" class="complete-btn hub-btn" type="button">Oyunlar</button>
                 </div>
             </div>
-        </div>
+        </dialog>
 
-        <!-- Konfeti Canvas -->
-        <canvas id="particles-canvas" class="particles-canvas"></canvas>
+        <!-- Konfeti Canvas — data-dialog-ustu: modal açıkken js/dialog.js popover ile üst katmana alır
+             (konfeti perdenin altında kalmasın) -->
+        <canvas id="particles-canvas" class="particles-canvas" data-dialog-ustu></canvas>
     </div>
 
     <!-- SEO İçerik Bloğu (Google bot için) -->
@@ -454,6 +457,7 @@
          (Firebase compat <head>'de defer → firebase-config.js ondan sonra). Oyun modülleri (js/games/*.js)
          burada DEĞİL: js/app.js kayıt defterindeki `files` listesinden oyun açılınca yüklenir (js/loader.js). -->
     <script defer src="js/errors.js"></script>
+    <script defer src="js/dialog.js"></script><!-- tek modal/katman API'si (B3): kilit penceresi, meta panel, seviye tamamlama, hesap menüsü -->
     <script defer src="js/catalog.js"></script><!-- ÜRETİLMİŞ: data/games.json → npm run catalog; i18n/lock-catalog/app bundan türetir -->
     <script defer src="js/firebase-config.js?v=3"></script>
     <script defer src="js/janitor.js"></script>

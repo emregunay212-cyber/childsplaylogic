@@ -13,6 +13,7 @@
     "test": "playwright test",
     "test:smoke": "playwright test tests/smoke.spec.js",
     "test:janitor": "playwright test tests/janitor.spec.js",
+    "test:dialog": "playwright test tests/dialog.spec.js",
     "test:build": "playwright test tests/build.spec.js"
   },
   "devDependencies": {

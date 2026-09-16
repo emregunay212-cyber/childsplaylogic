@@ -1,3 +1,4 @@
+/* global Dialog */   /* js/dialog.js (B3) — eslint.config.js hubCoreGlobals listesine eklenene kadar (config-protection hook) */
 /* ============================================
    BİLNET META KATMAN v1 (EGITSEL-OYUN-PLANI §3.1-3.2 + §6)
    Jeton sistemi + günlük giriş serisi + eğitsel profil paneli.
@@ -172,7 +173,8 @@ const BilnetMeta = (() => {
         clearTimeout(toastT);
         toastT = setTimeout(() => t.classList.remove('show'), 3200);
     }
-    function openPanel() {
+    // evt: jeton çipini etkinleştiren olay (bindActivate) — klavyeyle açılan panel animasyonsuz (B3 görev 4)
+    function openPanel(evt) {
         const ov = document.getElementById('meta-panel');
         if (!ov) return;
         document.getElementById('mp-coins').textContent = M.coins;
@@ -201,25 +203,17 @@ const BilnetMeta = (() => {
                 return `<div class="meta-badge${on ? ' on' : ''}" title="${b.k}"><span>${on ? b.e : '🔒'}</span><small>${b.ad}</small></div>`;
             }).join('');
         }
-        // Erişilebilirlik: görünürken aria-hidden kalkar, odak "Kapat"a gider, Escape kapatır,
-        // kapanınca odak jeton çipine döner.
-        ov.setAttribute('aria-hidden', 'false');
-        ov.classList.add('show');
-        document.addEventListener('keydown', onPanelKey);
-        const closeBtn = document.getElementById('mp-close');
-        if (closeBtn) { try { closeBtn.focus(); } catch (e) {} }
+        // <dialog> (js/dialog.js, B3): odak "Kapat"a, Escape / perdeye tık kapatır, arka plan inert,
+        // kapanınca odak jeton çipine döner. Burada özel Escape/odak kodu YOK.
+        Dialog.open(ov, {
+            initialFocus: '#mp-close',
+            returnFocus: '#coin-counter',
+            animate: !Dialog.fromKeyboard(evt),
+        });
     }
     function closePanel() {
         const ov = document.getElementById('meta-panel');
-        if (!ov || !ov.classList.contains('show')) return;
-        ov.classList.remove('show');
-        ov.setAttribute('aria-hidden', 'true');
-        document.removeEventListener('keydown', onPanelKey);
-        const chip = document.getElementById('coin-counter');
-        if (chip) { try { chip.focus(); } catch (e) {} }
-    }
-    function onPanelKey(e) {
-        if (e.key === 'Escape') { e.preventDefault(); closePanel(); }
+        if (ov) Dialog.close(ov);
     }
 
     function init() {
@@ -232,8 +226,7 @@ const BilnetMeta = (() => {
         MobileUtils.bindActivate(document.getElementById('coin-counter'), openPanel);
         const closeBtn = document.getElementById('mp-close');
         if (closeBtn) closeBtn.addEventListener('click', closePanel);
-        const ov = document.getElementById('meta-panel');
-        if (ov) ov.addEventListener('click', e => { if (e.target === ov) closePanel(); });
+        // perdeye tık → Dialog (dismissible) kapatır
         // iframe oyunları kuyruğa yazınca parent'a storage eventi düşer → anında işle
         window.addEventListener('storage', e => {
             if (e && e.key === QUEUE_KEY) processQueue();
