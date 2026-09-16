@@ -1318,7 +1318,7 @@
       },
       "files": {
         "js": ["js/games/kelimelik.js"],
-        "css": []
+        "css": ["css/zindan-okcusu.css"]
       }
     },
     {

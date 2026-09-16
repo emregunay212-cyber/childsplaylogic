@@ -13,7 +13,8 @@ const KelimelikGame = (() => {
   const uid = () => 'k' + (++uidC);
   const myId = () => NET ? NET.myId() : 'me';
 
-  function init(r) { root = r; uidC = 0; try { D.load(); } catch (e) {} try { if (NET) NET.init(); } catch (e) {} showMenu(); }
+  // NET.init() hub köprüsünü (parent.BilnetBridge.ready) bekler; asla reddetmez. Menü db kararı bilinince çizilir.
+  async function init(r) { root = r; uidC = 0; try { D.load(); } catch (e) {} try { if (NET) await NET.init(); } catch (e) {} showMenu(); }
 
   function tileEl(letter, opts) {
     const t = document.createElement('div');
@@ -31,15 +32,27 @@ const KelimelikGame = (() => {
     const h = document.createElement('h1'); h.className = 'kl-title'; h.textContent = 'KELİMELİK'; w.appendChild(h);
     const sub = document.createElement('p'); sub.className = 'kl-sub'; sub.textContent = 'Türkçe Kelime Oyunu'; w.appendChild(sub);
     const mk = (label, cls, fn) => { const b = document.createElement('button'); b.className = 'kl-mbtn' + (cls ? ' ' + cls : ''); b.textContent = label; b.addEventListener('click', fn); return b; };
-    if (NET && NET.hasDB()) {
-      w.appendChild(mk('⚡ Hızlı Eşleş', 'primary', onQuick));
-      w.appendChild(mk('🏠 Oda Kur', null, onCreate));
-      const row = document.createElement('div'); row.className = 'kl-joinrow';
-      const inp = document.createElement('input'); inp.className = 'kl-code'; inp.id = 'kl-joincode'; inp.placeholder = 'ODA KODU'; inp.maxLength = 4; inp.autocapitalize = 'characters';
-      inp.addEventListener('input', () => { inp.value = inp.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });
-      row.appendChild(inp); row.appendChild(mk('Katıl', null, () => onJoin(inp.value))); w.appendChild(row);
-    } else {
-      const wn = document.createElement('p'); wn.className = 'kl-warn'; wn.textContent = 'Online bağlantı kurulamadı — yalnız alıştırma modu.'; w.appendChild(wn);
+    const hasDB = !!(NET && NET.hasDB());
+    const inHub = !!(NET && NET.inHub());
+    // Online düğmeleri her zaman çizilir; db yoksa devre dışı (durum yalnız renkle anlatılmaz: metin + disabled).
+    const quickBtn = mk('⚡ Hızlı Eşleş', 'primary', onQuick); quickBtn.disabled = !hasDB; w.appendChild(quickBtn);
+    const createBtn = mk('🏠 Oda Kur', null, onCreate); createBtn.disabled = !hasDB; w.appendChild(createBtn);
+    const row = document.createElement('div'); row.className = 'kl-joinrow';
+    const inp = document.createElement('input'); inp.className = 'kl-code'; inp.id = 'kl-joincode'; inp.placeholder = 'ODA KODU'; inp.maxLength = 4; inp.autocapitalize = 'characters'; inp.disabled = !hasDB;
+    inp.addEventListener('input', () => { inp.value = inp.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });
+    const joinBtn = mk('Katıl', null, () => onJoin(inp.value)); joinBtn.disabled = !hasDB;
+    row.appendChild(inp); row.appendChild(joinBtn); w.appendChild(row);
+    if (!hasDB) {
+      // Bağımsız açılış (/games/kelimelik/): online yalnız hub'da (Karar 6) → hub'a bağlantı.
+      // Hub içinde ama çevrimdışı/engelli: maskot sesi, teknik terim yok (tasarım sözleşmesi §3.09).
+      const wn = document.createElement('p'); wn.className = 'kl-warn';
+      if (!inHub) {
+        wn.textContent = 'Arkadaşınla oynamak için bu oyun Bilnet Oyun içinden oynanır. ';
+        const a = document.createElement('a'); a.className = 'kl-hublink'; a.href = '/?oyun=kelimelik'; a.textContent = 'Bilnet Oyun’a git'; wn.appendChild(a);
+      } else {
+        wn.textContent = 'Şu an bağlanamıyoruz. Tek başına alıştırabilirsin.';
+      }
+      w.appendChild(wn);
     }
     const or = document.createElement('div'); or.className = 'kl-or'; or.textContent = '— veya —'; w.appendChild(or);
     w.appendChild(mk('🤖 Yapay Zekaya Karşı', 'ai', showAIDiff));
@@ -308,8 +321,8 @@ const KelimelikGame = (() => {
 
   /* ---------------- ONLINE ---------------- */
   // createdAt sunucu damgası (diğer üç yol gibi): js/janitor.js bayatlığı sunucu saatine göre ölçer;
-  // istemci saati (Date.now) kaymış olsa da oda yanlışlıkla "24 saatten eski" görünmez.
-  function serverTs() { try { return window.firebase.database.ServerValue.TIMESTAMP; } catch (e) { return Date.now(); } }
+  // istemci saati (Date.now) kaymış olsa da oda yanlışlıkla "24 saatten eski" görünmez. Kaynak: hub köprüsü (net.js).
+  function serverTs() { return NET.serverTs(); }
   function buildInitial(id, name) {
     return { code: NET.code(), state: 'WAITING', createdAt: serverTs(), hostId: id, pids: [id], names: { [id]: name }, scores: { [id]: 0 }, racks: {}, bag: E.newBag(), board: [], turn: null, passes: 0, last: null, winner: null };
   }

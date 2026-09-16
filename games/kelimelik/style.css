@@ -103,6 +103,11 @@ body {
 .kl-joinrow .kl-mbtn { flex: 0 0 auto; padding: 13px 18px; }
 .kl-or { color: #6b7c96; font-size: .85rem; margin: 4px 0; }
 .kl-warn { color: #ffb86b; font-size: .9rem; }
+/* B6: online kapalıyken düğmeler devre dışı (bağımsız açılış ya da çevrimdışı); durum metinle de söylenir (.kl-warn) */
+.kl-mbtn:disabled, .kl-code:disabled { opacity: .45; cursor: not-allowed; }
+.kl-mbtn:disabled:active { transform: none; }
+.kl-hublink { color: inherit; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
+.kl-hublink:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; border-radius: 6px; }
 .kl-menuerr { color: #ff8a9c; min-height: 18px; font-weight: 700; font-size: .9rem; }
 .kl-bigcode { font-size: clamp(40px, 15vw, 76px); font-weight: 900; letter-spacing: 10px; color: #ffd56b; background: rgba(0,0,0,.25); border-radius: 16px; padding: 12px; }
 .kl-exit { margin-top: 6px; background: none; border: none; color: #9fb0c8; font-family: inherit; font-size: .9rem; cursor: pointer; align-self: center; }
