@@ -5,6 +5,27 @@
 **Önkoşul:** Faz 1 A6, A7, A8a merge (tamam). A9a/b/c, A8b (takma ad seçici), A10b (hash build) **bu plandan önce** biter; aşağıda hangi adımın hangisine yaslandığı yazılıdır.
 **Durum takibi:** adım başlığındaki kutu işaretlenir; adım bitmeden sonrakine geçilmez.
 
+## KALDIĞIMIZ YER — sonraki çalışma günü **Salı 22 Eylül 2026** (sahip kararı, 16 Eyl 16:45)
+
+**Durum (16 Eyl 2026 16:45):** master `a51cb64` canlıda ve doğrulandı (bilnetoyun.com: tokens.css / catalog.js / dialog.js / hub-ia.js / edu-kit hash'li servis, hub 163 kart, Firebase bağlı, konsol 0 hata). Bugün merge edilen PR'lar: **#37** B2a · **#39** plan · **#40** B1 · **#42** B8a görev 2–3 · **#43** B3 · **#44** B5 · **#45** B2b (hepsi CI + `security-ai-generated-code-auditor` + sahip doğrulaması geçidinden). Diğer oturum: #38 + #41 Klavye Kâşifi.
+
+**Bitenler:** B0 · B1 · B2a · B2b · B3 · B5 · B8a (görev 1–3). **Kalan:** B6 (yarım), B4, B7, B8b, B9 + küçük düzeltme.
+
+**Salı 22 Eylül sırası (tahmini 1 iş günü; ajan + geçit hızı bugünkü gibi ~1–2 sa/adım):**
+1. **B6 kapanış (~1 sa).** Dal `faz2/b6-kopru` (`a64caf7`, 6 commit: köprü, kelimelik, son-kart, ates-buz+hava-hokeyi, three, **wip test/CI/belge — DOĞRULANMADI**; ajan oturum limitinde kesildi). Worktree `.claude/worktrees/agent-a6580cf2670528f56` duruyor (ya da yeni worktree + `git switch faz2/b6-kopru`). Yapılacak: `git merge origin/master`; `npm run lint && npm run catalog:check && npm run sri:check && PORT=8782 npm run test:smoke && npm run test:edu-kit && npm run test:dialog && npm run test:hub-ia && npx playwright test tests/bridge.spec.js` (+ `bridge-live.spec.js` canlı RTDB ile iki context); `grep -rn "apiKey" games/` → 0; `grep -rn "cdnjs" index.html admin.html js/ data/ games/ seo/ vercel.json tools/` → 0; `node tools/build.js --out .build-check --check`; `python seo/test_build_seo.py`; iki cihaz Son Kart oda kur/katıl + Kelimelik 1 tur (hub üzerinden); bağımsız `/games/kelimelik/`, `/games/son-kart/` online düğmeleri devre dışı + yönlendirme; PR → CI → güvenlik denetimi → merge. B6 §Doğrulama/Çıkış kriteri aynen.
+2. **Hesap değişimi düzeltmesi (~30 dk, ayrı küçük PR):** `js/app.js proceedAfterAuth` yeniden giriş dalında `showHub()` öncesi `GameEngine.destroy()`; `js/auth.js onAuthStateChanged(null)`'da `clearGameSaves()` + `mode/currentUser` sıfırlama (B5 denetimi bulgusu: oyun içindeyken başka sekmeden çıkış + aynı sekmede başka hesap → eski iframe `pagehide` ile A'nın istatistiği B'nin bulutuna yazılabiliyor). Test: iki context, `tests/` altına 1 spec.
+3. **B4 hareket (~1,5 sa):** `design-ui-designer` + `emil-design-eng` çerçevesi; tokens.css köprü katmanı (`--ease-bounce/--ease-spring`, eski adlar) kaldırılır; hub.css sonsuz dekoratif animasyonlar; seviye tamamlama yıldız koreografisi (§3.06); `kanit/B4-hareket.md` + performance izi.
+4. **B7 anonim auth (~2 sa):** Karar 1 hâlâ açık — öneri **1b: birikime razı ol + sayaç** (Spark, maliyetsiz); temizlik için GitHub Actions cron + servis hesabı (secret yalnız Actions'ta). `BilnetBridge.uid()` B6'da hazır.
+5. **B8b og:image (~1 sa):** artık B2b görselleri kesin; Playwright ekran görüntüsü (Karar 9 öneri).
+6. **B9 PR1 (~1 sa):** kalan 4 satır içi sayfa (bil-ve-fethet, zindan-okcusu, kelime-madeni-3d, hava-hokeyi) + nihai Report-Only değeri + `tests/csp.spec.js`. **Takvim:** PR1 22 Eyl → 7 gün gözlem → PR2 (enforce + Report-Only çift başlık) **29 Eyl** → 7 gün → PR3 (Report-Only silinir) **6 Ekim**. Gözlem = 3 cihazda konsol + `BASE_URL=https://bilnetoyun.com npm run test:smoke` (ücretsiz rapor toplayıcı yok).
+7. **Kapanış:** canlı ekran görüntüsü + egweblab.com.tr portfolyo girişi (global kural); `docs/inceleme-2026-09-15/00-OZET.md` "Durum" güncellemesi; README "Marka imzası" durumu satırı bayat (PR #21 kapandı) → düzelt.
+
+**Açık küçük işler (Salı'ya not):** `index.html` `<head>` meta/JSON-LD oyun sayıları elle "57" (gövde 58, üretici `catalog:seo`) → `tools/build-catalog.js`'e `catalog:head` bloğu; `oyunlar/index.html` JSON-LD `numberOfItems` 56 vs metin 58 (`seo/build_seo.py`); maskot `assets/maskot/bulut-*.svg` marka onayı (sahip); `eslint.config.js` `Dialog/HubIA/GAME_SHELVES` global'leri ECC config-protection hook'u nedeniyle `/* global */` yönergesinde — hook'u sahip kapatırsa tek satır; `.gitattributes` EKLENMEDİ (autocrlf; merge commit'leri README'yi CRLF yazabiliyor → merge öncesi `git show HEAD:README.md | file -` kontrolü).
+
+**Sahip tarafı (bekliyor):** iki cihazlı Google sıfırlama testi; NVDA ile dialog turu (`kanit/B3-a11y.md` beklenen okumalar); Karar 1 (B7) onayı; maskot onayı.
+
+---
+
 ## Ön bilgi (soğuk başlangıç için)
 
 - Canlı site **Vercel**; önizleme URL'leri SSO korumalı → Vercel MCP `get_access_to_vercel_url` ile `_vercel_share` bağlantısı, `curl` çerez kavanozuyla. Firebase CLI Git Bash'te `MSYS_NO_PATHCONV=1`; yedekler repo dışına (`~/.claude/backups/`), depo herkese açık.
