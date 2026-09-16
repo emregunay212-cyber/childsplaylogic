@@ -1,0 +1,1330 @@
+{
+  "_aciklama": "bilnetoyun.com oyun kataloğu — TEK KAYNAK. Okuyanlar: tools/build-catalog.js (→ js/catalog.js + index.html altbilgi), seo/games_data.py (→ /oyunlar/ landing, sitemap, llms.txt), tests/helpers/slugs.js (duman testi). Alan sözlüğü: docs/inceleme-2026-09-15/kanit/B2a-veri-notlari.md. Sıra = hub sırası; online bölümü sırası online.order.",
+  "sections": [
+    {
+      "id": "harf",
+      "title": "Harfler & Kelimeler",
+      "icon": "letters",
+      "color": "#45B7D1"
+    },
+    {
+      "id": "sayi",
+      "title": "Sayılar & Matematik",
+      "icon": "numbers",
+      "color": "#4ECDC4"
+    },
+    {
+      "id": "bulmaca",
+      "title": "Bulmaca & Mantık",
+      "icon": "puzzles",
+      "color": "#A55EEA"
+    },
+    {
+      "id": "yaratici",
+      "title": "Yaratıcılık",
+      "icon": "creativity",
+      "color": "#FF78C4"
+    },
+    {
+      "id": "strateji",
+      "title": "Strateji & Macera",
+      "icon": "strategy",
+      "color": "#27AE60"
+    },
+    {
+      "id": "online",
+      "title": "Online Çok Oyunculu",
+      "icon": "online",
+      "color": "#5B4A8A"
+    }
+  ],
+  "games": [
+    {
+      "slug": "harf-tanima",
+      "name": "Harf Tanıma",
+      "module": "HarfTanima",
+      "section": "harf",
+      "cat": "Okul Öncesi",
+      "subject": "turkce",
+      "age": [4, 7],
+      "minutes": 5,
+      "levels": 3,
+      "teaches": "Harf tanıma ve okuma hazırlığı",
+      "short": "Harfleri tanı, okumaya ilk adımı at.",
+      "about": "Harf Tanıma, çocukların harfleri görsel olarak tanıyıp ayırt ettiği okuma-hazırlık oyunudur. Alfabe bilgisi ve okur-yazarlığa geçişi destekler. Anaokulu ve 1. sınıf için ücretsiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/harf-tanima.js"],
+        "css": []
+      }
+    },
+    {
+      "slug": "hece-birlestirme",
+      "name": "Hece Birleştirme",
+      "module": "HeceBirlestirme",
+      "section": "harf",
+      "cat": "Okuma",
+      "subject": "turkce",
+      "age": [5, 8],
+      "minutes": 5,
+      "levels": 3,
+      "teaches": "Hece bilgisi ve okuma akıcılığı",
+      "short": "Heceleri birleştirip kelime kur, okumayı pekiştir.",
+      "about": "Hece Birleştirme, heceleri bir araya getirerek kelime oluşturduğun bir okuma oyunudur. Hece bilinci ve okuma akıcılığını geliştirir. İlkokul okuma çalışmaları için ücretsiz ve eğlenceli.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/hece-birlestirme.js"],
+        "css": []
+      }
+    },
+    {
+      "slug": "kelime-madeni-3d",
+      "name": "Kelime Madeni 3D",
+      "module": "KelimeMadeni3D",
+      "section": "harf",
+      "cat": "3D / İngilizce",
+      "subject": "ingilizce",
+      "age": [8, 12],
+      "minutes": 15,
+      "levels": 1,
+      "teaches": "İngilizce kelime dağarcığı ve mekânsal düşünme",
+      "short": "Minecraft tarzı 3D madende kaz, üret — cevherler İngilizce soru sorar!",
+      "about": "Kelime Madeni 3D, Minecraft tarzı blok dünyasında geçen eğitsel bir madencilik oyunudur. Ağaç kes, kazma üret, mağaralara in; kömür, demir, elmas ve kristal kazdığında İngilizce kelime sorusu gelir — doğru bilirsen cevher senindir. Üretim zinciri, 10 görevlik macera ve öğrendiğin kelimelerin defteriyle İngilizce kelime dağarcığını oyun içinde geliştirirsin. Dünya otomatik kaydedilir, kaldığın yerden devam edersin. Ücretsiz, üyeliksiz, tarayıcıda oynanır.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": false,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/kelime-madeni-3d.js"],
+        "css": ["css/kelime-madeni-3d.css"]
+      }
+    },
+    {
+      "slug": "kelime-balonu",
+      "name": "Kelime Balonu",
+      "module": "KelimeBalonu",
+      "section": "harf",
+      "cat": "İngilizce",
+      "subject": "ingilizce",
+      "age": [8, 12],
+      "minutes": 4,
+      "levels": 1,
+      "teaches": "İngilizce kelime dağarcığı ve yazım (spelling)",
+      "short": "İngilizce kelimenin harflerini balonlardan vur — kelime tamamlanınca büyük patlama!",
+      "about": "Kelime Balonu, klasik balon patlatma (bubble shooter) mekaniğini İngilizce kelime öğrenimiyle birleştirir. Üstte hedef kelimenin resmi ve Türkçesi görünür (🐱 kedi); balonun içindeki doğru harfleri vurarak C-A-T gibi kelimeleri tamamlarsın. Doğru harf patlar ve yanındaki aynı harfli balonları da götürür; yanlış vuruş balonu kümeye yapıştırır — dikkat! Etek'te 3 harfli kolay kelimeler, Tırmanış'ta 6+ harf sıralı vurma, Zirve'de resim ipucu olmadan sadece Türkçe karşılıkla oynanır. Nişan alma, sekme ve zamanlama becerisiyle İngilizce yazım bir arada gelişir. Ücretsiz, üyeliksiz, tarayıcıda oynanır.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/kelime-balonu.js"],
+        "css": ["css/kelime-balonu.css"]
+      }
+    },
+    {
+      "slug": "kelime-canavarlari",
+      "name": "Kelime Canavarları",
+      "module": "KelimeCanavarlari",
+      "section": "harf",
+      "cat": "İngilizce",
+      "subject": "ingilizce",
+      "age": [8, 12],
+      "minutes": 5,
+      "levels": 1,
+      "teaches": "İngilizce kelime kategorileri (hayvanlar, yiyecekler, renkler...)",
+      "short": "İngilizce kelimelerle canavarını besle, evrimleştir, FUSION ile melez yarat!",
+      "about": "Kelime Canavarları'nda her İngilizce kelime kategorisinin bir canavarı var: hayvanlar, yiyecekler, renkler, okul, doğa ve vücut. Kategorinin kelime quizlerini çözerek canavarını besler, 10 doğruda yumurtayı çatlatır, 25-60-120 doğruda evrimleştirirsin. İki tam evrimli canavarı 20 soruluk karışık quizde %80 başarıyla BİRLEŞTİRİP nadir melezler kazanabilirsin. 24 canavarlık koleksiyonu tamamla, Canavar Profesörü ol! Ücretsiz, üyeliksiz, tarayıcıda oynanır.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/kelime-canavarlari.js"],
+        "css": ["css/kelime-canavarlari.css"]
+      }
+    },
+    {
+      "slug": "kelime-kurtarma",
+      "name": "Kelime Kurtarma",
+      "module": "KelimeKurtarma",
+      "section": "harf",
+      "cat": "Kelime",
+      "subject": "turkce",
+      "age": [6, 12],
+      "minutes": 3,
+      "levels": 1,
+      "teaches": "Türkçe yazım, İngilizce spelling, deyimler",
+      "short": "Her yanlış harf bir balon patlatır — kelimeyi bul, karakteri uçur!",
+      "about": "Kelime Kurtarma, adam asmacanın çocuk dostu hâlidir: sevimli karakterimiz balon demetiyle havada durur, her yanlış harf bir balon patlatır. Balonlar bitse bile korkma — paraşüt açılır, yumuşacık iner! İpucu baştan açıktır. Etek'te 3-4 harfli resimli kelimeler, Tırmanış'ta İngilizce spelling, Zirve'de deyim-atasözü tamamlama. Harf açma jokeri ve klavye desteğiyle yazım becerisi eğlenerek gelişir. Ücretsiz, üyeliksiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/kelime-kurtarma.js"],
+        "css": ["css/kelime-kurtarma.css"]
+      }
+    },
+    {
+      "slug": "gunluk-kelime",
+      "name": "Günlük Kelime",
+      "module": "GunlukKelime",
+      "section": "harf",
+      "cat": "Kelime",
+      "subject": "turkce",
+      "age": [7, 12],
+      "minutes": 3,
+      "levels": 1,
+      "teaches": "Türkçe ve İngilizce yazım, sözcük dağarcığı",
+      "short": "Her gün TEK kelime — tüm okul aynı kelimeyi çözüyor! 6 deneme, yeşil-sarı ipuçları.",
+      "about": "Günlük Kelime, sevilen kelime bulmaca formatını okul hayatına taşır: her gün herkese AYNI kelime gelir — sınıfta heyecanı paylaşırsın ama mesajlaşma yoktur. Türkçe 5 harf ve İngilizce 4 harf olmak üzere iki ayrı günlük bulmaca! 6 denemede harf ipuçlarıyla (yeşil yerinde, sarı var ama başka yerde) kelimeyi bul. Çözünce kelimenin anlamı ve örnek cümlesi gösterilir — her gün yeni bir şey öğrenirsin. Ardışık gün serisi rozetlere gider! Ücretsiz, üyeliksiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/gunluk-kelime.js"],
+        "css": ["css/gunluk-kelime.css"]
+      }
+    },
+    {
+      "slug": "sayi-sayma",
+      "name": "Sayı Sayma",
+      "module": "SayiSayma",
+      "section": "sayi",
+      "cat": "Okul Öncesi",
+      "subject": "matematik",
+      "age": [4, 7],
+      "minutes": 3,
+      "levels": 3,
+      "teaches": "Sayma ve sayı tanıma",
+      "short": "Nesneleri say, sayıları eğlenerek öğren.",
+      "about": "Sayı Sayma, çocukların ekrandaki nesneleri sayarak sayı kavramını öğrendiği okul öncesi bir oyundur. Sayı tanıma ve birebir eşleme becerisini geliştirir. Anaokulu için ücretsiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/sayi-sayma.js"],
+        "css": []
+      }
+    },
+    {
+      "slug": "matematik",
+      "name": "Matematik",
+      "module": "Matematik",
+      "section": "sayi",
+      "cat": "Matematik",
+      "subject": "matematik",
+      "age": [5, 9],
+      "minutes": 3,
+      "levels": 3,
+      "teaches": "Toplama, çıkarma ve hızlı işlem",
+      "short": "Toplama-çıkarma alıştırmalarıyla dört işlemi eğlenerek öğren.",
+      "about": "Matematik oyunu, çocuklara toplama ve çıkarma başta olmak üzere temel işlemleri oyunlaştırarak öğretir. Doğru cevaplarla yıldız toplar, hız ve doğruluğunu artırırsın. İlkokul matematik pratiği için ücretsiz ve eğlenceli bir kaynak.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/matematik.js"],
+        "css": []
+      }
+    },
+    {
+      "slug": "desen",
+      "name": "Desen Tamamlama",
+      "module": "Desen",
+      "section": "sayi",
+      "cat": "Mantık",
+      "subject": "matematik",
+      "age": [5, 9],
+      "minutes": 3,
+      "levels": 3,
+      "teaches": "Örüntü ve mantıksal akıl yürütme",
+      "short": "Eksik deseni bul, örüntüyü tamamla.",
+      "about": "Desen Tamamlama, bir örüntünün eksik parçasını bulduğun mantık oyunudur. Örüntü algısı ve mantıksal akıl yürütmeyi geliştirir; matematiksel düşünmenin temelidir. Ücretsiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/desen.js"],
+        "css": []
+      }
+    },
+    {
+      "slug": "bilgi-madencisi",
+      "name": "Bilgi Madencisi",
+      "module": "BilgiMadencisi",
+      "section": "sayi",
+      "cat": "Matematik",
+      "subject": "matematik",
+      "age": [8, 12],
+      "minutes": 2,
+      "levels": 1,
+      "teaches": "Dört işlem akıcılığı, kesirler ve hızlı karar verme",
+      "short": "Soru yukarıda, cevaplar yerin altında — kancayı doğru taşa bırak!",
+      "about": "Bilgi Madencisi, klasik altın madencisi mekaniğini matematikle birleştiren bir refleks ve işlem oyunudur. Ekranın üstünde bir soru görünür, yerin altında 4 cevap taşı durur; sallanan kancayı doğru taşa bırakırsan puan kazanırsın — yanlış taş ağırdır ve zamanını yer. Art arda doğrularda combo çarpanı, 5 doğruda dinamit! Etek'ten Zirve'ye 4 zorluk seviyesiyle toplama, çıkarma, çarpım tablosu, bölme, kesirler ve yüzdeler 60 saniyelik vardiyalarda akıcı hale gelir. Ücretsiz, üyeliksiz, tarayıcıda oynanır.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/bilgi-madencisi.js"],
+        "css": ["css/bilgi-madencisi.css"]
+      }
+    },
+    {
+      "slug": "matematik-patlatma",
+      "name": "Matematik Patlatma",
+      "module": "MatematikPatlatma",
+      "section": "sayi",
+      "cat": "Matematik",
+      "subject": "matematik",
+      "age": [8, 12],
+      "minutes": 2,
+      "levels": 1,
+      "teaches": "Zihinden işlem akıcılığı ve sayı hissi",
+      "short": "Komşu taşları sürükle, hedef sayıyı tuttur — zincir ne kadar uzun, puan o kadar dev!",
+      "about": "Matematik Patlatma, sayı taşlarından zincir kurarak hedefi tutturduğun 60 saniyelik bir işlem akıcılığı oyunudur. Hedef üstte yazar (örneğin 'Toplamı 12 yap'); komşu taşları parmağınla sürükleyip zincirin toplamı hedefe tam ulaşınca taşlar patlar, üstten yenileri düşer. Puan taş sayısının karesiyle büyür — uzun zincir kurmak hep kazandırır. Etek'te kolay toplamalar, Tırmanış'ta fark soruları, Zirve'de çarpım hedefleriyle zihinden işlem hızı eğlenerek gelişir. Ücretsiz, üyeliksiz, tarayıcıda oynanır.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/matematik-patlatma.js"],
+        "css": ["css/matematik-patlatma.css"]
+      }
+    },
+    {
+      "slug": "matematik-kafe",
+      "name": "Matematik Kafe",
+      "module": "MatematikKafe",
+      "section": "sayi",
+      "cat": "Matematik",
+      "subject": "matematik",
+      "age": [8, 12],
+      "minutes": 3,
+      "levels": 1,
+      "teaches": "Günlük hayat matematiği: alışveriş, para üstü, oran ve yüzde",
+      "short": "Siparişin hesabını yap, hızlı servisle bahşişi kap — kasa sende!",
+      "about": "Matematik Kafe'de kasiyer sensin! Müşteriler sipariş verir, fiyatlar panoda yazar; hesabı tuş takımıyla girer, doğru ve hızlı servisle bahşiş kazanırsın. Etek'te tek ürün fiyatı okuma, Yamaç'ta çoklu sipariş ve para üstü, Tırmanış'ta tarif ölçekleme ve %10 indirim, Zirve'de %1 KDV ve kampanya karşılaştırma soruları seni bekler. Müfredatın en çok istediği günlük hayat problemleri 120 saniyelik eğlenceli vardiyalara dönüşür. Ücretsiz, üyeliksiz, tarayıcıda oynanır.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/matematik-kafe.js"],
+        "css": ["css/matematik-kafe.css"]
+      }
+    },
+    {
+      "slug": "bilgi-yilani",
+      "name": "Bilgi Yılanı",
+      "module": "BilgiYilani",
+      "section": "sayi",
+      "cat": "Matematik",
+      "subject": "matematik",
+      "age": [7, 12],
+      "minutes": 3,
+      "levels": 1,
+      "teaches": "Dört işlem akıcılığı + refleks ve yön planlama",
+      "short": "Klasik yılan ama yemler CEVAP: doğru yemi ye uza, yanlışta kısal!",
+      "about": "Bilgi Yılanı, Nokia klasiğini matematikle buluşturur. Soru üstte sabittir; haritadaki elma yemlerinin üzerinde cevaplar yazar. Doğru yemi yersen uzar ve puan kazanırsın, yanlış yem seni 2 boğum kısaltır — tek boğuma düşersen tur biter! Etek'te duvarlar geçirgendir, Tırmanış'tan itibaren ölümcül; her 5 doğruda hız artar. Kaydırma ya da ok tuşlarıyla oynanır. Ücretsiz, üyeliksiz, tarayıcıda.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/bilgi-yilani.js"],
+        "css": ["css/bilgi-yilani.css"]
+      }
+    },
+    {
+      "slug": "ritim-sorulari",
+      "name": "Ritim Soruları",
+      "module": "RitimSorulari",
+      "section": "sayi",
+      "cat": "Matematik",
+      "subject": "matematik",
+      "age": [7, 12],
+      "minutes": 2,
+      "levels": 1,
+      "teaches": "Zihinden işlem hızı + dikkat ve ritim",
+      "short": "Düşen karolardan doğru cevaba bas — hatasız seri melodiye dönüşür!",
+      "about": "Ritim Soruları, Piano Tiles akışını matematikle birleştirir: soru üstte sabit durur, 4 sütundan cevap karoları akar. Doğru cevaplı karoya bas, yanlışları boş geçir! Her doğru basış pentatonik bir nota çalar — hatasız seri gerçek bir melodi olur. Hız her 10 doğruda artar; Etek'te ceza yok, Tırmanış'ta 3 can, Zirve'de kesir ve yüzde karoları. 75 saniyelik teneffüs dostu turlar. Ücretsiz, üyeliksiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/ritim-sorulari.js"],
+        "css": ["css/ritim-sorulari.css"]
+      }
+    },
+    {
+      "slug": "kesir-2048",
+      "name": "Kesir 2048",
+      "module": "Kesir2048",
+      "section": "sayi",
+      "cat": "Matematik",
+      "subject": "matematik",
+      "age": [8, 12],
+      "minutes": 5,
+      "levels": 1,
+      "teaches": "Kesirler, denk kesirler ve birim kesir kavramı",
+      "short": "1/8 + 1/8 = 1/4 → 1 TAM! Pasta dilimleriyle kesirler gözünün önünde birleşir.",
+      "about": "Kesir 2048, sevilen kaydırma oyununu kesir öğretimine dönüştürür. Etek ve Yamaç klasik sayılarla ısındırır; Tırmanış'ta taşlar kesir olur: 1/8 + 1/8 = 1/4 → 1/2 → 1 TAM! Her taşın üzerindeki PASTA modeli kesrin gerçek miktarını gösterir — kavram ezbersiz görselleşir. Zirve'de denk kesir gösterimleri karışır (2/8'in 1/4 ile birleştiğini keşfedersin!). 3 geri alma hakkı, kaydırma ve ok tuşu desteği. Müfredatın en zorlanılan konusu kesirler, oyunla tanışıyor. Ücretsiz, üyeliksiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/kesir-2048.js"],
+        "css": ["css/kesir-2048.css"]
+      }
+    },
+    {
+      "slug": "sayi-ninja",
+      "name": "Sayı Ninja",
+      "module": "SayiNinja",
+      "section": "sayi",
+      "cat": "Matematik",
+      "subject": "matematik",
+      "age": [8, 12],
+      "minutes": 2,
+      "levels": 1,
+      "teaches": "Sayı hissi: çift-tek, katlar, asallık, kare sayılar, kesir karşılaştırma",
+      "short": "Havaya fırlayan sayılardan kurala uyanları KES — kural 15 saniyede bir değişir!",
+      "about": "Sayı Ninja, Fruit Ninja heyecanını sayı hissiyle birleştirir. Sayılar havaya fırlar, sen parmağınla keser gibi çizersin — ama yalnız KURALA UYANLARI! 'Çift sayıları kes', '3'ün katlarını kes', 'Asal sayıları kes', '1/2'den büyük kesirleri kes'... Kural her 15 saniyede değişir, beyin sürekli tetikte kalır. Tek harekette 3+ doğru kesim bonus verir; çeldirici buluta dikkat! Ezber değil, sayıları TANIMA üzerine kurulu. Ücretsiz, üyeliksiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/sayi-ninja.js"],
+        "css": ["css/sayi-ninja.css"]
+      }
+    },
+    {
+      "slug": "hafiza-kartlari",
+      "name": "Hafıza Kartları",
+      "module": "HafizaKartlari",
+      "section": "bulmaca",
+      "cat": "Hafıza",
+      "subject": "genel",
+      "age": [4, 9],
+      "minutes": 3,
+      "levels": 10,
+      "teaches": "Görsel hafıza ve dikkat",
+      "short": "Eşleşen kartları bul, 10 seviyede hafızanı güçlendir.",
+      "about": "Hafıza Kartları, kapalı kartları açıp eşlerini bulduğun klasik bir hafıza ve dikkat oyunudur. 10 artan seviyede kart sayısı çoğalır ve görsel hafıza giderek güçlenir. Anaokulu ve ilkokul çocukları için ideal; tamamen ücretsiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/hafiza-kartlari.js"],
+        "css": []
+      }
+    },
+    {
+      "slug": "sekil-bulmaca",
+      "name": "Şekil Bulmaca",
+      "module": "SekilBulmaca",
+      "section": "bulmaca",
+      "cat": "Bulmaca",
+      "subject": "matematik",
+      "age": [4, 8],
+      "minutes": 3,
+      "levels": 3,
+      "teaches": "Şekil-uzay ilişkisi ve dikkat",
+      "short": "Şekilleri doğru yere yerleştir, bulmacayı çöz.",
+      "about": "Şekil Bulmaca, çocukların şekilleri uygun boşluklara yerleştirdiği bir mantık ve dikkat oyunudur. Şekil tanıma ve uzamsal düşünmeyi geliştirir. Okul öncesi ve ilkokul için ücretsiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/sekil-bulmaca.js"],
+        "css": []
+      }
+    },
+    {
+      "slug": "siralama",
+      "name": "Sıralama",
+      "module": "Siralama",
+      "section": "bulmaca",
+      "cat": "Mantık",
+      "subject": "matematik",
+      "age": [4, 8],
+      "minutes": 3,
+      "levels": 3,
+      "teaches": "Sıralama ve karşılaştırma mantığı",
+      "short": "Nesneleri doğru sıraya diz, mantığını geliştir.",
+      "about": "Sıralama, nesneleri boyut/miktar gibi ölçütlere göre dizmeyi öğreten bir mantık oyunudur. Karşılaştırma ve sıralama becerisini geliştirir. Erken yaş matematik-mantık için ücretsiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/siralama.js"],
+        "css": []
+      }
+    },
+    {
+      "slug": "jigsaw",
+      "name": "Jigsaw Bulmaca",
+      "module": "Jigsaw",
+      "section": "bulmaca",
+      "cat": "Bulmaca",
+      "subject": "genel",
+      "age": [5, 10],
+      "minutes": 5,
+      "levels": 3,
+      "teaches": "Görsel algı ve sabır",
+      "short": "Parçaları birleştirip resmi tamamla.",
+      "about": "Jigsaw Bulmaca, dağılmış parçaları birleştirerek resmi tamamladığın klasik bir yapboz oyunudur. Görsel algı, sabır ve problem çözmeyi geliştirir. Çocuklar için ücretsiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/jigsaw.js"],
+        "css": []
+      }
+    },
+    {
+      "slug": "tetris",
+      "name": "Tetris",
+      "module": "Tetris",
+      "section": "bulmaca",
+      "cat": "Bulmaca",
+      "subject": "strateji",
+      "age": [6, 10],
+      "minutes": 5,
+      "levels": 1,
+      "teaches": "Mekânsal düşünme ve hızlı planlama",
+      "short": "Blokları döndür, satırları doldur ve temizle.",
+      "about": "Tetris, düşen blokları döndürüp yerleştirerek satırları tamamladığın klasik bir bulmaca-arcade oyunudur. Hız arttıkça mekânsal düşünme, planlama ve refleks gelişir. Tarayıcıda ücretsiz, üyeliksiz oynanır.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 10,
+      "files": {
+        "js": ["js/games/tetris.js"],
+        "css": ["css/tetris.css"]
+      }
+    },
+    {
+      "slug": "bilim-dedektifi",
+      "name": "Bilim Dedektifi",
+      "module": "BilimDedektifi",
+      "section": "bulmaca",
+      "cat": "Fen Bilimleri",
+      "subject": "fen",
+      "age": [8, 12],
+      "minutes": 3,
+      "levels": 1,
+      "teaches": "Fen kavramları, gözlem ve dikkat",
+      "short": "Sahnedeki bilimsel nesneleri bul, vaka quizini çöz, 3 yıldızı topla!",
+      "about": "Bilim Dedektifi, gizli obje bulmaca mekaniğini fen bilimleriyle birleştirir. Orman, mutfak, uzay, derin deniz gibi 8 vakada 'omurgalıları bul', 'ısı kaynaklarını işaretle' gibi görevler verilir; yanlış tıklama büyüteci 5 saniye dondurur. Vaka sonunda konuyla ilgili 3 soruluk mini quiz yıldızlarını belirler. Gözlem, dikkat ve fen kavramları (canlılar, madde, enerji, su döngüsü, elektrik) bir arada gelişir. Ücretsiz, üyeliksiz, tarayıcıda oynanır.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/bilim-dedektifi.js"],
+        "css": ["css/bilim-dedektifi.css"]
+      }
+    },
+    {
+      "slug": "eslestirme-ustasi",
+      "name": "Eşleştirme Ustası",
+      "module": "EslestirmeUstasi",
+      "section": "bulmaca",
+      "cat": "Hafıza",
+      "subject": "genel",
+      "age": [6, 12],
+      "minutes": 3,
+      "levels": 1,
+      "teaches": "Hafıza + işlem/kelime/fen bilgisi bir arada",
+      "short": "Kartlar özdeş değil İLİŞKİLİ: 7×8 kartının eşi 56! Az hamlede bul, 3 yıldızı kap.",
+      "about": "Eşleştirme Ustası klasik hafıza oyununu bilgiyle birleştirir: çiftler özdeş değil, ilişkilidir — 'cat' kartının eşi kedi resmi, '7×8' kartının eşi '56', 'Buharlaşma' kartının eşi su-buhar simgesi. İngilizce, matematik ve fen destelerinden seç; Etek 4×3'ten Zirve 6×5 + süre sınırına dört zorluk. Usta modunda kartlar 3 saniye gösterilip kapanır. Az hamlede bitirene 3 yıldız! Ücretsiz, üyeliksiz, tarayıcıda oynanır.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/eslestirme-ustasi.js"],
+        "css": ["css/eslestirme-ustasi.css"]
+      }
+    },
+    {
+      "slug": "labirent-avcisi",
+      "name": "Labirent Avcısı",
+      "module": "LabirentAvcisi",
+      "section": "bulmaca",
+      "cat": "Kelime / Labirent",
+      "subject": "turkce",
+      "age": [7, 12],
+      "minutes": 3,
+      "levels": 1,
+      "teaches": "Yazım sırası, planlama ve yön bulma",
+      "short": "Labirentteki harfleri SIRAYLA topla — Unutkanlık Bulutu'na yakalanma!",
+      "about": "Labirent Avcısı'nda noktalar yerine HARFLER var: hedef kelimeyi doğru sırayla toplamalısın. Yanlış harfe değersen sıra başa döner! Hayalet yok — onun yerine sevimli Unutkanlık Bulutu 🌫️ gezer; sana değerse 3 saniye kontrollerin TERS döner (korkutmaz, güldürür). Güç kapsülü bulutları 5 saniye dondurur. 3 farklı labirent, Zirve'de sahte çeldirici harfler! Kelime yazımı kas hafızasına işler. Ücretsiz, üyeliksiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/labirent-avcisi.js"],
+        "css": ["css/labirent-avcisi.css"]
+      }
+    },
+    {
+      "slug": "renk-eslestirme",
+      "name": "Renk Eşleştirme",
+      "module": "RenkEslestirme",
+      "section": "yaratici",
+      "cat": "Okul Öncesi",
+      "subject": "sanat",
+      "age": [4, 7],
+      "minutes": 3,
+      "levels": 3,
+      "teaches": "Renk tanıma ve eşleştirme",
+      "short": "Renkleri eşleştir, okul öncesi renk bilgini geliştir.",
+      "about": "Renk Eşleştirme, küçük çocukların renkleri tanıyıp eşleştirdiği okul öncesi bir oyundur. Renk ayırt etme ve dikkat becerisini güçlendirir. Anaokulu yaş grubu için ücretsiz ve basit arayüzlü.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/renk-eslestirme.js"],
+        "css": []
+      }
+    },
+    {
+      "slug": "boyama",
+      "name": "Boyama",
+      "module": "Boyama",
+      "section": "yaratici",
+      "cat": "Sanat",
+      "subject": "sanat",
+      "age": [3, 8],
+      "minutes": 5,
+      "levels": 10,
+      "teaches": "Yaratıcılık ve renk bilgisi",
+      "short": "Resimleri istediğin gibi boya, 10 resim.",
+      "about": "Boyama, çocukların hazır şablonları diledikleri renklerle boyadığı bir sanat oyunudur. Yaratıcılık, renk bilgisi ve ince motor becerisini destekler. Tüm yaşlara uygun, ücretsiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/boyama.js"],
+        "css": []
+      }
+    },
+    {
+      "slug": "tuval",
+      "name": "Tuval",
+      "module": "Tuval",
+      "section": "yaratici",
+      "cat": "Sanat",
+      "subject": "sanat",
+      "age": [5, 10],
+      "minutes": 10,
+      "levels": 3,
+      "teaches": "Piksel sanatı ve yaratıcılık",
+      "short": "Piksel piksel kendi resmini çiz.",
+      "about": "Tuval, piksel tabanlı bir çizim/boyama oyunudur. Çocuklar kare kare kendi resimlerini oluşturur; yaratıcılık ve dikkat gelişir. Ücretsiz, üyeliksiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/tuval.js"],
+        "css": ["css/tuval.css"]
+      }
+    },
+    {
+      "slug": "sayilarla-boyama",
+      "name": "Sayılarla Boyama",
+      "module": "SayilarlaBoyama",
+      "section": "yaratici",
+      "cat": "Sanat",
+      "subject": "sanat",
+      "age": [4, 9],
+      "minutes": 5,
+      "levels": 6,
+      "teaches": "Sayı tanıma, dikkat ve ince motor beceri",
+      "short": "Numarayı seç, aynı numaralı kutuları boya, resmi ortaya çıkar.",
+      "about": "Sayılarla Boyama, her numaraya karşılık gelen kutuları boyayarak gizli resmi ortaya çıkardığın bir sanat ve sayı oyunudur. Sayı tanıma, dikkat ve ince motor becerisini geliştirir. Çocuklar için ücretsiz, üyeliksiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/sayilarla-boyama.js"],
+        "css": ["css/sayilarla-boyama.css"]
+      }
+    },
+    {
+      "slug": "emoji-yapici",
+      "name": "Emoji Yapıcı",
+      "module": "EmojiYapici",
+      "section": "yaratici",
+      "cat": "Sanat",
+      "subject": "sanat",
+      "age": [4, 10],
+      "minutes": 5,
+      "levels": 1,
+      "teaches": "Yaratıcılık ve görsel tasarım",
+      "short": "Parçaları seç, kendi emoji yüzünü yarat.",
+      "about": "Emoji Yapıcı, göz, ağız ve aksesuar parçalarını birleştirerek kendi emoji yüzünü tasarladığın yaratıcı bir oyundur. Yaratıcılık ve görsel tasarımı geliştirir. Tarayıcıda ücretsiz, üyeliksiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/emoji-yapici.js"],
+        "css": ["css/emoji-yapici.css"]
+      }
+    },
+    {
+      "slug": "kod-macerasi",
+      "name": "Kod Macerası",
+      "module": "KodMacerasi",
+      "section": "strateji",
+      "cat": "Kodlama",
+      "subject": "kodlama",
+      "age": [6, 10],
+      "minutes": 5,
+      "levels": 3,
+      "teaches": "Algoritma ve kodlama mantığı",
+      "short": "Karakteri komutlarla yönlendir, kodlamanın temelini öğren.",
+      "about": "Kod Macerası, çocuklara blok/komut mantığıyla algoritma ve kodlamanın temellerini öğreten bir bulmaca oyunudur. Karakteri hedefe ulaştırmak için doğru komut dizisini kurarsın; problem çözme ve mantıksal sıralama gelişir. Kod öğrenmeye giriş için ücretsiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "online": {
+        "module": "KodMacerasiMP",
+        "order": 3,
+        "stars": 50,
+        "files": {
+          "js": ["js/games/kod-macerasi-shared.js", "js/games/kod-macerasi-mp.js"],
+          "css": ["css/kod-macerasi.css"]
+        }
+      },
+      "files": {
+        "js": ["js/games/kod-macerasi-shared.js", "js/games/kod-macerasi.js"],
+        "css": ["css/kod-macerasi.css"]
+      }
+    },
+    {
+      "slug": "lego-macerasi",
+      "name": "LEGO Macerası",
+      "module": "LegoMacerasi",
+      "section": "strateji",
+      "cat": "Kodlama / İnşa",
+      "subject": "kodlama",
+      "age": [6, 10],
+      "minutes": 5,
+      "levels": 3,
+      "teaches": "Kodlama + inşa becerisi",
+      "short": "LEGO temalı kodlama ve inşa görevleri, 3 seviye.",
+      "about": "LEGO Macerası, kodlama mantığını LEGO temalı inşa görevleriyle birleştirir. Komutlarla parçaları yerleştirir, hedefleri tamamlarsın. Hem algoritma hem yaratıcılık geliştiren ücretsiz bir eğitici oyun.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/lego-macerasi.js"],
+        "css": ["css/kod-macerasi.css"]
+      }
+    },
+    {
+      "slug": "lego-world",
+      "name": "LEGO World 3D",
+      "module": "LegoWorld",
+      "section": "strateji",
+      "cat": "3D / İnşa",
+      "subject": "sanat",
+      "age": [6, 10],
+      "minutes": 15,
+      "levels": 9,
+      "teaches": "Mekânsal düşünme ve yaratıcılık",
+      "short": "3D açık dünyada keşfet ve inşa et, 9 seviye.",
+      "about": "LEGO World 3D, çocukların 3 boyutlu bir dünyada keşfedip yapılar inşa ettiği yaratıcı bir oyundur. Mekânsal algı, planlama ve yaratıcılığı geliştirir. Tarayıcıda ücretsiz çalışır, indirme gerektirmez.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js", "https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js", "js/games/lego-world.js"],
+        "css": ["css/lego-world.css"]
+      }
+    },
+    {
+      "slug": "satranc",
+      "name": "Satranç",
+      "module": "Satranc",
+      "section": "strateji",
+      "cat": "Strateji",
+      "subject": "strateji",
+      "age": [6, 10],
+      "minutes": 15,
+      "levels": 1,
+      "teaches": "Strateji, planlama ve mantık",
+      "short": "Yapay zekâya karşı 9 seviyede satranç oyna.",
+      "about": "Bilnet Oyun Satranç, çocukların stratejik düşünme ve planlama becerisini geliştirmek için tasarlanmış, tarayıcıda ücretsiz çalışan bir satranç oyunudur. Yapay zekâya karşı kolaydan zora 9 farklı seviyede oynayabilir; taş hareketlerini ve temel açılışları eğlenerek öğrenirsin. Kurulum ya da üyelik gerekmez.",
+      "players": "Tek kişilik (AI'ya karşı)",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "online": {
+        "module": "SatrancMP",
+        "order": 4,
+        "stars": 55,
+        "files": {
+          "js": ["https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js", "js/games/satranc-engine.js", "js/games/satranc-mp.js"],
+          "css": ["css/satranc.css"]
+        }
+      },
+      "files": {
+        "js": ["https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js", "js/games/satranc-engine.js", "js/games/satranc.js"],
+        "css": ["css/satranc.css"]
+      }
+    },
+    {
+      "slug": "zipla-topla",
+      "name": "Zıpla Topla",
+      "module": "ZiplaTopla",
+      "section": "strateji",
+      "cat": "Platform",
+      "subject": "spor",
+      "age": [5, 10],
+      "minutes": 5,
+      "levels": 12,
+      "teaches": "Zamanlama, refleks ve koordinasyon",
+      "short": "Mario tarzı platformlarda zıpla, topla ve ilerle.",
+      "about": "Zıpla Topla, Mario tarzı 2 boyutlu bir platform macera oyunudur; engelleri aşar, eşyaları toplar ve bölümleri geçersin. Zamanlama, refleks ve el-göz koordinasyonunu geliştirir. Tarayıcıda ücretsiz oynanır.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 15,
+      "files": {
+        "js": ["js/games/zipla-topla-levels.js", "js/games/zipla-topla.js"],
+        "css": ["css/zipla-topla.css"]
+      }
+    },
+    {
+      "slug": "space-waves",
+      "name": "SpaceWaves",
+      "module": "SpaceWaves",
+      "section": "strateji",
+      "cat": "Arcade",
+      "subject": "spor",
+      "age": [6, 10],
+      "minutes": 2,
+      "levels": 1,
+      "teaches": "Refleks ve odaklanma",
+      "short": "Uzayda dalgalar ve geçitler arasından çarpmadan süzül.",
+      "about": "SpaceWaves (Uzay Dalgaları), dar geçitler ve engel dalgaları arasından aracını çarpmadan süzdüğün hızlı bir refleks-arcade oyunudur. Odak, zamanlama ve hızlı tepkiyi geliştirir. Tarayıcıda ücretsiz oynanır.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 20,
+      "files": {
+        "js": ["js/games/space-waves-questions.js", "js/games/space-waves.js"],
+        "css": ["css/space-waves.css"]
+      }
+    },
+    {
+      "slug": "egim",
+      "name": "Eğim",
+      "module": "Egim",
+      "section": "strateji",
+      "cat": "Arcade",
+      "subject": "spor",
+      "age": [6, 10],
+      "minutes": 2,
+      "levels": 1,
+      "teaches": "Hızlı refleks ve odak",
+      "short": "Eğimli sonsuz yolda topu yönet, engellerden kaç.",
+      "about": "Eğim (Slope Ball), hız kazanan bir topu eğimli sonsuz bir yolda yönlendirerek engellerden kaçtığın bir refleks-arcade oyunudur. Hızlı tepki, odak ve el-göz koordinasyonunu geliştirir. Ücretsiz, üyeliksiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 25,
+      "files": {
+        "js": ["js/games/egim.js"],
+        "css": ["css/egim.css"]
+      }
+    },
+    {
+      "slug": "buz-kulesi",
+      "name": "Buz Kulesi",
+      "module": "BuzKulesi",
+      "section": "strateji",
+      "cat": "Arcade",
+      "subject": "spor",
+      "age": [6, 10],
+      "minutes": 3,
+      "levels": 1,
+      "teaches": "Zamanlama, refleks ve denge",
+      "short": "Platformdan platforma zıpla, düşmeden yüksel.",
+      "about": "Buz Kulesi, Icy Tower tarzı dikey bir zıplama oyunudur; platformdan platforma sıçrayarak mümkün olduğunca yükselirsin. Zamanlama, refleks ve el-göz koordinasyonunu geliştirir. Ücretsiz, üyeliksiz, telefon ve tablette oynanır.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 30,
+      "files": {
+        "js": ["js/games/buz-kulesi.js"],
+        "css": ["css/buz-kulesi.css"]
+      }
+    },
+    {
+      "slug": "penalti",
+      "name": "Penaltı",
+      "module": "Penalti",
+      "section": "strateji",
+      "cat": "Spor / Refleks",
+      "subject": "spor",
+      "age": [5, 10],
+      "minutes": 3,
+      "levels": 9,
+      "teaches": "El-göz koordinasyonu ve zamanlama",
+      "short": "Kaleciye penaltı at, 9 seviyede gol krallığına ulaş.",
+      "about": "Penaltı, doğru zamanda ve yönde şut çekerek kaleciyi geçmeye çalıştığın hızlı bir refleks oyunudur. 9 seviye boyunca kaleci giderek daha zorlaşır; çocuklar el-göz koordinasyonunu ve zamanlamayı geliştirir. Ücretsiz, üyeliksiz, telefon ve tablette oynanır.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 35,
+      "files": {
+        "js": ["js/games/penalti.js"],
+        "css": ["css/penalti.css"]
+      }
+    },
+    {
+      "slug": "zindan-okcusu",
+      "name": "Zindan Okçusu",
+      "module": "ZindanOkcusu",
+      "section": "strateji",
+      "cat": "Aksiyon",
+      "subject": "strateji",
+      "age": [7, 10],
+      "minutes": 10,
+      "levels": 1,
+      "teaches": "Refleks, strateji ve karar verme",
+      "short": "Okçunla zindanda hayatta kal, beceri ve ekipman geliştir.",
+      "about": "Zindan Okçusu, dalga dalga gelen yaratıklara karşı okçunla hayatta kaldığın bir aksiyon-hayatta kalma oyunudur. Seviye atladıkça aktif/pasif beceriler seçer, ekipman geliştirir ve bölümleri geçersin. Refleks, strateji ve hızlı karar verme gelişir. Ücretsiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 40,
+      "files": {
+        "js": ["js/games/zindan-okcusu.js"],
+        "css": ["css/zindan-okcusu.css"]
+      }
+    },
+    {
+      "slug": "bil-ve-fethet",
+      "name": "Bil ve Fethet",
+      "module": "BilVeFethet",
+      "section": "strateji",
+      "cat": "Bilgi / Strateji",
+      "subject": "genel",
+      "age": [8, 12],
+      "minutes": 15,
+      "levels": 1,
+      "teaches": "Genel kültür, strateji ve hızlı karar verme",
+      "short": "Soruları cevapla, ülkeleri fethet: dünya haritasında bilgi savaşı.",
+      "about": "Bil ve Fethet, gerçek dünya haritası üzerinde oynanan soru-cevap temelli bir fetih oyunudur. Komşu ülkelere saldırır, 10 soruluk bilgi savaşlarıyla toprak kazanır, gelirini yönetip saldırı ve savunma seviyeni geliştirirsin. Anaokulundan liseye kademe seçimi ve matematik, fen, Türkçe, sosyal, coğrafya, İngilizce ders seçenekleriyle hem genel kültürü hem stratejik düşünmeyi geliştirir. Ücretsiz, üyeliksiz, tarayıcıda oynanır.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/bil-ve-fethet.js"],
+        "css": ["css/bil-ve-fethet.css"]
+      }
+    },
+    {
+      "slug": "bilgi-takimi",
+      "name": "Bilgi Takımı",
+      "module": "BilgiTakimi",
+      "section": "strateji",
+      "cat": "Karma / Görev",
+      "subject": "genel",
+      "age": [8, 12],
+      "minutes": 5,
+      "levels": 1,
+      "teaches": "Matematik, Türkçe, fen ve İngilizce — düzenli çalışma alışkanlığı",
+      "short": "Görevleri bitir, XP topla, bilgi takımına yeni karakterler kat!",
+      "about": "Bilgi Takımı, soru çözerek görev tamamladığın bir macera-koleksiyon oyunudur. Kütüphane, laboratuvar ve sözlük görevlerinde matematik, Türkçe, fen ve İngilizce soruları çözer; XP ve puan toplarsın. Her 5 görevde takımına Matematikçi Aslı, Bilge Baykuş gibi yeni bir karakter katılır — karakterler sana asla cevap söylemez, sadece puanını artırır. Günlük 20 enerji sınırı ekran süresini dengeler; aylık 30 görevlik sezon kitabını bitirenler Sezon Kahramanı olur. Ücretsiz, üyeliksiz, tarayıcıda oynanır.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/bilgi-takimi.js"],
+        "css": ["css/bilgi-takimi.css"]
+      }
+    },
+    {
+      "slug": "bilgi-ciftligi",
+      "name": "Bilgi Çiftliği",
+      "module": "BilgiCiftligi",
+      "section": "strateji",
+      "cat": "Karma / Çiftlik",
+      "subject": "genel",
+      "age": [8, 12],
+      "minutes": 5,
+      "levels": 1,
+      "teaches": "Tüm dersler + sabır ve planlama",
+      "short": "Soru çöz, tohum kazan, ek — bitkiler gerçek zamanda büyür, hasat senin!",
+      "about": "Bilgi Çiftliği'nde tohumlar bilgiyle kazanılır: 10 soruluk oturumlarda her doğru cevap 1 tohum verir. Matematik Buğdayı, Fen Domatesi, İngilizce Ayçiçeği ve Türkçe Lavantası gerçek zamanda büyür (30 dakikadan 24 saate) — oyun kapalıyken bile! Bitkiler asla solmaz, hasada hazır seni bekler. Hasatla çiftlik XP'si toplar, araziyi 3×3'ten 5×5'e büyütürsün. Düzenli tekrar alışkanlığını oyunlaştıran, stressiz bir çiftlik deneyimi. Ücretsiz, üyeliksiz, tarayıcıda oynanır.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/bilgi-ciftligi.js"],
+        "css": ["css/bilgi-ciftligi.css"]
+      }
+    },
+    {
+      "slug": "bilgi-kulesi",
+      "name": "Bilgi Kulesi",
+      "module": "BilgiKulesi",
+      "section": "strateji",
+      "cat": "Genel Kültür",
+      "subject": "genel",
+      "age": [8, 12],
+      "minutes": 6,
+      "levels": 1,
+      "teaches": "Tüm dersler — strateji ve risk yönetimiyle birlikte",
+      "short": "12 soruluk kuleyi tırman: jokerler, güvenli katlar ve zirvede taç!",
+      "about": "Bilgi Kulesi, efsanevi yarışma formatını çocuklara uyarlar: 12 soruluk zorluk merdiveni Etek sorularıyla başlar, Zirve'de biter. Her doğru cevap kuleye kat ekler; 4. ve 8. katlar GÜVENLİDİR — yanlışta oraya inersin, kule yıkılmaz. Yarı yarıya, Bilge Baykuş ve Çift Hak jokerleri; istediğin an puanını alıp çekilme stratejisi! Günde 3 deneme hakkıyla her giriş kıymetlidir. Ücretsiz, üyeliksiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/bilgi-kulesi.js"],
+        "css": ["css/bilgi-kulesi.css"]
+      }
+    },
+    {
+      "slug": "cevap-kosusu",
+      "name": "Cevap Koşusu",
+      "module": "CevapKosusu",
+      "section": "strateji",
+      "cat": "Karma / Koşu",
+      "subject": "genel",
+      "age": [7, 12],
+      "minutes": 3,
+      "levels": 1,
+      "teaches": "Tüm dersler + hızlı karar verme ve refleks",
+      "short": "3 şeritli sonsuz koşu — yol ayrımında DOĞRU tabelanın şeridine geç!",
+      "about": "Cevap Koşusu, sonsuz koşucu heyecanını bilgiyle birleştirir: 3 şeritli yolda koşar, kütüklerden zıplar, kayalardan kaçarsın. Her 15 saniyede YOL AYRIMI gelir — üç tabelada üç cevap; soruyu okuyup doğru tabelanın şeridine geçersen bonus, yanlış şerit çamurlu yol olur ve 5 saniye yavaşlarsın (ölüm yok!). Manzara mesafeyle değişir: orman, bulutlar ve UZAY. Dağ temalı portalın koşu hâli! Ücretsiz, üyeliksiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/cevap-kosusu.js"],
+        "css": ["css/cevap-kosusu.css"]
+      }
+    },
+    {
+      "slug": "bilgi-savunmasi",
+      "name": "Bilgi Savunması",
+      "module": "BilgiSavunmasi",
+      "section": "strateji",
+      "cat": "Strateji / Matematik",
+      "subject": "matematik",
+      "age": [8, 12],
+      "minutes": 5,
+      "levels": 1,
+      "teaches": "İşlem akıcılığı + kaynak yönetimi ve strateji",
+      "short": "Soru çöz, enerji üret, kuleler dik — Soru Canavarlarından bahçeni koru!",
+      "about": "Bilgi Savunması'nda savunma enerjisi BİLGİDEN gelir: alttaki hızlı soru panelinden her doğru cevap 25 enerji üretir; enerjiyle Fıstıkçı, Çifte, Duvar ve Bombacı kulelerini dikersin. Kuleler otomatik ateş eder ama bir canavar yaklaşırsa SON ŞANS hep vardır: canavarın üstüne dokun, sorusunu doğru cevapla, anında yok et — bilgi her zaman kazandırır! Etek'te 3 dalga, Zirve'de 7 dalga + 3 sorulu BOSS. Ücretsiz, üyeliksiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/bilgi-savunmasi.js"],
+        "css": ["css/bilgi-savunmasi.css"]
+      }
+    },
+    {
+      "slug": "fizik-firlatma",
+      "name": "Fizik Fırlatma",
+      "module": "FizikFirlatma",
+      "section": "strateji",
+      "cat": "Fen / Fizik",
+      "subject": "fen",
+      "age": [8, 12],
+      "minutes": 5,
+      "levels": 1,
+      "teaches": "Açı, kuvvet ve yerçekimi — kinestetik fizik öğrenimi",
+      "short": "Sapanı çek, AÇI ve KUVVETİ sayılarla gör, 12 bölümde yıldızları vur!",
+      "about": "Fizik Fırlatma'da her atış bir fizik dersi: sapanı çekerken açı ve kuvvet SAYISAL olarak ekranda görünür (45° / kuvvet 70), bölüm sonunda 'en verimli açın' raporu gelir — deneme-yanılma değil, bilinçli ayar! Mermiler bilgiyle kazanılır: atış öncesi mini soruları çöz. 12 el yapımı bölüm; AY bölümlerinde yerçekimi düşüktür ve merminin süzülüşü kavramı kendiliğinden öğretir. Ücretsiz, üyeliksiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/fizik-firlatma.js"],
+        "css": ["css/fizik-firlatma.css"]
+      }
+    },
+    {
+      "slug": "kelime-tahmin",
+      "name": "Kelime Tahmin",
+      "module": null,
+      "section": "online",
+      "cat": "Kelime",
+      "subject": "turkce",
+      "age": [7, 10],
+      "minutes": 5,
+      "teaches": "Kelime bilgisi ve tümdengelim",
+      "short": "Wordle tarzı: gizli kelimeyi arkadaşınla yarışarak bul.",
+      "about": "Kelime Tahmin, Wordle tarzında gizli kelimeyi tahmin etmeye çalıştığın online bir kelime oyunudur. Arkadaşınla aynı anda yarışır, kelime dağarcığını ve mantıksal çıkarımı geliştirirsin. Ücretsiz, üyeliksiz online çok oyunculu.",
+      "players": "Online çok oyunculu",
+      "players_range": [2, null],
+      "active": true,
+      "stars": 0,
+      "online": {
+        "module": "KelimeTahmin",
+        "order": 1,
+        "stars": 40
+      },
+      "files": {
+        "js": ["js/games/kelime-tahmin.js"],
+        "css": []
+      }
+    },
+    {
+      "slug": "harf-tahmin",
+      "name": "Harf Tahmin",
+      "module": null,
+      "section": "online",
+      "cat": "Kelime",
+      "subject": "turkce",
+      "age": [7, 10],
+      "minutes": 5,
+      "teaches": "Kelime bilgisi ve tahmin",
+      "short": "Adam asmaca tarzı: harf tahmin ederek kelimeyi çöz.",
+      "about": "Harf Tahmin, adam asmaca mantığıyla harfleri tahmin ederek gizli kelimeyi bulduğun online bir oyundur. Kelime bilgisi ve tahmin stratejisini geliştirir. Arkadaşlarınla ücretsiz oyna.",
+      "players": "Online çok oyunculu",
+      "players_range": [2, null],
+      "active": true,
+      "stars": 0,
+      "online": {
+        "module": "HarfTahmin",
+        "order": 2,
+        "stars": 45
+      },
+      "files": {
+        "js": ["js/games/harf-tahmin.js"],
+        "css": []
+      }
+    },
+    {
+      "slug": "penalti-mp",
+      "name": "Penaltı Online",
+      "module": null,
+      "section": "online",
+      "cat": "Spor",
+      "subject": "spor",
+      "age": [6, 10],
+      "minutes": 3,
+      "teaches": "Zamanlama, refleks ve rekabet",
+      "short": "Arkadaşınla online penaltı düellosu: at ve kurtar.",
+      "about": "Penaltı Online, bir arkadaşınla aynı anda oynadığın çevrim içi penaltı düellosudur; sırayla şut çeker ve kaleyi korursun. Zamanlama, refleks ve rekabet duygusunu geliştirir. Üyeliksiz, ücretsiz online oynanır.",
+      "players": "Online 2 kişilik",
+      "players_range": [2, 2],
+      "active": true,
+      "stars": 0,
+      "online": {
+        "module": "PenaltiMP",
+        "order": 5,
+        "stars": 60
+      },
+      "files": {
+        "js": ["js/games/penalti-mp.js"],
+        "css": ["css/penalti.css"]
+      }
+    },
+    {
+      "slug": "ates-buz",
+      "name": "Ateş & Buz",
+      "module": null,
+      "section": "online",
+      "cat": "İş birliği",
+      "subject": "strateji",
+      "age": [6, 10],
+      "minutes": 5,
+      "teaches": "İş birliği ve koordinasyon",
+      "short": "İki karakteri yönet, engelleri birlikte aş.",
+      "about": "Ateş ve Buz, iki karakteri (ateş ve buz) birlikte yönlendirerek engelleri aştığın bir iş birliği oyunudur. Eş güdüm ve birlikte problem çözmeyi geliştirir. Ücretsiz oynanır.",
+      "players": "2 kişilik / online",
+      "players_range": [2, 2],
+      "active": true,
+      "stars": 0,
+      "online": {
+        "module": "AtesBuz",
+        "order": 6,
+        "stars": 65
+      },
+      "files": {
+        "js": ["js/games/ates-buz.js"],
+        "css": ["css/ates-buz.css"]
+      }
+    },
+    {
+      "slug": "zipla-topla-coop",
+      "name": "Zıpla Topla Online",
+      "module": null,
+      "section": "online",
+      "cat": "Platform",
+      "subject": "spor",
+      "age": [6, 12],
+      "minutes": 5,
+      "teaches": "İş birliği, zamanlama ve koordinasyon",
+      "short": "Mario tarzı platformlarda 2 kişilik online co-op: arkadaşınla birlikte zıpla, 12 bölümü beraber bitir!",
+      "about": "Zıpla Topla Online, Mario tarzı 2 boyutlu platform oyunu Zıpla Topla'nın iki kişilik iş birliği (co-op) sürümüdür. Lobide oda kurup kodu paylaşırsın; arkadaşın katılınca aynı bölümde yan yana koşar, zıplar, altınları toplar ve kapıya birlikte ulaşırsınız. 3 tema × 4 seviye = 12 bölüm; hareketli platformlar, düşmanlar ve her bölümde yenilenen ortak 5 canlık havuz sizi birlikte plan yapmaya zorlar — birinin hatası herkesin canını yer, o yüzden zamanlama ve iletişim önemli. Klavye ya da dokunmatik kontrollerle oynanır. İş birliği, zamanlama ve el-göz koordinasyonunu geliştiren ücretsiz, üyeliksiz bir online platform oyunu.",
+      "players": "Online 2 kişilik (co-op)",
+      "players_range": [2, 2],
+      "active": true,
+      "stars": 0,
+      "online": {
+        "module": "ZiplaToplaCoop",
+        "order": 7,
+        "stars": 30
+      },
+      "files": {
+        "js": ["js/games/zipla-topla-levels.js", "js/games/zipla-topla.js"],
+        "css": ["css/zipla-topla.css"]
+      }
+    },
+    {
+      "slug": "hava-hokeyi",
+      "name": "Hava Hokeyi",
+      "module": null,
+      "section": "online",
+      "cat": "Spor",
+      "subject": "spor",
+      "age": [6, 12],
+      "minutes": 5,
+      "teaches": "Refleks, el-göz koordinasyonu ve açı sezgisi",
+      "short": "Arkadaşınla online hava hokeyi: tokmağı kaydır, diski rakibin kalesine sok — ilk 7 golü atan kazanır!",
+      "about": "Hava Hokeyi, bir arkadaşınla aynı anda oynadığın online 2 kişilik bir masa oyunudur. Biri kırmızı, diğeri mavi tokmağı alır; parmağın ya da farenle tokmağı kaydırıp diski rakibin kalesine sokmaya, kendi kaleni de korumaya çalışırsın. Disk bantlardan seker ve hız kazanır, her golden sonra geri sayımla yeniden başlarsınız; ilk 7 golü atan maçı kazanır. Lobide oda kurup kodu paylaşman yeterli, klavye gerekmez. Refleks, el-göz koordinasyonu ve açı sezgisi geliştiren ücretsiz, üyeliksiz bir online oyun.",
+      "players": "Online 2 kişilik",
+      "players_range": [2, 2],
+      "active": true,
+      "stars": 0,
+      "online": {
+        "module": "HavaHokeyi",
+        "order": 8,
+        "stars": 75
+      },
+      "files": {
+        "js": ["js/games/hava-hokeyi.js"],
+        "css": ["css/hava-hokeyi.css"]
+      }
+    },
+    {
+      "slug": "altin-avi",
+      "name": "Altın Avı",
+      "module": null,
+      "section": "online",
+      "cat": "Bilgi",
+      "subject": "genel",
+      "age": [7, 10],
+      "minutes": 5,
+      "teaches": "Genel kültür ve hızlı düşünme",
+      "short": "5-30 kişilik bilgi yarışı: sorularla altın topla, geliştir.",
+      "about": "Altın Avı, 5-30 kişinin aynı anda katıldığı online bir bilgi yarışı oyunudur. Sorulara doğru cevap vererek altın toplar, saldırı/savunma geliştirir ve lider tablosunda yükselirsin. Genel kültür ve hızlı düşünmeyi geliştiren ücretsiz çok oyunculu oyun.",
+      "players": "Online (5-30 kişi)",
+      "players_range": [5, 30],
+      "active": true,
+      "stars": 0,
+      "online": {
+        "module": "AltinAvi",
+        "order": 9,
+        "stars": 70
+      },
+      "files": {
+        "js": ["js/games/altin-avi-questions.js", "js/games/altin-avi.js"],
+        "css": ["css/altin-avi.css", "css/fonts-altin-avi.css"]
+      }
+    },
+    {
+      "slug": "kelimelik",
+      "name": "Kelimelik",
+      "module": null,
+      "section": "online",
+      "cat": "Kelime",
+      "subject": "turkce",
+      "age": [7, 10],
+      "minutes": 15,
+      "teaches": "Kelime bilgisi, strateji ve Türkçe yazım",
+      "short": "Arkadaşınla 1v1 Türkçe kelime oyunu: harfleri diz, kelime kur, puan topla.",
+      "about": "Kelimelik, Scrabble tarzında 1v1 oynanan online Türkçe kelime oyunudur. 15x15 tahtada harf taşlarını dizerek kelimeler kurar, harf ve kelime çarpanlı özel karelerle puan toplar, arkadaşına karşı yarışırsın. Kelime dağarcığı, strateji ve Türkçe yazımı geliştiren ücretsiz, üyeliksiz online çok oyunculu bir oyun.",
+      "players": "Online 2 kişilik",
+      "players_range": [2, 2],
+      "active": true,
+      "stars": 0,
+      "online": {
+        "module": "Kelimelik",
+        "order": 10,
+        "stars": 0
+      },
+      "files": {
+        "js": ["js/games/kelimelik.js"],
+        "css": []
+      }
+    },
+    {
+      "slug": "son-kart",
+      "name": "Son Kart",
+      "module": null,
+      "section": "online",
+      "cat": "Kart",
+      "subject": "strateji",
+      "age": [6, 12],
+      "minutes": 10,
+      "teaches": "Renk-sayı eşleştirme, sıra takibi ve strateji",
+      "short": "UNO tarzı kart oyunu: rengi ya da sayıyı eşleştir, elini ilk bitiren kazanır. Bota karşı ya da 2-4 kişi online.",
+      "about": "Son Kart, UNO tarzında oynanan bir renk ve sayı eşleştirme kart oyunudur. Sıran gelince ortadaki kartla aynı renkte ya da aynı sayıda bir kart atarsın; uyan kartın yoksa desteden çekersin. Atla, Yön Değiştir, +2 ve Joker +4 gibi özel kartlar her eli yeniden karıştırır; tek kartın kalmadan önce “Son Kart!” demeyi unutursan 2 kart ceza çekersin. Tek başına 1-3 bota karşı oynayabilir, “Hızlı Eşleş” ile online rakip bulabilir ya da oda kodu kurup 2-4 arkadaşınla aynı masaya oturabilirsin. Sıra takibi, dikkat ve küçük stratejik kararlar eğlenerek gelişir. Ücretsiz, üyeliksiz, tarayıcıda oynanır.",
+      "players": "Tek kişilik (bota karşı) ya da online 2-4 kişi",
+      "players_range": [1, 4],
+      "active": true,
+      "stars": 0,
+      "online": {
+        "module": "SonKart",
+        "order": 11,
+        "stars": 0,
+        "badge": "2-4 Oyuncu"
+      },
+      "files": {
+        "js": ["js/games/son-kart.js"],
+        "css": []
+      }
+    }
+  ]
+}
