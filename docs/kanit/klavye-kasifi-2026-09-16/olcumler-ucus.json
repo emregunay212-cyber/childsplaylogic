@@ -1,0 +1,49 @@
+{
+  "tarih": "2026-09-16T06:45:36.105Z",
+  "commit": "9c65579",
+  "samples": {
+    "410ms": {
+      "cls": "kk-bubble is-revealed",
+      "opacity": "1",
+      "animationName": "kkPop",
+      "animationFill": "both",
+      "flyer": false
+    },
+    "617ms": {
+      "cls": "kk-bubble is-revealed is-flown",
+      "opacity": "1",
+      "animationName": "kkPop",
+      "animationFill": "both",
+      "flyer": true
+    },
+    "816ms": {
+      "cls": "kk-bubble is-revealed is-flown",
+      "opacity": "1",
+      "animationName": "kkPop",
+      "animationFill": "both",
+      "flyer": true
+    },
+    "1007ms": {
+      "cls": "kk-bubble is-revealed is-flown",
+      "opacity": "1",
+      "animationName": "kkPop",
+      "animationFill": "both",
+      "flyer": false
+    },
+    "1111ms": {
+      "cls": "kk-bubble is-revealed is-flown",
+      "opacity": "1",
+      "animationName": "kkPop",
+      "animationFill": "both",
+      "flyer": false
+    }
+  },
+  "screenshotAtMs": 937,
+  "diag": {
+    "withKkPop": "1",
+    "animationNone": "0.45",
+    "hasFlown": true
+  },
+  "letter": "Ç",
+  "errors": []
+}

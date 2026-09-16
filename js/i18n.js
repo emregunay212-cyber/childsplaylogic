@@ -84,6 +84,7 @@ const TR = {
         'renk-eslestirme': '{color} rengindeki nesneye dokun!',
         'sayi-sayma': 'Kaç tane {object} var? Say ve doğru sayıya bas!',
         'harf-tanima': '"{letter}" harfi ile başlayan resmi bul!',
+        'klavye-kasifi': 'Ekrandaki harfi klavyede bul, yanan tuşa bas!',
         'sekil-bulmaca': 'Şekilleri doğru yerlere sürükle!',
         'boyama': 'Bir renk seç ve resmi boya!',
         'siralama': 'Nesneleri küçükten büyüğe sırala!',

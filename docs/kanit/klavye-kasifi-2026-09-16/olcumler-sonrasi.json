@@ -1,0 +1,1464 @@
+{
+  "tarih": "2026-09-16T06:43:13.652Z",
+  "commit": "9c65579",
+  "olcumler": {
+    "d1366_L1_dolu": {
+      "viewport": {
+        "w": 1366,
+        "h": 768,
+        "dpr": 1
+      },
+      "gameArea": {
+        "clientHeight": 712,
+        "scrollHeight": 712,
+        "clientWidth": 1366,
+        "scrollWidth": 1366,
+        "padding": "16px"
+      },
+      "game": {
+        "x": 293,
+        "y": 72,
+        "w": 780,
+        "h": 680,
+        "right": 1073,
+        "bottom": 752
+      },
+      "vars": {
+        "rounds": "6",
+        "wordLen": "5",
+        "tile": "clamp(28px, min(9vh, calc((calc(min(100vw, 780px) - 32px) - 2 * clamp(12px, 4vw, 32px) - clamp(10px, 3vw, 28px) - clamp(52px, 12vh, 96px) - (5 - 1) * clamp(4px, 1.2vw, 10px)) / 5)), 62px)",
+        "slot": "clamp(24px, min(6vh, calc((calc(min(100vw, 780px) - 32px) - 20px - (6 - 1) * 8px) / 6)), 44px)",
+        "bubble": "clamp(52px, 12vh, 96px)"
+      },
+      "key": {
+        "fontSize": "24px",
+        "x": 340.1,
+        "y": 544,
+        "w": 54.2,
+        "h": 60,
+        "right": 394.3,
+        "bottom": 604
+      },
+      "space": {
+        "x": 475.5,
+        "y": 676,
+        "w": 415.2,
+        "h": 60,
+        "right": 890.6,
+        "bottom": 736
+      },
+      "instruction": {
+        "text": "Yanan tuşa bas: «I»",
+        "fontSize": "24px",
+        "maxWidth": "calc(100% - 128px)",
+        "x": 553,
+        "y": 72,
+        "w": 259.9,
+        "h": 45,
+        "right": 813,
+        "bottom": 117
+      },
+      "speech": {
+        "hidden": false,
+        "x": 1029,
+        "y": 72,
+        "w": 44,
+        "h": 44,
+        "right": 1073,
+        "bottom": 116
+      },
+      "instructionSpeechGap": 216,
+      "shelf": {
+        "x": 521,
+        "y": 133,
+        "w": 324,
+        "h": 56,
+        "right": 845,
+        "bottom": 189
+      },
+      "slot": {
+        "count": 6,
+        "filled": 6,
+        "emojis": [
+          "✈️",
+          "🥕",
+          "🦓",
+          "🐄",
+          "🚀",
+          "🏞️"
+        ],
+        "border": "rgb(46, 204, 113)",
+        "x": 531,
+        "y": 139,
+        "w": 44,
+        "h": 44,
+        "right": 575,
+        "bottom": 183
+      },
+      "card": {
+        "x": 533.7,
+        "y": 242.8,
+        "w": 298.5,
+        "h": 136.5,
+        "right": 832.3,
+        "bottom": 379.3
+      },
+      "shelfCardGap": 53.8,
+      "stage": {
+        "x": 533.7,
+        "y": 205,
+        "w": 298.5,
+        "h": 243,
+        "right": 832.3,
+        "bottom": 448
+      },
+      "letter": {
+        "text": "I",
+        "fontSize": "104px",
+        "lineHeight": "116.48px",
+        "x": 565.7,
+        "y": 252.8,
+        "w": 114.4,
+        "h": 116.5,
+        "right": 680.1,
+        "bottom": 369.3
+      },
+      "bubble": {
+        "text": "🏞️",
+        "opacity": "1",
+        "cls": "kk-bubble is-revealed is-flown",
+        "x": 708.1,
+        "y": 265,
+        "w": 92.2,
+        "h": 92.2,
+        "right": 800.3,
+        "bottom": 357.1
+      },
+      "tiles": [],
+      "tileFirst": null,
+      "tileLast": null,
+      "tilePending": null,
+      "keyboard": {
+        "x": 309.1,
+        "y": 464,
+        "w": 747.9,
+        "h": 288,
+        "right": 1056.9,
+        "bottom": 752
+      },
+      "toast": {
+        "opacity": "0"
+      }
+    },
+    "d1366_L1_letters": {
+      "letters": [
+        "U",
+        "H",
+        "Z",
+        "İ",
+        "R",
+        "I"
+      ],
+      "distinct": 6,
+      "flightBubble": {
+        "bubbleCls": "kk-bubble is-revealed is-flown",
+        "bubbleOpacity": "1",
+        "flyer": true
+      }
+    },
+    "d1366_L2_letters": {
+      "letters": [
+        "Ş",
+        "B",
+        "U",
+        "T",
+        "J",
+        "Z",
+        "E",
+        "M"
+      ],
+      "distinct": 8
+    },
+    "d1366_L3": {
+      "viewport": {
+        "w": 1366,
+        "h": 768,
+        "dpr": 1
+      },
+      "gameArea": {
+        "clientHeight": 712,
+        "scrollHeight": 712,
+        "clientWidth": 1366,
+        "scrollWidth": 1366,
+        "padding": "16px"
+      },
+      "game": {
+        "x": 293,
+        "y": 72,
+        "w": 780,
+        "h": 680,
+        "right": 1073,
+        "bottom": 752
+      },
+      "vars": {
+        "rounds": "4",
+        "wordLen": "5",
+        "tile": "clamp(28px, min(9vh, calc((calc(min(100vw, 780px) - 32px) - 2 * clamp(12px, 4vw, 32px) - clamp(10px, 3vw, 28px) - clamp(52px, 12vh, 96px) - (5 - 1) * clamp(4px, 1.2vw, 10px)) / 5)), 62px)",
+        "slot": "clamp(24px, min(6vh, calc((calc(min(100vw, 780px) - 32px) - 20px - (4 - 1) * 8px) / 4)), 44px)",
+        "bubble": "clamp(52px, 12vh, 96px)"
+      },
+      "key": {
+        "fontSize": "24px",
+        "x": 340.1,
+        "y": 544,
+        "w": 54.2,
+        "h": 60,
+        "right": 394.3,
+        "bottom": 604
+      },
+      "space": {
+        "x": 475.5,
+        "y": 676,
+        "w": 415.2,
+        "h": 60,
+        "right": 890.6,
+        "bottom": 736
+      },
+      "instruction": {
+        "text": "Harfleri sırayla yaz, sonra Boşluk!",
+        "fontSize": "24px",
+        "maxWidth": "calc(100% - 128px)",
+        "x": 475.6,
+        "y": 72,
+        "w": 414.9,
+        "h": 45,
+        "right": 890.4,
+        "bottom": 117
+      },
+      "speech": {
+        "hidden": false,
+        "x": 1029,
+        "y": 72,
+        "w": 44,
+        "h": 44,
+        "right": 1073,
+        "bottom": 116
+      },
+      "instructionSpeechGap": 138.6,
+      "shelf": {
+        "x": 573,
+        "y": 133,
+        "w": 220,
+        "h": 56,
+        "right": 793,
+        "bottom": 189
+      },
+      "slot": {
+        "count": 4,
+        "filled": 0,
+        "emojis": [
+          "",
+          "",
+          "",
+          ""
+        ],
+        "border": "rgba(45, 52, 54, 0.4)",
+        "x": 583,
+        "y": 139,
+        "w": 44,
+        "h": 44,
+        "right": 627,
+        "bottom": 183
+      },
+      "card": {
+        "x": 415.9,
+        "y": 255,
+        "w": 534.2,
+        "h": 112.2,
+        "right": 950.1,
+        "bottom": 367.1
+      },
+      "shelfCardGap": 66,
+      "stage": {
+        "x": 415.9,
+        "y": 205,
+        "w": 534.2,
+        "h": 243,
+        "right": 950.1,
+        "bottom": 448
+      },
+      "letter": null,
+      "bubble": {
+        "text": "?",
+        "opacity": "1",
+        "cls": "kk-bubble",
+        "x": 825.9,
+        "y": 265,
+        "w": 92.2,
+        "h": 92.2,
+        "right": 918.1,
+        "bottom": 357.1
+      },
+      "tiles": [
+        "R*",
+        "O",
+        "K",
+        "E",
+        "T"
+      ],
+      "tileFirst": {
+        "x": 447.9,
+        "y": 278,
+        "w": 62,
+        "h": 62,
+        "right": 509.9,
+        "bottom": 340
+      },
+      "tileLast": {
+        "x": 735.9,
+        "y": 280.1,
+        "w": 62,
+        "h": 62,
+        "right": 797.9,
+        "bottom": 342.1
+      },
+      "tilePending": {
+        "color": "rgb(95, 107, 115)",
+        "bg": "rgb(255, 255, 255)",
+        "border": "rgb(140, 155, 173)",
+        "fontSize": "34.72px",
+        "w": 62
+      },
+      "keyboard": {
+        "x": 309.1,
+        "y": 464,
+        "w": 747.9,
+        "h": 288,
+        "right": 1056.9,
+        "bottom": 752
+      },
+      "toast": {
+        "opacity": "0"
+      },
+      "contrast": {
+        "tilePendingText": {
+          "fg": "#5F6B73",
+          "bg": "#FFFFFF",
+          "ratio": 5.47
+        },
+        "tilePendingBorder": {
+          "border": "#8C9BAD",
+          "bg": "#FFFFFF",
+          "ratio": 2.84
+        },
+        "slotDash": {
+          "border": "rgba(45, 52, 54, 0.4)",
+          "effective": "#A5ABAE",
+          "bg": "#F5FAFE",
+          "ratio": 2.22
+        }
+      }
+    },
+    "diakritik": {
+      "x": 285,
+      "y": 197,
+      "width": 796,
+      "height": 304.9375,
+      "cardH": 136.46875,
+      "letterBoxH": 116.46875,
+      "lineHeight": "116.48px",
+      "fontSize": "104px",
+      "padTop": "10.0"
+    },
+    "m375_L3": {
+      "viewport": {
+        "w": 375,
+        "h": 812,
+        "dpr": 2
+      },
+      "gameArea": {
+        "clientHeight": 756,
+        "scrollHeight": 756,
+        "clientWidth": 375,
+        "scrollWidth": 375,
+        "padding": "16px"
+      },
+      "game": {
+        "x": 16,
+        "y": 72,
+        "w": 343,
+        "h": 724,
+        "right": 359,
+        "bottom": 796
+      },
+      "vars": {
+        "rounds": "4",
+        "wordLen": "5",
+        "tile": "clamp(28px, min(9vh, calc((calc(min(100vw, 780px) - 32px) - 2 * clamp(12px, 4vw, 32px) - clamp(10px, 3vw, 28px) - clamp(52px, 12vh, 96px) - (5 - 1) * clamp(4px, 1.2vw, 10px)) / 5)), 62px)",
+        "slot": "clamp(24px, min(6vh, calc((calc(min(100vw, 780px) - 32px) - 20px - (4 - 1) * 6px) / 4)), 44px)",
+        "bubble": "clamp(52px, 12vh, 96px)"
+      },
+      "key": {
+        "fontSize": "15.2px",
+        "x": 15.6,
+        "y": 600,
+        "w": 27.2,
+        "h": 60,
+        "right": 42.8,
+        "bottom": 660
+      },
+      "space": {
+        "x": 83.5,
+        "y": 726,
+        "w": 208.2,
+        "h": 60,
+        "right": 291.6,
+        "bottom": 786
+      },
+      "instruction": {
+        "text": "Harfleri sırayla yaz, sonra Boşluk!",
+        "fontSize": "13.6px",
+        "maxWidth": "calc(100% - 112px)",
+        "x": 75.5,
+        "y": 72,
+        "w": 223.9,
+        "h": 25.6,
+        "right": 299.5,
+        "bottom": 97.6
+      },
+      "speech": {
+        "hidden": false,
+        "x": 315,
+        "y": 72,
+        "w": 44,
+        "h": 44,
+        "right": 359,
+        "bottom": 116
+      },
+      "instructionSpeechGap": 15.5,
+      "shelf": {
+        "x": 80.5,
+        "y": 105.6,
+        "w": 214,
+        "h": 56,
+        "right": 294.5,
+        "bottom": 161.6
+      },
+      "slot": {
+        "count": 4,
+        "filled": 0,
+        "emojis": [
+          "",
+          "",
+          "",
+          ""
+        ],
+        "border": "rgba(45, 52, 54, 0.4)",
+        "x": 90.5,
+        "y": 111.6,
+        "w": 44,
+        "h": 44,
+        "right": 134.5,
+        "bottom": 155.6
+      },
+      "card": {
+        "x": 16,
+        "y": 271.9,
+        "w": 343,
+        "h": 116,
+        "right": 359,
+        "bottom": 387.9
+      },
+      "shelfCardGap": 110.3,
+      "stage": {
+        "x": 16,
+        "y": 169.6,
+        "w": 343,
+        "h": 351.4,
+        "right": 359,
+        "bottom": 521
+      },
+      "letter": null,
+      "bubble": {
+        "text": "?",
+        "opacity": "1",
+        "cls": "kk-bubble",
+        "x": 248,
+        "y": 281.9,
+        "w": 96,
+        "h": 96,
+        "right": 344,
+        "bottom": 377.9
+      },
+      "tiles": [
+        "R*",
+        "O",
+        "B",
+        "O",
+        "T"
+      ],
+      "tileFirst": {
+        "x": 31,
+        "y": 311.1,
+        "w": 37.5,
+        "h": 37.5,
+        "right": 68.5,
+        "bottom": 348.6
+      },
+      "tileLast": {
+        "x": 199.2,
+        "y": 311.1,
+        "w": 37.5,
+        "h": 37.5,
+        "right": 236.7,
+        "bottom": 348.6
+      },
+      "tilePending": {
+        "color": "rgb(95, 107, 115)",
+        "bg": "rgb(255, 255, 255)",
+        "border": "rgb(140, 155, 173)",
+        "fontSize": "21.028px",
+        "w": 37.5
+      },
+      "keyboard": {
+        "x": 4.1,
+        "y": 529,
+        "w": 366.9,
+        "h": 267,
+        "right": 370.9,
+        "bottom": 796
+      },
+      "toast": {
+        "opacity": "0"
+      },
+      "contrast": {
+        "tilePendingText": {
+          "fg": "#5F6B73",
+          "bg": "#FFFFFF",
+          "ratio": 5.47
+        },
+        "tilePendingBorder": {
+          "border": "#8C9BAD",
+          "bg": "#FFFFFF",
+          "ratio": 2.84
+        },
+        "slotDash": {
+          "border": "rgba(45, 52, 54, 0.4)",
+          "effective": "#A5ABAE",
+          "bg": "#F5FAFE",
+          "ratio": 2.22
+        }
+      }
+    },
+    "m375_L3_yonerge": {
+      "instruction": {
+        "x": 75.5,
+        "y": 72,
+        "w": 223.9,
+        "h": 25.6,
+        "right": 299.5,
+        "bottom": 97.6
+      },
+      "speech": {
+        "x": 315,
+        "y": 72,
+        "w": 44,
+        "h": 44,
+        "right": 359,
+        "bottom": 116
+      },
+      "gapX": 15.5,
+      "overlap": false,
+      "text": "Harfleri sırayla yaz, sonra Boşluk!",
+      "speechHidden": false
+    },
+    "s360_L1": {
+      "viewport": {
+        "w": 360,
+        "h": 640,
+        "dpr": 2
+      },
+      "gameArea": {
+        "clientHeight": 584,
+        "scrollHeight": 584,
+        "clientWidth": 360,
+        "scrollWidth": 360,
+        "padding": "16px"
+      },
+      "game": {
+        "x": 16,
+        "y": 72,
+        "w": 328,
+        "h": 552,
+        "right": 344,
+        "bottom": 624
+      },
+      "vars": {
+        "rounds": "6",
+        "wordLen": "5",
+        "tile": "clamp(28px, min(9vh, calc((calc(min(100vw, 780px) - 32px) - 2 * clamp(12px, 4vw, 32px) - clamp(10px, 3vw, 28px) - clamp(52px, 12vh, 96px) - (5 - 1) * clamp(4px, 1.2vw, 10px)) / 5)), 62px)",
+        "slot": "clamp(24px, min(6vh, calc((calc(min(100vw, 780px) - 32px) - 20px - (6 - 1) * 6px) / 6)), 44px)",
+        "bubble": "clamp(52px, 12vh, 96px)"
+      },
+      "key": {
+        "fontSize": "15.2px",
+        "x": 15.3,
+        "y": 454.4,
+        "w": 25.9,
+        "h": 51.2,
+        "right": 41.2,
+        "bottom": 505.6
+      },
+      "space": {
+        "x": 80.3,
+        "y": 562.8,
+        "w": 199.4,
+        "h": 51.2,
+        "right": 279.8,
+        "bottom": 614
+      },
+      "instruction": {
+        "text": "Yanan tuşa bas: «P»",
+        "fontSize": "13.6px",
+        "maxWidth": "calc(100% - 112px)",
+        "x": 109.5,
+        "y": 72,
+        "w": 141,
+        "h": 25.6,
+        "right": 250.5,
+        "bottom": 97.6
+      },
+      "speech": {
+        "hidden": false,
+        "x": 300,
+        "y": 72,
+        "w": 44,
+        "h": 44,
+        "right": 344,
+        "bottom": 116
+      },
+      "instructionSpeechGap": 49.5,
+      "shelf": {
+        "x": 39.8,
+        "y": 105.6,
+        "w": 280.3,
+        "h": 50.4,
+        "right": 320.2,
+        "bottom": 156
+      },
+      "slot": {
+        "count": 6,
+        "filled": 0,
+        "emojis": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "border": "rgba(45, 52, 54, 0.4)",
+        "x": 49.8,
+        "y": 111.6,
+        "w": 38.4,
+        "h": 38.4,
+        "right": 88.2,
+        "bottom": 150
+      },
+      "card": {
+        "x": 69,
+        "y": 196.7,
+        "w": 222,
+        "h": 127.5,
+        "right": 291,
+        "bottom": 324.2
+      },
+      "shelfCardGap": 40.7,
+      "stage": {
+        "x": 69,
+        "y": 164,
+        "w": 222,
+        "h": 220.3,
+        "right": 291,
+        "bottom": 384.3
+      },
+      "letter": {
+        "text": "P",
+        "fontSize": "96px",
+        "lineHeight": "107.52px",
+        "x": 83.4,
+        "y": 206.7,
+        "w": 105.6,
+        "h": 107.5,
+        "right": 189,
+        "bottom": 314.2
+      },
+      "bubble": {
+        "text": "?",
+        "opacity": "1",
+        "cls": "kk-bubble",
+        "x": 199.8,
+        "y": 222.1,
+        "w": 76.8,
+        "h": 76.8,
+        "right": 276.6,
+        "bottom": 298.9
+      },
+      "tiles": [],
+      "tileFirst": null,
+      "tileLast": null,
+      "tilePending": null,
+      "keyboard": {
+        "x": 4.1,
+        "y": 392.3,
+        "w": 351.9,
+        "h": 231.8,
+        "right": 355.9,
+        "bottom": 624
+      },
+      "toast": {
+        "opacity": "0"
+      },
+      "contrast": {
+        "slotDash": {
+          "border": "rgba(45, 52, 54, 0.4)",
+          "effective": "#A5ABAE",
+          "bg": "#F5FAFE",
+          "ratio": 2.22
+        }
+      }
+    },
+    "s360_L3": {
+      "viewport": {
+        "w": 360,
+        "h": 640,
+        "dpr": 2
+      },
+      "gameArea": {
+        "clientHeight": 584,
+        "scrollHeight": 584,
+        "clientWidth": 360,
+        "scrollWidth": 360,
+        "padding": "16px"
+      },
+      "game": {
+        "x": 16,
+        "y": 72,
+        "w": 328,
+        "h": 552,
+        "right": 344,
+        "bottom": 624
+      },
+      "vars": {
+        "rounds": "4",
+        "wordLen": "5",
+        "tile": "clamp(28px, min(9vh, calc((calc(min(100vw, 780px) - 32px) - 2 * clamp(12px, 4vw, 32px) - clamp(10px, 3vw, 28px) - clamp(52px, 12vh, 96px) - (5 - 1) * clamp(4px, 1.2vw, 10px)) / 5)), 62px)",
+        "slot": "clamp(24px, min(6vh, calc((calc(min(100vw, 780px) - 32px) - 20px - (4 - 1) * 6px) / 4)), 44px)",
+        "bubble": "clamp(52px, 12vh, 96px)"
+      },
+      "key": {
+        "fontSize": "15.2px",
+        "x": 15.3,
+        "y": 454.4,
+        "w": 25.9,
+        "h": 51.2,
+        "right": 41.2,
+        "bottom": 505.6
+      },
+      "space": {
+        "x": 80.3,
+        "y": 562.8,
+        "w": 199.4,
+        "h": 51.2,
+        "right": 279.8,
+        "bottom": 614
+      },
+      "instruction": {
+        "text": "Harfleri sırayla yaz, sonra Boşluk!",
+        "fontSize": "13.6px",
+        "maxWidth": "calc(100% - 112px)",
+        "x": 72,
+        "y": 72,
+        "w": 216,
+        "h": 41.6,
+        "right": 288,
+        "bottom": 113.6
+      },
+      "speech": {
+        "hidden": false,
+        "x": 300,
+        "y": 72,
+        "w": 44,
+        "h": 44,
+        "right": 344,
+        "bottom": 116
+      },
+      "instructionSpeechGap": 12,
+      "shelf": {
+        "x": 84.2,
+        "y": 121.6,
+        "w": 191.6,
+        "h": 50.4,
+        "right": 275.8,
+        "bottom": 172
+      },
+      "slot": {
+        "count": 4,
+        "filled": 0,
+        "emojis": [
+          "",
+          "",
+          "",
+          ""
+        ],
+        "border": "rgba(45, 52, 54, 0.4)",
+        "x": 94.2,
+        "y": 127.6,
+        "w": 38.4,
+        "h": 38.4,
+        "right": 132.6,
+        "bottom": 166
+      },
+      "card": {
+        "x": 16,
+        "y": 220.1,
+        "w": 327.9,
+        "h": 96.8,
+        "right": 344,
+        "bottom": 316.9
+      },
+      "shelfCardGap": 48.1,
+      "stage": {
+        "x": 16,
+        "y": 180,
+        "w": 327.9,
+        "h": 204.3,
+        "right": 344,
+        "bottom": 384.3
+      },
+      "letter": null,
+      "bubble": {
+        "text": "?",
+        "opacity": "1",
+        "cls": "kk-bubble",
+        "x": 252.8,
+        "y": 230.1,
+        "w": 76.8,
+        "h": 76.8,
+        "right": 329.6,
+        "bottom": 306.9
+      },
+      "tiles": [
+        "B*",
+        "A",
+        "L",
+        "O",
+        "N"
+      ],
+      "tileFirst": {
+        "x": 30.4,
+        "y": 249,
+        "w": 38.9,
+        "h": 38.9,
+        "right": 69.3,
+        "bottom": 287.9
+      },
+      "tileLast": {
+        "x": 203.1,
+        "y": 249,
+        "w": 38.9,
+        "h": 38.9,
+        "right": 242,
+        "bottom": 287.9
+      },
+      "tilePending": {
+        "color": "rgb(95, 107, 115)",
+        "bg": "rgb(255, 255, 255)",
+        "border": "rgb(140, 155, 173)",
+        "fontSize": "21.7638px",
+        "w": 38.9
+      },
+      "keyboard": {
+        "x": 4.1,
+        "y": 392.3,
+        "w": 351.9,
+        "h": 231.8,
+        "right": 355.9,
+        "bottom": 624
+      },
+      "toast": {
+        "opacity": "0"
+      },
+      "contrast": {
+        "tilePendingText": {
+          "fg": "#5F6B73",
+          "bg": "#FFFFFF",
+          "ratio": 5.47
+        },
+        "tilePendingBorder": {
+          "border": "#8C9BAD",
+          "bg": "#FFFFFF",
+          "ratio": 2.84
+        },
+        "slotDash": {
+          "border": "rgba(45, 52, 54, 0.4)",
+          "effective": "#A5ABAE",
+          "bg": "#F5FAFE",
+          "ratio": 2.22
+        }
+      }
+    },
+    "l812_L1": {
+      "viewport": {
+        "w": 812,
+        "h": 375,
+        "dpr": 2
+      },
+      "gameArea": {
+        "clientHeight": 329,
+        "scrollHeight": 329,
+        "clientWidth": 812,
+        "scrollWidth": 812,
+        "padding": "8px"
+      },
+      "game": {
+        "x": 16,
+        "y": 54,
+        "w": 780,
+        "h": 313,
+        "right": 796,
+        "bottom": 367
+      },
+      "vars": {
+        "rounds": "6",
+        "wordLen": "5",
+        "tile": "clamp(28px, min(9vh, calc((calc(min(100vw, 780px) - 32px) - 2 * clamp(12px, 4vw, 32px) - clamp(10px, 3vw, 28px) - clamp(52px, 12vh, 96px) - (5 - 1) * clamp(4px, 1.2vw, 10px)) / 5)), 62px)",
+        "slot": "clamp(24px, min(6vh, calc((calc(min(100vw, 780px) - 32px) - 20px - (6 - 1) * 8px) / 6)), 44px)",
+        "bubble": "clamp(52px, 12vh, 96px)"
+      },
+      "key": {
+        "fontSize": "24px",
+        "x": 63.1,
+        "y": 245,
+        "w": 54.2,
+        "h": 34,
+        "right": 117.3,
+        "bottom": 279
+      },
+      "space": {
+        "x": 198.5,
+        "y": 325,
+        "w": 415.2,
+        "h": 34,
+        "right": 613.6,
+        "bottom": 359
+      },
+      "instruction": {
+        "text": "Yanan tuşa bas: «Y»",
+        "fontSize": "14.4px",
+        "maxWidth": "calc(100% - 128px)",
+        "x": 325.5,
+        "y": 54,
+        "w": 161,
+        "h": 25,
+        "right": 486.5,
+        "bottom": 79
+      },
+      "speech": {
+        "hidden": false,
+        "x": 752,
+        "y": 54,
+        "w": 44,
+        "h": 44,
+        "right": 796,
+        "bottom": 98
+      },
+      "instructionSpeechGap": 265.5,
+      "shelf": {
+        "x": 306,
+        "y": 91,
+        "w": 200,
+        "h": 30,
+        "right": 506,
+        "bottom": 121
+      },
+      "slot": {
+        "count": 6,
+        "filled": 0,
+        "emojis": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "border": "rgba(45, 52, 54, 0.4)",
+        "x": 314,
+        "y": 94,
+        "w": 24,
+        "h": 24,
+        "right": 338,
+        "bottom": 118
+      },
+      "card": {
+        "x": 323,
+        "y": 128.7,
+        "w": 166,
+        "h": 62.6,
+        "right": 489,
+        "bottom": 191.3
+      },
+      "shelfCardGap": 7.7,
+      "stage": {
+        "x": 323,
+        "y": 125,
+        "w": 166,
+        "h": 70,
+        "right": 489,
+        "bottom": 195
+      },
+      "letter": {
+        "text": "Y",
+        "fontSize": "48.75px",
+        "lineHeight": "54.6px",
+        "x": 341,
+        "y": 132.7,
+        "w": 53.6,
+        "h": 54.6,
+        "right": 394.6,
+        "bottom": 187.3
+      },
+      "bubble": {
+        "text": "?",
+        "opacity": "1",
+        "cls": "kk-bubble",
+        "x": 419,
+        "y": 134,
+        "w": 52,
+        "h": 52,
+        "right": 471,
+        "bottom": 186
+      },
+      "tiles": [],
+      "tileFirst": null,
+      "tileLast": null,
+      "tilePending": null,
+      "keyboard": {
+        "x": 32.1,
+        "y": 199,
+        "w": 747.9,
+        "h": 168,
+        "right": 779.9,
+        "bottom": 367
+      },
+      "toast": {
+        "opacity": "0"
+      },
+      "contrast": {
+        "slotDash": {
+          "border": "rgba(45, 52, 54, 0.4)",
+          "effective": "#A5ABAE",
+          "bg": "#F5FAFE",
+          "ratio": 2.22
+        }
+      }
+    },
+    "l812_L3": {
+      "viewport": {
+        "w": 812,
+        "h": 375,
+        "dpr": 2
+      },
+      "gameArea": {
+        "clientHeight": 329,
+        "scrollHeight": 329,
+        "clientWidth": 812,
+        "scrollWidth": 812,
+        "padding": "8px"
+      },
+      "game": {
+        "x": 16,
+        "y": 54,
+        "w": 780,
+        "h": 313,
+        "right": 796,
+        "bottom": 367
+      },
+      "vars": {
+        "rounds": "4",
+        "wordLen": "5",
+        "tile": "clamp(28px, min(9vh, calc((calc(min(100vw, 780px) - 32px) - 2 * clamp(12px, 4vw, 32px) - clamp(10px, 3vw, 28px) - clamp(52px, 12vh, 96px) - (5 - 1) * clamp(4px, 1.2vw, 10px)) / 5)), 62px)",
+        "slot": "clamp(24px, min(6vh, calc((calc(min(100vw, 780px) - 32px) - 20px - (4 - 1) * 8px) / 4)), 44px)",
+        "bubble": "clamp(52px, 12vh, 96px)"
+      },
+      "key": {
+        "fontSize": "24px",
+        "x": 63.1,
+        "y": 245,
+        "w": 54.2,
+        "h": 34,
+        "right": 117.3,
+        "bottom": 279
+      },
+      "space": {
+        "x": 198.5,
+        "y": 325,
+        "w": 415.2,
+        "h": 34,
+        "right": 613.6,
+        "bottom": 359
+      },
+      "instruction": {
+        "text": "Harfleri sırayla yaz, sonra Boşluk!",
+        "fontSize": "14.4px",
+        "maxWidth": "calc(100% - 128px)",
+        "x": 281.9,
+        "y": 54,
+        "w": 248.1,
+        "h": 25,
+        "right": 530.1,
+        "bottom": 79
+      },
+      "speech": {
+        "hidden": false,
+        "x": 752,
+        "y": 54,
+        "w": 44,
+        "h": 44,
+        "right": 796,
+        "bottom": 98
+      },
+      "instructionSpeechGap": 221.9,
+      "shelf": {
+        "x": 338,
+        "y": 91,
+        "w": 136,
+        "h": 30,
+        "right": 474,
+        "bottom": 121
+      },
+      "slot": {
+        "count": 4,
+        "filled": 0,
+        "emojis": [
+          "",
+          "",
+          "",
+          ""
+        ],
+        "border": "rgba(45, 52, 54, 0.4)",
+        "x": 346,
+        "y": 94,
+        "w": 24,
+        "h": 24,
+        "right": 370,
+        "bottom": 118
+      },
+      "card": {
+        "x": 246,
+        "y": 130,
+        "w": 320,
+        "h": 60,
+        "right": 566,
+        "bottom": 190
+      },
+      "shelfCardGap": 9,
+      "stage": {
+        "x": 246,
+        "y": 125,
+        "w": 320,
+        "h": 70,
+        "right": 566,
+        "bottom": 195
+      },
+      "letter": null,
+      "bubble": {
+        "text": "?",
+        "opacity": "1",
+        "cls": "kk-bubble",
+        "x": 496,
+        "y": 134,
+        "w": 52,
+        "h": 52,
+        "right": 548,
+        "bottom": 186
+      },
+      "tiles": [
+        "Ö*",
+        "R",
+        "D",
+        "E",
+        "K"
+      ],
+      "tileFirst": {
+        "x": 264,
+        "y": 143.1,
+        "w": 33.8,
+        "h": 33.8,
+        "right": 297.7,
+        "bottom": 176.9
+      },
+      "tileLast": {
+        "x": 437.9,
+        "y": 143.1,
+        "w": 33.8,
+        "h": 33.8,
+        "right": 471.7,
+        "bottom": 176.9
+      },
+      "tilePending": {
+        "color": "rgb(95, 107, 115)",
+        "bg": "rgb(255, 255, 255)",
+        "border": "rgb(140, 155, 173)",
+        "fontSize": "18.9px",
+        "w": 33.8
+      },
+      "keyboard": {
+        "x": 32.1,
+        "y": 199,
+        "w": 747.9,
+        "h": 168,
+        "right": 779.9,
+        "bottom": 367
+      },
+      "toast": {
+        "opacity": "0"
+      },
+      "contrast": {
+        "tilePendingText": {
+          "fg": "#5F6B73",
+          "bg": "#FFFFFF",
+          "ratio": 5.47
+        },
+        "tilePendingBorder": {
+          "border": "#8C9BAD",
+          "bg": "#FFFFFF",
+          "ratio": 2.84
+        },
+        "slotDash": {
+          "border": "rgba(45, 52, 54, 0.4)",
+          "effective": "#A5ABAE",
+          "bg": "#F5FAFE",
+          "ratio": 2.22
+        }
+      }
+    }
+  },
+  "cekimler": [
+    {
+      "file": "06a-seviye1-defter-dolu-1366.png",
+      "state": "YENİDEN (9c65579): 6. doğru basıştan 1271 ms sonra, katman öncesi; defter 6/6",
+      "emojis": [
+        "✈️",
+        "🥕",
+        "🦓",
+        "🐄",
+        "🚀",
+        "🏞️"
+      ],
+      "distinct": 6
+    },
+    {
+      "file": "07-seviye3-kelime-1366.png",
+      "state": "YENİDEN (9c65579): Seviye 3 açılış (L1+L2 oynanarak), 3 sn sonra (konfeti kalıntısı geçsin); kelime R*OKET",
+      "tilePending": {
+        "color": "rgb(95, 107, 115)",
+        "bg": "rgb(255, 255, 255)",
+        "border": "rgb(140, 155, 173)",
+        "fontSize": "34.72px",
+        "w": 62
+      },
+      "contrast": {
+        "tilePendingText": {
+          "fg": "#5F6B73",
+          "bg": "#FFFFFF",
+          "ratio": 5.47
+        },
+        "tilePendingBorder": {
+          "border": "#8C9BAD",
+          "bg": "#FFFFFF",
+          "ratio": 2.84
+        },
+        "slotDash": {
+          "border": "rgba(45, 52, 54, 0.4)",
+          "effective": "#A5ABAE",
+          "bg": "#F5FAFE",
+          "ratio": 2.22
+        }
+      },
+      "instruction": "Harfleri sırayla yaz, sonra Boşluk!"
+    },
+    {
+      "file": "ek-diakritik-kartlar-1366.png",
+      "state": "YENİDEN (9c65579): kart DOM'da klonlanıp Ğ Ü Ö Ç Ş İ A Q yazıldı (line-height 1.12)",
+      "x": 285,
+      "y": 197,
+      "width": 796,
+      "height": 304.9375,
+      "cardH": 136.46875,
+      "letterBoxH": 116.46875,
+      "lineHeight": "116.48px",
+      "fontSize": "104px",
+      "padTop": "10.0"
+    },
+    {
+      "file": "11-seviye3-375.png",
+      "state": "YENİDEN (9c65579): 375×812 @2x, Seviye 3, 5 harfli kelime R*OBOT (GameEngine.startGame(KlavyeKasifi,3) ile 1. denemede 5 harf geldi; toast geçtikten sonra)",
+      "card": {
+        "x": 16,
+        "y": 271.9,
+        "w": 343,
+        "h": 116,
+        "right": 359,
+        "bottom": 387.9
+      },
+      "scroll": {
+        "clientHeight": 756,
+        "scrollHeight": 756,
+        "clientWidth": 375,
+        "scrollWidth": 375,
+        "padding": "16px"
+      },
+      "tile": {
+        "rounds": "4",
+        "wordLen": "5",
+        "tile": "clamp(28px, min(9vh, calc((calc(min(100vw, 780px) - 32px) - 2 * clamp(12px, 4vw, 32px) - clamp(10px, 3vw, 28px) - clamp(52px, 12vh, 96px) - (5 - 1) * clamp(4px, 1.2vw, 10px)) / 5)), 62px)",
+        "slot": "clamp(24px, min(6vh, calc((calc(min(100vw, 780px) - 32px) - 20px - (4 - 1) * 6px) / 4)), 44px)",
+        "bubble": "clamp(52px, 12vh, 96px)"
+      }
+    },
+    {
+      "file": "13-seviye3-375-yonerge-ses.png",
+      "state": "YENİ: 375×812 Seviye 3 üst şerit (y 56–176 kırpma): yönerge balonu ve sağ üst ses düğmesi",
+      "instruction": {
+        "x": 75.5,
+        "y": 72,
+        "w": 223.9,
+        "h": 25.6,
+        "right": 299.5,
+        "bottom": 97.6
+      },
+      "speech": {
+        "x": 315,
+        "y": 72,
+        "w": 44,
+        "h": 44,
+        "right": 359,
+        "bottom": 116
+      },
+      "gapX": 15.5,
+      "overlap": false,
+      "text": "Harfleri sırayla yaz, sonra Boşluk!",
+      "speechHidden": false
+    },
+    {
+      "file": "ek-360x640-seviye1.png",
+      "state": "YENİDEN (9c65579): 360×640 @2x Seviye 1, toast geçtikten sonra",
+      "scroll": {
+        "clientHeight": 584,
+        "scrollHeight": 584,
+        "clientWidth": 360,
+        "scrollWidth": 360,
+        "padding": "16px"
+      },
+      "key": {
+        "fontSize": "15.2px",
+        "x": 15.3,
+        "y": 454.4,
+        "w": 25.9,
+        "h": 51.2,
+        "right": 41.2,
+        "bottom": 505.6
+      },
+      "slot": 38.4,
+      "shelfCardGap": 40.7
+    },
+    {
+      "file": "ek-360x640-seviye3.png",
+      "state": "YENİDEN (9c65579): 360×640 Seviye 3, 5 harfli kelime B*ALON (engine ile 3. deneme)",
+      "card": {
+        "x": 16,
+        "y": 220.1,
+        "w": 327.9,
+        "h": 96.8,
+        "right": 344,
+        "bottom": 316.9
+      },
+      "scroll": {
+        "clientHeight": 584,
+        "scrollHeight": 584,
+        "clientWidth": 360,
+        "scrollWidth": 360,
+        "padding": "16px"
+      },
+      "instrGap": 12
+    },
+    {
+      "file": "10-seviye1-yatay-812.png",
+      "state": "YENİDEN (9c65579): 812×375 @2x Seviye 1, toast geçtikten sonra (toast bulgusu açık — 09 kanıtı duruyor)",
+      "scroll": {
+        "clientHeight": 329,
+        "scrollHeight": 329,
+        "clientWidth": 812,
+        "scrollWidth": 812,
+        "padding": "8px"
+      },
+      "shelf": {
+        "x": 306,
+        "y": 91,
+        "w": 200,
+        "h": 30,
+        "right": 506,
+        "bottom": 121
+      },
+      "card": {
+        "x": 323,
+        "y": 128.7,
+        "w": 166,
+        "h": 62.6,
+        "right": 489,
+        "bottom": 191.3
+      },
+      "gap": 7.7,
+      "key": {
+        "fontSize": "24px",
+        "x": 63.1,
+        "y": 245,
+        "w": 54.2,
+        "h": 34,
+        "right": 117.3,
+        "bottom": 279
+      }
+    },
+    {
+      "file": "ek-seviye3-yatay-812.png",
+      "state": "YENİDEN (9c65579): 812×375 Seviye 3, 5 harfli kelime Ö*RDEK (engine ile 1. deneme)",
+      "scroll": {
+        "clientHeight": 329,
+        "scrollHeight": 329,
+        "clientWidth": 812,
+        "scrollWidth": 812,
+        "padding": "8px"
+      },
+      "shelf": {
+        "x": 338,
+        "y": 91,
+        "w": 136,
+        "h": 30,
+        "right": 474,
+        "bottom": 121
+      },
+      "card": {
+        "x": 246,
+        "y": 130,
+        "w": 320,
+        "h": 60,
+        "right": 566,
+        "bottom": 190
+      },
+      "gap": 9
+    }
+  ],
+  "hatalar": []
+}

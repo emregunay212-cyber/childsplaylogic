@@ -71,7 +71,8 @@ README "Yeni oyun ekleme" (B2a sonrası) güncel; kısa sıra:
 
 ## Çalışma kuralları
 - Tüm `*.md` `.vercelignore` ile yayın dışı; `oyunlar/**`, `sitemap.xml`, `llms.txt`, `js/catalog.js` ve `index.html` altbilgi grupları üretilir, elle dokunulmaz (CI `catalog:check` + SEO tazelik kontrolüyle kırmızıya döner).
-- Dal → PR → Vercel önizleme → geçit incelemesi → sahip merge'ü. `master`'a doğrudan push yok.
+- Dal → PR → Vercel önizleme → kabul geçidi (Adım 3) → CI yeşil → **Claude merge eder** (sahip kararı,
+  16 Eyl 2026: "merge dahil GitHub işlemlerini sen yap"). `master`'a doğrudan push yok; birleştirme yalnız PR üzerinden.
 - Aynı depoda iki oturum paralel çalışmaz (`EGITSEL-FAZ-DURUM.md` dersi); çalışma ağacı kirliyse
   yeni iş ayrı worktree'de dallanır.
 - Süren işler: `plans/` (düzeltme, Faz 2, oyun denetimi blueprint'leri) — kaldığı yer orada yazar.

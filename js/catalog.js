@@ -5,7 +5,7 @@
    ve js/admin.js buradan türetir. Değişiklik data/games.json'a yapılır, sonra `npm run catalog`.
    GAME_SECTIONS : hub bölümleri, görünüm sırasıyla; icon = js/app.js categoryIcons anahtarı,
                    color = css/tokens.css --kat-<id> gelene kadar yedek renk.
-   GAME_CATALOG  : 56 kayıt (47 solo + 11 online), hub sırası; about/cat gibi yalnız
+   GAME_CATALOG  : 57 kayıt (48 solo + 11 online), hub sırası; about/cat gibi yalnız
                    SEO üreticide (seo/build_seo.py) kullanılan alanlar burada yok.
    GAME_MODULES  : modül adı → tembel referans. Üst düzey const modüller window'a bağlanmaz
                    (window[ad] çalışmaz), eval CSP'yi kırar — tek güvenli yol bu thunk tablosudur.
@@ -21,6 +21,7 @@ const GAME_SECTIONS = [
 ];
 const GAME_CATALOG = [
     {"slug":"harf-tanima","name":"Harf Tanıma","module":"HarfTanima","section":"harf","subject":"turkce","age":[4,7],"minutes":5,"levels":3,"teaches":"Harf tanıma ve okuma hazırlığı","players":"Tek kişilik","players_range":[1,1],"active":true,"stars":0,"files":{"js":["js/games/harf-tanima.js"],"css":[]}},
+    {"slug":"klavye-kasifi","name":"Klavye Kâşifi","module":"KlavyeKasifi","section":"harf","subject":"turkce","age":[4,6],"minutes":3,"levels":3,"teaches":"Klavye tanıma: harfi tuşta bulma, tek basış, sıra ve Boşluk tuşu","players":"Tek kişilik","players_range":[1,1],"active":true,"stars":0,"files":{"js":["js/games/klavye-kasifi.js"],"css":["css/klavye-kasifi.css"]}},
     {"slug":"hece-birlestirme","name":"Hece Birleştirme","module":"HeceBirlestirme","section":"harf","subject":"turkce","age":[5,8],"minutes":5,"levels":3,"teaches":"Hece bilgisi ve okuma akıcılığı","players":"Tek kişilik","players_range":[1,1],"active":true,"stars":0,"files":{"js":["js/games/hece-birlestirme.js"],"css":[]}},
     {"slug":"kelime-madeni-3d","name":"Kelime Madeni 3D","module":"KelimeMadeni3D","section":"harf","subject":"ingilizce","age":[8,12],"minutes":15,"levels":1,"teaches":"İngilizce kelime dağarcığı ve mekânsal düşünme","players":"Tek kişilik","players_range":[1,1],"active":false,"stars":0,"files":{"js":["js/games/kelime-madeni-3d.js"],"css":["css/kelime-madeni-3d.css"]}},
     {"slug":"kelime-balonu","name":"Kelime Balonu","module":"KelimeBalonu","section":"harf","subject":"ingilizce","age":[8,12],"minutes":4,"levels":1,"teaches":"İngilizce kelime dağarcığı ve yazım (spelling)","players":"Tek kişilik","players_range":[1,1],"active":true,"stars":0,"files":{"js":["js/games/kelime-balonu.js"],"css":["css/kelime-balonu.css"]}},
@@ -79,6 +80,7 @@ const GAME_CATALOG = [
 ];
 const GAME_MODULES = {
     HarfTanima: () => HarfTanima,
+    KlavyeKasifi: () => KlavyeKasifi,
     HeceBirlestirme: () => HeceBirlestirme,
     KelimeMadeni3D: () => KelimeMadeni3D,
     KelimeBalonu: () => KelimeBalonu,

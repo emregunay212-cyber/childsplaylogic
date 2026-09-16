@@ -1,0 +1,375 @@
+/* ============================================
+   Klavye Kâşifi — okul öncesi klavye oyunu (hub-içi)
+   Token'lar css/main.css (:root); paylaşılan .game-instruction css/games.css.
+   Tek ekran: 360×640 dikey telefon, 1366×768 okul PC'si — kaydırma yok.
+   ============================================ */
+
+.kk-game {
+    --kk-accent: #3A86FF;              /* oyunun kendi vurgusu (harf, kutu, balon) — hub kategori token'ından bağımsız */
+    --kk-lit: #FFD166;                 /* yanan tuş (sıcak sarı) */
+    --kk-lit-edge: #E0A800;
+    --kk-cap-edge: #CBD5E1;            /* tuş alt kenarı: basılabilir kapak hissi */
+    --kk-gap: 3px;
+    --kk-pad: 4px;                     /* klavye iç boşluğu */
+    --kk-outer: 8px;                   /* klavyenin dışında kalan yatay pay (dar ekranda alan paddingi geri alınır) */
+    /* Tuş genişliği: 12 tuşluk üst sıra + boşluklar görünür genişliğe sığar; 24–56 px */
+    --kk-unit: clamp(24px, calc((min(100vw, 780px) - var(--kk-outer) - 2 * var(--kk-pad) - 11 * var(--kk-gap)) / 12), 56px);
+    /* Tuş yüksekliği: 4 sıra + sahne 640 px yükseklikte tek ekrana sığar */
+    --kk-key-h: clamp(36px, 8vh, 60px);
+    /* Genişlik bütçesi: .game-area yatay padding 2×16 px; JS tur sayısını (--kk-rounds) ve kelime
+       uzunluğunu (--kk-word-len) yazar → defter yuvaları ve harf kutuları dar telefonda küçülür, taşmaz */
+    --kk-rounds: 6;
+    --kk-word-len: 5;
+    --kk-avail: calc(min(100vw, 780px) - 32px);
+    --kk-shelf-gap: 6px;
+    --kk-slot: clamp(24px, min(6vh, calc((var(--kk-avail) - 20px - (var(--kk-rounds) - 1) * var(--kk-shelf-gap)) / var(--kk-rounds))), 44px);
+    --kk-bubble: clamp(52px, 12vh, 96px);
+    --kk-card-px: clamp(12px, 4vw, 32px);
+    --kk-card-gap: clamp(10px, 3vw, 28px);
+    --kk-tile-gap: clamp(4px, 1.2vw, 10px);
+    --kk-tile: clamp(28px, min(9vh, calc((var(--kk-avail) - 2 * var(--kk-card-px) - var(--kk-card-gap) - var(--kk-bubble) - (var(--kk-word-len) - 1) * var(--kk-tile-gap)) / var(--kk-word-len))), 62px);
+    position: relative;
+    width: 100%;
+    max-width: 780px;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+}
+
+.kk-instruction {
+    margin-bottom: 0;
+    max-width: calc(100% - 112px);     /* sağ üstteki 44 px ses düğmesi + paylar: bindirme yok */
+    text-wrap: balance;
+}
+
+/* ── Kâşif defteri: tur başına bir yuva; kazanılan resim buraya uçar ── */
+.kk-shelf {
+    display: flex;
+    gap: var(--kk-shelf-gap);
+    padding: 6px 10px;
+    max-width: 100%;
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.55);
+}
+
+.kk-slot {
+    width: var(--kk-slot);
+    aspect-ratio: 1;
+    border-radius: var(--radius-round);
+    border: 2px dashed rgba(45, 52, 54, 0.4);
+    display: grid;
+    place-items: center;
+    font-size: calc(var(--kk-slot) * 0.55);
+    line-height: 1;
+    background: transparent;
+    transition: border-color var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out);
+}
+
+.kk-slot.is-filled {
+    border: 2px solid var(--success);
+    background: white;
+    animation: kkPop 0.3s var(--ease-spring) both;
+}
+
+/* ── Sahne: harf kartı / kelime kutuları + resim balonu ── */
+.kk-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs);
+    flex: 1 1 auto;
+    justify-content: center;
+}
+
+.kk-card {
+    display: flex;
+    align-items: center;
+    gap: var(--kk-card-gap);
+    padding: 10px var(--kk-card-px);
+    max-width: 100%;
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+}
+
+.kk-card.kk-nudge { animation: kkNudge 0.35s var(--ease-out); }
+
+.kk-letter {
+    font-family: var(--font-heading);
+    font-size: clamp(3.4rem, 15vh, 6.5rem);
+    font-weight: 700;
+    line-height: 1.12;
+    padding: 0 0.04em;
+    color: var(--kk-accent);
+    text-shadow: 0 3px 0 rgba(58, 134, 255, 0.14);
+    min-width: 1.1em;
+    text-align: center;
+}
+
+.kk-letter.kk-pop { animation: kkPop 0.32s var(--ease-spring) both; }
+
+/* Kelime Yolu: harf kutuları — sıradaki zıplar, yazılan doluyor */
+.kk-word {
+    display: flex;
+    gap: var(--kk-tile-gap);
+}
+
+.kk-tile {
+    width: var(--kk-tile);
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-sm);
+    border: 3px solid #8091A4;   /* beyazda 3.2:1 (bileşen sınırı) */
+    background: white;
+    font-family: var(--font-heading);
+    font-size: calc(var(--kk-tile) * 0.56);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--text-muted);
+    transition: background-color var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out),
+                border-color var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+}
+
+.kk-tile.is-current {
+    border-color: var(--kk-accent);
+    color: var(--kk-accent);
+    animation: kkBob 0.9s ease-in-out infinite;
+}
+
+.kk-tile.is-done {
+    background: var(--kk-accent);
+    border-color: var(--kk-accent);
+    color: white;
+}
+
+.kk-bubble {
+    width: var(--kk-bubble);
+    flex: 0 0 auto;
+    aspect-ratio: 1;
+    border-radius: var(--radius-round);
+    background: #EEF3FF;
+    display: grid;
+    place-items: center;
+    font-family: var(--font-heading);
+    font-size: calc(var(--kk-bubble) * 0.55);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--kk-accent);
+    box-shadow: inset 0 -4px 0 rgba(58, 134, 255, 0.12);
+    transition: background-color var(--dur-base) var(--ease-out);
+}
+
+.kk-bubble.is-revealed.is-flown { animation: none; opacity: 0.45; transition: opacity 0.3s var(--ease-out); }   /* animation: none — kkPop 'both' dolgusu opacity 1'i ezmesin */
+
+.kk-bubble.is-revealed {
+    background: var(--success-light);
+    box-shadow: inset 0 -4px 0 rgba(46, 204, 113, 0.25);
+    animation: kkPop 0.36s var(--ease-spring) both;
+}
+
+.kk-caption {
+    min-height: 1.4em;
+    font-family: var(--font-heading);
+    font-size: clamp(0.95rem, 2.6vh, 1.2rem);
+    font-weight: 600;
+    color: var(--text-muted);
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+}
+
+.kk-caption.is-visible { opacity: 1; transform: none; }
+
+/* Uçan resim: balondan deftere (JS transform hesaplar) */
+.kk-flyer {
+    position: fixed;
+    z-index: 60;
+    display: grid;
+    place-items: center;
+    line-height: 1;
+    pointer-events: none;
+    will-change: transform;
+    transition: transform 0.46s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+/* ── Ekran klavyesi: Türkçe Q, gerçek sıra kaymaları ── */
+.kk-keyboard {
+    display: flex;
+    flex-direction: column;
+    gap: var(--kk-gap);
+    padding: 8px var(--kk-pad) 10px;
+    margin: 0 -12px;                   /* dar ekranda .game-area paddinginden 12 px geri al */
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.55);
+    box-shadow: var(--shadow-sm);
+    max-width: calc(100% + 24px);
+}
+
+.kk-row { display: flex; gap: var(--kk-gap); }
+.kk-row--2 { padding-left: calc(var(--kk-unit) * 0.25 + var(--kk-gap) * 0.25); }
+.kk-row--3 { padding-left: calc(var(--kk-unit) * 0.75 + var(--kk-gap) * 0.75); }
+.kk-row--4 { padding-left: calc(var(--kk-unit) * 2.5 + var(--kk-gap) * 2.5); }
+
+.kk-key {
+    width: var(--kk-unit);
+    height: var(--kk-key-h);
+    padding: 0;
+    display: grid;
+    place-items: center;
+    background: white;
+    border: 0;
+    border-bottom: 3px solid var(--kk-cap-edge);
+    border-radius: 9px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    font-family: var(--font-heading);
+    font-size: clamp(0.95rem, calc(var(--kk-unit) * 0.5), 1.5rem);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--text-dark);
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    transition: transform var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out),
+                border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.kk-key--space {
+    width: calc(var(--kk-unit) * 7 + var(--kk-gap) * 6);
+    font-size: clamp(0.8rem, calc(var(--kk-unit) * 0.34), 1.05rem);
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .kk-key:hover { background: #F8FAFC; }
+}
+
+.kk-key:active,
+.kk-key.is-down {
+    transform: translateY(2px);
+    border-bottom-width: 1px;
+    background: #F1F5F9;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.kk-key:focus-visible {
+    outline: 3px solid var(--kk-accent);
+    outline-offset: 2px;
+}
+
+/* Hedef: 1. seviyede hep, Boşluk'ta hep */
+.kk-key.is-target {
+    background: var(--kk-lit);
+    border-bottom-color: var(--kk-lit-edge);
+    color: var(--text-dark);
+    box-shadow: 0 0 0 4px rgba(255, 209, 102, 0.45), 0 6px 14px rgba(224, 168, 0, 0.35);
+}
+
+/* İpucu: boşta kalınca / yanlıştan sonra nefes alır */
+.kk-key.is-hint {
+    background: var(--kk-lit);
+    border-bottom-color: var(--kk-lit-edge);
+    animation: kkBreathe 1.1s ease-in-out infinite;
+}
+
+.kk-key.is-correct {
+    background: var(--success-light);
+    border-bottom-color: var(--success);
+    animation: successPulse 0.3s var(--ease-out);
+}
+
+.kk-key.is-wrong {
+    background: var(--error-light);
+    border-bottom-color: var(--error);
+    animation: wiggle 0.34s ease;
+}
+
+/* ── Sesli okuma düğmesi (yalnız tr-TR sesi olan cihazlarda görünür) ── */
+.kk-speech {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-round);
+    background: white;
+    color: var(--text-muted);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+
+.kk-speech svg { width: 24px; height: 24px; fill: currentColor; stroke: currentColor; }
+.kk-speech .kk-speech__wave { opacity: 0.35; transition: opacity var(--dur-base) var(--ease-out); }
+.kk-speech:active { transform: scale(0.94); }
+.kk-speech:focus-visible { outline: 3px solid var(--kk-accent); outline-offset: 2px; }
+.kk-speech.is-on {
+    color: var(--kk-accent);
+    box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.25), var(--shadow-sm);
+}
+.kk-speech.is-on .kk-speech__wave { opacity: 1; }
+
+/* ── Hareket ── */
+@keyframes kkBreathe {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 209, 102, 0.0), 0 2px 4px rgba(0, 0, 0, 0.08); transform: scale(1); }
+    50% { box-shadow: 0 0 0 6px rgba(255, 209, 102, 0.55), 0 6px 14px rgba(224, 168, 0, 0.35); transform: scale(1.08); }
+}
+
+@keyframes kkPop {
+    0% { transform: scale(0.88); opacity: 0.6; }
+    65% { transform: scale(1.08); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes kkBob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+@keyframes kkNudge {
+    0%, 100% { transform: translateX(0); }
+    30% { transform: translateX(-6px); }
+    60% { transform: translateX(5px); }
+}
+
+/* ── Geniş ekran: tuşlar büyür, boşluklar açılır ── */
+@media (min-width: 600px) {
+    .kk-game { --kk-gap: 6px; --kk-pad: 16px; --kk-outer: 32px; --kk-shelf-gap: 8px; gap: var(--space-md); }
+    .kk-keyboard { padding: 14px var(--kk-pad) 16px; margin: 0; max-width: 100%; }
+    .kk-instruction { max-width: calc(100% - 128px); }
+    .kk-key { border-radius: 11px; }
+}
+
+/* ── Alçak görünüm (yatay telefon): tek ekranda kalsın ── */
+@media (max-height: 520px) {
+    .kk-game { gap: 4px; }
+    .kk-instruction { font-size: 1rem; padding: 4px 14px; margin-bottom: 0; }
+    .kk-shelf { padding: 3px 8px; }
+    .kk-card { padding: 4px 18px; }
+    .kk-letter { font-size: clamp(2.6rem, 13vh, 6.5rem); }
+    .kk-keyboard { padding: 6px var(--kk-pad) 8px; }
+    .kk-caption { display: none; }
+    .kk-game { --kk-key-h: 34px; }
+}
+
+/* Dar ekranda Kelime Yolu: ödül balonu harf kutularını ezmesin (kutular bütçeden büyür) */
+@media (max-width: 599px) {
+    .kk-game--word { --kk-bubble: clamp(52px, 8vh, 72px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .kk-key.is-hint { animation: none; box-shadow: 0 0 0 4px rgba(255, 209, 102, 0.55); }
+    .kk-tile.is-current { animation: none; transform: translateY(-3px); }
+    .kk-flyer { transition: none; }
+    .kk-card.kk-nudge, .kk-letter.kk-pop, .kk-bubble.is-revealed, .kk-slot.is-filled,
+    .kk-key.is-correct, .kk-key.is-wrong { animation: none; }
+}

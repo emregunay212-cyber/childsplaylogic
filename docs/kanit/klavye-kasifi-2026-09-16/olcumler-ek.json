@@ -1,0 +1,391 @@
+{
+  "tarih": "2026-09-16T06:08:05.264Z",
+  "olcumler": {
+    "diakritik": {
+      "x": 285,
+      "y": 197,
+      "width": 796,
+      "height": 259,
+      "cardTop": 205,
+      "letterBoxTop": 215,
+      "cardPaddingTop": "10px"
+    },
+    "toast375": {
+      "at700ms": {
+        "visible": "meta-toast show",
+        "text": "🌞 Günaydın! Günlük giriş +5 💎",
+        "opacity": "1",
+        "z": "1300",
+        "x": 93.8,
+        "y": 724,
+        "w": 187.5,
+        "h": 62
+      },
+      "at3700ms": {
+        "visible": false,
+        "text": "🌞 Günaydın! Günlük giriş +5 💎",
+        "opacity": "0",
+        "z": "1300",
+        "x": 93.8,
+        "y": 804,
+        "w": 187.5,
+        "h": 62
+      },
+      "at6700ms": {
+        "visible": false,
+        "text": "🌞 Günaydın! Günlük giriş +5 💎",
+        "opacity": "0",
+        "z": "1300",
+        "x": 93.8,
+        "y": 804,
+        "w": 187.5,
+        "h": 62
+      },
+      "space": {
+        "x": 83.5,
+        "y": 726,
+        "w": 208.2,
+        "h": 60
+      }
+    },
+    "s360_L1": {
+      "viewport": {
+        "w": 360,
+        "h": 640
+      },
+      "gameArea": {
+        "clientHeight": 584,
+        "scrollHeight": 584,
+        "clientWidth": 360,
+        "scrollWidth": 360
+      },
+      "key": {
+        "x": 15.3,
+        "y": 454.4,
+        "w": 25.9,
+        "h": 51.2
+      },
+      "keyH": "51.1875px",
+      "space": {
+        "x": 80.3,
+        "y": 562.8,
+        "w": 199.4,
+        "h": 51.2
+      },
+      "card": {
+        "x": 64.8,
+        "y": 202.5,
+        "w": 230.4,
+        "h": 116
+      },
+      "stage": {
+        "x": 64.8,
+        "y": 164,
+        "w": 230.4,
+        "h": 220.3
+      },
+      "keyboard": {
+        "x": 4.1,
+        "y": 392.3,
+        "w": 351.9,
+        "h": 231.8
+      },
+      "shelf": {
+        "x": 34.8,
+        "y": 105.6,
+        "w": 290.3,
+        "h": 50.4
+      },
+      "instruction": {
+        "text": "Yanan tuşa bas: «G»",
+        "fontSize": "13.6px",
+        "x": 108.7,
+        "y": 72,
+        "w": 142.7,
+        "h": 25.6
+      },
+      "letter": {
+        "fontSize": "96px",
+        "rect": {
+          "x": 82.8,
+          "y": 212.5,
+          "w": 105.6,
+          "h": 96
+        }
+      },
+      "tiles": [],
+      "tile": null,
+      "bubble": {
+        "x": 200.4,
+        "y": 222.1,
+        "w": 76.8,
+        "h": 76.8
+      },
+      "speech": {
+        "hidden": false,
+        "x": 300,
+        "y": 72,
+        "w": 44,
+        "h": 44
+      },
+      "toast": {
+        "visible": false,
+        "text": "🌞 Günaydın! Günlük giriş +5 💎",
+        "opacity": "0",
+        "z": "1300",
+        "x": 90,
+        "y": 632,
+        "w": 180,
+        "h": 62
+      }
+    },
+    "s360_L3": {
+      "viewport": {
+        "w": 360,
+        "h": 640
+      },
+      "gameArea": {
+        "clientHeight": 584,
+        "scrollHeight": 584,
+        "clientWidth": 360,
+        "scrollWidth": 360
+      },
+      "key": {
+        "x": 15.3,
+        "y": 454.4,
+        "w": 25.9,
+        "h": 51.2
+      },
+      "keyH": "51.1875px",
+      "space": {
+        "x": 80.3,
+        "y": 562.8,
+        "w": 199.4,
+        "h": 51.2
+      },
+      "card": {
+        "x": 26.9,
+        "y": 212.1,
+        "w": 306.2,
+        "h": 96.8
+      },
+      "stage": {
+        "x": 26.9,
+        "y": 164,
+        "w": 306.2,
+        "h": 220.3
+      },
+      "keyboard": {
+        "x": 4.1,
+        "y": 392.3,
+        "w": 351.9,
+        "h": 231.8
+      },
+      "shelf": {
+        "x": 81.2,
+        "y": 105.6,
+        "w": 197.6,
+        "h": 50.4
+      },
+      "instruction": {
+        "text": "Harfleri sırayla yaz, sonra Boşluk'a bas!",
+        "fontSize": "13.6px",
+        "x": 50.6,
+        "y": 72,
+        "w": 258.9,
+        "h": 25.6
+      },
+      "letter": null,
+      "tiles": [
+        "D",
+        "A",
+        "Ğ"
+      ],
+      "tile": {
+        "x": 44.9,
+        "y": 226.1,
+        "w": 57.6,
+        "h": 57.6
+      },
+      "bubble": {
+        "x": 238.3,
+        "y": 222.1,
+        "w": 76.8,
+        "h": 76.8
+      },
+      "speech": {
+        "hidden": false,
+        "x": 300,
+        "y": 72,
+        "w": 44,
+        "h": 44
+      },
+      "toast": {
+        "visible": false,
+        "text": "🌞 Günaydın! Günlük giriş +5 💎",
+        "opacity": "0",
+        "z": "1300",
+        "x": 90,
+        "y": 632,
+        "w": 180,
+        "h": 62
+      }
+    },
+    "l812_L3": {
+      "viewport": {
+        "w": 812,
+        "h": 375
+      },
+      "gameArea": {
+        "clientHeight": 329,
+        "scrollHeight": 329,
+        "clientWidth": 812,
+        "scrollWidth": 812
+      },
+      "key": {
+        "x": 63.1,
+        "y": 237,
+        "w": 54.2,
+        "h": 34
+      },
+      "keyH": "34px",
+      "space": {
+        "x": 198.5,
+        "y": 317,
+        "w": 415.2,
+        "h": 34
+      },
+      "card": {
+        "x": 231.3,
+        "y": 121,
+        "w": 349.3,
+        "h": 68
+      },
+      "stage": {
+        "x": 231.3,
+        "y": 131,
+        "w": 349.3,
+        "h": 48
+      },
+      "keyboard": {
+        "x": 32.1,
+        "y": 183,
+        "w": 747.9,
+        "h": 184
+      },
+      "shelf": {
+        "x": 326,
+        "y": 91,
+        "w": 160,
+        "h": 36
+      },
+      "instruction": {
+        "text": "Harfleri sırayla yaz, sonra Boşluk'a bas!",
+        "fontSize": "14.4px",
+        "x": 263.4,
+        "y": 54,
+        "w": 285.2,
+        "h": 25
+      },
+      "letter": null,
+      "tiles": [
+        "R",
+        "O",
+        "B",
+        "O",
+        "T"
+      ],
+      "tile": {
+        "x": 249.3,
+        "y": 130.3,
+        "w": 38,
+        "h": 38
+      },
+      "bubble": {
+        "x": 502.6,
+        "y": 125,
+        "w": 60,
+        "h": 60
+      },
+      "speech": {
+        "hidden": false,
+        "x": 752,
+        "y": 54,
+        "w": 44,
+        "h": 44
+      },
+      "toast": {
+        "visible": false,
+        "text": "🌞 Günaydın! Günlük giriş +5 💎",
+        "opacity": "0",
+        "z": "1300",
+        "x": 279.1,
+        "y": 387,
+        "w": 253.9,
+        "h": 42
+      }
+    }
+  },
+  "cekimler": [
+    {
+      "file": "ek-diakritik-kartlar-1366.png",
+      "state": "EK/denetim: harf kartı DOM'da 8 kez klonlanıp Ğ Ü Ö Ç Ş İ A Q yazıldı (oyun kodu değişmedi) — diyakritik işaretin kart üst kenarıyla ilişkisi",
+      "x": 285,
+      "y": 197,
+      "width": 796,
+      "height": 259,
+      "cardTop": 205,
+      "letterBoxTop": 215,
+      "cardPaddingTop": "10px"
+    },
+    {
+      "file": "ek-360x640-seviye1.png",
+      "state": "EK: 360×640 @2x (tasarım belgesi hedefi), Seviye 1, toast geçtikten sonra",
+      "scroll": {
+        "clientHeight": 584,
+        "scrollHeight": 584,
+        "clientWidth": 360,
+        "scrollWidth": 360
+      },
+      "key": {
+        "x": 15.3,
+        "y": 454.4,
+        "w": 25.9,
+        "h": 51.2
+      }
+    },
+    {
+      "file": "ek-360x640-seviye3.png",
+      "state": "EK: 360×640, Seviye 3 açılış (L1+L2 oynanarak geçildi); kelime DAĞ",
+      "scroll": {
+        "clientHeight": 584,
+        "scrollHeight": 584,
+        "clientWidth": 360,
+        "scrollWidth": 360
+      },
+      "card": {
+        "x": 26.9,
+        "y": 212.1,
+        "w": 306.2,
+        "h": 96.8
+      }
+    },
+    {
+      "file": "ek-seviye3-yatay-812.png",
+      "state": "EK: yatay telefon 812×375, Seviye 3 açılış; kelime ROBOT",
+      "scroll": {
+        "clientHeight": 329,
+        "scrollHeight": 329,
+        "clientWidth": 812,
+        "scrollWidth": 812
+      },
+      "card": {
+        "x": 231.3,
+        "y": 121,
+        "w": 349.3,
+        "h": 68
+      }
+    }
+  ],
+  "hatalar": []
+}

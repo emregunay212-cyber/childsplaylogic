@@ -1,14 +1,15 @@
 # Bilnet Oyun
 
-> Bilnet Okulları'nın 4-12 yaş çocuklar için ücretsiz, üyeliksiz eğitici oyun platformu. 57 oyun doğrudan tarayıcıda çalışır; kurulum, indirme ve hesap gerekmez. Türkçe arayüz; telefon, tablet ve bilgisayarda oynanır. Dersler: matematik, Türkçe, İngilizce, fen, kodlama, strateji, hafıza ve sanat; tek kişilik ve online çok oyunculu modlar.
+> Bilnet Okulları'nın 4-12 yaş çocuklar için ücretsiz, üyeliksiz eğitici oyun platformu. 58 oyun doğrudan tarayıcıda çalışır; kurulum, indirme ve hesap gerekmez. Türkçe arayüz; telefon, tablet ve bilgisayarda oynanır. Dersler: matematik, Türkçe, İngilizce, fen, kodlama, strateji, hafıza ve sanat; tek kişilik ve online çok oyunculu modlar.
 
 - Ana sayfa: https://bilnetoyun.com/
 - Tüm oyunlar: https://bilnetoyun.com/oyunlar/
 - Site haritası: https://bilnetoyun.com/sitemap.xml
 
-## Oyunlar (55 sayfa; Kod Macerası ve Satranç için 2 kişilik online sürüm de var, ayrı sayfası yok)
+## Oyunlar (56 sayfa; Kod Macerası ve Satranç için 2 kişilik online sürüm de var, ayrı sayfası yok)
 
 - [Harf Tanıma](https://bilnetoyun.com/oyunlar/harf-tanima/): Harfleri tanı, okumaya ilk adımı at.
+- [Klavye Kâşifi](https://bilnetoyun.com/oyunlar/klavye-kasifi/): Yanan tuşu bul, harfe bas, resmi kazan — klavyeye ilk adım.
 - [Hece Birleştirme](https://bilnetoyun.com/oyunlar/hece-birlestirme/): Heceleri birleştirip kelime kur, okumayı pekiştir.
 - [Kelime Balonu](https://bilnetoyun.com/oyunlar/kelime-balonu/): İngilizce kelimenin harflerini balonlardan vur — kelime tamamlanınca büyük patlama!
 - [Kelime Canavarları](https://bilnetoyun.com/oyunlar/kelime-canavarlari/): İngilizce kelimelerle canavarını besle, evrimleştir, FUSION ile melez yarat!

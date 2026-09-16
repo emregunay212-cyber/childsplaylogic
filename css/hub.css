@@ -342,6 +342,7 @@
 /* Kart üst şeridi — kategori rengi (js/app.js gameCategoryDefs sırası; yeni oyun kendi kategorisine eklenir) */
 /* Harfler ve Kelimeler */
 .game-card[data-game="harf-tanima"]::before,
+.game-card[data-game="klavye-kasifi"]::before,
 .game-card[data-game="hece-birlestirme"]::before,
 .game-card[data-game="kelime-madeni-3d"]::before,
 .game-card[data-game="kelime-balonu"]::before,
