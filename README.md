@@ -102,4 +102,4 @@ Oyunu kapatmak: JSON kaydında `active: false` (tek bayrak: hub'da "Yakında" ka
 
 ## Marka imzası (zorunlu)
 
-Her sayfanın en altında egweblab imza bandı bulunur (`css/imza.css`, `.imza-band` — tek bağlantı `https://egweblab.com.tr`, logo `assets/logo-96.png`, yazdırmada gizli, yükseklik ≤ %2). Üretici şablonu landing'lere otomatik ekler; yeni statik sayfa eklerken band elle eklenir — eksik sayfa hata sayılır. Durum: `404.html`, `/oyunlar/` ve 56 landing'de var; hub `index.html` + `admin.html` PR #21 (açık) ile geliyor.
+Her sayfanın en altında egweblab imza bandı bulunur (`css/imza.css`, `.imza-band` — tek bağlantı `https://egweblab.com.tr`, logo `assets/logo-96.png`, yazdırmada gizli, yükseklik ≤ %2). Üretici şablonu landing'lere otomatik ekler; yeni statik sayfa eklerken band elle eklenir — eksik sayfa hata sayılır. Durum: `404.html`, `/oyunlar/` ve 56 landing'de var; hub `index.html` + `admin.html` dahil tüm sayfalarda (PR #21 merge).
