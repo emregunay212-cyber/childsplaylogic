@@ -85,6 +85,13 @@ jobs:
           CI: true
           SITE_ROOT: .build-check
 
+      # Hub bilgi mimarisi (B2b): yaş rafı, çipler, öğretmen anahtarı, arama, klavye, kart durumları, /oyunlar/ süzgeci.
+      - name: Hub bilgi mimarisi testi — hash'li çıktı üzerinde
+        run: npm run test:hub-ia
+        env:
+          CI: true
+          SITE_ROOT: .build-check
+
       # Kırmızı koşuda adli kayıt: trace (ilk retry), ekran görüntüsü, video, error-context.md
       - name: Hata artefaktları
         if: failure()
