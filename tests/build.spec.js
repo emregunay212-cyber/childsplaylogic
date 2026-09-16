@@ -171,6 +171,43 @@ test.describe('tools/build.js', () => {
         expect(runBuild(root, '--out', out).code).toBe(1);                      // işaretsiz dolu klasör silinmez
     });
 
+    test('iframe oyunu (B5): game.js ve ../_shared/edu-kit.{js,css} göreli başvuruları hash\'lenir; kit değişince oyun URL\'si değişir', async () => {
+        // games/<slug>/index.html belgeye göre çözülür (kök değil): "game.js" → games/<slug>/game.js, "../_shared/…" → games/_shared/…
+        const kitSite = () => ({
+            ...hubSite(),
+            'js/games/oyun.js': 'iframe.src = \'games/oyun/index.html?v=1\';',
+            'games/oyun/index.html': [
+                '<link rel="stylesheet" href="../_shared/edu-kit.css">',
+                '<script src="../_shared/edu-kit.js"></script>',
+                '<script src="game.js"></script>',
+            ].join('\n'),
+            'games/oyun/game.js': 'EduKit.tone(440, 0.1);',
+            'games/_shared/edu-kit.js': 'window.EduKit = { tone() {} };',
+            'games/_shared/edu-kit.css': ':root{--ara-1:4px}',
+        });
+        const rootA = makeSite(kitSite());
+        const r = runBuild(rootA, '--check');
+        expect(r.code, r.out).toBe(0);
+        const html = read(rootA, 'games/oyun/index.html');
+        expect(html).toMatch(/href="\.\.\/_shared\/edu-kit\.css\?h=[0-9a-f]{10}"/);
+        expect(html).toMatch(/src="\.\.\/_shared\/edu-kit\.js\?h=[0-9a-f]{10}"/);
+        expect(html).toMatch(/src="game\.js\?h=[0-9a-f]{10}"/);
+        expect(read(rootA, 'games/oyun/game.js')).toBe('EduKit.tone(440, 0.1);');            // yaprak: dokunulmaz
+        // Kit değişince: oyun sayfasındaki kit URL'si ve sarmalayıcıdaki sayfa URL'si değişir; game.js URL'si sabit
+        const changed = kitSite();
+        changed['games/_shared/edu-kit.js'] = 'window.EduKit = { tone() {}, version: \'1.0.1\' };';
+        const rootB = makeSite(changed);
+        expect(runBuild(rootB).code).toBe(0);
+        const hashOf = (text, re) => re.exec(text)[1];
+        const kitRe = /src="\.\.\/_shared\/edu-kit\.js\?h=([0-9a-f]{10})"/;
+        const gameRe = /src="game\.js\?h=([0-9a-f]{10})"/;
+        const pageRe = /'games\/oyun\/index\.html\?h=([0-9a-f]{10})'/;
+        const htmlB = read(rootB, 'games/oyun/index.html');
+        expect(hashOf(htmlB, kitRe)).not.toBe(hashOf(html, kitRe));
+        expect(hashOf(htmlB, gameRe)).toBe(hashOf(html, gameRe));
+        expect(hashOf(read(rootB, 'js/games/oyun.js'), pageRe)).not.toBe(hashOf(read(rootA, 'js/games/oyun.js'), pageRe));
+    });
+
     test('--check: kapsam dışı kalmış ?v= kalıntısını yakalar (klasik oyun betiğindeki dinamik yükleme)', async () => {
         const site = hubSite();
         site['games/x/js/klasik.js'] = 'document.head.appendChild(Object.assign(document.createElement("script"), { src: "ek.js?v=4" }));';

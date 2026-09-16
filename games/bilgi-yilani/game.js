@@ -1,0 +1,372 @@
+"use strict";
+/* ================= CONFIG (EGITSEL-OYUN-PLANI §4.13 — aynen) ================= */
+const CONFIG = {
+  GRID_DESKTOP: 20, GRID_MOBILE: 15, MOBILE_BREAK: 520,
+  BASE_SPEED: 5,                 // hücre/sn
+  SPEED_UP_EVERY: 5,             // her 5 doğruda +%10
+  SPEED_UP: 1.10,
+  FOOD_POINT: 30,                // 30 p × uzunluk çarpanı
+  WRONG_SHRINK: 2,               // yanlış yem: -2 boğum (puan kaybı yok)
+  TIERS: {
+    1: { foods: 2, wall: 'wrap', speedMul: 1.0 },
+    2: { foods: 3, wall: 'wrap', speedMul: 1.05 },
+    3: { foods: 4, wall: 'deadly', speedMul: 1.1 },
+    4: { foods: 4, wall: 'deadly', speedMul: 1.25 },
+  },
+};
+const { randInt: rnd, pick, shuffle } = EduKit;   // paylaşılan yardımcılar (games/_shared/edu-kit.js)
+
+/* ---- soru üretici (kısa cevaplı matematik, tier ölçekli) ---- */
+function numOpts(ans, spread, n){
+  const set = new Set([ans]);
+  let g = 0;
+  while (set.size < n && g++ < 50){ const v = ans + rnd(-spread, spread); if (v >= 0 && v !== ans) set.add(v); }
+  while (set.size < n) set.add(ans + set.size);
+  return shuffle([...set]);
+}
+function genQ(tier, nFoods){
+  let q, ans;
+  if (tier === 1){ const a=rnd(2,9), b=rnd(2,9); q=`${a} + ${b} = ?`; ans=a+b; }
+  else if (tier === 2){ const k=rnd(0,1);
+    if (k===0){ const a=rnd(2,9), b=rnd(2,9); q=`${a} × ${b} = ?`; ans=a*b; }
+    else { const a=rnd(15,60), b=rnd(5,14); q=`${a} − ${b} = ?`; ans=a-b; } }
+  else if (tier === 3){ const k=rnd(0,1);
+    if (k===0){ const b=rnd(3,9), c=rnd(3,12); q=`${b*c} ÷ ${b} = ?`; ans=c; }
+    else { const a=rnd(6,15), b=rnd(3,9); q=`${a} × ${b} = ?`; ans=a*b; } }
+  else { const k=rnd(0,1);
+    if (k===0){ const a=rnd(3,9), b=rnd(3,9), c=rnd(4,20); q=`${a} × ${b} + ${c} = ?`; ans=a*b+c; }
+    else { const p=pick([10,25,50]), base=(100/p)*rnd(2,9); q=`${base} sayısının %${p}'i?`; ans=base*p/100; } }
+  const opts = numOpts(ans, Math.max(3, Math.round(ans*0.3)), nFoods);
+  return { q, opts: opts.map(String), ansIdx: opts.indexOf(ans) };
+}
+
+/* ================= Audio ================= */
+const Audio2 = (() => {
+  const { init, tone } = EduKit.audio;   // tek AudioContext + ilk jestte resume (games/_shared/edu-kit.js)
+  return { init,
+    eat: () => { tone(620,0.08,'triangle',0.06); tone(820,0.1,'triangle',0.06,0.07); },
+    bad: () => tone(170,0.25,'sawtooth',0.05),
+    die: () => { tone(300,0.2,'sawtooth',0.06); tone(200,0.3,'sawtooth',0.06,0.15); },
+    speed: () => tone(1000,0.1,'square',0.05),
+    fanfare: () => [523,659,784,1046].forEach((f,i)=>tone(f,0.15,'triangle',0.07,i*0.11)) };
+})();
+
+const BilnetBridge = {
+  QUEUE_KEY: 'bilnet_score_queue',
+  async submitScore(p){ const rec={...p,ts:Date.now()};
+    try{ const r=await window.storage.get(this.QUEUE_KEY); const q=r&&r.value?JSON.parse(r.value):[];
+      q.push(rec); while(q.length>50)q.shift(); await window.storage.set(this.QUEUE_KEY,JSON.stringify(q)); }catch(e){} },
+};
+const STATS_KEY = 'bilgiyilani_stats';
+let STATS = { plays:0, correct:0, wrong:0, longest:3, best:{1:0,2:0,3:0,4:0} };
+function loadStats(){ try{ window.storage.get(STATS_KEY).then(r=>{ if(r&&r.value){ try{ STATS=Object.assign(STATS,JSON.parse(r.value)); }catch(e){} } refreshBest(); }); }catch(e){} }
+function saveStats(){ try{ window.storage.set(STATS_KEY,JSON.stringify(STATS)); }catch(e){} }
+
+/* ================= Game ================= */
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx2 = cv.getContext('2d');
+const FRUITS_IMG = new Image(); let fruitsReady = false;   // 8-meyve sprite-sheet (AI üretimi + magenta key); yüklenmezse renkli disk yedeği
+FRUITS_IMG.onload = () => { fruitsReady = true; };
+FRUITS_IMG.src = 'assets/fruits.png';
+const FRUIT_N = 8, FRUIT_FW = 256;                        // yatay şerit: 8 kare × 256px
+const FRUIT_FALLBACK = ['#e0392f','#f4d23f','#8e54c9','#f3902a','#3fae5e','#e7404f','#f1d233','#c0392b'];
+const HEAD_IMG = new Image(); let headReady = false;     // AI yılan kafası (top-down, magenta key); yüklenmezse kod-kafa
+HEAD_IMG.onload = () => { headReady = true; };
+HEAD_IMG.src = 'assets/snake_head.png';
+const BOARD_IMG = new Image(); let boardPat = null;    // zemin dokusu (SBS Tiny Texture, CC0)
+BOARD_IMG.onload = () => { try { boardPat = ctx2.createPattern(BOARD_IMG, 'repeat'); } catch(e){} if (G.boardCanvas) buildBoardCache(); };
+BOARD_IMG.src = 'assets/board.png';
+const G = {
+  state:'menu', tier:1, N:20, cell:20,
+  snake:[], dir:{x:1,y:0}, dirQueue:[],
+  foods:[], q:null,
+  score:0, correct:0, wrong:0, speed:CONFIG.BASE_SPEED,
+  acc:0, lastTs:0, raf:0, boardCanvas:null,
+};
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('show')); $(id).classList.add('show'); }
+function layout(){
+  G.N = innerWidth < CONFIG.MOBILE_BREAK ? CONFIG.GRID_MOBILE : CONFIG.GRID_DESKTOP;
+  const wrap = $('cvWrap').getBoundingClientRect();
+  const size = Math.min(wrap.width-10, wrap.height-10, 540);
+  G.cell = Math.floor(size / G.N);
+  cv.width = cv.height = G.cell * G.N;
+  buildBoardCache();   // (D) statik zemini bir kez önbelleğe al
+}
+function newQuestion(){
+  const T = CONFIG.TIERS[G.tier];
+  G.q = genQ(G.tier, T.foods);
+  $('qLine').textContent = G.q.q;
+  spawnFoods();
+}
+function freeCell(){
+  let guard = 0;
+  while (guard++ < 400){
+    const x = rnd(0, G.N-1), y = rnd(0, G.N-1);
+    // yılanın gövdesine ve kafasının 3 hücre önüne spawn ETME (§4.13 — haksız ölüm engeli)
+    if (G.snake.some(s => s.x===x && s.y===y)) continue;
+    const h = G.snake[0];
+    let bad = false;
+    for (let k=1;k<=3;k++){
+      let fx = h.x + G.dir.x*k, fy = h.y + G.dir.y*k;
+      if (CONFIG.TIERS[G.tier].wall==='wrap'){ fx=(fx+G.N)%G.N; fy=(fy+G.N)%G.N; }
+      if (fx===x && fy===y){ bad=true; break; }
+    }
+    if (bad) continue;
+    if (G.foods.some(f => f.x===x && f.y===y)) continue;
+    return { x, y };
+  }
+  return { x: 0, y: 0 };
+}
+function spawnFoods(){
+  G.foods = [];
+  const pool = shuffle(Array.from({length:FRUIT_N}, (_,i)=>i));   // soru başına farklı meyveler
+  G.q.opts.forEach((txt, i) => {
+    const c = freeCell();
+    G.foods.push({ x:c.x, y:c.y, txt, correct: i === G.q.ansIdx, fruit: pool[i % FRUIT_N] });
+  });
+}
+function startRound(){
+  G.state='playing';
+  show('screen-game');   // ÖNCE göster: cvWrap görünür olmalı ki layout doğru ölçsün
+  layout();              // canvas boyutu artık görünür cvWrap'ten hesaplanır (0/negatif boyut bug'ı düzeltildi)
+  const mid = Math.floor(G.N/2);
+  G.snake = [{x:mid,y:mid},{x:mid-1,y:mid},{x:mid-2,y:mid}];
+  G.dir={x:1,y:0}; G.dirQueue=[];
+  G.score=0; G.correct=0; G.wrong=0;
+  G.speed = CONFIG.BASE_SPEED * CONFIG.TIERS[G.tier].speedMul;
+  G.acc=0;
+  newQuestion();
+  refreshHUD();
+  G.lastTs = performance.now();
+  if (!G.raf) G.raf = requestAnimationFrame(loop);
+}
+function refreshHUD(){
+  $('scoreChip').textContent = '⭐ ' + G.score;
+  $('lenChip').textContent = '🐍 ' + G.snake.length;
+  $('okChip').textContent = '✅ ' + G.correct;
+}
+function step(){
+  if (G.dirQueue.length) G.dir = G.dirQueue.shift();   // kuyruktan bir yön al
+  const T = CONFIG.TIERS[G.tier];
+  let nx = G.snake[0].x + G.dir.x, ny = G.snake[0].y + G.dir.y;
+  if (T.wall === 'wrap'){ nx = (nx+G.N)%G.N; ny = (ny+G.N)%G.N; }
+  else if (nx<0||nx>=G.N||ny<0||ny>=G.N){ return die('duvar'); }
+  // Kuyruk hücresi bu adımda boşalacaksa (yem yoksa pop edilir) oraya girmek geçerli hamledir
+  const willGrow = G.foods.some(f => f.x===nx && f.y===ny && f.correct);
+  const body = willGrow ? G.snake : G.snake.slice(0, -1);
+  if (body.some((s,i) => i>0 && s.x===nx && s.y===ny)) return die('kendine');
+  G.snake.unshift({x:nx,y:ny});
+  const fi = G.foods.findIndex(f => f.x===nx && f.y===ny);
+  if (fi >= 0){
+    const f = G.foods[fi];
+    if (f.correct){
+      G.correct++;
+      G.score += Math.round(CONFIG.FOOD_POINT * (1 + G.snake.length/10));   // 30p × uzunluk çarpanı
+      Audio2.eat();
+      if (G.correct % CONFIG.SPEED_UP_EVERY === 0){ G.speed *= CONFIG.SPEED_UP; Audio2.speed(); }
+      if (G.snake.length > STATS.longest) STATS.longest = G.snake.length;
+      newQuestion();   // soru değişir, yemler yeniden konumlanır (büyüme: pop yok)
+    } else {
+      G.wrong++;
+      Audio2.bad();
+      // yanlış yem: -2 boğum (puan kaybı yok); 1 boğuma düşersen tur biter (§4.13)
+      for (let k=0;k<CONFIG.WRONG_SHRINK;k++) if (G.snake.length>1) G.snake.pop();
+      G.snake.pop();   // bu adımda büyümeyi de geri al
+      G.foods.splice(fi,1);
+      if (!G.foods.some(x=>x.correct)) newQuestion();
+      if (G.snake.length <= 1) return die('kisaldi');
+    }
+  } else {
+    G.snake.pop();
+  }
+  refreshHUD();
+}
+function die(reason){
+  Audio2.die();
+  endRound(reason);
+}
+function loop(ts){
+  if (G.state!=='playing'){ G.raf=0; return; }
+  const dt = Math.min(0.05,(ts-G.lastTs)/1000||0.016);
+  G.lastTs = ts;
+  G.acc += dt * G.speed;
+  while (G.acc >= 1){ G.acc -= 1; step(); if (G.state!=='playing'){ G.raf=0; return; } }
+  draw();
+  G.raf = requestAnimationFrame(loop);
+}
+/* ---- görsel yardımcılar (güzelleştirme katmanı v2) ---- */
+function circle(x,y,r){ ctx2.beginPath(); ctx2.arc(x,y,r,0,Math.PI*2); ctx2.fill(); }
+function buildBoardCache(){   // (D) statik zemini bir kez offscreen'e çiz (kare-başı gradient/döngü kalkar)
+  const w=cv.width, h=cv.height, c=G.cell;
+  const bc=document.createElement('canvas'); bc.width=w; bc.height=h;
+  const b=bc.getContext('2d');
+  const g=b.createLinearGradient(0,0,0,h);
+  g.addColorStop(0,'#2f7d4f'); g.addColorStop(1,'#184e31');
+  b.fillStyle=g; b.fillRect(0,0,w,h);
+  for (let x=0;x<G.N;x++) for (let y=0;y<G.N;y++) if ((x+y)%2===0){ b.fillStyle='rgba(255,255,255,.055)'; b.fillRect(x*c,y*c,c,c); }
+  if (boardPat){ b.globalAlpha=0.10; b.fillStyle=boardPat; b.fillRect(0,0,w,h); b.globalAlpha=1; }
+  const vg=b.createRadialGradient(w/2,h/2,w*0.30,w/2,h/2,w*0.72);
+  vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,.34)');
+  b.fillStyle=vg; b.fillRect(0,0,w,h);
+  G.boardCanvas=bc;
+}
+function drawBoard(){ if (G.boardCanvas) ctx2.drawImage(G.boardCanvas,0,0); }   // (D) sadece blit
+function bodyColor(t){   // t: 0=baş .. 1=kuyruk (AI kafa yeşiliyle eşlenmiş: #6ac83d→#3f7824)
+  const r=Math.round(0x6a+(0x3f-0x6a)*t),
+        g=Math.round(0xc8+(0x78-0xc8)*t),
+        b=Math.round(0x3d+(0x24-0x3d)*t);
+  return `rgb(${r},${g},${b})`;
+}
+function drawSnake(){
+  const c=G.cell, snk=G.snake, n=snk.length;
+  if (!n) return;
+  const pts=snk.map(s=>({x:s.x*c+c/2, y:s.y*c+c/2}));
+  const adj=(i,j)=>Math.abs(snk[i].x-snk[j].x)+Math.abs(snk[i].y-snk[j].y)===1; // wrap atlamasını bağlama
+  const bw=c*0.80, ow=bw+Math.max(3,c*0.12);
+  ctx2.lineJoin='round'; ctx2.lineCap='round';
+  // 1) koyu dış hat (kapsül zinciri)
+  ctx2.strokeStyle='#0b3a23'; ctx2.lineWidth=ow;
+  for (let i=0;i<n-1;i++) if (adj(i,i+1)){ ctx2.beginPath(); ctx2.moveTo(pts[i].x,pts[i].y); ctx2.lineTo(pts[i+1].x,pts[i+1].y); ctx2.stroke(); }
+  ctx2.fillStyle='#0b3a23'; for (let i=1;i<n;i++) circle(pts[i].x,pts[i].y,ow/2);
+  // 2) renkli gövde (baş→kuyruk degrade)
+  for (let i=0;i<n-1;i++) if (adj(i,i+1)){ ctx2.strokeStyle=bodyColor(i/Math.max(1,n-1)); ctx2.lineWidth=bw; ctx2.beginPath(); ctx2.moveTo(pts[i].x,pts[i].y); ctx2.lineTo(pts[i+1].x,pts[i+1].y); ctx2.stroke(); }
+  for (let i=1;i<n;i++){ ctx2.fillStyle=bodyColor(i/Math.max(1,n-1)); circle(pts[i].x,pts[i].y,bw/2); }
+  // 3) parlak sırt çizgisi (gloss)
+  ctx2.strokeStyle='rgba(255,255,255,.22)'; ctx2.lineWidth=bw*0.36;
+  for (let i=0;i<n-1;i++) if (adj(i,i+1)){ ctx2.beginPath(); ctx2.moveTo(pts[i].x,pts[i].y); ctx2.lineTo(pts[i+1].x,pts[i+1].y); ctx2.stroke(); }
+  // 4) baş — AI sprite (yöne döner); yüklenmemişse kod-kafa yedeği
+  if (headReady) drawHeadSprite(pts[0], G.dir, c); else drawHead(pts[0], G.dir, c);
+}
+function drawHeadSprite(p, dir, c){
+  const s = c*1.6, ang = Math.atan2(dir.x, -dir.y);   // sprite yukarı bakar → yöne döndür
+  ctx2.save(); ctx2.translate(p.x, p.y); ctx2.rotate(ang);
+  ctx2.drawImage(HEAD_IMG, -s/2, -s/2, s, s);
+  ctx2.restore();
+}
+function drawHead(p,dir,c){
+  const r=c*0.54, ex=dir.x, ey=dir.y, px=-dir.y, py=dir.x;
+  // çatallı dil (ara ara çıkar)
+  if ((performance.now()%1000)<340){
+    ctx2.strokeStyle='#ff436b'; ctx2.lineCap='round'; ctx2.lineWidth=Math.max(2,r*0.14);
+    const bx=p.x+ex*r*0.8, by=p.y+ey*r*0.8, tx=p.x+ex*r*1.5, ty=p.y+ey*r*1.5;
+    ctx2.beginPath(); ctx2.moveTo(bx,by); ctx2.lineTo(tx,ty); ctx2.stroke();
+    ctx2.beginPath();
+    ctx2.moveTo(tx,ty); ctx2.lineTo(tx+ex*r*0.3+px*r*0.22, ty+ey*r*0.3+py*r*0.22);
+    ctx2.moveTo(tx,ty); ctx2.lineTo(tx+ex*r*0.3-px*r*0.22, ty+ey*r*0.3-py*r*0.22);
+    ctx2.stroke();
+  }
+  // dış hat + baş (radyal degrade)
+  ctx2.fillStyle='#0b3a23'; circle(p.x,p.y,r+Math.max(2,c*0.07));
+  const g=ctx2.createRadialGradient(p.x-ex*r*0.25,p.y-ey*r*0.25,r*0.2,p.x,p.y,r);
+  g.addColorStop(0,'#7ff0b3'); g.addColorStop(1,'#42c587');
+  ctx2.fillStyle=g; circle(p.x,p.y,r);
+  // gözler (beyaz + bebek + ışıltı)
+  const eo=r*0.34, es=r*0.5, ew=r*0.32;
+  for (const s of [1,-1]){
+    const cx=p.x+ex*eo+px*es*s, cy=p.y+ey*eo+py*es*s;
+    ctx2.fillStyle='#fff'; circle(cx,cy,ew);
+    ctx2.fillStyle='#0c2418'; circle(cx+ex*ew*0.45, cy+ey*ew*0.45, ew*0.55);
+    ctx2.fillStyle='#fff'; circle(cx+ex*ew*0.2-px*ew*0.3, cy+ey*ew*0.2-py*ew*0.3, ew*0.2);
+  }
+}
+function draw(){
+  const c = G.cell;
+  drawBoard();
+  // yemler — meyve sprite + cevap etiketi (okunur hap zeminli)
+  ctx2.font = `900 ${Math.round(c*0.46)}px system-ui`;   // (E) sabit → döngü dışında bir kez
+  ctx2.textAlign='center'; ctx2.textBaseline='middle';
+  for (const f of G.foods){
+    const cx = f.x*c+c/2, cy = f.y*c+c/2;
+    if (fruitsReady){
+      const s = c*1.3;                                   // meyve sprite — hücreden biraz taşar (görünürlük)
+      ctx2.drawImage(FRUITS_IMG, f.fruit*FRUIT_FW, 0, FRUIT_FW, FRUIT_FW, cx-s/2, cy-s/2, s, s);
+    } else {
+      ctx2.fillStyle = FRUIT_FALLBACK[f.fruit] || '#e0392f';   // sheet yüklenmezse renkli disk
+      ctx2.beginPath(); ctx2.arc(cx, cy, c*0.42, 0, Math.PI*2); ctx2.fill();
+    }
+    // sayı etiketi: koyu hap + beyaz yazı (her zeminde okunur)
+    const tw = ctx2.measureText(f.txt).width, ph = c*0.5;
+    let ly = f.y*c - c*0.18;
+    if (ly < c*0.55) ly = f.y*c + c*1.18;                // üstte taşarsa altına al
+    ctx2.fillStyle='rgba(8,28,18,.82)';
+    ctx2.beginPath(); ctx2.roundRect(cx-tw/2-c*0.16, ly-ph/2, tw+c*0.32, ph, ph*0.4); ctx2.fill();
+    ctx2.fillStyle='#fff';
+    ctx2.fillText(f.txt, cx, ly);
+  }
+  // yılan
+  drawSnake();
+  ctx2.textBaseline='alphabetic';
+}
+function endRound(reason){
+  G.state='result';
+  STATS.plays++; STATS.correct += G.correct; STATS.wrong += G.wrong;
+  const isBest = G.score > (STATS.best[G.tier]||0);
+  if (isBest) STATS.best[G.tier] = G.score;
+  saveStats();
+  BilnetBridge.submitScore({ gameId:'bilgi-yilani', score:G.score, tier:G.tier,
+    stats:{ correct:G.correct, wrong:G.wrong, length:G.snake.length } });
+  $('resEmoji').textContent = isBest ? '🏆' : '🐍';
+  $('resTitle').textContent = reason==='duvar' ? 'Duvara Çarptın!' : reason==='kendine' ? 'Kuyruğuna Dolandın!' : reason==='kisaldi' ? 'Yılan Çok Kısaldı!' : 'Tur Bitti!';
+  $('resScore').textContent = G.score;
+  $('resStats').innerHTML = `✅ Doğru yem: <b>${G.correct}</b> · ❌ Yanlış: <b>${G.wrong}</b> · 🐍 Uzunluk: <b>${G.snake.length}</b>` +
+    (isBest?`<br>🏅 <b>YENİ REKOR!</b>`:'');
+  $('eduLine').textContent = G.correct>0 ? `Bugün ${G.correct} işlemi yem yaparak çözdün! 🎉` : 'Yılanı ısıttın — tekrar dene! 💪';
+  if (G.correct>=8) Audio2.fanfare();
+  show('screen-result');
+  refreshBest();
+}
+function refreshBest(){
+  const b = STATS.best[G.tier]||0;
+  $('bestLine').textContent = b>0 ? `🏅 ${['','Etek','Yamaç','Tırmanış','Zirve'][G.tier]} rekorun: ${b}` : '';
+}
+/* ---- giriş: swipe (mobil) / ok tuşları ---- */
+let touchStart = null;
+cv.addEventListener('pointerdown', e => { try{window.focus();}catch(_){}; touchStart = {x:e.clientX, y:e.clientY}; });
+cv.addEventListener('pointermove', e => {   // (C) sürüklerken dön — parmak kalkmasını bekleme
+  if (!touchStart) return;
+  const dx = e.clientX-touchStart.x, dy = e.clientY-touchStart.y;
+  if (Math.abs(dx) < 13 && Math.abs(dy) < 13) return;
+  setDir(Math.abs(dx) > Math.abs(dy) ? {x:Math.sign(dx),y:0} : {x:0,y:Math.sign(dy)});
+  touchStart = {x:e.clientX, y:e.clientY};   // başlangıcı sıfırla → 2. dönüş mümkün
+});
+cv.addEventListener('pointerup', e => {
+  if (!touchStart) return;
+  const dx = e.clientX-touchStart.x, dy = e.clientY-touchStart.y;
+  touchStart = null;
+  if (Math.abs(dx) < 14 && Math.abs(dy) < 14) return;
+  setDir(Math.abs(dx) > Math.abs(dy) ? {x:Math.sign(dx),y:0} : {x:0,y:Math.sign(dy)});
+});
+addEventListener('keydown', e => {
+  const m = { ArrowUp:{x:0,y:-1}, ArrowDown:{x:0,y:1}, ArrowLeft:{x:-1,y:0}, ArrowRight:{x:1,y:0},
+              KeyW:{x:0,y:-1}, KeyS:{x:0,y:1}, KeyA:{x:-1,y:0}, KeyD:{x:1,y:0} };
+  if (m[e.code]){ e.preventDefault(); setDir(m[e.code]); }
+  if ((e.code==='KeyP'||e.code==='Escape') && G.state==='playing') pauseGame();
+});
+function setDir(d){
+  if (G.state!=='playing') return;
+  const ref = G.dirQueue.length ? G.dirQueue[G.dirQueue.length-1] : G.dir;   // ters/eşitlik SON kuyruğa göre
+  if (d.x===ref.x && d.y===ref.y) return;        // aynı yön → yoksay (spam engeli)
+  if (d.x===-ref.x && d.y===-ref.y) return;      // 180° geri dönüş yok
+  if (G.dirQueue.length>=2) return;              // kuyruk dolu (max 2)
+  G.dirQueue.push(d);
+  maybeEarlyStep();
+}
+function maybeEarlyStep(){   // taze dönüş + hücrenin geç yarısı → bir adımı HEMEN işle (gecikmeyi kırar)
+  if (G.state!=='playing' || !G.dirQueue.length || G.acc < 0.5) return;
+  G.acc -= 1; step();                  // loop()'un while'ıyla aynı muhasebe (faz kayar, hız sabit)
+  if (G.state==='playing') draw();     // anında görsel geri bildirim
+}
+document.querySelectorAll('.tierBtn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tierBtn').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); G.tier=parseInt(b.dataset.t,10); refreshBest();
+}));
+$('bPlay').addEventListener('click',()=>{ Audio2.init(); startRound(); });
+$('bAgain').addEventListener('click',startRound);
+$('bMenu').addEventListener('click',()=>{ G.state='menu'; show('screen-menu'); refreshBest(); });
+function pauseGame(){ if(G.state!=='playing')return; G.state='paused'; $('pauseVeil').classList.add('show'); }
+$('bPause').addEventListener('click',pauseGame);
+$('bResume').addEventListener('click',()=>{ if(G.state!=='paused')return; G.state='playing'; $('pauseVeil').classList.remove('show'); G.lastTs=performance.now(); if(!G.raf)G.raf=requestAnimationFrame(loop); });
+$('bQuit').addEventListener('click',()=>{ $('pauseVeil').classList.remove('show'); G.state='menu'; show('screen-menu'); refreshBest(); });
+EduKit.onHidden(() => { if (G.state === 'playing'){ pauseGame(); saveStats(); } });   // gizlenince duraklat, pagehide'da da kaydet
+addEventListener('resize',()=>{ if(G.state==='playing') layout(); });
+loadStats();

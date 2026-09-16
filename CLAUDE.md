@@ -68,6 +68,16 @@ const ModulAdi = (() => {
 - Duman testi (`tests/smoke.spec.js`) slug'ları `data/games.json`'dan türetir (`active:false` atlanır) → yeni oyun JSON'a
   girince otomatik kapsanır (`/?oyun=<slug>` 3 sn hatasız).
 
+### Eğitsel iframe oyunu (`games/<slug>/index.html` + `game.js` + `games/_shared/edu-kit.js`, B5)
+
+- `index.html` gövde sonu: `<script src="../_shared/edu-kit.js"></script><script src="game.js"></script>`; head: `<link rel="stylesheet" href="../_shared/edu-kit.css">` oyunun `<style>`'ından önce. **Satır içi `<script>` ve `on*=` yazılmaz** (CSP provası `npm run test:edu-kit` kırılır); `?v=` yazılmaz (build hash'ler).
+- `game.js` klasik script (`"use strict"`), hub modüllerine BAŞVURMAZ (iframe ayrı pencere; `MobileUtils`/`AudioManager` yok). Global `EduKit` (eslint `games/**`):
+  `EduKit.audio.init()` (bağlamı kur + resume — "Oyna" tıklamasında çağır) · `EduKit.tone(f, durSaniye, type='triangle', vol=0.06, whenSaniye=0)` (init öncesi sessiz; kit ilk jestte askıdaki bağlamı kendisi uyandırır) ·
+  `pick(arr)` · `shuffle(arr)` (yeni dizi) / `shuffleInPlace(arr)` · `randInt(a,b)` (kapalı aralık) · `rand/clamp/dist` · `storage` (= `window.storage`: `get(key)→{value}|null`, `set`, `remove`; anahtar `js/auth.js GAME_SAVE_KEYS`'e) ·
+  `onHidden(pauseFn, resumeFn?)` (visibilitychange gizli + pagehide → pauseFn; görünür/pageshow → resumeFn; oyun kendiliğinden sürmez, Devam düğmesi) · `toast(msg, ms=2800)` (`#toast` varsa oyunun stili).
+  Oyun deseni: `const Audio2 = (() => { const { init, tone } = EduKit.audio; return { init, ok: () => tone(660, 0.1, 'triangle', 0.07), … }; })();` — ses adları/frekanslar oyunda kalır, zarf kit'te.
+- Kit CSS token'ları `css/tokens.css`'in KOPYASIdır (iframe'e tokens.css ulaşmaz); yeni token gerekirse tokens.css'ten kopyalanır, test (`edu-kit.spec.js`) ad+değer eşitliğini denetler. Kit sürümü `EduKit.version` (semver; API kırılırsa majör).
+
 ### Yeni oyun ekleme (README "Yeni oyun ekleme" + düzeltme)
 
 README "Yeni oyun ekleme" (B2a sonrası) güncel; kısa sıra:
