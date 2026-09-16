@@ -1,3 +1,4 @@
+/* global Dialog */   /* js/dialog.js (B3) — eslint.config.js hubCoreGlobals listesine eklenene kadar (config-protection hook) */
 /* ============================================
    OYUN BAHÇESİ - Oyun Motoru
    ============================================ */
@@ -118,11 +119,14 @@ const GameEngine = (() => {
         else if (stars === 2) titleEl.textContent = TR.complete.great;
         else titleEl.textContent = TR.complete.good;
 
-        // Yıldızlar
+        // Yıldızlar — erişilebilir ad tek görselde (WCAG 4.1.2): "3 üzerinden 2 yıldız"; SVG'ler dekoratif
         starsEl.innerHTML = '';
+        starsEl.setAttribute('role', 'img');
+        starsEl.setAttribute('aria-label', '3 üzerinden ' + stars + ' yıldız');
         for (let i = 0; i < 3; i++) {
             const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
             svg.setAttribute('viewBox', '0 0 24 24');
+            svg.setAttribute('aria-hidden', 'true');
             svg.classList.add('star');
             if (i < stars) svg.classList.add('earned');
             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -133,16 +137,22 @@ const GameEngine = (() => {
 
         // Sonraki seviye butonu
         const totalLevels = currentGame.levels ? currentGame.levels.length : 3;
-        nextBtn.classList.toggle('hidden', currentLevel >= totalLevels);
+        const isLast = currentLevel >= totalLevels;
+        nextBtn.classList.toggle('hidden', isLast);
 
-        overlay.classList.remove('hidden');
+        // <dialog> (js/dialog.js, B3): ilk odak "Sonraki Seviye" (son seviyede "Tekrar Oyna");
+        // dismissible:false → Escape/perde kapatmaz (çocuk kazara çıkmasın); çıkış yalnız üç düğmeden.
+        Dialog.open(overlay, {
+            initialFocus: isLast ? document.getElementById('btn-replay') : nextBtn,
+            dismissible: false,
+        });
 
         // Toplam yıldız güncelle
         App.updateStarCounter();
     }
 
     function hideLevelComplete() {
-        document.getElementById('level-complete').classList.add('hidden');
+        Dialog.close(document.getElementById('level-complete'));
     }
 
     function replay() {

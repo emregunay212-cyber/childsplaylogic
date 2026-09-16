@@ -536,21 +536,58 @@
     color: var(--murekkep-orta);
 }
 
-/* ── Kilitli oyun bilgi penceresi (sözleşme §3.04: tek düğme "Tamam") ── */
-.lock-modal {
-    position: fixed; inset: 0; z-index: 1000;
-    display: flex; align-items: center; justify-content: center;
-    padding: var(--ara-5);
-    background: var(--perde);
+/* ── Dialog sistemi (B3): tek kap, js/dialog.js açar/kapatır. Katmanlar: kilit penceresi (js/app.js),
+      meta panel (#meta-panel), seviye tamamlama (#level-complete). <dialog> öğesinin kendisi tam ekran
+      perdedir (kart dışına tık = perdeye tık); yerel showModal yoksa (yedek yol) aynı görünüm z-index ile
+      durur. Kart stilleri kendi bloklarında (.lock-modal-card, .meta-card, main.css .complete-card). ── */
+.dialog {
+    position: fixed; inset: 0; z-index: 1200;         /* z-index yalnız yedek yol; üst katman sırayı kendisi verir */
+    width: 100%; height: 100%; max-width: none; max-height: none;
+    margin: 0; padding: var(--ara-5); border: 0;
+    background: var(--perde); color: var(--metin);
     -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
-    animation: lmFade 0.18s ease;
+    align-items: center; justify-content: center;
+    overflow: auto; overscroll-behavior: contain;     /* taşan kart kayar, kaydırma arkaya zincirlenmez */
 }
-.lock-modal.hidden { display: none; }
+.dialog[open] { display: flex; }
+.dialog:not([open]) { display: none; }
+.dialog::backdrop { background: transparent; }        /* perde dialog'un kendi zemini (yedek yolla aynı görünüm) */
+.dialog > * { margin: auto; }                         /* auto kenar: ortalar; sığmayan kart üstten kesilmez, kap kayar */
+/* Giriş: perde solar (220 ms), kart merkezden hafif büyür — modal merkezden gelir (transform-origin center).
+   Çıkış daha kısa (120 ms). Klavyeyle açılan/kapanan katman (.dialog--aninda) animasyonsuz. */
+.dialog[open]:not(.dialog--aninda):not(.dialog--kapaniyor) {
+    animation: dialogAc var(--sure-gecis) var(--egri-out) both;
+}
+.dialog[open]:not(.dialog--aninda):not(.dialog--kapaniyor) > * {
+    animation: dialogKartAc var(--sure-gecis) var(--egri-out) both;
+}
+.dialog.dialog--kapaniyor:not(.dialog--aninda) {
+    animation: dialogKapat var(--sure-bas) var(--egri-out) both;
+    pointer-events: none;
+}
+.dialog.dialog--kapaniyor:not(.dialog--aninda) > * {
+    animation: dialogKartKapat var(--sure-bas) var(--egri-out) both;
+}
+@keyframes dialogAc { from { opacity: 0; } to { opacity: 1; } }
+@keyframes dialogKartAc { from { opacity: 0; transform: scale(0.96) translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes dialogKapat { from { opacity: 1; } to { opacity: 0; } }
+@keyframes dialogKartKapat { from { opacity: 1; transform: none; } to { opacity: 0; transform: scale(0.98); } }
+@media (prefers-reduced-motion: reduce) {
+    .dialog, .dialog > * { animation: none !important; }   /* anında: token süreleri değil, hiç hareket yok */
+}
+/* Konfeti kanvası (index.html data-dialog-ustu) modal açıkken popover olarak üst katmana alınır
+   (js/dialog.js raiseOverlays) — UA popover stilleri (kenar, dolgu, zemin, fit-content) sıfırlanır. */
+[data-dialog-ustu]:popover-open {
+    position: fixed; inset: 0; width: 100%; height: 100%;
+    margin: 0; padding: 0; border: 0; background: transparent;
+    overflow: hidden; pointer-events: none;
+}
+
+/* ── Kilitli oyun bilgi penceresi (sözleşme §3.04: tek düğme "Tamam") — kart; kap .dialog ── */
 .lock-modal-card {
     background: var(--yuzey); border: var(--kontur); border-radius: var(--r-kart);
     padding: var(--ara-5) var(--ara-5) var(--ara-5); max-width: 340px; width: 100%;
     text-align: center; box-shadow: var(--golge-3);
-    animation: lmPop 0.28s var(--egri-out);
 }
 .lm-icon {
     width: 64px; height: 64px; margin: 0 auto var(--ara-3); border-radius: 50%;
@@ -579,8 +616,6 @@
 }
 .lm-btn:hover { filter: brightness(1.07); }
 .lm-btn:active { transform: scale(0.97); box-shadow: var(--golge-1); }
-@keyframes lmFade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes lmPop { from { opacity: 0; transform: scale(0.82) translateY(12px); } to { opacity: 1; transform: none; } }
 
 /* Kategori başlıkları: metin mürekkep; kategori rengi yalnız yan çizgilerde
    (--cat-color'ı js/app.js satır içi verir — B2a'da JSON'a taşınır) */
@@ -644,10 +679,8 @@
 .coin-counter:hover { transform: scale(1.06); }
 .coin-counter:active { transform: scale(0.97); transition-duration: var(--sure-bas); }
 
-.meta-panel { position: fixed; inset: 0; background: var(--perde); display: none;
-    align-items: center; justify-content: center; z-index: 1200; padding: 18px; }
-.meta-panel.show { display: flex; }
-.meta-card { background: var(--yuzey); border: var(--kontur); border-radius: var(--r-kart); width: min(440px, 94vw); max-height: 84vh;
+/* #meta-panel: kap .dialog (js/dialog.js) — burada yalnız kart */
+.meta-card { background: var(--yuzey); border: var(--kontur); border-radius: var(--r-kart); width: 100%; max-width: 440px; max-height: 84vh;
     overflow: auto; padding: 18px 18px 14px; box-shadow: var(--golge-3); color: var(--metin); }
 .meta-head { display: flex; justify-content: space-between; align-items: center; }
 .meta-head h2 { font-size: var(--yazi-baslik-boy); font-weight: var(--yazi-baslik-kalinlik); }
@@ -676,10 +709,12 @@
 .meta-sub { font-size: 14px; margin: var(--ara-3) 0 7px; }
 .meta-badges { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
 /* .meta-badge (eski .mp-badge): online kartlardaki "2 Oyuncu" rozetiyle (multiplayer.css .mp-badge) çakışıyordu */
-.meta-badge { background: var(--mavi-050); border-radius: var(--r-giris); padding: var(--ara-2) var(--ara-1); text-align: center;
-    opacity: .45; filter: grayscale(.6); }
-.meta-badge.on { opacity: 1; filter: none; background: var(--yildiz-zemin); box-shadow: 0 0 0 2px var(--yildiz) inset; }
+.meta-badge { background: var(--mavi-050); border-radius: var(--r-giris); padding: var(--ara-2) var(--ara-1); text-align: center; }
+.meta-badge.on { background: var(--yildiz-zemin); box-shadow: 0 0 0 2px var(--yildiz) inset; }
 .meta-badge span { font-size: 22px; display: block; }
+/* Kazanılmamış rozet: yalnız SİMGE sönük; 13 px etiket tam kontrastta kalır (B3 Lighthouse: tüm rozet
+   %45 opaklıkta 1.92:1 idi → WCAG 1.4.3 hatası) */
+.meta-badge:not(.on) span { opacity: .45; filter: grayscale(.6); }
 .meta-badge small { font-size: var(--yazi-rozet-boy); font-weight: 700; color: var(--murekkep-orta); line-height: 1.2; display: block; margin-top: 2px; }
 
 /* ── Ana sayfa altbilgisi (A5a): .hub kaydırma kapsayıcısı içinde, kartların altında.

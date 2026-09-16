@@ -1,0 +1,64 @@
+{
+  "note": "B3 Lighthouse (chrome-devtools MCP, Lighthouse 13.4.1, desktop). Yerel sunucu tests/static-server.js :8765, misafir tohumu (tests/helpers/guest-seed.js ile aynı anahtarlar). lh-nav = / giriş (navigation); lh-hub = hub (snapshot); lh-kutlama = /?oyun=sayi-sayma + GameEngine.onComplete(3) ile seviye tamamlama <dialog> AÇIKKEN (snapshot); lh-meta = hub + #meta-panel <dialog> AÇIKKEN (snapshot; ilk ölçümde kilitli rozet etiketi 1.92:1 → css/hub.css .meta-badge düzeltmesi sonrası 100). Kilit penceresi: bu tarayıcıda canlı adminConfig tüm kilitleri açtığı için Lighthouse anlık görüntüsü alınamadı; rol/ad/odak kanıtı tests/dialog.spec.js ariaSnapshot (B3-a11y.md).",
+  "lh-nav": {
+    "lighthouseVersion": "13.4.1",
+    "fetchTime": "2026-09-16T08:35:37.265Z",
+    "gatherMode": "navigation",
+    "url": "http://127.0.0.1:8765/",
+    "formFactor": "desktop",
+    "scores": {
+      "accessibility": 100,
+      "best-practices": 100,
+      "seo": 100,
+      "agentic-browsing": 100
+    },
+    "failures": []
+  },
+  "lh-hub": {
+    "lighthouseVersion": "13.4.1",
+    "fetchTime": "2026-09-16T08:33:50.648Z",
+    "gatherMode": "snapshot",
+    "url": "http://127.0.0.1:8765/",
+    "formFactor": "desktop",
+    "scores": {
+      "accessibility": 100,
+      "best-practices": 100,
+      "seo": 100,
+      "agentic-browsing": 100
+    },
+    "failures": []
+  },
+  "lh-kutlama": {
+    "lighthouseVersion": "13.4.1",
+    "fetchTime": "2026-09-16T08:34:11.258Z",
+    "gatherMode": "snapshot",
+    "url": "http://127.0.0.1:8765/?oyun=sayi-sayma",
+    "formFactor": "desktop",
+    "scores": {
+      "accessibility": 100,
+      "best-practices": 100,
+      "seo": 100,
+      "agentic-browsing": 100
+    },
+    "failures": []
+  },
+  "lh-meta": {
+    "lighthouseVersion": "13.4.1",
+    "fetchTime": "2026-09-16T08:35:22.705Z",
+    "gatherMode": "snapshot",
+    "url": "http://127.0.0.1:8765/?oyun=sayi-sayma",
+    "formFactor": "desktop",
+    "scores": {
+      "accessibility": 100,
+      "best-practices": 100,
+      "seo": 100,
+      "agentic-browsing": 100
+    },
+    "failures": [],
+    "before_fix": {
+      "accessibility": 94,
+      "failure": "color-contrast (.meta-badge small, 1.92:1)",
+      "fetchTime": "2026-09-16T08:34:31.437Z"
+    }
+  }
+}

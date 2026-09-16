@@ -193,8 +193,8 @@
         animation: none !important;
     }
     /* 2) Giriş koreografisi atlanır: içerik anında yerinde (kayma/ölçek/kademe yok) */
-    .game-card, .splash-content, .login-card, .user-menu, .complete-card,
-    .lock-modal, .lock-modal-card,
+    .game-card, .splash-content, .login-card, .user-menu,
+    .dialog, .dialog > *,   /* kilit penceresi, meta panel, seviye tamamlama kartı (css/hub.css .dialog ayrıca animation:none der) */
     .lobby-main, .lobby-create, .lobby-waiting, .lobby-list-screen, .word-setup, .lobby-loading-screen {
         animation-duration: 0.01ms !important;
         animation-delay: 0s !important;
