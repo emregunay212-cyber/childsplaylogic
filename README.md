@@ -19,6 +19,7 @@ Bu dosya (ve tüm `*.md`) `.vercelignore` ile yayın dışıdır.
 | `js/lock-catalog.js` | Kilit listesi + yıldız eşikleri (`GAME_CATALOG`'dan türetilir; API aynı: `SOLO_GAMES/ONLINE_GAMES/LOCK_CATALOG/LOCK_STARS_BY_KEY`); hub ve admin paneli bunu okur | Eşik = JSON `stars` / `online.stars`; 0 = açık |
 | `js/auth.js`, `js/firebase-config.js`, `js/multiplayer.js`, `js/lobby.js` | Google girişi / misafir modu, `users/{uid}/gameSaves` bulut senkronu (`GAME_SAVE_KEYS`), Firebase **Realtime Database** lobi/oda | Firestore yok |
 | `js/bilnet-meta.js` | Eğitsel meta katman: jeton (`DAILY_CAP = 50`), giriş serisi, rozetler — istemci tarafı | |
+| `js/dialog.js` | Tek modal/katman API'si (B3): `Dialog.open/close/isOpen/fromKeyboard` — `<dialog>` + `showModal()` (yedek yol: `open` + elle odak döngüsü), kardeşler `inert`, Escape/Tab/odak dönüşü tek yerde; kilit penceresi, meta panel, seviye tamamlama ve hesap menüsü (`modal:false`) bunu kullanır | Sözleşme `CLAUDE.md`; test `tests/dialog.spec.js` |
 | `seo/games_data.py` | `GAMES = data/games.json` yükler (`also_online` türetir) + `STATIC_PAGES` (gizlilik/hakkında/iletişim HTML içeriği) | `active: false` → noindex, sitemap/hub dışı |
 | `seo/build_seo.py` | Üretici: `oyunlar/<slug>/index.html` (56), `oyunlar/index.html`, `sitemap.xml`, `llms.txt` | **Üretilenler elle düzenlenmez** |
 | `css/` | `tokens.css` (tasarım token'ları, B1 — her sayfada ilk stylesheet; kaynak `docs/tasarim-sozlesmesi.md`), `main.css`, `hub.css`, `landing.css`, `games.css`, `multiplayer.css`, `admin.css`, `imza.css` (hub kabuğu: ham hex yok, yalnız `var(--…)`), oyun başına `<slug>.css` (kendi temalı; B1'de dokunulmadı) | |
@@ -51,12 +52,13 @@ npm run sri:check                       # Firebase SDK (gstatic) integrity hash'
 npm run build:check                     # deploy simülasyonu: kök → .build-check (hash'li), çıktı doğrulanır (?v= kalıntısı/eski hash = hata)
 npm run test:build                      # tools/build.js birim testleri (idempotence, döngü, eksik dosya, --out)
 npm run test:smoke                      # her aktif oyun /?oyun=<slug> ile açılır, 3 sn hatasız çalışmalı (61 test)
+npm run test:dialog                     # js/dialog.js: dört katmanda odak/Tab/Escape/inert + yedek yol + erişilebilirlik ağacı (14 test, B3)
 npm run test:edu-kit                    # 20 eğitsel iframe oyunu: hub iframe + bağımsız açılış + CSP provası (script-src self, satır içi ihlal 0), edu-kit.css token eşitliği (63 test)
 SITE_ROOT=.build-check PORT=8766 npm run test:smoke   # aynı test hash'li çıktı üzerinde (CI böyle koşar)
 python seo/test_build_seo.py            # üretici birim testleri
 ```
 
-`BASE_URL=https://<vercel-önizleme> npm run test:smoke` dış ortamda koşar. CI (`ci.yml`) her PR'da lint + `catalog:check` + `sri:check` + SEO üretimi tazelik kontrolü (`python seo/build_seo.py && git diff --exit-code -I lastmod …`) + `test:build` + `build:check` + `test:edu-kit` + duman testini (ikisi de hash'li çıktı üzerinde) çalıştırır; iş adı `eslint + Playwright duman testi` master'da **required check**tir (branch protection, A10b) — kırmızıyken merge edilemez, force-push ve dal silme kapalı.
+`BASE_URL=https://<vercel-önizleme> npm run test:smoke` dış ortamda koşar. CI (`ci.yml`) her PR'da lint + `catalog:check` + `sri:check` + SEO üretimi tazelik kontrolü (`python seo/build_seo.py && git diff --exit-code -I lastmod …`) + `test:build` + `build:check` + `test:edu-kit` + duman, temizlikçi ve dialog testlerini (hepsi hash'li çıktı üzerinde) çalıştırır; iş adı `eslint + Playwright duman testi` master'da **required check**tir (branch protection, A10b) — kırmızıyken merge edilemez, force-push ve dal silme kapalı.
 
 ## Deploy
 

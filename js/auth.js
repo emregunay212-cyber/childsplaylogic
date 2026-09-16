@@ -1,3 +1,4 @@
+/* global Dialog */   /* js/dialog.js (B3) — eslint.config.js hubCoreGlobals listesine eklenene kadar (config-protection hook) */
 /* ============================================
    Kimlik & Bulut Senkron — Google / Misafir
    - Google: ilerleme RTDB users/{uid}/progress'te tutulur → cihazlar arası senkron,
@@ -275,34 +276,26 @@ const Auth = (() => {
     }
 
     // ── Hesap menüsü (aç/kapa) — mobilde de çıkış erişilebilir olsun diye ──
+    // Modal OLMAYAN <dialog>: Dialog.open(menu, { modal:false }) (js/dialog.js, B3) — perde yok, arka plan
+    // inert değil; Escape, menü + düğme dışına tık ve odak kaçışı (WCAG 1.4.13) kapatır, odak düğmeye döner.
+    // Odak açılışta düğmede kalır (initialFocus:null): Enter-Enter ile kazara "Çıkış yap" olmasın.
     function closeMenu() {
         const menu = document.querySelector('#user-chip .user-menu');
-        if (menu) menu.classList.add('hidden');
-        const tog = document.querySelector('#user-chip .user-toggle');
-        if (tog) tog.setAttribute('aria-expanded', 'false');
-        document.removeEventListener('click', onDocClick, true);
-        document.removeEventListener('keydown', onEscKey);
+        if (menu && Dialog.isOpen(menu)) Dialog.close(menu);
     }
-    function onDocClick(e) {
-        const chip = $('user-chip');
-        if (chip && !chip.contains(e.target)) closeMenu();
-    }
-    function onEscKey(e) { if (e.key === 'Escape') closeMenu(); }
     function toggleMenu(e) {
         e.stopPropagation();
         const menu = document.querySelector('#user-chip .user-menu');
         const tog = document.querySelector('#user-chip .user-toggle');
         if (!menu) return;
-        const willOpen = menu.classList.contains('hidden');
-        menu.classList.toggle('hidden', !willOpen);
-        if (tog) tog.setAttribute('aria-expanded', String(willOpen));
-        if (willOpen) {
-            document.addEventListener('click', onDocClick, true);
-            document.addEventListener('keydown', onEscKey);
-        } else {
-            document.removeEventListener('click', onDocClick, true);
-            document.removeEventListener('keydown', onEscKey);
-        }
+        if (Dialog.isOpen(menu)) { Dialog.close(menu); return; }
+        if (tog) tog.setAttribute('aria-expanded', 'true');
+        Dialog.open(menu, {
+            modal: false,
+            initialFocus: null,
+            returnFocus: tog,
+            onClose: () => { if (tog) tog.setAttribute('aria-expanded', 'false'); },
+        });
     }
 
     // Yönetici hesabı mı? (js/firebase-config.js ADMIN_EMAIL — admin.js ile aynı sabit)
@@ -356,9 +349,10 @@ const Auth = (() => {
         tog.addEventListener('click', toggleMenu);
         chip.appendChild(tog);
 
-        // Açılır menü: ad (+ e-posta) + Çıkış yap
-        const menu = document.createElement('div');
-        menu.className = 'user-menu hidden';
+        // Açılır menü: ad (+ e-posta) + Çıkış yap — <dialog> (modal değil; bkz. toggleMenu)
+        const menu = document.createElement('dialog');
+        menu.className = 'user-menu';
+        menu.setAttribute('aria-label', 'Hesap menüsü');
         const nm = document.createElement('div');
         nm.className = 'user-menu-name';
         nm.textContent = user ? (user.displayName || 'Oyuncu') : 'Misafir';

@@ -81,6 +81,13 @@ jobs:
           CI: true
           SITE_ROOT: .build-check
 
+      # Dialog sistemi (js/dialog.js, B3): dört katmanda odak/Tab/Escape/inert + yedek yol; Firebase CDN engellenir.
+      - name: Dialog testi — hash'li çıktı üzerinde
+        run: npm run test:dialog
+        env:
+          CI: true
+          SITE_ROOT: .build-check
+
       # Kırmızı koşuda adli kayıt: trace (ilk retry), ekran görüntüsü, video, error-context.md
       - name: Hata artefaktları
         if: failure()

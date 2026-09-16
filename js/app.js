@@ -1,3 +1,4 @@
+/* global Dialog */   /* js/dialog.js (B3) — eslint.config.js hubCoreGlobals listesine eklenene kadar (config-protection hook) */
 /* ============================================
    OYUN BAHÇESİ - Ana Uygulama
    ============================================ */
@@ -154,25 +155,23 @@ const App = (() => {
         const starsRow = card.querySelector('.card-stars');
         if (starsRow) starsRow.replaceWith(prog); else card.appendChild(prog);
 
-        const onTap = () => {
-            try { AudioManager.play('tap'); } catch (e) {}
+        const onTap = (e) => {
+            try { AudioManager.play('tap'); } catch (e2) {}
             card.classList.remove('cs-bump'); void card.offsetWidth; card.classList.add('cs-bump');
-            showLockInfo(entry);
+            showLockInfo(entry, e);
         };
         bindActivate(card, onTap);
     }
 
     // ── Kilitli oyun bilgi penceresi: neden kilitli + nasıl açılır ──
-    // Erişilebilirlik: açılınca odak "Tamam"a gider, Escape kapatır, kapanınca odak karta döner;
-    // tek düğmeli diyalog → Tab odağı düğmede tutar (odak arkadaki sayfaya kaçmaz).
+    // <dialog> — js/dialog.js (B3): açılınca odak "Tamam"a, Escape / perdeye tık kapatır, odak tuzağı ve
+    // inert arka plan tarayıcıdan (yedek yol Dialog içinde); kapanınca odak karta döner. Burada özel
+    // Escape/Tab kodu YOK.
     let lockModalEl = null;
-    let lockModalReturnFocus = null;
     function ensureLockModal() {
         if (lockModalEl) return lockModalEl;
-        const ov = document.createElement('div');
-        ov.className = 'lock-modal hidden';
-        ov.setAttribute('role', 'dialog');
-        ov.setAttribute('aria-modal', 'true');
+        const ov = document.createElement('dialog');
+        ov.className = 'dialog lock-modal';
 
         const card = document.createElement('div');
         card.className = 'lock-modal-card';
@@ -218,11 +217,6 @@ const App = (() => {
         card.appendChild(hint);
         card.appendChild(btn);
         ov.appendChild(card);
-        ov.addEventListener('click', (e) => { if (e.target === ov) hideLockInfo(); });
-        ov.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') { e.preventDefault(); hideLockInfo(); }
-            else if (e.key === 'Tab') { e.preventDefault(); btn.focus(); }
-        });
         document.body.appendChild(ov);
 
         ov._msg = msg; ov._bar = bar; ov._fill = fill; ov._barLabel = barLabel; ov._hint = hint; ov._btn = btn;
@@ -230,13 +224,10 @@ const App = (() => {
         return ov;
     }
     function hideLockInfo() {
-        if (!lockModalEl || lockModalEl.classList.contains('hidden')) return;
-        lockModalEl.classList.add('hidden');
-        const back = lockModalReturnFocus;
-        lockModalReturnFocus = null;
-        if (back && back.isConnected) { try { back.focus(); } catch (e) {} }
+        if (lockModalEl) Dialog.close(lockModalEl);
     }
-    function showLockInfo(entry) {
+    // evt: kartı etkinleştiren olay — klavyeyle (Enter/Boşluk) açılan pencere animasyonsuz (B3 görev 4)
+    function showLockInfo(entry, evt) {
         const key = lockKey(entry);
         const need = LOCK_STARS_BY_KEY[key];
         const forced = adminConfig.locks && adminConfig.locks[key] === 'lock';
@@ -260,9 +251,7 @@ const App = (() => {
             ov._barLabel.classList.remove('hidden');
             ov._hint.textContent = 'İpucu: Diğer (açık) oyunları oynayarak yıldız topla!';
         }
-        lockModalReturnFocus = document.activeElement;
-        ov.classList.remove('hidden');
-        try { ov._btn.focus(); } catch (e) {}
+        Dialog.open(ov, { initialFocus: ov._btn, animate: !Dialog.fromKeyboard(evt) });
     }
 
     // Online oyunlar: GAME_CATALOG'da `online` alanı olan kayıtlar, online.order sırasıyla (kapalı olanlar hariç).

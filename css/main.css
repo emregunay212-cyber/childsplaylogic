@@ -297,10 +297,19 @@ button {
     object-fit: cover;
     border: 2px solid var(--beyaz);
 }
+/* Hesap menüsü: modal OLMAYAN <dialog> (js/auth.js → Dialog.open(menu, { modal: false })) — perde yok,
+   arka plan inert değil; Escape, dışarı tık ve odak kaçışı kapatır. UA dialog stilleri (inset-inline 0,
+   fit-content, kenar, dolgu, Canvas zemin) burada sıfırlanır; popover tetikleyiciden açılır (sağ üst). */
 .user-menu {
     position: absolute;
     top: calc(100% + var(--ara-2));
     right: 0;
+    left: auto;
+    margin: 0;
+    border: 0;
+    height: auto;
+    max-height: none;
+    overflow: visible;
     min-width: 180px;
     max-width: 240px;
     background: var(--yuzey);
@@ -309,12 +318,13 @@ button {
     box-shadow: var(--golge-3);
     padding: var(--ara-3);
     z-index: 200;
-    display: flex;
     flex-direction: column;
     gap: var(--ara-1);
+    transform-origin: top right;
     animation: fadeInUp 0.18s var(--egri-out) both;
 }
-.user-menu.hidden { display: none; }
+.user-menu[open] { display: flex; }
+.user-menu:not([open]) { display: none; }
 .user-menu-name {
     font-family: var(--font-display);
     font-weight: 700;
@@ -546,16 +556,9 @@ button {
 /* ============================================
    SEVIYE TAMAMLAMA
    ============================================ */
-.level-complete {
-    position: fixed;
-    inset: 0;
-    z-index: 500;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--perde);
-    backdrop-filter: blur(4px);
-}
+/* #level-complete kabı css/hub.css .dialog'dur (js/dialog.js açar; giriş/çıkış hareketi orada).
+   z-index yalnız yedek yolda (showModal yok) anlamlı: konfeti kanvası (600) kartın üstünde kalsın. */
+.level-complete { z-index: 500; }
 
 .complete-card {
     background: var(--yuzey);
@@ -564,7 +567,6 @@ button {
     padding: var(--ara-7) var(--ara-8);
     text-align: center;
     box-shadow: var(--golge-3);
-    animation: bounceIn 0.5s var(--egri-out) both;
     max-width: 90vw;
 }
 

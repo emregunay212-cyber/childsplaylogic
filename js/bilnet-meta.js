@@ -1,3 +1,4 @@
+/* global Dialog */   /* js/dialog.js (B3) — eslint.config.js hubCoreGlobals listesine eklenene kadar (config-protection hook) */
 /* ============================================
    BİLNET META KATMAN v1 (EGITSEL-OYUN-PLANI §3.1-3.2 + §6)
    Jeton sistemi + günlük giriş serisi + eğitsel profil paneli.
@@ -23,12 +24,14 @@ const BilnetMeta = (() => {
     const STREAK_BONUS = { 3: 10, 5: 15, 7: 25 };
 
     // Eğitsel oyunların kalıcı istatistik anahtarları (profil panelinde gösterilir)
+    // Kayıt alanları sayı olmalı; bozuk/metin değer 0 sayılır (kayıt kullanıcı denetiminde)
+    const n = (v) => { const x = Number(v); return Number.isFinite(x) && x >= 0 ? Math.floor(x) : 0; };
     const GAME_STATS = [
-        { key: 'bilgimadenci_stats',  name: 'Bilgi Madencisi',    icon: '⛏️', line: s => `${s.correct || 0} doğru işlem` },
-        { key: 'matpatlatma_stats',   name: 'Matematik Patlatma', icon: '🧨', line: s => `${s.chains || 0} zincir · en uzun ${s.longest || 0} taş` },
-        { key: 'kelimebalonu_stats',  name: 'Kelime Balonu',      icon: '🎈', line: s => `${s.words || 0} İngilizce kelime` },
-        { key: 'bilfethet_stats',     name: 'Bil ve Fethet',      icon: '🌍', line: s => `${s.conquests || 0} tam fetih · ${s.correct || 0} doğru` },
-        { key: 'kelimemadeni_stats',  name: 'Kelime Madeni 3D',   icon: '💎', line: s => `${s.solved || 0} kelime sorusu çözüldü` },
+        { key: 'bilgimadenci_stats',  name: 'Bilgi Madencisi',    icon: '⛏️', line: s => `${n(s.correct)} doğru işlem` },
+        { key: 'matpatlatma_stats',   name: 'Matematik Patlatma', icon: '🧨', line: s => `${n(s.chains)} zincir · en uzun ${n(s.longest)} taş` },
+        { key: 'kelimebalonu_stats',  name: 'Kelime Balonu',      icon: '🎈', line: s => `${n(s.words)} İngilizce kelime` },
+        { key: 'bilfethet_stats',     name: 'Bil ve Fethet',      icon: '🌍', line: s => `${n(s.conquests)} tam fetih · ${n(s.correct)} doğru` },
+        { key: 'kelimemadeni_stats',  name: 'Kelime Madeni 3D',   icon: '💎', line: s => `${n(s.solved)} kelime sorusu çözüldü` },
     ];
 
     let M = { coins: 0, dayKey: '', coinsToday: 0, streak: 0, bestStreak: 0, lastDay: '', lastTs: 0,
@@ -172,7 +175,8 @@ const BilnetMeta = (() => {
         clearTimeout(toastT);
         toastT = setTimeout(() => t.classList.remove('show'), 3200);
     }
-    function openPanel() {
+    // evt: jeton çipini etkinleştiren olay (bindActivate) — klavyeyle açılan panel animasyonsuz (B3 görev 4)
+    function openPanel(evt) {
         const ov = document.getElementById('meta-panel');
         if (!ov) return;
         document.getElementById('mp-coins').textContent = M.coins;
@@ -188,8 +192,11 @@ const BilnetMeta = (() => {
             const best = s.best ? Math.max(...Object.values(s.best).map(Number)) : 0;
             const row = document.createElement('div');
             row.className = 'mp-row';
-            row.innerHTML = `<span class="mp-ic">${g.icon}</span><span class="mp-nm">${g.name}</span>` +
-                `<span class="mp-ln">${g.line(s)}${best ? ` · rekor ${best}` : ''}</span>`;
+            // Güvenlik: s.* localStorage/bulut kaydından gelir (kullanıcı yazabilir) → HTML'e değil textContent'e
+            const ic = document.createElement('span'); ic.className = 'mp-ic'; ic.textContent = g.icon;
+            const nm = document.createElement('span'); nm.className = 'mp-nm'; nm.textContent = g.name;
+            const ln = document.createElement('span'); ln.className = 'mp-ln'; ln.textContent = g.line(s) + (best ? ` · rekor ${best}` : '');
+            row.append(ic, nm, ln);
             list.appendChild(row);
         }
         if (!list.children.length) list.innerHTML = '<div class="mp-row mp-empty">Eğitsel oyunları oynadıkça istatistiklerin burada birikecek! 🎓</div>';
@@ -201,25 +208,17 @@ const BilnetMeta = (() => {
                 return `<div class="meta-badge${on ? ' on' : ''}" title="${b.k}"><span>${on ? b.e : '🔒'}</span><small>${b.ad}</small></div>`;
             }).join('');
         }
-        // Erişilebilirlik: görünürken aria-hidden kalkar, odak "Kapat"a gider, Escape kapatır,
-        // kapanınca odak jeton çipine döner.
-        ov.setAttribute('aria-hidden', 'false');
-        ov.classList.add('show');
-        document.addEventListener('keydown', onPanelKey);
-        const closeBtn = document.getElementById('mp-close');
-        if (closeBtn) { try { closeBtn.focus(); } catch (e) {} }
+        // <dialog> (js/dialog.js, B3): odak "Kapat"a, Escape / perdeye tık kapatır, arka plan inert,
+        // kapanınca odak jeton çipine döner. Burada özel Escape/odak kodu YOK.
+        Dialog.open(ov, {
+            initialFocus: '#mp-close',
+            returnFocus: '#coin-counter',
+            animate: !Dialog.fromKeyboard(evt),
+        });
     }
     function closePanel() {
         const ov = document.getElementById('meta-panel');
-        if (!ov || !ov.classList.contains('show')) return;
-        ov.classList.remove('show');
-        ov.setAttribute('aria-hidden', 'true');
-        document.removeEventListener('keydown', onPanelKey);
-        const chip = document.getElementById('coin-counter');
-        if (chip) { try { chip.focus(); } catch (e) {} }
-    }
-    function onPanelKey(e) {
-        if (e.key === 'Escape') { e.preventDefault(); closePanel(); }
+        if (ov) Dialog.close(ov);
     }
 
     function init() {
@@ -232,8 +231,7 @@ const BilnetMeta = (() => {
         MobileUtils.bindActivate(document.getElementById('coin-counter'), openPanel);
         const closeBtn = document.getElementById('mp-close');
         if (closeBtn) closeBtn.addEventListener('click', closePanel);
-        const ov = document.getElementById('meta-panel');
-        if (ov) ov.addEventListener('click', e => { if (e.target === ov) closePanel(); });
+        // perdeye tık → Dialog (dismissible) kapatır
         // iframe oyunları kuyruğa yazınca parent'a storage eventi düşer → anında işle
         window.addEventListener('storage', e => {
             if (e && e.key === QUEUE_KEY) processQueue();

@@ -39,7 +39,17 @@ const ModulAdi = (() => {
   `Particles.sparkle(x,y,n)` / `.confetti(x,y,n)` / `.stars(x,y,n)` / `.celebrate()`;
   `MobileUtils.bindActivate(el, fn)` (tap+click tekilleştirir), `.isTouchDevice()`;
   `TR` (`js/i18n.js`): `TR.games[id]` ad, `TR.instructions[id]` yönerge, `TR.letterImages[HARF]` → `[{word, emoji}]`, `TR.alphabet`, `TR.colors`;
-  `Progress.getLevelStars(id, level)`.
+  `Progress.getLevelStars(id, level)`;
+  **`Dialog`** (`js/dialog.js`, B3 — tek modal/katman API'si, `js/errors.js`'ten hemen sonra yüklenir):
+  `Dialog.open(el, { initialFocus, returnFocus, dismissible = true, modal = true, animate = true, onClose })` /
+  `Dialog.close(el)` / `Dialog.isOpen(el)` / `Dialog.fromKeyboard(e)`. `el` bir `<dialog class="dialog">`
+  (+ `aria-labelledby`): `showModal()` varsa üst katman, yoksa yedek yol (`open` özniteliği, `role=dialog`,
+  elle Tab döngüsü); Escape/Tab sarma/perdeye tık/odak dönüşü/kardeşleri `inert` (ya da `aria-hidden`) hep
+  modülde — **katmanda özel Escape/Tab kodu yazılmaz**. `dismissible:false` → Escape ve perde kapatmaz
+  (seviye tamamlama). `modal:false` → menü/popover (`show()`, perde/inert yok, dışarı tık + odak kaçışı kapatır).
+  Klavyeyle açılan katman `animate: !Dialog.fromKeyboard(e)` ile animasyonsuz. Kap stili `css/hub.css .dialog`
+  (giriş `--sure-gecis`, çıkış `--sure-bas`, reduced-motion anında); kart stili katmanın kendi bloğunda.
+  Konfeti kanvası `data-dialog-ustu` ile modal açıkken üst katmana (popover) alınır. Test: `npm run test:dialog`.
 - Paylaşılan CSS (`css/games.css`): `.game-instruction`, `.game-option-btn` (+`.correct`/`.wrong`
   animasyonlu), `.letter-display`, `.number-btn`, `.level-selector`/`.level-btn`. Token'lar
   **`css/tokens.css`** (B1; tek kaynak `docs/tasarim-sozlesmesi.md` §1, her sayfada ilk stylesheet):
