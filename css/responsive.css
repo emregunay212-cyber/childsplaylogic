@@ -1,5 +1,5 @@
 /* ============================================
-   OYUN BAHÇESİ - Responsive Tasarım
+   BİLNET OYUN - Responsive Tasarım (token'lar css/tokens.css)
    ============================================ */
 
 /* Büyük tablet / Desktop */
@@ -7,8 +7,8 @@
     .hub-grid {
         grid-template-columns: repeat(4, 1fr);
         max-width: 960px;
-        gap: var(--space-xl);
-        padding: var(--space-2xl) var(--space-xl);
+        gap: var(--ara-7);
+        padding: var(--ara-8) var(--ara-7);
     }
 
     .card-icon {
@@ -27,7 +27,7 @@
     .hub-grid {
         grid-template-columns: repeat(3, 1fr);
         max-width: 720px;
-        gap: var(--space-lg);
+        gap: var(--ara-5);
     }
 
     .memory-grid.grid-2x2 { grid-template-columns: repeat(2, 110px); }
@@ -39,8 +39,8 @@
 @media (min-width: 480px) and (max-width: 767px) {
     .hub-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: var(--space-md);
-        padding: var(--space-lg) var(--space-md);
+        gap: var(--ara-4);
+        padding: var(--ara-5) var(--ara-4);
     }
 
     .card-icon {
@@ -48,8 +48,6 @@
         height: 72px;
         font-size: 2.5rem;
     }
-
-    .card-title { font-size: 0.9rem; }
 
     .sun { width: 60px; height: 60px; }
 
@@ -66,23 +64,22 @@
 @media (max-width: 479px) {
     .hub-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: var(--space-sm);
-        padding: var(--space-md) var(--space-sm);
+        gap: var(--ara-2);
+        padding: var(--ara-4) var(--ara-2);
     }
 
     .game-card {
-        padding: var(--space-md) var(--space-sm) var(--space-sm);
-        border-radius: var(--radius-md);
+        padding: var(--ara-4) var(--ara-2) var(--ara-2);
+        border-radius: var(--r-kart);
     }
 
     .card-icon {
         width: 60px;
         height: 60px;
         font-size: 2rem;
-        border-radius: var(--radius-sm);
+        border-radius: var(--r-giris);
     }
 
-    .card-title { font-size: 0.95rem; }
     .card-stars svg { width: 18px; height: 18px; }
 
     .top-title { font-size: 1.1rem; }
@@ -96,7 +93,7 @@
 
     .game-instruction {
         font-size: 0.9rem;
-        padding: var(--space-xs) var(--space-md);
+        padding: var(--ara-1) var(--ara-4);
     }
 
     .letter-display { font-size: 3.5rem; }
@@ -105,7 +102,7 @@
 
     .number-btn { width: 52px; height: 52px; font-size: 1.3rem; }
 
-    .complete-card { padding: var(--space-lg); }
+    .complete-card { padding: var(--ara-5); }
     .complete-stars .star { width: 45px; height: 45px; }
     .complete-btn { font-size: 0.95rem; padding: 10px 20px; min-width: 110px; }
 
@@ -117,25 +114,24 @@
     .hub { padding-top: 58px; }
     .top-bar { height: 54px; }
     .game-toolbar { height: 46px; }
-    .game-area { top: 46px; padding: var(--space-sm); }
+    .game-area { top: 46px; padding: var(--ara-2); }
 
     .hub-grid {
         grid-template-columns: repeat(4, 1fr);
-        gap: var(--space-sm);
-        padding: var(--space-md);
+        gap: var(--ara-2);
+        padding: var(--ara-4);
     }
 
     .card-icon { width: 50px; height: 50px; font-size: 1.8rem; }
-    .card-title { font-size: 0.8rem; }
-    .game-card { padding: var(--space-sm); }
+    .game-card { padding: var(--ara-2); }
 
-    .game-instruction { margin-bottom: var(--space-sm); font-size: 0.9rem; }
+    .game-instruction { margin-bottom: var(--ara-2); font-size: 0.9rem; }
     .letter-display { font-size: 3rem; }
     .color-target { width: 60px; height: 60px; }
 
-    .complete-card { padding: var(--space-md) var(--space-lg); }
-    .complete-title { font-size: 1.5rem; margin-bottom: var(--space-sm); }
-    .complete-stars { margin-bottom: var(--space-md); }
+    .complete-card { padding: var(--ara-4) var(--ara-5); }
+    .complete-title { font-size: 1.5rem; margin-bottom: var(--ara-2); }
+    .complete-stars { margin-bottom: var(--ara-4); }
     .complete-stars .star { width: 40px; height: 40px; }
 }
 
@@ -210,7 +206,7 @@
     .hub-grid { gap: 6px; padding: 0.5rem; }
     .game-card { padding: 0.6rem 0.4rem; }
     .card-icon { width: 50px; height: 50px; }
-    .card-title { font-size: 0.75rem; }
+    .card-title { font-size: 1rem; }   /* 320 px: iki sütunda uzun adlar üç satıra taşmasın */
     .chess-board { width: 95vw; }
     .kod-block-btn { width: 36px; height: 36px; }
     .kod-cell { font-size: 0.7rem; }
@@ -260,13 +256,13 @@
     .chip-lbl-full { display: none; }
     .chip-lbl-short { display: inline; }
     .hub-nav-chip {
-        min-height: 38px;
-        padding: 7px 15px;
-        font-size: 0.9rem;
+        min-height: var(--hedef-min);
+        padding: 0 14px;
+        font-size: 0.95rem;
         gap: 6px;
     }
-    .chip-icon { width: 20px; height: 20px; }
+    .chip-icon { width: 22px; height: 22px; }
 
-    /* İçerik artık 2 satırlı üst barın altından başlamalı */
-    .hub { padding-top: calc(116px + env(safe-area-inset-top, 0px)); }
+    /* İçerik 2 satırlı üst barın (6 + 52 + 4 + 57 + 6 = 125 px) altından başlamalı */
+    .hub { padding-top: calc(132px + env(safe-area-inset-top, 0px)); }
 }

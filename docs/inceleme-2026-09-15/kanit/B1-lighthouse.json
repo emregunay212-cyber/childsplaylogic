@@ -1,0 +1,45 @@
+{
+  "note": "B1 Lighthouse (chrome-devtools MCP). lh-nav = / giriş kartı (navigation, desktop); lh-hub = hub misafir tohumuyla (snapshot, desktop); lh-landing = /oyunlar/kelimelik/ (navigation, mobile). Yerel sunucu tests/static-server.js :8766.",
+  "lh-nav": {
+    "lighthouseVersion": "13.4.1",
+    "fetchTime": "2026-09-16T06:52:07.913Z",
+    "gatherMode": "navigation",
+    "url": "http://127.0.0.1:8766/",
+    "formFactor": "desktop",
+    "scores": {
+      "accessibility": 100,
+      "best-practices": 100,
+      "seo": 100,
+      "agentic-browsing": 100
+    },
+    "failures": []
+  },
+  "lh-hub": {
+    "lighthouseVersion": "13.4.1",
+    "fetchTime": "2026-09-16T06:52:46.126Z",
+    "gatherMode": "snapshot",
+    "url": "http://127.0.0.1:8766/",
+    "formFactor": "desktop",
+    "scores": {
+      "accessibility": 100,
+      "best-practices": 100,
+      "seo": 100,
+      "agentic-browsing": 100
+    },
+    "failures": []
+  },
+  "lh-landing": {
+    "lighthouseVersion": "13.4.1",
+    "fetchTime": "2026-09-16T06:53:02.515Z",
+    "gatherMode": "navigation",
+    "url": "http://127.0.0.1:8766/oyunlar/kelimelik/",
+    "formFactor": "mobile",
+    "scores": {
+      "accessibility": 100,
+      "best-practices": 100,
+      "seo": 100,
+      "agentic-browsing": 100
+    },
+    "failures": []
+  }
+}

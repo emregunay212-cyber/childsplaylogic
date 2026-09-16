@@ -1,0 +1,248 @@
+/* ============================================
+   bilnetoyun.com — Tasarım token'ları (Faz 2 / B1)
+   --------------------------------------------
+   Tek kaynak: docs/tasarim-sozlesmesi.md §1 ("Çıkartma Kitabı Bahçesi"). Adlar tuvaldeki adlardır;
+   çelişkide tuval kazanır, bu dosya sözleşmeyi okur, kod bu dosyayı okur.
+   Her sayfada İLK stylesheet (css/fonts.css'ten hemen sonra): index.html, admin.html, 404.html,
+   seo/build_seo.py HEAD_COMMON (oyunlar/**, gizlilik/, hakkinda/, iletisim/).
+   Tek tema (açık). [data-theme] / koyu tema YOK.
+
+   Katmanlar:
+     1. Primitif  — renk (24 hex; başka hex hiçbir hub dosyasında yazılmaz), yazı, aralık,
+                    yarıçap, kontur, gölge, saydam katman, hedef, süre/eğri
+     2. Semantik  — --metin, --yuzey, --vurgu, --dugme-dolgu … (rol adı, değer değil)
+     3. Köprü     — eski adlar (--<oyun>-color, --text-warm, --ease-spring …). Oyun CSS/JS'leri
+                    (css/<oyun>.css, js/games/*.js) bu adları bekler; hub kabuğu KULLANMAZ.
+                    B4'te kaldırılır. Yeni kod yalnız 1. ve 2. katmanı kullanır.
+   ============================================ */
+
+:root {
+    /* ── 1. Renk (24) ─────────────────────────────────────────────────────── */
+    /* Marka mavisi */
+    --mavi-500: #4AABE0;    /* sekme dolgusu, vurgu — üstündeki metin DAİMA mürekkep (beyaz AA geçmez) */
+    --mavi-700: #2E8FC4;    /* hover / basılı mavi */
+    --mavi-800: #17739F;    /* dolgulu düğme zemini (beyaz metin 5.3:1 AA), klavye odak halkası */
+    --mavi-050: #E8F5FC;    /* açık mavi yüzey, rozet zemini */
+    /* Dünya: gökyüzü, çimen, güneş */
+    --gok-ust: #87CEEB;
+    --gok-alt: #C9E8F7;
+    --cim: #7EC850;
+    --cim-koyu: #5DAA3A;
+    --gunes: #FFD54A;
+    /* Mürekkep ve yüzey */
+    --murekkep: #1F3A4D;        /* tüm metin; saf siyah yok (beyazda 11.9:1) */
+    --murekkep-orta: #4E6272;   /* ikincil metin, "Yakında" grisi (beyazda 6.3:1) */
+    --beyaz: #FFFFFF;           /* kart yüzeyi, çıkartma konturu */
+    --cizgi: #DCE6EC;           /* ayırıcı, form kenarı */
+    /* Kategori (yalnız kart üst şeridi, balon ve raf etiketi; kart yüzeyi beyaz kalır) */
+    --kat-harf: #45B7D1;
+    --kat-sayi: #4ECDC4;
+    --kat-bulmaca: #F7B731;
+    --kat-yaratici: #FF78C4;
+    --kat-strateji: #A4683A;
+    --kat-online: #7B5BFF;
+    /* Geri bildirim (renk + simge birlikte; asla yalnız renk) */
+    --dogru: #1E8E4E;
+    --dogru-zemin: #DFF5E7;
+    --yanlis: #C0392B;
+    /* Yıldız */
+    --yildiz: #F4B400;
+    --yildiz-bos: #D7DEE3;
+
+    /* ── 1. Yazı ──────────────────────────────────────────────────────────── */
+    /* Aileler self-host (css/fonts.css, A9a). Fredoka: başlık, düğme, kart adı · Nunito: gövde, rozet */
+    --font-display: 'Fredoka', 'Nunito', sans-serif;
+    --font-body: 'Nunito', 'Segoe UI', sans-serif;
+    /* Rol ölçekleri — aile / kalınlık / boy / satır ayrı değişken (font kısayolu kullanılmaz) */
+    /* hub ve giriş başlığı */
+    --yazi-hub-aile: var(--font-display);
+    --yazi-hub-kalinlik: 700;
+    --yazi-hub-boy: 40px;
+    --yazi-hub-satir: 1.1;
+    /* yaş rafı başlığı */
+    --yazi-raf-aile: var(--font-display);
+    --yazi-raf-kalinlik: 700;
+    --yazi-raf-boy: 30px;
+    --yazi-raf-satir: 1.15;
+    /* modal, panel başlığı */
+    --yazi-baslik-aile: var(--font-display);
+    --yazi-baslik-kalinlik: 600;
+    --yazi-baslik-boy: 24px;
+    --yazi-baslik-satir: 1.2;
+    /* oyun kartı adı */
+    --yazi-kart-aile: var(--font-display);
+    --yazi-kart-kalinlik: 600;
+    --yazi-kart-boy: 20px;
+    --yazi-kart-satir: 1.2;
+    /* düğme ve sekme */
+    --yazi-dugme-aile: var(--font-display);
+    --yazi-dugme-kalinlik: 700;
+    --yazi-dugme-boy: 18px;
+    --yazi-dugme-satir: 1;
+    /* tüm gövde metni */
+    --yazi-govde-aile: var(--font-body);
+    --yazi-govde-kalinlik: 400;
+    --yazi-govde-boy: 18px;
+    --yazi-govde-satir: 1.6;
+    /* rozet — en küçük ölçü */
+    --yazi-rozet-aile: var(--font-body);
+    --yazi-rozet-kalinlik: 700;
+    --yazi-rozet-boy: 13px;
+    --yazi-rozet-satir: 1.2;
+
+    /* ── 1. Aralık (yalnız 4 ve 8 katları) ────────────────────────────────── */
+    --ara-1: 4px;
+    --ara-2: 8px;
+    --ara-3: 12px;
+    --ara-4: 16px;
+    --ara-5: 24px;
+    --ara-6: 32px;
+    --ara-7: 40px;
+    --ara-8: 64px;
+
+    /* ── 1. Yarıçap + kontur (başka yarıçap yok; daire için 50%) ──────────── */
+    --r-kart: 24px;     /* kart, modal, panel */
+    --r-giris: 16px;    /* giriş alanı, ikon karesi, küçük kutu */
+    --r-hap: 999px;     /* tüm düğme ve çipler */
+    --kontur-kalinlik: 4px;
+    --kontur: var(--kontur-kalinlik) solid var(--beyaz);   /* çıkartma konturu: dolgulu yüzeylerde taşıyıcı, dekor değil */
+
+    /* ── 1. Gölge (mürekkep tonlu; ofset + yumuşak bulanıklık) ───────────── */
+    --golge-1: 0 2px 6px rgba(31, 58, 77, 0.10);
+    --golge-2: 0 6px 16px rgba(31, 58, 77, 0.16);
+    --golge-3: 0 14px 32px rgba(31, 58, 77, 0.20);
+
+    /* ── 1. Saydam katmanlar (yalnız mürekkep, beyaz, mavi-800, yıldız, güneş, doğru, yanlış'tan
+            türer; yeni renk değil) ──────────────────────────────────────── */
+    --perde: rgba(31, 58, 77, 0.55);              /* modal / kutlama arka perdesi */
+    --yuzey-cam: rgba(255, 255, 255, 0.85);       /* üst şerit, oyun şeridi, bant (backdrop-filter ile) */
+    --yuzey-cam-hafif: rgba(255, 255, 255, 0.5);  /* ikincil yarı saydam yüzey (bulut, boş yuva) */
+    --cizgi-saydam: rgba(31, 58, 77, 0.12);       /* herhangi bir zeminde ince ayırıcı */
+    --basili-zemin: rgba(31, 58, 77, 0.06);       /* basma / hover tonu */
+    --odak-isik: rgba(23, 115, 159, 0.25);        /* giriş alanı odak parıltısı */
+    --yildiz-isik: rgba(244, 180, 0, 0.45);       /* kazanılan yıldız parıltısı */
+    --yildiz-zemin: rgba(244, 180, 0, 0.18);      /* yıldız sayacı zemini */
+    --gunes-isik: rgba(255, 213, 74, 0.45);       /* güneş halesi */
+    --dogru-isik: rgba(30, 142, 78, 0.35);
+    --yanlis-isik: rgba(192, 57, 43, 0.30);
+    --yanlis-zemin: rgba(192, 57, 43, 0.10);      /* yanlış geri bildirim zemini (beyaz üstünde) */
+
+    /* ── 1. Dokunma hedefi ────────────────────────────────────────────────── */
+    --hedef-min: 52px;
+
+    /* ── 1. Süre ve eğri ──────────────────────────────────────────────────── */
+    --sure-bas: 120ms;       /* basma (ölçek 0,97) */
+    --sure-gecis: 220ms;     /* hover, durum değişimi */
+    --sure-kutlama: 600ms;   /* konfeti/balon; sonra durur */
+    --egri-out: cubic-bezier(0.23, 1, 0.32, 1);      /* güçlü ease-out — her geçiş */
+    --egri-yay: cubic-bezier(0.34, 1.56, 0.64, 1);   /* yalnız yıldız yapışması */
+
+    /* ── 2. Semantik takma adlar ──────────────────────────────────────────── */
+    --metin: var(--murekkep);
+    --metin-2: var(--murekkep-orta);
+    --yuzey: var(--beyaz);
+    --yuzey-2: var(--mavi-050);
+    --vurgu: var(--mavi-500);
+    --dugme-dolgu: var(--mavi-800);
+    --dugme-metin: var(--beyaz);
+    --odak: var(--mavi-800);
+
+    /* ── 3. Köprü: 52 oyun rengi → 6 kategori (data/games.json `section` eşlemesi) ────────
+            js/app.js artık kategori rengini doğrudan var(--kat-<section>) ile okur (B2a); bu adları
+            yalnız css/<oyun>.css (tuval, emoji-yapici) ve eski modül sözleşmesi bekler.
+            Yeni oyun eklerken YENİ AD AÇILMAZ: kart şeridi kategori token'ını doğrudan alır. */
+    /* Harfler ve Kelimeler */
+    --harf-color: var(--kat-harf);
+    --hece-color: var(--kat-harf);
+    --kelime-madeni-color: var(--kat-harf);
+    --kelime-balonu-color: var(--kat-harf);
+    --kelime-canavar-color: var(--kat-harf);
+    --kelime-kurtarma-color: var(--kat-harf);
+    --gunluk-kelime-color: var(--kat-harf);
+    /* Sayılar ve Matematik */
+    --sayi-color: var(--kat-sayi);
+    --matematik-color: var(--kat-sayi);
+    --desen-color: var(--kat-sayi);
+    --bilgi-madencisi-color: var(--kat-sayi);
+    --matematik-patlatma-color: var(--kat-sayi);
+    --matematik-kafe-color: var(--kat-sayi);
+    --bilgi-yilani-color: var(--kat-sayi);
+    --ritim-color: var(--kat-sayi);
+    --kesir-color: var(--kat-sayi);
+    --sayi-ninja-color: var(--kat-sayi);
+    /* Bulmaca ve Mantık */
+    --hafiza-color: var(--kat-bulmaca);
+    --sekil-color: var(--kat-bulmaca);
+    --siralama-color: var(--kat-bulmaca);
+    --jigsaw-color: var(--kat-bulmaca);
+    --tetris-color: var(--kat-bulmaca);
+    --bilim-dedektifi-color: var(--kat-bulmaca);
+    --eslestirme-color: var(--kat-bulmaca);
+    --labirent-color: var(--kat-bulmaca);
+    /* Yaratıcılık */
+    --renk-color: var(--kat-yaratici);
+    --boyama-color: var(--kat-yaratici);
+    --tuval-color: var(--kat-yaratici);
+    --sayilarla-boyama-color: var(--kat-yaratici);
+    --emoji-yapici-color: var(--kat-yaratici);
+    /* Strateji ve Macera */
+    --kodmacerasi-color: var(--kat-strateji);
+    --lego-color: var(--kat-strateji);
+    --lego-world-color: var(--kat-strateji);
+    --satranc-color: var(--kat-strateji);
+    --zipla-topla-color: var(--kat-strateji);
+    --space-waves-color: var(--kat-strateji);
+    --egim-color: var(--kat-strateji);
+    --buz-kulesi-color: var(--kat-strateji);
+    --penalti-color: var(--kat-strateji);
+    --zindan-okcusu-color: var(--kat-strateji);
+    --bil-ve-fethet-color: var(--kat-strateji);
+    --bilgi-takimi-color: var(--kat-strateji);
+    --bilgi-ciftligi-color: var(--kat-strateji);
+    --bilgi-kulesi-color: var(--kat-strateji);
+    --cevap-kosusu-color: var(--kat-strateji);
+    --savunma-color: var(--kat-strateji);
+    --firlatma-color: var(--kat-strateji);
+    /* Online (js/lock-catalog.js ONLINE_GAMES) */
+    --kelime-color: var(--kat-online);
+    --harf-tahmin-color: var(--kat-online);
+    --ates-buz-color: var(--kat-online);
+    --altin-avi-color: var(--kat-online);
+    --hava-hokeyi-color: var(--kat-online);
+
+    /* ── 3. Köprü: eski UI adları (CLAUDE.md modül sözleşmesi; css/<oyun>.css, js/games/*.js,
+            js/app.js, js/lobby.js bekler). Hub kabuğu bunları KULLANMAZ; B4'te kaldırılır. ── */
+    --text-dark: var(--murekkep);
+    --text-warm: var(--murekkep);
+    --text-muted: var(--murekkep-orta);
+    --text-light: var(--beyaz);
+    --success: var(--dogru);
+    --success-light: var(--dogru-zemin);
+    --error: var(--yanlis);
+    --error-light: var(--yanlis-zemin);
+    --neutral: var(--mavi-800);
+    --touch-min: var(--hedef-min);
+    --radius-sm: var(--r-giris);
+    --radius-md: var(--r-giris);
+    --radius-lg: var(--r-kart);
+    --radius-xl: var(--r-kart);
+    --ease-out: var(--egri-out);
+    --ease-smooth: var(--egri-out);
+    --ease-bounce: var(--egri-out);
+    --ease-spring: var(--egri-out);
+    --dur-fast: var(--sure-bas);
+    --dur-base: var(--sure-gecis);
+    --font-heading: var(--font-display);
+}
+
+/* Hareketi azalt: süreler 150 ms'e iner (sıfır değil — durum değişimi ve hiyerarşi korunur),
+   yay eğrisi düz ease-out olur. Ölçek/konfeti/balon kapatma kuralları bileşen dosyalarında
+   (css/animations.css) durur; burada yalnız token değerleri değişir. */
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --sure-bas: 150ms;
+        --sure-gecis: 150ms;
+        --sure-kutlama: 150ms;
+        --egri-yay: var(--egri-out);
+    }
+}
