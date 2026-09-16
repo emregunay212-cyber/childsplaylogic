@@ -234,6 +234,13 @@ const Multiplayer = (() => {
     emit('LOBBY_CREATED', { lobbyId, lobby: lobbyData });
   }
 
+  // Bekleyen oda canlı mı: host presence'ı var (Firebase boş düğümü siler → presence yoksa host gitmiş) ve 1 saatten yeni
+  function isLobbyAlive(lobby, now) {
+    if (typeof lobby.createdAt === 'number' && now - lobby.createdAt > STALE_LOBBY_MS) return false;
+    if (!lobby.presence || !lobby.presence.host) return false;
+    return true;
+  }
+
   async function listLobbies(gameType) {
     const snapshot = await db.ref('lobbies').orderByChild('state').equalTo('WAITING').once('value');
     const list = [];
@@ -244,8 +251,7 @@ const Multiplayer = (() => {
       if (gameType && lobby.gameType !== gameType) return;
       // Terk edilmiş odalar (host sekmeyi kapatmış, 1 saatten eski) listeye girmesin —
       // katılan misafir "rakip bekleniyor"da sonsuza dek kalıyordu
-      if (typeof lobby.createdAt === 'number' && now - lobby.createdAt > STALE_LOBBY_MS) return;
-      if (lobby.presence && lobby.presence.host === undefined && lobby.presence.guest === undefined) return;
+      if (!isLobbyAlive(lobby, now)) return;
       const item = { id: lobby.id, gameType: lobby.gameType, hostName: lobby.hostName || 'Bilinmiyor' };
       if (lobby.gameType === 'kod-macerasi') {
         item.gridSize = lobby.gridSize;
@@ -368,8 +374,9 @@ const Multiplayer = (() => {
     snapshot.forEach(child => entries.push(child.val()));
 
     let found = false;
+    const now = Date.now();
     for (const lobby of entries) {
-      if (lobby.gameType === gameType) {
+      if (lobby.gameType === gameType && isLobbyAlive(lobby, now)) {   // terk edilmiş odaya katılıp 20 sn bekleme
         found = true;
         await joinLobby(lobby.id);
         break;
@@ -723,7 +730,8 @@ const Multiplayer = (() => {
       // Biri bitirince tur HEMEN biter. Kazanan transaction ile belirlenir: iki oyuncu aynı anda
       // bitirirse yalnız ilk yazan kazanır (eskiden ikisi de kendi skorunu +1 yazabiliyordu)
       await ref.update(updates);
-      const won = await ref.child(`rounds/${r}/winner`).transaction((cur) => (cur === null || cur === undefined) ? currentRole : undefined)
+      // applyLocally=false: kaybeden istemci iyimser "winner=ben" olayı almasın (yanlış "Kazandın" ekranı)
+      const won = await ref.child(`rounds/${r}/winner`).transaction((cur) => (cur === null || cur === undefined) ? currentRole : undefined, undefined, false)
         .then((res) => res.committed).catch(() => false);
       const fin = {};
       fin[`rounds/${r}/hostFinished`] = true;
