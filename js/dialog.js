@@ -286,7 +286,8 @@ const Dialog = (() => {
             if (prev && prev.isConnected && prev !== document.body && !entry.el.contains(prev)) tryFocus(prev);
             return;
         }
-        let node = want ? (typeof want === 'string' ? entry.el.querySelector(want) : want) : null;
+        // initialFocus: seçici ya da element; başka bir şey (nesne, sayı) → yok say (isVisible fırlatmasın, open yarıda kalmasın)
+        let node = want ? (typeof want === 'string' ? entry.el.querySelector(want) : (want.nodeType === 1 ? want : null)) : null;
         if (node && !isVisible(node)) node = null;
         if (!node) node = focusables(entry.el)[0] || null;
         if (!node) {

@@ -24,12 +24,14 @@ const BilnetMeta = (() => {
     const STREAK_BONUS = { 3: 10, 5: 15, 7: 25 };
 
     // Eğitsel oyunların kalıcı istatistik anahtarları (profil panelinde gösterilir)
+    // Kayıt alanları sayı olmalı; bozuk/metin değer 0 sayılır (kayıt kullanıcı denetiminde)
+    const n = (v) => { const x = Number(v); return Number.isFinite(x) && x >= 0 ? Math.floor(x) : 0; };
     const GAME_STATS = [
-        { key: 'bilgimadenci_stats',  name: 'Bilgi Madencisi',    icon: '⛏️', line: s => `${s.correct || 0} doğru işlem` },
-        { key: 'matpatlatma_stats',   name: 'Matematik Patlatma', icon: '🧨', line: s => `${s.chains || 0} zincir · en uzun ${s.longest || 0} taş` },
-        { key: 'kelimebalonu_stats',  name: 'Kelime Balonu',      icon: '🎈', line: s => `${s.words || 0} İngilizce kelime` },
-        { key: 'bilfethet_stats',     name: 'Bil ve Fethet',      icon: '🌍', line: s => `${s.conquests || 0} tam fetih · ${s.correct || 0} doğru` },
-        { key: 'kelimemadeni_stats',  name: 'Kelime Madeni 3D',   icon: '💎', line: s => `${s.solved || 0} kelime sorusu çözüldü` },
+        { key: 'bilgimadenci_stats',  name: 'Bilgi Madencisi',    icon: '⛏️', line: s => `${n(s.correct)} doğru işlem` },
+        { key: 'matpatlatma_stats',   name: 'Matematik Patlatma', icon: '🧨', line: s => `${n(s.chains)} zincir · en uzun ${n(s.longest)} taş` },
+        { key: 'kelimebalonu_stats',  name: 'Kelime Balonu',      icon: '🎈', line: s => `${n(s.words)} İngilizce kelime` },
+        { key: 'bilfethet_stats',     name: 'Bil ve Fethet',      icon: '🌍', line: s => `${n(s.conquests)} tam fetih · ${n(s.correct)} doğru` },
+        { key: 'kelimemadeni_stats',  name: 'Kelime Madeni 3D',   icon: '💎', line: s => `${n(s.solved)} kelime sorusu çözüldü` },
     ];
 
     let M = { coins: 0, dayKey: '', coinsToday: 0, streak: 0, bestStreak: 0, lastDay: '', lastTs: 0,
@@ -190,8 +192,11 @@ const BilnetMeta = (() => {
             const best = s.best ? Math.max(...Object.values(s.best).map(Number)) : 0;
             const row = document.createElement('div');
             row.className = 'mp-row';
-            row.innerHTML = `<span class="mp-ic">${g.icon}</span><span class="mp-nm">${g.name}</span>` +
-                `<span class="mp-ln">${g.line(s)}${best ? ` · rekor ${best}` : ''}</span>`;
+            // Güvenlik: s.* localStorage/bulut kaydından gelir (kullanıcı yazabilir) → HTML'e değil textContent'e
+            const ic = document.createElement('span'); ic.className = 'mp-ic'; ic.textContent = g.icon;
+            const nm = document.createElement('span'); nm.className = 'mp-nm'; nm.textContent = g.name;
+            const ln = document.createElement('span'); ln.className = 'mp-ln'; ln.textContent = g.line(s) + (best ? ` · rekor ${best}` : '');
+            row.append(ic, nm, ln);
             list.appendChild(row);
         }
         if (!list.children.length) list.innerHTML = '<div class="mp-row mp-empty">Eğitsel oyunları oynadıkça istatistiklerin burada birikecek! 🎓</div>';
