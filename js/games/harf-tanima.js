@@ -18,11 +18,17 @@ const HarfTanima = (() => {
     let callbacks = null;
     let roundsPlayed = 0;
     let totalRounds = 5;
+    let lastLetter = null;   // art arda aynı harf çıkmasın
+    // Bekleyen zamanlayıcılar: destroy'da iptal (hub'a dönüşte geciken startRound kopuk DOM'a yazmasın)
+    let timers = [];
+    function later(fn, ms) { const t = setTimeout(() => { timers = timers.filter(x => x !== t); fn(); }, ms); timers.push(t); return t; }
 
     function init(gameArea, level, cbs) {
         container = gameArea;
         callbacks = cbs;
         roundsPlayed = 0;
+        lastLetter = null;
+        timers.forEach(clearTimeout); timers = [];
         totalRounds = levels[level - 1].rounds;
         GameEngine.setTotal(totalRounds);
         startRound(level);
@@ -36,7 +42,9 @@ const HarfTanima = (() => {
         const availableLetters = config.letters.filter(l => TR.letterImages[l] && TR.letterImages[l].length > 0);
         if (availableLetters.length === 0) return;
 
-        const targetLetter = availableLetters[Math.floor(Math.random() * availableLetters.length)];
+        const candidates = availableLetters.length > 1 ? availableLetters.filter(l => l !== lastLetter) : availableLetters;
+        const targetLetter = candidates[Math.floor(Math.random() * candidates.length)];
+        lastLetter = targetLetter;
         const correctOptions = TR.letterImages[targetLetter];
         const correctOption = correctOptions[Math.floor(Math.random() * correctOptions.length)];
 
@@ -59,10 +67,12 @@ const HarfTanima = (() => {
         const wrongLetters = availableLetters.filter(l => l !== targetLetter);
         const shuffledWrong = wrongLetters.sort(() => Math.random() - 0.5);
 
-        for (let i = 0; i < config.optionCount - 1 && i < shuffledWrong.length; i++) {
+        // Aynı emoji/kelime iki kartta görünmesin (Elma🍎 ↔ Nar🍎): çakışan yanlış seçenek atlanır
+        const seen = (o) => options.some(x => x.emoji === o.emoji || x.word === o.word);
+        for (let i = 0; options.length < config.optionCount && i < shuffledWrong.length; i++) {
             const wLetter = shuffledWrong[i];
-            const wOptions = TR.letterImages[wLetter];
-            if (wOptions && wOptions.length > 0) {
+            const wOptions = (TR.letterImages[wLetter] || []).filter(o => !seen(o));
+            if (wOptions.length > 0) {
                 const wOption = wOptions[Math.floor(Math.random() * wOptions.length)];
                 options.push({ ...wOption, correct: false });
             }
@@ -105,14 +115,15 @@ const HarfTanima = (() => {
 
                     roundsPlayed++;
                     if (roundsPlayed >= totalRounds) {
-                        setTimeout(() => callbacks.onComplete(), 600);
+                        later(() => callbacks.onComplete(), 600);
                     } else {
-                        setTimeout(() => startRound(GameEngine.getCurrentLevel()), 800);
+                        later(() => startRound(GameEngine.getCurrentLevel()), 800);
                     }
                 } else {
                     btn.classList.add('wrong');
+                    btn.disabled = true;   // çift dokunuş iki hata saymasın
                     callbacks.onWrong();
-                    setTimeout(() => btn.classList.remove('wrong'), 500);
+                    later(() => { btn.classList.remove('wrong'); btn.disabled = false; }, 500);
                 }
             });
 
@@ -123,6 +134,7 @@ const HarfTanima = (() => {
     }
 
     function destroy() {
+        timers.forEach(clearTimeout); timers = [];
         if (container) container.innerHTML = '';
     }
 

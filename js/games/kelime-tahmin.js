@@ -25,7 +25,8 @@ const KelimeTahmin = (() => {
 
   function init(gameArea, data) {
     container = gameArea;
-    gameData = data;
+    // wordLength ağdan gelir, kuralda doğrulanmıyor → 3-8'e sıkıştır (harf-tahmin ile aynı; Array(NaN) RangeError'a düşmesin)
+    gameData = { ...data, wordLength: Math.min(Math.max(parseInt(data.wordLength, 10) || 5, 3), 8) };
     currentGuess = '';
     myGuesses = [];
     opponentGuessCount = 0;

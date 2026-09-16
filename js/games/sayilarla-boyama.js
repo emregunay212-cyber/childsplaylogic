@@ -294,7 +294,8 @@ const SayilarlaBoyama = (() => {
         done = true;
         isPainting = false;
         const stars = wrongTaps <= 2 ? 3 : (wrongTaps <= 6 ? 2 : 1);
-        setTimeout(() => callbacks.onComplete(stars), 500);
+        // Hemen kaydet: 500 ms gecikmede "Ana Sayfa"ya basılırsa yıldız hiç yazılmıyordu (kutlamayı motor zaten geciktirir)
+        callbacks.onComplete(stars);
     }
 
     function stopPainting() {

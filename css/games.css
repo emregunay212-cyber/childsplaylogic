@@ -345,8 +345,9 @@
 .memory-card {
     position: relative;
     aspect-ratio: 1;
-    min-width: 60px;
-    min-height: 60px;
+    /* --card-size: hafiza-kartlari.js ekrana göre hesaplar (dar ekranda 60 px altına iner) */
+    min-width: var(--card-size, 60px);
+    min-height: var(--card-size, 60px);
     cursor: pointer;
     transition: transform 0.15s ease;
 }
@@ -770,6 +771,7 @@
 
 .hece-success { animation: bounceIn 0.5s; }
 .hece-wrong { animation: shake 0.4s; }
+.drop-zone.shake-wrong { animation: shake 0.4s; border-color: #E74C3C !important; }
 .hece-word-reveal {
     font-family: 'Fredoka', sans-serif; font-size: 2rem; font-weight: 700;
     color: #2ECC71; padding: 1rem; animation: bounceIn 0.5s;
@@ -798,6 +800,9 @@
 .jig-cell.jig-pop { animation: bounceIn 0.4s; }
 .jig-cell.jig-wrong { animation: shake 0.4s; border-color: #E74C3C !important; }
 .jig-hint { font-size: 0.85rem; color: #636e72; margin-bottom: 0.8rem; }
+.jig-ref-label { font-size: 0.8rem; font-weight: 600; color: #636e72; margin-bottom: 4px; }
+.jig-ref { display: grid; gap: 2px; padding: 4px; margin: 0 auto 0.8rem; background: rgba(255,255,255,0.7); border: 2px dashed #b39ddb; border-radius: 10px; width: max-content; }
+.jig-ref-cell { display: flex; align-items: center; justify-content: center; line-height: 1; }
 .jig-pieces {
     display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
 }

@@ -24,6 +24,10 @@ const Tuval = (() => {
     let currentColor = '#E74C3C';
     let isEraser = false;
     let isPainting = false;
+    let lastCell = null;
+    let clearArmed = false;
+    let timers = [];
+    function later(fn, ms) { const t = setTimeout(() => { timers = timers.filter(x => x !== t); fn(); }, ms); timers.push(t); return t; }
     let gridSize = 10;
     let currentLevel = 1;
     let grid = []; // 2D renk dizisi
@@ -36,6 +40,9 @@ const Tuval = (() => {
         currentColor = COLORS[0];
         isEraser = false;
         isPainting = false;
+        lastCell = null;
+        clearArmed = false;
+        timers.forEach(clearTimeout); timers = [];
         grid = Array.from({ length: gridSize }, () => Array(gridSize).fill('#FFFFFF'));
 
         GameEngine.setTotal(1);
@@ -53,6 +60,7 @@ const Tuval = (() => {
             btn.className = `tuval-lv-btn ${idx + 1 === currentLevel ? 'active' : ''}`;
             btn.textContent = `Lv ${idx + 1}`;
             btn.addEventListener('click', () => {
+                if (idx + 1 === currentLevel) return;   // aynı seviyeye tekrar basmak çizimi silmesin
                 AudioManager.play('tap');
                 currentLevel = idx + 1;
                 gridSize = lv.gridSize;
@@ -81,15 +89,26 @@ const Tuval = (() => {
 
                 cell.addEventListener('pointerdown', (e) => {
                     isPainting = true;
+                    lastCell = { r, c };
                     paintCell(r, c, cell);
+                    // Dokunmatikte tarayıcı işaretçiyi ilk hücreye örtük olarak yakalar → başka hücreye
+                    // sürüklemede pointerenter hiç gelmez; capture bırakılınca elementFromPoint yolu çalışır
+                    try { if (cell.hasPointerCapture && cell.hasPointerCapture(e.pointerId)) cell.releasePointerCapture(e.pointerId); } catch (err) {}
                     e.preventDefault();
-                });
-                cell.addEventListener('pointerenter', () => {
-                    if (isPainting) paintCell(r, c, cell);
                 });
                 canvasEl.appendChild(cell);
             }
         }
+        // Sürükleme: işaretçinin altındaki hücreyi bul, son hücreyle arasını çizgi olarak doldur
+        // (hızlı çapraz sürüklemede boşluk kalmasın)
+        canvasEl.addEventListener('pointermove', (e) => {
+            if (!isPainting) return;
+            const target = document.elementFromPoint(e.clientX, e.clientY);
+            if (!target || !target.classList.contains('tuval-cell') || !canvasEl.contains(target)) return;
+            const r = +target.dataset.r, c = +target.dataset.c;
+            paintLine(lastCell, { r, c });
+            lastCell = { r, c };
+        });
 
         // Pointer up on document
         document.addEventListener('pointerup', stopPainting);
@@ -136,6 +155,14 @@ const Tuval = (() => {
         clearBtn.className = 'tuval-tool-btn danger';
         clearBtn.innerHTML = '🗑️ Temizle';
         clearBtn.addEventListener('click', () => {
+            // Tek dokunuşla geri dönüşsüz silme olmasın: ilk basış onay ister, 3 sn içinde ikinci basış siler
+            if (!clearArmed) {
+                clearArmed = true;
+                clearBtn.innerHTML = '❓ Emin misin? Tekrar bas';
+                later(() => { clearArmed = false; if (clearBtn.isConnected) clearBtn.innerHTML = '🗑️ Temizle'; }, 3000);
+                return;
+            }
+            clearArmed = false;
             grid = Array.from({ length: gridSize }, () => Array(gridSize).fill('#FFFFFF'));
             AudioManager.play('tap');
             render();
@@ -151,8 +178,28 @@ const Tuval = (() => {
         cellEl.style.background = color;
     }
 
+    // Bresenham: iki hücre arasındaki tüm hücreleri boya
+    function paintLine(a, b) {
+        if (!a) { const el = cellAt(b.r, b.c); if (el) paintCell(b.r, b.c, el); return; }
+        let r0 = a.r, c0 = a.c; const r1 = b.r, c1 = b.c;
+        const dr = Math.abs(r1 - r0), dc = Math.abs(c1 - c0);
+        const sr = r0 < r1 ? 1 : -1, sc = c0 < c1 ? 1 : -1;
+        let err = dc - dr;
+        for (let guard = 0; guard < 400; guard++) {
+            const el = cellAt(r0, c0); if (el) paintCell(r0, c0, el);
+            if (r0 === r1 && c0 === c1) break;
+            const e2 = 2 * err;
+            if (e2 > -dr) { err -= dr; c0 += sc; }
+            if (e2 < dc) { err += dc; r0 += sr; }
+        }
+    }
+    function cellAt(r, c) {
+        return container ? container.querySelector(`.tuval-cell[data-r="${r}"][data-c="${c}"]`) : null;
+    }
+
     function stopPainting() {
         isPainting = false;
+        lastCell = null;
     }
 
     function updatePaletteActive(paletteDiv) {
@@ -174,6 +221,7 @@ const Tuval = (() => {
     }
 
     function destroy() {
+        timers.forEach(clearTimeout); timers = [];
         document.removeEventListener('pointerup', stopPainting);
         if (container) container.innerHTML = '';
     }

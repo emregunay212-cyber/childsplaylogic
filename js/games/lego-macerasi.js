@@ -54,9 +54,14 @@ const LegoMacerasi = (() => {
 
   let container, callbacks, currentLevel, currentRound, totalRounds;
   let sequence, puzzle, isExecuting, usedPuzzleIndices, roundResults;
+  // Oturum jetonu: init/destroy ilerletir; animasyon/tur geçişi zamanlayıcıları eski oturumdaysa
+  // yok sayılır (hub'a dönüp hemen tekrar girince tur atlıyor, inşaat paneli sıfırlanıyordu)
+  let session = 0;
+  function later(fn, ms) { const tok = session; return setTimeout(() => { if (tok === session) fn(); }, ms); }
   let collectedPieces; // Bu turda toplanan parçalar
 
   function init(gameArea, level, cbs) {
+    session++;
     container = gameArea;
     callbacks = cbs;
     currentLevel = levels[level - 1];
@@ -393,7 +398,7 @@ const LegoMacerasi = (() => {
 
       const cellIdx = p.y * size + p.x;
       const cell = cells[cellIdx];
-      if (!cell) { step++; setTimeout(nextStep, 400); return; }
+      if (!cell) { step++; later(nextStep, 400); return; }
 
       cell.classList.add('lego-robot-here');
       if (p.action !== 'start') cell.classList.add('lego-trail');
@@ -428,11 +433,11 @@ const LegoMacerasi = (() => {
       }
 
       step++;
-      if (step < path.length) setTimeout(nextStep, 450);
-      else setTimeout(() => onAnimationDone(result), 400);
+      if (step < path.length) later(nextStep, 450);
+      else later(() => onAnimationDone(result), 400);
     }
 
-    setTimeout(nextStep, 300);
+    later(nextStep, 300);
   }
 
   function onAnimationDone(result) {
@@ -449,9 +454,9 @@ const LegoMacerasi = (() => {
 
       if (currentRound >= totalRounds) {
         const stars = calculateStars();
-        setTimeout(() => callbacks.onComplete(stars), 600);
+        later(() => callbacks.onComplete(stars), 600);
       } else {
-        setTimeout(() => nextRound(), 1000);
+        later(() => nextRound(), 1000);
       }
     } else {
       AudioManager.play('error');
@@ -473,7 +478,7 @@ const LegoMacerasi = (() => {
         inst.textContent = errMsgs[result.error] || 'Hata!';
       }
 
-      setTimeout(() => { isExecuting = false; collectedPieces = []; renderGame(); }, 1500);
+      later(() => { isExecuting = false; collectedPieces = []; renderGame(); }, 1500);
     }
   }
 
@@ -502,6 +507,7 @@ const LegoMacerasi = (() => {
   }
 
   function destroy() {
+    session++;
     document.removeEventListener('keydown', keyHandler);
     if (container) container.innerHTML = '';
     sequence = [];

@@ -231,10 +231,12 @@ const Tetris = (() => {
         keyDownHandler = (e) => {
             if (state === 'gameover' || state === 'destroyed') return;
             switch (e.key) {
+                // Basılı tutma: işletim sisteminin tekrar keydown'ları startMove'u yeniden başlatıp
+                // DAS/ARR'ı sıfırlıyordu; tekrar update()'in işi
                 case 'ArrowLeft': case 'a': case 'A':
-                    startMove(-1); e.preventDefault(); break;
+                    if (!e.repeat) startMove(-1); e.preventDefault(); break;
                 case 'ArrowRight': case 'd': case 'D':
-                    startMove(1); e.preventDefault(); break;
+                    if (!e.repeat) startMove(1); e.preventDefault(); break;
                 case 'ArrowUp': case 'x': case 'X': case 'w': case 'W':
                     if (state === 'playing' && !e.repeat) rotate(1);
                     e.preventDefault(); break;

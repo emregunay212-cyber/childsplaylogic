@@ -53,6 +53,7 @@ const LegoWorld = (() => {
   let inventory = {}; // { red: 0, blue: 0, ... }
   let buildingsRepaired = 0;
   let animFrameId = null;
+  let session = 0;   // init/destroy ilerletir: geç gelen GLB callback'i eski örneğin modelini yeni sahneye basmasın
   let overlayVisible = false;
   let hudEl = null;
   let mobileJoystick = null;
@@ -60,6 +61,7 @@ const LegoWorld = (() => {
 
   // ── INIT ──
   function init(gameArea, level, cbs) {
+    session++;
     container = gameArea;
     callbacks = cbs;
     currentLevel = levels[level - 1];
@@ -196,9 +198,11 @@ const LegoWorld = (() => {
     // GLTF model yüklemeyi dene
     if (typeof THREE.GLTFLoader !== 'undefined') {
       const loader = new THREE.GLTFLoader();
+      const tok = session;
 
       loader.load('assets/models/player.glb',
         (gltf) => {
+          if (tok !== session || !playerGroup) return;   // eski örnek / hub'a dönülmüş: yok say
           const model = gltf.scene;
           model.scale.set(0.55, 0.55, 0.55);
           model.position.y = 0;
@@ -421,12 +425,11 @@ const LegoWorld = (() => {
     });
 
     updateHUD();
-    AudioManager.play('success');
 
     const rect = container.getBoundingClientRect();
     Particles.sparkle(rect.left + rect.width / 2, rect.top + rect.height / 3, 10);
 
-    callbacks.onCorrect();
+    callbacks.onCorrect();   // sesi motor çalar (eskiden burada ikinci kez çalınıyordu)
 
     if (buildingsRepaired >= currentLevel.buildings) {
       setTimeout(() => {
@@ -577,15 +580,21 @@ const LegoWorld = (() => {
 
     // Fare ile tıklama (bina etkileşimi)
     renderer.domElement.addEventListener('click', onCanvasClick);
+    window.addEventListener('blur', releaseKeys);
+    document.addEventListener('visibilitychange', releaseKeys);
   }
 
+  const NAV_KEYS = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '];
   function onKeyDown(e) {
     keys[e.key] = true;
+    if (NAV_KEYS.includes(e.key)) e.preventDefault();   // ok/boşluk sayfayı kaydırmasın
     if (e.key === 'e' || e.key === 'E' || e.key === ' ') {
       tryInteract();
     }
   }
   function onKeyUp(e) { keys[e.key] = false; }
+  // Sekme/pencere odağı gidince basılı tuşlar bırakılır (keyup gelmeyince karakter kendi kendine yürüyordu)
+  function releaseKeys() { if (document.hidden || !document.hasFocus()) keys = {}; }
 
   function onCanvasClick(e) {
     tryInteract();
@@ -875,13 +884,18 @@ const LegoWorld = (() => {
 
   // ── TEMİZLİK ──
   function destroy() {
+    session++;
     if (animFrameId) cancelAnimationFrame(animFrameId);
     document.removeEventListener('keydown', onKeyDown);
     document.removeEventListener('keyup', onKeyUp);
     window.removeEventListener('resize', onResize);
+    window.removeEventListener('blur', releaseKeys);
+    document.removeEventListener('visibilitychange', releaseKeys);
 
     if (renderer) {
       renderer.dispose();
+      // WebGL bağlamını hemen bırak: hub↔oyun geçişlerinde bağlam birikip tarayıcı sınırına dayanıyordu
+      try { renderer.forceContextLoss(); } catch (e) {}
       renderer.domElement.remove();
     }
 

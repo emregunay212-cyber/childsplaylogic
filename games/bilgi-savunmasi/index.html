@@ -460,6 +460,7 @@ function startRound(){
 function endRound(win){
   if (G.state!=='playing' && G.state!=='mobq') return;
   G.state='result';
+  if (G.raf) cancelAnimationFrame(G.raf); G.raf=0;   // loop() içinden return ile gelince raf sıfırlanmıyor, "Tekrar Savun" döngüyü bir daha kurmuyordu
   clearTimeout(G.epTimer);
   win ? Audio2.win() : Audio2.lose();
   STATS.plays++; STATS.kills += G.kills;

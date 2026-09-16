@@ -223,6 +223,25 @@ const EmojiYapici = (() => {
     let optionsRow = null;
     let collectionRow = null;
 
+    // Koleksiyon kalıcı: localStorage (Google girişinde auth.js GAME_SAVE_KEYS ile buluta da yazılır).
+    // Eskiden yalnız bellekteydi — "Tekrar Oyna"/hub'a dönüş/yenileme koleksiyonu siliyordu.
+    const SAVE_KEY = 'emojiyapici_save';
+    const MAX_COLLECTION = 24;
+    const RANGES = { shape: SHAPES.length, color: COLORS.length, brow: BROWS.length, eyes: EYES.length, mouth: MOUTHS.length, accessory: ACCESSORIES.length };
+    function validFace(o) {
+        return !!o && typeof o === 'object' && Object.keys(RANGES).every(k => Number.isInteger(o[k]) && o[k] >= 0 && o[k] < RANGES[k]);
+    }
+    function loadCollection() {
+        try {
+            const raw = localStorage.getItem(SAVE_KEY);
+            const arr = raw ? JSON.parse(raw) : [];
+            return Array.isArray(arr) ? arr.filter(validFace).slice(-MAX_COLLECTION) : [];
+        } catch (e) { return []; }   // bozuk/erişilemez kayıt → boş koleksiyon, çökme yok
+    }
+    function saveCollection() {
+        try { localStorage.setItem(SAVE_KEY, JSON.stringify(collection)); } catch (e) { /* kota/gizli mod: bellekte kalır */ }
+    }
+
     // ---- Yardımcı ----
     function clear(node) { while (node && node.firstChild) node.removeChild(node.firstChild); }
 
@@ -252,8 +271,8 @@ const EmojiYapici = (() => {
         callbacks = cbs || {};
         state = { shape: 0, color: 0, brow: 2, eyes: 1, mouth: 0, accessory: 0 };
         activeCat = 'shape';
-        collection = [];
-        celebrated = false;
+        collection = loadCollection();
+        celebrated = collection.length >= 4;
         try { GameEngine.setTotal(4); } catch (e) {}
         render();
     }
@@ -392,10 +411,22 @@ const EmojiYapici = (() => {
             collectionRow.appendChild(hint);
             return;
         }
-        collection.forEach(st => {
+        collection.forEach((st, idx) => {
             const slot = document.createElement('div');
             slot.className = 'ey-coll-item';
             slot.appendChild(buildFace(st, 64));
+            const del = document.createElement('button');
+            del.type = 'button';
+            del.className = 'ey-coll-del';
+            del.setAttribute('aria-label', 'Bu yüzü koleksiyondan sil');
+            del.textContent = '✕';
+            del.addEventListener('click', () => {
+                collection.splice(idx, 1);
+                saveCollection();
+                try { AudioManager.play('pop'); } catch (e) {}
+                renderCollection();
+            });
+            slot.appendChild(del);
             collectionRow.appendChild(slot);
         });
     }
@@ -414,6 +445,8 @@ const EmojiYapici = (() => {
 
     function addToCollection() {
         collection.push(Object.assign({}, state));
+        while (collection.length > MAX_COLLECTION) collection.shift();
+        saveCollection();
         try { AudioManager.play('success'); } catch (e) {}
         renderCollection();
         if (collection.length >= 4 && !celebrated) {
@@ -427,7 +460,6 @@ const EmojiYapici = (() => {
     function destroy() {
         clear(container);
         previewWrap = optionsRow = collectionRow = null;
-        collection = [];
     }
 
     return { id, levels, init, destroy };

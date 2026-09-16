@@ -346,6 +346,7 @@ function startCase(scene){
   G.state = 'playing'; G.scene = scene;
   G.score = 0; G.timeLeft = CONFIG.CASE_SEC;
   G.found = 0; G.total = scene.hedefN; G.hints = CONFIG.HINTS; G.frozen = 0;
+  $('freezeVeil').classList.remove('show');   // süre donma sırasında bittiyse örtü yeni vakada kalıyordu (sahne kilitli)
   show('screen-game');
   layoutScene();
   $('taskLine').textContent = `🔍 Bu sahnede ${scene.hedefN} ${scene.gorev} bul!`;

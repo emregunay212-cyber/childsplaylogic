@@ -301,7 +301,9 @@ function move(dx, dy){
     if (G.history.length>10) G.history.shift();
     Audio2.slide();
     if (tamMade) Audio2.tam();
-    setTimeout(()=>{ spawn(); refreshHUD(); checkOver(); }, 130);
+    // Zamanlayıcı saklanır: taş belirmeden Geri Al'a basılırsa geri alınmış tahtaya taş eklenmesin
+    clearTimeout(G.spawnT);
+    G.spawnT = setTimeout(()=>{ G.spawnT=null; spawn(); refreshHUD(); checkOver(); }, 130);
     refreshHUD();
   }
 }
@@ -329,6 +331,7 @@ function maxTile(){
   return m;
 }
 function startRound(){
+  clearTimeout(G.spawnT); G.spawnT=null;   // önceki hamlenin bekleyen taşı yeni tahtaya düşmesin
   G.state='playing';
   G.score=0; G.tams=0; G.undo=CONFIG.UNDO; G.history=[];
   show('screen-game');
@@ -364,6 +367,7 @@ function endRound(){
 $('bUndo').addEventListener('click',()=>{
   if (G.undo<=0 || !G.history.length || G.state!=='playing') return;
   G.undo--;
+  clearTimeout(G.spawnT); G.spawnT=null;
   restore(G.history.pop());
 });
 $('bRestart').addEventListener('click',startRound);

@@ -15,9 +15,15 @@ const SayiSayma = (() => {
     let roundsPlayed = 0;
     let totalRounds = 5;
 
+    // Bekleyen zamanlayıcılar: init/destroy'da iptal (hub'a dönüp aynı oyunu hemen açınca
+    // eski startRound yeni oturumun ilk sorusunu değiştirmesin)
+    let timers = [];
+    function later(fn, ms) { const t = setTimeout(() => { timers = timers.filter(x => x !== t); fn(); }, ms); timers.push(t); return t; }
+
     function init(gameArea, level, cbs) {
         container = gameArea;
         callbacks = cbs;
+        timers.forEach(clearTimeout); timers = [];
         roundsPlayed = 0;
         totalRounds = levels[level - 1].rounds;
         GameEngine.setTotal(totalRounds);
@@ -88,7 +94,9 @@ const SayiSayma = (() => {
 
                 if (num === answer) {
                     btn.classList.add('correct');
-                    btn.disabled = true;
+                    // Tur bitti: diğer sayılar da kilitlenir (geçiş penceresinde ikinci dokunuş
+                    // haksız yanlış sayıp yıldızı düşürüyordu)
+                    numbersDiv.querySelectorAll('.number-btn').forEach(b => { b.disabled = true; });
                     callbacks.onCorrect();
 
                     const rect = btn.getBoundingClientRect();
@@ -96,14 +104,15 @@ const SayiSayma = (() => {
 
                     roundsPlayed++;
                     if (roundsPlayed >= totalRounds) {
-                        setTimeout(() => callbacks.onComplete(), 600);
+                        later(() => callbacks.onComplete(), 600);
                     } else {
-                        setTimeout(() => startRound(GameEngine.getCurrentLevel()), 800);
+                        later(() => startRound(GameEngine.getCurrentLevel()), 800);
                     }
                 } else {
                     btn.classList.add('wrong');
+                    btn.disabled = true;   // çift dokunuş iki hata saymasın
                     callbacks.onWrong();
-                    setTimeout(() => btn.classList.remove('wrong'), 500);
+                    later(() => { btn.classList.remove('wrong'); btn.disabled = false; }, 500);
                 }
             });
 
@@ -137,6 +146,7 @@ const SayiSayma = (() => {
     }
 
     function destroy() {
+        timers.forEach(clearTimeout); timers = [];
         if (container) container.innerHTML = '';
     }
 

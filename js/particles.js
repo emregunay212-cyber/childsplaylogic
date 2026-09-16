@@ -35,6 +35,10 @@ const Particles = (() => {
             p.vy += p.gravity;
             p.life -= p.decay;
             p.rotation += p.rotSpeed;
+            // Ömrü bu karede biten parçacık çizilmez: sparkle yarıçapı size*life negatif olunca
+            // ctx.arc IndexSizeError fırlatıyor, döngü ölüyor (animId dolu kalır → bir daha
+            // hiç parçacık çıkmaz) ve çocuğa "Bir şeyler ters gitti" toast'ı gösteriliyordu.
+            if (p.life <= 0) return;
 
             ctx.save();
             ctx.translate(p.x, p.y);
@@ -49,7 +53,7 @@ const Particles = (() => {
             } else if (p.type === 'sparkle') {
                 ctx.fillStyle = p.color;
                 ctx.beginPath();
-                ctx.arc(0, 0, p.size * p.life, 0, Math.PI * 2);
+                ctx.arc(0, 0, Math.max(0, p.size * p.life), 0, Math.PI * 2);
                 ctx.fill();
             }
 

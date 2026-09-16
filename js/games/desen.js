@@ -16,9 +16,14 @@ const Desen = (() => {
 
   let container, callbacks, currentLevel, round, totalRounds;
 
+  // Bekleyen zamanlayıcılar: init/destroy'da iptal (eski tur geçişi yeni oturumu bozmasın)
+  let timers = [];
+  function later(fn, ms) { const t = setTimeout(() => { timers = timers.filter(x => x !== t); fn(); }, ms); timers.push(t); return t; }
+
   function init(gameArea, level, cbs) {
     container = gameArea;
     callbacks = cbs;
+    timers.forEach(clearTimeout); timers = [];
     currentLevel = levels[level - 1];
     round = 0;
     totalRounds = currentLevel.rounds;
@@ -86,8 +91,7 @@ const Desen = (() => {
 
     if (selected === answer) {
       btn.classList.add('desen-correct');
-      callbacks.onCorrect();
-      AudioManager.play('success');
+      callbacks.onCorrect();   // sesi motor çalar (engine.js onCorrect); burada tekrar çalınca üst üste biniyordu
 
       // Reveal answer in sequence
       const unknown = container.querySelector('.desen-unknown');
@@ -100,28 +104,30 @@ const Desen = (() => {
       const rect = btn.getBoundingClientRect();
       Particles.sparkle(rect.left + rect.width / 2, rect.top, 6);
 
-      setTimeout(() => {
+      later(() => {
         if (round >= totalRounds) callbacks.onComplete();
         else nextRound();
       }, 1000);
     } else {
       btn.classList.add('desen-wrong');
       callbacks.onWrong();
-      AudioManager.play('error');
 
       // Highlight correct
       container.querySelectorAll('.desen-choice').forEach(b => {
         if (b.dataset.val === answer) b.classList.add('desen-correct');
       });
 
-      setTimeout(() => {
+      later(() => {
         if (round >= totalRounds) callbacks.onComplete();
         else nextRound();
       }, 1500);
     }
   }
 
-  function destroy() { if (container) container.innerHTML = ''; }
+  function destroy() {
+    timers.forEach(clearTimeout); timers = [];
+    if (container) container.innerHTML = '';
+  }
 
   return { id, levels, init, destroy };
 })();

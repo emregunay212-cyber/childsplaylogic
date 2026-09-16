@@ -90,6 +90,7 @@
   const malG = { x: CENTER_X, y: 140,     px: CENTER_X, py: 140,     vx: 0, vy: 0 };
   let scoreH = 0, scoreG = 0;
   let phase = PH_COUNTDOWN, countdown = 3, lastScorer = null, winner = null;
+  let overSent = false;
   let phaseTimer = 0;         // frame sayacı (host)
 
   // ── Guest tarafı: SNAPSHOT INTERPOLATION — disk + rakip tokmağı, host'un gönderdiği
@@ -507,16 +508,20 @@
     if (now - lastStep < FRAME * 0.9) return;
     lastStep = now;
 
+    // Maç bitince ağ yazımı durur: KAZANDIN ekranında sekme açık kaldıkça saniyede ~55 set() sürüyordu (kota).
+    // Host bitiş durumunu (PH_OVER) misafirin görmesi için BİR KEZ daha yollar, sonra susar.
     if (isHost) {
       updatePhysics();
-      sendHostState(now);
+      const over = phase === PH_OVER;
+      if (!over) { sendHostState(now); overSent = false; }
+      else if (!overSent) { lastStateSent = 0; sendHostState(now); overSent = true; }   // throttle'ı atla: son durum kesin gitsin
       // render(disk, RAKİP tokmağı, BENİM tokmağım): host için rakip=malG, benim=malH
       render(puck.x, puck.y, malG.x, malG.y, malH.x, malH.y);
     } else {
       // Kendi tokmağım parmağı ANLIK takip eder (gecikmesiz)
       malGuestLocal.x = pointerTarget.x;
       malGuestLocal.y = pointerTarget.y;
-      sendGuestInput(now);
+      if (phase !== PH_OVER) sendGuestInput(now);
       // Disk + rakip tokmağı: host'un iki pozisyonu arası zaman-tabanlı LERP (titremesiz)
       const s = guestRenderState();
       render(s.px, s.py, s.hx, s.hy, malGuestLocal.x, malGuestLocal.y);

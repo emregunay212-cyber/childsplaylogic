@@ -110,7 +110,8 @@ const App = (() => {
             color: '#27AE60',
             games: [
                 { game: () => KodMacerasi, id: 'kod-macerasi', levels: 3, files: [...KOD_MACERASI_SHARED, 'js/games/kod-macerasi.js'], color: 'var(--kodmacerasi-color)' },
-                { game: () => LegoMacerasi, id: 'lego-macerasi', levels: 3, files: ['js/games/lego-macerasi.js'], color: 'var(--lego-color)' },
+                // lego-macerasi'nin stilleri css/kod-macerasi.css içinde (.lego-*, .kod-*): tembel yüklemede eksikti → oyun stilsiz açılıyordu
+                { game: () => LegoMacerasi, id: 'lego-macerasi', levels: 3, files: ['css/kod-macerasi.css', 'js/games/lego-macerasi.js'], color: 'var(--lego-color)' },
                 { game: () => LegoWorld, id: 'lego-world', levels: 9, files: [THREE_JS, GLTF_LOADER_JS, 'js/games/lego-world.js', 'css/lego-world.css'], color: 'var(--lego-world-color)' },
                 { game: () => Satranc, id: 'satranc', levels: 1, files: [...SATRANC_SHARED, 'js/games/satranc.js'], color: 'var(--satranc-color)' },
                 // Kilit eşikleri js/lock-catalog.js'te (LOCK_CATALOG). Buradaki sıra = görünüm sırası.
@@ -1096,7 +1097,10 @@ const App = (() => {
         }, LOCK_KICK_DELAY_MS);
     }
 
-    return { init, updateStarCounter, showHub };
+    // Oyunlar hub'a dönerken TAM temizlik yolu (motor destroy, MP kapat, kaydırma kilidi aç, tam ekrandan çık).
+    // Eski `App.showHub` ham showHub'dı: buz-kulesi "Hub'a Dön" ile çıkınca klavye dinleyicileri ve
+    // mobil kaydırma kilidi kalıyordu.
+    return { init, updateStarCounter, showHub: navigateToHub, navigateToHub };
 })();
 
 // Sayfa yüklendiğinde başlat

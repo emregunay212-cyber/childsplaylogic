@@ -12,9 +12,14 @@ const Matematik = (() => {
 
   let container, callbacks, currentLevel, round, totalRounds;
 
+  // Bekleyen zamanlayıcılar: init/destroy'da iptal (eski tur geçişi yeni oturumu bozmasın)
+  let timers = [];
+  function later(fn, ms) { const t = setTimeout(() => { timers = timers.filter(x => x !== t); fn(); }, ms); timers.push(t); return t; }
+
   function init(gameArea, level, cbs) {
     container = gameArea;
     callbacks = cbs;
+    timers.forEach(clearTimeout); timers = [];
     currentLevel = levels[level - 1];
     round = 0;
     totalRounds = currentLevel.rounds;
@@ -85,8 +90,7 @@ const Matematik = (() => {
 
     if (selected === correct) {
       btn.classList.add('mat-correct');
-      callbacks.onCorrect();
-      AudioManager.play('success');
+      callbacks.onCorrect();   // sesi motor çalar (engine.js onCorrect); burada tekrar çalınca üst üste biniyordu
       const rect = btn.getBoundingClientRect();
       Particles.sparkle(rect.left + rect.width / 2, rect.top, 6);
 
@@ -94,7 +98,7 @@ const Matematik = (() => {
       const unknown = container.querySelector('.mat-unknown');
       if (unknown) { unknown.textContent = correct; unknown.classList.add('mat-revealed'); }
 
-      setTimeout(() => {
+      later(() => {
         if (round >= totalRounds) {
           callbacks.onComplete();
         } else {
@@ -104,14 +108,13 @@ const Matematik = (() => {
     } else {
       btn.classList.add('mat-wrong');
       callbacks.onWrong();
-      AudioManager.play('error');
 
       // Show correct answer
       container.querySelectorAll('.mat-choice').forEach(b => {
         if (parseInt(b.dataset.answer) === correct) b.classList.add('mat-correct');
       });
 
-      setTimeout(() => {
+      later(() => {
         if (round >= totalRounds) {
           callbacks.onComplete();
         } else {
@@ -121,7 +124,10 @@ const Matematik = (() => {
     }
   }
 
-  function destroy() { if (container) container.innerHTML = ''; }
+  function destroy() {
+    timers.forEach(clearTimeout); timers = [];
+    if (container) container.innerHTML = '';
+  }
 
   return { id, levels, init, destroy };
 })();

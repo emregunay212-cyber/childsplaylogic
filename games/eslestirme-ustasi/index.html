@@ -189,6 +189,7 @@ function refreshHUD(){
   if (G.timeLeft > 0){ lc.style.display=''; lc.textContent = '⏱️ ' + G.timeLeft; } else lc.style.display='none';
 }
 function startRound(){
+  G.roundTok = (G.roundTok||0) + 1;   // tur jetonu: eski turun bekleyen zamanlayıcıları yok sayılır
   const T = CONFIG.TIERS[G.tier];
   G.state='playing'; G.moves=0; G.found=0; G.pairs=T.pairs; G.open=[]; G.lock=false; G.score=0;
   G.moveLimit = T.moveLimit ? Math.round(T.pairs * CONFIG.MOVE_LIMIT_FACTOR) : 0;
@@ -229,7 +230,8 @@ function startRound(){
   if (G.usta){
     G.lock = true;
     [...board.children].forEach(el => el.classList.add('open'));
-    setTimeout(() => { [...board.children].forEach(el => el.classList.remove('open')); G.lock=false; }, CONFIG.USTA_PREVIEW_MS);
+    const roundTok = G.roundTok;   // menüye dönüp yeni tur başlatılırsa bayat zamanlayıcı çalışmasın
+    setTimeout(() => { if (roundTok !== G.roundTok) return; [...board.children].forEach(el => el.classList.remove('open')); G.lock=false; }, CONFIG.USTA_PREVIEW_MS);
   }
 }
 function flip(el, c){
@@ -252,8 +254,10 @@ function flip(el, c){
     } else {
       G.lock = true;
       Audio2.miss();
+      const tok = G.roundTok;
       setTimeout(() => {
         a.el.classList.remove('open'); b.el.classList.remove('open');
+        if (tok !== G.roundTok || G.state !== 'playing') return;   // eski turun zamanlayıcısı yeni turun G.open'ını silmesin
         G.open = []; G.lock = false;
         refreshHUD();
         if (G.moveLimit && G.moves >= G.moveLimit) endRound(false);
