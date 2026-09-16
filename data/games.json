@@ -1,5 +1,12 @@
 {
   "_aciklama": "bilnetoyun.com oyun kataloğu — TEK KAYNAK. Okuyanlar: tools/build-catalog.js (→ js/catalog.js + index.html altbilgi), seo/games_data.py (→ /oyunlar/ landing, sitemap, llms.txt), tests/helpers/slugs.js (duman testi). Alan sözlüğü: docs/inceleme-2026-09-15/kanit/B2a-veri-notlari.md. Sıra = hub sırası; online bölümü sırası online.order.",
+  "_raf_aciklama": "shelves = yaş rafları (B2b, docs/tasarim-sozlesmesi.md §3.02). ages = rafın kapsadığı TAM YAŞLAR [ilk, son] (kapalı aralık: Anaokulu 4 ve 5 yaş; son raf 12 dahil), yas = görünen etiket. Bir oyun age [min,max] aralığı rafın ages aralığıyla kesişiyorsa o rafa girer (birden çok rafa girebilir). Okuyanlar: tools/build-catalog.js (→ GAME_SHELVES), seo/games_data.py (SHELVES → /oyunlar/ süzgeci).",
+  "shelves": [
+    { "id": "anaokulu", "label": "Anaokulu", "yas": "4-6", "ages": [4, 5] },
+    { "id": "sinif-1-2", "label": "1-2. Sınıf", "yas": "6-8", "ages": [6, 7] },
+    { "id": "sinif-3-4", "label": "3-4. Sınıf", "yas": "8-10", "ages": [8, 9] },
+    { "id": "sinif-5-6", "label": "5-6. Sınıf", "yas": "10-12", "ages": [10, 12] }
+  ],
   "sections": [
     {
       "id": "harf",

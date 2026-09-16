@@ -1,8 +1,10 @@
 /* ============================================
    ÜRETİLMİŞ — kaynak data/games.json (node tools/build-catalog.js). ELLE DÜZENLENMEZ.
    --------------------------------------------
-   Hub kataloğu: js/app.js (kayıt defteri), js/lock-catalog.js (kilit listesi), js/i18n.js (TR.games)
-   ve js/admin.js buradan türetir. Değişiklik data/games.json'a yapılır, sonra `npm run catalog`.
+   Hub kataloğu: js/app.js (kayıt defteri), js/hub-ia.js (yaş rafı), js/lock-catalog.js (kilit listesi),
+   js/i18n.js (TR.games) ve js/admin.js buradan türetir. Değişiklik data/games.json'a yapılır, sonra `npm run catalog`.
+   GAME_SHELVES  : yaş rafları (B2b), görünüm sırasıyla; ages = kapsanan tam yaşlar [ilk, son] (kapalı aralık),
+                   yas = görünen etiket. Oyun age aralığı ages ile kesişiyorsa o rafa girer (js/hub-ia.js).
    GAME_SECTIONS : hub bölümleri, görünüm sırasıyla; icon = js/app.js categoryIcons anahtarı,
                    color = css/tokens.css --kat-<id> gelene kadar yedek renk.
    GAME_CATALOG  : 57 kayıt (48 solo + 11 online), hub sırası; about/cat gibi yalnız
@@ -11,6 +13,13 @@
                    (window[ad] çalışmaz), eval CSP'yi kırar — tek güvenli yol bu thunk tablosudur.
    Sıra: index.html bu dosyayı js/errors.js'ten hemen sonra, i18n/lock-catalog/app.js'ten önce yükler.
    ============================================ */
+/* exported GAME_SHELVES */
+const GAME_SHELVES = [
+    {"id":"anaokulu","label":"Anaokulu","yas":"4-6","ages":[4,5]},
+    {"id":"sinif-1-2","label":"1-2. Sınıf","yas":"6-8","ages":[6,7]},
+    {"id":"sinif-3-4","label":"3-4. Sınıf","yas":"8-10","ages":[8,9]},
+    {"id":"sinif-5-6","label":"5-6. Sınıf","yas":"10-12","ages":[10,12]},
+];
 const GAME_SECTIONS = [
     {"id":"harf","title":"Harfler & Kelimeler","icon":"letters","color":"#45B7D1"},
     {"id":"sayi","title":"Sayılar & Matematik","icon":"numbers","color":"#4ECDC4"},
