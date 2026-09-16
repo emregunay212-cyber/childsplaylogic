@@ -81,7 +81,9 @@ async function main() {
     if (unknown.length) { console.error(`[sri] bilinmeyen argüman: ${unknown.join(' ')} (yalnız --print, --strict)`); process.exit(2); }
 
     const scripts = PAGES.flatMap(externalScripts);
-    if (!scripts.length) { console.error('[sri] HATA: dış <script src> bulunamadı — sayfalar taşındı mı?'); process.exit(1); }
+    // Çıkış kodu process.exit() yerine exitCode ile: undici keep-alive soketi açıkken exit(1) Windows/Node 24'te
+    // libuv assert'iyle 127 döndürüyor (yine kırmızı ama yanıltıcı). exitCode ile döngü doğal biter, kod 1 kalır.
+    if (!scripts.length) { console.error('[sri] HATA: dış <script src> bulunamadı — sayfalar taşındı mı?'); process.exitCode = 1; return; }
 
     let errors = 0;
     let warnings = 0;
@@ -123,9 +125,10 @@ async function main() {
     const checked = scripts.filter((s) => s.integrity).length;
     if (errors) {
         console.error(`[sri] ${errors} hata, ${warnings} uyarı (${checked} integrity'li script) — index.html/admin.html integrity değerlerini \`node tools/sri-check.js --print\` ile yenile`);
-        process.exit(1);
+        process.exitCode = 1;
+        return;
     }
     console.log(`[sri] check OK — ${checked} integrity'li dış script doğrulandı${warnings ? `, ${warnings} uyarı` : ''}`);
 }
 
-main().catch((e) => { console.error(`[sri] HATA: ${e.stack || e}`); process.exit(1); });
+main().catch((e) => { console.error(`[sri] HATA: ${e.stack || e}`); process.exitCode = 1; });
