@@ -1,0 +1,122 @@
+/* ============================================
+   EduKit CSS — eğitsel iframe oyunlarının ortak katmanı (Faz 2 / B5)
+   --------------------------------------------
+   Her games/<slug>/index.html <head>'inde oyunun kendi <style>'ından ÖNCE yüklenir: eşit özgüllükte
+   oyunun kuralı kazanır; yalnız reduced-motion bloğu !important ile kazanır (B4 kuralı: dekoratif
+   hareket gider, geri bildirim 150 ms ease-out kalır).
+   iframe ayrı belgedir, css/tokens.css buraya ulaşmaz → gereken token'lar KOPYA olarak :root'ta.
+   Ham hex yalnız bu dosyada yazılır ve css/tokens.css §1 ile birebir aynı olmalıdır
+   (tests/edu-kit.spec.js her --ad değerini tokens.css ile karşılaştırır). Yeni token gerekirse
+   tokens.css'ten kopyalanır, uydurulmaz. Yazı aileleri iframe'de yüklü değildir (sistem fontu
+   standardı); --font-* yalnız ad uyumu içindir, oyunlar kendi font-family'sini korur.
+   ============================================ */
+:root {
+    /* ── Renk (css/tokens.css §1 kopyası) ── */
+    --mavi-500: #4AABE0;
+    --mavi-800: #17739F;        /* klavye odak halkası, dolgulu düğme zemini */
+    --murekkep: #1F3A4D;        /* metin, bildirim zemini */
+    --murekkep-orta: #4E6272;
+    --beyaz: #FFFFFF;
+    --dogru: #1E8E4E;
+    --yanlis: #C0392B;
+    --yildiz: #F4B400;
+
+    /* ── Yazı (rol ölçekleri; aile/kalınlık/boy/satır ayrı — font kısayolu kullanılmaz) ── */
+    --font-display: 'Fredoka', 'Nunito', sans-serif;
+    --font-body: 'Nunito', 'Segoe UI', sans-serif;
+    --yazi-baslik-aile: var(--font-display);
+    --yazi-baslik-kalinlik: 600;
+    --yazi-baslik-boy: 24px;
+    --yazi-baslik-satir: 1.2;
+    --yazi-dugme-aile: var(--font-display);
+    --yazi-dugme-kalinlik: 700;
+    --yazi-dugme-boy: 18px;
+    --yazi-dugme-satir: 1;
+    --yazi-govde-aile: var(--font-body);
+    --yazi-govde-kalinlik: 400;
+    --yazi-govde-boy: 18px;
+    --yazi-govde-satir: 1.6;
+    --yazi-rozet-aile: var(--font-body);
+    --yazi-rozet-kalinlik: 700;
+    --yazi-rozet-boy: 13px;
+    --yazi-rozet-satir: 1.2;
+
+    /* ── Aralık (yalnız 4 ve 8 katları) ── */
+    --ara-1: 4px;
+    --ara-2: 8px;
+    --ara-3: 12px;
+    --ara-4: 16px;
+    --ara-5: 24px;
+    --ara-6: 32px;
+    --ara-7: 40px;
+    --ara-8: 64px;
+
+    /* ── Yarıçap ── */
+    --r-kart: 24px;
+    --r-giris: 16px;
+    --r-hap: 999px;
+
+    /* ── Gölge ── */
+    --golge-2: 0 6px 16px rgba(31, 58, 77, 0.16);
+
+    /* ── Dokunma hedefi ── */
+    --hedef-min: 52px;
+
+    /* ── Süre ve eğri ── */
+    --sure-bas: 120ms;
+    --sure-gecis: 220ms;
+    --egri-out: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* Klavye odağı: yalnız :focus-visible (fare tıklamasında halka yok). İki tonlu halka: dış mavi-800
+   (açık zemin), outline-offset boşluğunu dolduran iç beyaz (koyu oyun zeminleri — çoğu oyun koyu) →
+   her zeminde ≥3:1. box-shadow yalnız odak anında oyunun 3B düğme gölgesinin yerine geçer
+   (klavye kullanıcısı; fare kullanıcısı hiç görmez). Tarayıcı varsayılan auto halkasının yerine. */
+:focus-visible {
+    outline: 3px solid var(--mavi-800);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--beyaz);
+}
+
+/* EduKit.toast() — sayfada #toast yoksa oluşturulan bildirim */
+.edu-toast {
+    position: fixed;
+    left: 50%;
+    bottom: var(--ara-5);
+    transform: translateX(-50%);
+    max-width: 92vw;
+    padding: var(--ara-3) var(--ara-5);
+    background: var(--murekkep);
+    color: var(--beyaz);
+    border-radius: var(--r-hap);
+    box-shadow: var(--golge-2);
+    font-weight: var(--yazi-rozet-kalinlik);
+    font-size: 14px;
+    line-height: var(--yazi-rozet-satir);
+    text-align: center;
+    opacity: 0;
+    transition: opacity var(--sure-gecis) var(--egri-out);
+    pointer-events: none;
+    z-index: 40;
+}
+.edu-toast.show { opacity: 1; }
+
+/* Reduced motion (B4 kuralı, iframe sürümü):
+   - Keyframe animasyonları: sonsuz dekoratif döngüler (nabız, parıltı) tek 150 ms kareye iner; geri
+     bildirim pop/sallanma 150 ms ease-out olarak görünür kalır. Yalnız animation-name tanımlı öğeleri
+     etkiler.
+   - Geçişler: anında (0.01 ms). 150 ms'e "kısaltmak" mümkün değil — transition-property varsayılanı
+     `all` olduğundan evrensel bir süre, geçişi olmayan her öğeye (kare başına konum yazan DOM
+     oyunları) 150 ms gecikme ekler. Solmalar anlık olur; oyun mantığı animationend/transitionend'e
+     bağlı değildir (20 oyunda 0 kullanım). */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 150ms !important;
+        animation-delay: 0ms !important;
+        animation-iteration-count: 1 !important;
+        animation-timing-function: ease-out !important;
+        transition-duration: 0.01ms !important;
+        transition-delay: 0ms !important;
+        scroll-behavior: auto !important;
+    }
+}
