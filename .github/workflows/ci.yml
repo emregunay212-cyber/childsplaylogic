@@ -37,6 +37,24 @@ jobs:
       - name: Lint (no-undef = hata, no-unused-vars = uyarı)
         run: npm run lint
 
+      # data/games.json TEK KAYNAK (B2a): üretilmişler commit'lenmiş hâliyle aynı olmalı.
+      # 1) js/catalog.js + index.html altbilgisi (tools/build-catalog.js --check: şema + fark)
+      # 2) oyunlar/, sitemap.xml, llms.txt (seo/build_seo.py). lastmod/dateModified satırları git tarihine
+      #    bağlıdır (render_fresh) ve sığ checkout'ta farklı çıkar → -I ile yok sayılır; içerik farkı kırmızı.
+      # Fark varsa PR'da `npm run catalog` + `python seo/build_seo.py` çalıştırılıp commit edilir.
+      - name: Katalog üretimi güncel mi (data/games.json → js/catalog.js + index.html)
+        run: npm run catalog:check
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: SEO üretimi güncel mi (data/games.json → oyunlar/, sitemap.xml, llms.txt)
+        run: |
+          python seo/test_build_seo.py
+          python seo/build_seo.py
+          git diff --exit-code -I '<lastmod>' -I '"dateModified"' -- oyunlar sitemap.xml llms.txt index.html
+
       # tools/build.js birim testleri (tarayıcısız) + deploy simülasyonu: kök .build-check'e
       # kopyalanır, her yerel js/css/html başvurusu ?h=<hash> alır, çıktı doğrulanır (--check).
       - name: Hash'li build (deploy simülasyonu) + doğrulama
