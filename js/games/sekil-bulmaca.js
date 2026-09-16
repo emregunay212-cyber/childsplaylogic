@@ -52,6 +52,8 @@ const SekilBulmaca = (() => {
     function init(gameArea, level, cbs) {
         container = gameArea;
         callbacks = cbs;
+        timers.forEach(clearTimeout); timers = [];
+        selectedPiece = null;
         placedCount = 0;
 
         const config = levels[level - 1];
@@ -88,6 +90,15 @@ const SekilBulmaca = (() => {
             zone.style.cssText = 'width:80px;height:80px;display:flex;align-items:center;justify-content:center';
             zone.dataset.shape = shape.name;
             zone.innerHTML = `<svg viewBox="0 0 100 100" width="60" height="60">${shape.outline}</svg>`;
+            // Dokun-dokun yolu: önce parçaya, sonra silüete dokunmak sürüklemeyle aynı sonucu verir
+            // (eskiden silüet dinleyicisi yoktu; sürüklemeyen çocuk için seviye bitmiyordu)
+            zone.addEventListener('click', () => {
+                if (!selectedPiece || zone.classList.contains('filled')) return;
+                const piece = selectedPiece;
+                piece.style.outline = '';
+                selectedPiece = null;
+                handleDrop(piece, zone, zone.dataset.shape);
+            });
             outlineArea.appendChild(zone);
             dropZones.push({ element: zone, id: shape.name });
         });
@@ -117,6 +128,8 @@ const SekilBulmaca = (() => {
     }
 
     let selectedPiece = null;
+    let timers = [];
+    function later(fn, ms) { const t = setTimeout(() => { timers = timers.filter(x => x !== t); fn(); }, ms); timers.push(t); return t; }
 
     function handleTapSelect(piece, shapeName, dropZones) {
         if (piece.classList.contains('placed')) return;
@@ -168,16 +181,19 @@ const SekilBulmaca = (() => {
             AudioManager.play('pop');
 
             if (placedCount >= totalShapes) {
-                setTimeout(() => callbacks.onComplete(), 600);
+                later(() => callbacks.onComplete(), 600);
             }
         } else {
             // Yanlış eşleşme
             callbacks.onWrong();
             DragSystem.resetPosition(dragEl);
+            dropEl.classList.add('shake-wrong');
+            later(() => dropEl.classList.remove('shake-wrong'), 500);
         }
     }
 
     function destroy() {
+        timers.forEach(clearTimeout); timers = [];
         DragSystem.cleanup();
         selectedPiece = null;
         if (container) container.innerHTML = '';

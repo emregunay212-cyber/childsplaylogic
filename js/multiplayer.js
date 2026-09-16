@@ -15,6 +15,8 @@ const Multiplayer = (() => {
   let connectedListener = null;
   let myPresenceRef = null;
   let oppEverSeen = false;
+  const STALE_LOBBY_MS = 60 * 60 * 1000;   // listede gösterilecek en eski WAITING oda
+  const HOST_ABSENT_MS = 20000;          // misafir katıldıktan sonra host presence bekleme süresi
   let oppGoneTimer = null;
   const LOBBY_GRACE_MS = 10000; // rakip presence'ı bu kadar süre yoksa "ayrıldı" (kısa blip'leri tolere et)
 
@@ -232,13 +234,24 @@ const Multiplayer = (() => {
     emit('LOBBY_CREATED', { lobbyId, lobby: lobbyData });
   }
 
+  // Bekleyen oda canlı mı: host presence'ı var (Firebase boş düğümü siler → presence yoksa host gitmiş) ve 1 saatten yeni
+  function isLobbyAlive(lobby, now) {
+    if (typeof lobby.createdAt === 'number' && now - lobby.createdAt > STALE_LOBBY_MS) return false;
+    if (!lobby.presence || !lobby.presence.host) return false;
+    return true;
+  }
+
   async function listLobbies(gameType) {
     const snapshot = await db.ref('lobbies').orderByChild('state').equalTo('WAITING').once('value');
     const list = [];
+    const now = Date.now();
     snapshot.forEach(child => {
       const lobby = child.val();
       // Sadece istenen oyunun odaları: harf-tahmin odası kelime-tahmin listesine sızmasın
       if (gameType && lobby.gameType !== gameType) return;
+      // Terk edilmiş odalar (host sekmeyi kapatmış, 1 saatten eski) listeye girmesin —
+      // katılan misafir "rakip bekleniyor"da sonsuza dek kalıyordu
+      if (!isLobbyAlive(lobby, now)) return;
       const item = { id: lobby.id, gameType: lobby.gameType, hostName: lobby.hostName || 'Bilinmiyor' };
       if (lobby.gameType === 'kod-macerasi') {
         item.gridSize = lobby.gridSize;
@@ -261,8 +274,28 @@ const Multiplayer = (() => {
       return emit('ERROR', { code: 'LOBBY_NOT_FOUND', message: 'Lobi bulunamadı' });
     }
 
+    // Misafir koltuğu transaction ile alınır: iki oyuncu aynı odaya aynı anda katılırsa yalnız
+    // biri "guest" olur (eskiden ikisi de guest sanıp aynı alanlara yazıyordu)
+    let claim;
+    try {
+      claim = await ref.child('guestId').transaction((cur) => (cur === null || cur === undefined || cur === playerId) ? playerId : undefined);
+    } catch (e) {
+      return emit('ERROR', { code: 'JOIN_FAILED', message: 'Odaya katılınamadı, tekrar dene' });
+    }
+    if (!claim || !claim.committed) {
+      return emit('ERROR', { code: 'LOBBY_FULL', message: 'Bu odaya senden önce biri katıldı' });
+    }
+
     currentLobbyId = lobbyId;
     currentRole = 'guest';
+    // Host presence'ı hiç görünmezse (sekmeyi katılımdan önce kapatmış) misafir sonsuza dek
+    // beklemesin: 20 sn içinde presence gelmezse "rakip ayrıldı"
+    setTimeout(() => {
+      if (currentLobbyId === lobbyId && currentRole === 'guest' && !oppEverSeen) {
+        emit('OPPONENT_LEFT', { reason: 'host_absent' });
+        stopListening();
+      }
+    }, HOST_ABSENT_MS);
 
     if (lobby.gameType === 'penalti-mp') {
       await ref.update({ guestId: playerId, guestName: playerName, state: 'PLAYING' });
@@ -341,8 +374,9 @@ const Multiplayer = (() => {
     snapshot.forEach(child => entries.push(child.val()));
 
     let found = false;
+    const now = Date.now();
     for (const lobby of entries) {
-      if (lobby.gameType === gameType) {
+      if (lobby.gameType === gameType && isLobbyAlive(lobby, now)) {   // terk edilmiş odaya katılıp 20 sn bekleme
         found = true;
         await joinLobby(lobby.id);
         break;
@@ -693,14 +727,21 @@ const Multiplayer = (() => {
 
     // Hedefe ulaştı mı?
     if (nx === myPuzzle.target.x && ny === myPuzzle.target.y) {
-      // Biri bitirince tur HEMEN biter - beklemeye gerek yok
-      updates[`rounds/${r}/hostFinished`] = true;
-      updates[`rounds/${r}/guestFinished`] = true;
-      updates[`rounds/${r}/winner`] = round.winner || currentRole;
-      if (!round.winner) {
+      // Biri bitirince tur HEMEN biter. Kazanan transaction ile belirlenir: iki oyuncu aynı anda
+      // bitirirse yalnız ilk yazan kazanır (eskiden ikisi de kendi skorunu +1 yazabiliyordu)
+      await ref.update(updates);
+      // applyLocally=false: kaybeden istemci iyimser "winner=ben" olayı almasın (yanlış "Kazandın" ekranı)
+      const won = await ref.child(`rounds/${r}/winner`).transaction((cur) => (cur === null || cur === undefined) ? currentRole : undefined, undefined, false)
+        .then((res) => res.committed).catch(() => false);
+      const fin = {};
+      fin[`rounds/${r}/hostFinished`] = true;
+      fin[`rounds/${r}/guestFinished`] = true;
+      if (won) {
         const scoreField = currentRole === 'host' ? 'hostScore' : 'guestScore';
-        updates[scoreField] = (lobby[scoreField] || 0) + 1;
+        fin[scoreField] = (lobby[scoreField] || 0) + 1;
       }
+      await ref.update(fin);
+      return;
     }
 
     await ref.update(updates);
@@ -716,6 +757,10 @@ const Multiplayer = (() => {
 
     // chess.js ile hamleyi uygula
     const game = ChessEngine.createGame(lobby.fen);
+    // Sıra sahipliği: gönderenin rengi o an sırası gelen renk olmalı (konsoldan rakip adına hamle engeli)
+    const hostIsWhite = (lobby.hostColor || 'white') === 'white';   // hostColor: 'white' | 'black'
+    const myColor = (currentRole === 'host') === hostIsWhite ? 'w' : 'b';
+    if (game.turn && game.turn() !== myColor) return;
     const from = ChessEngine.rcToSquare(moveData.from[0], moveData.from[1]);
     const to = ChessEngine.rcToSquare(moveData.to[0], moveData.to[1]);
     const result = game.move({ from, to, promotion: moveData.promotion || 'q' });
@@ -1026,10 +1071,13 @@ const Multiplayer = (() => {
         };
         emit('GAME_OVER', payload);
 
-        // Oyun bitti - lobiyi 5 sn sonra sil (iki taraf da GAME_OVER alsın)
+        // Oyun bitti - lobiyi 5 sn sonra sil (iki taraf da GAME_OVER alsın).
+        // Biten lobinin id'si YAKALANIR: 5 sn dolmadan "Tekrar Oyna" ile yeni lobiye girilirse
+        // eski zamanlayıcı yeni lobiyi silip dinleyiciyi kapatıyordu (iki oyuncu da kopuyordu).
+        const finishedId = currentLobbyId;
         setTimeout(() => {
-          if (currentLobbyId) {
-            db.ref('lobbies/' + currentLobbyId).remove().catch(() => {});
+          if (finishedId) db.ref('lobbies/' + finishedId).remove().catch(() => {});
+          if (currentLobbyId === finishedId) {
             stopListening();
             currentLobbyId = null;
             currentRole = null;

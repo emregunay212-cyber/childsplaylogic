@@ -28,7 +28,14 @@ const Penalti = (() => {
     let container, callbacks, saveChance, shotsTaken, goals, isAnimating, currentLevel;
     let shotResults = []; // [{goal: true/false}]
 
+    let timers = [];
+
+    function later(fn, ms) { const t = setTimeout(() => { timers = timers.filter(x => x !== t); fn(); }, ms); timers.push(t); return t; }
+
+
     function init(gameArea, level, cbs) {
+
+        timers.forEach(clearTimeout); timers = [];
         container = gameArea;
         callbacks = cbs;
         currentLevel = level;
@@ -293,7 +300,7 @@ const Penalti = (() => {
         ball.setAttribute('transform', `translate(${zone.tx}, ${zone.ty}) scale(0.7)`);
 
         // 2) Kaleci atlar + poz değişir
-        setTimeout(() => {
+        later(() => {
             const kx = keeperZone.tx;
             const ky = keeperZone.ty + 10;
             const pose = getKeeperPose(keeperZoneIdx);
@@ -303,7 +310,7 @@ const Penalti = (() => {
         }, 200);
 
         // 3) Sonuç
-        setTimeout(() => {
+        later(() => {
             shotsTaken++;
 
             if (saved) {
@@ -325,14 +332,14 @@ const Penalti = (() => {
             }
 
             // 4) Reset ve sonraki atış
-            setTimeout(() => {
+            later(() => {
                 isAnimating = false;
                 if (shotsTaken >= TOTAL_SHOTS) {
                     const stars = goals >= 5 ? 3 : goals >= 4 ? 2 : goals >= 3 ? 1 : 0;
                     if (stars > 0) {
                         AudioManager.play('levelComplete');
                         Particles.celebrate();
-                        setTimeout(() => callbacks.onComplete(stars), 500);
+                        later(() => callbacks.onComplete(stars), 500);
                     } else {
                         showLose();
                     }
@@ -363,6 +370,7 @@ const Penalti = (() => {
     }
 
     function destroy() {
+        timers.forEach(clearTimeout); timers = [];   // atış animasyon zinciri hub'da ses/konfeti sızdırıyordu
         if (container) container.innerHTML = '';
         isAnimating = false;
     }

@@ -285,7 +285,11 @@ const VAL_VARS = ['', 'var(--v1)','var(--v2)','var(--v3)','var(--v4)','var(--v5)
 
 /* ---- yerleşim ---- */
 function layout(){
-  G.N = innerWidth < CONFIG.MOBILE_BREAK ? CONFIG.GRID_MOBILE : CONFIG.GRID_DESKTOP;
+  // Izgara boyutu yalnız tur BAŞINDA seçilir: oyun sürerken eşik (480 px) geçilirse G.N değişip
+  // G.grid ile uyuşmazdı (6×6 veri, 7×7 sınır → tryExtend/applyGravity undefined hatası, tahta donar)
+  if (G.state !== 'playing' || !G.grid || !G.grid.length){
+    G.N = innerWidth < CONFIG.MOBILE_BREAK ? CONFIG.GRID_MOBILE : CONFIG.GRID_DESKTOP;
+  }
   const wrap = $('boardWrap').getBoundingClientRect();
   const size = Math.min(wrap.width - 16, wrap.height - 16, 560);
   G.cell = Math.floor((size - G.pad * 2) / G.N);
@@ -638,6 +642,7 @@ function startRound(){
   G.chains = 0; G.tilesCleared = 0; G.longest = 0; G.boomCount = 0;
   G.chain = []; G.particles = []; G.dragging = false;
   show('screen-game');
+  G.grid = [];         // yeni tur: layout() ızgara boyutunu yeniden seçebilsin
   layout(); fillBoard();
   newGoal(); ensureSolvable();
   refreshHUD(); refreshAcc();

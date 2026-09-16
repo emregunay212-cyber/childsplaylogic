@@ -532,9 +532,14 @@ const SpaceWaves = (() => {
   }
 
   // ---------- Game Over + Leaderboard ----------
+  // Sonsuz oyun: yıldız mesafeye göre (150 → 1, 400 → 2, 900 → 3; hız 16-30 birim/sn); Progress'e yazılır
+  function runStars() { return distanceScore >= 900 ? 3 : distanceScore >= 400 ? 2 : distanceScore >= 150 ? 1 : 0; }
+
   function gameOver() {
     state = 'gameover';
     finalScore = score;
+    const stars = runStars();
+    if (stars > 0) { try { Progress.setLevelStars(id, 1, stars); App.updateStarCounter(); } catch (e) {} }
     try { AudioManager.play('complete'); } catch (e) {}
     showGameOverModal();
   }
@@ -548,7 +553,8 @@ const SpaceWaves = (() => {
         '<div class="sw-gameover-score">' +
           '<div class="sw-go-row"><span>Skor</span><b>' + finalScore + '</b></div>' +
           '<div class="sw-go-row"><span>Mesafe</span><b>' + distanceScore + '</b></div>' +
-          '<div class="sw-go-row"><span>Yıldız</span><b>' + starsCollected + '</b></div>' +
+          '<div class="sw-go-row"><span>Toplanan</span><b>' + starsCollected + '</b></div>' +
+          '<div class="sw-go-row"><span>Yıldız</span><b>' + '★'.repeat(runStars()) + '☆'.repeat(3 - runStars()) + '</b></div>' +
         '</div>' +
         '<div class="sw-gameover-buttons">' +
           '<button class="sw-btn sw-btn-primary" id="sw-btn-restart">🔁 Tekrar Oyna</button>' +

@@ -20,8 +20,13 @@ const KodMacerasi = (() => {
     let usedPuzzleIndices = [];
     let isExecuting = false;
     let roundResults = []; // her turun blok sayısı ve optimal
+    // Oturum jetonu: init/destroy ilerletir; robot animasyonu ve tur geçişi zamanlayıcıları eski
+    // oturumdaysa yok sayılır (hub'a dönüp hemen tekrar girince tur sessizce 2'ye atlıyordu)
+    let session = 0;
+    function later(fn, ms) { const tok = session; return setTimeout(() => { if (tok === session) fn(); }, ms); }
 
     function init(gameArea, level, cbs) {
+        session++;
         container = gameArea;
         callbacks = cbs;
         currentLevel = levels[level - 1];
@@ -155,14 +160,17 @@ const KodMacerasi = (() => {
         );
 
         const gridEl = container.querySelector('.kod-grid');
+        const tok = session;
 
         KodMacerasiCore.animateExecution(gridEl, result.path, puzzle,
             (step, p) => {
+                if (tok !== session) return;
                 // Her adımda ses
                 if (p.action === 'move') AudioManager.play('tap');
                 else if (p.action === 'turn') AudioManager.play('flip');
             },
             (lastStep) => {
+                if (tok !== session) return;   // eski oturumun animasyonu bitti: yeni oyuna dokunma
                 if (result.success) {
                     // Başarı!
                     AudioManager.play('levelComplete');
@@ -179,10 +187,10 @@ const KodMacerasi = (() => {
                     if (currentRound >= totalRounds) {
                         // Seviye tamamlandı
                         const stars = calculateStars();
-                        setTimeout(() => callbacks.onComplete(stars), 600);
+                        later(() => callbacks.onComplete(stars), 600);
                     } else {
                         // Sonraki tur
-                        setTimeout(() => nextRound(), 1000);
+                        later(() => nextRound(), 1000);
                     }
                 } else {
                     // Başarısız
@@ -204,7 +212,7 @@ const KodMacerasi = (() => {
                     if (existing) existing.replaceWith(msg);
 
                     // 1.5 sn sonra resetle
-                    setTimeout(() => {
+                    later(() => {
                         isExecuting = false;
                         renderGame();
                     }, 1500);
@@ -237,6 +245,7 @@ const KodMacerasi = (() => {
     }
 
     function destroy() {
+        session++;
         document.removeEventListener('keydown', spKeyHandler);
         if (container) container.innerHTML = '';
         sequence = [];

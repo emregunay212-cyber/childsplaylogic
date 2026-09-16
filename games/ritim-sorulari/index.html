@@ -333,7 +333,7 @@ function loop(ts){
       if (t.correct){
         // doğru karo kaçtı
         if (CONFIG.TIERS[G.tier].missBreaksCombo){ G.streak=0; G.noteI=0; Audio2.miss(); }
-        if (G.lives !== Infinity){ G.lives--; refreshHUD(); if (G.lives<=0) return endRound('can'); }
+        if (G.lives !== Infinity){ G.lives--; refreshHUD(); if (G.lives<=0){ G.raf=0; return endRound('can'); } }   // raf sıfırlanmazsa Tekrar Oyna'da döngü bir daha kurulmuyordu
         newQuestion();
         refreshHUD();
       }

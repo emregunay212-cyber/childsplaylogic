@@ -7,3 +7,6 @@ __pycache__/
 test-results/
 playwright-report/
 .build-check/
+
+# Ham tasarim zip dosyalari (design/ altinda cozulmus hali izlenir)
+desing/

@@ -9,6 +9,9 @@
     margin: 0.3rem 0;
     max-width: 100%;
     overflow: hidden;
+    /* .game-area dikey flex: kısa ekranda sarmalayıcı büzülüp alt satırları (robot!) gizliyordu;
+       büzülme yerine .game-area kaydırılır */
+    flex-shrink: 0;
 }
 
 .kod-grid {

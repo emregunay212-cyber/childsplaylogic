@@ -57,9 +57,15 @@ const HeceBirlestirme = (() => {
 
   let container, callbacks, currentLevel, round, totalRounds, usedIndices;
 
+  // Bekleyen zamanlayıcılar: destroy'da iptal (hub'a dönüşte geciken checkAnswer/nextRound
+  // kopuk DOM'da TypeError fırlatmasın, hub toast'ı çıkmasın)
+  let timers = [];
+  function later(fn, ms) { const t = setTimeout(() => { timers = timers.filter(x => x !== t); fn(); }, ms); timers.push(t); return t; }
+
   function init(gameArea, level, cbs) {
     container = gameArea;
     callbacks = cbs;
+    timers.forEach(clearTimeout); timers = [];
     currentLevel = levels[level - 1];
     round = 0;
     totalRounds = currentLevel.rounds;
@@ -127,7 +133,7 @@ const HeceBirlestirme = (() => {
 
         // All syllables placed?
         if (selected.length === syllables.length) {
-          setTimeout(() => checkAnswer(selected, syllables, imgSrc), 400);
+          later(() => checkAnswer(selected, syllables, imgSrc), 400);
         }
       };
     });
@@ -169,7 +175,7 @@ const HeceBirlestirme = (() => {
       const rect = answerArea.getBoundingClientRect();
       Particles.sparkle(rect.left + rect.width / 2, rect.top, 8);
 
-      setTimeout(() => {
+      later(() => {
         if (round >= totalRounds) callbacks.onComplete();
         else nextRound();
       }, 1200);
@@ -178,9 +184,11 @@ const HeceBirlestirme = (() => {
       callbacks.onWrong();
       AudioManager.play('error');
 
-      setTimeout(() => {
+      later(() => {
         answerArea.classList.remove('hece-wrong');
-        // Reset for retry
+        // Reset for retry — seçim dizisi de sıfırlanır; yoksa 4., 5.… hece eklenir ve
+        // selected.length bir daha syllables.length'e eşitlenmez, tur "↺ Tekrar"sız bitmez.
+        selected.length = 0;
         const pool = container.querySelector('#hece-pool');
         if (pool) {
           pool.querySelectorAll('.hece-btn').forEach(b => { b.disabled = false; b.classList.remove('hece-used'); });
@@ -190,7 +198,10 @@ const HeceBirlestirme = (() => {
     }
   }
 
-  function destroy() { if (container) container.innerHTML = ''; }
+  function destroy() {
+    timers.forEach(clearTimeout); timers = [];
+    if (container) container.innerHTML = '';
+  }
 
   return { id, levels, init, destroy };
 })();

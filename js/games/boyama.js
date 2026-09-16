@@ -105,10 +105,21 @@ const Boyama = (() => {
     let coloredRegions = 0;
     let totalRegions = 0;
     let completedDrawings = new Set();
+    let timers = [];
+    function later(fn, ms) { const t = setTimeout(() => { timers = timers.filter(x => x !== t); fn(); }, ms); timers.push(t); return t; }
+    // Tamamlanan resimler kalıcı: Progress'te resim i = seviye i+1 (hub kartı 10 yıldız satırını buradan çizer).
+    // Eskiden yalnız bellekteki Set → sayfa yenilenince ✅'ler gidiyor, hub kartı hiç yıldız göstermiyordu.
+    function loadCompleted() {
+        const set = new Set();
+        try { for (let i = 0; i < drawings.length; i++) if (Progress.getLevelStars(id, i + 1) > 0) set.add(i); } catch (e) {}
+        return set;
+    }
 
     function init(gameArea, level, cbs) {
         container = gameArea;
         callbacks = cbs;
+        timers.forEach(clearTimeout); timers = [];
+        completedDrawings = loadCompleted();
 
         // Her zaman galeri göster
         showGallery();
@@ -225,13 +236,15 @@ const Boyama = (() => {
 
                     if (coloredRegions >= totalRegions) {
                         completedDrawings.add(drawingIdx);
+                        // Yıldız kaydı (motor overlay'i yaratıcı akışı bölmesin diye doğrudan Progress'e)
+                        try { Progress.setLevelStars(id, drawingIdx + 1, 3); App.updateStarCounter(); } catch (e) {}
                         AudioManager.play('levelComplete');
                         Particles.celebrate();
-                        setTimeout(() => showGallery(), 1500);
+                        later(() => showGallery(), 1500);
                     }
                 }
 
-                colorHistory.push({ element: el, prevColor });
+                colorHistory.push({ element: el, prevColor, wasColored: el.dataset.colored === 'true' && prevColor !== undefined });
                 AudioManager.play('pop');
             });
 
@@ -269,6 +282,12 @@ const Boyama = (() => {
             if (colorHistory.length === 0) return;
             const last = colorHistory.pop();
             last.element.setAttribute('fill', last.prevColor);
+            // Boyanmamış hâline dönen bölge sayaçtan düşer (yoksa gri bölge kalırken "tamamlandı" sayılıyordu)
+            const placeholder = /^#(EEE|DDD)$/i.test(last.prevColor || '');
+            if (placeholder && last.element.dataset.colored === 'true') {
+                last.element.dataset.colored = 'false';
+                coloredRegions = Math.max(0, coloredRegions - 1);
+            }
             AudioManager.play('tap');
         });
         paletteDiv.appendChild(undoBtn);
@@ -278,6 +297,7 @@ const Boyama = (() => {
     }
 
     function destroy() {
+        timers.forEach(clearTimeout); timers = [];
         if (container) container.innerHTML = '';
         colorHistory = [];
     }

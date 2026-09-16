@@ -263,7 +263,10 @@ function step(){
   let nx = G.snake[0].x + G.dir.x, ny = G.snake[0].y + G.dir.y;
   if (T.wall === 'wrap'){ nx = (nx+G.N)%G.N; ny = (ny+G.N)%G.N; }
   else if (nx<0||nx>=G.N||ny<0||ny>=G.N){ return die('duvar'); }
-  if (G.snake.some((s,i) => i>0 && s.x===nx && s.y===ny)) return die('kendine');
+  // Kuyruk hücresi bu adımda boşalacaksa (yem yoksa pop edilir) oraya girmek geçerli hamledir
+  const willGrow = G.foods.some(f => f.x===nx && f.y===ny && f.correct);
+  const body = willGrow ? G.snake : G.snake.slice(0, -1);
+  if (body.some((s,i) => i>0 && s.x===nx && s.y===ny)) return die('kendine');
   G.snake.unshift({x:nx,y:ny});
   const fi = G.foods.findIndex(f => f.x===nx && f.y===ny);
   if (fi >= 0){

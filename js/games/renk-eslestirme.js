@@ -10,7 +10,20 @@ const RenkEslestirme = (() => {
         { optionCount: 6, correctCount: 1, colors: ['kirmizi', 'mavi', 'sari', 'yesil', 'turuncu', 'mor', 'pembe'], showText: true },
     ];
 
-    const objects = ['🍎', '🚗', '🎈', '⭐', '🌸', '🐟', '🦋', '🍌', '🍊', '🟢', '💜', '🩷', '🔵', '🟡', '🟠'];
+    // Renge göre nesne: kartın rengiyle emojinin rengi AYNI olmalı (eskiden rastgele seçiliyordu:
+    // sarı kartta 🔵, kırmızı kartta 🟢 — renk öğrenen 4 yaş için yanıltıcı). 3. seviyede
+    // (metin modu) kart zemini beyaz kalır; rengi yalnız nesne taşır.
+    const objectsByColor = {
+        kirmizi: ['🍎', '🍓', '🚒', '🔴', '🍅'],
+        mavi:    ['🔵', '🐟', '💙', '🫐', '🐳'],
+        sari:    ['🍌', '⭐', '🟡', '🐥', '🌻'],
+        yesil:   ['🟢', '🍏', '🐸', '🌳', '🥦'],
+        turuncu: ['🍊', '🟠', '🥕', '🦊', '🎃'],
+        mor:     ['💜', '🍆', '🟣', '🍇', '🔮'],
+        pembe:   ['🩷', '🌸', '🐷', '🦩', '🌷'],
+    };
+    let timers = [];
+    function later(fn, ms) { const t = setTimeout(() => { timers = timers.filter(x => x !== t); fn(); }, ms); timers.push(t); return t; }
 
     let container = null;
     let callbacks = null;
@@ -24,6 +37,7 @@ const RenkEslestirme = (() => {
         container = gameArea;
         callbacks = cbs;
         roundsPlayed = 0;
+        timers.forEach(clearTimeout); timers = [];
         GameEngine.setTotal(totalRounds);
         startRound(level);
     }
@@ -85,13 +99,17 @@ const RenkEslestirme = (() => {
             btn.style.width = '100px';
             btn.style.height = '100px';
             btn.style.fontSize = '2.5rem';
-            btn.style.background = TR.colors[opt.colorKey].hex + '22';
             btn.style.borderColor = TR.colors[opt.colorKey].hex;
+            // Metin modunda ipucu yalnız nesnenin rengi: zemin beyaz. Diğer seviyelerde zemin = renk.
+            btn.style.background = config.showText ? '#fff' : TR.colors[opt.colorKey].hex;
 
-            // Emoji seç
-            const emoji = objects[Math.floor(Math.random() * objects.length)];
-            btn.innerHTML = `<span style="filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1))">${emoji}</span>`;
-            btn.style.background = TR.colors[opt.colorKey].hex;
+            // Emoji: kartın rengine uygun nesne
+            const pool = objectsByColor[opt.colorKey] || ['⬜'];
+            const emoji = pool[Math.floor(Math.random() * pool.length)];
+            const span = document.createElement('span');
+            span.style.filter = 'drop-shadow(0 2px 2px rgba(0,0,0,0.1))';
+            span.textContent = emoji;
+            btn.appendChild(span);
 
             btn.addEventListener('click', () => {
                 if (btn.disabled) return;
@@ -106,17 +124,19 @@ const RenkEslestirme = (() => {
                     Particles.sparkle(rect.left + rect.width / 2, rect.top + rect.height / 2, 5);
 
                     if (correctFound >= totalCorrect) {
+                        // Tur kazanıldı: kalan kartlar da kilitlenir (geçiş penceresinde dokunuş haksız yanlış saymasın)
+                        optionsDiv.querySelectorAll('.game-option-btn').forEach(b => { b.disabled = true; });
                         roundsPlayed++;
                         if (roundsPlayed >= totalRounds) {
-                            setTimeout(() => callbacks.onComplete(), 600);
+                            later(() => callbacks.onComplete(), 600);
                         } else {
-                            setTimeout(() => startRound(GameEngine.getCurrentLevel()), 800);
+                            later(() => startRound(GameEngine.getCurrentLevel()), 800);
                         }
                     }
                 } else {
                     btn.classList.add('wrong');
                     callbacks.onWrong();
-                    setTimeout(() => {
+                    later(() => {
                         btn.classList.remove('wrong');
                         btn.disabled = false;
                     }, 600);
@@ -130,6 +150,7 @@ const RenkEslestirme = (() => {
     }
 
     function destroy() {
+        timers.forEach(clearTimeout); timers = [];
         if (container) container.innerHTML = '';
     }
 

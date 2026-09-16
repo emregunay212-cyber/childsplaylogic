@@ -512,11 +512,14 @@ function showQuestion(){
 }
 function startFuse(){
   clearInterval(fuseT);
-  const t0 = Date.now();
+  let t0 = Date.now(), last = t0;
   $('qzFuse').style.width = '100%';
   fuseT = setInterval(() => {
-    if (document.hidden) return;   // sekme gizliyken süre akmaz (teneffüs güvencesi)
-    const left = 1 - (Date.now() - t0) / (CONFIG.Q_TIME * 1000);
+    const now = Date.now();
+    if (document.hidden){ last = now; return; }   // sekme gizliyken süre akmaz (teneffüs güvencesi)
+    if (now - last > 400) t0 += now - last;        // gizli geçen süre t0'a eklenir; eskiden dönüşte anında yanlış sayılıyordu
+    last = now;
+    const left = 1 - (now - t0) / (CONFIG.Q_TIME * 1000);
     $('qzFuse').style.width = Math.max(0, left * 100) + '%';
     if (left <= 0) answer(-1);
   }, 100);

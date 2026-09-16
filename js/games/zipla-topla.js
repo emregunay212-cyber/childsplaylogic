@@ -515,8 +515,9 @@ const ZiplaTopla = (() => {
                 if (cdx * cdx + cdy * cdy < (COIN_R + 16) * (COIN_R + 16)) {
                     coin.collected = true;
                     collectedCoins++;
+                    // Ses: motor callbacks varsa onCorrect zaten çalar (çift ses olmasın); online'da modül çalar
                     if (callbacks) callbacks.onCorrect();
-                    try { AudioManager.play('success'); } catch (e) {}
+                    else { try { AudioManager.play('success'); } catch (e) {} }
                     updateHUD();
                     break;
                 }
@@ -542,8 +543,11 @@ const ZiplaTopla = (() => {
                 p.y + p.h > door.y + 8 && p.y < door.y + 48) {
                 if (!levelWon) {
                     levelWon = true;
-                    try { AudioManager.play('complete'); } catch (e) {}
-                    try { Particles.celebrate(); } catch (e) {}
+                    // Kutlama: solo/coop'ta motor onComplete ile çalar+konfeti atar (eskiden iki "ta-da", iki konfeti)
+                    if (mode === 'online') {
+                        try { AudioManager.play('complete'); } catch (e) {}
+                        try { Particles.celebrate(); } catch (e) {}
+                    }
                     if (mode === 'online') {
                         handleOnlineWin();   // host: kısa kutlama sonra sonraki bölüme geç / zafer
                     } else {
@@ -735,8 +739,8 @@ const ZiplaTopla = (() => {
 
     // ---- Ölüm / Game Over ----
     function playerDie(p) {
-        try { AudioManager.play('error'); } catch (e) {}
-        if (callbacks && callbacks.onWrong) callbacks.onWrong();
+        if (callbacks && callbacks.onWrong) callbacks.onWrong();   // motor 'error' sesini çalar
+        else { try { AudioManager.play('error'); } catch (e) {} }
         lives--;               // ortak can havuzu
         updateHUD();
         deathFlash = 0.3;
@@ -754,7 +758,7 @@ const ZiplaTopla = (() => {
         // Aksi halde (eş de düşüyor/havada ya da solo) güvenli başlangıca dön —
         // böylece iki oyuncu aynı çukura düşünce zincirleme ölüm/can tükenmesi olmaz.
         const partnerSafe = partner && partner.onGround && !isOverHole(partner.x, partner.w);
-        if (mode === 'coop' && partnerSafe) {
+        if ((mode === 'coop' || mode === 'online') && partnerSafe) {   // online'da da partnerin yanında doğ (kamera sıçramasın)
             p.x = partner.x;
             p.y = partner.y;
         } else {
