@@ -28,11 +28,12 @@ const ModulAdi = (() => {
 })();
 ```
 
-- `GameEngine` (`js/engine.js`): `startGame(game, level)` her seferinde `#game-area` düğümünü
-  TAZELER (klon + replaceWith; eski oyunun geciken zamanlayıcıları kopuk düğüme yazar) ve `init` eder;
-  callback'ler nesil sayacına bağlıdır (eski nesil → yok sayılır). `onCorrect()`/`onWrong()` sayar +
-  ses çalar (modül aynı sesi tekrar ÇALMAZ); `onComplete(customStars?)` yıldızı hesaplar
-  (deneme doğruluğu = doğru/(doğru+yanlış): ≥%95 → 3, ≥%70 → 2, altı → 1; deneme 0 ise 3),
+- `GameEngine` (`js/engine.js`, master): `startGame(game, level)` önce eski modülün `destroy()`'unu çağırır,
+  `#game-area`'yı boşaltır (`innerHTML = ''`) ve `init` eder. Nesil koruması (düğümü klon + replaceWith ile
+  tazeleme, eski nesil callback'lerin yok sayılması) `audit/oyun-denetimi` dalında (PR #34) geliyor — birleşene
+  kadar modül geciken zamanlayıcılarını `destroy()`'da KENDİSİ temizler. `onCorrect()`/`onWrong()` sayar +
+  ses çalar (modül aynı sesi tekrar ÇALMAZ); `onComplete(customStars?)` yıldızı hesaplar (master:
+  doğru/toplam ≥%95 → 3, ≥%70 → 2, altı → 1, toplam 0 ise 3; PR #34: deneme doğruluğu doğru/(doğru+yanlış)),
   `Progress`'e yazar, kutlama overlay'ini açar. Modül `GameEngine.getCurrentLevel()` ile aktif seviyeyi okuyabilir.
 - Paylaşılan yardımcılar (hepsi global, `index.html` yükler):
   `AudioManager.play('tap'|'success'|'error'|'star'|'complete'|'pop'|'whoosh'|'flip')` (Web Audio, dosya yok);

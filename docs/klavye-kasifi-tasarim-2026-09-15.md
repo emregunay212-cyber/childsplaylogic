@@ -92,7 +92,7 @@ tuş nefes alır.
 - [x] `assets/images/hub/klavye-kasifi.svg`
 - [x] `seo/games_data.py` + `python seo/build_seo.py`
 - [x] `npm run lint` · `npm run test:smoke` · `python seo/test_build_seo.py`
-- [ ] Kabul geçidi: reality-checker · evidence-collector (ekran görüntüleri `docs/kanit/`) · güvenlik denetçisi
+- [x] Kabul geçidi: reality-checker · evidence-collector (ekran görüntüleri `docs/kanit/klavye-kasifi-2026-09-16/`) · güvenlik denetçisi — bkz. §9
 - [ ] PR → Vercel önizleme → sahip merge'ü → portfolyoya ekleme
 
 
@@ -101,7 +101,7 @@ tuş nefes alır.
 - Tarayıcı (Claude Browser, localhost): 3 seviye baştan sona oynandı — L1 6 tur (1 yanlışla 3⭐), L2 8 tur (5 sn sonra
   ipucu nefesi doğrulandı), L3 4 kelime (Boşluk ve Enter ile gönderim; yanlış harfte ipucu). Fiziksel klavye yolu
   (`keydown` — i→İ dönüşümü dâhil) ve ekran klavyesi tıklama yolu ayrı ayrı çalıştı. Boşlukta sayfa kaymadı.
-- Görünümler tek ekran, kaydırmasız: 375×812 (dikey telefon, tuş 27×65 px), 812×375 (yatay telefon), 800×600,
+- Görünümler tek ekran, kaydırmasız: 375×812 (dikey telefon, tuş 27×60 px), 812×375 (yatay telefon), 800×600,
   1366×680 (okul PC tarayıcı alanı; tuş 54×54 px).
 - Not: Claude Browser paneli `prefers-reduced-motion: reduce` emüle ediyor → panelde azaltılmış-hareket dalı
   (uçuş yerine anında yerleşme) görüldü; tam hareket dalı Playwright kanıt koşusunda (`docs/kanit/`) alınır.
@@ -110,3 +110,15 @@ tuş nefes alır.
 - Yan düzeltme: `js/particles.js` kıvılcım yarıçapı bir kare boyunca eksiye düşüp `IndexSizeError` fırlatıyordu
   (sparkle kullanan her oyunda konsola düşen yakalanmamış hata) → `Math.max(0, …)` koruması.
 - README "Yeni oyun ekleme" 2. adımı güncellendi (index.html etiketi yok; `files` ile tembel yükleme; eslint globali).
+
+## 9. Kabul geçidi (2026-09-16)
+
+| Ajan | Hüküm | Bulgu → yapılan |
+|---|---|---|
+| **AI-Generated Code Security Auditor** | MERGE-READY (güvenlik bulgusu 0) | KK-01 klavye kullanıcısı araç çubuğu odaktayken Enter/Boşluk'la çıkamıyor → odak oyun dışı etkileşimli öğedeyse dinleyici tuşu tarayıcıya bırakır (`4c1e501`). KK-02 CLAUDE.md motor paragrafı master'ı değil PR #34'ü anlatıyordu → iki sürüm de yazıldı. KK-03 uzak TTS sesi → `localService` öncelikli. |
+| **Reality Checker** | 10 iddianın 9'u kanıtla GEÇTİ; NEEDS WORK (telefonda yatay taşma) | L2 defteri (8×44 px) ve L3 kartı (5 harf) 360–412 px'te taşıyordu → yuva ve kutu genişliği tur sayısı/kelime uzunluğu bütçesiyle (`--kk-rounds`, `--kk-word-len`) hesaplanır; probe yeniden koşuldu: 360/375/390/412 × L1–L3 scrollW = clientW. Meşgul penceresinde Boşluk kaydırıyordu → `preventDefault` `busy` kontrolünden önce. İngilizce dizilimde «I» üretilemiyordu → KeyI + hedef I ise I. Belge ölçümü 27×65 → 27×60. |
+| **Evidence Collector** | 19 görüntü, 14 bulgu (1 yüksek = aynı taşma) | Bekleyen kutu harfi 2,56:1 → `--text-muted` 5,5:1, kenar 3:1. Yönerge ses düğmesinin altına giriyordu → `max-width` + kısa L3 yönergesi. Yatay telefonda kart deftere biniyordu → sahne `min-height: 0` kaldırıldı, kısa görünüm bütçesi. Aynı harf bir seviyede tekrar edebiliyordu → seviye içi `usedPicks`. Ğ/Ç/Ş diakritikleri kenara dayanıyordu → `line-height 1.12`. "Masa 🪑" veri hatası → "Mantar 🍄" (`js/i18n.js`). Uçuşta resim balonda kalıyordu → balon solar (`is-flown`). |
+
+Bu PR'ın dışında bırakılan bulgular (ayrı iş): günlük giriş toast'u (`js/bilnet-meta.js`) telefonda açılışta 3 sn Boşluk tuşunu örtüyor;
+önceki seviyenin konfetisi yeni seviyeye akıyor (motor kutlaması); landing imza bandı yüksekliği %5 (üretici şablonu, kural ≤%2);
+yatay telefonda tuş yüksekliği 34 px (< 44 px dokunma hedefi — yükseklik bütçesi).

@@ -54,7 +54,7 @@ const KlavyeKasifi = (() => {
     let target = null;      // { letter, word, emoji, label }
     let wordPos = 0;        // 3. seviye: sıradaki harf; === word.length → Boşluk bekleniyor
     let busy = true;        // doğru sonrası geçişte / oyun bitince giriş kapalı
-    let lastPick = null;    // art arda aynı hedef gelmesin
+    let usedPicks = new Set(); // bu seviyede çıkan hedefler — havuz bitmeden tekrar yok
     let keydownHandler = null;
     let voicesHandler = null;
     let wordPool = null;
@@ -83,7 +83,7 @@ const KlavyeKasifi = (() => {
         callbacks = cbs;
         config = levels[level - 1] || levels[0];
         clearTimers();
-        round = 0; wrongRounds = 0; wrongThisRound = false; target = null; wordPos = 0; lastPick = null;
+        round = 0; wrongRounds = 0; wrongThisRound = false; target = null; wordPos = 0; usedPicks = new Set();
         busy = false;
         keyEls = {};
         GameEngine.setTotal(config.rounds);
@@ -98,6 +98,7 @@ const KlavyeKasifi = (() => {
         container.innerHTML = '';
         const root = el('div', 'kk-game');
         root.classList.add('kk-game--' + config.kind);
+        root.style.setProperty('--kk-rounds', String(config.rounds));   // defter yuvaları genişlik bütçesi
 
         const instruction = el('div', 'game-instruction kk-instruction');
         instruction.setAttribute('aria-live', 'polite');
@@ -168,21 +169,26 @@ const KlavyeKasifi = (() => {
 
     // ── Fiziksel klavye ──
     function onKeyDown(e) {
-        if (busy || e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
         // Odak oyun kökünün DIŞINDA bir etkileşimli öğedeyse (araç çubuğu "Ana sayfa"/"Tam ekran",
         // ileride bir form alanı) tuşu tarayıcıya bırak: Enter/Boşluk düğmeyi etkinleştirsin,
         // harf yazı alanına gitsin. Gövde odaktayken (normal oyun) davranış değişmez.
         const t = e.target;
         if (t && t !== document.body && els.root && !els.root.contains(t)
             && typeof t.closest === 'function' && t.closest('button, a, input, textarea, select, [contenteditable]')) return;
-        if (e.key === ' ' || e.key === 'Enter' || e.code === 'Space' || e.code === 'Enter' || e.code === 'NumpadEnter') {
-            e.preventDefault();                // oyun alanı kaymasın; Enter = Boşluk (3. seviye "gönder")
+        const isSpace = e.key === ' ' || e.key === 'Enter' || e.code === 'Space' || e.code === 'Enter' || e.code === 'NumpadEnter';
+        if (isSpace) e.preventDefault();       // oyun alanı meşgul penceresinde de kaymasın
+        if (busy || e.repeat) return;
+        if (isSpace) {                         // Enter = Boşluk (3. seviye "gönder")
             flashKey(SPACE);
             press(SPACE);
             return;
         }
         if (typeof e.key !== 'string' || e.key.length !== 1) return;
         let ch = e.key.toLocaleUpperCase('tr-TR');
+        // İngilizce dizilimde KeyI "i" verir → tr-TR büyük harfi İ; hedef I (noktasız) ise o tuş I'dır.
+        // TR dizilimde aynı tuş "ı" verir (→ I), İ ayrı tuştur; bu dal orada devreye girmez.
+        if (ch === 'İ' && e.code === 'KeyI' && e.key === 'i' && expectedKey() === 'I') ch = 'I';
         if (!ALL_KEYS.has(ch)) ch = CODE_MAP[e.code] || null;
         if (!ch) return;
         e.preventDefault();
@@ -209,7 +215,7 @@ const KlavyeKasifi = (() => {
 
         target = config.kind === 'letter' ? pickLetterTarget() : pickWordTarget();
         els.bubble.textContent = '?';
-        els.bubble.classList.remove('is-revealed');
+        els.bubble.classList.remove('is-revealed', 'is-flown');
         els.caption.textContent = '';
         els.caption.classList.remove('is-visible');
 
@@ -222,7 +228,7 @@ const KlavyeKasifi = (() => {
             speak(LETTER_NAMES[target.letter] || target.letter);
         } else {
             renderWord();
-            setInstruction('Harfleri sırayla yaz, sonra Boşluk\'a bas!');
+            setInstruction('Harfleri sırayla yaz, sonra Boşluk!');
             speak(target.label);
         }
         armHint();
@@ -230,9 +236,9 @@ const KlavyeKasifi = (() => {
 
     function pickLetterTarget() {
         const letters = Object.keys(TR.letterImages).filter((L) => ALL_KEYS.has(L) && TR.letterImages[L].length);
-        const pool = letters.length > 1 ? letters.filter((L) => L !== lastPick) : letters;
-        const letter = pick(pool);
-        lastPick = letter;
+        const fresh = letters.filter((L) => !usedPicks.has(L));
+        const letter = pick(fresh.length ? fresh : letters);
+        usedPicks.add(letter);
         const img = pick(TR.letterImages[letter]);
         return { letter, emoji: img.emoji, label: img.word };
     }
@@ -257,14 +263,15 @@ const KlavyeKasifi = (() => {
 
     function pickWordTarget() {
         const all = getWordPool();
-        const pool = all.length > 1 ? all.filter((w) => w.word !== lastPick) : all;
-        const t = pick(pool);
-        lastPick = t.word;
+        const fresh = all.filter((w) => !usedPicks.has(w.word));
+        const t = pick(fresh.length ? fresh : all);
+        usedPicks.add(t.word);
         return { word: t.word, letters: [...t.word], emoji: t.emoji, label: t.label };
     }
 
     function renderWord() {
         els.word.innerHTML = '';
+        els.root.style.setProperty('--kk-word-len', String(target.letters.length));   // kutu genişliği bütçesi
         target.letters.forEach((ch, i) => {
             const tile = el('span', 'kk-tile', ch);
             if (i === 0) tile.classList.add('is-current');
@@ -382,6 +389,7 @@ const KlavyeKasifi = (() => {
         flyer.style.height = from.height + 'px';
         flyer.style.fontSize = getComputedStyle(els.bubble).fontSize;
         document.body.appendChild(flyer);
+        els.bubble.classList.add('is-flown');     // resim balondan çıkıyor: balon solar
         void flyer.offsetWidth;                   // başlangıç konumu uygulanmış olsun
         const dx = (to.left + to.width / 2) - (from.left + from.width / 2);
         const dy = (to.top + to.height / 2) - (from.top + from.height / 2);

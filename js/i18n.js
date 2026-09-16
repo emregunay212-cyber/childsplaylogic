@@ -300,7 +300,7 @@ const TR = {
         ],
         'M': [
             { word: 'Muz', emoji: '🍌' },
-            { word: 'Masa', emoji: '🪑' },
+            { word: 'Mantar', emoji: '🍄' },
             { word: 'Maymun', emoji: '🐒' },
         ],
         'N': [

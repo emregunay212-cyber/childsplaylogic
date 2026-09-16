@@ -15,6 +15,18 @@
     --kk-unit: clamp(24px, calc((min(100vw, 780px) - var(--kk-outer) - 2 * var(--kk-pad) - 11 * var(--kk-gap)) / 12), 56px);
     /* Tuş yüksekliği: 4 sıra + sahne 640 px yükseklikte tek ekrana sığar */
     --kk-key-h: clamp(36px, 8vh, 60px);
+    /* Genişlik bütçesi: .game-area yatay padding 2×16 px; JS tur sayısını (--kk-rounds) ve kelime
+       uzunluğunu (--kk-word-len) yazar → defter yuvaları ve harf kutuları dar telefonda küçülür, taşmaz */
+    --kk-rounds: 6;
+    --kk-word-len: 5;
+    --kk-avail: calc(min(100vw, 780px) - 32px);
+    --kk-shelf-gap: 6px;
+    --kk-slot: clamp(24px, min(6vh, calc((var(--kk-avail) - 20px - (var(--kk-rounds) - 1) * var(--kk-shelf-gap)) / var(--kk-rounds))), 44px);
+    --kk-bubble: clamp(52px, 12vh, 96px);
+    --kk-card-px: clamp(12px, 4vw, 32px);
+    --kk-card-gap: clamp(10px, 3vw, 28px);
+    --kk-tile-gap: clamp(4px, 1.2vw, 10px);
+    --kk-tile: clamp(28px, min(9vh, calc((var(--kk-avail) - 2 * var(--kk-card-px) - var(--kk-card-gap) - var(--kk-bubble) - (var(--kk-word-len) - 1) * var(--kk-tile-gap)) / var(--kk-word-len))), 62px);
     position: relative;
     width: 100%;
     max-width: 780px;
@@ -28,26 +40,28 @@
 
 .kk-instruction {
     margin-bottom: 0;
-    max-width: 100%;
+    max-width: calc(100% - 112px);     /* sağ üstteki 44 px ses düğmesi + paylar: bindirme yok */
+    text-wrap: balance;
 }
 
 /* ── Kâşif defteri: tur başına bir yuva; kazanılan resim buraya uçar ── */
 .kk-shelf {
     display: flex;
-    gap: var(--space-sm);
+    gap: var(--kk-shelf-gap);
     padding: 6px 10px;
+    max-width: 100%;
     border-radius: var(--radius-md);
     background: rgba(255, 255, 255, 0.55);
 }
 
 .kk-slot {
-    width: clamp(30px, 6vh, 44px);
+    width: var(--kk-slot);
     aspect-ratio: 1;
     border-radius: var(--radius-round);
-    border: 2px dashed rgba(45, 52, 54, 0.28);
+    border: 2px dashed rgba(45, 52, 54, 0.4);
     display: grid;
     place-items: center;
-    font-size: clamp(1rem, 3.4vh, 1.5rem);
+    font-size: calc(var(--kk-slot) * 0.55);
     line-height: 1;
     background: transparent;
     transition: border-color var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out);
@@ -67,14 +81,14 @@
     gap: var(--space-xs);
     flex: 1 1 auto;
     justify-content: center;
-    min-height: 0;
 }
 
 .kk-card {
     display: flex;
     align-items: center;
-    gap: clamp(12px, 3vw, 28px);
-    padding: 10px clamp(18px, 4vw, 32px);
+    gap: var(--kk-card-gap);
+    padding: 10px var(--kk-card-px);
+    max-width: 100%;
     background: white;
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-card);
@@ -86,7 +100,8 @@
     font-family: var(--font-heading);
     font-size: clamp(3.4rem, 15vh, 6.5rem);
     font-weight: 700;
-    line-height: 1;
+    line-height: 1.12;
+    padding: 0 0.04em;
     color: var(--klavye-color);
     text-shadow: 0 3px 0 rgba(58, 134, 255, 0.14);
     min-width: 1.1em;
@@ -98,22 +113,22 @@
 /* Kelime Yolu: harf kutuları — sıradaki zıplar, yazılan doluyor */
 .kk-word {
     display: flex;
-    gap: clamp(4px, 1.2vw, 10px);
+    gap: var(--kk-tile-gap);
 }
 
 .kk-tile {
-    width: clamp(38px, 9vh, 62px);
+    width: var(--kk-tile);
     aspect-ratio: 1;
     display: grid;
     place-items: center;
     border-radius: var(--radius-sm);
-    border: 3px solid #E2E8F0;
+    border: 3px solid #8C9BAD;
     background: white;
     font-family: var(--font-heading);
-    font-size: clamp(1.4rem, 5vh, 2.4rem);
+    font-size: calc(var(--kk-tile) * 0.56);
     font-weight: 700;
     line-height: 1;
-    color: #94A3B8;
+    color: var(--text-muted);
     transition: background-color var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out),
                 border-color var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
 }
@@ -131,20 +146,23 @@
 }
 
 .kk-bubble {
-    width: clamp(60px, 12vh, 96px);
+    width: var(--kk-bubble);
+    flex: 0 0 auto;
     aspect-ratio: 1;
     border-radius: var(--radius-round);
     background: #EEF3FF;
     display: grid;
     place-items: center;
     font-family: var(--font-heading);
-    font-size: clamp(1.9rem, 6.5vh, 3.4rem);
+    font-size: calc(var(--kk-bubble) * 0.55);
     font-weight: 700;
     line-height: 1;
     color: var(--klavye-color);
     box-shadow: inset 0 -4px 0 rgba(58, 134, 255, 0.12);
     transition: background-color var(--dur-base) var(--ease-out);
 }
+
+.kk-bubble.is-flown { opacity: 0.45; transition: opacity 0.3s var(--ease-out); }
 
 .kk-bubble.is-revealed {
     background: var(--success-light);
@@ -324,8 +342,9 @@
 
 /* ── Geniş ekran: tuşlar büyür, boşluklar açılır ── */
 @media (min-width: 600px) {
-    .kk-game { --kk-gap: 6px; --kk-pad: 16px; --kk-outer: 32px; gap: var(--space-md); }
+    .kk-game { --kk-gap: 6px; --kk-pad: 16px; --kk-outer: 32px; --kk-shelf-gap: 8px; gap: var(--space-md); }
     .kk-keyboard { padding: 14px var(--kk-pad) 16px; margin: 0; max-width: 100%; }
+    .kk-instruction { max-width: calc(100% - 128px); }
     .kk-key { border-radius: 11px; }
 }
 
@@ -335,6 +354,8 @@
     .kk-instruction { font-size: 1rem; padding: 4px 14px; margin-bottom: 0; }
     .kk-shelf { padding: 3px 8px; }
     .kk-card { padding: 4px 18px; }
+    .kk-letter { font-size: clamp(2.6rem, 13vh, 6.5rem); }
+    .kk-keyboard { padding: 6px var(--kk-pad) 8px; }
     .kk-caption { display: none; }
     .kk-game { --kk-key-h: 34px; }
 }
