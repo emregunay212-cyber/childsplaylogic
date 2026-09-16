@@ -71,7 +71,7 @@ const HubIA = (() => {
             .replace(/I/g, 'ı')
             .toLowerCase()
             .normalize('NFD')
-            .replace(/[̀-ͯ]/g, '')
+            .replace(/[\u0300-\u036f]/g, '')
             .replace(/ı/g, 'i');
     }
 

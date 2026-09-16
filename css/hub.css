@@ -1,174 +1,14 @@
 /* ============================================
    BİLNET OYUN - Hub / Oyun Seçim Ekranı
    Token'lar css/tokens.css (B1): ham renk/yarıçap/süre yazılmaz. Sözleşme: docs/tasarim-sozlesmesi.md
+   Bilgi mimarisi (B2b, §3.02): birinci eksen YAŞ RAFI (çip grubu + raf başına yatay ray ya da tek raf
+   ızgarası), ikinci eksen kategori çipi; "Devam et" ilk satır; öğretmen görünümü (.hub.ogretmen) kartlara
+   kazanım + süre satırı, ders çipleri ve arama ekler. Tüm içerik genişliği --hub-genislik.
    ============================================ */
 
-/* ── Kategori Navigasyonu ── */
-.hub-nav {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-}
-.hub-nav.hidden { display: none; }
-
-.hub-nav-scroll {
-    display: flex;
-    gap: var(--ara-2);
-    padding: var(--ara-1) 0;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-}
-.hub-nav-scroll::-webkit-scrollbar { display: none; }
-
-/* Çip: beyaz çıkartma, mürekkep metin; "Tümü"/seçili çip mavi-800 dolgu + beyaz metin (sözleşme §2) */
-.hub-nav-chip {
-    display: flex;
-    align-items: center;
-    gap: var(--ara-2);
-    min-height: var(--hedef-min);
-    padding: 0 var(--ara-4);
-    border-radius: var(--r-hap);
-    border: 3px solid var(--beyaz);
-    background: var(--yuzey);
-    font-family: var(--font-display);
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--murekkep);
-    cursor: pointer;
-    box-shadow: var(--golge-1);
-    transition: transform var(--sure-gecis) var(--egri-out), background-color var(--sure-gecis) var(--egri-out), border-color var(--sure-gecis) var(--egri-out), box-shadow var(--sure-gecis) var(--egri-out), color var(--sure-gecis) var(--egri-out);
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-.hub-nav-chip:hover {
-    box-shadow: var(--golge-2);
-    transform: scale(1.05);
-    animation: wiggleHover 0.4s ease;
-}
-.hub-nav-chip:active {
-    transform: scale(0.97);
-    transition-duration: var(--sure-bas);
-}
-.hub-nav-chip.active {
-    background: var(--dugme-dolgu);
-    color: var(--dugme-metin);
-    border-color: var(--beyaz);
-    box-shadow: var(--golge-2);
-}
-.chip-icon {
-    width: 24px;
-    height: 24px;
-    object-fit: contain;
-    flex-shrink: 0;
-}
-.chip-label { line-height: 1; }
-.cat-header-icon {
-    width: 24px;
-    height: 24px;
-    object-fit: contain;
-    vertical-align: middle;
-}
-
-/* ── Popüler Oyunlar ── */
-.hub-popular {
-    position: relative;
-    z-index: 1;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 0 var(--ara-5);
-}
-
-.popular-section {
-    margin-bottom: 0.5rem;
-}
-.popular-header {
-    font-family: var(--yazi-baslik-aile);
-    font-size: var(--yazi-baslik-boy);
-    font-weight: var(--yazi-baslik-kalinlik);
-    line-height: var(--yazi-baslik-satir);
-    color: var(--murekkep);
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: var(--ara-2);
-}
-.popular-empty {
-    /* Gökyüzü zemininde gri okunmuyordu → beyaz hap + mürekkep-orta (6.3:1) */
-    width: fit-content;
-    margin: 0 auto;
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: var(--murekkep-orta);
-    text-align: center;
-    padding: var(--ara-2) 18px;
-    background: var(--yuzey);
-    border-radius: var(--r-hap);
-    box-shadow: var(--golge-1);
-}
-
-.popular-scroll {
-    display: flex;
-    gap: 10px;
-    overflow-x: auto;
-    padding: var(--ara-1) 0 var(--ara-2);
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    scroll-snap-type: x mandatory;
-}
-.popular-scroll::-webkit-scrollbar { display: none; }
-
-.popular-card {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-width: 160px;
-    max-width: 200px;
-    padding: 10px 14px;
-    scroll-snap-align: start;
-    flex-shrink: 0;
-    background: var(--yuzey);
-    border: var(--kontur);
-    border-radius: var(--r-kart);
-    box-shadow: var(--golge-1);
-    cursor: pointer;
-    transition: transform var(--sure-gecis) var(--egri-out), box-shadow var(--sure-gecis) var(--egri-out);
-}
-.popular-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--golge-2);
-}
-.popular-card:active {
-    transform: scale(0.97);
-    transition-duration: var(--sure-bas);
-}
-.popular-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: var(--r-giris);
-    overflow: hidden;
-    flex-shrink: 0;
-    box-shadow: var(--golge-1);
-}
-.popular-icon img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-.popular-name {
-    font-family: var(--font-display);
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--murekkep);
-    line-height: 1.2;
-}
-.popular-stars {
-    font-size: 0.85rem;
-    color: var(--murekkep-orta);
-    font-weight: 700;
-}
-
 .hub {
+    --hub-genislik: 1220px;      /* 1280: 6 ray kartı + 7.'nin kenarı görünür (kaydırma ipucu); çip satırları sığar */
+    --kart-en: 172px;          /* ray kartı (1280); 375'te 152 px (sözleşme §2) */
     position: relative;
     width: 100%;
     height: 100%;
@@ -176,6 +16,7 @@
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
+    scrollbar-color: var(--mavi-800) transparent;   /* tarayıcı yüzeyi de paletten */
 }
 
 /* Arka Plan Katmanları: tek dünya — gökyüzü, güneş, çimen */
@@ -226,25 +67,259 @@
     background: linear-gradient(180deg, var(--cim) 0%, var(--cim-koyu) 100%);
 }
 
-/* Hub Grid */
+/* ── Süzgeç satırları: yaş rafı (radiogroup), kategori (radiogroup), [ders + arama: öğretmen] ── */
+.hub-nav {
+    position: relative;
+    z-index: 1;
+    max-width: var(--hub-genislik);
+    margin: 0 auto;
+    padding: var(--ara-2) var(--ara-5) 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--ara-2);
+}
+.hub-nav-row {
+    display: flex;
+    gap: var(--ara-2);
+    padding: var(--ara-1) 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    scroll-padding: var(--ara-4);
+}
+.hub-nav-row::-webkit-scrollbar { display: none; }
+.hub-nav-row[hidden] { display: none; }
+
+/* Çip: beyaz çıkartma, mürekkep metin; seçili çip mavi-800 dolgu + beyaz metin (sözleşme §2).
+   role=radio: yalnız seçili çip Tab durağı, ok tuşları seçer (js/hub-ia.js). */
+.hub-nav-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: var(--hedef-min);
+    padding: 0 14px;
+    border-radius: var(--r-hap);
+    border: 3px solid var(--beyaz);
+    background: var(--yuzey);
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--murekkep);
+    cursor: pointer;
+    box-shadow: var(--golge-1);
+    transition: transform var(--sure-gecis) var(--egri-out), background-color var(--sure-gecis) var(--egri-out), border-color var(--sure-gecis) var(--egri-out), box-shadow var(--sure-gecis) var(--egri-out), color var(--sure-gecis) var(--egri-out);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.hub-nav-chip:hover {
+    box-shadow: var(--golge-2);
+    transform: scale(1.05);
+    animation: wiggleHover 0.4s ease;
+}
+.hub-nav-chip:active {
+    transform: scale(0.97);
+    transition-duration: var(--sure-bas);
+}
+.hub-nav-chip.active,
+.hub-nav-chip[aria-checked="true"] {
+    background: var(--dugme-dolgu);
+    color: var(--dugme-metin);
+    border-color: var(--beyaz);
+    box-shadow: var(--golge-2);
+}
+.chip-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;     /* 128 ızgara / 28 yarıçapın 26 px'teki izdüşümü (görsel zaten yuvarlak) */
+    object-fit: contain;
+    flex-shrink: 0;
+}
+.chip-label { line-height: 1; }
+.chip-sub {
+    font-family: var(--yazi-rozet-aile);
+    font-size: var(--yazi-rozet-boy);
+    font-weight: var(--yazi-rozet-kalinlik);
+    line-height: 1;
+    color: var(--murekkep-orta);
+}
+.hub-nav-chip[aria-checked="true"] .chip-sub { color: var(--dugme-metin); }
+
+/* Arama (öğretmen görünümü): input[type=search], beyaz hap; sonuç sayısı sağda canlı bölge */
+.hub-search {
+    display: flex;
+    align-items: center;
+    gap: var(--ara-2);
+    max-width: 560px;
+    min-height: var(--hedef-min);
+    padding: 0 var(--ara-4) 0 var(--ara-4);
+    background: var(--yuzey);
+    border: 3px solid var(--beyaz);
+    border-radius: var(--r-hap);
+    box-shadow: var(--golge-1);
+    transition: box-shadow var(--sure-gecis) var(--egri-out), border-color var(--sure-gecis) var(--egri-out);
+}
+.hub-search[hidden] { display: none; }
+.hub-search:focus-within { border-color: var(--mavi-800); box-shadow: 0 0 0 4px var(--odak-isik), var(--golge-1); }
+.hub-search-ico { width: 22px; height: 22px; flex: none; fill: none; stroke: var(--murekkep-orta); stroke-width: 2.2; stroke-linecap: round; }
+.hub-search input {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    border: 0;
+    outline: 0;                /* halka kap üzerinde (:focus-within) */
+    background: transparent;
+    font-family: var(--font-body);
+    font-size: var(--yazi-govde-boy);
+    font-weight: 700;
+    color: var(--murekkep);
+}
+.hub-search input::placeholder { color: var(--murekkep-orta); opacity: 1; }
+.hub-search input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; cursor: pointer;
+    background: var(--murekkep-orta); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 6l12 12M18 6L6 18' stroke='black' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 6l12 12M18 6L6 18' stroke='black' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat; }
+.hub-search-count {
+    flex: none;
+    font-family: var(--yazi-rozet-aile);
+    font-size: var(--yazi-rozet-boy);
+    font-weight: var(--yazi-rozet-kalinlik);
+    color: var(--murekkep-orta);
+    white-space: nowrap;
+}
+.hub-search-count:empty { display: none; }
+
+/* ── Raf: başlık çipi + "n oyun" rozeti; gövde yatay ray (Hepsi) ya da ızgara (tek raf / arama) ── */
 .hub-grid {
     position: relative;
     z-index: 1;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: var(--ara-5);
-    padding: var(--ara-7) var(--ara-5) var(--ara-8);
-    max-width: 900px;
+    max-width: var(--hub-genislik);
     margin: 0 auto;
+    padding: var(--ara-3) var(--ara-5) var(--ara-7);
+    display: flex;
+    flex-direction: column;
+    gap: var(--ara-5);
+}
+.raf { min-width: 0; }
+.raf-bas {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--ara-2) var(--ara-3);
+    margin: 0 0 var(--ara-3);
+}
+.raf-baslik {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--ara-2);
+    margin: 0;
+    min-height: 44px;
+    padding: var(--ara-2) var(--ara-5);
+    border-radius: var(--r-hap);
+    background: var(--dugme-dolgu);
+    color: var(--dugme-metin);
+    border: 3px solid var(--beyaz);
+    box-shadow: var(--golge-2);
+    font-family: var(--yazi-baslik-aile);
+    font-weight: var(--yazi-raf-kalinlik);
+    font-size: var(--yazi-baslik-boy);
+    line-height: var(--yazi-baslik-satir);
+}
+.raf-yas {
+    font-family: var(--yazi-rozet-aile);
+    font-size: 1rem;
+    font-weight: var(--yazi-rozet-kalinlik);
+}
+.raf-sayi {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: var(--ara-1) var(--ara-4);
+    border-radius: var(--r-hap);
+    background: var(--yuzey);
+    color: var(--murekkep);
+    font-family: var(--yazi-rozet-aile);
+    font-size: 0.95rem;
+    font-weight: var(--yazi-rozet-kalinlik);
+    box-shadow: var(--golge-1);
 }
 
-/* Oyun Kartı: beyaz yüzey, beyaz çıkartma konturu, üstte 8 px kategori şeridi (sözleşme §2) */
+/* Yatay ray: sabit kart eni, kaydırma yakalama; alt boşluk gölge için */
+.raf-ray {
+    display: flex;
+    align-items: stretch;
+    gap: var(--ara-4);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: var(--ara-1);
+    padding: var(--ara-2) var(--ara-1) var(--ara-4);
+    margin: 0 calc(-1 * var(--ara-1));
+    scrollbar-width: thin;
+    scrollbar-color: var(--mavi-800) transparent;
+}
+.raf-ray::-webkit-scrollbar { height: 8px; }
+.raf-ray::-webkit-scrollbar-track { background: transparent; }
+.raf-ray::-webkit-scrollbar-thumb { background: var(--mavi-800); border-radius: var(--r-hap); }
+.raf-ray > .game-card {
+    flex: 0 0 var(--kart-en);
+    width: var(--kart-en);
+    scroll-snap-align: start;
+}
+
+/* Izgara: tek raf ya da arama sonuçları (satır değiştirme ok tuşlarıyla, js/hub-ia.js) */
+.raf-izgara {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--kart-en), 1fr));
+    gap: var(--ara-4);
+    padding: var(--ara-2) 0 var(--ara-2);
+}
+
+/* Boş durum: "Burada bir oyun yok" (sözleşme §3.09) — beyaz çıkartma kutusu, teknik terim yok */
+.hub-empty,
+.continue-empty {
+    display: flex;
+    align-items: center;
+    gap: var(--ara-4);
+    max-width: 560px;
+    padding: var(--ara-4) var(--ara-5);
+    background: var(--yuzey);
+    border: var(--kontur);
+    border-radius: var(--r-kart);
+    box-shadow: var(--golge-1);
+    color: var(--metin);
+}
+.hub-empty { flex-direction: column; align-items: flex-start; gap: var(--ara-1); }
+.continue-empty { background: var(--mavi-050); }   /* beyaz maskot açık mavi zeminde okunur */
+.hub-empty p, .continue-empty p { margin: 0; font-size: 1rem; line-height: 1.5; color: var(--murekkep-orta); }
+.hub-empty-title, .continue-empty-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.15rem;
+    color: var(--murekkep) !important;
+}
+.continue-maskot { flex: none; width: 64px; height: 58px; }
+
+/* ── Devam et: ilk satır; 3 geniş karo (ikon + ad + yıldızlar), sol kenarda kategori şeridi ── */
+.hub-continue {
+    position: relative;
+    z-index: 1;
+    max-width: var(--hub-genislik);
+    margin: 0 auto;
+    padding: var(--ara-4) var(--ara-5) 0;
+}
+.hub-continue[hidden] { display: none; }
+.continue-ray { padding-bottom: var(--ara-2); }
+.raf-baslik--devam { background: var(--dugme-dolgu); }
+
+/* ── Oyun Kartı: beyaz yüzey, beyaz çıkartma konturu, üstte 8 px kategori şeridi (sözleşme §2/§3.03).
+      Anatomi: [rozet] · ikon · ad (2 satır yuvası) · yıldız yuvaları (solo) · yaş [+ süre] · [kazanım]
+      Kart yalnız DOM API ile çizilir (js/app.js createGameCard); durum asla yalnız renkle anlatılmaz. ── */
 .game-card {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: var(--ara-5) var(--ara-4) var(--ara-4);
+    padding: var(--ara-4) var(--ara-3) var(--ara-3);
     background: var(--yuzey);
     border-radius: var(--r-kart);
     box-shadow: var(--golge-2);
@@ -255,8 +330,8 @@
     animation: cardEnter 0.5s var(--egri-out) backwards;
     border: var(--kontur);
     overflow: hidden;
+    min-width: 0;
 }
-
 .game-card::before {
     content: '';
     position: absolute;
@@ -264,8 +339,15 @@
     left: 0;
     right: 0;
     height: 8px;
+    background: var(--cizgi);
 }
-
+/* Kategori şeridi: data-section (js/app.js) → kategori token'ı; yeni oyun için CSS'e satır EKLENMEZ */
+.game-card[data-section="harf"]::before { background: var(--kat-harf); }
+.game-card[data-section="sayi"]::before { background: var(--kat-sayi); }
+.game-card[data-section="bulmaca"]::before { background: var(--kat-bulmaca); }
+.game-card[data-section="yaratici"]::before { background: var(--kat-yaratici); }
+.game-card[data-section="strateji"]::before { background: var(--kat-strateji); }
+.game-card[data-section="online"]::before { background: var(--kat-online); }
 
 .game-card:hover, .game-card:focus-visible {
     transform: scale(1.06) translateY(-4px);
@@ -279,19 +361,21 @@
     transition-duration: var(--sure-bas);
 }
 
-/* Kart ikonu */
+/* Kart ikonu: 128 ızgara SVG, 28 yarıçap (görselin kendi zemini); rozet için üstte 8 px pay her kartta aynı */
 .card-icon {
     width: 90px;
     height: 90px;
+    margin-top: var(--ara-2);
+    margin-bottom: var(--ara-2);
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: var(--r-giris);
-    margin-bottom: var(--ara-4);
-    font-size: 3rem;
     box-shadow: var(--golge-1);
     transition: transform 0.3s var(--egri-out);
     overflow: hidden;
+    background: none;
+    flex: none;
 }
 .card-icon img {
     width: 100%;
@@ -299,12 +383,20 @@
     object-fit: cover;
     border-radius: inherit;
 }
-
 .game-card:hover .card-icon {
     transform: scale(1.1) rotate(-4deg);
 }
 
-/* Kart başlığı */
+.card-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+}
+
+/* Kart başlığı: 20 px Fredoka; iki satır yuvası her kartta eşit (yıldız satırı hizada kalır) */
 .card-title {
     font-family: var(--yazi-kart-aile);
     font-weight: var(--yazi-kart-kalinlik);
@@ -312,10 +404,17 @@
     line-height: var(--yazi-kart-satir);
     color: var(--murekkep);
     text-align: center;
-    margin-bottom: var(--ara-2);
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    min-height: calc(2 * var(--yazi-kart-satir) * 1em);
+    margin-bottom: var(--ara-1);
 }
 
-/* Kart yıldızları: yuvalar her zaman görünür; 10 seviyeli oyunda (hafıza, boyama) satır kırılır, kırpılmaz */
+/* Kart yıldızları: yuvalar her zaman görünür; 10 seviyeli oyunda satır kırılır, kırpılmaz */
 .card-stars {
     display: flex;
     flex-wrap: wrap;
@@ -323,94 +422,91 @@
     max-width: 100%;
     gap: var(--ara-1);
 }
-
 .card-stars svg {
     width: 22px;
     height: 22px;
     transition: fill 0.3s var(--egri-out), filter 0.3s var(--egri-out);
 }
-
 .card-stars svg.earned {
     fill: var(--yildiz);
     filter: drop-shadow(0 1px 3px var(--yildiz-isik));
 }
-
 .card-stars svg.empty {
     fill: var(--yildiz-bos);
 }
 
-/* Kart üst şeridi — kategori rengi (js/app.js gameCategoryDefs sırası; yeni oyun kendi kategorisine eklenir) */
-/* Harfler ve Kelimeler */
-.game-card[data-game="harf-tanima"]::before,
-.game-card[data-game="klavye-kasifi"]::before,
-.game-card[data-game="hece-birlestirme"]::before,
-.game-card[data-game="kelime-madeni-3d"]::before,
-.game-card[data-game="kelime-balonu"]::before,
-.game-card[data-game="kelime-canavarlari"]::before,
-.game-card[data-game="kelime-kurtarma"]::before,
-.game-card[data-game="gunluk-kelime"]::before { background: var(--kat-harf); }
-/* Sayılar ve Matematik */
-.game-card[data-game="sayi-sayma"]::before,
-.game-card[data-game="matematik"]::before,
-.game-card[data-game="desen"]::before,
-.game-card[data-game="bilgi-madencisi"]::before,
-.game-card[data-game="matematik-patlatma"]::before,
-.game-card[data-game="matematik-kafe"]::before,
-.game-card[data-game="bilgi-yilani"]::before,
-.game-card[data-game="ritim-sorulari"]::before,
-.game-card[data-game="kesir-2048"]::before,
-.game-card[data-game="sayi-ninja"]::before { background: var(--kat-sayi); }
-/* Bulmaca ve Mantık */
-.game-card[data-game="hafiza-kartlari"]::before,
-.game-card[data-game="sekil-bulmaca"]::before,
-.game-card[data-game="siralama"]::before,
-.game-card[data-game="jigsaw"]::before,
-.game-card[data-game="tetris"]::before,
-.game-card[data-game="bilim-dedektifi"]::before,
-.game-card[data-game="eslestirme-ustasi"]::before,
-.game-card[data-game="labirent-avcisi"]::before { background: var(--kat-bulmaca); }
-/* Yaratıcılık */
-.game-card[data-game="renk-eslestirme"]::before,
-.game-card[data-game="boyama"]::before,
-.game-card[data-game="tuval"]::before,
-.game-card[data-game="sayilarla-boyama"]::before,
-.game-card[data-game="emoji-yapici"]::before { background: var(--kat-yaratici); }
-/* Strateji ve Macera */
-.game-card[data-game="kod-macerasi"]::before,
-.game-card[data-game="lego-macerasi"]::before,
-.game-card[data-game="lego-world"]::before,
-.game-card[data-game="satranc"]::before,
-.game-card[data-game="zipla-topla"]::before,
-.game-card[data-game="space-waves"]::before,
-.game-card[data-game="egim"]::before,
-.game-card[data-game="buz-kulesi"]::before,
-.game-card[data-game="penalti"]::before,
-.game-card[data-game="zindan-okcusu"]::before,
-.game-card[data-game="bil-ve-fethet"]::before,
-.game-card[data-game="bilgi-takimi"]::before,
-.game-card[data-game="bilgi-ciftligi"]::before,
-.game-card[data-game="bilgi-kulesi"]::before,
-.game-card[data-game="cevap-kosusu"]::before,
-.game-card[data-game="bilgi-savunmasi"]::before,
-.game-card[data-game="fizik-firlatma"]::before { background: var(--kat-strateji); }
-/* Online (js/lock-catalog.js ONLINE_GAMES). kod-macerasi ve satranc slug'ı solo ile ortak:
-   online kartı ".mp-badge" taşır → :has() destekleyen tarayıcıda şerit online rengine döner */
-.game-card[data-game="kelime-tahmin"]::before,
-.game-card[data-game="harf-tahmin"]::before,
-.game-card[data-game="penalti-mp"]::before,
-.game-card[data-game="ates-buz"]::before,
-.game-card[data-game="zipla-topla-coop"]::before,
-.game-card[data-game="hava-hokeyi"]::before,
-.game-card[data-game="altin-avi"]::before,
-.game-card[data-game="kelimelik"]::before,
-.game-card[data-game="son-kart"]::before,
-.game-card:has(.mp-badge)::before { background: var(--kat-online); }
-
-/* Card icon - SVG handles its own background */
-.game-card .card-icon {
-    background: none;
-    box-shadow: var(--golge-1);
+/* Yaş rozeti (her kartta) + süre (öğretmen): 13 px Nunito 700, en küçük ölçü */
+.card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--ara-1) var(--ara-2);
+    margin-top: 0;
+    padding-top: var(--ara-2);
+    font-family: var(--yazi-rozet-aile);
+    font-size: var(--yazi-rozet-boy);
+    font-weight: var(--yazi-rozet-kalinlik);
+    line-height: var(--yazi-rozet-satir);
 }
+.card-yas {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 2px var(--ara-2);
+    border-radius: var(--r-hap);
+    background: var(--mavi-050);
+    color: var(--murekkep);
+    white-space: nowrap;
+}
+.card-dk { display: none; color: var(--murekkep-orta); white-space: nowrap; }
+.card-teaches {
+    display: none;
+    margin-top: var(--ara-2);
+    padding: var(--ara-1) var(--ara-2);
+    border-radius: var(--r-giris);
+    background: var(--mavi-050);
+    color: var(--murekkep);
+    font-family: var(--yazi-rozet-aile);
+    font-size: var(--yazi-rozet-boy);
+    font-weight: var(--yazi-rozet-kalinlik);
+    line-height: 1.35;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+/* Öğretmen görünümü: kazanım etiketi + süre görünür (kart ~36 px uzar); çocuk görünümünde yok.
+   Tüm satırlar üstten hizalı: yaş/süre yıldızların hemen altında, kazanım onun altında; artan boşluk kartın altında. */
+.hub.ogretmen .card-dk { display: inline; }
+.hub.ogretmen .card-teaches {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+}
+
+/* Devam et karosu: yatay düzen, şerit SOLDA (sözleşme §2 "Devam et satırı"), ikon + ad + yıldızlar */
+.game-card--devam,
+.continue-ray > .game-card--devam {          /* .raf-ray > .game-card kart enini ezer (özgüllük) */
+    flex: 0 0 300px;
+    width: 300px;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--ara-3);
+    padding: var(--ara-3) var(--ara-4) var(--ara-3) var(--ara-5);
+    text-align: left;
+}
+.game-card--devam::before { top: 0; bottom: 0; right: auto; width: 8px; height: auto; }
+.game-card--devam .card-icon { width: 60px; height: 60px; margin: 0; }
+.game-card--devam .card-body { align-items: flex-start; width: auto; flex: 1 1 0; min-width: 0; }
+.game-card--devam .card-title { text-align: left; min-height: 0; font-size: 1.1rem; margin-bottom: var(--ara-1); -webkit-line-clamp: 2; }
+.game-card--devam .card-stars { justify-content: flex-start; }
+.game-card--devam .card-stars svg { width: 18px; height: 18px; }
+.game-card--devam .card-meta,
+.game-card--devam .card-teaches { display: none !important; }
+.game-card--devam .mp-badge { position: static; align-self: flex-start; margin-top: var(--ara-1); }
+.game-card--devam .coming-soon-badge,
+.game-card--devam .offline-badge,
+.game-card--devam .lock-badge { top: var(--ara-2); right: var(--ara-2); }
 
 /* ── Rozet: tek bileşen (Nunito 700 13 px, hap). Durum hiçbir zaman yalnız renkle anlatılmaz:
       "Yakında"/"Çevrimdışı" gri zemin + metin, kilit kilit simgesi + metin, online oyuncu simgesi. ── */
@@ -430,11 +526,6 @@
     line-height: var(--yazi-rozet-satir);
     padding: var(--ara-1) var(--ara-3);
     border-radius: var(--r-hap);
-}
-
-/* Rozetli kartta ikon 8 px aşağı kayar: 13 px rozet (en küçük ölçü) ikonun köşesine binmesin */
-.game-card:has(.mp-badge, .coming-soon-badge, .offline-badge, .lock-badge) .card-icon {
-    margin-top: var(--ara-2);
 }
 
 /* ── Yakında (deaktif) oyun kartı ── */
@@ -494,33 +585,27 @@
     fill: var(--yildiz);
 }
 
-/* ── Çevrimdışı (Firebase yüklenemedi): bant + online kartların kapalı hâli ── */
+/* ── Çevrimdışı (Firebase yüklenemedi): bant (maskot uyuyan) + online kartların kapalı hâli ── */
 .offline-banner {
     position: relative;
     z-index: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--ara-2);
-    max-width: 900px;
-    margin: var(--ara-4) auto 0;
+    gap: var(--ara-3);
+    max-width: var(--hub-genislik);
+    margin: var(--ara-3) auto 0;
     padding: var(--ara-2) var(--ara-4);
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: var(--murekkep);
-    background: var(--yuzey);
-    border-radius: var(--r-giris);
+    background: var(--mavi-050);   /* açık mavi zemin: beyaz maskot okunur, metin mürekkep (10:1) */
+    border: var(--kontur);
+    border-radius: var(--r-kart);
     box-shadow: var(--golge-1);
     text-align: center;
 }
-.offline-banner::before {
-    content: '';
-    flex: none;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--yanlis);
-}
+.offline-maskot { flex: none; width: 44px; height: 40px; }
 @media (max-width: 600px) {
     .offline-banner { margin-left: var(--ara-4); margin-right: var(--ara-4); }
 }
@@ -534,6 +619,34 @@
 .offline-badge {
     background: var(--yildiz-bos);
     color: var(--murekkep-orta);
+}
+
+/* ── Kırılımlar: 1024 (sınıf tableti yatay) kart 168 px; 375 telefon kart 152 px, çipler 44 px ── */
+@media (max-width: 1100px) {
+    .hub { --kart-en: 168px; }
+}
+@media (max-width: 640px) {
+    .hub { --kart-en: 152px; }
+    .hub-nav { padding: var(--ara-2) var(--ara-4) 0; }
+    .hub-continue { padding: var(--ara-3) var(--ara-4) 0; }
+    .hub-grid { padding: var(--ara-2) var(--ara-4) var(--ara-6); gap: var(--ara-4); }
+    .hub-nav-chip { min-height: 44px; padding: 0 var(--ara-3); font-size: 0.95rem; gap: 6px; }
+    .chip-icon { width: 22px; height: 22px; }
+    .raf-baslik { font-size: 1.25rem; padding: 6px var(--ara-4); }
+    .raf-yas { font-size: 0.9rem; }
+    .raf-sayi { min-height: 32px; font-size: 0.85rem; }
+    .raf-izgara { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--ara-3); }
+    .game-card { padding: var(--ara-4) var(--ara-2) var(--ara-3); }
+    .card-icon { width: 72px; height: 72px; }
+    .card-title { font-size: 1.1rem; }
+    .card-stars svg { width: 18px; height: 18px; }
+    .game-card--devam, .continue-ray > .game-card--devam { flex-basis: 240px; width: 240px; padding: var(--ara-2) var(--ara-3) var(--ara-2) var(--ara-4); }
+    .game-card--devam .card-icon { width: 52px; height: 52px; }
+    .hub-empty, .continue-empty { padding: var(--ara-3) var(--ara-4); }
+    .continue-maskot { width: 52px; height: 47px; }
+}
+@media (max-width: 360px) {
+    .hub { padding-top: 68px; }
 }
 
 /* ── Dialog sistemi (B3): tek kap, js/dialog.js açar/kapatır. Katmanlar: kilit penceresi (js/app.js),
@@ -616,62 +729,6 @@
 }
 .lm-btn:hover { filter: brightness(1.07); }
 .lm-btn:active { transform: scale(0.97); box-shadow: var(--golge-1); }
-
-/* Kategori başlıkları: metin mürekkep; kategori rengi yalnız yan çizgilerde
-   (--cat-color'ı js/app.js satır içi verir — B2a'da JSON'a taşınır) */
-.hub-category-header {
-    grid-column: 1 / -1;
-    text-align: center;
-    margin: 1.5rem 0 0.3rem;
-    padding: 0.5rem 1rem;
-}
-.hub-category-header:first-child {
-    margin-top: 0;
-}
-.hub-category-header h2 {
-    font-family: var(--font-display);
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--murekkep);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-.hub-category-header h2::before,
-.hub-category-header h2::after {
-    content: '';
-    flex: 1;
-    height: 4px;
-    border-radius: var(--r-hap);
-    background: var(--cat-color, var(--cizgi));
-    max-width: 80px;
-    opacity: 0.6;
-}
-
-/* ── Mobil Responsive ── */
-@media (max-width: 480px) {
-    .hub-nav-chip { padding: 0 var(--ara-3); font-size: 0.9rem; gap: 6px; }
-    .chip-icon { width: 20px; height: 20px; }
-    .hub-nav-scroll { gap: 6px; padding: 2px 0; }
-
-    .popular-card { min-width: 150px; padding: 10px 12px; }
-    .popular-icon { width: 44px; height: 44px; }
-    .popular-name { font-size: 0.9rem; }
-
-    .hub-popular { padding: 0 var(--ara-4); }
-}
-
-@media (max-width: 380px) {
-    .chip-label { display: none; }
-    .hub-nav-chip { padding: 0 var(--ara-3); }
-}
-
-@media (max-width: 360px) {
-    .hub { padding-top: 68px; }
-    .hub-nav-chip { padding: 0 var(--ara-2); font-size: 0.85rem; }
-    .popular-card { min-width: 140px; }
-}
 
 /* ── Meta katman v1: jeton çipi + ilerleme paneli (EGITSEL-OYUN-PLANI §3) ── */
 .coin-counter { cursor: pointer; transition: transform var(--sure-gecis) var(--egri-out); }

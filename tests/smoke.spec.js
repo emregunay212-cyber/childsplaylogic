@@ -103,12 +103,16 @@ test.describe('Oyunlar derin bağlantıyla açılır (/?oyun=<slug>)', () => {
 
 test.describe('Online sürümü yalnız hub kartından açılan oyunlar', () => {
     for (const slug of hubOnlyOnline) {
-        test(`${slug} (online, hub → Online sekmesi → kart)`, async ({ page, errors }) => {
+        // B2b: online oyunlar ayrı bölüm değil, yaş raflarına dağılır → "Online" kategori çipi yalnız online kartları
+        // bırakır; aynı oyun birden çok rafta görünebilir (data-online + ilk raf kartı). Solo kart da data-game taşır,
+        // ayrım [data-online] ile.
+        test(`${slug} (online, hub → Online çipi → kart)`, async ({ page, errors }) => {
             await page.goto('/');
             await expect(page.locator('#hub')).toBeVisible();
-            await page.locator('#hub-nav-scroll .hub-nav-chip[data-cat="mp"]').click();
-            const card = page.locator(`#hub-grid .game-card[data-game="${slug}"]`);
+            await page.locator('#hub-nav-scroll .hub-nav-chip[data-cat="online"]').click();
+            const card = page.locator(`#hub-grid .game-card[data-game="${slug}"][data-online]`).first();
             await expect(card, 'online kart kilitsiz olmalı (öğretmen izni tohumlandı)').not.toHaveClass(/\b(locked|coming-soon)\b/);
+            await card.scrollIntoViewIfNeeded();
             await card.click();
             await expectGameViewOpen(page, slug, 'online');
             await expect(page.locator('#game-area .lobby-main'), 'Lobby ana menüsü çizilmeli').toBeVisible();

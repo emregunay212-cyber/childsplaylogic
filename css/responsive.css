@@ -4,18 +4,7 @@
 
 /* Büyük tablet / Desktop */
 @media (min-width: 1024px) {
-    .hub-grid {
-        grid-template-columns: repeat(4, 1fr);
-        max-width: 960px;
-        gap: var(--ara-7);
-        padding: var(--ara-8) var(--ara-7);
-    }
-
-    .card-icon {
-        width: 100px;
-        height: 100px;
-        font-size: 3.5rem;
-    }
+    .card-icon { width: 96px; height: 96px; }
 
     .memory-grid.grid-2x2 { grid-template-columns: repeat(2, 120px); }
     .memory-grid.grid-3x4 { grid-template-columns: repeat(4, 110px); }
@@ -24,12 +13,6 @@
 
 /* Tablet dikey */
 @media (min-width: 768px) and (max-width: 1023px) {
-    .hub-grid {
-        grid-template-columns: repeat(3, 1fr);
-        max-width: 720px;
-        gap: var(--ara-5);
-    }
-
     .memory-grid.grid-2x2 { grid-template-columns: repeat(2, 110px); }
     .memory-grid.grid-3x4 { grid-template-columns: repeat(4, 100px); }
     .memory-grid.grid-4x4 { grid-template-columns: repeat(4, 95px); }
@@ -37,18 +20,6 @@
 
 /* Büyük telefon */
 @media (min-width: 480px) and (max-width: 767px) {
-    .hub-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--ara-4);
-        padding: var(--ara-5) var(--ara-4);
-    }
-
-    .card-icon {
-        width: 72px;
-        height: 72px;
-        font-size: 2.5rem;
-    }
-
     .sun { width: 60px; height: 60px; }
 
     .memory-grid.grid-2x2 { grid-template-columns: repeat(2, 100px); }
@@ -62,26 +33,6 @@
 
 /* Küçük telefon */
 @media (max-width: 479px) {
-    .hub-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--ara-2);
-        padding: var(--ara-4) var(--ara-2);
-    }
-
-    .game-card {
-        padding: var(--ara-4) var(--ara-2) var(--ara-2);
-        border-radius: var(--r-kart);
-    }
-
-    .card-icon {
-        width: 60px;
-        height: 60px;
-        font-size: 2rem;
-        border-radius: var(--r-giris);
-    }
-
-    .card-stars svg { width: 18px; height: 18px; }
-
     .top-title { font-size: 1.1rem; }
     .star-counter { padding: 6px 10px; font-size: 0.95rem; }
 
@@ -116,14 +67,7 @@
     .game-toolbar { height: 46px; }
     .game-area { top: 46px; padding: var(--ara-2); }
 
-    .hub-grid {
-        grid-template-columns: repeat(4, 1fr);
-        gap: var(--ara-2);
-        padding: var(--ara-4);
-    }
-
-    .card-icon { width: 50px; height: 50px; font-size: 1.8rem; }
-    .game-card { padding: var(--ara-2); }
+    .card-icon { width: 56px; height: 56px; }
 
     .game-instruction { margin-bottom: var(--ara-2); font-size: 0.9rem; }
     .letter-display { font-size: 3rem; }
@@ -223,46 +167,13 @@
     .game-area { bottom: env(safe-area-inset-bottom); }
 }
 
-/* Kategori çip etiketi: varsayılan (masaüstü/tablet) UZUN etiket gösterir */
-.chip-lbl-short { display: none; }
-
-/* ── Mobil: kategori barını kendi TAM-GENİŞLİK satırına indir ──────────
-   Sorun: üst bar tek satırda (ev tuşu + yıldız/ses/yönetim/hesap) kategori
-   barını ~150px'e sıkıştırıyordu → çipler küçük, uzun kategori adları ekrana
-   sığmadan kırpılıyordu. Çözüm: mobilde üst barı sarmala, kategori barı
-   ikinci tam-genişlik satıra insin; etiketler KISA + tam okunur, çipler rahat. */
+/* ── Mobil üst bar (B2b): süzgeç çipleri artık hub gövdesinde (css/hub.css .hub-nav); üst bar tek satır,
+   ev/ses 44 px, sayaçlar sıkı, öğretmen anahtarı yalnız simge (css/main.css ≤ 640). ── */
 @media (max-width: 640px) {
     .top-bar {
-        flex-wrap: wrap;
-        height: auto;
-        min-height: 60px;
-        row-gap: 4px;
-        padding-top: calc(6px + env(safe-area-inset-top, 0px));
-        padding-bottom: 6px;
+        height: calc(60px + env(safe-area-inset-top, 0px));
+        padding-top: env(safe-area-inset-top, 0px);
     }
-    .home-btn { order: 1; }
-    .top-right { order: 2; margin-left: auto; }
-    #hub-nav.hub-nav {
-        order: 3;
-        flex: 0 0 100%;
-        max-width: 100%;
-        min-width: 0;
-        overflow: hidden;
-    }
-    .hub-nav-scroll { padding: 2px 0 3px; gap: 6px; }
-
-    /* Sözcükler artık tam görünür: ≤380px gizleme kuralını ez, kısa etiket göster */
-    .chip-label { display: inline; }
-    .chip-lbl-full { display: none; }
-    .chip-lbl-short { display: inline; }
-    .hub-nav-chip {
-        min-height: var(--hedef-min);
-        padding: 0 14px;
-        font-size: 0.95rem;
-        gap: 6px;
-    }
-    .chip-icon { width: 22px; height: 22px; }
-
-    /* İçerik 2 satırlı üst barın (6 + 52 + 4 + 57 + 6 = 125 px) altından başlamalı */
-    .hub { padding-top: calc(132px + env(safe-area-inset-top, 0px)); }
+    .top-right { margin-left: auto; }
+    .hub { padding-top: calc(68px + env(safe-area-inset-top, 0px)); }
 }
