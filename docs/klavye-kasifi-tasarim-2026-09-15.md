@@ -122,3 +122,7 @@ tuş nefes alır.
 Bu PR'ın dışında bırakılan bulgular (ayrı iş): günlük giriş toast'u (`js/bilnet-meta.js`) telefonda açılışta 3 sn Boşluk tuşunu örtüyor;
 önceki seviyenin konfetisi yeni seviyeye akıyor (motor kutlaması); landing imza bandı yüksekliği %5 (üretici şablonu, kural ≤%2);
 yatay telefonda tuş yüksekliği 34 px (< 44 px dokunma hedefi — yükseklik bütçesi).
+
+Kanıt yenileme sonrası (bkz. `docs/kanit/klavye-kasifi-2026-09-16/README.md`): bulgu 11 (balon uçuşta opak — `kkPop` `both` dolgusu
+`.is-flown` opaklığını eziyordu → `.kk-bubble.is-revealed.is-flown { animation: none }`, Playwright: 750 ms'de opacity 0.45) ve bulgu 15
+(dar ekranda 96 px balon / 37 px kutu → `≤599px` Kelime Yolu balonu `clamp(52px, 8vh, 72px)`, kutular 44 px) kapatıldı; kutu kenarı 3,2:1.

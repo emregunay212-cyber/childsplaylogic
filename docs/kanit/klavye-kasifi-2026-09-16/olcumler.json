@@ -1,0 +1,1566 @@
+{
+  "tarih": "2026-09-16T03:33:55.447Z",
+  "base": "http://localhost:8765",
+  "olcumler": {
+    "hubCard1366": {
+      "rect": {
+        "x": 473,
+        "y": 277.8,
+        "w": 190,
+        "h": 213.1
+      },
+      "title": "Klavye Kâşifi",
+      "iconSrc": "assets/images/hub/klavye-kasifi.svg",
+      "iconNatural": [
+        150,
+        150
+      ],
+      "iconComplete": true,
+      "sectionHeading": "Harfler & Kelimeler",
+      "stripe": "rgb(58, 134, 255)",
+      "cardBg": "rgba(255, 255, 255, 0.92)",
+      "text": "Klavye Kâşifi",
+      "locked": "game-card"
+    },
+    "d1366_L1": {
+      "viewport": {
+        "w": 1366,
+        "h": 768,
+        "dpr": 1
+      },
+      "gameArea": {
+        "clientHeight": 712,
+        "scrollHeight": 712,
+        "clientWidth": 1366,
+        "scrollWidth": 1366,
+        "rect": {
+          "x": 0,
+          "y": 56,
+          "w": 1366,
+          "h": 712
+        },
+        "padding": "16px"
+      },
+      "game": {
+        "rect": {
+          "x": 293,
+          "y": 72,
+          "w": 780,
+          "h": 680
+        },
+        "gap": "16px"
+      },
+      "toolbar": {
+        "x": 0,
+        "y": 0,
+        "w": 1366,
+        "h": 56
+      },
+      "instruction": {
+        "text": "Yanan tuşa bas: «Ü»",
+        "color": "rgb(93, 64, 55)",
+        "bg": "rgba(255, 255, 255, 0.8)",
+        "fontSize": "24px",
+        "fontFamily": "Fredoka, sans-serif",
+        "rect": {
+          "x": 547.6,
+          "y": 72,
+          "w": 270.8,
+          "h": 45
+        }
+      },
+      "containerBg": "linear-gradient(rgb(232, 244, 253) 0%, rgb(240, 248, 255) 100%)",
+      "shelf": {
+        "x": 521,
+        "y": 133,
+        "w": 324,
+        "h": 56
+      },
+      "slot": {
+        "rect": {
+          "x": 531,
+          "y": 139,
+          "w": 44,
+          "h": 44
+        },
+        "count": 6,
+        "filled": 0
+      },
+      "card": {
+        "x": 533.7,
+        "y": 249.1,
+        "w": 298.5,
+        "h": 124
+      },
+      "letter": {
+        "text": "Ü",
+        "fontSize": "104px",
+        "fontFamily": "Fredoka, Nunito, sans-serif",
+        "color": "rgb(58, 134, 255)",
+        "rect": {
+          "x": 565.7,
+          "y": 259.1,
+          "w": 114.4,
+          "h": 104
+        }
+      },
+      "bubble": {
+        "rect": {
+          "x": 708.1,
+          "y": 265,
+          "w": 92.2,
+          "h": 92.2
+        },
+        "text": "?",
+        "fontSize": "49.92px"
+      },
+      "caption": {
+        "color": "rgb(95, 107, 115)",
+        "fontSize": "19.2px",
+        "display": "block"
+      },
+      "keyboard": {
+        "rect": {
+          "x": 309.1,
+          "y": 464,
+          "w": 747.9,
+          "h": 288
+        },
+        "bg": "rgba(255, 255, 255, 0.55)"
+      },
+      "key": {
+        "rect": {
+          "x": 340.1,
+          "y": 544,
+          "w": 54.2,
+          "h": 60
+        },
+        "fontSize": "24px",
+        "color": "rgb(45, 52, 54)",
+        "bg": "rgb(255, 255, 255)",
+        "radius": "11px"
+      },
+      "keyCount": 33,
+      "target": {
+        "key": "Ü",
+        "bg": "rgb(255, 209, 102)",
+        "color": "rgb(45, 52, 54)",
+        "boxShadow": "rgba(255, 209, 102, 0.45) 0px 0px 0px 4px, rgba(224, 168, 0, 0.35) 0px 6px 14px 0px"
+      },
+      "hint": null,
+      "space": {
+        "rect": {
+          "x": 475.5,
+          "y": 676,
+          "w": 415.2,
+          "h": 60
+        },
+        "fontSize": "16.8px",
+        "color": "rgb(95, 107, 115)",
+        "bg": "rgb(255, 255, 255)",
+        "text": "Boşluk"
+      },
+      "tile": null,
+      "tileCurrent": null,
+      "tiles": [],
+      "speech": {
+        "hidden": false,
+        "rect": {
+          "x": 1029,
+          "y": 72,
+          "w": 44,
+          "h": 44
+        }
+      },
+      "fontsLoaded": [
+        "Fredoka 300 700",
+        "Nunito 200 1000"
+      ],
+      "bodyScroll": {
+        "scrollHeight": 768,
+        "clientHeight": 768,
+        "scrollWidth": 1366,
+        "clientWidth": 1366
+      },
+      "contrast": {
+        "instruction": {
+          "fg": "#5D4037",
+          "bgAlpha": "rgba(255, 255, 255, 0.8)",
+          "bgComposite": "#FAFDFF",
+          "ratio": 9.11,
+          "ratioOnPureWhite": 9.32
+        },
+        "keyLabel": {
+          "fg": "#2D3436",
+          "bg": "#FFFFFF",
+          "ratio": 12.68
+        },
+        "targetLabel": {
+          "fg": "#2D3436",
+          "bg": "#FFD166",
+          "ratio": 8.79
+        },
+        "spaceLabel": {
+          "fg": "#5F6B73",
+          "bg": "#FFFFFF",
+          "ratio": 5.47
+        },
+        "caption": {
+          "fg": "#5F6B73",
+          "bg": "#E8F4FD",
+          "ratio": 4.9
+        },
+        "letter": {
+          "fg": "#3A86FF",
+          "ratio": 3.48
+        }
+      }
+    },
+    "d1366_L2": {
+      "viewport": {
+        "w": 1366,
+        "h": 768,
+        "dpr": 1
+      },
+      "gameArea": {
+        "clientHeight": 712,
+        "scrollHeight": 712,
+        "clientWidth": 1366,
+        "scrollWidth": 1366,
+        "rect": {
+          "x": 0,
+          "y": 56,
+          "w": 1366,
+          "h": 712
+        },
+        "padding": "16px"
+      },
+      "game": {
+        "rect": {
+          "x": 293,
+          "y": 72,
+          "w": 780,
+          "h": 680
+        },
+        "gap": "16px"
+      },
+      "toolbar": {
+        "x": 0,
+        "y": 0,
+        "w": 1366,
+        "h": 56
+      },
+      "instruction": {
+        "text": "«Ğ» tuşunu bul ve bas!",
+        "color": "rgb(93, 64, 55)",
+        "bg": "rgba(255, 255, 255, 0.8)",
+        "fontSize": "24px",
+        "fontFamily": "Fredoka, sans-serif",
+        "rect": {
+          "x": 533.1,
+          "y": 72,
+          "w": 299.7,
+          "h": 45
+        }
+      },
+      "containerBg": "linear-gradient(rgb(232, 244, 253) 0%, rgb(240, 248, 255) 100%)",
+      "shelf": {
+        "x": 469,
+        "y": 133,
+        "w": 428,
+        "h": 56
+      },
+      "slot": {
+        "rect": {
+          "x": 479,
+          "y": 139,
+          "w": 44,
+          "h": 44
+        },
+        "count": 8,
+        "filled": 0
+      },
+      "card": {
+        "x": 533.7,
+        "y": 249.1,
+        "w": 298.5,
+        "h": 124
+      },
+      "letter": {
+        "text": "Ğ",
+        "fontSize": "104px",
+        "fontFamily": "Fredoka, Nunito, sans-serif",
+        "color": "rgb(58, 134, 255)",
+        "rect": {
+          "x": 565.7,
+          "y": 259.1,
+          "w": 114.4,
+          "h": 104
+        }
+      },
+      "bubble": {
+        "rect": {
+          "x": 708.1,
+          "y": 265,
+          "w": 92.2,
+          "h": 92.2
+        },
+        "text": "?",
+        "fontSize": "49.92px"
+      },
+      "caption": {
+        "color": "rgb(95, 107, 115)",
+        "fontSize": "19.2px",
+        "display": "block"
+      },
+      "keyboard": {
+        "rect": {
+          "x": 309.1,
+          "y": 464,
+          "w": 747.9,
+          "h": 288
+        },
+        "bg": "rgba(255, 255, 255, 0.55)"
+      },
+      "key": {
+        "rect": {
+          "x": 340.1,
+          "y": 544,
+          "w": 54.2,
+          "h": 60
+        },
+        "fontSize": "24px",
+        "color": "rgb(45, 52, 54)",
+        "bg": "rgb(255, 255, 255)",
+        "radius": "11px"
+      },
+      "keyCount": 33,
+      "target": null,
+      "hint": null,
+      "space": {
+        "rect": {
+          "x": 475.5,
+          "y": 676,
+          "w": 415.2,
+          "h": 60
+        },
+        "fontSize": "16.8px",
+        "color": "rgb(95, 107, 115)",
+        "bg": "rgb(255, 255, 255)",
+        "text": "Boşluk"
+      },
+      "tile": null,
+      "tileCurrent": null,
+      "tiles": [],
+      "speech": {
+        "hidden": false,
+        "rect": {
+          "x": 1029,
+          "y": 72,
+          "w": 44,
+          "h": 44
+        }
+      },
+      "fontsLoaded": [
+        "Fredoka 300 700",
+        "Nunito 200 1000"
+      ],
+      "bodyScroll": {
+        "scrollHeight": 768,
+        "clientHeight": 768,
+        "scrollWidth": 1366,
+        "clientWidth": 1366
+      },
+      "contrast": {
+        "instruction": {
+          "fg": "#5D4037",
+          "bgAlpha": "rgba(255, 255, 255, 0.8)",
+          "bgComposite": "#FAFDFF",
+          "ratio": 9.11,
+          "ratioOnPureWhite": 9.32
+        },
+        "keyLabel": {
+          "fg": "#2D3436",
+          "bg": "#FFFFFF",
+          "ratio": 12.68
+        },
+        "spaceLabel": {
+          "fg": "#5F6B73",
+          "bg": "#FFFFFF",
+          "ratio": 5.47
+        },
+        "caption": {
+          "fg": "#5F6B73",
+          "bg": "#E8F4FD",
+          "ratio": 4.9
+        },
+        "letter": {
+          "fg": "#3A86FF",
+          "ratio": 3.48
+        }
+      }
+    },
+    "d1366_L3": {
+      "viewport": {
+        "w": 1366,
+        "h": 768,
+        "dpr": 1
+      },
+      "gameArea": {
+        "clientHeight": 712,
+        "scrollHeight": 712,
+        "clientWidth": 1366,
+        "scrollWidth": 1366,
+        "rect": {
+          "x": 0,
+          "y": 56,
+          "w": 1366,
+          "h": 712
+        },
+        "padding": "16px"
+      },
+      "game": {
+        "rect": {
+          "x": 293,
+          "y": 72,
+          "w": 780,
+          "h": 680
+        },
+        "gap": "16px"
+      },
+      "toolbar": {
+        "x": 0,
+        "y": 0,
+        "w": 1366,
+        "h": 56
+      },
+      "instruction": {
+        "text": "Harfleri sırayla yaz, sonra Boşluk'a bas!",
+        "color": "rgb(93, 64, 55)",
+        "bg": "rgba(255, 255, 255, 0.8)",
+        "fontSize": "24px",
+        "fontFamily": "Fredoka, sans-serif",
+        "rect": {
+          "x": 444.7,
+          "y": 72,
+          "w": 476.6,
+          "h": 45
+        }
+      },
+      "containerBg": "linear-gradient(rgb(232, 244, 253) 0%, rgb(240, 248, 255) 100%)",
+      "shelf": {
+        "x": 573,
+        "y": 133,
+        "w": 220,
+        "h": 56
+      },
+      "slot": {
+        "rect": {
+          "x": 583,
+          "y": 139,
+          "w": 44,
+          "h": 44
+        },
+        "count": 4,
+        "filled": 0
+      },
+      "card": {
+        "x": 415.9,
+        "y": 255,
+        "w": 534.2,
+        "h": 112.2
+      },
+      "letter": null,
+      "bubble": {
+        "rect": {
+          "x": 825.9,
+          "y": 265,
+          "w": 92.2,
+          "h": 92.2
+        },
+        "text": "?",
+        "fontSize": "49.92px"
+      },
+      "caption": {
+        "color": "rgb(95, 107, 115)",
+        "fontSize": "19.2px",
+        "display": "block"
+      },
+      "keyboard": {
+        "rect": {
+          "x": 309.1,
+          "y": 464,
+          "w": 747.9,
+          "h": 288
+        },
+        "bg": "rgba(255, 255, 255, 0.55)"
+      },
+      "key": {
+        "rect": {
+          "x": 340.1,
+          "y": 544,
+          "w": 54.2,
+          "h": 60
+        },
+        "fontSize": "24px",
+        "color": "rgb(45, 52, 54)",
+        "bg": "rgb(255, 255, 255)",
+        "radius": "11px"
+      },
+      "keyCount": 33,
+      "target": null,
+      "hint": null,
+      "space": {
+        "rect": {
+          "x": 475.5,
+          "y": 676,
+          "w": 415.2,
+          "h": 60
+        },
+        "fontSize": "16.8px",
+        "color": "rgb(95, 107, 115)",
+        "bg": "rgb(255, 255, 255)",
+        "text": "Boşluk"
+      },
+      "tile": {
+        "rect": {
+          "x": 519.9,
+          "y": 280.1,
+          "w": 62,
+          "h": 62
+        },
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgb(255, 255, 255)",
+        "border": "rgb(226, 232, 240)",
+        "fontSize": "38.4px"
+      },
+      "tileCurrent": {
+        "text": "G",
+        "color": "rgb(58, 134, 255)",
+        "border": "rgb(58, 134, 255)"
+      },
+      "tiles": [
+        "G*",
+        "Ü",
+        "N",
+        "E",
+        "Ş"
+      ],
+      "speech": {
+        "hidden": false,
+        "rect": {
+          "x": 1029,
+          "y": 72,
+          "w": 44,
+          "h": 44
+        }
+      },
+      "fontsLoaded": [
+        "Fredoka 300 700",
+        "Nunito 200 1000"
+      ],
+      "bodyScroll": {
+        "scrollHeight": 768,
+        "clientHeight": 768,
+        "scrollWidth": 1366,
+        "clientWidth": 1366
+      },
+      "contrast": {
+        "instruction": {
+          "fg": "#5D4037",
+          "bgAlpha": "rgba(255, 255, 255, 0.8)",
+          "bgComposite": "#FAFDFF",
+          "ratio": 9.11,
+          "ratioOnPureWhite": 9.32
+        },
+        "keyLabel": {
+          "fg": "#2D3436",
+          "bg": "#FFFFFF",
+          "ratio": 12.68
+        },
+        "spaceLabel": {
+          "fg": "#5F6B73",
+          "bg": "#FFFFFF",
+          "ratio": 5.47
+        },
+        "tilePending": {
+          "fg": "#94A3B8",
+          "bg": "#FFFFFF",
+          "ratio": 2.56,
+          "border": "#E2E8F0",
+          "borderVsBg": 1.23
+        },
+        "tileCurrent": {
+          "fg": "#3A86FF",
+          "ratio": 3.48
+        },
+        "caption": {
+          "fg": "#5F6B73",
+          "bg": "#E8F4FD",
+          "ratio": 4.9
+        }
+      }
+    },
+    "d1366_L3_bosluk": {
+      "viewport": {
+        "w": 1366,
+        "h": 768,
+        "dpr": 1
+      },
+      "gameArea": {
+        "clientHeight": 712,
+        "scrollHeight": 712,
+        "clientWidth": 1366,
+        "scrollWidth": 1366,
+        "rect": {
+          "x": 0,
+          "y": 56,
+          "w": 1366,
+          "h": 712
+        },
+        "padding": "16px"
+      },
+      "game": {
+        "rect": {
+          "x": 293,
+          "y": 72,
+          "w": 780,
+          "h": 680
+        },
+        "gap": "16px"
+      },
+      "toolbar": {
+        "x": 0,
+        "y": 0,
+        "w": 1366,
+        "h": 56
+      },
+      "instruction": {
+        "text": "Şimdi Boşluk tuşuna bas!",
+        "color": "rgb(93, 64, 55)",
+        "bg": "rgba(255, 255, 255, 0.8)",
+        "fontSize": "24px",
+        "fontFamily": "Fredoka, sans-serif",
+        "rect": {
+          "x": 522.7,
+          "y": 72,
+          "w": 320.6,
+          "h": 45
+        }
+      },
+      "containerBg": "linear-gradient(rgb(232, 244, 253) 0%, rgb(240, 248, 255) 100%)",
+      "shelf": {
+        "x": 573,
+        "y": 133,
+        "w": 220,
+        "h": 56
+      },
+      "slot": {
+        "rect": {
+          "x": 583,
+          "y": 139,
+          "w": 44,
+          "h": 44
+        },
+        "count": 4,
+        "filled": 0
+      },
+      "card": {
+        "x": 415.9,
+        "y": 255,
+        "w": 534.2,
+        "h": 112.2
+      },
+      "letter": null,
+      "bubble": {
+        "rect": {
+          "x": 825.9,
+          "y": 265,
+          "w": 92.2,
+          "h": 92.2
+        },
+        "text": "?",
+        "fontSize": "49.92px"
+      },
+      "caption": {
+        "color": "rgb(95, 107, 115)",
+        "fontSize": "19.2px",
+        "display": "block"
+      },
+      "keyboard": {
+        "rect": {
+          "x": 309.1,
+          "y": 464,
+          "w": 747.9,
+          "h": 288
+        },
+        "bg": "rgba(255, 255, 255, 0.55)"
+      },
+      "key": {
+        "rect": {
+          "x": 340.1,
+          "y": 544,
+          "w": 54.2,
+          "h": 60
+        },
+        "fontSize": "24px",
+        "color": "rgb(45, 52, 54)",
+        "bg": "rgb(255, 255, 255)",
+        "radius": "11px"
+      },
+      "keyCount": 33,
+      "target": {
+        "key": " ",
+        "bg": "rgb(255, 209, 102)",
+        "color": "rgb(45, 52, 54)",
+        "boxShadow": "rgba(255, 209, 102, 0.45) 0px 0px 0px 4px, rgba(224, 168, 0, 0.35) 0px 6px 14px 0px"
+      },
+      "hint": null,
+      "space": {
+        "rect": {
+          "x": 475.5,
+          "y": 676,
+          "w": 415.2,
+          "h": 60
+        },
+        "fontSize": "16.8px",
+        "color": "rgb(45, 52, 54)",
+        "bg": "rgb(255, 209, 102)",
+        "text": "Boşluk"
+      },
+      "tile": null,
+      "tileCurrent": null,
+      "tiles": [
+        "G+",
+        "Ü+",
+        "N+",
+        "E+",
+        "Ş+"
+      ],
+      "speech": {
+        "hidden": false,
+        "rect": {
+          "x": 1029,
+          "y": 72,
+          "w": 44,
+          "h": 44
+        }
+      },
+      "fontsLoaded": [
+        "Fredoka 300 700",
+        "Nunito 200 1000"
+      ],
+      "bodyScroll": {
+        "scrollHeight": 768,
+        "clientHeight": 768,
+        "scrollWidth": 1366,
+        "clientWidth": 1366
+      }
+    },
+    "notes1366": {
+      "level2": {
+        "title": "Mükemmel!",
+        "earned": 3
+      },
+      "spaceAfter": {
+        "revealed": true,
+        "bubble": "☀️",
+        "caption": "Güneş"
+      }
+    },
+    "m375_L1": {
+      "viewport": {
+        "w": 375,
+        "h": 812,
+        "dpr": 2
+      },
+      "gameArea": {
+        "clientHeight": 756,
+        "scrollHeight": 756,
+        "clientWidth": 375,
+        "scrollWidth": 375,
+        "rect": {
+          "x": 0,
+          "y": 56,
+          "w": 375,
+          "h": 756
+        },
+        "padding": "16px"
+      },
+      "game": {
+        "rect": {
+          "x": 16,
+          "y": 72,
+          "w": 343,
+          "h": 724
+        },
+        "gap": "8px"
+      },
+      "toolbar": {
+        "x": 0,
+        "y": 0,
+        "w": 375,
+        "h": 56
+      },
+      "instruction": {
+        "text": "Yanan tuşa bas: «İ»",
+        "color": "rgb(93, 64, 55)",
+        "bg": "rgba(255, 255, 255, 0.8)",
+        "fontSize": "13.6px",
+        "fontFamily": "Fredoka, sans-serif",
+        "rect": {
+          "x": 119.1,
+          "y": 72,
+          "w": 136.7,
+          "h": 25.6
+        }
+      },
+      "containerBg": "linear-gradient(rgb(232, 244, 253) 0%, rgb(240, 248, 255) 100%)",
+      "shelf": {
+        "x": 25.5,
+        "y": 105.6,
+        "w": 324,
+        "h": 56
+      },
+      "slot": {
+        "rect": {
+          "x": 35.5,
+          "y": 111.6,
+          "w": 44,
+          "h": 44
+        },
+        "count": 6,
+        "filled": 0
+      },
+      "card": {
+        "x": 58.3,
+        "y": 267.9,
+        "w": 258.4,
+        "h": 124
+      },
+      "letter": {
+        "text": "İ",
+        "fontSize": "104px",
+        "fontFamily": "Fredoka, Nunito, sans-serif",
+        "color": "rgb(58, 134, 255)",
+        "rect": {
+          "x": 76.3,
+          "y": 277.9,
+          "w": 114.4,
+          "h": 104
+        }
+      },
+      "bubble": {
+        "rect": {
+          "x": 202.7,
+          "y": 281.9,
+          "w": 96,
+          "h": 96
+        },
+        "text": "?",
+        "fontSize": "52.78px"
+      },
+      "caption": {
+        "color": "rgb(95, 107, 115)",
+        "fontSize": "19.2px",
+        "display": "block"
+      },
+      "keyboard": {
+        "rect": {
+          "x": 4.1,
+          "y": 529,
+          "w": 366.9,
+          "h": 267
+        },
+        "bg": "rgba(255, 255, 255, 0.55)"
+      },
+      "key": {
+        "rect": {
+          "x": 15.6,
+          "y": 600,
+          "w": 27.2,
+          "h": 60
+        },
+        "fontSize": "15.2px",
+        "color": "rgb(45, 52, 54)",
+        "bg": "rgb(255, 255, 255)",
+        "radius": "9px"
+      },
+      "keyCount": 33,
+      "target": {
+        "key": "İ",
+        "bg": "rgb(255, 209, 102)",
+        "color": "rgb(45, 52, 54)",
+        "boxShadow": "rgba(255, 209, 102, 0.45) 0px 0px 0px 4px, rgba(224, 168, 0, 0.35) 0px 6px 14px 0px"
+      },
+      "hint": null,
+      "space": {
+        "rect": {
+          "x": 83.5,
+          "y": 726,
+          "w": 208.2,
+          "h": 60
+        },
+        "fontSize": "12.8px",
+        "color": "rgb(95, 107, 115)",
+        "bg": "rgb(255, 255, 255)",
+        "text": "Boşluk"
+      },
+      "tile": null,
+      "tileCurrent": null,
+      "tiles": [],
+      "speech": {
+        "hidden": false,
+        "rect": {
+          "x": 315,
+          "y": 72,
+          "w": 44,
+          "h": 44
+        }
+      },
+      "fontsLoaded": [
+        "Fredoka 300 700",
+        "Nunito 200 1000"
+      ],
+      "bodyScroll": {
+        "scrollHeight": 812,
+        "clientHeight": 812,
+        "scrollWidth": 375,
+        "clientWidth": 375
+      },
+      "contrast": {
+        "instruction": {
+          "fg": "#5D4037",
+          "bgAlpha": "rgba(255, 255, 255, 0.8)",
+          "bgComposite": "#FAFDFF",
+          "ratio": 9.11,
+          "ratioOnPureWhite": 9.32
+        },
+        "keyLabel": {
+          "fg": "#2D3436",
+          "bg": "#FFFFFF",
+          "ratio": 12.68
+        },
+        "targetLabel": {
+          "fg": "#2D3436",
+          "bg": "#FFD166",
+          "ratio": 8.79
+        },
+        "spaceLabel": {
+          "fg": "#5F6B73",
+          "bg": "#FFFFFF",
+          "ratio": 5.47
+        },
+        "caption": {
+          "fg": "#5F6B73",
+          "bg": "#E8F4FD",
+          "ratio": 4.9
+        },
+        "letter": {
+          "fg": "#3A86FF",
+          "ratio": 3.48
+        }
+      }
+    },
+    "m375_L3": {
+      "viewport": {
+        "w": 375,
+        "h": 812,
+        "dpr": 2
+      },
+      "gameArea": {
+        "clientHeight": 756,
+        "scrollHeight": 756,
+        "clientWidth": 375,
+        "scrollWidth": 424,
+        "rect": {
+          "x": 0,
+          "y": 56,
+          "w": 375,
+          "h": 756
+        },
+        "padding": "16px"
+      },
+      "game": {
+        "rect": {
+          "x": 16,
+          "y": 72,
+          "w": 343,
+          "h": 724
+        },
+        "gap": "8px"
+      },
+      "toolbar": {
+        "x": 0,
+        "y": 0,
+        "w": 375,
+        "h": 56
+      },
+      "instruction": {
+        "text": "Harfleri sırayla yaz, sonra Boşluk'a bas!",
+        "color": "rgb(93, 64, 55)",
+        "bg": "rgba(255, 255, 255, 0.8)",
+        "fontSize": "13.6px",
+        "fontFamily": "Fredoka, sans-serif",
+        "rect": {
+          "x": 58.1,
+          "y": 72,
+          "w": 258.9,
+          "h": 25.6
+        }
+      },
+      "containerBg": "linear-gradient(rgb(232, 244, 253) 0%, rgb(240, 248, 255) 100%)",
+      "shelf": {
+        "x": 77.5,
+        "y": 105.6,
+        "w": 220,
+        "h": 56
+      },
+      "slot": {
+        "rect": {
+          "x": 87.5,
+          "y": 111.6,
+          "w": 44,
+          "h": 44
+        },
+        "count": 4,
+        "filled": 0
+      },
+      "card": {
+        "x": -48.5,
+        "y": 271.9,
+        "w": 472,
+        "h": 116
+      },
+      "letter": null,
+      "bubble": {
+        "rect": {
+          "x": 309.5,
+          "y": 281.9,
+          "w": 96,
+          "h": 96
+        },
+        "text": "?",
+        "fontSize": "52.78px"
+      },
+      "caption": {
+        "color": "rgb(95, 107, 115)",
+        "fontSize": "19.2px",
+        "display": "block"
+      },
+      "keyboard": {
+        "rect": {
+          "x": 4.1,
+          "y": 529,
+          "w": 366.9,
+          "h": 267
+        },
+        "bg": "rgba(255, 255, 255, 0.55)"
+      },
+      "key": {
+        "rect": {
+          "x": 15.6,
+          "y": 600,
+          "w": 27.2,
+          "h": 60
+        },
+        "fontSize": "15.2px",
+        "color": "rgb(45, 52, 54)",
+        "bg": "rgb(255, 255, 255)",
+        "radius": "9px"
+      },
+      "keyCount": 33,
+      "target": null,
+      "hint": null,
+      "space": {
+        "rect": {
+          "x": 83.5,
+          "y": 726,
+          "w": 208.2,
+          "h": 60
+        },
+        "fontSize": "12.8px",
+        "color": "rgb(95, 107, 115)",
+        "bg": "rgb(255, 255, 255)",
+        "text": "Boşluk"
+      },
+      "tile": {
+        "rect": {
+          "x": 36,
+          "y": 298.9,
+          "w": 62,
+          "h": 62
+        },
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgb(255, 255, 255)",
+        "border": "rgb(226, 232, 240)",
+        "fontSize": "38.4px"
+      },
+      "tileCurrent": {
+        "text": "B",
+        "color": "rgb(58, 134, 255)",
+        "border": "rgb(58, 134, 255)"
+      },
+      "tiles": [
+        "B*",
+        "A",
+        "L",
+        "I",
+        "K"
+      ],
+      "speech": {
+        "hidden": false,
+        "rect": {
+          "x": 315,
+          "y": 72,
+          "w": 44,
+          "h": 44
+        }
+      },
+      "fontsLoaded": [
+        "Fredoka 300 700",
+        "Nunito 200 1000"
+      ],
+      "bodyScroll": {
+        "scrollHeight": 812,
+        "clientHeight": 812,
+        "scrollWidth": 375,
+        "clientWidth": 375
+      },
+      "contrast": {
+        "instruction": {
+          "fg": "#5D4037",
+          "bgAlpha": "rgba(255, 255, 255, 0.8)",
+          "bgComposite": "#FAFDFF",
+          "ratio": 9.11,
+          "ratioOnPureWhite": 9.32
+        },
+        "keyLabel": {
+          "fg": "#2D3436",
+          "bg": "#FFFFFF",
+          "ratio": 12.68
+        },
+        "spaceLabel": {
+          "fg": "#5F6B73",
+          "bg": "#FFFFFF",
+          "ratio": 5.47
+        },
+        "tilePending": {
+          "fg": "#94A3B8",
+          "bg": "#FFFFFF",
+          "ratio": 2.56,
+          "border": "#E2E8F0",
+          "borderVsBg": 1.23
+        },
+        "tileCurrent": {
+          "fg": "#3A86FF",
+          "ratio": 3.48
+        },
+        "caption": {
+          "fg": "#5F6B73",
+          "bg": "#E8F4FD",
+          "ratio": 4.9
+        }
+      }
+    },
+    "l812_L1": {
+      "viewport": {
+        "w": 812,
+        "h": 375,
+        "dpr": 2
+      },
+      "gameArea": {
+        "clientHeight": 329,
+        "scrollHeight": 329,
+        "clientWidth": 812,
+        "scrollWidth": 812,
+        "rect": {
+          "x": 0,
+          "y": 46,
+          "w": 812,
+          "h": 329
+        },
+        "padding": "8px"
+      },
+      "game": {
+        "rect": {
+          "x": 16,
+          "y": 54,
+          "w": 780,
+          "h": 313
+        },
+        "gap": "4px"
+      },
+      "toolbar": {
+        "x": 0,
+        "y": 0,
+        "w": 812,
+        "h": 46
+      },
+      "instruction": {
+        "text": "Yanan tuşa bas: «A»",
+        "color": "rgb(93, 64, 55)",
+        "bg": "rgba(255, 255, 255, 0.8)",
+        "fontSize": "14.4px",
+        "fontFamily": "Fredoka, sans-serif",
+        "rect": {
+          "x": 325.2,
+          "y": 54,
+          "w": 161.7,
+          "h": 25
+        }
+      },
+      "containerBg": "linear-gradient(rgb(232, 244, 253) 0%, rgb(240, 248, 255) 100%)",
+      "shelf": {
+        "x": 288,
+        "y": 91,
+        "w": 236,
+        "h": 36
+      },
+      "slot": {
+        "rect": {
+          "x": 296,
+          "y": 94,
+          "w": 30,
+          "h": 30
+        },
+        "count": 6,
+        "filled": 0
+      },
+      "card": {
+        "x": 314.9,
+        "y": 121,
+        "w": 182.2,
+        "h": 68
+      },
+      "letter": {
+        "text": "A",
+        "fontSize": "56.25px",
+        "fontFamily": "Fredoka, Nunito, sans-serif",
+        "color": "rgb(58, 134, 255)",
+        "rect": {
+          "x": 332.9,
+          "y": 126.9,
+          "w": 61.9,
+          "h": 56.3
+        }
+      },
+      "bubble": {
+        "rect": {
+          "x": 419.1,
+          "y": 125,
+          "w": 60,
+          "h": 60
+        },
+        "text": "?",
+        "fontSize": "30.4px"
+      },
+      "caption": {
+        "color": "rgb(95, 107, 115)",
+        "fontSize": "15.2px",
+        "display": "none"
+      },
+      "keyboard": {
+        "rect": {
+          "x": 32.1,
+          "y": 183,
+          "w": 747.9,
+          "h": 184
+        },
+        "bg": "rgba(255, 255, 255, 0.55)"
+      },
+      "key": {
+        "rect": {
+          "x": 63.1,
+          "y": 237,
+          "w": 54.2,
+          "h": 34
+        },
+        "fontSize": "24px",
+        "color": "rgb(45, 52, 54)",
+        "bg": "rgb(255, 209, 102)",
+        "radius": "11px"
+      },
+      "keyCount": 33,
+      "target": {
+        "key": "A",
+        "bg": "rgb(255, 209, 102)",
+        "color": "rgb(45, 52, 54)",
+        "boxShadow": "rgba(255, 209, 102, 0.45) 0px 0px 0px 4px, rgba(224, 168, 0, 0.35) 0px 6px 14px 0px"
+      },
+      "hint": null,
+      "space": {
+        "rect": {
+          "x": 198.5,
+          "y": 317,
+          "w": 415.2,
+          "h": 34
+        },
+        "fontSize": "16.8px",
+        "color": "rgb(95, 107, 115)",
+        "bg": "rgb(255, 255, 255)",
+        "text": "Boşluk"
+      },
+      "tile": null,
+      "tileCurrent": null,
+      "tiles": [],
+      "speech": {
+        "hidden": false,
+        "rect": {
+          "x": 752,
+          "y": 54,
+          "w": 44,
+          "h": 44
+        }
+      },
+      "fontsLoaded": [
+        "Fredoka 300 700",
+        "Nunito 200 1000"
+      ],
+      "bodyScroll": {
+        "scrollHeight": 375,
+        "clientHeight": 375,
+        "scrollWidth": 812,
+        "clientWidth": 812
+      },
+      "contrast": {
+        "instruction": {
+          "fg": "#5D4037",
+          "bgAlpha": "rgba(255, 255, 255, 0.8)",
+          "bgComposite": "#FAFDFF",
+          "ratio": 9.11,
+          "ratioOnPureWhite": 9.32
+        },
+        "keyLabel": {
+          "fg": "#2D3436",
+          "bg": "#FFD166",
+          "ratio": 8.79
+        },
+        "targetLabel": {
+          "fg": "#2D3436",
+          "bg": "#FFD166",
+          "ratio": 8.79
+        },
+        "spaceLabel": {
+          "fg": "#5F6B73",
+          "bg": "#FFFFFF",
+          "ratio": 5.47
+        },
+        "caption": {
+          "fg": "#5F6B73",
+          "bg": "#E8F4FD",
+          "ratio": 4.9
+        },
+        "letter": {
+          "fg": "#3A86FF",
+          "ratio": 3.48
+        }
+      }
+    },
+    "landing": {
+      "title": "Klavye Kâşifi Oyna – Ücretsiz Oyun | Bilnet Oyun",
+      "h1": "Klavye Kâşifi Oyna",
+      "docHeight": 776,
+      "docWidth": 1366,
+      "viewportW": 1366,
+      "imza": {
+        "rect": {
+          "x": 0,
+          "y": 736,
+          "w": 1366,
+          "h": 40
+        },
+        "heightPct": 5.15,
+        "href": "https://egweblab.com.tr",
+        "target": "_blank",
+        "text": "TASARIM VE YAZILIM egweblab.com.tr",
+        "logoOk": true,
+        "isLastInBody": true,
+        "lastTag": "DIV.imza-band"
+      },
+      "images": [
+        {
+          "src": "/assets/logo-96.png",
+          "ok": true,
+          "w": 96,
+          "h": 96
+        }
+      ],
+      "links": [
+        {
+          "text": "▶ Hemen Oyna (Ücretsiz)",
+          "href": "/?oyun=klavye-kasifi"
+        }
+      ]
+    }
+  },
+  "cekimler": [
+    {
+      "file": "01-hub-kart-1366.png",
+      "state": "Hub, misafir girişi sonrası; Harfler & Kelimeler bölümünde Klavye Kâşifi kartı ortalanacak şekilde kaydırıldı, 900 ms beklendi",
+      "login": "login-guest tıklandı"
+    },
+    {
+      "file": "02-seviye1-baslangic-1366.png",
+      "state": "Seviye 1 (Işıklı Tuş) açılış, oyun kurulduktan 700 ms sonra; hedef harf Ü, yanan tuş Ü"
+    },
+    {
+      "file": "03-seviye1-dogru-1366.png",
+      "state": "Doğru basıştan 262–386 ms sonra (ekran tuşu pointer (Ü))",
+      "correct": true,
+      "revealed": true,
+      "bubble": "🍇",
+      "caption": "Üzüm"
+    },
+    {
+      "file": "04-seviye1-ucus-1366.png",
+      "state": "Doğru basıştan 655–800 ms sonra; .kk-flyer DOM'da var",
+      "flyer": {
+        "x": 689,
+        "y": 251,
+        "w": 87,
+        "h": 87,
+        "transform": "translate(-201.188px, -150.062px) scale(0.47745)",
+        "text": "🍇"
+      }
+    },
+    {
+      "file": "05-seviye1-yanlis-1366.png",
+      "state": "Yanlış tuş «F» tıklandıktan 128–291 ms sonra (hedef «Ç»)",
+      "wrong": "F",
+      "target": "Ç",
+      "nudge": true,
+      "instruction": "Yanan tuşa bas: «Ç»"
+    },
+    {
+      "file": "06a-seviye1-defter-dolu-1366.png",
+      "state": "EK: 6. doğru basıştan 1256 ms sonra, kutlama katmanı açılmadan hemen önce (defter tam dolu)",
+      "filled": 6,
+      "slots": 6,
+      "overlay": false
+    },
+    {
+      "file": "06-seviye1-bitis-1366.png",
+      "state": "Seviye 1 bitti (6 tur, 1 yanlış), #level-complete görünür olduktan 700 ms sonra",
+      "title": "Mükemmel!",
+      "earned": 3,
+      "filled": 6,
+      "overlayBg": "rgba(0, 0, 0, 0.5)",
+      "backdrop": "blur(4px)"
+    },
+    {
+      "file": "06b-seviye2-baslangic-1366.png",
+      "state": "EK: Seviye 2 (Harf Avı) açılış, 700 ms sonra — tuş yanmamalı (ipucu gecikmeli)",
+      "target": null,
+      "hint": null,
+      "instruction": "«Ğ» tuşunu bul ve bas!"
+    },
+    {
+      "file": "06c-seviye2-ipucu-5sn-1366.png",
+      "state": "EK: Seviye 2, 5,4 sn boşta beklendi — hedef tuş nefes ipucu (.is-hint) göstermeli",
+      "hint": "Ğ",
+      "letter": "Ğ"
+    },
+    {
+      "file": "07-seviye3-kelime-1366.png",
+      "state": "Seviye 3 (Kelime Yolu) açılış, 700 ms sonra; kelime G*ÜNEŞ (* = sıradaki kutu)",
+      "target": null,
+      "hint": null,
+      "instruction": "Harfleri sırayla yaz, sonra Boşluk'a bas!"
+    },
+    {
+      "file": "08-seviye3-bosluk-1366.png",
+      "state": "Seviye 3: «GÜNEŞ» harfleri sırayla tıklandı, son harften 700 ms sonra — Boşluk tuşu yanmalı",
+      "spaceTarget": true,
+      "done": 5,
+      "tiles": 5,
+      "instruction": "Şimdi Boşluk tuşuna bas!",
+      "anyCorrectLeft": false
+    },
+    {
+      "file": "09-seviye1-375.png",
+      "state": "Dikey telefon 375×812 @2x, derin bağlantı + misafir girişi, Seviye 1 açılış 700 ms sonra",
+      "login": "login-guest tıklandı",
+      "key": {
+        "x": 15.6,
+        "y": 600,
+        "w": 27.2,
+        "h": 60
+      },
+      "scroll": {
+        "clientHeight": 756,
+        "scrollHeight": 756,
+        "clientWidth": 375,
+        "scrollWidth": 375,
+        "rect": {
+          "x": 0,
+          "y": 56,
+          "w": 375,
+          "h": 756
+        },
+        "padding": "16px"
+      }
+    },
+    {
+      "file": "11-seviye3-375.png",
+      "state": "Dikey telefon 375×812, Seviye 3 açılış 700 ms sonra (L1 ve L2 ekran tuşlarıyla oynanarak geçildi); kelime B*ALIK",
+      "scroll": {
+        "clientHeight": 756,
+        "scrollHeight": 756,
+        "clientWidth": 375,
+        "scrollWidth": 424,
+        "rect": {
+          "x": 0,
+          "y": 56,
+          "w": 375,
+          "h": 756
+        },
+        "padding": "16px"
+      }
+    },
+    {
+      "file": "10-seviye1-yatay-812.png",
+      "state": "Yatay telefon 812×375 @2x, Seviye 1 açılış 700 ms sonra",
+      "login": "login-guest tıklandı",
+      "key": {
+        "x": 63.1,
+        "y": 237,
+        "w": 54.2,
+        "h": 34
+      },
+      "scroll": {
+        "clientHeight": 329,
+        "scrollHeight": 329,
+        "clientWidth": 812,
+        "scrollWidth": 812,
+        "rect": {
+          "x": 0,
+          "y": 46,
+          "w": 812,
+          "h": 329
+        },
+        "padding": "8px"
+      }
+    },
+    {
+      "file": "12-landing-oyunlar-klavye-kasifi.png",
+      "state": "Üretilen SEO sayfası /oyunlar/klavye-kasifi/ tam sayfa (fullPage), 1366 genişlik, HTTP 200",
+      "imza": {
+        "rect": {
+          "x": 0,
+          "y": 736,
+          "w": 1366,
+          "h": 40
+        },
+        "heightPct": 5.15,
+        "href": "https://egweblab.com.tr",
+        "target": "_blank",
+        "text": "TASARIM VE YAZILIM egweblab.com.tr",
+        "logoOk": true,
+        "isLastInBody": true,
+        "lastTag": "DIV.imza-band"
+      }
+    }
+  ],
+  "hatalar": []
+}

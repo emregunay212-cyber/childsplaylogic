@@ -122,7 +122,7 @@
     display: grid;
     place-items: center;
     border-radius: var(--radius-sm);
-    border: 3px solid #8C9BAD;
+    border: 3px solid #8091A4;   /* beyazda 3.2:1 (bileşen sınırı) */
     background: white;
     font-family: var(--font-heading);
     font-size: calc(var(--kk-tile) * 0.56);
@@ -162,7 +162,7 @@
     transition: background-color var(--dur-base) var(--ease-out);
 }
 
-.kk-bubble.is-flown { opacity: 0.45; transition: opacity 0.3s var(--ease-out); }
+.kk-bubble.is-revealed.is-flown { animation: none; opacity: 0.45; transition: opacity 0.3s var(--ease-out); }   /* animation: none — kkPop 'both' dolgusu opacity 1'i ezmesin */
 
 .kk-bubble.is-revealed {
     background: var(--success-light);
@@ -358,6 +358,11 @@
     .kk-keyboard { padding: 6px var(--kk-pad) 8px; }
     .kk-caption { display: none; }
     .kk-game { --kk-key-h: 34px; }
+}
+
+/* Dar ekranda Kelime Yolu: ödül balonu harf kutularını ezmesin (kutular bütçeden büyür) */
+@media (max-width: 599px) {
+    .kk-game--word { --kk-bubble: clamp(52px, 8vh, 72px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
