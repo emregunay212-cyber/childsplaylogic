@@ -42,9 +42,16 @@ const ModulAdi = (() => {
   `Progress.getLevelStars(id, level)`.
 - Paylaşılan CSS (`css/games.css`): `.game-instruction`, `.game-option-btn` (+`.correct`/`.wrong`
   animasyonlu), `.letter-display`, `.number-btn`, `.level-selector`/`.level-btn`. Token'lar
-  `css/main.css :root` — `--<slug>-color`, `--touch-min: 52px`, `--radius-sm/md/lg`, `--ease-bounce/
-  spring/out`, `--dur-fast/base`, `--success/--error(+-light)`, `--text-warm/--text-muted`, fontlar
-  Fredoka (başlık) / Nunito (gövde). Oyuna özel stil `css/<slug>.css`'e, registry `files`'a eklenir.
+  **`css/tokens.css`** (B1; tek kaynak `docs/tasarim-sozlesmesi.md` §1, her sayfada ilk stylesheet):
+  renk `--mavi-500/700/800/050 --gok-ust/alt --cim(-koyu) --gunes --murekkep(-orta) --beyaz --cizgi
+  --kat-harf/sayi/bulmaca/yaratici/strateji/online --dogru(-zemin) --yanlis --yildiz(-bos)` (24 hex; hub
+  kabuğunda başka hex yazılmaz), yazı `--font-display/--font-body` + `--yazi-<rol>-{aile,kalinlik,boy,satir}`,
+  aralık `--ara-1…8`, yarıçap `--r-kart/--r-giris/--r-hap`, `--kontur`, gölge `--golge-1..3`, `--hedef-min`,
+  süre/eğri `--sure-bas/gecis/kutlama --egri-out/--egri-yay`; semantik `--metin --yuzey --dugme-dolgu …`.
+  Eski adlar (`--<slug>-color`, `--touch-min`, `--radius-*`, `--ease-*`, `--dur-*`, `--success/--error`,
+  `--text-warm/--text-muted`, `--font-heading`) tokens.css "köprü" katmanında takma ad olarak yaşar — yalnız
+  oyun CSS/JS'leri için, B4'te kaldırılır; yeni kod bunları kullanmaz. Oyuna özel stil `css/<slug>.css`'e,
+  registry `files`'a eklenir.
 - Kayıt defteri **`data/games.json`** (TEK kaynak, B2a): kayıt `{ slug, name, module: 'ModulAdi', section, cat, subject, age, minutes, levels, …, files: { js: ['js/games/<slug>.js'], css: ['css/<slug>.css'] } }`;
   `npm run catalog` → `js/catalog.js` (`GAME_CATALOG` + `GAME_MODULES` thunk tablosu) + `index.html` altbilgisi. `js/app.js`, `js/lock-catalog.js`, `js/i18n.js TR.games` buradan türer; elle girdi yazılmaz.
   **`index.html`'e etiket eklenmez** — dosyalar `files` ile tembel yüklenir (A9b); `?v=` yazılmaz (üretici reddeder; deploy hash'ler).
@@ -56,7 +63,7 @@ const ModulAdi = (() => {
 README "Yeni oyun ekleme" (B2a sonrası) güncel; kısa sıra:
 1. `js/games/<slug>.js` (+ `css/<slug>.css`) — yukarıdaki sözleşme; modül adı `eslint.config.js gameModuleGlobals`'a.
 2. `data/games.json` kaydı (hub sırasında; `stars` 0 = kilitsiz; `online` varsa `order`) → `npm run catalog`.
-3. `css/hub.css` `.game-card[data-game="<slug>"]::before` · `js/i18n.js` `TR.instructions` (yönerge varsa).
+3. `css/hub.css` `.game-card[data-game="<slug>"]::before` kategori grubuna eklenir (`var(--kat-<bölüm>)`; yeni renk adı AÇILMAZ) · `js/i18n.js` `TR.instructions` (yönerge varsa).
 4. `assets/images/hub/<slug>.svg` (128×128, `rx=28` yuvarlatılmış gradyan zemin kalıbı).
 5. `python seo/build_seo.py` (üretilenler elle düzenlenmez).
 6. `npm run lint && npm run catalog:check && npm run test:smoke && python seo/test_build_seo.py`.

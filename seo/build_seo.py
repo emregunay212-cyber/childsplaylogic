@@ -300,6 +300,7 @@ def jsonld_static(p, url, desc, date):
 HEAD_COMMON = f"""<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="{FONTS_HREF}">
+<link rel="stylesheet" href="/css/tokens.css">
 <link rel="stylesheet" href="/css/landing.css">
 <link rel="stylesheet" href="/css/imza.css">"""
 

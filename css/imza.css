@@ -1,14 +1,15 @@
 /* ============================================
    egweblab marka imzası — her sayfanın en altında, tek bağlantı.
-   Bağımsız dosya: main.css yüklemeyen sayfalar (oyunlar/*, 404) da kullanır.
+   Bağımsız dosya: main.css yüklemeyen sayfalar (oyunlar/*, 404, admin) da kullanır;
+   renkler css/tokens.css'ten (B1) — metin ve bağlantı değişmez.
    ============================================ */
 .imza-band {
-    --imza-ink: var(--text-dark, #2D3436);
-    --imza-muted: #5F6B73;
-    --imza-line: rgba(45, 52, 54, 0.12);
-    --imza-white: #FFFFFF;
+    --imza-ink: var(--murekkep);
+    --imza-muted: var(--murekkep-orta);
+    --imza-line: var(--cizgi);
+    --imza-white: var(--beyaz);
     --imza-mono: ui-monospace, "Cascadia Mono", "Consolas", "Menlo", monospace;
-    --imza-ease: var(--ease-smooth, cubic-bezier(0.4, 0, 0.2, 1));
+    --imza-ease: var(--egri-out);
     display: flex;
     justify-content: center;
     padding: 4px 16px 8px;
@@ -19,7 +20,7 @@
     align-items: center;
     gap: 10px;
     padding: 4px 10px;
-    border-radius: 999px;
+    border-radius: var(--r-hap);
     background: transparent;
     text-decoration: none;
     color: var(--imza-ink);
@@ -39,7 +40,7 @@
     color: var(--imza-muted);
 }
 .imza__ad {
-    font-family: var(--font-body, "Nunito", "Segoe UI", sans-serif);
+    font-family: var(--font-body);
     font-size: 13px;
     font-weight: 700;
     color: var(--imza-ink);
@@ -56,7 +57,7 @@
     outline: none;
 }
 .imza:focus-visible {
-    box-shadow: 0 0 0 3px var(--neutral, #3498DB);
+    box-shadow: 0 0 0 3px var(--mavi-800);
 }
 .imza:hover .imza__mark,
 .imza:focus-visible .imza__mark {
