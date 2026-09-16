@@ -89,7 +89,7 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:12px}
 <div class="veil" id="setupVeil">
   <div class="card">
     <h2>📝 Soru Oturumu</h2>
-    <p style="font-size:13px;color:var(--ink-dim);margin-top:4px">10 soru · her doğru = 1 tohum. Ders tohumun türünü, zorluk büyüme süresini ve hasat değerini belirler!</p>
+    <p style="font-size:13px;color:var(--ink-dim);margin-top:4px">10 soru · her doğru = 1 tohum. Ders tohumun türünü, zorluk soruların seviyesini belirler. Büyüme süresini ve hasat değerini tohumu ekerken seçersin.</p>
     <div class="optGrid" id="dersGrid">
       <button class="selBtn on" data-d="mat">🌾 Matematik<small>Buğday tohumu</small></button>
       <button class="selBtn" data-d="fen">🍅 Fen<small>Domates tohumu</small></button>
@@ -97,10 +97,9 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:12px}
       <button class="selBtn" data-d="tr">💜 Türkçe<small>Lavanta tohumu</small></button>
     </div>
     <div class="optGrid" id="tierGrid" style="margin-top:8px">
-      <button class="selBtn on" data-t="1">🏕️ Etek<small>30 dk · 60p hasat</small></button>
-      <button class="selBtn" data-t="2">⛰️ Yamaç<small>2 saat · 150p</small></button>
-      <button class="selBtn" data-t="3">🧗 Tırmanış<small>8 saat · 350p</small></button>
-      <button class="selBtn" data-t="4">🏔️ Zirve<small>24 saat · 800p</small></button>
+      <button class="selBtn on" data-t="1">🏕️ Etek<small>Kolay sorular</small></button>
+      <button class="selBtn" data-t="2">⛰️ Yamaç<small>Orta sorular</small></button>
+      <button class="selBtn" data-t="3">🧗 Tırmanış<small>Zor sorular</small></button>
     </div>
     <button class="bigBtn" id="bStartQuiz" style="margin-top:12px;flex:none;padding:13px 28px">BAŞLA</button>
     <button class="ghost" id="bSetupClose">Vazgeç</button>
@@ -448,6 +447,7 @@ function choosePlantTier(d){
     b.className = 'selBtn';
     b.innerHTML = `${['', '🏕️ Etek', '⛰️ Yamaç', '🧗 Tırmanış', '🏔️ Zirve'][t]}<small>${fmtLeft(CONFIG.GROW_MS[t]).replace('HAZIR ✨', '')} · ${CONFIG.HARVEST_PTS[t]}p</small>`;
     b.addEventListener('click', () => {
+      if (!F.seeds[d] || F.seeds[d] <= 0) { $('plantVeil').classList.remove('show'); return; }   // çift dokunuşta sayaç eksiye düşmesin
       F.seeds[d]--;
       F.plots[plantTarget] = { d, t, at: Date.now() };
       persist();
