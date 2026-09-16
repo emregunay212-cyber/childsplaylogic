@@ -32,6 +32,9 @@ const hubCoreGlobals = {
     DragSystem: 'readonly',         // js/drag.js
     GameEngine: 'readonly',         // js/engine.js
     Lobby: 'readonly',              // js/lobby.js
+    GAME_SECTIONS: 'readonly',      // js/catalog.js (ÜRETİLMİŞ: data/games.json, B2a)
+    GAME_CATALOG: 'readonly',       // js/catalog.js
+    GAME_MODULES: 'readonly',       // js/catalog.js — modül adı → thunk tablosu
     LOCK_CATALOG: 'readonly',       // js/lock-catalog.js
     LOCK_STARS_BY_KEY: 'readonly',  // js/lock-catalog.js
     MobileUtils: 'readonly',        // js/mobile-utils.js
@@ -45,10 +48,11 @@ const hubCoreGlobals = {
     TR: 'readonly',                 // js/i18n.js
 };
 
-// Oyun modülleri: js/games/*.js — js/app.js kayıt defteri (gameCategories + mpGamesList)
-// ve paylaşılan motorlar (ChessEngine, KodMacerasiCore) bunlara adıyla başvurur.
+// Oyun modülleri: js/games/*.js — js/catalog.js GAME_MODULES thunk tablosu (data/games.json module /
+// online.module; tools/build-catalog.js bu listeyi doğrular) ve paylaşılan motorlar (ChessEngine,
+// KodMacerasiCore) bunlara adıyla başvurur.
 const gameModuleGlobals = Object.fromEntries([
-    // Tek oyunculu (gameCategories sırasıyla)
+    // Tek oyunculu (hub sırasıyla)
     'HarfTanima', 'KlavyeKasifi', 'HeceBirlestirme', 'KelimeMadeni3D', 'KelimeBalonu', 'KelimeCanavarlari',
     'KelimeKurtarma', 'GunlukKelime',
     'SayiSayma', 'Matematik', 'Desen', 'BilgiMadencisi', 'MatematikPatlatma', 'MatematikKafe',
@@ -59,7 +63,7 @@ const gameModuleGlobals = Object.fromEntries([
     'KodMacerasi', 'LegoMacerasi', 'LegoWorld', 'Satranc', 'ZiplaTopla', 'SpaceWaves', 'Egim',
     'BuzKulesi', 'Penalti', 'ZindanOkcusu', 'BilVeFethet', 'BilgiTakimi', 'BilgiCiftligi',
     'BilgiKulesi', 'CevapKosusu', 'BilgiSavunmasi', 'FizikFirlatma',
-    // Online (mpGamesList)
+    // Online (online.order sırasıyla)
     'KelimeTahmin', 'HarfTahmin', 'KodMacerasiMP', 'SatrancMP', 'PenaltiMP', 'AtesBuz',
     'ZiplaToplaCoop', 'HavaHokeyi', 'AltinAvi', 'Kelimelik', 'SonKart',
     // Paylaşılan motorlar

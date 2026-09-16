@@ -245,10 +245,13 @@
                 <div class="hub-footer-inner">
                     <p class="hub-footer-lead"><strong>Bilnet Oyun</strong>, Bilnet Okulları'nın anaokulu ve ilkokul öğrencileri için hazırladığı 57 ücretsiz eğitici oyun. Üyelik yok, reklam yok; her oyun tarayıcıda açılır. <a href="/oyunlar/">Tüm oyunlar ve yaş grupları&nbsp;→</a></p>
                     <nav class="hub-footer-nav" aria-label="Oyun sayfaları"><h2 class="sr-only">Tüm oyunlar</h2>
+                        <!-- Altbilgi grupları ÜRETİLİR: data/games.json → tools/build-catalog.js (npm run catalog); elle düzenlenmez -->
+                        <!-- catalog:start -->
                         <div class="hub-footer-group">
                             <h3>Harfler &amp; Kelimeler</h3>
                             <ul>
                                 <li><a href="/oyunlar/harf-tanima/">Harf Tanıma</a></li>
+                                <li><a href="/oyunlar/klavye-kasifi/">Klavye Kâşifi</a></li>
                                 <li><a href="/oyunlar/hece-birlestirme/">Hece Birleştirme</a></li>
                                 <li><a href="/oyunlar/kelime-balonu/">Kelime Balonu</a></li>
                                 <li><a href="/oyunlar/kelime-canavarlari/">Kelime Canavarları</a></li>
@@ -330,6 +333,7 @@
                                 <li><a href="/oyunlar/son-kart/">Son Kart</a></li>
                             </ul>
                         </div>
+                        <!-- catalog:end -->
                     </nav>
                     <nav class="hub-footer-links" aria-label="Site bağlantıları">
                         <a href="/oyunlar/">Tüm Oyunlar</a>
@@ -446,6 +450,7 @@
          (Firebase compat <head>'de defer → firebase-config.js ondan sonra). Oyun modülleri (js/games/*.js)
          burada DEĞİL: js/app.js kayıt defterindeki `files` listesinden oyun açılınca yüklenir (js/loader.js). -->
     <script defer src="js/errors.js"></script>
+    <script defer src="js/catalog.js"></script><!-- ÜRETİLMİŞ: data/games.json → npm run catalog; i18n/lock-catalog/app bundan türetir -->
     <script defer src="js/firebase-config.js?v=3"></script>
     <script defer src="js/janitor.js"></script>
     <script defer src="js/i18n.js?v=7"></script>
