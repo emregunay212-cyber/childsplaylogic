@@ -1,7 +1,7 @@
 # bilnetoyun.com
 
 > Bilnet Okulları'nın 4-12 yaş için ücretsiz, üyeliksiz, tarayıcıda çalışan eğitici oyun platformu — vanilla HTML/JS/CSS, derleme adımı yok.
-> 46 tek kişilik + 11 online = **57 oynanabilir** oyun, 1 kapalı (`js/lock-catalog.js`: `SOLO_GAMES` 47 + `ONLINE_GAMES` 11; Kelime Madeni 3D `js/app.js:32` `comingSoon: true`).
+> 46 tek kişilik + 11 online = **57 oynanabilir** oyun, 1 kapalı (`data/games.json`: 56 kayıt = 47 solo + 11 online, `kod-macerasi`/`satranc` iki sürümlü; Kelime Madeni 3D `active: false`).
 
 Depo: `github.com/emregunay212-cyber/childsplaylogic` · dal `master` · canlı: **Vercel** (`master`'a push = otomatik deploy).
 Bu dosya (ve tüm `*.md`) `.vercelignore` ile yayın dışıdır.
@@ -10,13 +10,15 @@ Bu dosya (ve tüm `*.md`) `.vercelignore` ile yayın dışıdır.
 
 | Yol | Ne | Not |
 |---|---|---|
-| `index.html` + `js/app.js` | Hub (SPA). Kayıt defteri `gameCategoryDefs` — her oyun tembel thunk `{ game: () => Modul, color, comingSoon? }`; `resolveEntries()` bozuk modülü yalnız kendi kartından düşürür | Derin bağlantı: `/?oyun=<slug>` (`tryDeepLink`) |
+| `data/games.json` | **Oyun bilgisinin TEK kaynağı** (B2a): slug, ad, modül, bölüm, ders, yaş, süre, kazanım, metinler, yıldız eşiği, online sürüm, tembel yükleme dosyaları; `sections` = hub bölümleri | Alan sözlüğü `docs/inceleme-2026-09-15/kanit/B2a-veri-notlari.md`; yayında açık (`/data/games.json`) |
+| `tools/build-catalog.js` | JSON → `js/catalog.js` (`GAME_SECTIONS/GAME_CATALOG/GAME_MODULES`, ÜRETİLMİŞ) + `index.html` altbilgi grupları (`<!-- catalog:start/end -->`); şema doğrular; `--check` fark varsa çıkış 1 | `npm run catalog` / `catalog:check`; bağımlılıksız; `.vercelignore` ile yayın dışı |
+| `index.html` + `js/app.js` | Hub (SPA). Kayıt defteri `gameCategoryDefs`/`mpGameDefs` `GAME_CATALOG`'dan türetilir — her oyun tembel thunk `{ game: GAME_MODULES[ad], id, levels, files, color: var(--kat-<bölüm>), comingSoon: !active }`; `resolveModule()` bozuk modülü yalnız kendi kartından düşürür | Derin bağlantı: `/?oyun=<slug>` (`tryDeepLink`) |
 | `js/games/<id>.js` | Oyun modülü. Ya hub içinde doğrudan çalışır (`const id = '<slug>'`, `init/destroy`) ya da `games/<id>/index.html`'i iframe'e gömen sarmalayıcıdır (örn. `js/games/bilgi-ciftligi.js`) | 62 modül |
 | `games/<id>/` | iframe'de çalışan bağımsız tek-dosya oyunlar (27); hepsi `noindex` + canonical `/oyunlar/<id>/` (PR #15) | Bazılarında `kaynak/` + `build.py` ya da `tools/` — üretilen `index.html` elle düzenlenmez |
-| `js/lock-catalog.js` | **Tüm** oyunların tek listesi + yıldız eşikleri; hub, admin paneli ve duman testi bunu okur | Eşik yoksa 0 = açık |
+| `js/lock-catalog.js` | Kilit listesi + yıldız eşikleri (`GAME_CATALOG`'dan türetilir; API aynı: `SOLO_GAMES/ONLINE_GAMES/LOCK_CATALOG/LOCK_STARS_BY_KEY`); hub ve admin paneli bunu okur | Eşik = JSON `stars` / `online.stars`; 0 = açık |
 | `js/auth.js`, `js/firebase-config.js`, `js/multiplayer.js`, `js/lobby.js` | Google girişi / misafir modu, `users/{uid}/gameSaves` bulut senkronu (`GAME_SAVE_KEYS`), Firebase **Realtime Database** lobi/oda | Firestore yok |
 | `js/bilnet-meta.js` | Eğitsel meta katman: jeton (`DAILY_CAP = 50`), giriş serisi, rozetler — istemci tarafı | |
-| `seo/games_data.py` | **Oyun listesinin tek veri kaynağı** (`GAMES`, `STATIC_PAGES`) | `active=False` → noindex, sitemap/hub dışı |
+| `seo/games_data.py` | `GAMES = data/games.json` yükler (`also_online` türetir) + `STATIC_PAGES` (gizlilik/hakkında/iletişim HTML içeriği) | `active: false` → noindex, sitemap/hub dışı |
 | `seo/build_seo.py` | Üretici: `oyunlar/<slug>/index.html` (56), `oyunlar/index.html`, `sitemap.xml`, `llms.txt` | **Üretilenler elle düzenlenmez** |
 | `css/` | `main.css` (token'lar), `hub.css`, `landing.css`, `imza.css`, oyun başına `<slug>.css` | |
 | `assets/images/hub/<slug>.svg` | Hub kart ikonları | |
@@ -33,7 +35,7 @@ python server.py                       # http://localhost:8000 — no-store baş
 node tests/static-server.js --port 8765 # bağımlılıksız Node alternatifi (Playwright bunu kullanır)
 ```
 
-Derleme yok; dosyayı düzenle, sayfayı yenile. Önbellek kırma **deploy anında** olur (A10b): Vercel `node tools/build.js --check` çalıştırır; her yerel js/css/html başvurusuna (`index.html`/`admin.html`/`games/*/index.html` etiketleri, `js/app.js` kayıt defteri `files`, iframe sarmalayıcıları, `games/ates-buz` ES-modül import'ları, `js/lib/stockfish.js`) içerik hash'i `?h=<sha256 ilk 10>` eklenir; js/css `immutable` 1 yıl önbelleklenir. Depodaki `?v=N` etiketleri isteğe bağlıdır — **artık elle artırılmaz**, build ne bulursa hash ile değiştirir.
+Derleme yok; dosyayı düzenle, sayfayı yenile. Önbellek kırma **deploy anında** olur (A10b): Vercel `node tools/build.js --check` çalıştırır; her yerel js/css/html başvurusuna (`index.html`/`admin.html`/`games/*/index.html` etiketleri, `js/catalog.js` tembel yükleme `files` listeleri, iframe sarmalayıcıları, `games/ates-buz` ES-modül import'ları, `js/lib/stockfish.js`) içerik hash'i `?h=<sha256 ilk 10>` eklenir; js/css `immutable` 1 yıl önbelleklenir. Depodaki `?v=N` etiketleri isteğe bağlıdır — **artık elle artırılmaz**, build ne bulursa hash ile değiştirir.
 
 ## Testler
 
@@ -41,6 +43,7 @@ Derleme yok; dosyayı düzenle, sayfayı yenile. Önbellek kırma **deploy anın
 npm ci                                  # Node 20 (CI ile aynı)
 npx playwright install chromium         # ilk kurulumda bir kez
 npm run lint                            # eslint js/ games/ tools/ — no-undef hata, no-unused-vars uyarı
+npm run catalog:check                   # data/games.json şeması + js/catalog.js ve index.html altbilgisi güncel mi (CI koşar)
 npm run build:check                     # deploy simülasyonu: kök → .build-check (hash'li), çıktı doğrulanır (?v= kalıntısı/eski hash = hata)
 npm run test:build                      # tools/build.js birim testleri (idempotence, döngü, eksik dosya, --out)
 npm run test:smoke                      # her aktif oyun /?oyun=<slug> ile açılır, 3 sn hatasız çalışmalı (60 test)
@@ -48,7 +51,7 @@ SITE_ROOT=.build-check PORT=8766 npm run test:smoke   # aynı test hash'li çık
 python seo/test_build_seo.py            # üretici birim testleri
 ```
 
-`BASE_URL=https://<vercel-önizleme> npm run test:smoke` dış ortamda koşar. CI (`ci.yml`) her PR'da lint + `test:build` + `build:check` + duman testini (hash'li çıktı üzerinde) çalıştırır; iş adı `eslint + Playwright duman testi` master'da **required check**tir (branch protection, A10b) — kırmızıyken merge edilemez, force-push ve dal silme kapalı.
+`BASE_URL=https://<vercel-önizleme> npm run test:smoke` dış ortamda koşar. CI (`ci.yml`) her PR'da lint + `catalog:check` + SEO üretimi tazelik kontrolü (`python seo/build_seo.py && git diff --exit-code -I lastmod …`) + `test:build` + `build:check` + duman testini (hash'li çıktı üzerinde) çalıştırır; iş adı `eslint + Playwright duman testi` master'da **required check**tir (branch protection, A10b) — kırmızıyken merge edilemez, force-push ve dal silme kapalı.
 
 ## Deploy
 
@@ -58,15 +61,14 @@ python seo/test_build_seo.py            # üretici birim testleri
 
 ## Yeni oyun ekleme
 
-1. `js/games/<slug>.js` modülü (+ iframe oyunuysa `games/<slug>/index.html`, `css/<slug>.css`).
-2. `index.html`'e `<link>`/`<script>` etiketi; `js/app.js` `gameCategoryDefs` içine `{ game: () => Modul, color: 'var(--<slug>-color)' }`; `js/i18n.js` `TR.games['<slug>']` adı; `css/main.css` renk değişkeni, `css/hub.css` kart şeridi.
-3. `js/lock-catalog.js` → `SOLO_GAMES` ya da `ONLINE_GAMES` (hub sırasına göre; eşik gerekiyorsa `STARS_BY_KEY`).
-4. `assets/images/hub/<slug>.svg` ikonu; kayıt anahtarları varsa `js/auth.js` `GAME_SAVE_KEYS`.
-5. `seo/games_data.py` `GAMES` kaydı (`slug, name, cat, age, players, teaches, short, about`; online sürüm varsa `also_online=True`).
-6. `python seo/build_seo.py` → `oyunlar/<slug>/`, `oyunlar/index.html`, `sitemap.xml`, `llms.txt` yeniden üretilir (title ≤60 / description ≤150 aşılırsa üretim durur).
-7. `npm run lint && npm run test:smoke && python seo/test_build_seo.py` — duman testi slug listesini kataloğdan türetir, yeni oyun otomatik kapsanır.
+1. `js/games/<slug>.js` modülü (+ iframe oyunuysa `games/<slug>/index.html`, `css/<slug>.css`); modül adı `eslint.config.js` `gameModuleGlobals` listesine.
+2. `data/games.json` `games` dizisine hub sırasında **tek kayıt**: `slug, name, module, section, cat, subject, age [min,max], minutes, levels, teaches, short, about, players, players_range, active, stars, files {js, css}`; online sürüm varsa `online: { module, order, stars, badge?, files? }` (yalnız-online oyunda `module: null`, `section: "online"`). Alan sözlüğü: `docs/inceleme-2026-09-15/kanit/B2a-veri-notlari.md`.
+3. `npm run catalog` → `js/catalog.js` + `index.html` altbilgisi yeniden üretilir (şema hatası varsa durur; `index.html`'e başka etiket eklenmez, dosyalar `files` ile tembel yüklenir).
+4. `css/hub.css` `.game-card[data-game="<slug>"]::before` kart şeridi (B1 sonrası `var(--kat-<bölüm>)`); `assets/images/hub/<slug>.svg` ikonu; kayıt anahtarları varsa `js/auth.js` `GAME_SAVE_KEYS`; yönerge varsa `js/i18n.js` `TR.instructions`.
+5. `python seo/build_seo.py` → `oyunlar/<slug>/`, `oyunlar/index.html`, `sitemap.xml`, `llms.txt` yeniden üretilir (title ≤60 / description ≤150 aşılırsa üretim durur).
+6. `npm run lint && npm run catalog:check && npm run test:smoke && python seo/test_build_seo.py` — duman testi slug listesini JSON'dan türetir, yeni oyun otomatik kapsanır.
 
-Oyunu kapatmak: `js/app.js` kaydına `comingSoon: true`, `games_data.py`'de `active=False`, üreticiyi tekrar çalıştır (örnek: Kelime Madeni 3D).
+Oyunu kapatmak: JSON kaydında `active: false` (tek bayrak: hub'da "Yakında" kartı, landing noindex, sitemap/llms/altbilgi dışı, duman testi atlar) → `npm run catalog && python seo/build_seo.py` (örnek: Kelime Madeni 3D).
 
 ## Admin paneli
 
