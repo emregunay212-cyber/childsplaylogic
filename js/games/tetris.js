@@ -436,8 +436,13 @@ const Tetris = (() => {
         setTimeout(showGameOverModal, 450);
     }
 
+    // Sonsuz oyun: yıldız temizlenen satıra göre (3 → 1, 10 → 2, 20 → 3); hub kartı ve sayaç için Progress'e yazılır
+    function runStars() { return lines >= 20 ? 3 : lines >= 10 ? 2 : lines >= 3 ? 1 : 0; }
+
     function showGameOverModal() {
         if (state === 'destroyed') return;
+        const stars = runStars();
+        if (stars > 0) { try { Progress.setLevelStars(id, 1, stars); App.updateStarCounter(); } catch (e) {} }
         const modal = document.createElement('div');
         modal.className = 'tt-modal tt-gameover-modal';
         modal.innerHTML =
@@ -446,6 +451,7 @@ const Tetris = (() => {
                 '<div class="tt-gameover-score">' +
                     '<div class="tt-go-row"><span>Skor</span><b>' + finalScore + '</b></div>' +
                     '<div class="tt-go-row"><span>Satır</span><b>' + lines + '</b></div>' +
+                    '<div class="tt-go-row"><span>Yıldız</span><b>' + '★'.repeat(stars) + '☆'.repeat(3 - stars) + '</b></div>' +
                     '<div class="tt-go-row"><span>Seviye</span><b>' + level + '</b></div>' +
                     '<div class="tt-go-row"><span>Rekor</span><b>' + bestScore + '</b></div>' +
                 '</div>' +

@@ -6,20 +6,21 @@
 
 const ChessEngine = (() => {
 
-    // Taş SVG URL'leri (Wikimedia Commons)
+    // Taş SVG'leri (Wikimedia Commons "Cburnett" seti, CC BY-SA 3.0 — assets/images/chess/, kendi sunucumuzdan;
+    // dış istek yok, çevrimdışı çalışır; atıf /hakkinda/ sayfasında)
     const PIECE_SVGS = {
-        K: 'https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg',
-        Q: 'https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg',
-        R: 'https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg',
-        B: 'https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg',
-        N: 'https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg',
-        P: 'https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg',
-        k: 'https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg',
-        q: 'https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg',
-        r: 'https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg',
-        b: 'https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg',
-        n: 'https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg',
-        p: 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg',
+        K: 'assets/images/chess/Chess_klt45.svg',
+        Q: 'assets/images/chess/Chess_qlt45.svg',
+        R: 'assets/images/chess/Chess_rlt45.svg',
+        B: 'assets/images/chess/Chess_blt45.svg',
+        N: 'assets/images/chess/Chess_nlt45.svg',
+        P: 'assets/images/chess/Chess_plt45.svg',
+        k: 'assets/images/chess/Chess_kdt45.svg',
+        q: 'assets/images/chess/Chess_qdt45.svg',
+        r: 'assets/images/chess/Chess_rdt45.svg',
+        b: 'assets/images/chess/Chess_bdt45.svg',
+        n: 'assets/images/chess/Chess_ndt45.svg',
+        p: 'assets/images/chess/Chess_pdt45.svg',
     };
 
     const PIECES = {

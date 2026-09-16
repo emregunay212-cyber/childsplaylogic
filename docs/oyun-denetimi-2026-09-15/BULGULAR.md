@@ -203,3 +203,7 @@ Biçim: `[KRİTİK|YÜKSEK|ORTA|DÜŞÜK|ŞÜPHELİ] dosya:satır — sorun — 
 ### kelimelik / son-kart
 - [YÜKSEK, karar] rooms/kelimelik racks + rooms/son-kart hands herkese okunur/yazılır (kural kararı, Karar 5). [ORTA] her ikisinde de AFK oyuncu için tur zaman aşımı yok (yalnız presence kaybı). Motorlar (harf/kelime, UNO kuralları, bağlantı kopması otoritesi) temiz ✔; kelimelik i/İ normalizasyonu doğru ✔, createdAt sunucu damgası ✔.
 
+## Kararlar uygulandı (16 Eyl, "önerilerinden devam et")
+- Satranç taşları self-host: `assets/images/chess/` (Cburnett seti, CC BY-SA 3.0; atıf `/hakkinda/` "Açık kaynak ve lisanslar"), `js/games/satranc-engine.js` yerel yollar, `js/games/satranc.js` görsel yüklenemezse Unicode taş; gizlilik metninden upload.wikimedia.org satırı kalktı (artık dış istek yok).
+- Bilgi Çiftliği: kurulum metni gerçek davranışla uyumlu ("zorluk soruların seviyesini belirler; büyüme/hasat ekerken seçilir"), Zirve seçeneği kurulumdan kalktı (z:4 soru yok), tek tohumda çift dokunuş korumalı.
+- Sonsuz oyunlar yıldız veriyor: Tetris (3/10/20 satır → 1/2/3), SpaceWaves (mesafe 150/400/900) — Progress'e yazılır, hub kartı ve sayaç güncellenir; oyun sonu kartında ★ satırı. Sayı Ninja iframe (Progress erişimi yok) — Faz 2 iframe köprüsü (B6) ile.

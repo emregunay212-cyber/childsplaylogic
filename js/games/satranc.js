@@ -175,6 +175,8 @@ const Satranc = (() => {
                         img.src = svgUrl;
                         img.alt = piece;
                         img.draggable = false;
+                        // Görsel yüklenemezse Unicode taşa düş (eskiden tahta boş kalıyordu)
+                        img.onerror = () => { const sp = document.createElement('span'); sp.className = 'chess-piece chess-piece-text'; sp.textContent = ChessEngine.getSymbol(piece); img.replaceWith(sp); };
                         el.insertBefore(img, el.firstChild);
                     }
                 }

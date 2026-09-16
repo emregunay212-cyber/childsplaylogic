@@ -105,7 +105,6 @@ STATIC_PAGES = [
            "<li><strong>Vercel</strong> — site bu barındırma hizmeti ve dünya çapındaki dağıtım ağı üzerinden sunulur; sağlayıcı, hizmetin işletilmesi ve güvenliği için standart sunucu kayıtları (IP adresi, istek zamanı) tutabilir.</li>\n"
            "<li><strong>Yazı tipleri</strong> — ana sayfa, oyun sayfaları ve oyunların çoğu yazı tiplerini bilnetoyun.com'un kendi sunucusundan yükler. Yalnızca <strong>Ateş &amp; Buz, Kelimelik, Son Kart ve Zindan Okçusu</strong> açıldığında yazı tipleri Google Fonts'tan (fonts.googleapis.com, fonts.gstatic.com) yüklenir; bu istekte IP adresi Google'a iletilir.</li>\n"
            "<li><strong>cdnjs.cloudflare.com ve unpkg.com</strong> — Satranç (chess.js) ve LEGO World 3D (three.js) kitaplıkları yalnızca bu oyunlar açıldığında buradan yüklenir.</li>\n"
-           "<li><strong>upload.wikimedia.org</strong> — Satranç taş görselleri Wikimedia Commons'tan yüklenir.</li>\n"
            "</ul>",
            "Bu isteklerde ilgili sağlayıcı, teknik zorunluluk olarak tarayıcının IP adresini ve tarayıcı bilgisini görür; platform Firebase dışındaki hiçbir sağlayıcıya ad, e-posta ya da ilerleme verisi göndermez. Veriler bunların dışında hiçbir kişi ya da kurumla paylaşılmaz, satılmaz.",
          ]),
@@ -149,6 +148,9 @@ STATIC_PAGES = [
          ("Nasıl çalışır?", "nasil-calisir", [
            "Oynamak için üyelik gerekmez: <strong>Misafir</strong> seçip hemen başlayabilirsin. İlerlemenin cihazlar arasında saklanmasını istersen isteğe bağlı Google girişi vardır; neyin nerede tutulduğu <a href=\"/gizlilik/\">Gizlilik</a> sayfasında anlatılır.",
            "Oyunlar yıldız kazandırır. Bazı oyunlar belirli sayıda yıldız toplanınca açılır; böylece çocuk kolaydan zora doğal bir sırayla ilerler. Öğretmenler yönetici panelinden oyunları sınıf için topluca açabilir ya da kilitleyebilir ve ses ayarını belirleyebilir.",
+         ]),
+         ("Açık kaynak ve lisanslar", "lisanslar", [
+           "Satranç taş görselleri <a href=\"https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces\" target=\"_blank\" rel=\"noopener\">Wikimedia Commons</a> üzerindeki Cburnett setinden alınmıştır ve <a href=\"https://creativecommons.org/licenses/by-sa/3.0/deed.tr\" target=\"_blank\" rel=\"noopener\">CC BY-SA 3.0</a> lisansıyla kullanılır; görseller bilnetoyun.com'un kendi sunucusundan yüklenir. Yazı tipleri Fredoka ve Nunito, SIL Open Font License ile self-host edilir. Satranç kuralları için <a href=\"https://github.com/jhlywa/chess.js\" target=\"_blank\" rel=\"noopener\">chess.js</a> (BSD-2) kullanılır.",
          ]),
          ("Kim yaptı?", "kim-yapti", [
            f"Bilnet Oyun, <a href=\"{SCHOOL_URL}\" target=\"_blank\" rel=\"noopener\">{SCHOOL_NAME}</a> için geliştirildi ve okul topluluğuna ücretsiz sunulur. Kampüs, <a href=\"{SCHOOL_CORP_URL}\" target=\"_blank\" rel=\"noopener\">Bilnet Okulları</a> ailesinin parçasıdır. Tasarım ve yazılım: <a href=\"https://egweblab.com.tr\" target=\"_blank\" rel=\"noopener\">egweblab</a>. Soru ve önerilerin için <a href=\"/iletisim/\">İletişim</a> sayfasına bak.",
