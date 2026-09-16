@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 SEO landing sayfa jeneratoru — bilnetoyun.com
-Veri: seo/games_data.py (GAMES, STATIC_PAGES). Bu dosya yalniz sablon + uretim.
+Veri: data/games.json (GAMES; seo/games_data.py yukler) + seo/games_data.py (STATIC_PAGES). Bu dosya yalniz sablon + uretim.
 
 Uretir:
   oyunlar/<slug>/index.html   her kayit (active=False -> noindex + "Cok yakinda", CTA yok)
@@ -87,15 +87,33 @@ def truncate_words(text, limit):
 
 
 def build_description(g):
-    suffix = f" {g['age']} yaş için ücretsiz, üyeliksiz."
+    suffix = f" {age_label(g)} yaş için ücretsiz, üyeliksiz."
     return truncate_words(g["short"], DESC_MAX - len(suffix)) + suffix
 
 
 def age_range(g):
-    m = re.fullmatch(r"\s*(\d+)\s*-\s*(\d+)\s*", g["age"])
+    """(min, max) — data/games.json [min, max] listesi; eski 'min-max' metni de kabul edilir."""
+    age = g["age"]
+    if isinstance(age, (list, tuple)):
+        if len(age) != 2 or not all(isinstance(x, int) for x in age) or age[0] >= age[1]:
+            raise ValueError(f"{g['slug']}: age {age!r} [min, max] (min < max) biciminde degil")
+        return int(age[0]), int(age[1])
+    m = re.fullmatch(r"\s*(\d+)\s*-\s*(\d+)\s*", str(age))
     if not m:
-        raise ValueError(f"{g['slug']}: age '{g['age']}' 'min-max' biciminde degil")
+        raise ValueError(f"{g['slug']}: age '{age}' 'min-max' biciminde degil")
     return int(m.group(1)), int(m.group(2))
+
+
+def age_label(g):
+    """Metin: '4-7' (meta description, landing kutusu, hub karti)."""
+    amin, amax = age_range(g)
+    return f"{amin}-{amax}"
+
+
+def minutes_label(g):
+    """Tipik tur suresi metni ('5 dk'); alan yoksa bos (eski kayit sekli)."""
+    minutes = g.get("minutes")
+    return f"{minutes} dk" if minutes else ""
 
 
 def players_range(g):
@@ -449,7 +467,7 @@ def build_page(g, date):
         og_image=OG_IMAGE, og_w=OG_W, og_h=OG_H, head_common=HEAD_COMMON, jsonld=jsonld_page(g, url, date),
         name=name, h1=name + (" Oyna" if active else ""), short=esc(g["short"]),
         cta=CTA_ACTIVE.format(slug=g["slug"]) if active else CTA_SOON,
-        players=esc(g["players"]), age=esc(g["age"]), cat=esc(g["cat"]), teaches=esc(g["teaches"]),
+        players=esc(g["players"]), age=esc(age_label(g)), cat=esc(g["cat"]), teaches=esc(g["teaches"]),
         about=esc(g["about"]),
         howto=(HOWTO_ACTIVE if active else HOWTO_SOON).format(name=name),
         static_links=static_links(), imza=IMZA_HTML)
@@ -508,7 +526,8 @@ def hub_description(n):
 def build_hub(active, date):
     cards = "\n".join(
         f'<a class="g" href="/oyunlar/{g["slug"]}/"><h2>{esc(g["name"])}</h2>'
-        f'<p>{esc(g["short"])}</p><span class="t">{esc(g["cat"])} · {esc(g["age"])} yaş ›</span></a>'
+        f'<p>{esc(g["short"])}</p><span class="t">{esc(g["cat"])} · {esc(age_label(g))} yaş'
+        + (f' · {esc(minutes_label(g))}' if minutes_label(g) else '') + ' ›</span></a>'
         for g in active)
     n = len(active)
     desc = hub_description(n)

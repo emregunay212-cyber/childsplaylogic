@@ -6,63 +6,63 @@
 - Tüm oyunlar: https://bilnetoyun.com/oyunlar/
 - Site haritası: https://bilnetoyun.com/sitemap.xml
 
-## Oyunlar (55 sayfa; Satranç ve Kod Macerası için 2 kişilik online sürüm de var, ayrı sayfası yok)
+## Oyunlar (55 sayfa; Kod Macerası ve Satranç için 2 kişilik online sürüm de var, ayrı sayfası yok)
 
-- [Satranç](https://bilnetoyun.com/oyunlar/satranc/): Yapay zekâya karşı 9 seviyede satranç oyna.
-- [Penaltı](https://bilnetoyun.com/oyunlar/penalti/): Kaleciye penaltı at, 9 seviyede gol krallığına ulaş.
-- [Hafıza Kartları](https://bilnetoyun.com/oyunlar/hafiza-kartlari/): Eşleşen kartları bul, 10 seviyede hafızanı güçlendir.
-- [Matematik](https://bilnetoyun.com/oyunlar/matematik/): Toplama-çıkarma alıştırmalarıyla dört işlemi eğlenerek öğren.
-- [Kod Macerası](https://bilnetoyun.com/oyunlar/kod-macerasi/): Karakteri komutlarla yönlendir, kodlamanın temelini öğren.
-- [LEGO World 3D](https://bilnetoyun.com/oyunlar/lego-world/): 3D açık dünyada keşfet ve inşa et, 9 seviye.
-- [LEGO Macerası](https://bilnetoyun.com/oyunlar/lego-macerasi/): LEGO temalı kodlama ve inşa görevleri, 3 seviye.
-- [Renk Eşleştirme](https://bilnetoyun.com/oyunlar/renk-eslestirme/): Renkleri eşleştir, okul öncesi renk bilgini geliştir.
-- [Sayı Sayma](https://bilnetoyun.com/oyunlar/sayi-sayma/): Nesneleri say, sayıları eğlenerek öğren.
 - [Harf Tanıma](https://bilnetoyun.com/oyunlar/harf-tanima/): Harfleri tanı, okumaya ilk adımı at.
 - [Hece Birleştirme](https://bilnetoyun.com/oyunlar/hece-birlestirme/): Heceleri birleştirip kelime kur, okumayı pekiştir.
-- [Şekil Bulmaca](https://bilnetoyun.com/oyunlar/sekil-bulmaca/): Şekilleri doğru yere yerleştir, bulmacayı çöz.
-- [Sıralama](https://bilnetoyun.com/oyunlar/siralama/): Nesneleri doğru sıraya diz, mantığını geliştir.
-- [Boyama](https://bilnetoyun.com/oyunlar/boyama/): Resimleri istediğin gibi boya, 10 resim.
-- [Tuval](https://bilnetoyun.com/oyunlar/tuval/): Piksel piksel kendi resmini çiz.
-- [Jigsaw Bulmaca](https://bilnetoyun.com/oyunlar/jigsaw/): Parçaları birleştirip resmi tamamla.
+- [Kelime Balonu](https://bilnetoyun.com/oyunlar/kelime-balonu/): İngilizce kelimenin harflerini balonlardan vur — kelime tamamlanınca büyük patlama!
+- [Kelime Canavarları](https://bilnetoyun.com/oyunlar/kelime-canavarlari/): İngilizce kelimelerle canavarını besle, evrimleştir, FUSION ile melez yarat!
+- [Kelime Kurtarma](https://bilnetoyun.com/oyunlar/kelime-kurtarma/): Her yanlış harf bir balon patlatır — kelimeyi bul, karakteri uçur!
+- [Günlük Kelime](https://bilnetoyun.com/oyunlar/gunluk-kelime/): Her gün TEK kelime — tüm okul aynı kelimeyi çözüyor! 6 deneme, yeşil-sarı ipuçları.
+- [Sayı Sayma](https://bilnetoyun.com/oyunlar/sayi-sayma/): Nesneleri say, sayıları eğlenerek öğren.
+- [Matematik](https://bilnetoyun.com/oyunlar/matematik/): Toplama-çıkarma alıştırmalarıyla dört işlemi eğlenerek öğren.
 - [Desen Tamamlama](https://bilnetoyun.com/oyunlar/desen/): Eksik deseni bul, örüntüyü tamamla.
-- [Zindan Okçusu](https://bilnetoyun.com/oyunlar/zindan-okcusu/): Okçunla zindanda hayatta kal, beceri ve ekipman geliştir.
-- [Kelime Tahmin](https://bilnetoyun.com/oyunlar/kelime-tahmin/): Wordle tarzı: gizli kelimeyi arkadaşınla yarışarak bul.
-- [Harf Tahmin](https://bilnetoyun.com/oyunlar/harf-tahmin/): Adam asmaca tarzı: harf tahmin ederek kelimeyi çöz.
-- [Altın Avı](https://bilnetoyun.com/oyunlar/altin-avi/): 5-30 kişilik bilgi yarışı: sorularla altın topla, geliştir.
-- [Ateş ve Buz](https://bilnetoyun.com/oyunlar/ates-buz/): İki karakteri yönet, engelleri birlikte aş.
-- [Tetris](https://bilnetoyun.com/oyunlar/tetris/): Blokları döndür, satırları doldur ve temizle.
-- [Buz Kulesi](https://bilnetoyun.com/oyunlar/buz-kulesi/): Platformdan platforma zıpla, düşmeden yüksel.
-- [Zıpla Topla](https://bilnetoyun.com/oyunlar/zipla-topla/): Mario tarzı platformlarda zıpla, topla ve ilerle.
-- [Eğim](https://bilnetoyun.com/oyunlar/egim/): Eğimli sonsuz yolda topu yönet, engellerden kaç.
-- [SpaceWaves](https://bilnetoyun.com/oyunlar/space-waves/): Uzayda dalgalar ve geçitler arasından çarpmadan süzül.
-- [Sayılarla Boyama](https://bilnetoyun.com/oyunlar/sayilarla-boyama/): Numarayı seç, aynı numaralı kutuları boya, resmi ortaya çıkar.
-- [Emoji Yapıcı](https://bilnetoyun.com/oyunlar/emoji-yapici/): Parçaları seç, kendi emoji yüzünü yarat.
-- [Penaltı Online](https://bilnetoyun.com/oyunlar/penalti-mp/): Arkadaşınla online penaltı düellosu: at ve kurtar.
-- [Kelimelik](https://bilnetoyun.com/oyunlar/kelimelik/): Arkadaşınla 1v1 Türkçe kelime oyunu: harfleri diz, kelime kur, puan topla.
-- [Bil ve Fethet](https://bilnetoyun.com/oyunlar/bil-ve-fethet/): Soruları cevapla, ülkeleri fethet: dünya haritasında bilgi savaşı.
 - [Bilgi Madencisi](https://bilnetoyun.com/oyunlar/bilgi-madencisi/): Soru yukarıda, cevaplar yerin altında — kancayı doğru taşa bırak!
 - [Matematik Patlatma](https://bilnetoyun.com/oyunlar/matematik-patlatma/): Komşu taşları sürükle, hedef sayıyı tuttur — zincir ne kadar uzun, puan o kadar dev!
-- [Kelime Balonu](https://bilnetoyun.com/oyunlar/kelime-balonu/): İngilizce kelimenin harflerini balonlardan vur — kelime tamamlanınca büyük patlama!
-- [Bilgi Takımı](https://bilnetoyun.com/oyunlar/bilgi-takimi/): Görevleri bitir, XP topla, bilgi takımına yeni karakterler kat!
 - [Matematik Kafe](https://bilnetoyun.com/oyunlar/matematik-kafe/): Siparişin hesabını yap, hızlı servisle bahşişi kap — kasa sende!
-- [Bilim Dedektifi](https://bilnetoyun.com/oyunlar/bilim-dedektifi/): Sahnedeki bilimsel nesneleri bul, vaka quizini çöz, 3 yıldızı topla!
-- [Bilgi Çiftliği](https://bilnetoyun.com/oyunlar/bilgi-ciftligi/): Soru çöz, tohum kazan, ek — bitkiler gerçek zamanda büyür, hasat senin!
-- [Kelime Canavarları](https://bilnetoyun.com/oyunlar/kelime-canavarlari/): İngilizce kelimelerle canavarını besle, evrimleştir, FUSION ile melez yarat!
-- [Eşleştirme Ustası](https://bilnetoyun.com/oyunlar/eslestirme-ustasi/): Kartlar özdeş değil İLİŞKİLİ: 7×8 kartının eşi 56! Az hamlede bul, 3 yıldızı kap.
-- [Kelime Kurtarma](https://bilnetoyun.com/oyunlar/kelime-kurtarma/): Her yanlış harf bir balon patlatır — kelimeyi bul, karakteri uçur!
 - [Bilgi Yılanı](https://bilnetoyun.com/oyunlar/bilgi-yilani/): Klasik yılan ama yemler CEVAP: doğru yemi ye uza, yanlışta kısal!
 - [Ritim Soruları](https://bilnetoyun.com/oyunlar/ritim-sorulari/): Düşen karolardan doğru cevaba bas — hatasız seri melodiye dönüşür!
 - [Kesir 2048](https://bilnetoyun.com/oyunlar/kesir-2048/): 1/8 + 1/8 = 1/4 → 1 TAM! Pasta dilimleriyle kesirler gözünün önünde birleşir.
-- [Günlük Kelime](https://bilnetoyun.com/oyunlar/gunluk-kelime/): Her gün TEK kelime — tüm okul aynı kelimeyi çözüyor! 6 deneme, yeşil-sarı ipuçları.
 - [Sayı Ninja](https://bilnetoyun.com/oyunlar/sayi-ninja/): Havaya fırlayan sayılardan kurala uyanları KES — kural 15 saniyede bir değişir!
-- [Bilgi Kulesi](https://bilnetoyun.com/oyunlar/bilgi-kulesi/): 12 soruluk kuleyi tırman: jokerler, güvenli katlar ve zirvede taç!
+- [Hafıza Kartları](https://bilnetoyun.com/oyunlar/hafiza-kartlari/): Eşleşen kartları bul, 10 seviyede hafızanı güçlendir.
+- [Şekil Bulmaca](https://bilnetoyun.com/oyunlar/sekil-bulmaca/): Şekilleri doğru yere yerleştir, bulmacayı çöz.
+- [Sıralama](https://bilnetoyun.com/oyunlar/siralama/): Nesneleri doğru sıraya diz, mantığını geliştir.
+- [Jigsaw Bulmaca](https://bilnetoyun.com/oyunlar/jigsaw/): Parçaları birleştirip resmi tamamla.
+- [Tetris](https://bilnetoyun.com/oyunlar/tetris/): Blokları döndür, satırları doldur ve temizle.
+- [Bilim Dedektifi](https://bilnetoyun.com/oyunlar/bilim-dedektifi/): Sahnedeki bilimsel nesneleri bul, vaka quizini çöz, 3 yıldızı topla!
+- [Eşleştirme Ustası](https://bilnetoyun.com/oyunlar/eslestirme-ustasi/): Kartlar özdeş değil İLİŞKİLİ: 7×8 kartının eşi 56! Az hamlede bul, 3 yıldızı kap.
 - [Labirent Avcısı](https://bilnetoyun.com/oyunlar/labirent-avcisi/): Labirentteki harfleri SIRAYLA topla — Unutkanlık Bulutu'na yakalanma!
+- [Renk Eşleştirme](https://bilnetoyun.com/oyunlar/renk-eslestirme/): Renkleri eşleştir, okul öncesi renk bilgini geliştir.
+- [Boyama](https://bilnetoyun.com/oyunlar/boyama/): Resimleri istediğin gibi boya, 10 resim.
+- [Tuval](https://bilnetoyun.com/oyunlar/tuval/): Piksel piksel kendi resmini çiz.
+- [Sayılarla Boyama](https://bilnetoyun.com/oyunlar/sayilarla-boyama/): Numarayı seç, aynı numaralı kutuları boya, resmi ortaya çıkar.
+- [Emoji Yapıcı](https://bilnetoyun.com/oyunlar/emoji-yapici/): Parçaları seç, kendi emoji yüzünü yarat.
+- [Kod Macerası](https://bilnetoyun.com/oyunlar/kod-macerasi/): Karakteri komutlarla yönlendir, kodlamanın temelini öğren.
+- [LEGO Macerası](https://bilnetoyun.com/oyunlar/lego-macerasi/): LEGO temalı kodlama ve inşa görevleri, 3 seviye.
+- [LEGO World 3D](https://bilnetoyun.com/oyunlar/lego-world/): 3D açık dünyada keşfet ve inşa et, 9 seviye.
+- [Satranç](https://bilnetoyun.com/oyunlar/satranc/): Yapay zekâya karşı 9 seviyede satranç oyna.
+- [Zıpla Topla](https://bilnetoyun.com/oyunlar/zipla-topla/): Mario tarzı platformlarda zıpla, topla ve ilerle.
+- [SpaceWaves](https://bilnetoyun.com/oyunlar/space-waves/): Uzayda dalgalar ve geçitler arasından çarpmadan süzül.
+- [Eğim](https://bilnetoyun.com/oyunlar/egim/): Eğimli sonsuz yolda topu yönet, engellerden kaç.
+- [Buz Kulesi](https://bilnetoyun.com/oyunlar/buz-kulesi/): Platformdan platforma zıpla, düşmeden yüksel.
+- [Penaltı](https://bilnetoyun.com/oyunlar/penalti/): Kaleciye penaltı at, 9 seviyede gol krallığına ulaş.
+- [Zindan Okçusu](https://bilnetoyun.com/oyunlar/zindan-okcusu/): Okçunla zindanda hayatta kal, beceri ve ekipman geliştir.
+- [Bil ve Fethet](https://bilnetoyun.com/oyunlar/bil-ve-fethet/): Soruları cevapla, ülkeleri fethet: dünya haritasında bilgi savaşı.
+- [Bilgi Takımı](https://bilnetoyun.com/oyunlar/bilgi-takimi/): Görevleri bitir, XP topla, bilgi takımına yeni karakterler kat!
+- [Bilgi Çiftliği](https://bilnetoyun.com/oyunlar/bilgi-ciftligi/): Soru çöz, tohum kazan, ek — bitkiler gerçek zamanda büyür, hasat senin!
+- [Bilgi Kulesi](https://bilnetoyun.com/oyunlar/bilgi-kulesi/): 12 soruluk kuleyi tırman: jokerler, güvenli katlar ve zirvede taç!
 - [Cevap Koşusu](https://bilnetoyun.com/oyunlar/cevap-kosusu/): 3 şeritli sonsuz koşu — yol ayrımında DOĞRU tabelanın şeridine geç!
 - [Bilgi Savunması](https://bilnetoyun.com/oyunlar/bilgi-savunmasi/): Soru çöz, enerji üret, kuleler dik — Soru Canavarlarından bahçeni koru!
 - [Fizik Fırlatma](https://bilnetoyun.com/oyunlar/fizik-firlatma/): Sapanı çek, AÇI ve KUVVETİ sayılarla gör, 12 bölümde yıldızları vur!
-- [Son Kart](https://bilnetoyun.com/oyunlar/son-kart/): UNO tarzı kart oyunu: rengi ya da sayıyı eşleştir, elini ilk bitiren kazanır. Bota karşı ya da 2-4 kişi online.
-- [Hava Hokeyi](https://bilnetoyun.com/oyunlar/hava-hokeyi/): Arkadaşınla online hava hokeyi: tokmağı kaydır, diski rakibin kalesine sok — ilk 7 golü atan kazanır!
+- [Kelime Tahmin](https://bilnetoyun.com/oyunlar/kelime-tahmin/): Wordle tarzı: gizli kelimeyi arkadaşınla yarışarak bul.
+- [Harf Tahmin](https://bilnetoyun.com/oyunlar/harf-tahmin/): Adam asmaca tarzı: harf tahmin ederek kelimeyi çöz.
+- [Penaltı Online](https://bilnetoyun.com/oyunlar/penalti-mp/): Arkadaşınla online penaltı düellosu: at ve kurtar.
+- [Ateş & Buz](https://bilnetoyun.com/oyunlar/ates-buz/): İki karakteri yönet, engelleri birlikte aş.
 - [Zıpla Topla Online](https://bilnetoyun.com/oyunlar/zipla-topla-coop/): Mario tarzı platformlarda 2 kişilik online co-op: arkadaşınla birlikte zıpla, 12 bölümü beraber bitir!
+- [Hava Hokeyi](https://bilnetoyun.com/oyunlar/hava-hokeyi/): Arkadaşınla online hava hokeyi: tokmağı kaydır, diski rakibin kalesine sok — ilk 7 golü atan kazanır!
+- [Altın Avı](https://bilnetoyun.com/oyunlar/altin-avi/): 5-30 kişilik bilgi yarışı: sorularla altın topla, geliştir.
+- [Kelimelik](https://bilnetoyun.com/oyunlar/kelimelik/): Arkadaşınla 1v1 Türkçe kelime oyunu: harfleri diz, kelime kur, puan topla.
+- [Son Kart](https://bilnetoyun.com/oyunlar/son-kart/): UNO tarzı kart oyunu: rengi ya da sayıyı eşleştir, elini ilk bitiren kazanır. Bota karşı ya da 2-4 kişi online.
 
 ## Sayfalar
 
