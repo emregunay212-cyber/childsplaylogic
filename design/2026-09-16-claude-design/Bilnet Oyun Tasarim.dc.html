@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><meta name="design_doc_mode" content="canvas">
+<style>
+@font-face{font-family:'Fredoka';font-style:normal;font-weight:300 700;font-display:swap;src:url(/assets/fonts/fredoka-v17-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Fredoka';font-style:normal;font-weight:300 700;font-display:swap;src:url(/assets/fonts/fredoka-v17-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:'Nunito';font-style:normal;font-weight:200 1000;font-display:swap;src:url(/assets/fonts/nunito-v32-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Nunito';font-style:normal;font-weight:200 1000;font-display:swap;src:url(/assets/fonts/nunito-v32-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+body{margin:0;background:#EEF1F3;font-family:'Nunito','Segoe UI',sans-serif;color:#1F3A4D;-webkit-font-smoothing:antialiased}
+a{color:#17739F}a:hover{color:#1F3A4D}
+</style></helmet>
+
+<section style="padding:44px 48px 36px;border-bottom:1px solid rgba(31,58,77,.1)">
+<div style="max-width:760px;display:flex;flex-direction:column;gap:14px">
+<div style="font:700 11px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;color:#4E6272">BILNETOYUN.COM · TASARIM SÖZLEŞMESİ · FAZ 2 / B0</div>
+<h1 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:40px;line-height:1.1;margin:0;color:#1F3A4D">Çıkartma Kitabı Bahçesi</h1>
+<p style="font-size:18px;line-height:1.6;margin:0;color:#1F3A4D">57 oyun, 4-12 yaş, üyeliksiz. Tek dünya: gökyüzü, güneş, çimen. Her kart, düğme ve rozet kalın beyaz konturlu bir çıkartma gibi sayfaya yapışır. Tek tema, tek yarıçap sistemi, tek ikon seti.</p>
+<p style="font-size:15px;line-height:1.6;margin:0;color:#4E6272">Belge şunları içerir: token tablosu, bileşen envanteri, oyun görselleri, kategori simgeleri, 01-14 numaralı ekranlar ve maskot alternatifleri. Her ekran 1280 px (tablet yatay / masaüstü) ve 375 px (telefon) genişlikte, altında 1024 px davranış notu ve iki-üç satır "neden böyle".</p>
+<div style="display:flex;flex-wrap:wrap;gap:10px;padding-top:4px">
+<span style="display:inline-flex;align-items:center;height:32px;padding:0 14px;border-radius:999px;background:#fff;box-shadow:0 2px 6px rgba(31,58,77,.1);font:700 13px/1 'Nunito';color:#1F3A4D">Fredoka 600-700 + Nunito 400-700</span>
+<span style="display:inline-flex;align-items:center;height:32px;padding:0 14px;border-radius:999px;background:#fff;box-shadow:0 2px 6px rgba(31,58,77,.1);font:700 13px/1 'Nunito';color:#1F3A4D">Hedef en az 52 px</span>
+<span style="display:inline-flex;align-items:center;height:32px;padding:0 14px;border-radius:999px;background:#fff;box-shadow:0 2px 6px rgba(31,58,77,.1);font:700 13px/1 'Nunito';color:#1F3A4D">Gövde 18 px</span>
+<span style="display:inline-flex;align-items:center;height:32px;padding:0 14px;border-radius:999px;background:#fff;box-shadow:0 2px 6px rgba(31,58,77,.1);font:700 13px/1 'Nunito';color:#1F3A4D">WCAG AA 4,5:1</span>
+<span style="display:inline-flex;align-items:center;height:32px;padding:0 14px;border-radius:999px;background:#fff;box-shadow:0 2px 6px rgba(31,58,77,.1);font:700 13px/1 'Nunito';color:#1F3A4D">Açık tema, koyu tema yok</span>
+</div>
+</div>
+</section>
+
+<section style="padding:40px 48px;border-bottom:1px solid rgba(31,58,77,.1)">
+<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+<span style="font:700 11px/1 ui-monospace,Menlo,monospace;padding:4px 8px;border-radius:5px;background:#1F3A4D;color:#fff">T</span>
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;margin:0;color:#1F3A4D">Token tablosu</h2>
+</div>
+<p style="font-size:15px;line-height:1.6;margin:0 0 22px;max-width:620px;color:#4E6272">24 renk. Bilnet mavisi tek marka rengi; kategori renkleri yalnız kart şeridinde, balonda ve raf etiketinde geçer. Dolgulu düğmede beyaz metin için mavi-800 kullanılır (mavi-500 üstünde beyaz AA'yı geçmez), mavi-500 üstünde metin daima koyu mürekkep.</p>
+<div style="display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start">
+<div style="background:#fff;border-radius:18px;padding:22px 24px;box-shadow:0 2px 10px rgba(31,58,77,.1);width:560px">
+<div style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;margin-bottom:14px;color:#1F3A4D">Renkler</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 22px">
+<sc-for list="{{ tokenRenkler }}" as="t" hint-placeholder-count="24">
+<div style="display:flex;align-items:center;gap:10px">
+<span style="width:26px;height:26px;border-radius:8px;flex:none;box-shadow:inset 0 0 0 1px rgba(31,58,77,.16);background:{{ t.hex }}"></span>
+<span style="font:700 12px/1.2 ui-monospace,Menlo,monospace;color:#1F3A4D">{{ t.ad }}</span>
+<span style="font:400 12px/1.2 ui-monospace,Menlo,monospace;color:#4E6272;margin-left:auto">{{ t.hex }}</span>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px;width:480px">
+<div style="background:#fff;border-radius:18px;padding:22px 24px;box-shadow:0 2px 10px rgba(31,58,77,.1)">
+<div style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;margin-bottom:14px;color:#1F3A4D">Yazı ölçeği</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{ tokenTip }}" as="t" hint-placeholder-count="7">
+<div style="display:flex;align-items:baseline;gap:12px;border-bottom:1px dashed #DCE6EC;padding-bottom:10px">
+<span style="font:700 12px/1.2 ui-monospace,Menlo,monospace;color:#1F3A4D;width:150px;flex:none">{{ t.ad }}</span>
+<span style="font-size:13px;color:#4E6272;flex:none;width:130px">{{ t.deger }}</span>
+<span style="font-size:13px;color:#4E6272">{{ t.kullanim }}</span>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="background:#fff;border-radius:18px;padding:22px 24px;box-shadow:0 2px 10px rgba(31,58,77,.1)">
+<div style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;margin-bottom:14px;color:#1F3A4D">Aralık, yarıçap, gölge, süre</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{ tokenDiger }}" as="t" hint-placeholder-count="12">
+<div style="display:flex;align-items:baseline;gap:12px">
+<span style="font:700 12px/1.2 ui-monospace,Menlo,monospace;color:#1F3A4D;width:150px;flex:none">{{ t.ad }}</span>
+<span style="font:400 12px/1.4 ui-monospace,Menlo,monospace;color:#4E6272">{{ t.deger }}</span>
+</div>
+</sc-for>
+</div>
+<p style="font-size:13px;line-height:1.6;margin:14px 0 0;color:#4E6272">Aralık yalnız 4 ve 8 katları. Yarıçap üç değerle sınırlı: düğme hap, kart 24, giriş ve ikon karesi 16. Hareketi azalt tercihinde yalnız opaklık ve renk geçişleri kalır; ölçek, konfeti ve balon uçuşu kapanır.</p>
+</div>
+</div>
+</div>
+</section>
+
+<section style="padding:40px 48px;border-bottom:1px solid rgba(31,58,77,.1)">
+<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+<span style="font:700 11px/1 ui-monospace,Menlo,monospace;padding:4px 8px;border-radius:5px;background:#1F3A4D;color:#fff">B</span>
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;margin:0;color:#1F3A4D">Bileşen envanteri</h2>
+</div>
+<p style="font-size:15px;line-height:1.6;margin:0 0 22px;max-width:620px;color:#4E6272">Her satır: normal, basılı (0,97 ölçek), klavye odağı (3 px mavi halka, 3 px boşluk), devre dışı. Dolgulu yüzeyler kalın beyaz kontur taşır; kontur çıkartma hissinin taşıyıcısıdır, dekor değil.</p>
+<div style="display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start">
+
+<div style="background:#fff;border-radius:18px;padding:24px;box-shadow:0 2px 10px rgba(31,58,77,.1);width:640px">
+<div style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;margin-bottom:18px;color:#1F3A4D">Düğme · birincil / ikincil / tehlike · 3 boyut</div>
+<div style="display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+<button type="button" style="height:64px;padding:0 32px;border:4px solid #fff;border-radius:999px;background:#17739F;color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:22px;box-shadow:0 6px 16px rgba(31,58,77,.22);transition:transform 120ms cubic-bezier(.23,1,.32,1)" style-active="transform:scale(.97)">Hemen Oyna</button>
+<button type="button" style="height:56px;padding:0 26px;border:4px solid #fff;border-radius:999px;background:#17739F;color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:18px;box-shadow:0 6px 16px rgba(31,58,77,.22)">Oyna</button>
+<button type="button" style="height:52px;padding:0 20px;border:4px solid #fff;border-radius:999px;background:#17739F;color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:16px;box-shadow:0 4px 12px rgba(31,58,77,.2)">Oyna</button>
+<span style="font:400 13px/1.4 'Nunito';color:#4E6272">64 / 56 / 52 px</span>
+</div>
+<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+<button type="button" style="height:56px;padding:0 26px;border:4px solid #fff;border-radius:999px;background:#17739F;color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:18px;box-shadow:0 2px 6px rgba(31,58,77,.16);transform:scale(.97)">Basılı</button>
+<button type="button" style="height:56px;padding:0 26px;border:4px solid #fff;border-radius:999px;background:#17739F;color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:18px;box-shadow:0 0 0 3px #fff,0 0 0 6px #17739F">Odak</button>
+<button type="button" disabled="disabled" style="height:56px;padding:0 26px;border:4px solid #fff;border-radius:999px;background:#D7DEE3;color:#4E6272;font-family:'Fredoka',sans-serif;font-weight:700;font-size:18px">Devre dışı</button>
+</div>
+<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+<button type="button" style="height:56px;padding:0 26px;border:4px solid #fff;border-radius:999px;background:#fff;color:#17739F;font-family:'Fredoka',sans-serif;font-weight:700;font-size:18px;box-shadow:0 0 0 3px #17739F inset,0 6px 16px rgba(31,58,77,.14)">İkincil</button>
+<button type="button" style="height:56px;padding:0 26px;border:4px solid #fff;border-radius:999px;background:#fff;color:#C0392B;font-family:'Fredoka',sans-serif;font-weight:700;font-size:18px;box-shadow:0 0 0 3px #C0392B inset,0 6px 16px rgba(31,58,77,.14)">Tehlike</button>
+<span style="font:400 13px/1.4 'Nunito';color:#4E6272">Tehlike her zaman onay ister</span>
+</div>
+</div>
+</div>
+
+<div style="background:#fff;border-radius:18px;padding:24px;box-shadow:0 2px 10px rgba(31,58,77,.1);width:520px">
+<div style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;margin-bottom:18px;color:#1F3A4D">Çip (kategori sekmesi) · rozet · form alanı</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px">
+<span style="display:inline-flex;align-items:center;gap:8px;height:52px;padding:0 20px;border:3px solid #fff;border-radius:999px;background:#17739F;color:#fff;font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;box-shadow:0 4px 12px rgba(31,58,77,.2)">Tümü</span>
+<span style="display:inline-flex;align-items:center;gap:8px;height:52px;padding:0 20px;border:3px solid #fff;border-radius:999px;background:#fff;color:#1F3A4D;font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;box-shadow:0 2px 8px rgba(31,58,77,.14)"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#45B7D1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block"><path d="M4 5.5h6a2 2 0 012 2v11a2 2 0 00-2-2H4z" /><path d="M20 5.5h-6a2 2 0 00-2 2v11a2 2 0 012-2h6z" /></svg>Harfler</span>
+<span style="display:inline-flex;align-items:center;gap:8px;height:52px;padding:0 20px;border:3px solid #fff;border-radius:999px;background:#fff;color:#1F3A4D;font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;box-shadow:0 0 0 3px #17739F,0 2px 8px rgba(31,58,77,.14)">Odak</span>
+<span style="display:inline-flex;align-items:center;height:52px;padding:0 20px;border:3px solid #fff;border-radius:999px;background:#EEF1F3;color:#4E6272;font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px">Devre dışı</span>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px">
+<span style="display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:999px;background:#7B5BFF;color:#fff;font:700 13px/1 'Nunito'">2 oyuncu</span>
+<span style="display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:999px;background:#F4B400;color:#1F3A4D;font:700 13px/1 'Nunito'">Yeni</span>
+<span style="display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:999px;background:#EEF1F3;color:#4E6272;font:700 13px/1 'Nunito'">Yakında</span>
+<span style="display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:999px;background:#DFF5E7;color:#1E8E4E;font:700 13px/1 'Nunito'">4-6 yaş</span>
+</div>
+<label style="display:block;font:700 14px/1.4 'Nunito';color:#1F3A4D;margin-bottom:6px">Oda kodu</label>
+<input type="text" value="KUZUM" readonly="readonly" style="width:100%;height:56px;padding:0 18px;border:2px solid #DCE6EC;border-radius:16px;background:#fff;font-family:'Fredoka',sans-serif;font-weight:600;font-size:20px;color:#1F3A4D;letter-spacing:.16em;box-sizing:border-box" />
+<div style="display:flex;gap:10px;margin-top:10px">
+<span style="flex:1;height:56px;border-radius:16px;border:2px solid #17739F;box-shadow:0 0 0 3px rgba(23,115,159,.25);display:flex;align-items:center;padding:0 18px;font:600 16px/1 'Nunito';color:#4E6272">Odak hâli</span>
+<span style="flex:1;height:56px;border-radius:16px;border:2px solid #DCE6EC;background:#EEF1F3;display:flex;align-items:center;padding:0 18px;font:600 16px/1 'Nunito';color:#4E6272">Devre dışı</span>
+</div>
+</div>
+
+<div style="background:#fff;border-radius:18px;padding:24px;box-shadow:0 2px 10px rgba(31,58,77,.1);width:520px">
+<div style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;margin-bottom:18px;color:#1F3A4D">Bant · toast · geri bildirim</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:999px;background:#FFF4D6;box-shadow:inset 0 0 0 2px #F4B400">
+<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#1F3A4D" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 4v10" /><circle cx="12" cy="19" r="1.4" fill="#1F3A4D" stroke="none" /></svg>
+<span style="font:700 16px/1.3 'Nunito';color:#1F3A4D">Çevrimdışısın, tek kişilik oyunlar açık</span>
+</div>
+<div style="display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:999px;background:#1F3A4D">
+<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 12.5l3 3 5.5-6" /></svg>
+<span style="font:700 16px/1.3 'Nunito';color:#fff">Kaydedildi</span>
+</div>
+<div style="display:flex;gap:12px">
+<div style="flex:1;display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:24px;background:#DFF5E7">
+<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#1E8E4E" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 12.5l4 4 8-9" /></svg>
+<span style="font:700 17px/1.3 'Nunito';color:#155E36">Harika!</span>
+</div>
+<div style="flex:1;display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:24px;background:#FBE3E0">
+<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#C0392B" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17" /></svg>
+<span style="font:700 17px/1.3 'Nunito';color:#9E2A1E">Bir daha dene</span>
+</div>
+</div>
+<p style="font:400 14px/1.6 'Nunito';margin:4px 0 0;color:#4E6272">Doğru ve yanlış yalnız renkle değil, tik ve çarpı simgesiyle de verilir. Renk körü çocuk simgeyi okur.</p>
+</div>
+</div>
+
+<div style="background:#fff;border-radius:18px;padding:24px;box-shadow:0 2px 10px rgba(31,58,77,.1);width:640px">
+<div style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;margin-bottom:18px;color:#1F3A4D">İkon seti · tek çizgi kalınlığı 2 px · 24 ve 32 px ızgara</div>
+<div style="display:flex;flex-wrap:wrap;gap:12px">
+<sc-for list="{{ ikonlar }}" as="i" hint-placeholder-count="10">
+<div style="width:112px;display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 8px;border-radius:16px;background:#F6F9FB">
+<span style="display:block;color:#1F3A4D">{{ i.svg }}</span>
+<span style="font:600 13px/1.2 'Nunito';color:#4E6272;text-align:center">{{ i.ad }}</span>
+</div>
+</sc-for>
+</div>
+<p style="font:400 14px/1.6 'Nunito';margin:16px 0 0;color:#4E6272">Arayüz ikonları tek set, 2 px çizgi, yuvarlak uç. Kategori sekmelerinde mevcut marka resimleri korunur. Elmas ikonu emoji yerine geometrik çizim; hiçbir yerde emoji simge olarak kullanılmaz.</p>
+</div>
+
+</div>
+</section>
+
+<section style="padding:44px 48px;border-bottom:1px solid rgba(31,58,77,.1)" data-screen-label="Oyun görselleri v2">
+<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+<span style="font:700 11px/1 ui-monospace,Menlo,monospace;padding:4px 8px;border-radius:5px;background:#C0392B;color:#fff">G</span>
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;margin:0;color:#1F3A4D">Oyun görselleri · sahne illüstrasyonu</h2>
+</div>
+<p style="font-size:15px;line-height:1.6;margin:0 0 6px;max-width:760px;color:#4E6272">İnceleyince sorun ikon dilinden büyük çıktı: kart görsellerinin bir kısmı emoji karakteri barındırıyor (Matematik Kafe'de kahve fincanı ve çocuk, Satranç'ta şah karakterleri, Harf Tanıma'da arı), viewBox'lar 96 / 100 / 128 arasında karışık ve köşe yarıçapları tutmuyor.</p>
+<p style="font-size:15px;line-height:1.6;margin:0 0 24px;max-width:760px;color:#4E6272">Önerilen yön: her kart minik bir sahne. Zemin gradyanı, ufuk çizgisi ya da masa, öndeki nesneler kendi konturlarıyla. Tek ızgara 128 × 128, tek yarıçap 28, emoji yok, karakter yerine çizim. Depodaki 56 oyun görselinin tamamı bu dilde yeniden çizildi. Aşağıda önce on iki örnek eski hâliyle yan yana, ardından tam set 56 karo hâlinde. Hiçbirinde emoji karakteri yok; hepsi 128 × 128 ızgara, 28 yarıçap ve aynı gölge-kontur kuralını paylaşıyor.</p>
+<div style="display:flex;flex-wrap:wrap;gap:20px">
+<sc-for list="{{ oyunGorselleri }}" as="o" hint-placeholder-count="6">
+<div style="width:352px;background:#fff;border-radius:18px;padding:20px;box-shadow:0 2px 10px rgba(31,58,77,.1);box-sizing:border-box">
+<div style="display:flex;align-items:center;gap:18px;margin-bottom:14px">
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+<img src="/assets/hub/{{ o.slug }}.svg" width="96" height="96" alt="" style="display:block;border-radius:22px;opacity:.85" />
+<span style="font:700 11px/1 'Nunito';color:#4E6272">Bugün</span>
+</div>
+<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#4E6272" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+<img src="assets/hub-v2/{{ o.slug }}.svg" width="96" height="96" alt="" style="display:block;border-radius:22px;box-shadow:0 6px 16px rgba(31,58,77,.18)" />
+<span style="font:700 11px/1 'Nunito';color:#1F3A4D">Önerilen</span>
+</div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+<img src="assets/hub-v2/{{ o.slug }}.svg" width="48" height="48" alt="" style="display:block;border-radius:11px" />
+<span style="font:700 11px/1 'Nunito';color:#4E6272">48 px</span>
+</div>
+</div>
+<div style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:19px;color:#1F3A4D">{{ o.ad }}</div>
+<p style="font:400 14px/1.55 'Nunito';margin:4px 0 0;color:#4E6272">{{ o.not }}</p>
+</div>
+</sc-for>
+</div>
+<h3 style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:20px;margin:26px 0 12px;color:#1F3A4D">Tam set · 56 görsel</h3>
+<div style="display:flex;flex-wrap:wrap;gap:14px;padding:22px;border-radius:20px;background:#fff;box-shadow:0 2px 10px rgba(31,58,77,.1)">
+<sc-for list="{{ tumGorseller }}" as="t" hint-placeholder-count="24">
+<div style="width:96px;display:flex;flex-direction:column;align-items:center;gap:7px">
+<img src="{{ t.ikon }}" width="72" height="72" alt="" style="display:block;border-radius:16px;box-shadow:0 4px 12px rgba(31,58,77,.16)" />
+<span style="font:600 11px/1.25 'Nunito';color:#4E6272;text-align:center">{{ t.ad }}</span>
+</div>
+</sc-for>
+</div>
+<h3 style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:20px;margin:26px 0 12px;color:#1F3A4D">Kart içinde</h3>
+<div style="display:flex;flex-wrap:wrap;gap:16px;padding:22px;border-radius:20px;background:linear-gradient(180deg,#B8DFEF,#C9E8F7)">
+<sc-for list="{{ oyunGorselleri }}" as="o" hint-placeholder-count="6">
+<div style="width:172px;background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 6px 16px rgba(31,58,77,.16);overflow:hidden;box-sizing:border-box">
+<span style="display:block;height:8px;background:#45B7D1"></span>
+<div style="padding:14px 12px 12px;display:flex;flex-direction:column;align-items:center;gap:10px">
+<img src="assets/hub-v2/{{ o.slug }}.svg" width="84" height="84" alt="" style="display:block;border-radius:19px" />
+<span style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:20px;line-height:1.15;color:#1F3A4D;text-align:center">{{ o.ad }}</span>
+</div>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section style="padding:40px 48px;border-bottom:1px solid rgba(31,58,77,.1)" data-screen-label="Kategori simgeleri v2">
+<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+<span style="font:700 11px/1 ui-monospace,Menlo,monospace;padding:4px 8px;border-radius:5px;background:#C0392B;color:#fff">K</span>
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;margin:0;color:#1F3A4D">Kategori simgeleri · aynı sahne dili</h2>
+</div>
+<p style="font-size:15px;line-height:1.6;margin:0 0 24px;max-width:760px;color:#4E6272">Sekmelerdeki 3B emoji resimleri kaldırıldı. Kategori simgeleri de oyun görselleriyle aynı dilde: 128 × 128 karo, 28 yarıçap, sahne kurgusu. Açık kitap, abaküs, geçmeli bulmaca parçası, palet, kale burcu, iki oyuncu. Sekmede 26 px'e kadar küçülüyor ve okunur kalıyor.</p>
+<div style="display:flex;flex-wrap:wrap;gap:18px;margin-bottom:22px">
+<sc-for list="{{ kategoriler }}" as="k" hint-placeholder-count="6">
+<div style="width:230px;background:#fff;border-radius:18px;padding:18px;box-shadow:0 2px 10px rgba(31,58,77,.1);box-sizing:border-box;display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;align-items:center;gap:14px">
+<div style="display:flex;flex-direction:column;align-items:center;gap:6px;opacity:.7">{{ k.eski }}<span style="font:700 11px/1 'Nunito';color:#4E6272">Bugün</span></div>
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#4E6272" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+<div style="display:flex;flex-direction:column;align-items:center;gap:6px">{{ k.yeni }}<span style="font:700 11px/1 'Nunito';color:#1F3A4D">Önerilen</span></div>
+</div>
+<span style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:17px;line-height:1.2;color:#1F3A4D">{{ k.ad }}</span>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px;padding:20px;border-radius:20px;background:linear-gradient(180deg,#B8DFEF,#C9E8F7)">
+<span style="display:inline-flex;align-items:center;height:52px;padding:0 20px;border:3px solid #fff;border-radius:999px;background:#17739F;color:#fff;font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;box-shadow:0 4px 12px rgba(31,58,77,.2)">Tümü</span>
+<sc-for list="{{ kategoriler }}" as="k" hint-placeholder-count="6">
+<span style="display:inline-flex;align-items:center;gap:8px;height:52px;padding:0 18px 0 8px;border:3px solid #fff;border-radius:999px;background:#fff;color:#1F3A4D;font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;box-shadow:0 2px 8px rgba(31,58,77,.14)">{{ k.cip }}{{ k.ad }}</span>
+</sc-for>
+</div>
+</section>
+
+<section style="padding:40px 48px;border-bottom:1px solid rgba(31,58,77,.1)" data-screen-label="01 Giriş kartı">
+<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+<span style="font:700 11px/1 ui-monospace,Menlo,monospace;padding:4px 8px;border-radius:5px;background:#17739F;color:#fff">01</span>
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;margin:0;color:#1F3A4D">Giriş kartı</h2>
+</div>
+<p style="font-size:15px;line-height:1.6;margin:0 0 22px;max-width:660px;color:#4E6272">Neden böyle: iki yol eşit ağırlıkta değil, misafir yolu çocuk için tek dokunuş; Google girişi velinin okuyacağı satırla birlikte duruyor. Maskot selamlıyor, başlık bağırmıyor. 1024 px'te kart genişliği 520 px'te sabitlenir, yalnız dış boşluk daralır.</p>
+<div style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start">
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">Giriş kartı · 1280 px</div>
+<div style="width:1280px;height:760px;border-radius:20px;overflow:hidden;box-shadow:0 8px 28px rgba(31,58,77,.18);position:relative;background:linear-gradient(180deg,#87CEEB 0%,#B8DFEF 42%,#C9E8F7 68%)">
+<div style="position:absolute;right:120px;top:56px;width:92px;height:92px;border-radius:50%;background:#FFD54A;box-shadow:0 0 0 14px rgba(255,213,74,.28)"></div>
+<div style="position:absolute;left:110px;top:92px;width:150px;height:54px;border-radius:999px;background:#fff;opacity:.85"></div>
+<div style="position:absolute;left:170px;top:66px;width:84px;height:84px;border-radius:50%;background:#fff;opacity:.85"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:132px;background:linear-gradient(180deg,#7EC850,#5DAA3A)"></div>
+<div style="position:absolute;left:-40px;bottom:96px;width:520px;height:210px;border-radius:50%;background:#8ED45E"></div>
+<div style="position:absolute;right:-60px;bottom:96px;width:600px;height:240px;border-radius:50%;background:#6BBF3B"></div>
+<div style="position:absolute;left:50%;top:78px;transform:translateX(-50%);width:568px;background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 14px 32px rgba(31,58,77,.2);padding:0 40px 36px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center">
+<div style="margin-top:-46px;margin-bottom:4px">{{ maskotBuyuk }}</div>
+<h3 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:40px;line-height:1.1;margin:8px 0 6px;color:#1F3A4D">Bilnet Oyun</h3>
+<p style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:22px;margin:0 0 28px;color:#17739F">Nasıl oynamak istersin?</p>
+<button type="button" style="width:100%;height:76px;display:flex;align-items:center;justify-content:center;gap:14px;border:4px solid #fff;border-radius:999px;background:#17739F;color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:24px;box-shadow:0 6px 16px rgba(31,58,77,.22);margin-bottom:14px">
+<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" /><path d="M4.5 20c0-3.3 3.4-5.5 7.5-5.5s7.5 2.2 7.5 5.5" /></svg>
+Misafir Olarak Oyna</button>
+<button type="button" style="width:100%;height:68px;display:flex;align-items:center;justify-content:center;gap:14px;border:4px solid #fff;border-radius:999px;background:#fff;color:#17739F;font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;box-shadow:0 0 0 3px #17739F inset,0 6px 16px rgba(31,58,77,.14)">
+<svg width="26" height="26" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.3-.4-3.5z" /><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" /><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.3 0-9.7-3.1-11.3-7.5l-6.5 5C9.6 39.6 16.2 44 24 44z" /><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.6l6.2 5.2C41.4 36.1 44 30.6 44 24c0-1.3-.1-2.3-.4-3.5z" /></svg>
+Google ile Giriş</button>
+<p style="font-size:18px;line-height:1.6;margin:22px 0 0;color:#4E6272;text-align:center;max-width:460px">Google ile girersen yıldızların kaydolur, başka cihazdan da kaldığın yerden devam edersin. Misafir modunda kayıt tutulmaz.</p>
+<div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;justify-content:center">
+<span style="display:inline-flex;align-items:center;height:32px;padding:0 14px;border-radius:999px;background:#DFF5E7;color:#155E36;font:700 13px/1 'Nunito'">Reklam yok</span>
+<span style="display:inline-flex;align-items:center;height:32px;padding:0 14px;border-radius:999px;background:#DFF5E7;color:#155E36;font:700 13px/1 'Nunito'">Üyelik zorunlu değil</span>
+<span style="display:inline-flex;align-items:center;height:32px;padding:0 14px;border-radius:999px;background:#DFF5E7;color:#155E36;font:700 13px/1 'Nunito'">57 oyun ücretsiz</span>
+</div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:40px;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff">
+<img src="/assets/logo-96.png" width="20" height="20" alt="" style="display:block" />
+<span style="font:400 10px/1 ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;color:#4E6272">Tasarım ve yazılım</span>
+<span style="font:700 13px/1 'Nunito';color:#1F3A4D">egweblab<span style="color:#4E6272;font-weight:600">.com.tr</span></span>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">Giriş kartı · 375 px</div>
+<div style="width:375px;height:760px;border-radius:20px;overflow:hidden;box-shadow:0 8px 28px rgba(31,58,77,.18);position:relative;background:linear-gradient(180deg,#87CEEB 0%,#B8DFEF 46%,#C9E8F7 72%)">
+<div style="position:absolute;right:28px;top:28px;width:64px;height:64px;border-radius:50%;background:#FFD54A;box-shadow:0 0 0 10px rgba(255,213,74,.28)"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:96px;background:linear-gradient(180deg,#7EC850,#5DAA3A)"></div>
+<div style="position:absolute;left:-30px;bottom:72px;width:300px;height:140px;border-radius:50%;background:#8ED45E"></div>
+<div style="position:absolute;left:16px;right:16px;top:92px;background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 14px 32px rgba(31,58,77,.2);padding:0 20px 24px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center">
+<div style="margin-top:-38px">{{ maskotOrta }}</div>
+<h3 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:30px;line-height:1.1;margin:6px 0 4px;color:#1F3A4D">Bilnet Oyun</h3>
+<p style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:18px;margin:0 0 20px;color:#17739F">Nasıl oynamak istersin?</p>
+<button type="button" style="width:100%;height:64px;display:flex;align-items:center;justify-content:center;gap:10px;border:4px solid #fff;border-radius:999px;background:#17739F;color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:19px;box-shadow:0 6px 16px rgba(31,58,77,.22);margin-bottom:12px">
+<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" /><path d="M4.5 20c0-3.3 3.4-5.5 7.5-5.5s7.5 2.2 7.5 5.5" /></svg>
+Misafir Olarak Oyna</button>
+<button type="button" style="width:100%;height:56px;display:flex;align-items:center;justify-content:center;gap:10px;border:4px solid #fff;border-radius:999px;background:#fff;color:#17739F;font-family:'Fredoka',sans-serif;font-weight:700;font-size:17px;box-shadow:0 0 0 3px #17739F inset,0 6px 16px rgba(31,58,77,.14)">
+<svg width="22" height="22" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.3-.4-3.5z" /><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" /><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.3 0-9.7-3.1-11.3-7.5l-6.5 5C9.6 39.6 16.2 44 24 44z" /><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.6l6.2 5.2C41.4 36.1 44 30.6 44 24c0-1.3-.1-2.3-.4-3.5z" /></svg>
+Google ile Giriş</button>
+<p style="font-size:18px;line-height:1.55;margin:18px 0 0;color:#4E6272;text-align:center">Google ile girersen yıldızların kaydolur. Misafir modunda kayıt tutulmaz.</p>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:40px;display:flex;align-items:center;justify-content:center;gap:8px;background:#fff">
+<img src="/assets/logo-96.png" width="18" height="18" alt="" style="display:block" />
+<span style="font:400 10px/1 ui-monospace,Menlo,monospace;letter-spacing:.1em;text-transform:uppercase;color:#4E6272">Tasarım ve yazılım</span>
+<span style="font:700 12px/1 'Nunito';color:#1F3A4D">egweblab<span style="color:#4E6272;font-weight:600">.com.tr</span></span>
+</div>
+</div>
+</div>
+
+</div>
+</section>
+
+<section style="padding:40px 48px;border-bottom:1px solid rgba(31,58,77,.1)" data-screen-label="02 Hub ana ekran">
+<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+<span style="font:700 11px/1 ui-monospace,Menlo,monospace;padding:4px 8px;border-radius:5px;background:#17739F;color:#fff">02</span>
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;margin:0;color:#1F3A4D">Hub ana ekran · öğretmen anahtarı kapalı ve açık</h2>
+</div>
+<p style="font-size:15px;line-height:1.6;margin:0 0 22px;max-width:700px;color:#4E6272">Neden böyle: 57 oyun tek ızgarada seçilemez, bu yüzden birinci eksen yaş rafı, ikinci eksen kategori sekmesi. Çocuk kendi rafını bulur, öğretmen sekmeyle daraltır. Kart yüzeyi beyaz kalır; kategori rengi yalnız üst şeritte durur, böylece 24 kart yan yana geldiğinde ekran renk çorbasına dönmez. 1024 px'te üst şerit iki satıra ayrılır (marka + sayaçlar üstte, sekmeler altta), raflar aynı kalır ve kart genişliği 168 px'te sabitlenir.</p>
+<div style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start">
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">Hub · 1280 px · öğretmen anahtarı kapalı</div>
+<div style="width:1280px;height:880px;border-radius:20px;overflow:hidden;box-shadow:0 8px 28px rgba(31,58,77,.18);position:relative;background:linear-gradient(180deg,#87CEEB 0%,#B8DFEF 38%,#C9E8F7 60%)">
+<div style="position:absolute;right:150px;top:110px;width:80px;height:80px;border-radius:50%;background:#FFD54A;box-shadow:0 0 0 12px rgba(255,213,74,.26)"></div>
+<div style="position:absolute;left:150px;top:130px;width:130px;height:46px;border-radius:999px;background:#fff;opacity:.7"></div>
+<div style="position:absolute;left:0;right:0;bottom:40px;height:90px;background:linear-gradient(180deg,#7EC850,#5DAA3A)"></div>
+
+<div style="position:absolute;left:0;right:0;top:0;height:76px;display:flex;align-items:center;gap:14px;padding:0 20px;background:#fff;box-shadow:0 2px 6px rgba(31,58,77,.1);box-sizing:border-box">
+<button type="button" style="width:56px;height:56px;flex:none;display:flex;align-items:center;justify-content:center;border:3px solid #fff;border-radius:999px;background:#17739F;color:#fff;box-shadow:0 4px 12px rgba(31,58,77,.2)"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5L12 5l8 6.5V20h-5v-5h-6v5H4z" /></svg></button>
+<div style="flex:none;display:flex;flex-direction:column;line-height:1.1;margin-right:6px">
+<span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:22px;color:#1F3A4D">Bilnet Oyun</span>
+<span style="font:600 12px/1.3 'Nunito';color:#4E6272">Eğitici Oyunlar</span>
+</div>
+<div style="flex:1;min-width:0;display:flex;gap:8px;overflow:hidden">
+<sc-for list="{{ sekmeler }}" as="s" hint-placeholder-count="7">
+<span style="display:inline-flex;align-items:center;gap:8px;height:52px;padding:0 16px;flex:none;border:3px solid #fff;border-radius:999px;font-family:'Fredoka',sans-serif;font-weight:600;font-size:15px;white-space:nowrap;background:{{ s.zemin }};color:{{ s.renk }};box-shadow:0 2px 8px rgba(31,58,77,.14)">{{ s.ikon }}{{ s.ad }}</span>
+</sc-for>
+</div>
+<div style="flex:none;display:flex;align-items:center;gap:8px">
+<span style="display:inline-flex;align-items:center;gap:6px;height:52px;padding:0 16px;border-radius:999px;background:#FFF4D6;color:#1F3A4D;font-family:'Fredoka',sans-serif;font-weight:700;font-size:18px">{{ yildizIkon }}24</span>
+<span style="display:inline-flex;align-items:center;gap:6px;height:52px;padding:0 16px;border-radius:999px;background:#E8F5FC;color:#17739F;font-family:'Fredoka',sans-serif;font-weight:700;font-size:18px">{{ elmasIkon }}310</span>
+<button type="button" style="width:52px;height:52px;display:flex;align-items:center;justify-content:center;border:3px solid #fff;border-radius:999px;background:#fff;color:#1F3A4D;box-shadow:0 0 0 2px #DCE6EC"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z" /><path d="M15.5 9.5c1 1 1 4 0 5" /><path d="M18 7.5c2 2 2 7 0 9" /></svg></button>
+<button type="button" style="height:52px;display:flex;align-items:center;gap:8px;padding:0 8px 0 6px;border:3px solid #fff;border-radius:999px;background:#fff;box-shadow:0 0 0 2px #DCE6EC"><span style="width:38px;height:38px;border-radius:50%;background:#E8F5FC;display:flex;align-items:center;justify-content:center;color:#17739F"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" /><path d="M4.5 20c0-3.3 3.4-5.5 7.5-5.5s7.5 2.2 7.5 5.5" /></svg></span><span style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:15px;color:#1F3A4D;padding-right:6px">Misafir</span></button>
+</div>
+</div>
+
+<div style="position:absolute;left:0;right:0;top:76px;bottom:40px;overflow:hidden;padding:20px 28px 0;box-sizing:border-box">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+<h3 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:24px;margin:0;color:#1F3A4D;background:#fff;border-radius:999px;padding:6px 18px;box-shadow:0 2px 8px rgba(31,58,77,.12)">Devam et</h3>
+<span style="font:600 14px/1 'Nunito';color:#1F3A4D;background:#fff;border-radius:999px;padding:8px 14px;box-shadow:0 2px 8px rgba(31,58,77,.12)">Kaldığın yerden</span>
+</div>
+<div style="display:flex;gap:14px;margin-bottom:22px">
+<sc-for list="{{ devamEt }}" as="d" hint-placeholder-count="3">
+<div style="width:300px;flex:none;display:flex;align-items:center;gap:14px;padding:12px 16px 12px 12px;background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 6px 16px rgba(31,58,77,.16);box-sizing:border-box;position:relative;overflow:hidden">
+<span style="position:absolute;left:0;top:0;bottom:0;width:8px;background:{{ d.renk }}"></span>
+<img src="{{ d.ikon }}" width="64" height="64" alt="" style="display:block;border-radius:16px;flex:none;margin-left:6px" />
+<div style="min-width:0;display:flex;flex-direction:column;gap:6px">
+<span style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:20px;color:#1F3A4D;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.ad }}</span>
+<span style="display:flex;gap:3px">{{ d.yildizlar }}</span>
+</div>
+</div>
+</sc-for>
+</div>
+<sc-for list="{{ raflar }}" as="r" hint-placeholder-count="2">
+<div style="margin-bottom:22px">
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+<span style="display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 20px;border:4px solid #fff;border-radius:999px;background:{{ r.renk }};box-shadow:0 6px 16px rgba(31,58,77,.16)"><span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;color:#fff">{{ r.ad }}</span></span>
+<span style="font:600 14px/1 'Nunito';color:#1F3A4D;background:#fff;border-radius:999px;padding:8px 14px;box-shadow:0 2px 8px rgba(31,58,77,.12)">{{ r.sayi }}</span>
+</div>
+<div style="display:flex;gap:14px">
+<sc-for list="{{ r.oyunlar }}" as="o" hint-placeholder-count="6">
+<div style="width:172px;flex:none;background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 6px 16px rgba(31,58,77,.16);overflow:hidden;position:relative;box-sizing:border-box">
+<span style="display:block;height:8px;background:{{ o.renk }}"></span>
+<div style="padding:14px 12px 12px;display:flex;flex-direction:column;align-items:center;gap:10px">
+<img src="{{ o.ikon }}" width="84" height="84" alt="" style="display:block;border-radius:16px" />
+<span style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:20px;line-height:1.15;color:#1F3A4D;text-align:center">{{ o.ad }}</span>
+<span style="display:flex;gap:3px">{{ o.yildizlar }}</span>
+</div>
+{{ o.durumKatman }}
+</div>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+
+<div style="position:absolute;left:0;right:0;bottom:0;height:40px;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff">
+<img src="/assets/logo-96.png" width="20" height="20" alt="" style="display:block" />
+<span style="font:400 10px/1 ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;color:#4E6272">Tasarım ve yazılım</span>
+<span style="font:700 13px/1 'Nunito';color:#1F3A4D">egweblab<span style="color:#4E6272;font-weight:600">.com.tr</span></span>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">Hub · 375 px · tek sütun, raflar yatay kayar</div>
+<div style="width:375px;height:880px;border-radius:20px;overflow:hidden;box-shadow:0 8px 28px rgba(31,58,77,.18);position:relative;background:linear-gradient(180deg,#87CEEB 0%,#B8DFEF 40%,#C9E8F7 64%)">
+<div style="position:absolute;left:0;right:0;top:0;height:64px;display:flex;align-items:center;gap:8px;padding:0 12px;background:#fff;box-shadow:0 2px 6px rgba(31,58,77,.1);box-sizing:border-box">
+<button type="button" style="width:52px;height:52px;flex:none;display:flex;align-items:center;justify-content:center;border:3px solid #fff;border-radius:999px;background:#17739F;color:#fff"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5L12 5l8 6.5V20h-5v-5h-6v5H4z" /></svg></button>
+<span style="flex:1;font-family:'Fredoka',sans-serif;font-weight:700;font-size:19px;color:#1F3A4D">Bilnet Oyun</span>
+<span style="display:inline-flex;align-items:center;gap:4px;height:44px;padding:0 10px;border-radius:999px;background:#FFF4D6;color:#1F3A4D;font-family:'Fredoka',sans-serif;font-weight:700;font-size:16px">{{ yildizIkonKucuk }}24</span>
+<button type="button" style="width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:999px;background:#fff;color:#1F3A4D;box-shadow:0 0 0 2px #DCE6EC"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z" /><path d="M15.5 9.5c1 1 1 4 0 5" /></svg></button>
+</div>
+<div style="position:absolute;left:0;right:0;top:64px;height:64px;display:flex;align-items:center;gap:8px;padding:0 12px;overflow:hidden;box-sizing:border-box">
+<sc-for list="{{ sekmeler }}" as="s" hint-placeholder-count="4">
+<span style="display:inline-flex;align-items:center;gap:6px;height:52px;padding:0 14px;flex:none;border:3px solid #fff;border-radius:999px;font-family:'Fredoka',sans-serif;font-weight:600;font-size:15px;white-space:nowrap;background:{{ s.zemin }};color:{{ s.renk }};box-shadow:0 2px 8px rgba(31,58,77,.14)">{{ s.ad }}</span>
+</sc-for>
+</div>
+<div style="position:absolute;left:0;right:0;top:128px;bottom:40px;overflow:hidden;padding:8px 12px 0;box-sizing:border-box">
+<h3 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;margin:0 0 10px;color:#1F3A4D;background:#fff;border-radius:999px;padding:6px 16px;box-shadow:0 2px 8px rgba(31,58,77,.12);width:fit-content">Devam et</h3>
+<div style="display:flex;gap:10px;margin-bottom:18px">
+<sc-for list="{{ devamEt }}" as="d" hint-placeholder-count="2">
+<div style="width:250px;flex:none;display:flex;align-items:center;gap:12px;padding:10px 14px 10px 10px;background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 6px 16px rgba(31,58,77,.16);box-sizing:border-box;position:relative;overflow:hidden">
+<span style="position:absolute;left:0;top:0;bottom:0;width:8px;background:{{ d.renk }}"></span>
+<img src="{{ d.ikon }}" width="56" height="56" alt="" style="display:block;border-radius:16px;flex:none;margin-left:6px" />
+<div style="min-width:0;display:flex;flex-direction:column;gap:4px">
+<span style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:18px;color:#1F3A4D;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.ad }}</span>
+<span style="display:flex;gap:2px">{{ d.yildizlarKucuk }}</span>
+</div>
+</div>
+</sc-for>
+</div>
+<sc-for list="{{ raflarMobil }}" as="r" hint-placeholder-count="2">
+<div style="margin-bottom:18px">
+<span style="display:inline-flex;align-items:center;height:44px;padding:0 18px;border:4px solid #fff;border-radius:999px;background:{{ r.renk }};box-shadow:0 6px 16px rgba(31,58,77,.16);margin-bottom:10px"><span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:18px;color:#fff">{{ r.ad }}</span></span>
+<div style="display:flex;gap:10px">
+<sc-for list="{{ r.oyunlar }}" as="o" hint-placeholder-count="3">
+<div style="width:152px;flex:none;background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 6px 16px rgba(31,58,77,.16);overflow:hidden;position:relative;box-sizing:border-box">
+<span style="display:block;height:8px;background:{{ o.renk }}"></span>
+<div style="padding:12px 10px 10px;display:flex;flex-direction:column;align-items:center;gap:8px">
+<img src="{{ o.ikon }}" width="72" height="72" alt="" style="display:block;border-radius:16px" />
+<span style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:18px;line-height:1.15;color:#1F3A4D;text-align:center">{{ o.ad }}</span>
+<span style="display:flex;gap:2px">{{ o.yildizlarKucuk }}</span>
+</div>
+{{ o.durumKatman }}
+</div>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:40px;display:flex;align-items:center;justify-content:center;gap:8px;background:#fff">
+<img src="/assets/logo-96.png" width="18" height="18" alt="" style="display:block" />
+<span style="font:400 10px/1 ui-monospace,Menlo,monospace;letter-spacing:.1em;text-transform:uppercase;color:#4E6272">Tasarım ve yazılım</span>
+<span style="font:700 12px/1 'Nunito';color:#1F3A4D">egweblab<span style="color:#4E6272;font-weight:600">.com.tr</span></span>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">Hub rafı · 1280 px · öğretmen anahtarı AÇIK</div>
+<div style="width:660px;border-radius:20px;overflow:hidden;box-shadow:0 8px 28px rgba(31,58,77,.18);background:linear-gradient(180deg,#B8DFEF,#C9E8F7);padding:20px;box-sizing:border-box">
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+<span style="display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 20px;border:4px solid #fff;border-radius:999px;background:#17739F;box-shadow:0 6px 16px rgba(31,58,77,.16)"><span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;color:#fff">1-2. Sınıf</span></span>
+<span style="display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 8px 0 16px;border-radius:999px;background:#fff;box-shadow:0 2px 8px rgba(31,58,77,.12)"><span style="font:700 14px/1 'Nunito';color:#1F3A4D">Öğretmen görünümü</span><span style="width:56px;height:32px;border-radius:999px;background:#1E8E4E;position:relative;display:block"><span style="position:absolute;right:3px;top:3px;width:26px;height:26px;border-radius:50%;background:#fff"></span></span></span>
+</div>
+<div style="display:flex;gap:14px">
+<sc-for list="{{ ogretmenKartlari }}" as="o" hint-placeholder-count="3">
+<div style="width:196px;flex:none;background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 6px 16px rgba(31,58,77,.16);overflow:hidden;box-sizing:border-box">
+<span style="display:block;height:8px;background:{{ o.renk }}"></span>
+<div style="padding:14px 12px 12px;display:flex;flex-direction:column;align-items:center;gap:8px">
+<img src="{{ o.ikon }}" width="72" height="72" alt="" style="display:block;border-radius:16px" />
+<span style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:20px;line-height:1.15;color:#1F3A4D;text-align:center">{{ o.ad }}</span>
+<span style="display:flex;gap:3px">{{ o.yildizlar }}</span>
+<span style="display:inline-flex;align-items:center;justify-content:center;padding:6px 12px;border-radius:999px;background:#E8F5FC;color:#17739F;font:700 13px/1.2 'Nunito';text-align:center">{{ o.kazanim }}</span>
+<span style="font:700 13px/1 'Nunito';color:#4E6272">{{ o.sure }}</span>
+</div>
+</div>
+</sc-for>
+</div>
+<p style="font-size:15px;line-height:1.6;margin:16px 0 0;color:#1F3A4D;background:#fff;border-radius:16px;padding:12px 16px">Anahtar açıkken karta iki satır eklenir: kazanım etiketi ve ortalama süre. Çocuk görünümünde bu iki satır yoktur, kart yüksekliği 36 px düşer.</p>
+</div>
+</div>
+
+</div>
+</section>
+
+<section style="padding:40px 48px;border-bottom:1px solid rgba(31,58,77,.1)" data-screen-label="03 Oyun kartı durumları">
+<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+<span style="font:700 11px/1 ui-monospace,Menlo,monospace;padding:4px 8px;border-radius:5px;background:#17739F;color:#fff">03</span>
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;margin:0;color:#1F3A4D">Oyun kartı durumları</h2>
+</div>
+<p style="font-size:15px;line-height:1.6;margin:0 0 22px;max-width:700px;color:#4E6272">Neden böyle: tek kart tipi, on durum. Durum hiçbir yerde yalnız renkle anlatılmıyor; kilit simgesiyle, yakında etiketle, online oyuncu rozetiyle okunuyor. Yıldız sırası kartta her zaman üç yuvarlık olarak duruyor, böylece çocuk "iki tane daha var" fikrini görüyor. Kart genişliği 1280'de 172 px, 375'te 152 px; ikon oranı ve yazı boyu değişmiyor.</p>
+<div style="display:flex;flex-wrap:wrap;gap:20px;background:linear-gradient(180deg,#B8DFEF,#C9E8F7);padding:26px;border-radius:20px">
+<sc-for list="{{ kartDurumlari }}" as="k" hint-placeholder-count="10">
+<div style="display:flex;flex-direction:column;gap:8px;align-items:center;width:172px">
+<div style="width:172px;background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 6px 16px rgba(31,58,77,.16);overflow:hidden;position:relative;box-sizing:border-box;{{ k.ek }}">
+<span style="display:block;height:8px;background:{{ k.renk }}"></span>
+<div style="padding:14px 12px 12px;display:flex;flex-direction:column;align-items:center;gap:10px">
+<img src="{{ k.ikon }}" width="84" height="84" alt="" style="display:block;border-radius:16px" />
+<span style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:20px;line-height:1.15;color:#1F3A4D;text-align:center">{{ k.ad }}</span>
+<span style="display:flex;gap:3px">{{ k.yildizlar }}</span>
+</div>
+{{ k.katman }}
+</div>
+<span style="font:700 13px/1.3 'Nunito';color:#1F3A4D;background:#fff;border-radius:999px;padding:6px 12px;text-align:center">{{ k.etiket }}</span>
+<span style="font:400 12px/1.4 'Nunito';color:#1F3A4D;text-align:center">{{ k.not }}</span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section style="padding:40px 48px;border-bottom:1px solid rgba(31,58,77,.1)" data-screen-label="04 Kilit modalı">
+<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+<span style="font:700 11px/1 ui-monospace,Menlo,monospace;padding:4px 8px;border-radius:5px;background:#17739F;color:#fff">04</span>
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;margin:0;color:#1F3A4D">Kilit modalı</h2>
+</div>
+<p style="font-size:15px;line-height:1.6;margin:0 0 22px;max-width:700px;color:#4E6272">Neden böyle: tek düğme, tek çıkış. Çocuk "neden açılmadı" sorusunun cevabını sayıyla görüyor: 2 yıldızı var, 5 gerekiyor. Öğretmen notu küçük ama okunur; velinin ya da öğretmenin panelden açabileceğini söylüyor, çocuğa iş yüklemiyor. 375'te modal alt kenara yapışır, düğme tam genişlik olur.</p>
+<div style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start">
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">Kilit modalı · 1280 px</div>
+<div style="width:1280px;height:600px;border-radius:20px;overflow:hidden;box-shadow:0 8px 28px rgba(31,58,77,.18);position:relative;background:linear-gradient(180deg,#87CEEB,#C9E8F7)">
+<div style="position:absolute;inset:0;background:rgba(31,58,77,.5)"></div>
+<div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:560px;background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 14px 32px rgba(31,58,77,.3);padding:36px 40px;box-sizing:border-box;text-align:center">
+<span style="display:inline-flex;align-items:center;justify-content:center;width:88px;height:88px;border-radius:50%;background:#FFF4D6;color:#1F3A4D;margin-bottom:16px">{{ kilitIkon }}</span>
+<h3 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:30px;line-height:1.2;margin:0 0 10px;color:#1F3A4D">Bu oyun için 5 yıldız gerekiyor</h3>
+<p style="font-size:18px;line-height:1.6;margin:0 0 18px;color:#4E6272">Şu an 2 yıldızın var. Bilim Dedektifi'ni açmak için 3 yıldız daha topla.</p>
+<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:22px">
+<span style="display:inline-flex;align-items:center;gap:8px;height:52px;padding:0 18px;border-radius:999px;background:#FFF4D6;font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;color:#1F3A4D">{{ yildizIkon }}2 / 5</span>
+<span style="height:16px;width:180px;border-radius:999px;background:#EEF1F3;overflow:hidden;display:block"><span style="display:block;width:40%;height:100%;background:#F4B400"></span></span>
+</div>
+<button type="button" style="width:100%;height:64px;border:4px solid #fff;border-radius:999px;background:#17739F;color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:22px;box-shadow:0 6px 16px rgba(31,58,77,.22)">Tamam</button>
+<p style="font-size:15px;line-height:1.6;margin:16px 0 0;color:#4E6272">Öğretmenin bu oyunu yönetici panelinden herkese açabilir.</p>
+</div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">Kilit modalı · 375 px</div>
+<div style="width:375px;height:600px;border-radius:20px;overflow:hidden;box-shadow:0 8px 28px rgba(31,58,77,.18);position:relative;background:linear-gradient(180deg,#87CEEB,#C9E8F7)">
+<div style="position:absolute;inset:0;background:rgba(31,58,77,.5)"></div>
+<div style="position:absolute;left:8px;right:8px;bottom:8px;background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 14px 32px rgba(31,58,77,.3);padding:24px 20px;box-sizing:border-box;text-align:center">
+<span style="display:inline-flex;align-items:center;justify-content:center;width:72px;height:72px;border-radius:50%;background:#FFF4D6;color:#1F3A4D;margin-bottom:12px">{{ kilitIkon }}</span>
+<h3 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:24px;line-height:1.2;margin:0 0 8px;color:#1F3A4D">Bu oyun için 5 yıldız gerekiyor</h3>
+<p style="font-size:18px;line-height:1.55;margin:0 0 16px;color:#4E6272">Şu an 2 yıldızın var. 3 yıldız daha topla.</p>
+<span style="display:inline-flex;align-items:center;gap:8px;height:52px;padding:0 18px;border-radius:999px;background:#FFF4D6;font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;color:#1F3A4D;margin-bottom:16px">{{ yildizIkon }}2 / 5</span>
+<button type="button" style="width:100%;height:60px;border:4px solid #fff;border-radius:999px;background:#17739F;color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;box-shadow:0 6px 16px rgba(31,58,77,.22)">Tamam</button>
+<p style="font-size:15px;line-height:1.6;margin:14px 0 0;color:#4E6272">Öğretmenin panelden açabilir.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section style="padding:40px 48px;border-bottom:1px solid rgba(31,58,77,.1)" data-screen-label="05 Yıldız ve rozet paneli">
+<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+<span style="font:700 11px/1 ui-monospace,Menlo,monospace;padding:4px 8px;border-radius:5px;background:#17739F;color:#fff">05</span>
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;margin:0;color:#1F3A4D">Yıldız ve rozet paneli</h2>
+</div>
+<p style="font-size:15px;line-height:1.6;margin:0 0 22px;max-width:700px;color:#4E6272">Neden böyle: iki sayı üstte büyük duruyor, rozetler altta ızgarada. Kazanılmayan rozet gizlenmiyor, gri konturla ve ilerleme sayısıyla duruyor ki hedef görünür olsun. Günlük jeton tavanı bilgi satırı olarak veriliyor, uyarı gibi değil. 375'te aynı panel tam ekran sayfa olur, ızgara iki sütuna düşer.</p>
+<div style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start">
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">Panel · 1280 px</div>
+<div style="width:1280px;height:660px;border-radius:20px;overflow:hidden;box-shadow:0 8px 28px rgba(31,58,77,.18);position:relative;background:linear-gradient(180deg,#87CEEB,#C9E8F7)">
+<div style="position:absolute;inset:0;background:rgba(31,58,77,.45)"></div>
+<div style="position:absolute;left:50%;top:40px;transform:translateX(-50%);width:720px;background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 14px 32px rgba(31,58,77,.3);padding:28px 32px;box-sizing:border-box">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+<h3 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;margin:0;color:#1F3A4D">İlerlemen</h3>
+<button type="button" style="width:52px;height:52px;border-radius:999px;background:#EEF1F3;color:#1F3A4D;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17" /></svg></button>
+</div>
+<div style="display:flex;gap:16px;margin-bottom:24px">
+<div style="flex:1;display:flex;align-items:center;gap:14px;padding:18px 20px;border-radius:24px;background:#FFF4D6">
+<span style="color:#1F3A4D">{{ yildizIkonBuyuk }}</span>
+<div style="display:flex;flex-direction:column"><span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:34px;line-height:1;color:#1F3A4D">24</span><span style="font:700 14px/1.4 'Nunito';color:#4E6272">Toplam yıldız</span></div>
+</div>
+<div style="flex:1;display:flex;align-items:center;gap:14px;padding:18px 20px;border-radius:24px;background:#E8F5FC;color:#17739F">
+<span>{{ elmasIkonBuyuk }}</span>
+<div style="display:flex;flex-direction:column"><span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:34px;line-height:1;color:#1F3A4D">310</span><span style="font:700 14px/1.4 'Nunito';color:#4E6272">Elmas</span></div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:8px;padding:18px 20px;border-radius:24px;background:#EEF1F3">
+<span style="font:700 14px/1.3 'Nunito';color:#1F3A4D">Bugün kazandığın</span>
+<span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:24px;line-height:1;color:#1F3A4D">18 / 50 elmas</span>
+<span style="height:12px;border-radius:999px;background:#fff;overflow:hidden;display:block"><span style="display:block;width:36%;height:100%;background:#17739F"></span></span>
+</div>
+</div>
+<h4 style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:22px;margin:0 0 14px;color:#1F3A4D">Rozetler</h4>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
+<sc-for list="{{ rozetler }}" as="r" hint-placeholder-count="4">
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 12px;border-radius:24px;background:{{ r.zemin }};box-shadow:inset 0 0 0 3px {{ r.kenar }}">
+<span style="color:#1F3A4D">{{ r.ikon }}</span>
+<span style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:17px;color:#1F3A4D;text-align:center">{{ r.ad }}</span>
+<span style="font:700 13px/1 'Nunito';color:#4E6272">{{ r.durum }}</span>
+</div>
+</sc-for>
+</div>
+<p style="font-size:18px;line-height:1.6;margin:20px 0 0;color:#4E6272">Her oyunda skorunun yüzde biri kadar elmas kazanırsın, günde en çok 50. Yıldızlar oyun bitince gelir ve silinmez.</p>
+</div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">Panel · 375 px · tam ekran sayfa</div>
+<div style="width:375px;height:660px;border-radius:20px;overflow:hidden;box-shadow:0 8px 28px rgba(31,58,77,.18);position:relative;background:#fff">
+<div style="height:64px;display:flex;align-items:center;gap:10px;padding:0 12px;box-shadow:0 2px 6px rgba(31,58,77,.1);box-sizing:border-box">
+<button type="button" style="width:52px;height:52px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:999px;background:#EEF1F3;color:#1F3A4D"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg></button>
+<span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:22px;color:#1F3A4D">İlerlemen</span>
+</div>
+<div style="padding:16px 12px;display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px">
+<div style="flex:1;display:flex;align-items:center;gap:10px;padding:14px;border-radius:24px;background:#FFF4D6"><span style="color:#1F3A4D">{{ yildizIkon }}</span><div style="display:flex;flex-direction:column"><span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:26px;line-height:1;color:#1F3A4D">24</span><span style="font:700 13px/1.3 'Nunito';color:#4E6272">Yıldız</span></div></div>
+<div style="flex:1;display:flex;align-items:center;gap:10px;padding:14px;border-radius:24px;background:#E8F5FC;color:#17739F"><span>{{ elmasIkon }}</span><div style="display:flex;flex-direction:column"><span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:26px;line-height:1;color:#1F3A4D">310</span><span style="font:700 13px/1.3 'Nunito';color:#4E6272">Elmas</span></div></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;padding:14px;border-radius:24px;background:#EEF1F3">
+<span style="font:700 14px/1.3 'Nunito';color:#1F3A4D">Bugün 18 / 50 elmas</span>
+<span style="height:12px;border-radius:999px;background:#fff;overflow:hidden;display:block"><span style="display:block;width:36%;height:100%;background:#17739F"></span></span>
+</div>
+<h4 style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:20px;margin:6px 0 0;color:#1F3A4D">Rozetler</h4>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<sc-for list="{{ rozetler }}" as="r" hint-placeholder-count="4">
+<div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 10px;border-radius:24px;background:{{ r.zemin }};box-shadow:inset 0 0 0 3px {{ r.kenar }}">
+<span style="color:#1F3A4D">{{ r.ikon }}</span>
+<span style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;color:#1F3A4D;text-align:center">{{ r.ad }}</span>
+<span style="font:700 12px/1 'Nunito';color:#4E6272">{{ r.durum }}</span>
+</div>
+</sc-for>
+</div>
+<p style="font-size:18px;line-height:1.55;margin:4px 0 0;color:#4E6272">Günde en çok 50 elmas kazanılır.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section style="padding:40px 48px;border-bottom:1px solid rgba(31,58,77,.1)" data-screen-label="06 Seviye tamamlama">
+<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+<span style="font:700 11px/1 ui-monospace,Menlo,monospace;padding:4px 8px;border-radius:5px;background:#17739F;color:#fff">06</span>
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;margin:0;color:#1F3A4D">Seviye tamamlama katmanı · tek kutlama anı</h2>
+</div>
+<p style="font-size:15px;line-height:1.6;margin:0 0 22px;max-width:700px;color:#4E6272">Neden böyle: konfeti ve balon uçuşu yalnız burada, 600 ms sürüyor ve duruyor; yıldızlar tek tek 120 ms arayla yapışıyor. Üç düğme eşit değil: "Sonraki" dolgulu, "Tekrar" ve "Ana ekran" ikincil, çünkü çocuğun doğal akışı ilerlemek. Hareketi azalt tercihinde konfeti hiç çıkmaz, yıldızlar doğrudan dolu görünür.</p>
+<div style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start">
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">Seviye tamamlama · 1280 px</div>
+<div style="width:1280px;height:640px;border-radius:20px;overflow:hidden;box-shadow:0 8px 28px rgba(31,58,77,.18);position:relative;background:linear-gradient(180deg,#87CEEB,#C9E8F7)">
+<div style="position:absolute;inset:0;background:rgba(31,58,77,.5)"></div>
+{{ konfeti }}
+<div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:620px;background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 14px 32px rgba(31,58,77,.3);padding:34px 40px;box-sizing:border-box;text-align:center">
+<div style="display:flex;justify-content:center;gap:14px;margin-bottom:10px">{{ yildiz3 }}</div>
+<h3 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:40px;line-height:1.1;margin:8px 0 6px;color:#1F3A4D">Harika!</h3>
+<p style="font-size:18px;line-height:1.6;margin:0 0 26px;color:#4E6272">Hece Birleştirme · 3. seviye bitti. 3 yıldız kazandın.</p>
+<div style="display:flex;gap:12px">
+<button type="button" style="flex:1;height:64px;border:4px solid #fff;border-radius:999px;background:#fff;color:#17739F;font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;box-shadow:0 0 0 3px #17739F inset,0 6px 16px rgba(31,58,77,.14)">Tekrar</button>
+<button type="button" style="flex:1.4;height:64px;border:4px solid #fff;border-radius:999px;background:#17739F;color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:22px;box-shadow:0 6px 16px rgba(31,58,77,.22)">Sonraki</button>
+<button type="button" style="flex:1;height:64px;border:4px solid #fff;border-radius:999px;background:#fff;color:#17739F;font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;box-shadow:0 0 0 3px #17739F inset,0 6px 16px rgba(31,58,77,.14)">Ana ekran</button>
+</div>
+</div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">Seviye tamamlama · 375 px</div>
+<div style="width:375px;height:640px;border-radius:20px;overflow:hidden;box-shadow:0 8px 28px rgba(31,58,77,.18);position:relative;background:linear-gradient(180deg,#87CEEB,#C9E8F7)">
+<div style="position:absolute;inset:0;background:rgba(31,58,77,.5)"></div>
+{{ konfetiMobil }}
+<div style="position:absolute;left:12px;right:12px;top:50%;transform:translateY(-50%);background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 14px 32px rgba(31,58,77,.3);padding:26px 20px;box-sizing:border-box;text-align:center">
+<div style="display:flex;justify-content:center;gap:10px;margin-bottom:8px">{{ yildiz3Mobil }}</div>
+<h3 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:32px;line-height:1.1;margin:6px 0 4px;color:#1F3A4D">Harika!</h3>
+<p style="font-size:18px;line-height:1.55;margin:0 0 20px;color:#4E6272">3. seviye bitti. 3 yıldız kazandın.</p>
+<div style="display:flex;flex-direction:column;gap:10px">
+<button type="button" style="width:100%;height:64px;border:4px solid #fff;border-radius:999px;background:#17739F;color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;box-shadow:0 6px 16px rgba(31,58,77,.22)">Sonraki</button>
+<div style="display:flex;gap:10px">
+<button type="button" style="flex:1;height:56px;border:4px solid #fff;border-radius:999px;background:#fff;color:#17739F;font-family:'Fredoka',sans-serif;font-weight:700;font-size:18px;box-shadow:0 0 0 3px #17739F inset">Tekrar</button>
+<button type="button" style="flex:1;height:56px;border:4px solid #fff;border-radius:999px;background:#fff;color:#17739F;font-family:'Fredoka',sans-serif;font-weight:700;font-size:18px;box-shadow:0 0 0 3px #17739F inset">Ana ekran</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section style="padding:40px 48px;border-bottom:1px solid rgba(31,58,77,.1)" data-screen-label="07 Oyun çerçevesi">
+<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+<span style="font:700 11px/1 ui-monospace,Menlo,monospace;padding:4px 8px;border-radius:5px;background:#17739F;color:#fff">07</span>
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;margin:0;color:#1F3A4D">Oyun çerçevesi</h2>
+</div>
+<p style="font-size:15px;line-height:1.6;margin:0 0 22px;max-width:700px;color:#4E6272">Neden böyle: çerçeve 64 px, hepsi bu. Oyun alanı olabildiğince büyük; iframe oyunları da aynı çerçevede açılır, kendi başlığını çizmez. Geri düğmesi solda ve yalnız, çünkü en sık basılan hedef. 1024 px'te seviye etiketi kaybolur, oyun adı tek satıra kısalır.</p>
+<div style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start">
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">Oyun çerçevesi · 1280 px</div>
+<div style="width:1280px;height:700px;border-radius:20px;overflow:hidden;box-shadow:0 8px 28px rgba(31,58,77,.18);position:relative;background:#EAF4FA">
+<div style="height:64px;display:flex;align-items:center;gap:14px;padding:0 16px;background:#fff;box-shadow:0 2px 6px rgba(31,58,77,.1);box-sizing:border-box">
+<button type="button" style="width:52px;height:52px;flex:none;display:flex;align-items:center;justify-content:center;border:3px solid #fff;border-radius:999px;background:#17739F;color:#fff;box-shadow:0 4px 12px rgba(31,58,77,.2)">{{ geriIkon }}</button>
+<span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:24px;color:#1F3A4D">Hece Birleştirme</span>
+<span style="display:inline-flex;align-items:center;height:32px;padding:0 12px;border-radius:999px;background:#E8F5FC;color:#17739F;font:700 13px/1 'Nunito'">3. seviye</span>
+<span style="flex:1"></span>
+<span style="display:flex;gap:4px">{{ yildizSirasi1 }}</span>
+<button type="button" style="width:52px;height:52px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:999px;background:#fff;color:#1F3A4D;box-shadow:0 0 0 2px #DCE6EC">{{ sesIkon }}</button>
+<button type="button" style="width:52px;height:52px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:999px;background:#fff;color:#1F3A4D;box-shadow:0 0 0 2px #DCE6EC">{{ tamEkranIkon }}</button>
+</div>
+<div style="position:absolute;left:0;right:0;top:64px;bottom:0;display:flex;align-items:center;justify-content:center;background:repeating-linear-gradient(135deg,#E3EEF5 0 14px,#EAF4FA 14px 28px)">
+<div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px">
+<span style="font:400 13px/1 ui-monospace,Menlo,monospace;letter-spacing:.1em;text-transform:uppercase;color:#4E6272">oyun alanı</span>
+<span style="font:400 13px/1.5 'Nunito';color:#4E6272;max-width:340px">1280 × 636 px · oyun kendi arka planını çizer, çerçeve zemin vermez</span>
+</div>
+</div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">Oyun çerçevesi · 375 px</div>
+<div style="width:375px;height:700px;border-radius:20px;overflow:hidden;box-shadow:0 8px 28px rgba(31,58,77,.18);position:relative;background:#EAF4FA">
+<div style="height:64px;display:flex;align-items:center;gap:8px;padding:0 10px;background:#fff;box-shadow:0 2px 6px rgba(31,58,77,.1);box-sizing:border-box">
+<button type="button" style="width:52px;height:52px;flex:none;display:flex;align-items:center;justify-content:center;border:3px solid #fff;border-radius:999px;background:#17739F;color:#fff">{{ geriIkon }}</button>
+<span style="flex:1;min-width:0;font-family:'Fredoka',sans-serif;font-weight:700;font-size:19px;color:#1F3A4D;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Hece Birleştirme</span>
+<span style="display:flex;gap:2px">{{ yildizSirasi1 }}</span>
+<button type="button" style="width:52px;height:52px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:999px;background:#fff;color:#1F3A4D;box-shadow:0 0 0 2px #DCE6EC">{{ tamEkranIkon }}</button>
+</div>
+<div style="position:absolute;left:0;right:0;top:64px;bottom:0;display:flex;align-items:center;justify-content:center;background:repeating-linear-gradient(135deg,#E3EEF5 0 14px,#EAF4FA 14px 28px)">
+<span style="font:400 13px/1 ui-monospace,Menlo,monospace;letter-spacing:.1em;text-transform:uppercase;color:#4E6272">oyun alanı</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section style="padding:40px 48px;border-bottom:1px solid rgba(31,58,77,.1)" data-screen-label="08 Online akışı">
+<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+<span style="font:700 11px/1 ui-monospace,Menlo,monospace;padding:4px 8px;border-radius:5px;background:#17739F;color:#fff">08</span>
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;margin:0;color:#1F3A4D">Online akışı · beş adım</h2>
+</div>
+<p style="font-size:15px;line-height:1.6;margin:0 0 22px;max-width:700px;color:#4E6272">Neden böyle: takma ad serbest metin değil, hazır isim ve avatar seçimi — çocuk gerçek adını ya da okulunu yazamaz, veli güvenliği tasarımla çözülür. Bekleme odasında oda kodu ekranın en büyük öğesi, çünkü tek işi yüksek sesle okunmak. Bağlantı koptuğunda maskot üzgün ifadeyle konuşur, hata kodu gösterilmez. 375'te kartlar tek sütuna iner, sıra değişmez.</p>
+<div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start">
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">1 · Takma ad ve avatar</div>
+<div style="width:620px;border-radius:20px;box-shadow:0 8px 28px rgba(31,58,77,.18);background:linear-gradient(180deg,#87CEEB,#C9E8F7);padding:26px;box-sizing:border-box">
+<div style="background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 14px 32px rgba(31,58,77,.2);padding:24px 26px">
+<h3 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:26px;margin:0 0 6px;color:#1F3A4D">Kendine bir isim seç</h3>
+<p style="font-size:18px;line-height:1.55;margin:0 0 18px;color:#4E6272">Gerçek adını yazmıyorsun. Listeden birini seç, arkadaşların seni böyle görecek.</p>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+<sc-for list="{{ avatarlar }}" as="a" hint-placeholder-count="6">
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 8px;border-radius:24px;background:#F6F9FB;box-shadow:{{ a.kenar }}">
+{{ a.yuz }}
+<span style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;line-height:1.2;color:#1F3A4D;text-align:center">{{ a.ad }}</span>
+</div>
+</sc-for>
+</div>
+<button type="button" style="width:100%;height:64px;margin-top:18px;border:4px solid #fff;border-radius:999px;background:#17739F;color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:22px;box-shadow:0 6px 16px rgba(31,58,77,.22)">Devam</button>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">2 · Lobi</div>
+<div style="width:620px;border-radius:20px;box-shadow:0 8px 28px rgba(31,58,77,.18);background:linear-gradient(180deg,#87CEEB,#C9E8F7);padding:26px;box-sizing:border-box">
+<div style="background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 14px 32px rgba(31,58,77,.2);padding:24px 26px">
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+<span style="display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px;border-radius:999px;background:#7B5BFF;color:#fff;font:700 14px/1 'Nunito'">{{ oyuncuIkon }}Online</span>
+<h3 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:24px;margin:0;color:#1F3A4D">Kelimelik</h3>
+</div>
+<button type="button" style="width:100%;height:72px;margin-bottom:12px;border:4px solid #fff;border-radius:999px;background:#17739F;color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:24px;box-shadow:0 6px 16px rgba(31,58,77,.22)">Hızlı Oyun</button>
+<div style="display:flex;gap:12px;margin-bottom:18px">
+<button type="button" style="flex:1;height:60px;border:4px solid #fff;border-radius:999px;background:#fff;color:#17739F;font-family:'Fredoka',sans-serif;font-weight:700;font-size:19px;box-shadow:0 0 0 3px #17739F inset">Oda Kur</button>
+<button type="button" style="flex:1;height:60px;border:4px solid #fff;border-radius:999px;background:#fff;color:#17739F;font-family:'Fredoka',sans-serif;font-weight:700;font-size:19px;box-shadow:0 0 0 3px #17739F inset">Kodla Katıl</button>
+</div>
+<span style="display:block;font:700 14px/1 'Nunito';color:#4E6272;margin-bottom:10px">Açık odalar</span>
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{ odalar }}" as="o" hint-placeholder-count="2">
+<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:24px;background:#F6F9FB">
+<span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;color:#1F3A4D;letter-spacing:.1em">{{ o.kod }}</span>
+<span style="font:600 16px/1 'Nunito';color:#4E6272;flex:1">{{ o.kisi }}</span>
+<span style="display:inline-flex;align-items:center;height:32px;padding:0 12px;border-radius:999px;background:#DFF5E7;color:#155E36;font:700 13px/1 'Nunito'">1 / 2</span>
+<button type="button" style="height:52px;padding:0 20px;border:3px solid #fff;border-radius:999px;background:#17739F;color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:16px">Katıl</button>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">3 · Bekleme odası</div>
+<div style="width:620px;border-radius:20px;box-shadow:0 8px 28px rgba(31,58,77,.18);background:linear-gradient(180deg,#87CEEB,#C9E8F7);padding:26px;box-sizing:border-box">
+<div style="background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 14px 32px rgba(31,58,77,.2);padding:24px 26px;text-align:center">
+<p style="font-size:18px;line-height:1.5;margin:0 0 8px;color:#4E6272">Kodu arkadaşına ver</p>
+<div style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:80px;line-height:1;letter-spacing:.12em;color:#1F3A4D;background:#FFF4D6;border-radius:24px;padding:14px 8px;margin-bottom:18px">KUZUM</div>
+<div style="display:flex;align-items:center;justify-content:center;gap:22px;margin-bottom:18px">
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px">{{ benYuz }}<span style="font:700 15px/1 'Nunito';color:#1F3A4D">Neşeli Kunduz</span></div>
+<span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:22px;color:#4E6272">ile</span>
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+<span style="width:88px;height:88px;border-radius:50%;background:#EEF1F3;box-shadow:inset 0 0 0 3px #DCE6EC;display:flex;align-items:center;justify-content:center;color:#4E6272">{{ oyuncuIkon }}</span>
+<span style="font:700 15px/1 'Nunito';color:#4E6272">Bekleniyor</span>
+</div>
+</div>
+<button type="button" style="width:100%;height:60px;border:4px solid #fff;border-radius:999px;background:#fff;color:#17739F;font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;box-shadow:0 0 0 3px #17739F inset">Odadan Çık</button>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">4 · Rakip bulundu &nbsp;·&nbsp; 5 · Bağlantı koptu</div>
+<div style="width:620px;display:flex;flex-direction:column;gap:16px">
+<div style="border-radius:20px;box-shadow:0 8px 28px rgba(31,58,77,.18);background:linear-gradient(180deg,#87CEEB,#C9E8F7);padding:22px;box-sizing:border-box">
+<div style="background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 14px 32px rgba(31,58,77,.2);padding:22px;text-align:center">
+<div style="display:flex;align-items:center;justify-content:center;gap:24px;margin-bottom:12px">
+<div style="display:flex;flex-direction:column;align-items:center;gap:6px">{{ benYuz }}<span style="font:700 15px/1 'Nunito';color:#1F3A4D">Neşeli Kunduz</span></div>
+<span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:26px;color:#7B5BFF">vs</span>
+<div style="display:flex;flex-direction:column;align-items:center;gap:6px">{{ rakipYuz }}<span style="font:700 15px/1 'Nunito';color:#1F3A4D">Hızlı Tavşan</span></div>
+</div>
+<h3 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:26px;margin:0 0 4px;color:#1F3A4D">Rakibin hazır</h3>
+<p style="font-size:18px;line-height:1.5;margin:0 0 16px;color:#4E6272">Oyun 3 saniye içinde başlıyor.</p>
+<span style="display:inline-flex;align-items:center;justify-content:center;width:100%;height:60px;border-radius:999px;background:#EEF1F3;font-family:'Fredoka',sans-serif;font-weight:700;font-size:22px;color:#1F3A4D">3</span>
+</div>
+</div>
+<div style="border-radius:20px;box-shadow:0 8px 28px rgba(31,58,77,.18);background:linear-gradient(180deg,#87CEEB,#C9E8F7);padding:22px;box-sizing:border-box">
+<div style="background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 14px 32px rgba(31,58,77,.2);padding:22px;text-align:center">
+<div style="display:flex;justify-content:center;margin-bottom:6px">{{ maskotUzgun }}</div>
+<h3 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:26px;margin:0 0 6px;color:#1F3A4D">Arkadaşının bağlantısı koptu</h3>
+<p style="font-size:18px;line-height:1.55;margin:0 0 18px;color:#4E6272">Bu oyun senin sayılır. İstersen yeni bir rakip arayalım.</p>
+<div style="display:flex;gap:12px">
+<button type="button" style="flex:1;height:60px;border:4px solid #fff;border-radius:999px;background:#fff;color:#17739F;font-family:'Fredoka',sans-serif;font-weight:700;font-size:19px;box-shadow:0 0 0 3px #17739F inset">Ana ekran</button>
+<button type="button" style="flex:1.3;height:60px;border:4px solid #fff;border-radius:999px;background:#17739F;color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;box-shadow:0 6px 16px rgba(31,58,77,.22)">Yeni Rakip</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</section>
+
+<section style="padding:40px 48px;border-bottom:1px solid rgba(31,58,77,.1)" data-screen-label="09 Sistem durumları">
+<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+<span style="font:700 11px/1 ui-monospace,Menlo,monospace;padding:4px 8px;border-radius:5px;background:#17739F;color:#fff">09</span>
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;margin:0;color:#1F3A4D">Sistem durumları</h2>
+</div>
+<p style="font-size:15px;line-height:1.6;margin:0 0 22px;max-width:700px;color:#4E6272">Neden böyle: dördünde de maskot konuşuyor ve tek bir çıkış düğmesi var. Hiçbirinde hata kodu, teknik terim ya da suçlayıcı dil yok — "bulunamadı" yerine "burada bir oyun yok". Yükleme ekranı boş kutu değil, kart iskeleti; çocuk neyin geleceğini görür. Dördü de 375'te aynı, yalnız yazı ölçeği bir kademe iner.</p>
+<div style="display:flex;flex-wrap:wrap;gap:20px">
+<sc-for list="{{ durumlar }}" as="d" hint-placeholder-count="4">
+<div style="width:404px;display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">{{ d.etiket }}</div>
+<div style="height:380px;border-radius:20px;overflow:hidden;box-shadow:0 8px 28px rgba(31,58,77,.18);background:linear-gradient(180deg,#87CEEB,#C9E8F7);display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box">
+<div style="width:100%;background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 14px 32px rgba(31,58,77,.2);padding:24px 22px;text-align:center">
+<div style="display:flex;justify-content:center;margin-bottom:8px">{{ d.gorsel }}</div>
+<h3 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:24px;line-height:1.2;margin:0 0 8px;color:#1F3A4D">{{ d.baslik }}</h3>
+<p style="font-size:18px;line-height:1.55;margin:0 0 18px;color:#4E6272">{{ d.metin }}</p>
+<button type="button" style="width:100%;height:60px;border:4px solid #fff;border-radius:999px;background:#17739F;color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;box-shadow:0 6px 16px rgba(31,58,77,.22)">{{ d.dugme }}</button>
+</div>
+</div>
+</div>
+</sc-for>
+<div style="width:404px;display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">Yükleniyor · kart iskeleti</div>
+<div style="height:380px;border-radius:20px;overflow:hidden;box-shadow:0 8px 28px rgba(31,58,77,.18);background:linear-gradient(180deg,#87CEEB,#C9E8F7);padding:24px;box-sizing:border-box">
+<span style="display:inline-flex;align-items:center;height:44px;padding:0 18px;border:4px solid #fff;border-radius:999px;background:#17739F;box-shadow:0 6px 16px rgba(31,58,77,.16);margin-bottom:14px"><span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:18px;color:#fff">1-2. Sınıf</span></span>
+<div style="display:flex;gap:12px">
+<sc-for list="{{ iskeletler }}" as="i" hint-placeholder-count="3">
+<div style="width:108px;background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 6px 16px rgba(31,58,77,.16);overflow:hidden;box-sizing:border-box">
+<span style="display:block;height:8px;background:#DCE6EC"></span>
+<div style="padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:10px">
+<span style="width:64px;height:64px;border-radius:16px;background:#EEF1F3;display:block"></span>
+<span style="width:72px;height:14px;border-radius:999px;background:#EEF1F3;display:block"></span>
+<span style="width:48px;height:10px;border-radius:999px;background:#F4F7F9;display:block"></span>
+</div>
+</div>
+</sc-for>
+</div>
+<p style="font-size:15px;line-height:1.6;margin:16px 0 0;color:#1F3A4D;background:#fff;border-radius:16px;padding:12px 14px">İskelet 220 ms sonra belirir, nabız yok. Hareketi azalt tercihinde sabit gri kalır.</p>
+</div>
+</div>
+</div>
+</section>
+
+<section style="padding:40px 48px;border-bottom:1px solid rgba(31,58,77,.1)" data-screen-label="10 Oyun açılış sayfası">
+<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+<span style="font:700 11px/1 ui-monospace,Menlo,monospace;padding:4px 8px;border-radius:5px;background:#17739F;color:#fff">10</span>
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;margin:0;color:#1F3A4D">Oyun açılış sayfası · /oyun/hece-birlestirme/</h2>
+</div>
+<p style="font-size:15px;line-height:1.6;margin:0 0 22px;max-width:700px;color:#4E6272">Neden böyle: bu sayfaya arama motorundan gelen çoğunlukla veli ya da öğretmen, oynayan ise çocuk. Bu yüzden "Hemen Oyna" ekranın en üstünde ve en büyük öğe; açıklama metni altında, velinin okuyacağı sırada. Kazanım, yaş ve süre üç kutu hâlinde taranabilir. Benzer oyunlar en altta, hub'a dönmeden geçiş için. 375'te kahraman görsel küçülür, düğme tam genişlik olur ve yapışık kalır.</p>
+<div style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start">
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">Açılış sayfası · 1280 px</div>
+<div style="width:1280px;height:900px;border-radius:20px;overflow:hidden;box-shadow:0 8px 28px rgba(31,58,77,.18);background:#fff">
+<div style="height:64px;display:flex;align-items:center;gap:14px;padding:0 20px;background:#fff;box-shadow:0 2px 6px rgba(31,58,77,.1);box-sizing:border-box">
+<button type="button" style="width:52px;height:52px;flex:none;display:flex;align-items:center;justify-content:center;border:3px solid #fff;border-radius:999px;background:#17739F;color:#fff">{{ evIkon }}</button>
+<span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;color:#1F3A4D">Bilnet Oyun</span>
+<span style="font:600 15px/1 'Nunito';color:#4E6272">Ana sayfa · Harfler ve Kelimeler · Hece Birleştirme</span>
+</div>
+<div style="padding:28px 40px;display:flex;gap:32px;align-items:flex-start;background:linear-gradient(180deg,#E8F5FC,#fff)">
+<img src="assets/hub-v2/hece-birlestirme.svg" width="200" height="200" alt="" style="display:block;border-radius:44px;box-shadow:0 14px 32px rgba(31,58,77,.2);flex:none" />
+<div style="flex:1;min-width:0">
+<h1 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:40px;line-height:1.1;margin:0 0 8px;color:#1F3A4D">Hece Birleştirme</h1>
+<p style="font-size:18px;line-height:1.6;margin:0 0 18px;color:#4E6272;max-width:640px">Heceleri sürükleyip kelime kur. Çocuk "el" ve "ma" parçalarını birleştirerek elmayı yazar, doğru kelimede resim canlanır. Okuma öncesi hece bilincini güçlendirir.</p>
+<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">
+<sc-for list="{{ oyunBilgi }}" as="b" hint-placeholder-count="3">
+<div style="display:flex;flex-direction:column;gap:4px;padding:14px 20px;border-radius:24px;background:#fff;box-shadow:0 2px 8px rgba(31,58,77,.12)">
+<span style="font:700 13px/1 'Nunito';color:#4E6272">{{ b.etiket }}</span>
+<span style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:20px;color:#1F3A4D">{{ b.deger }}</span>
+</div>
+</sc-for>
+</div>
+<button type="button" style="height:76px;padding:0 44px;border:4px solid #fff;border-radius:999px;background:#17739F;color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:26px;box-shadow:0 6px 16px rgba(31,58,77,.22)">Hemen Oyna</button>
+<span style="display:inline-flex;align-items:center;height:36px;padding:0 16px;margin-left:14px;border-radius:999px;background:#DFF5E7;color:#155E36;font:700 14px/1 'Nunito'">Üyeliksiz, reklamsız</span>
+</div>
+</div>
+<div style="padding:8px 40px 0;display:flex;gap:32px">
+<div style="flex:1.4">
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:22px;margin:0 0 10px;color:#1F3A4D">Nasıl oynanır?</h2>
+<p style="font-size:18px;line-height:1.6;margin:0 0 16px;color:#4E6272">Ekranın altındaki hece kartlarını yukarıdaki boşluklara sürükle. Doğru sırada birleşen heceler kelimeyi tamamlar ve resmi açar. Her seviyede altı kelime var, üçünü hatasız bitirince yıldız kazanırsın.</p>
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:22px;margin:0 0 10px;color:#1F3A4D">Öğretmenler için</h2>
+<p style="font-size:18px;line-height:1.6;margin:0;color:#4E6272">Kelime listesi Türkçe ilk okuma yazma programındaki ses gruplarına göre sıralanır. 1. sınıf birinci dönem için 1-3. seviyeler, ikinci dönem için 4-6. seviyeler uygundur.</p>
+</div>
+<div style="flex:1">
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:22px;margin:0 0 10px;color:#1F3A4D">Benzer oyunlar</h2>
+<div style="display:flex;gap:12px">
+<sc-for list="{{ benzerOyunlar }}" as="o" hint-placeholder-count="3">
+<div style="width:140px;background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 6px 16px rgba(31,58,77,.16);overflow:hidden;box-sizing:border-box">
+<span style="display:block;height:8px;background:{{ o.renk }}"></span>
+<div style="padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:8px">
+<img src="{{ o.ikon }}" width="72" height="72" alt="" style="display:block;border-radius:16px" />
+<span style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:17px;line-height:1.15;color:#1F3A4D;text-align:center">{{ o.ad }}</span>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">Açılış sayfası · 375 px · düğme yapışık</div>
+<div style="width:375px;height:900px;border-radius:20px;overflow:hidden;box-shadow:0 8px 28px rgba(31,58,77,.18);background:#fff;position:relative">
+<div style="height:64px;display:flex;align-items:center;gap:10px;padding:0 12px;box-shadow:0 2px 6px rgba(31,58,77,.1);box-sizing:border-box">
+<button type="button" style="width:52px;height:52px;flex:none;display:flex;align-items:center;justify-content:center;border:3px solid #fff;border-radius:999px;background:#17739F;color:#fff">{{ evIkon }}</button>
+<span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:19px;color:#1F3A4D">Bilnet Oyun</span>
+</div>
+<div style="padding:20px 16px;display:flex;flex-direction:column;align-items:center;gap:12px;background:linear-gradient(180deg,#E8F5FC,#fff)">
+<img src="assets/hub-v2/hece-birlestirme.svg" width="128" height="128" alt="" style="display:block;border-radius:28px;box-shadow:0 14px 32px rgba(31,58,77,.2)" />
+<h1 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:30px;line-height:1.1;margin:0;color:#1F3A4D;text-align:center">Hece Birleştirme</h1>
+<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+<sc-for list="{{ oyunBilgi }}" as="b" hint-placeholder-count="3">
+<span style="display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:999px;background:#fff;box-shadow:0 2px 8px rgba(31,58,77,.12);font:700 14px/1 'Nunito';color:#1F3A4D">{{ b.deger }}</span>
+</sc-for>
+</div>
+</div>
+<div style="padding:4px 16px">
+<p style="font-size:18px;line-height:1.55;margin:0 0 14px;color:#4E6272">Heceleri sürükleyip kelime kur. Çocuk "el" ve "ma" parçalarını birleştirerek elmayı yazar, doğru kelimede resim canlanır.</p>
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:20px;margin:0 0 8px;color:#1F3A4D">Nasıl oynanır?</h2>
+<p style="font-size:18px;line-height:1.55;margin:0 0 14px;color:#4E6272">Hece kartlarını boşluklara sürükle. Her seviyede altı kelime var, üçünü hatasız bitirince yıldız kazanırsın.</p>
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:20px;margin:0 0 10px;color:#1F3A4D">Benzer oyunlar</h2>
+<div style="display:flex;gap:10px">
+<sc-for list="{{ benzerOyunlar }}" as="o" hint-placeholder-count="3">
+<div style="width:104px;background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 6px 16px rgba(31,58,77,.16);overflow:hidden;box-sizing:border-box">
+<span style="display:block;height:8px;background:{{ o.renk }}"></span>
+<div style="padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px">
+<img src="{{ o.ikon }}" width="60" height="60" alt="" style="display:block;border-radius:14px" />
+<span style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:15px;line-height:1.15;color:#1F3A4D;text-align:center">{{ o.ad }}</span>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;padding:12px 16px;background:#fff;box-shadow:0 -4px 14px rgba(31,58,77,.12)">
+<button type="button" style="width:100%;height:68px;border:4px solid #fff;border-radius:999px;background:#17739F;color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:22px;box-shadow:0 6px 16px rgba(31,58,77,.22)">Hemen Oyna</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section style="padding:40px 48px;border-bottom:1px solid rgba(31,58,77,.1)" data-screen-label="11 Oyunlar listesi">
+<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+<span style="font:700 11px/1 ui-monospace,Menlo,monospace;padding:4px 8px;border-radius:5px;background:#17739F;color:#fff">11</span>
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;margin:0;color:#1F3A4D">Oyunlar listesi · /oyunlar/</h2>
+</div>
+<p style="font-size:15px;line-height:1.6;margin:0 0 22px;max-width:700px;color:#4E6272">Neden böyle: hub oynamak için, bu sayfa aramak için. Bu yüzden raf yok, tek ızgara ve solda kalıcı süzgeç var; yetişkin kullanıcı yaş ile kategoriyi birlikte daraltabiliyor. Kartlar hub'la aynı, yalnız kazanım satırı hep açık. 1024 px'te süzgeç üstte yatay şeride döner, ızgara üç sütuna iner.</p>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">Oyunlar listesi · 1280 px</div>
+<div style="width:1280px;height:820px;border-radius:20px;overflow:hidden;box-shadow:0 8px 28px rgba(31,58,77,.18);background:#F6F9FB;position:relative">
+<div style="height:64px;display:flex;align-items:center;gap:14px;padding:0 20px;background:#fff;box-shadow:0 2px 6px rgba(31,58,77,.1);box-sizing:border-box">
+<button type="button" style="width:52px;height:52px;flex:none;display:flex;align-items:center;justify-content:center;border:3px solid #fff;border-radius:999px;background:#17739F;color:#fff">{{ evIkon }}</button>
+<span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:22px;color:#1F3A4D">Tüm Oyunlar</span>
+<span style="font:600 15px/1 'Nunito';color:#4E6272">57 oyun · ücretsiz, üyeliksiz</span>
+</div>
+<div style="position:absolute;left:0;right:0;top:64px;bottom:0;display:flex;overflow:hidden">
+<div style="width:280px;flex:none;padding:22px 20px;background:#fff;box-shadow:2px 0 6px rgba(31,58,77,.06);box-sizing:border-box;overflow:hidden">
+<sc-for list="{{ suzgecler }}" as="s" hint-placeholder-count="2">
+<div style="margin-bottom:22px">
+<span style="display:block;font-family:'Fredoka',sans-serif;font-weight:600;font-size:18px;color:#1F3A4D;margin-bottom:10px">{{ s.baslik }}</span>
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{ s.secenekler }}" as="o" hint-placeholder-count="4">
+<span style="display:flex;align-items:center;gap:10px;height:52px;padding:0 14px;border-radius:16px;background:{{ o.zemin }};color:{{ o.renk }};font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px">
+<span style="width:22px;height:22px;border-radius:6px;flex:none;background:{{ o.kutuZemin }};box-shadow:{{ o.kutuKenar }}"></span>{{ o.ad }}</span>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="flex:1;min-width:0;padding:22px;overflow:hidden">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+<span style="font:700 15px/1 'Nunito';color:#1F3A4D">14 oyun gösteriliyor</span>
+<span style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:999px;background:#E8F5FC;color:#17739F;font:700 14px/1 'Nunito'">1-2. Sınıf</span>
+<span style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:999px;background:#E8F5FC;color:#17739F;font:700 14px/1 'Nunito'">Harfler ve Kelimeler</span>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
+<sc-for list="{{ listeOyunlari }}" as="o" hint-placeholder-count="8">
+<div style="background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 6px 16px rgba(31,58,77,.16);overflow:hidden;box-sizing:border-box">
+<span style="display:block;height:8px;background:{{ o.renk }}"></span>
+<div style="padding:14px 12px 12px;display:flex;flex-direction:column;align-items:center;gap:8px">
+<img src="{{ o.ikon }}" width="76" height="76" alt="" style="display:block;border-radius:17px" />
+<span style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:18px;line-height:1.15;color:#1F3A4D;text-align:center">{{ o.ad }}</span>
+<span style="display:inline-flex;align-items:center;padding:6px 12px;border-radius:999px;background:#E8F5FC;color:#17739F;font:700 13px/1.2 'Nunito';text-align:center">{{ o.kazanim }}</span>
+<span style="font:700 13px/1 'Nunito';color:#4E6272">{{ o.sure }}</span>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section style="padding:40px 48px;border-bottom:1px solid rgba(31,58,77,.1)" data-screen-label="12 404">
+<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+<span style="font:700 11px/1 ui-monospace,Menlo,monospace;padding:4px 8px;border-radius:5px;background:#17739F;color:#fff">12</span>
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;margin:0;color:#1F3A4D">404</h2>
+</div>
+<p style="font-size:15px;line-height:1.6;margin:0 0 22px;max-width:700px;color:#4E6272">Neden böyle: sayı büyük ama başlık değil — çocuk hata sayfasında kaybolmaz, üç oyun kartı doğrudan çıkış sunar. Maskot düşünen ifadeyle duruyor; suçlayıcı dil ya da hata kodu yok.</p>
+<div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start">
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">404 · 1280 px</div>
+<div style="width:760px;height:560px;border-radius:20px;overflow:hidden;box-shadow:0 8px 28px rgba(31,58,77,.18);position:relative;background:linear-gradient(180deg,#87CEEB,#C9E8F7)">
+<div style="position:absolute;left:0;right:0;bottom:0;height:110px;background:linear-gradient(180deg,#7EC850,#5DAA3A)"></div>
+<div style="position:absolute;left:0;right:0;top:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:0 32px">
+{{ maskotDusunen }}
+<span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:72px;line-height:1;color:#fff;text-shadow:0 4px 0 rgba(31,58,77,.18)">404</span>
+<h3 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;margin:0;color:#1F3A4D">Bu sayfa kaybolmuş</h3>
+<p style="font-size:18px;line-height:1.55;margin:0 0 6px;color:#1F3A4D;text-align:center;max-width:420px">Aradığın oyun taşınmış olabilir. Şunlardan birini denemek ister misin?</p>
+<div style="display:flex;gap:12px">
+<sc-for list="{{ benzerOyunlar }}" as="o" hint-placeholder-count="3">
+<div style="width:132px;background:#fff;border:4px solid #fff;border-radius:24px;box-shadow:0 6px 16px rgba(31,58,77,.16);overflow:hidden;box-sizing:border-box">
+<span style="display:block;height:8px;background:{{ o.renk }}"></span>
+<div style="padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:8px">
+<img src="{{ o.ikon }}" width="64" height="64" alt="" style="display:block;border-radius:15px" />
+<span style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;line-height:1.15;color:#1F3A4D;text-align:center">{{ o.ad }}</span>
+</div>
+</div>
+</sc-for>
+</div>
+<button type="button" style="height:60px;padding:0 32px;border:4px solid #fff;border-radius:999px;background:#17739F;color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;box-shadow:0 6px 16px rgba(31,58,77,.22)">Ana Ekrana Dön</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section style="padding:40px 48px;border-bottom:1px solid rgba(31,58,77,.1)" data-screen-label="13 Metin sayfaları">
+<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+<span style="font:700 11px/1 ui-monospace,Menlo,monospace;padding:4px 8px;border-radius:5px;background:#17739F;color:#fff">13</span>
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;margin:0;color:#1F3A4D">Metin sayfaları · gizlilik, hakkında, iletişim</h2>
+</div>
+<p style="font-size:15px;line-height:1.6;margin:0 0 22px;max-width:700px;color:#4E6272">Neden böyle: tek sütun 680 px, gövde 18 px, satır aralığı 1,7. Bu sayfaları veli okur; çocuk arayüzünü taklit etmezler ama aynı renk ve yazı ailesini kullanırlar. Çıkartma konturu ve büyük yarıçap yok, yalnız başlık hiyerarşisi var.</p>
+<div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start">
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">Metin sayfası · gizlilik · 1280 px</div>
+<div style="width:760px;height:560px;border-radius:20px;overflow:hidden;box-shadow:0 8px 28px rgba(31,58,77,.18);background:#fff">
+<div style="height:64px;display:flex;align-items:center;gap:12px;padding:0 20px;box-shadow:0 2px 6px rgba(31,58,77,.1);box-sizing:border-box">
+<button type="button" style="width:52px;height:52px;flex:none;display:flex;align-items:center;justify-content:center;border:3px solid #fff;border-radius:999px;background:#17739F;color:#fff">{{ evIkon }}</button>
+<span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;color:#1F3A4D">Bilnet Oyun</span>
+</div>
+<div style="padding:26px 40px;max-width:680px">
+<h1 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:32px;line-height:1.15;margin:0 0 6px;color:#1F3A4D">Gizlilik</h1>
+<p style="font:600 14px/1 'Nunito';margin:0 0 18px;color:#4E6272">Son güncelleme: 12 Eylül 2026</p>
+<p style="font-size:18px;line-height:1.7;margin:0 0 14px;color:#1F3A4D">Bilnet Oyun'u kullanmak için üyelik gerekmez. Misafir modunda hiçbir kişisel veri toplanmaz; yıldızlar ve elmaslar yalnız cihazın kendi belleğinde tutulur.</p>
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:22px;margin:22px 0 8px;color:#1F3A4D">Google ile giriş yapınca ne olur?</h2>
+<p style="font-size:18px;line-height:1.7;margin:0 0 14px;color:#1F3A4D">Yalnız e-posta adresi ve ilerleme kaydı saklanır. Çocuğun adı, okulu, sınıfı veya konumu istenmez ve saklanmaz.</p>
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:22px;margin:22px 0 8px;color:#1F3A4D">Online oyunlar</h2>
+<p style="font-size:18px;line-height:1.7;margin:0;color:#1F3A4D">Oyuncular birbirine yalnız listeden seçtikleri takma adla görünür. Serbest metin sohbeti yoktur.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section style="padding:40px 48px;border-bottom:1px solid rgba(31,58,77,.1)" data-screen-label="14 Yönetici paneli">
+<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+<span style="font:700 11px/1 ui-monospace,Menlo,monospace;padding:4px 8px;border-radius:5px;background:#17739F;color:#fff">14</span>
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;margin:0;color:#1F3A4D">Yönetici paneli</h2>
+</div>
+<p style="font-size:15px;line-height:1.6;margin:0 0 22px;max-width:700px;color:#4E6272">Neden böyle: burası çocuk arayüzü değil, yetişkin aracı — çıkartma konturu ve büyük yarıçap yok, gölge yok, yoğunluk yüksek. Ama renk ve yazı ailesi aynı kalır ki aynı ürün olduğu belli olsun. Tablo satırı 56 px; öğretmen tek elle tarayarak oyun açıp kapatır. Yıkıcı işlemler (oyun gizleme) onay ister.</p>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px/1 'Nunito';color:#4E6272">Yönetici paneli · 1280 px</div>
+<div style="width:1280px;height:700px;border-radius:20px;overflow:hidden;box-shadow:0 8px 28px rgba(31,58,77,.18);background:#F6F9FB;position:relative">
+<div style="height:60px;display:flex;align-items:center;gap:14px;padding:0 20px;background:#1F3A4D;box-sizing:border-box">
+<span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:19px;color:#fff">Bilnet Oyun · Yönetim</span>
+<span style="font:600 14px/1 'Nunito';color:#9FB6C4">Oyunlar · Kilitler · İçerik · Kayıtlar</span>
+<span style="flex:1"></span>
+<span style="font:600 14px/1 'Nunito';color:#9FB6C4">ogretmen@bilnet.k12.tr</span>
+</div>
+<div style="position:absolute;left:0;right:0;top:60px;bottom:0;padding:20px;overflow:hidden;box-sizing:border-box">
+<div style="display:flex;gap:12px;margin-bottom:16px">
+<sc-for list="{{ panelSayaclari }}" as="s" hint-placeholder-count="4">
+<div style="flex:1;display:flex;flex-direction:column;gap:4px;padding:14px 18px;border-radius:10px;background:#fff;border:1px solid #DCE6EC">
+<span style="font:700 13px/1 'Nunito';color:#4E6272">{{ s.etiket }}</span>
+<span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:26px;line-height:1.1;color:#1F3A4D">{{ s.deger }}</span>
+</div>
+</sc-for>
+</div>
+<div style="background:#fff;border:1px solid #DCE6EC;border-radius:10px;overflow:hidden">
+<div style="display:flex;align-items:center;gap:12px;height:52px;padding:0 16px;border-bottom:1px solid #DCE6EC;background:#F0F5F8">
+<span style="flex:2;font:700 13px/1 'Nunito';color:#4E6272">OYUN</span>
+<span style="flex:1;font:700 13px/1 'Nunito';color:#4E6272">KATEGORİ</span>
+<span style="width:90px;font:700 13px/1 'Nunito';color:#4E6272">YAŞ</span>
+<span style="width:110px;font:700 13px/1 'Nunito';color:#4E6272">KİLİT</span>
+<span style="width:120px;font:700 13px/1 'Nunito';color:#4E6272">OYNANMA</span>
+<span style="width:150px;font:700 13px/1 'Nunito';color:#4E6272">DURUM</span>
+</div>
+<sc-for list="{{ panelSatirlari }}" as="r" hint-placeholder-count="6">
+<div style="display:flex;align-items:center;gap:12px;height:56px;padding:0 16px;border-bottom:1px solid #EDF2F5">
+<span style="flex:2;display:flex;align-items:center;gap:10px;min-width:0">
+<img src="{{ r.ikon }}" width="32" height="32" alt="" style="display:block;border-radius:7px;flex:none" />
+<span style="font:700 15px/1 'Nunito';color:#1F3A4D;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.ad }}</span></span>
+<span style="flex:1;font:400 14px/1 'Nunito';color:#4E6272">{{ r.kategori }}</span>
+<span style="width:90px;font:400 14px/1 'Nunito';color:#4E6272">{{ r.yas }}</span>
+<span style="width:110px;font:400 14px/1 'Nunito';color:#4E6272">{{ r.kilit }}</span>
+<span style="width:120px;font:400 14px/1 'Nunito';color:#4E6272">{{ r.oynanma }}</span>
+<span style="width:150px;display:flex;align-items:center;gap:10px">
+<span style="width:44px;height:26px;border-radius:999px;background:{{ r.anahtarZemin }};position:relative;display:block;flex:none"><span style="position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;{{ r.anahtarKonum }}"></span></span>
+<span style="font:700 13px/1 'Nunito';color:{{ r.durumRenk }}">{{ r.durum }}</span></span>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;align-items:center;gap:12px;margin-top:16px">
+<button type="button" style="height:44px;padding:0 20px;border-radius:8px;background:#17739F;color:#fff;font:700 15px/1 'Nunito';border:none">Değişiklikleri Kaydet</button>
+<button type="button" style="height:44px;padding:0 20px;border-radius:8px;background:#fff;color:#C0392B;font:700 15px/1 'Nunito';border:1px solid #C0392B">Seçilenleri Gizle</button>
+<span style="font:400 14px/1 'Nunito';color:#4E6272">Gizleme işlemi onay ister ve kayıt defterine yazılır.</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section style="padding:40px 48px;border-bottom:1px solid rgba(31,58,77,.1)">
+<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+<span style="font:700 11px/1 ui-monospace,Menlo,monospace;padding:4px 8px;border-radius:5px;background:#1F3A4D;color:#fff">M</span>
+<h2 style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;margin:0;color:#1F3A4D">Maskot · Bulut Bili seçildi</h2>
+</div>
+<p style="font-size:15px;line-height:1.6;margin:0 0 22px;max-width:660px;color:#4E6272"><strong>Bulut Bili</strong> onaylandı ve belgedeki tüm ekranlarda kullanılıyor: giriş kartı, sistem durumları ve 404. Gökyüzü dünyanın zaten parçası, bulut hiçbir kategoriye ait değil, 40 px'e kadar küçüldüğünde bile okunuyor. Üç daire, iki göz, bir ağız; beş ifade aynı şekil kümesinden türüyor. Elenen iki aday kayıt için altta duruyor.</p>
+<div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start">
+<sc-for list="{{ maskotlar }}" as="m" hint-placeholder-count="3">
+<div style="width:380px;background:#fff;border-radius:18px;padding:22px;box-shadow:0 2px 10px rgba(31,58,77,.1)">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+<span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;color:#1F3A4D">{{ m.ad }}</span>
+<span style="font:700 12px/1 'Nunito';padding:5px 10px;border-radius:999px;background:{{ m.etiketZemin }};color:{{ m.etiketRenk }}">{{ m.etiket }}</span>
+</div>
+<p style="font:400 14px/1.6 'Nunito';margin:0 0 16px;color:#4E6272">{{ m.not }}</p>
+<div style="display:flex;gap:10px;flex-wrap:wrap;padding:18px;border-radius:16px;background:linear-gradient(180deg,#C9E8F7,#EAF6FC)">{{ m.ifadeler }}</div>
+</div>
+</sc-for>
+</div>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1500,&quot;height&quot;:1000}}">
+const R = React.createElement;
+
+const I = {
+  ev: 'M4 11.5L12 5l8 6.5V20h-5v-5h-6v5H4z',
+  geri: 'M15 5l-7 7 7 7',
+  sesAcik: 'M4 9.5h3.5L12 6v12l-4.5-3.5H4z M15.5 9.5c1 1 1 4 0 5 M18 7.5c2 2 2 7 0 9',
+  sesKapali: 'M4 9.5h3.5L12 6v12l-4.5-3.5H4z M16 9.5l5 5 M21 9.5l-5 5',
+  tamEkran: 'M4 9V4h5 M20 9V4h-5 M4 15v5h5 M20 15v5h-5',
+  kilit: 'M6.5 11V8.5a5.5 5.5 0 0111 0V11 M5 11h14v9H5z',
+  oyuncu: 'M12 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7z M4.5 20c0-3.3 3.4-5.5 7.5-5.5s7.5 2.2 7.5 5.5',
+  hesap: 'M12 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7z M4.5 20c0-3.3 3.4-5.5 7.5-5.5s7.5 2.2 7.5 5.5'
+};
+
+function stroke(d, size) {
+  return R('svg', { viewBox: '0 0 24 24', width: size, height: size, fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': 'true' },
+    ...d.split(' M').map((seg, i) => R('path', { key: i, d: (i ? 'M' : '') + seg })));
+}
+function yildizSvg(size, dolu) {
+  return R('svg', { viewBox: '0 0 24 24', width: size, height: size, 'aria-hidden': 'true' },
+    R('path', { d: 'M12 3.2l2.6 5.3 5.8.85-4.2 4.1 1 5.75L12 16.5l-5.2 2.7 1-5.75-4.2-4.1 5.8-.85z', fill: dolu ? '#F4B400' : '#D7DEE3', stroke: '#fff', strokeWidth: 1.6 }));
+}
+function elmasSvg(size) {
+  return R('svg', { viewBox: '0 0 24 24', width: size, height: size, 'aria-hidden': 'true' },
+    R('path', { d: 'M7 4h10l4 5-9 11L3 9z', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinejoin: 'round' }),
+    R('path', { d: 'M3 9h18M9.5 4L7.5 9l4.5 11 4.5-11-2-5', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinejoin: 'round' }));
+}
+
+/* Maskot: üç şekil (gövde, gözlük, ağız) — SVG çizim yok, hepsi border-radius'lu kutular */
+function bulut(ifade, boy) {
+  const s = boy / 100;
+  const govde = { position: 'absolute', background: '#fff', borderRadius: '50%', boxShadow: '0 4px 10px rgba(31,58,77,.18)' };
+  const goz = (sol) => R('div', { key: 'g' + sol, style: { position: 'absolute', left: sol * s + 'px', top: 44 * s + 'px', width: 26 * s + 'px', height: 26 * s + 'px', borderRadius: '50%', background: '#fff', boxShadow: 'inset 0 0 0 ' + Math.max(2, 3 * s) + 'px #1F3A4D' } },
+    ifade === 'uyuyan'
+      ? R('div', { style: { position: 'absolute', left: 5 * s + 'px', top: 12 * s + 'px', width: 16 * s + 'px', height: 0, borderTop: Math.max(2, 3 * s) + 'px solid #1F3A4D', borderRadius: '2px' } })
+      : R('div', { style: { position: 'absolute', left: (ifade === 'dusunen' ? 10 : 7) * s + 'px', top: (ifade === 'kutlayan' ? 5 : 8) * s + 'px', width: 10 * s + 'px', height: 10 * s + 'px', borderRadius: '50%', background: '#1F3A4D' } }));
+  const agiz = {
+    mutlu: { width: 26, height: 13, borderRadius: '0 0 26px 26px', background: '#1F3A4D' },
+    kutlayan: { width: 30, height: 22, borderRadius: '0 0 30px 30px', background: '#1F3A4D' },
+    dusunen: { width: 18, height: 6, borderRadius: '999px', background: '#1F3A4D' },
+    uzgun: { width: 24, height: 12, borderRadius: '24px 24px 0 0', background: '#1F3A4D' },
+    uyuyan: { width: 14, height: 14, borderRadius: '50%', background: 'transparent', boxShadow: 'inset 0 0 0 3px #1F3A4D' }
+  }[ifade];
+  return R('div', { style: { position: 'relative', width: boy + 'px', height: boy * 0.9 + 'px' } },
+    R('div', { style: { ...govde, left: 8 * s + 'px', top: 26 * s + 'px', width: 84 * s + 'px', height: 56 * s + 'px', borderRadius: 40 * s + 'px' } }),
+    R('div', { style: { ...govde, left: 18 * s + 'px', top: 8 * s + 'px', width: 46 * s + 'px', height: 46 * s + 'px' } }),
+    R('div', { style: { ...govde, left: 52 * s + 'px', top: 16 * s + 'px', width: 34 * s + 'px', height: 34 * s + 'px' } }),
+    goz(28), goz(56),
+    R('div', { style: { position: 'absolute', left: 52 * s + 'px', top: 44 * s + 'px', width: 6 * s + 'px', height: Math.max(2, 3 * s) + 'px', background: '#1F3A4D' } }),
+    R('div', { style: { position: 'absolute', left: (50 - (agiz.width / 2)) * s + 'px', top: 72 * s + 'px', width: agiz.width * s + 'px', height: agiz.height * s + 'px', borderRadius: agiz.borderRadius, background: agiz.background, boxShadow: agiz.boxShadow ? 'inset 0 0 0 ' + Math.max(2, 3 * s) + 'px #1F3A4D' : 'none' } })
+  );
+}
+function baykus(ifade, boy) {
+  const s = boy / 100;
+  return R('div', { style: { position: 'relative', width: boy + 'px', height: boy * 0.9 + 'px' } },
+    R('div', { style: { position: 'absolute', left: 14 * s + 'px', top: 14 * s + 'px', width: 72 * s + 'px', height: 72 * s + 'px', borderRadius: '50% 50% 45% 45%', background: '#A4683A', boxShadow: '0 0 0 ' + 4 * s + 'px #fff, 0 4px 10px rgba(31,58,77,.2)' } }),
+    R('div', { style: { position: 'absolute', left: 24 * s + 'px', top: 30 * s + 'px', width: 24 * s + 'px', height: 24 * s + 'px', borderRadius: '50%', background: '#fff' } }),
+    R('div', { style: { position: 'absolute', left: 52 * s + 'px', top: 30 * s + 'px', width: 24 * s + 'px', height: 24 * s + 'px', borderRadius: '50%', background: '#fff' } }),
+    R('div', { style: { position: 'absolute', left: (ifade === 'dusunen' ? 34 : 31) * s + 'px', top: 37 * s + 'px', width: 10 * s + 'px', height: (ifade === 'uyuyan' ? 3 : 10) * s + 'px', borderRadius: '50%', background: '#1F3A4D' } }),
+    R('div', { style: { position: 'absolute', left: 59 * s + 'px', top: 37 * s + 'px', width: 10 * s + 'px', height: (ifade === 'uyuyan' ? 3 : 10) * s + 'px', borderRadius: '50%', background: '#1F3A4D' } }),
+    R('div', { style: { position: 'absolute', left: 44 * s + 'px', top: 52 * s + 'px', width: 12 * s + 'px', height: 12 * s + 'px', borderRadius: '2px 2px 50% 50%', background: '#F4B400' } })
+  );
+}
+function tohum(ifade, boy) {
+  const s = boy / 100;
+  return R('div', { style: { position: 'relative', width: boy + 'px', height: boy * 0.9 + 'px' } },
+    R('div', { style: { position: 'absolute', left: 22 * s + 'px', top: 20 * s + 'px', width: 56 * s + 'px', height: 66 * s + 'px', borderRadius: '50% 50% 46% 46%', background: '#7EC850', boxShadow: '0 0 0 ' + 4 * s + 'px #fff, 0 4px 10px rgba(31,58,77,.2)' } }),
+    R('div', { style: { position: 'absolute', left: 56 * s + 'px', top: 4 * s + 'px', width: 26 * s + 'px', height: 20 * s + 'px', borderRadius: '0 100% 0 100%', background: '#5DAA3A', boxShadow: '0 0 0 ' + 3 * s + 'px #fff' } }),
+    R('div', { style: { position: 'absolute', left: 34 * s + 'px', top: 42 * s + 'px', width: 9 * s + 'px', height: (ifade === 'uyuyan' ? 3 : 9) * s + 'px', borderRadius: '50%', background: '#1F3A4D' } }),
+    R('div', { style: { position: 'absolute', left: 56 * s + 'px', top: 42 * s + 'px', width: 9 * s + 'px', height: (ifade === 'uyuyan' ? 3 : 9) * s + 'px', borderRadius: '50%', background: '#1F3A4D' } }),
+    R('div', { style: { position: 'absolute', left: 40 * s + 'px', top: 60 * s + 'px', width: 20 * s + 'px', height: (ifade === 'uzgun' ? 9 : 11) * s + 'px', borderRadius: ifade === 'uzgun' ? '20px 20px 0 0' : '0 0 20px 20px', background: '#1F3A4D' } })
+  );
+}
+
+const IFADELER = [['mutlu', 'Mutlu'], ['dusunen', 'Düşünen'], ['uzgun', 'Üzgün'], ['kutlayan', 'Kutlayan'], ['uyuyan', 'Uyuyan']];
+
+class Component extends DCLogic {
+  renderVals() {
+    const cizer = { bulut, baykus, tohum };
+    const ifadeSeti = (tip) => IFADELER.map(([k, ad]) => R('div', { key: k, style: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', width: '64px' } },
+      cizer[tip](k, 64),
+      R('span', { style: { font: "600 12px/1.2 'Nunito'", color: '#4E6272' } }, ad)));
+
+    const yildizSirasi = (n, size) => R('span', { style: { display: 'flex', gap: size > 18 ? '3px' : '2px' } },
+      [0, 1, 2].map(i => R('span', { key: i }, yildizSvg(size, i < n))));
+
+    const durumKatman = (ek) => {
+      if (ek === 'kilit') return R('div', { style: { position: 'absolute', inset: 0, background: 'rgba(31,58,77,.62)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', gap: '10px', padding: '0 10px 14px', boxSizing: 'border-box', color: '#fff' } },
+        stroke(I.kilit, 32),
+        R('span', { style: { font: "700 15px/1.2 'Nunito'", background: '#fff', color: '#1F3A4D', borderRadius: '999px', padding: '6px 12px', whiteSpace: 'nowrap' } }, '5 yıldız gerek'));
+      if (ek === 'yakinda') return R('div', { style: { position: 'absolute', inset: 0, background: 'rgba(238,241,243,.86)', display: 'flex', alignItems: 'center', justifyContent: 'center' } },
+        R('span', { style: { font: "700 14px/1 'Nunito'", background: '#fff', color: '#4E6272', borderRadius: '999px', padding: '8px 14px', boxShadow: '0 2px 8px rgba(31,58,77,.14)' } }, 'Yakında'));
+      if (ek === 'online') return R('span', { style: { position: 'absolute', right: '8px', top: '16px', display: 'inline-flex', alignItems: 'center', gap: '5px', height: '28px', padding: '0 10px', borderRadius: '999px', background: '#7B5BFF', color: '#fff', font: "700 13px/1 'Nunito'", border: '2px solid #fff' } },
+        stroke(I.oyuncu, 16), '2');
+      return null;
+    };
+
+    const YENI = null; /* 56 görselin tamamı yeniden çizildi */
+    const g = (slug, ad, renk, yildiz, kazanim, sure, ek) => ({
+      slug, ad, renk, yildiz, kazanim, sure, ek: ek || '',
+      ikon: 'assets/hub-v2/' + slug + '.svg',
+      yildizlar: yildizSirasi(yildiz, 22),
+      yildizlarKucuk: yildizSirasi(yildiz, 18),
+      durumKatman: durumKatman(ek)
+    });
+
+    const sekme = (ad, aktif, ikon) => ({
+      ad, zemin: aktif ? '#17739F' : '#fff', renk: aktif ? '#fff' : '#1F3A4D',
+      ikon: ikon ? R('img', { src: 'assets/categories-v2/' + ikon + '.svg', width: 26, height: 26, alt: '', style: { display: 'block', borderRadius: '6px' } }) : null
+    });
+
+    const V = {
+      maskotBuyuk: bulut('mutlu', 120),
+      maskotOrta: bulut('mutlu', 86),
+      yildizIkon: yildizSvg(24, true),
+      yildizIkonKucuk: yildizSvg(20, true),
+      elmasIkon: elmasSvg(24),
+      sekmeler: [
+        sekme('Tümü', true, null), sekme('Harfler ve Kelimeler', false, 'letters'),
+        sekme('Sayılar ve Matematik', false, 'numbers'), sekme('Bulmaca ve Mantık', false, 'puzzles'),
+        sekme('Yaratıcılık', false, 'creativity'), sekme('Strateji ve Macera', false, 'strategy'),
+        sekme('Online', false, 'online')
+      ],
+      devamEt: [
+        g('harf-tanima', 'Harf Tanıma', '#45B7D1', 2, 'Harf tanıma', '8 dk'),
+        g('matematik-kafe', 'Matematik Kafe', '#A4683A', 1, 'Zihinden toplama', '12 dk'),
+        g('kelimelik', 'Kelimelik', '#7B5BFF', 3, 'Kelime dağarcığı', '10 dk')
+      ],
+      rafAnaokulu: [
+        g('harf-tanima', 'Harf Tanıma', '#45B7D1', 2, 'Harf tanıma', '8 dk'),
+        g('sayi-sayma', 'Sayı Sayma', '#4ECDC4', 3, 'Birebir eşleme', '6 dk'),
+        g('renk-eslestirme', 'Renk Eşleştirme', '#FF78C4', 1, 'Renk bilgisi', '5 dk'),
+        g('sekil-bulmaca', 'Şekil Bulmaca', '#F7B731', 0, 'Şekil-uzay', '7 dk'),
+        g('boyama', 'Boyama', '#FF78C4', 2, 'Yaratıcılık', 'serbest'),
+        g('hafiza-kartlari', 'Hafıza Kartları', '#F7B731', 0, 'Görsel hafıza', '9 dk')
+      ],
+      raf12: [
+        g('hece-birlestirme', 'Hece Birleştirme', '#45B7D1', 3, 'Hece bilinci', '10 dk'),
+        g('matematik', 'Matematik', '#4ECDC4', 2, 'Toplama-çıkarma', '8 dk'),
+        g('siralama', 'Sıralama', '#F7B731', 1, 'Karşılaştırma', '6 dk'),
+        g('kelime-balonu', 'Kelime Balonu', '#45B7D1', 0, 'Okuma hızı', '7 dk'),
+        g('desen', 'Desen Tamamlama', '#4ECDC4', 2, 'Örüntü', '6 dk'),
+        g('sayilarla-boyama', 'Sayılarla Boyama', '#FF78C4', 0, 'Sayı tanıma', 'serbest')
+      ],
+      raf34: [
+        g('kelimelik', 'Kelimelik', '#7B5BFF', 3, 'Kelime dağarcığı', '10 dk', 'online'),
+        g('matematik-kafe', 'Matematik Kafe', '#A4683A', 1, 'Zihinden işlem', '12 dk'),
+        g('kesir-2048', 'Kesir 2048', '#4ECDC4', 0, 'Kesir kavramı', '11 dk'),
+        g('kod-macerasi', 'Kod Macerası', '#A4683A', 2, 'Algoritma', '15 dk'),
+        g('labirent-avcisi', 'Labirent Avcısı', '#F7B731', 0, 'Planlama', '9 dk'),
+        g('bilim-dedektifi', 'Bilim Dedektifi', '#F7B731', 0, 'Fen kavramları', '12 dk', 'kilit')
+      ],
+      raf56: [
+        g('satranc', 'Satranç', '#A4683A', 1, 'Strateji', '20 dk'),
+        g('zindan-okcusu', 'Zindan Okçusu', '#A4683A', 0, 'Refleks, açı', '14 dk'),
+        g('lego-world', 'LEGO World 3D', '#A4683A', 2, 'Uzamsal kurgu', 'serbest'),
+        g('altin-avi', 'Altın Avı', '#7B5BFF', 0, 'Hızlı karar', '8 dk', 'online'),
+        g('son-kart', 'Son Kart', '#7B5BFF', 0, 'Sıra ve kural', '10 dk', 'online'),
+        g('kelime-madeni-3d', 'Kelime Madeni 3D', '#4E6272', 0, '', '', 'yakinda')
+      ],
+      tokenRenkler: [
+        { ad: '--mavi-500', hex: '#4AABE0' }, { ad: '--mavi-700', hex: '#2E8FC4' },
+        { ad: '--mavi-800', hex: '#17739F' }, { ad: '--mavi-050', hex: '#E8F5FC' },
+        { ad: '--gok-ust', hex: '#87CEEB' }, { ad: '--gok-alt', hex: '#C9E8F7' },
+        { ad: '--cim', hex: '#7EC850' }, { ad: '--cim-koyu', hex: '#5DAA3A' },
+        { ad: '--gunes', hex: '#FFD54A' }, { ad: '--murekkep', hex: '#1F3A4D' },
+        { ad: '--murekkep-orta', hex: '#4E6272' }, { ad: '--beyaz', hex: '#FFFFFF' },
+        { ad: '--cizgi', hex: '#DCE6EC' }, { ad: '--kat-harf', hex: '#45B7D1' },
+        { ad: '--kat-sayi', hex: '#4ECDC4' }, { ad: '--kat-bulmaca', hex: '#F7B731' },
+        { ad: '--kat-yaratici', hex: '#FF78C4' }, { ad: '--kat-strateji', hex: '#A4683A' },
+        { ad: '--kat-online', hex: '#7B5BFF' }, { ad: '--dogru', hex: '#1E8E4E' },
+        { ad: '--dogru-zemin', hex: '#DFF5E7' }, { ad: '--yanlis', hex: '#C0392B' },
+        { ad: '--yildiz', hex: '#F4B400' }, { ad: '--yildiz-bos', hex: '#D7DEE3' }
+      ],
+      tokenTip: [
+        { ad: '--yazi-hub', deger: 'Fredoka 700 · 40 px', kullanim: 'Hub ve giriş başlığı' },
+        { ad: '--yazi-raf', deger: 'Fredoka 700 · 30 px', kullanim: 'Yaş rafı başlığı' },
+        { ad: '--yazi-baslik', deger: 'Fredoka 600 · 24 px', kullanim: 'Modal, panel başlığı' },
+        { ad: '--yazi-kart', deger: 'Fredoka 600 · 20 px', kullanim: 'Oyun kartı adı' },
+        { ad: '--yazi-dugme', deger: 'Fredoka 700 · 18 px', kullanim: 'Düğme ve sekme' },
+        { ad: '--yazi-govde', deger: 'Nunito 400 · 18 px / 1,6', kullanim: 'Tüm gövde metni' },
+        { ad: '--yazi-rozet', deger: 'Nunito 700 · 13 px', kullanim: 'Rozet, en küçük ölçü' }
+      ],
+      tokenDiger: [
+        { ad: '--ara-1 … --ara-8', deger: '4 · 8 · 12 · 16 · 24 · 32 · 40 · 64 px' },
+        { ad: '--r-kart', deger: '24 px' },
+        { ad: '--r-giris', deger: '16 px (giriş alanı ve ikon karesi)' },
+        { ad: '--r-hap', deger: '999 px (tüm düğme ve çipler)' },
+        { ad: '--kontur', deger: '4 px #FFFFFF (çıkartma konturu)' },
+        { ad: '--golge-1', deger: '0 2px 6px rgba(31,58,77,.10)' },
+        { ad: '--golge-2', deger: '0 6px 16px rgba(31,58,77,.16)' },
+        { ad: '--golge-3', deger: '0 14px 32px rgba(31,58,77,.20)' },
+        { ad: '--hedef-min', deger: '52 px' },
+        { ad: '--sure-bas', deger: '120 ms · ölçek 0,97' },
+        { ad: '--sure-gecis', deger: '220 ms' },
+        { ad: '--sure-kutlama', deger: '600 ms, sonra durur' },
+        { ad: '--egri-out', deger: 'cubic-bezier(.23,1,.32,1)' },
+        { ad: '--egri-yay', deger: 'cubic-bezier(.34,1.56,.64,1)' }
+      ],
+      ikonlar: [
+        { ad: 'Ev', svg: stroke(I.ev, 32) },
+        { ad: 'Geri', svg: stroke(I.geri, 32) },
+        { ad: 'Ses açık', svg: stroke(I.sesAcik, 32) },
+        { ad: 'Ses kapalı', svg: stroke(I.sesKapali, 32) },
+        { ad: 'Tam ekran', svg: stroke(I.tamEkran, 32) },
+        { ad: 'Kilit', svg: stroke(I.kilit, 32) },
+        { ad: 'Oyuncu', svg: stroke(I.oyuncu, 32) },
+        { ad: 'Elmas', svg: elmasSvg(32) },
+        { ad: 'Yıldız dolu', svg: yildizSvg(32, true) },
+        { ad: 'Yıldız boş', svg: yildizSvg(32, false) }
+      ],
+      maskotlar: [
+        { ad: 'Bulut Bili', etiket: 'Seçildi', etiketZemin: '#DFF5E7', etiketRenk: '#155E36', not: 'Gökyüzü zaten dünyanın parçası; bulut hiçbir kategoriye ait değil, her renk şeridinin yanında yansız durur. Üç daire, iki göz, bir ağız.', ifadeler: ifadeSeti('bulut') },
+        { ad: 'Baykuş Bilge', etiket: 'Elendi', etiketZemin: '#EEF1F3', etiketRenk: '#4E6272', not: 'Okul çağrışımı güçlü ama kahverengi gövde strateji kategorisinin rengiyle çakışıyor; küçük boyda göz halkaları kapanıyor.', ifadeler: ifadeSeti('baykus') },
+        { ad: 'Filiz', etiket: 'Elendi', etiketZemin: '#EEF1F3', etiketRenk: '#4E6272', not: 'Çimen zeminiyle bütünleşiyor ve büyüme fikrini taşıyor; ancak yeşil gövde çimen üstünde kontrast kaybediyor, beyaz kontur zorlanıyor.', ifadeler: ifadeSeti('tohum') }
+      ]
+    };
+
+    V.raflar = [
+      { ad: 'Anaokulu · 4-6 yaş', renk: '#4ECDC4', sayi: '9 oyun', oyunlar: V.rafAnaokulu },
+      { ad: '1-2. Sınıf', renk: '#17739F', sayi: '14 oyun', oyunlar: V.raf12 }
+    ];
+    V.raflarMobil = [
+      { ad: 'Anaokulu · 4-6', renk: '#4ECDC4', oyunlar: V.rafAnaokulu },
+      { ad: '1-2. Sınıf', renk: '#17739F', oyunlar: V.raf12 }
+    ];
+    V.ogretmenKartlari = V.raf12.slice(0, 3);
+
+    const kart = (etiket, o, ek, not) => ({ etiket, not: not || '', ad: o.ad, ikon: o.ikon, renk: o.renk, yildizlar: o.yildizlar, katman: o.durumKatman, ek: ek || '' });
+    V.kartDurumlari = [
+      kart('Normal', g('harf-tanima', 'Harf Tanıma', '#45B7D1', 0), '', 'Dinlenme hâli'),
+      kart('Basılı · 120 ms', g('harf-tanima', 'Harf Tanıma', '#45B7D1', 0), 'transform:scale(.97);box-shadow:0 2px 6px rgba(31,58,77,.1)', 'Ölçek 0,97'),
+      kart('Klavye odağı', g('harf-tanima', 'Harf Tanıma', '#45B7D1', 0), 'box-shadow:0 0 0 3px #17739F,0 6px 16px rgba(31,58,77,.16)', '3 px halka, 3 px boşluk'),
+      kart('1 yıldız', g('sayi-sayma', 'Sayı Sayma', '#4ECDC4', 1), '', 'Kazanılan yıldız köşeye yapışır'),
+      kart('2 yıldız', g('hece-birlestirme', 'Hece Birleştirme', '#45B7D1', 2), '', ''),
+      kart('3 yıldız', g('kelimelik', 'Kelimelik', '#7B5BFF', 3), '', 'Tamamlandı'),
+      kart('Kilitli', g('bilim-dedektifi', 'Bilim Dedektifi', '#F7B731', 0, '', '', 'kilit'), '', 'Eşik kartın üstünde yazılı'),
+      kart('Yakında', g('kelime-madeni-3d', 'Kelime Madeni 3D', '#4E6272', 0, '', '', 'yakinda'), '', 'Basılamaz, gri'),
+      kart('Online · 2 oyuncu', g('son-kart', 'Son Kart', '#7B5BFF', 1, '', '', 'online'), '', 'Rozet sağ üstte'),
+      kart('Çevrimdışı', g('altin-avi', 'Altın Avı', '#7B5BFF', 0), 'filter:grayscale(1);opacity:.7', 'Online oyun gri, basılamaz')
+    ];
+
+    V.rozetler = [
+      { ad: 'İlk Yıldız', durum: 'Kazanıldı', zemin: '#FFF4D6', kenar: '#F4B400', ikon: yildizSvg(28, true) },
+      { ad: 'Harf Ustası', durum: 'Kazanıldı', zemin: '#E8F5FC', kenar: '#45B7D1', ikon: stroke(I.ev, 28) },
+      { ad: '7 Gün Seri', durum: '4 / 7 gün', zemin: '#EEF1F3', kenar: '#DCE6EC', ikon: elmasSvg(28) },
+      { ad: 'Takım Oyuncusu', durum: '2 / 5 oyun', zemin: '#EEF1F3', kenar: '#DCE6EC', ikon: stroke(I.oyuncu, 28) }
+    ];
+    V.tumGorseller = ('altin-avi Altın Avı|ates-buz Ateş ve Buz|bil-ve-fethet Bil ve Fethet|bilgi-ciftligi Bilgi Çiftliği|bilgi-kulesi Bilgi Kulesi|bilgi-madencisi Bilgi Madencisi|bilgi-savunmasi Bilgi Savunması|bilgi-takimi Bilgi Takımı|bilgi-yilani Bilgi Yılanı|bilim-dedektifi Bilim Dedektifi|boyama Boyama|buz-kulesi Buz Kulesi|cevap-kosusu Cevap Koşusu|desen Desen Tamamlama|egim Eğim|emoji-yapici Yüz Yapıcı|eslestirme-ustasi Eşleştirme Ustası|fizik-firlatma Fizik Fırlatma|gunluk-kelime Günlük Kelime|hafiza-kartlari Hafıza Kartları|harf-tahmin Harf Tahmin|harf-tanima Harf Tanıma|hava-hokeyi Hava Hokeyi|hece-birlestirme Hece Birleştirme|jigsaw Yapboz|kelime-balonu Kelime Balonu|kelime-canavarlari Kelime Canavarları|kelime-kurtarma Kelime Kurtarma|kelime-madeni-3d Kelime Madeni 3D|kelime-tahmin Kelime Tahmin|kelimelik Kelimelik|kesir-2048 Kesir 2048|kod-macerasi Kod Macerası|labirent-avcisi Labirent Avcısı|lego-macerasi LEGO Macerası|lego-world LEGO World 3D|matematik Matematik|matematik-kafe Matematik Kafe|matematik-patlatma Matematik Patlatma|penalti Penaltı|penalti-mp Penaltı Çok Oyunculu|renk-eslestirme Renk Eşleştirme|ritim-sorulari Ritim Soruları|satranc Satranç|sayi-ninja Sayı Ninja|sayi-sayma Sayı Sayma|sayilarla-boyama Sayılarla Boyama|sekil-bulmaca Şekil Bulmaca|siralama Sıralama|son-kart Son Kart|space-waves Uzay Dalgaları|tetris Tetris|tuval Tuval|zindan-okcusu Zindan Okçusu|zipla-topla Zıpla Topla|zipla-topla-coop Zıpla Topla Birlikte')
+      .split('|').map(p => { const i = p.indexOf(' '); return { slug: p.slice(0, i), ad: p.slice(i + 1), ikon: 'assets/hub-v2/' + p.slice(0, i) + '.svg' }; });
+
+    V.oyunGorselleri = [
+      { slug: 'harf-tanima', ad: 'Harf Tanıma', not: 'Arı emojisi çıktı, gökyüzü-çimen sahnesinde ahşap harf küpleri geldi' },
+      { slug: 'matematik-kafe', ad: 'Matematik Kafe', not: 'Kahve fincanı ve çocuk emojileri çıktı, fincan ile tezgâh çizildi' },
+      { slug: 'satranc', ad: 'Satranç', not: 'Şah karakterleri çıktı, taşlar perspektif tahtada çizildi' },
+      { slug: 'kelimelik', ad: 'Kelimelik', not: 'Taşlar korundu, masa zemini ve sistem yarıçapı eklendi' },
+      { slug: 'labirent-avcisi', ad: 'Labirent Avcısı', not: 'Sahne: duvarlar, kesik iz, hazine sandığı' },
+      { slug: 'boyama', ad: 'Boyama', not: 'Palet ve fırça, renk lekeleriyle derinlik' },
+      { slug: 'hece-birlestirme', ad: 'Hece Birleştirme', not: 'Elma emojisi çıktı, iki hece kartı ve çizilmiş elma geldi' },
+      { slug: 'sayi-sayma', ad: 'Sayı Sayma', not: 'Elma emojileri çıktı, tezgâhta üç meyve ve sayı kartı' },
+      { slug: 'kelime-balonu', ad: 'Kelime Balonu', not: 'Kedi ve yıldız karakterleri çıktı, harfli balonlar uçuyor' },
+      { slug: 'bilim-dedektifi', ad: 'Bilim Dedektifi', not: 'Tilki, kuş, mantar, kurbağa emojileri çıktı, büyüteç ve deney şişesi geldi' },
+      { slug: 'hafiza-kartlari', ad: 'Hafıza Kartları', not: 'Yıldız karakteri çıktı, biri açık iki kart çizildi' },
+      { slug: 'matematik', ad: 'Matematik', not: 'Tik karakteri çıktı, kara tahta ve çizilmiş onay rozeti' }
+    ];
+
+    V.kategoriler = ['letters', 'numbers', 'puzzles', 'creativity', 'strategy', 'online'].map((f, i) => ({
+      ad: ['Harfler ve Kelimeler', 'Sayılar ve Matematik', 'Bulmaca ve Mantık', 'Yaratıcılık', 'Strateji ve Macera', 'Online'][i],
+      eski: R('img', { src: '/assets/categories/' + f + '.png', width: 76, height: 76, alt: '', style: { display: 'block' } }),
+      yeni: R('img', { src: 'assets/categories-v2/' + f + '.svg', width: 76, height: 76, alt: '', style: { display: 'block', borderRadius: '17px', boxShadow: '0 6px 16px rgba(31,58,77,.18)' } }),
+      cip: R('img', { src: 'assets/categories-v2/' + f + '.svg', width: 30, height: 30, alt: '', style: { display: 'block', borderRadius: '7px' } })
+    }));
+
+    V.yildiz3 = yildizSirasi(3, 56);
+    V.yildiz3Mobil = yildizSirasi(3, 44);
+    V.kilitIkon = stroke(I.kilit, 44);
+    V.yildizIkonBuyuk = yildizSvg(44, true);
+    V.elmasIkonBuyuk = elmasSvg(44);
+
+    const KONFETI = ['#F4B400', '#45B7D1', '#FF78C4', '#7EC850', '#7B5BFF'];
+    const konfetiKatman = (adet, genislik) => R('div', { style: { position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' } },
+      Array.from({ length: adet }, (_, i) => {
+        const x = ((i * 37) % 100), y = ((i * 53) % 70) + 4, d = (i % 5);
+        const balon = i % 6 === 0;
+        return R('div', {
+          key: i,
+          style: balon
+            ? { position: 'absolute', left: x + '%', top: y + '%', width: '26px', height: '32px', borderRadius: '50%', background: KONFETI[d], boxShadow: '0 0 0 3px #fff' }
+            : { position: 'absolute', left: x + '%', top: y + '%', width: (i % 3 ? 10 : 14) + 'px', height: (i % 3 ? 14 : 10) + 'px', borderRadius: '3px', background: KONFETI[d], transform: 'rotate(' + (i * 27 % 90) + 'deg)' }
+        });
+      }));
+    V.konfeti = konfetiKatman(46);
+    V.konfetiMobil = konfetiKatman(22);
+
+    const yuz = (renk, boy, kapali) => R('div', { style: { position: 'relative', width: boy + 'px', height: boy + 'px', borderRadius: '50%', background: renk, boxShadow: '0 0 0 4px #fff, 0 4px 10px rgba(31,58,77,.18)' } },
+      R('div', { style: { position: 'absolute', left: boy * 0.26 + 'px', top: boy * 0.36 + 'px', width: boy * 0.11 + 'px', height: (kapali ? boy * 0.04 : boy * 0.13) + 'px', borderRadius: '50%', background: '#1F3A4D' } }),
+      R('div', { style: { position: 'absolute', right: boy * 0.26 + 'px', top: boy * 0.36 + 'px', width: boy * 0.11 + 'px', height: (kapali ? boy * 0.04 : boy * 0.13) + 'px', borderRadius: '50%', background: '#1F3A4D' } }),
+      R('div', { style: { position: 'absolute', left: '50%', top: boy * 0.58 + 'px', marginLeft: -boy * 0.11 + 'px', width: boy * 0.22 + 'px', height: boy * 0.11 + 'px', borderRadius: '0 0 999px 999px', background: '#1F3A4D' } }));
+
+    V.avatarlar = [
+      { ad: 'Neşeli Kunduz', yuz: yuz('#F4B400', 64), kenar: '0 0 0 3px #17739F' },
+      { ad: 'Hızlı Tavşan', yuz: yuz('#45B7D1', 64), kenar: 'none' },
+      { ad: 'Cesur Kirpi', yuz: yuz('#FF78C4', 64), kenar: 'none' },
+      { ad: 'Sakin Kaplumbağa', yuz: yuz('#7EC850', 64), kenar: 'none' },
+      { ad: 'Meraklı Baykuş', yuz: yuz('#A4683A', 64), kenar: 'none' },
+      { ad: 'Parlak Yıldız', yuz: yuz('#7B5BFF', 64), kenar: 'none' }
+    ];
+    V.evIkon = stroke(I.ev, 28);
+    V.panelSayaclari = [
+      { etiket: 'Yayında oyun', deger: '57' },
+      { etiket: 'Bugün oynanma', deger: '1.284' },
+      { etiket: 'Kilitli oyun', deger: '6' },
+      { etiket: 'Yakında', deger: '3' }
+    ];
+    const satir = (slug, ad, kategori, yas, kilit, oynanma, acik) => ({
+      ad, kategori, yas, kilit, oynanma,
+      ikon: 'assets/hub-v2/' + slug + '.svg',
+      anahtarZemin: acik ? '#1E8E4E' : '#D7DEE3',
+      anahtarKonum: acik ? 'right:3px' : 'left:3px',
+      durum: acik ? 'Yayında' : 'Gizli',
+      durumRenk: acik ? '#155E36' : '#4E6272'
+    });
+    V.panelSatirlari = [
+      satir('hece-birlestirme', 'Hece Birleştirme', 'Harfler', '6-8', '—', '212', true),
+      satir('matematik', 'Matematik', 'Sayılar', '6-9', '—', '186', true),
+      satir('bilim-dedektifi', 'Bilim Dedektifi', 'Bulmaca', '8-11', '5 yıldız', '94', true),
+      satir('kelimelik', 'Kelimelik', 'Online', '8-12', '—', '148', true),
+      satir('zindan-okcusu', 'Zindan Okçusu', 'Strateji', '10-12', '8 yıldız', '61', true),
+      satir('kelime-madeni-3d', 'Kelime Madeni 3D', 'Harfler', '9-12', '—', '0', false)
+    ];
+    const sec = (ad, aktif) => ({ ad, zemin: aktif ? '#E8F5FC' : '#fff', renk: aktif ? '#17739F' : '#1F3A4D', kutuZemin: aktif ? '#17739F' : '#fff', kutuKenar: aktif ? 'none' : 'inset 0 0 0 2px #DCE6EC' });
+    V.suzgecler = [
+      { baslik: 'Yaş', secenekler: [sec('Anaokulu · 4-6', false), sec('1-2. Sınıf', true), sec('3-4. Sınıf', false), sec('5-6. Sınıf', false)] },
+      { baslik: 'Kategori', secenekler: [sec('Harfler ve Kelimeler', true), sec('Sayılar ve Matematik', false), sec('Bulmaca ve Mantık', false), sec('Yaratıcılık', false), sec('Strateji ve Macera', false), sec('Online', false)] }
+    ];
+    V.listeOyunlari = [
+      g('hece-birlestirme', 'Hece Birleştirme', '#45B7D1', 0, 'Hece bilinci', '10 dk'),
+      g('kelime-balonu', 'Kelime Balonu', '#45B7D1', 0, 'Okuma hızı', '7 dk'),
+      g('harf-tanima', 'Harf Tanıma', '#45B7D1', 0, 'Harf tanıma', '8 dk'),
+      g('kelimelik', 'Kelimelik', '#7B5BFF', 0, 'Kelime dağarcığı', '10 dk'),
+      g('sayilarla-boyama', 'Sayılarla Boyama', '#FF78C4', 0, 'Sayı tanıma', 'serbest'),
+      g('desen', 'Desen Tamamlama', '#4ECDC4', 0, 'Örüntü', '6 dk'),
+      g('matematik', 'Matematik', '#4ECDC4', 0, 'Toplama-çıkarma', '8 dk'),
+      g('siralama', 'Sıralama', '#F7B731', 0, 'Karşılaştırma', '6 dk')
+    ];
+    V.oyunBilgi = [
+      { etiket: 'Kazanım', deger: 'Hece bilinci' },
+      { etiket: 'Yaş', deger: '6-8' },
+      { etiket: 'Süre', deger: '10 dk' }
+    ];
+    V.benzerOyunlar = [
+      g('harf-tanima', 'Harf Tanıma', '#45B7D1', 0),
+      g('kelime-balonu', 'Kelime Balonu', '#45B7D1', 0),
+      g('kelimelik', 'Kelimelik', '#7B5BFF', 0)
+    ];
+    V.iskeletler = [1, 2, 3];
+    V.durumlar = [
+      { etiket: 'Çevrimdışı', gorsel: bulut('uyuyan', 96), baslik: 'İnternet yok gibi görünüyor', metin: 'Tek kişilik oyunların hepsi çalışıyor. Online oyunlar bağlantı gelince açılır.', dugme: 'Tek Kişilik Oyunlar' },
+      { etiket: 'Boş sonuç', gorsel: bulut('dusunen', 96), baslik: 'Burada bir oyun yok', metin: 'Bu yaş ve kategori birleşiminde henüz oyun eklenmedi. Başka bir raf dene.', dugme: 'Tüm Oyunlar' },
+      { etiket: 'Oyun yüklenemedi', gorsel: bulut('uzgun', 96), baslik: 'Oyun açılamadı', metin: 'Bir şeyler ters gitti. Tekrar denersen büyük ihtimalle açılır.', dugme: 'Tekrar Dene' },
+      { etiket: 'Tarayıcı desteklemiyor', gorsel: bulut('dusunen', 96), baslik: 'Bu oyun burada çalışmıyor', metin: 'Bu oyun tarayıcının desteklemediği bir çizim yöntemi kullanıyor. Diğer 56 oyun açık.', dugme: 'Başka Oyun Seç' }
+    ];
+    V.odalar = [{ kod: 'KUZUM', kisi: 'Neşeli Kunduz' }, { kod: 'PAMUK', kisi: 'Hızlı Tavşan' }];
+    V.rakipYuz = yuz('#45B7D1', 88);
+    V.benYuz = yuz('#F4B400', 88);
+    V.kopukYuz = yuz('#D7DEE3', 88, true);
+    V.maskotUzgun = bulut('uzgun', 96);
+    V.maskotDusunen = bulut('dusunen', 96);
+    V.maskotUyuyan = bulut('uyuyan', 96);
+    V.maskotKutlayan = bulut('kutlayan', 120);
+    V.geriIkon = stroke(I.geri, 28);
+    V.tamEkranIkon = stroke(I.tamEkran, 28);
+    V.sesIkon = stroke(I.sesAcik, 26);
+    V.oyuncuIkon = stroke(I.oyuncu, 24);
+    V.yildizSirasi1 = yildizSirasi(1, 26);
+    return V;
+  }
+}
+
+</script>
+</body>
+</html>

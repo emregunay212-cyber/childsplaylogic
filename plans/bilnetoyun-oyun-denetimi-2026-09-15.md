@@ -12,6 +12,8 @@
 - **Düzeltme:** kategori bitince tek dal/PR (`fix/oyun-<kategori>`); KRİTİK/YÜKSEK zorunlu, ORTA/DÜŞÜK ucuzsa. CI (eslint + duman 60/60) + geçit yorumu → merge. Plan tablosu güncellenmeden sonraki kategoriye geçilmez.
 - **Online (11):** en sonda, iki sekme ile; Firebase yazmaları misafir takma adla (gerçek çocuk verisi yok).
 
+## Durum — 16 Eyl 2026 gece: **TAMAMLANDI** — 57/57 oyun K1+K2 (online K2: kelime-tahmin ve harf-tahmin iki sekme), PR #34 merge (9bf8bbe). Kalan kararlar BULGULAR.md'de "karar" etiketli (kural tabanlı hile yüzeyi, bilgi-ciftligi tier metni, sonsuz oyunların yıldızı, satranç taşları self-host, ates-buz dokunmatik ikinci pad).
+
 ## Durum tablosu
 Sütunlar: K1 statik · K2 canlı · bulgu sayısı K/Y/O/D · düzeltme
 
