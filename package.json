@@ -15,7 +15,8 @@
     "test:janitor": "playwright test tests/janitor.spec.js",
     "test:dialog": "playwright test tests/dialog.spec.js",
     "test:hub-ia": "playwright test tests/hub-ia.spec.js",
-    "test:build": "playwright test tests/build.spec.js"
+    "test:build": "playwright test tests/build.spec.js",
+    "test:edu-kit": "playwright test tests/edu-kit.spec.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",

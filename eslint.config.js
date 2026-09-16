@@ -121,6 +121,9 @@ module.exports = [
         },
     },
 
+    // ── Eğitsel iframe oyunları (B5): games/_shared/edu-kit.js `window.EduKit` → games/<slug>/game.js bunu bekler ──
+    { files: ['games/**/*.js'], languageOptions: { globals: { EduKit: 'readonly' } } },
+
     // ── Ateş & Buz: ES modülleri (games/ates-buz/index.html <script type="module">) ──
     {
         files: ['games/ates-buz/js/**/*.js'],
