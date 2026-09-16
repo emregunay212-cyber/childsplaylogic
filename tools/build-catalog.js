@@ -76,6 +76,11 @@ function escapeHtml(s) {
 const isInt = (v) => Number.isInteger(v);
 const isStr = (v) => typeof v === 'string' && v.trim().length > 0;
 const isExternal = (p) => /^https?:\/\//.test(p);
+// Dış dosya yalnız https + izinli CDN (vercel.json CSP script-src ile aynı liste); yerel dosya yalnız js/, css/ altında
+const CDN_HOSTS = ['cdnjs.cloudflare.com', 'unpkg.com'];
+const LOCAL_PREFIX = /^(js\/|css\/)/;
+// Metin alanları HTML sink'lerine (js/app.js kart şablonu innerHTML) kaçışsız gidebilir → < > yasak
+const hasAngle = (v) => /[<>]/.test(String(v));
 
 // eslint.config.js gameModuleGlobals listesi — require() 'globals' paketini ister; bağımlılıksız kalmak
 // için metin taranır: `const gameModuleGlobals = Object.fromEntries([ 'A', 'B', … ].map(`
@@ -113,6 +118,7 @@ function validate(data) {
         if (sectionIds.has(s.id)) err(`${at}.id: tekrar (${s.id})`);
         sectionIds.add(s.id);
         if (!isStr(s.title)) err(`${at}.title: boş olamaz`);
+        else if (hasAngle(s.title)) err(`${at}.title: < > içeremez: ${s.title}`);
         if (!isStr(s.icon) || !/^[a-z]+$/.test(s.icon)) err(`${at}.icon: [a-z]+ (categoryIcons anahtarı) olmalı`);
         if (!/^#[0-9A-Fa-f]{6}$/.test(String(s.color))) err(`${at}.color: #rrggbb olmalı`);
     });
@@ -139,8 +145,12 @@ function validate(data) {
                 if (/[?#]/.test(p)) err(`${where}: sorgu/parça yok (?v= elle artırılmaz; deploy hash'ler): ${p}`);
                 const ext = key === 'js' ? /\.m?js$/ : /\.css$/;
                 if (!ext.test(p.split('?')[0])) err(`${where}: .${key} dosyası olmalı: ${p}`);
-                if (isExternal(p)) return;
-                if (p.startsWith('/') || p.includes('..')) err(`${where}: köke göre yol olmalı (js/…, css/…): ${p}`);
+                if (isExternal(p)) {
+                    let u = null; try { u = new URL(p); } catch (e) { u = null; }
+                    if (!u || u.protocol !== 'https:' || !CDN_HOSTS.includes(u.hostname)) err(`${where}: dış dosya yalnız https ve ${CDN_HOSTS.join('/')}: ${p}`);
+                    return;
+                }
+                if (p.startsWith('/') || p.includes('..') || !LOCAL_PREFIX.test(p)) err(`${where}: köke göre yol olmalı (js/…, css/…): ${p}`);
                 else if (!fs.existsSync(path.join(ROOT, p))) err(`${where}: dosya yok: ${p}`);
             });
         }
@@ -155,6 +165,7 @@ function validate(data) {
         else if (slugs.has(g.slug)) err(`${at}.slug: tekrar`);
         slugs.add(g.slug);
         if (!isStr(g.name)) err(`${at}.name: boş olamaz`);
+        else if (hasAngle(g.name)) err(`${at}.name: < > içeremez (innerHTML sink'i): ${g.name}`);
         else if (names.has(g.name)) err(`${at}.name: tekrar (${g.name})`);
         names.add(g.name);
 
@@ -184,7 +195,7 @@ function validate(data) {
         }
         if (typeof g.active !== 'boolean') err(`${at}.active: true/false olmalı`);
         if (!isInt(g.stars) || g.stars < 0) err(`${at}.stars: ≥ 0 tam sayı olmalı`);
-        if (g.badge !== undefined && !isStr(g.badge)) err(`${at}.badge: boş olamaz`);
+        if (g.badge !== undefined && (!isStr(g.badge) || hasAngle(g.badge))) err(`${at}.badge: boş olamaz, < > içeremez`);
         if (g.comingSoon !== undefined) err(`${at}.comingSoon: kullanılmaz — active:false yaz`);
 
         const o = g.online;
@@ -197,7 +208,7 @@ function validate(data) {
                 else if (orders.has(o.order)) err(`${at}.online.order: ${o.order} zaten ${orders.get(o.order)}'da`);
                 orders.set(o.order, g.slug);
                 if (!isInt(o.stars) || o.stars < 0) err(`${at}.online.stars: ≥ 0 tam sayı olmalı`);
-                if (o.badge !== undefined && !isStr(o.badge)) err(`${at}.online.badge: boş olamaz`);
+                if (o.badge !== undefined && (!isStr(o.badge) || hasAngle(o.badge))) err(`${at}.online.badge: boş olamaz, < > içeremez`);
                 checkFiles(`${at}.online.files`, o.files, false);
                 const extra = Object.keys(o).filter((k) => !['module', 'order', 'stars', 'badge', 'files'].includes(k));
                 if (extra.length) err(`${at}.online: bilinmeyen anahtar ${extra.join(', ')}`);
