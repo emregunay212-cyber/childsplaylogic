@@ -5,7 +5,7 @@
    - Aynı URL bir kez yüklenir (önbellek: URL → Promise); ikinci çağrı aynı sözü döndürür.
    - Script'ler `async=false` ile eklenir: DİNAMİK eklenen script'ler bu bayrakla ekleme
      sırasında çalışır → bağımlılık sırası (zipla-topla-levels.js → zipla-topla.js,
-     three.min.js → GLTFLoader.js → lego-world.js) indirme hızından bağımsız korunur.
+     js/lib/three.r128.min.js → js/lib/GLTFLoader.r128.js → lego-world.js) indirme hızından bağımsız korunur.
    - CSS, css/responsive.css bağlantısının ÖNÜNE eklenir: eski <head> sırası korunur
      (responsive.css oyun sınıflarını aynı özgüllükle ezer; sonradan gelse ezilirdi).
    - Gerçek yükleme hatası (404/ağ): önbellek silinir, etiket kaldırılır → sonraki tıklama
@@ -16,7 +16,7 @@
      eslint.config.js global listesi koruma altında; çağıran `window.AssetLoader.load(…)` der.
    ============================================ */
 (function () {
-    const TIMEOUT_MS = 20000;   // yavaş 3G'de three.min.js (~120 KB gzip) için pay bırakır
+    const TIMEOUT_MS = 20000;   // yavaş 3G'de js/lib/three.r128.min.js (~120 KB gzip; B6'dan beri yerel, CDN yok) için pay bırakır
     const cache = new Map();    // url → Promise<void>
 
     function isStylesheet(url) { return /\.css(?:[?#]|$)/i.test(url); }

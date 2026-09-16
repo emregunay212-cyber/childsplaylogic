@@ -197,9 +197,9 @@
   </div>
 </div>
 
-<!-- Portal standardı: CDN yok — Three.js r128 yerel kopya (cdnjs'ten alınmış, MIT).
-     Oyun iframe-klasör kalıbında olduğu için aynı klasörden ikinci dosya kabul edilir. -->
-<script src="three.min.js"></script>
+<!-- Portal standardı: CDN yok — Three.js r128 tek yerel kopya js/lib/three.r128.min.js (MIT; B6'da LEGO World ile
+     tekilleşti, aynı URL → tarayıcı önbelleği paylaşılır; kaynak/sha256: js/lib/README.md). -->
+<script src="../../js/lib/three.r128.min.js"></script>
 <!-- ChildsPlayLogic entegrasyonu: window.storage köprüsü (Promise tabanlı, localStorage).
      Google girişli kullanıcıda hub bu anahtarları users/{uid}/gameSaves ile senkronlar. -->
 <script>

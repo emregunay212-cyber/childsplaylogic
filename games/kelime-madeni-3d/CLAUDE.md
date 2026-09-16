@@ -2,7 +2,7 @@
 
 > Eğitsel Minecraft benzeri 3D voxel oyunu — İngilizce kelime öğretimi entegre.
 > Tek dosyalık HTML5 (portalda `games/kelime-madeni-3d/index.html`, ~1500 satır),
-> Three.js r128 (yerel `three.min.js`).
+> Three.js r128 (tek yerel kopya `js/lib/three.r128.min.js`, B6; eski `three.min.js` silindi).
 > Hedef kitle: 8–12 yaş. Geliştirici: Emre (Bilnet) + Claude. Güncel sürüm: **2.2**
 
 ### v2.2 — İnşa Parçaları (ev kurma) — 2026-06-13

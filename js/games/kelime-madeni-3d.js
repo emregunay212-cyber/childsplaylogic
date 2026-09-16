@@ -4,7 +4,7 @@
    (Faz 0.2 — eğitsel seri). Cevher kazınca TR↔EN soru gelir; doğru
    cevap cevheri kazandırır. Bağımsız HTML oyunu olduğu için siteye
    iframe ile gömülür (bkz. games/kelime-madeni-3d/index.html;
-   three.min.js aynı klasörden yerel servis edilir — CDN yok).
+   three.js r128 tek yerel kopya js/lib/three.r128.min.js — CDN yok, B6).
    Kayıt (dünya + ilerleme + istatistik) window.storage köprüsüyle
    localStorage'a yazılır; Google girişte gameSaves bulut senkronu.
    Tek oyunculu: kendi ilerlemesini yönetir, yıldız vermez.

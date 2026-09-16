@@ -23,7 +23,7 @@
                  players_range [min, max|null], active (false = "Yakında": hub'da kapalı kart, landing noindex,
                  sitemap/llms/altbilgi dışı; eski comingSoon), stars (solo yıldız eşiği, 0 = açık), badge?,
                  online? { module, order (Online bölümü sırası 1..N, benzersiz), stars, badge?, files? },
-                 files { js[], css[] } (tembel yükleme; sıra = çalışma sırası; yerel yol ya da https URL).
+                 files { js[], css[] } (tembel yükleme; sıra = çalışma sırası; yerel yol — dış URL yok, B6).
      Kural: module ya da online'dan en az biri; section 'online' ⇔ module null.
    ============================================ */
 'use strict';
@@ -77,8 +77,10 @@ const isInt = (v) => Number.isInteger(v);
 const isStr = (v) => typeof v === 'string' && v.trim().length > 0;
 const isExternal = (p) => /^https?:\/\//.test(p);
 // Dış dosya yalnız https + izinli CDN (vercel.json CSP script-src ile aynı liste); yerel dosya yalnız js/, css/ altında.
-// B8a: chess.js ve GLTFLoader js/lib/ altına alındı, unpkg düştü; cdnjs yalnız three.min.js r128 için (B6 ile o da düşer).
-const CDN_HOSTS = ['cdnjs.cloudflare.com'];
+// B8a: chess.js ve GLTFLoader js/lib/ altına alındı (unpkg düştü); B6: three r128 de js/lib/ (son CDN host'u düştü).
+// Liste BOŞ = dış URL kabul edilmez; üçüncü taraf script origin'i yalnız gstatic (+ apis.google.com auth, index.html).
+// Yeni vendor kütüphane: js/lib/ altına indir (js/lib/README.md tablosu), CDN'e dönme.
+const CDN_HOSTS = [];
 const LOCAL_PREFIX = /^(js\/|css\/)/;
 // Metin alanları HTML sink'lerine (js/app.js kart şablonu innerHTML) kaçışsız gidebilir → < > yasak
 const hasAngle = (v) => /[<>]/.test(String(v));
@@ -148,7 +150,8 @@ function validate(data) {
                 if (!ext.test(p.split('?')[0])) err(`${where}: .${key} dosyası olmalı: ${p}`);
                 if (isExternal(p)) {
                     let u = null; try { u = new URL(p); } catch (e) { u = null; }
-                    if (!u || u.protocol !== 'https:' || !CDN_HOSTS.includes(u.hostname)) err(`${where}: dış dosya yalnız https ve ${CDN_HOSTS.join('/')}: ${p}`);
+                    if (!CDN_HOSTS.length) err(`${where}: dış URL kabul edilmez (kütüphaneyi js/lib/ altına al, js/lib/README.md): ${p}`);
+                    else if (!u || u.protocol !== 'https:' || !CDN_HOSTS.includes(u.hostname)) err(`${where}: dış dosya yalnız https ve ${CDN_HOSTS.join('/')}: ${p}`);
                     return;
                 }
                 if (p.startsWith('/') || p.includes('..') || !LOCAL_PREFIX.test(p)) err(`${where}: köke göre yol olmalı (js/…, css/…): ${p}`);

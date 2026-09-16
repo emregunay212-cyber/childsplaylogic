@@ -792,7 +792,7 @@
       "active": true,
       "stars": 0,
       "files": {
-        "js": ["https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js", "js/lib/GLTFLoader.r128.js", "js/games/lego-world.js"],
+        "js": ["js/lib/three.r128.min.js", "js/lib/GLTFLoader.r128.js", "js/games/lego-world.js"],
         "css": ["css/lego-world.css"]
       }
     },
