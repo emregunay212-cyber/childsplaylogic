@@ -169,6 +169,12 @@ const KlavyeKasifi = (() => {
     // ── Fiziksel klavye ──
     function onKeyDown(e) {
         if (busy || e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+        // Odak oyun kökünün DIŞINDA bir etkileşimli öğedeyse (araç çubuğu "Ana sayfa"/"Tam ekran",
+        // ileride bir form alanı) tuşu tarayıcıya bırak: Enter/Boşluk düğmeyi etkinleştirsin,
+        // harf yazı alanına gitsin. Gövde odaktayken (normal oyun) davranış değişmez.
+        const t = e.target;
+        if (t && t !== document.body && els.root && !els.root.contains(t)
+            && typeof t.closest === 'function' && t.closest('button, a, input, textarea, select, [contenteditable]')) return;
         if (e.key === ' ' || e.key === 'Enter' || e.code === 'Space' || e.code === 'Enter' || e.code === 'NumpadEnter') {
             e.preventDefault();                // oyun alanı kaymasın; Enter = Boşluk (3. seviye "gönder")
             flashKey(SPACE);
@@ -418,7 +424,9 @@ const KlavyeKasifi = (() => {
     function trVoice() {
         try {
             if (!('speechSynthesis' in window)) return null;
-            return window.speechSynthesis.getVoices().find((v) => /^tr/i.test(v.lang)) || null;
+            const tr = window.speechSynthesis.getVoices().filter((v) => /^tr/i.test(v.lang));
+            // Cihaz-içi ses varsa onu seç; uzak (bulut) sesler okunacak metni tarayıcı üzerinden sunucuya yollar
+            return tr.find((v) => v.localService) || tr[0] || null;
         } catch (e) { return null; }
     }
     function speak(text) {
