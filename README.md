@@ -20,7 +20,7 @@ Bu dosya (ve tüm `*.md`) `.vercelignore` ile yayın dışıdır.
 | `js/bilnet-meta.js` | Eğitsel meta katman: jeton (`DAILY_CAP = 50`), giriş serisi, rozetler — istemci tarafı | |
 | `seo/games_data.py` | `GAMES = data/games.json` yükler (`also_online` türetir) + `STATIC_PAGES` (gizlilik/hakkında/iletişim HTML içeriği) | `active: false` → noindex, sitemap/hub dışı |
 | `seo/build_seo.py` | Üretici: `oyunlar/<slug>/index.html` (56), `oyunlar/index.html`, `sitemap.xml`, `llms.txt` | **Üretilenler elle düzenlenmez** |
-| `css/` | `main.css` (token'lar), `hub.css`, `landing.css`, `imza.css`, oyun başına `<slug>.css` | |
+| `css/` | `tokens.css` (tasarım token'ları, B1 — her sayfada ilk stylesheet; kaynak `docs/tasarim-sozlesmesi.md`), `main.css`, `hub.css`, `landing.css`, `games.css`, `multiplayer.css`, `admin.css`, `imza.css` (hub kabuğu: ham hex yok, yalnız `var(--…)`), oyun başına `<slug>.css` (kendi temalı; B1'de dokunulmadı) | |
 | `assets/images/hub/<slug>.svg` | Hub kart ikonları | |
 | `admin.html` + `js/admin.js` | Öğretmen/yönetici paneli: oyun kilitle-aç, ilerleme sıfırla → RTDB `adminConfig` | |
 | `tests/`, `playwright.config.js`, `eslint.config.js`, `.github/workflows/ci.yml` | Lint + Playwright duman testi + CI (PR #19) | |

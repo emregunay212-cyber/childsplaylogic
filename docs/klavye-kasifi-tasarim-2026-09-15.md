@@ -74,7 +74,7 @@ düğme ilk turda dikkat çeker (tek sefer sallanır).
 **THESIS:** Klavye bir harita, tuş bir ışık: çocuk harfi *okumaz*, ışığı *bulur* ve resmi *kazanır*.
 **MODE:** Operate (görev: tuşa bas) — ifade ayrıntıda, akış merkezde.
 **WORLD:** Hub'ın kurulu dünyası aynen: Fredoka/Nunito, gökyüzü-çimen zemin, `--radius-md/lg`, yumuşak
-gölgeler; oyun rengi `--klavye-color #3A86FF` (klavye mavisi; cyan/lacivert kartlardan ayrık). Tuşlar beyaz
+gölgeler; oyunun kendi vurgusu `--kk-accent #3A86FF` (oyun CSS'inde yerel; hub kart şeridi B1 token sistemiyle kategori rengi `--kat-harf`). Tuşlar beyaz
 "klavye kapağı": alt kenar çizgisi ile basılabilir hissi, yanan tuş sıcak sarı (#FFD166) + halka.
 **FIRST VIEWPORT:** Üstte kâşif defteri (6–8 boş yuva), ortada tek büyük harf kartı ile "?" balonu, altta tam
 klavye — yanan tek tuş gözü hemen çeker. Kaydırma yok; 360×640 ve 1366×768'de tek ekran.
