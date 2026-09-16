@@ -158,7 +158,7 @@
   function buildInitial(id, name) {
     const o = { hostId: id, state: 'WAITING', pids: [id], names: {} };
     o.names[id] = name;
-    try { o.createdAt = window.firebase.database.ServerValue.TIMESTAMP; } catch (e) {}
+    try { o.createdAt = net.serverTs(); } catch (e) {}   // hub köprüsünden sunucu damgası (net.js)
     return o;
   }
   function gsToRoom(gs) {
@@ -230,10 +230,11 @@
     try { net.update(patch); } catch (e) {}
   }
 
-  function onCreate() { if (!net.hasDB()) return UI.setHint('Online şu an kullanılamıyor.'); UI.setHint('Oda kuruluyor…'); net.create(buildInitial).then(() => enterOnline(true)).catch(() => UI.setHint('Oda kurulamadı.')); }
-  function onQuick() { if (!net.hasDB()) return UI.setHint('Online şu an kullanılamıyor.'); UI.setHint('Eşleşiliyor…'); net.quick(buildInitial).then(r => enterOnline(!r.joined)).catch(() => UI.setHint('Eşleşme başarısız.')); }
+  const OFFLINE_HINT = 'Şu an bağlanamıyoruz. Bota karşı oynayabilirsin.';
+  function onCreate() { if (!net.hasDB()) return UI.setHint(OFFLINE_HINT); UI.setHint('Oda kuruluyor…'); net.create(buildInitial).then(() => enterOnline(true)).catch(() => UI.setHint('Oda kurulamadı.')); }
+  function onQuick() { if (!net.hasDB()) return UI.setHint(OFFLINE_HINT); UI.setHint('Eşleşiliyor…'); net.quick(buildInitial).then(r => enterOnline(!r.joined)).catch(() => UI.setHint('Eşleşme başarısız.')); }
   function onJoin(code) {
-    if (!net.hasDB()) return UI.setHint('Online şu an kullanılamıyor.');
+    if (!net.hasDB()) return UI.setHint(OFFLINE_HINT);
     if (!code) return UI.setHint('Oda kodu gir.');
     UI.setHint('Katılınıyor…');
     net.join(code).then(() => enterOnline(false)).catch(e => {
@@ -260,12 +261,15 @@
     UI.hideResult(); UI.showMenu(menuCbs);
   }
 
-  const menuCbs = { onSolo: startSolo, onQuick: onQuick, onCreate: onCreate, onJoin: onJoin };
+  // online: 'ok' (db var) | 'offline' (hub'da ama bağlantı yok) | 'standalone' (bağımsız açılış, Karar 6)
+  function onlineState() { return net.hasDB() ? 'ok' : (net.inHub() ? 'offline' : 'standalone'); }
+  const menuCbs = { onSolo: startSolo, onQuick: onQuick, onCreate: onCreate, onJoin: onJoin, onlineState };
 
-  function init() {
+  // net.init() hub köprüsünü (parent.BilnetBridge.ready) bekler; asla reddetmez. Menü db kararı bilinince çizilir.
+  async function init() {
     UI.mount(document.getElementById('root'));
     UI.setHandlers({ onPlay: humanPlay, onDraw: humanDraw, onPass: humanPass, onUno: onUno, onLeaveGame: goMenu });
-    try { net.init(); } catch (e) {}
+    try { await net.init(); } catch (e) {}
     UI.showMenu(menuCbs);
   }
 

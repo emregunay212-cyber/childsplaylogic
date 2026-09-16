@@ -185,17 +185,30 @@ const SonKartUI = (() => {
     const soloBtn = E('button', 'sk-btn', 'Bota Karşı Oyna'); soloBtn.onclick = () => cbs.onSolo(bots);
     sub.append(bb, soloBtn);
 
-    const quick = E('button', 'sk-btn ghost', 'Hızlı Eşleş (Online)'); quick.onclick = () => cbs.onQuick();
-    const create = E('button', 'sk-btn ghost', 'Oda Kur'); create.onclick = () => cbs.onCreate();
+    // B6: online yalnız hub içinde ve bağlantı varken; aksi hâlde düğmeler devre dışı + metin (durum yalnız renkle anlatılmaz)
+    const onlineState = typeof cbs.onlineState === 'function' ? cbs.onlineState() : 'ok';
+    const onlineOff = onlineState !== 'ok';
+    const quick = E('button', 'sk-btn ghost', 'Hızlı Eşleş (Online)'); quick.onclick = () => cbs.onQuick(); quick.disabled = onlineOff;
+    const create = E('button', 'sk-btn ghost', 'Oda Kur'); create.onclick = () => cbs.onCreate(); create.disabled = onlineOff;
     const field = E('div', 'sk-field');
-    N.codeInput = E('input'); N.codeInput.maxLength = 4; N.codeInput.placeholder = 'KOD'; N.codeInput.autocomplete = 'off';
-    const joinBtn = E('button', 'sk-btn small', 'Katıl'); joinBtn.onclick = () => cbs.onJoin((N.codeInput.value || '').trim());
+    N.codeInput = E('input'); N.codeInput.maxLength = 4; N.codeInput.placeholder = 'KOD'; N.codeInput.autocomplete = 'off'; N.codeInput.disabled = onlineOff;
+    const joinBtn = E('button', 'sk-btn small', 'Katıl'); joinBtn.onclick = () => cbs.onJoin((N.codeInput.value || '').trim()); joinBtn.disabled = onlineOff;
     field.append(N.codeInput, joinBtn);
     N.hint = E('div', 'sk-hint');
+    let hubNote = null;
+    if (onlineState === 'standalone') {
+      // Bağımsız açılış (/games/son-kart/): arkadaşla oynamak hub'da (Karar 6). Maskot sesi, teknik terim yok (§3.09).
+      hubNote = E('div', 'sk-hint sk-hubnote', 'Arkadaşlarınla oynamak için bu oyun Bilnet Oyun içinden oynanır. ');
+      const a = E('a', 'sk-hublink', 'Bilnet Oyun’a git'); a.href = '/?oyun=son-kart'; hubNote.appendChild(a);
+    } else if (onlineState === 'offline') {
+      hubNote = E('div', 'sk-hint sk-hubnote', 'Şu an bağlanamıyoruz. Bota karşı oynayabilirsin.');
+    }
 
     const spacer = E('div'); spacer.style.height = '6px';
     const rulesLink = E('button', 'sk-btn ghost small', 'Nasıl Oynanır?'); rulesLink.onclick = () => openRules();
-    list.append(sub, spacer, quick, create, field, N.hint, rulesLink);
+    list.append(sub, spacer, quick, create, field);
+    if (hubNote) list.appendChild(hubNote);
+    list.append(N.hint, rulesLink);
     N.menu.append(logo, fan, list);
     show('menu');
   }

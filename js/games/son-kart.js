@@ -16,7 +16,7 @@ const SonKart = (() => {
     clear(gameArea);
     iframe = document.createElement('iframe');
     iframe.src = 'games/son-kart/index.html?v=2';
-    iframe.className = 'zo-iframe';   // tam-boy iframe stili (Zindan/Kelimelik ile ortak)
+    iframe.className = 'zo-iframe';   // tam-boy iframe stili (Zindan/Kelimelik ile ortak; css/zindan-okcusu.css data/games.json files.css ile yüklenir, B6)
     iframe.setAttribute('allow', 'fullscreen');
     iframe.setAttribute('tabindex', '0');
     gameArea.appendChild(iframe);

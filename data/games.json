@@ -1345,7 +1345,7 @@
       },
       "files": {
         "js": ["js/games/son-kart.js"],
-        "css": []
+        "css": ["css/zindan-okcusu.css"]
       }
     }
   ]

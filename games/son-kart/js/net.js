@@ -3,22 +3,45 @@
    Firebase RTDB: rooms/son-kart/{kod}. (Kelimelik deseninin N-oyuncu genellemesi;
    multiplayer.js DEĞİL.) Aktif-oyuncu yetkili: sırası gelen oyuncu yeni durumu yazar.
    Katılma yarış-koşulu için transaction; kopma için presence + .info/connected re-arm.
+   Veritabanı (B6): iframe SDK/config yüklemez; hub'ın köprüsü `window.parent.BilnetBridge.ready()`
+   verir (js/firebase-config.js). Bağımsız açılışta (parent yok) online desteklenmez (Karar 6):
+   `inHub()` false → main.js/ui.js düğmeleri kapatıp hub bağlantısı gösterir; solo çalışır.
    ============================================ */
 const SonKartNet = (() => {
   const ROOT = 'rooms/son-kart/';
-  let db = null, myId = null, myName = 'Oyuncu';
+  let db = null, fb = null, myId = null, myName = 'Oyuncu';
   let roomCode = null, roomRef = null, cb = null, roomListener = null;
   let connRef = null, dcRoom = null;
+  let hubBridge = null;   // parent.BilnetBridge (hub içindeyken); çapraz-origin/eksik → null
 
-  function ready() { db = db || window.SK_DB || null; return !!db; }
+  function readBridge() {
+    try {
+      if (window.parent === window || !window.parent) return null;
+      const b = window.parent.BilnetBridge;
+      return (b && typeof b.ready === 'function') ? b : null;
+    } catch (e) { return null; }   // çapraz-origin parent: erişim SecurityError fırlatır
+  }
+  function inHub() { return !!hubBridge; }
+  function ready() { return !!db; }
   function genId() { return 'p' + Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4); }
   function genCode() { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s = ''; for (let i = 0; i < 4; i++) s += A[Math.floor(Math.random() * A.length)]; return s; }
   function norm(c) { return (c || '').toUpperCase().replace(/[^A-Z0-9]/g, ''); }
+  // createdAt sunucu damgası (js/janitor.js bayatlığı sunucu saatine göre ölçer); köprü yoksa istemci saati.
+  function serverTs() { try { return fb.database.ServerValue.TIMESTAMP; } catch (e) { return Date.now(); } }
 
-  function init() {
-    ready();
+  // Köprü hazır olunca çözülür; asla reddetmez (db null = online kapalı, solo açık).
+  async function init() {
     myId = genId();
-    try { myName = (localStorage.getItem('mp_name') || 'Oyuncu').slice(0, 16); } catch (e) { myName = 'Oyuncu'; }
+    hubBridge = readBridge();
+    db = null; fb = null;
+    if (hubBridge) {
+      try {
+        db = (await hubBridge.ready()) || null;
+        fb = hubBridge.firebase || null;
+      } catch (e) { db = null; fb = null; }
+    }
+    try { myName = (hubBridge ? hubBridge.displayName() : (localStorage.getItem('mp_name') || 'Oyuncu')).slice(0, 16); } catch (e) { myName = 'Oyuncu'; }
+    return ready();
   }
 
   // presence/{myId}=true + onDisconnect false; .info/connected ile yeniden kurulur.
@@ -132,7 +155,7 @@ const SonKartNet = (() => {
   }
 
   return {
-    init, create, join, quick, subscribe, update, leave, cancelRoomDisconnect,
+    init, create, join, quick, subscribe, update, leave, cancelRoomDisconnect, serverTs, inHub,
     myId: () => myId, myName: () => myName, code: () => roomCode, hasDB: () => ready()
   };
 })();

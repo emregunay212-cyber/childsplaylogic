@@ -63,6 +63,11 @@ body {
 }
 .sk-chip.on { background: #ff8a3d; border-color: #fff; }
 .sk-hint { text-align: center; opacity: .85; font-size: .9rem; min-height: 1.2em; }
+/* B6: online kapalıyken (bağımsız açılış / çevrimdışı) kod alanı da devre dışı; hub bağlantısı metnin içinde */
+.sk-field input:disabled { opacity: .45; cursor: not-allowed; }
+.sk-hubnote { opacity: 1; line-height: 1.5; }
+.sk-hublink { color: inherit; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
+.sk-hublink:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; border-radius: 6px; }
 .sk-back { position: absolute; top: 14px; left: 14px; }
 
 /* ── Lobi ── */
