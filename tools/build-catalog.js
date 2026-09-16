@@ -76,8 +76,9 @@ function escapeHtml(s) {
 const isInt = (v) => Number.isInteger(v);
 const isStr = (v) => typeof v === 'string' && v.trim().length > 0;
 const isExternal = (p) => /^https?:\/\//.test(p);
-// Dış dosya yalnız https + izinli CDN (vercel.json CSP script-src ile aynı liste); yerel dosya yalnız js/, css/ altında
-const CDN_HOSTS = ['cdnjs.cloudflare.com', 'unpkg.com'];
+// Dış dosya yalnız https + izinli CDN (vercel.json CSP script-src ile aynı liste); yerel dosya yalnız js/, css/ altında.
+// B8a: chess.js ve GLTFLoader js/lib/ altına alındı, unpkg düştü; cdnjs yalnız three.min.js r128 için (B6 ile o da düşer).
+const CDN_HOSTS = ['cdnjs.cloudflare.com'];
 const LOCAL_PREFIX = /^(js\/|css\/)/;
 // Metin alanları HTML sink'lerine (js/app.js kart şablonu innerHTML) kaçışsız gidebilir → < > yasak
 const hasAngle = (v) => /[<>]/.test(String(v));

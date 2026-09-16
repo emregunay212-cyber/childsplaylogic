@@ -16,11 +16,11 @@
 
 const globals = require('globals');
 
-// CDN ile <script> olarak yüklenen üçüncü parti globaller (index.html <head>).
+// Üçüncü parti globaller: Firebase <script> (index.html <head>, gstatic + SRI), three (cdnjs) ve js/lib/ vendor (tembel yükleme).
 const cdnGlobals = {
     firebase: 'readonly',   // firebase-*-compat.js (gstatic)
     THREE: 'readonly',      // three.min.js r128 (cdnjs) — lego-world
-    Chess: 'readonly',      // chess.js 0.10.3 (cdnjs) — satranc-engine
+    Chess: 'readonly',      // js/lib/chess.0.10.3.min.js (vendor, B8a) — satranc-engine
 };
 
 // Hub çekirdek modülleri: js/*.js içinde üst düzey `const X = …` (index.html / admin.html yükler).
@@ -86,7 +86,7 @@ module.exports = [
             'test-results/**',
             'playwright-report/**',
             '.build-check/**',                    // tools/build.js --out çıktısı (A10b)
-            'js/lib/**',                          // stockfish.js (vendor, minified)
+            'js/lib/**',                          // vendor: stockfish.js, chess.0.10.3.min.js, GLTFLoader.r128.js (js/lib/README.md)
             'games/kelime-madeni-3d/three.min.js', // vendor, minified
             'fabrika/**',                          // üretim araçları/kaynak — siteye çıkmaz
             'server/**',                           // eski WS sunucusu — siteye çıkmaz (A11: silinecek)

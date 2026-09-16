@@ -141,10 +141,12 @@
     <link rel="stylesheet" href="css/responsive.css?v=2">
     <link rel="stylesheet" href="/css/imza.css">
     <!-- Firebase SDK (compat). defer: ayrıştırmayı engellemez; sıra korunur → js/firebase-config.js bunlardan sonra çalışır.
-         chess.js (satranç), three.js + GLTFLoader (LEGO World) artık burada değil: oyun açılınca yüklenir (js/app.js files). -->
-    <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-    <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
-    <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+         chess.js (satranç), three.js + GLTFLoader (LEGO World) artık burada değil: oyun açılınca yüklenir (js/app.js files).
+         integrity (SRI, B8a): gstatic içeriği hash ile uyuşmazsa tarayıcı script'i çalıştırmaz → js/firebase-config.js çevrimdışı mod;
+         hash yenileme: node tools/sri-check.js --print (CI: npm run sri:check). -->
+    <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js" integrity="sha384-ZaR6mWzmJtrRibZ1Vm7SoHFr8OXjyAuGAXalGDKqbxFT18oi/z+oZLIRFkpeNor1" crossorigin="anonymous"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js" integrity="sha384-g5H2aNdtgRBYOBLsuOAuHvUXWnw4bswmU+tYjmGc1G3JfKxl79uWwV4sQarJsLwu" crossorigin="anonymous"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js" integrity="sha384-I1LYojsZ5RM1cOda44Z2h42Qa6YfsQ1XkXxREnhp4ueYBR/4d1pG1K+NZM537Vsj" crossorigin="anonymous"></script>
 </head>
 <body>
     <!-- Başlangıç Splash Ekranı -->

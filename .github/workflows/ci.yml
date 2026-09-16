@@ -45,6 +45,9 @@ jobs:
       - name: Katalog üretimi güncel mi (data/games.json → js/catalog.js + index.html)
         run: npm run catalog:check
 
+      - name: SRI denetimi (index.html/admin.html dış script integrity)
+        run: npm run sri:check
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'

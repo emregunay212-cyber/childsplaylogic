@@ -792,7 +792,7 @@
       "active": true,
       "stars": 0,
       "files": {
-        "js": ["https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js", "https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js", "js/games/lego-world.js"],
+        "js": ["https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js", "js/lib/GLTFLoader.r128.js", "js/games/lego-world.js"],
         "css": ["css/lego-world.css"]
       }
     },
@@ -818,12 +818,12 @@
         "order": 4,
         "stars": 55,
         "files": {
-          "js": ["https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js", "js/games/satranc-engine.js", "js/games/satranc-mp.js"],
+          "js": ["js/lib/chess.0.10.3.min.js", "js/games/satranc-engine.js", "js/games/satranc-mp.js"],
           "css": ["css/satranc.css"]
         }
       },
       "files": {
-        "js": ["https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js", "js/games/satranc-engine.js", "js/games/satranc.js"],
+        "js": ["js/lib/chess.0.10.3.min.js", "js/games/satranc-engine.js", "js/games/satranc.js"],
         "css": ["css/satranc.css"]
       }
     },
