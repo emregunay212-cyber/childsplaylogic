@@ -19,6 +19,7 @@ const Progress = (() => {
     const LOG_SNIPPET_LEN = 200;
     const SCHEMA_VERSION = 2;
     const LAST_PLAYED_MAX = 12;   // "Devam et" 3 gösterir; fazlası budanır (blob şişmesin)
+    const LAST_PLAYED_KEY_RE = /^(mp:)?[a-z0-9-]{1,64}$/;   // kilit anahtarı biçimi (js/lock-catalog.js)
     // Bulut senkron kancası — Google girişinde Auth ayarlar; her save sonrası çağrılır.
     // Misafir/çıkışta null'dur → yerel kalır, buluta yazılmaz.
     let syncHook = null;
@@ -55,9 +56,15 @@ const Progress = (() => {
         if (!isPlainObject(merged.games)) merged.games = {};
         if (!isPlainObject(merged.settings)) merged.settings = fresh().settings;
         // v1 → v2: lastPlayed alanı eklenir; bozuk değerler atılır (yalnız sonlu sayı damgalar kalır)
+        // Anahtar biçimi kilit anahtarıdır (slug | 'mp:' + slug); buluttan gelen blob kullanıcı denetiminde →
+        // biçim dışı anahtar atılır, en yeni LAST_PLAYED_MAX kayıt tutulur (dev blob localStorage/bulut yazımını şişirmesin)
         const lp = isPlainObject(merged.lastPlayed) ? merged.lastPlayed : {};
         merged.lastPlayed = {};
-        for (const k in lp) if (typeof lp[k] === 'number' && Number.isFinite(lp[k])) merged.lastPlayed[k] = lp[k];
+        const okKeys = Object.keys(lp)
+            .filter((k) => LAST_PLAYED_KEY_RE.test(k) && typeof lp[k] === 'number' && Number.isFinite(lp[k]))
+            .sort((a, b) => lp[b] - lp[a])
+            .slice(0, LAST_PLAYED_MAX);
+        for (const k of okKeys) merged.lastPlayed[k] = lp[k];
         if (typeof merged.version !== 'number' || merged.version < SCHEMA_VERSION) merged.version = SCHEMA_VERSION;
         return merged;
     }

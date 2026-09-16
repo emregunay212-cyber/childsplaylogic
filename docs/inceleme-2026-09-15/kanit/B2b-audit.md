@@ -9,7 +9,7 @@
 | # | Boyut | Puan | Ana bulgu |
 |---|-------|------|-----------|
 | 1 | Erişilebilirlik | 4 | Lighthouse a11y **100 × 4** (hub Hepsi, hub öğretmen + arama sonuçları, hub öğretmen + Anaokulu ızgarası, `/oyunlar/` mobile nav); çip grupları `role=radiogroup/radio` + ok tuşları; kartlarda roving tabindex (ray: Sol/Sağ/Home/End, ızgara: + Yukarı/Aşağı); anahtar `role=switch aria-checked`; arama `input[type=search]` + `<label>` + `aria-live` sayaç; yıldız satırı `role=img "3 üzerinden N yıldız"`; boş durumlar `role=status`; tüm yeni metin çiftleri ≥ 4.5:1 (tablo) |
-| 2 | Performans | 3 | Kart görselleri `loading=lazy decoding=async` (Hepsi görünümünde 163 kart, 56 tekil SVG); çizim yalnız DOM API (innerHTML yok); arama 120 ms debounce; v2 SVG'ler C2PA `<metadata>` taşıyor: 56 dosya 692 KB (eski set 239 KB), sıkıştırmasız ~12 KB/adet → P2 (aşağıda); yeni animasyon eklenmedi (B4) |
+| 2 | Performans | 3 | Kart görselleri `loading=lazy decoding=async` (Hepsi görünümünde 163 kart, 56 tekil SVG); çizim yalnız DOM API (innerHTML yok); arama 120 ms debounce; v2 SVG'ler C2PA `<metadata>` ile gelmişti (56 dosya 692 KB) → geçitte sıyrıldı, 62 dosya toplam 75 KB (P2 kapandı); yeni animasyon eklenmedi (B4) |
 | 3 | Duyarlı tasarım | 4 | 375 / 1024 / 1280 kanıtlı (9 ekran görüntüsü); ray kartı 172 → 168 → 152 px, tek raf ızgarası auto-fill (≤ 640: 2 sütun); üst bar ≤ 640 tek satır (ev/ses 44 px, anahtar yalnız simge); çip satırları yatay kayar; dokunma hedefleri ≥ 44 px (masaüstünde çip 52 px) |
 | 4 | Tema/token | 4 | Hub kabuğu 9 dosyada ham hex **0**; kullanılan − tanımlı token farkı **yok** (`--cat-color` de kalktı: kategori şeridi `data-section` → `--kat-*`); `transition: all` 0; tek vurgu (mavi-800 dolgu), tek yarıçap sistemi (hap / 16 / 24) |
 | 5 | Uygulama bütünlüğü | 4 | Sözleşme §3.02 birebir: yaş rafı birinci eksen, kategori ikinci, Devam et ilk satır, öğretmen anahtarı; kart §3.03 on durum korunuyor (yakında / yıldız-kilidi / admin-kilidi / çevrimdışı / online rozeti, hiçbiri yalnız renkle değil); emoji ikon kalmadı (v2 kategori SVG, "Tümü/Hepsi" simgesiz); `/oyunlar/` hub ile aynı kart anatomisi (§3.11) |
@@ -74,7 +74,7 @@ Toplam kart 163 (58 oyun + kelime-madeni-3d yakında kartı; oyun kestiği her r
 
 ## Bulgular
 
-- **[P2] v2 hub SVG'leri C2PA manifesti taşıyor** — `assets/images/hub/*.svg`: 56 dosya 692 KB (eski 239 KB); `<metadata>` bloğu ~8 KB base64/adet, sıkıştırılamaz. Etki: 3G'de kart görselleri geç gelir (sayfa kullanılabilir, `loading=lazy`). Öneri: sahip onayıyla `<metadata>` sıyrılır (görsel değişmez) → `/impeccable optimize`.
+- **[P2 → KAPANDI] v2 hub SVG'leri C2PA manifesti taşıyordu** — `assets/images/hub/*.svg`: 56 dosya 692 KB; `<metadata>` bloğu ~8 KB/adet. Geçitte sıyrıldı (1173cda): hub + kategori + maskot 62 dosya toplam 75 KB, görsel değişmedi (65/65 render doğrulandı).
 - **[P2] `/oyunlar/` simüle CLS 0,17** — Lighthouse mobile navigation, `font-display: swap` yeniden akışı (site geneli, B2b dışı). Öneri: `css/fonts.css`'te yedek yüz `size-adjust` → `/impeccable optimize`.
 - **[P3] Kategori çip satırı 1280'de 7. çip kaydırmada** — "Online Çok Oyunculu" bölüm adı uzun; satır yatay kayar (tasarım gereği), tam görünürlük için bölüm adı JSON'da kısaltılabilir ("Online") → `/impeccable distill`.
 - **[P3] Öğretmen görünümü 375'te dört süzgeç satırı** — teacher masaüstü personası (brief); telefonda çalışır, sıkışık. → `/impeccable adapt` (katlanır süzgeç) gerekirse.
@@ -85,7 +85,7 @@ Toplam kart 163 (58 oyun + kelime-madeni-3d yakında kartı; oyun kestiği her r
 - Durumlar korunurken kart anatomisi tek tip: online / solo / kilitli / yakında / çevrimdışı aynı DOM yapısında (`createGameCard` tek yol), `applyLockedState`/`applyOfflineState` değişmedi.
 
 ## Önerilen eylemler
-1. **[P2] `/impeccable optimize`**: v2 SVG `<metadata>` sıyırma (sahip onayı) + `fonts.css size-adjust`.
+1. **[P2] `/impeccable optimize`**: `fonts.css size-adjust` (SVG `<metadata>` sıyırma yapıldı).
 2. **[P3] `/impeccable distill`**: "Online Çok Oyunculu" bölüm adı → "Online" (JSON `sections[].title`, altbilgi/SEO metni değişir).
 3. **[P3] `/impeccable adapt`**: 375 öğretmen görünümünde katlanır süzgeç.
 4. `/impeccable polish` son geçiş (B4 hareket sistemiyle birlikte).
