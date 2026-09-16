@@ -58,7 +58,7 @@ SITE_ROOT=.build-check PORT=8766 npm run test:smoke   # aynı test hash'li çık
 python seo/test_build_seo.py            # üretici birim testleri
 ```
 
-`BASE_URL=https://<vercel-önizleme> npm run test:smoke` dış ortamda koşar. CI (`ci.yml`) her PR'da lint + `catalog:check` + `sri:check` + SEO üretimi tazelik kontrolü (`python seo/build_seo.py && git diff --exit-code -I lastmod …`) + `test:build` + `build:check` + `test:edu-kit` + duman, temizlikçi ve dialog testlerini (hepsi hash'li çıktı üzerinde) çalıştırır; iş adı `eslint + Playwright duman testi` master'da **required check**tir (branch protection, A10b) — kırmızıyken merge edilemez, force-push ve dal silme kapalı.
+`BASE_URL=https://<vercel-önizleme> npm run test:smoke` dış ortamda koşar. CI (`ci.yml`) her PR'da lint + `catalog:check` + `sri:check` + SEO üretimi tazelik kontrolü (`python seo/build_seo.py && git diff --exit-code -I lastmod …`) + `test:build` + `build:check` + `test:edu-kit` + duman, temizlikçi ve dialog testlerini (hepsi hash'li çıktı üzerinde) çalıştırır; iş adı `eslint + Playwright duman testi` master'da **required check**tir (branch protection, A10b) — kırmızıyken merge edilemez, force-push ve dal silme kapalı.
 
 ## Deploy
 
