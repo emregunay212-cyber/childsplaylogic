@@ -1,6 +1,7 @@
 /* ============================================
    Klavye Kâşifi — okul öncesi klavye oyunu (hub-içi)
-   Token'lar css/main.css (:root); paylaşılan .game-instruction css/games.css.
+   Token'lar css/tokens.css (B1: --ara-*, --r-*, --golge-*, --egri-*, --sure-*, --dogru/--yanlis, --murekkep);
+   paylaşılan .game-instruction css/games.css.
    Tek ekran: 360×640 dikey telefon, 1366×768 okul PC'si — kaydırma yok.
    ============================================ */
 
@@ -36,7 +37,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-sm);
+    gap: var(--ara-2);
 }
 
 .kk-instruction {
@@ -51,27 +52,27 @@
     gap: var(--kk-shelf-gap);
     padding: 6px 10px;
     max-width: 100%;
-    border-radius: var(--radius-md);
+    border-radius: var(--r-kart);
     background: rgba(255, 255, 255, 0.55);
 }
 
 .kk-slot {
     width: var(--kk-slot);
     aspect-ratio: 1;
-    border-radius: var(--radius-round);
+    border-radius: var(--r-hap);
     border: 2px dashed rgba(45, 52, 54, 0.4);
     display: grid;
     place-items: center;
     font-size: calc(var(--kk-slot) * 0.55);
     line-height: 1;
     background: transparent;
-    transition: border-color var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out);
+    transition: border-color var(--sure-gecis) var(--egri-out), background-color var(--sure-gecis) var(--egri-out);
 }
 
 .kk-slot.is-filled {
-    border: 2px solid var(--success);
+    border: 2px solid var(--dogru);
     background: white;
-    animation: kkPop 0.3s var(--ease-spring) both;
+    animation: kkPop 0.3s var(--egri-yay) both;
 }
 
 /* ── Sahne: harf kartı / kelime kutuları + resim balonu ── */
@@ -79,7 +80,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--space-xs);
+    gap: var(--ara-1);
     flex: 1 1 auto;
     justify-content: center;
 }
@@ -91,14 +92,14 @@
     padding: 10px var(--kk-card-px);
     max-width: 100%;
     background: white;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-card);
+    border-radius: var(--r-kart);
+    box-shadow: var(--golge-2);
 }
 
-.kk-card.kk-nudge { animation: kkNudge 0.35s var(--ease-out); }
+.kk-card.kk-nudge { animation: kkNudge 0.35s var(--egri-out); }
 
 .kk-letter {
-    font-family: var(--font-heading);
+    font-family: var(--font-display);
     font-size: clamp(3.4rem, 15vh, 6.5rem);
     font-weight: 700;
     line-height: 1.12;
@@ -109,7 +110,7 @@
     text-align: center;
 }
 
-.kk-letter.kk-pop { animation: kkPop 0.32s var(--ease-spring) both; }
+.kk-letter.kk-pop { animation: kkPop 0.32s var(--egri-yay) both; }
 
 /* Kelime Yolu: harf kutuları — sıradaki zıplar, yazılan doluyor */
 .kk-word {
@@ -122,16 +123,16 @@
     aspect-ratio: 1;
     display: grid;
     place-items: center;
-    border-radius: var(--radius-sm);
+    border-radius: var(--r-giris);
     border: 3px solid #8091A4;   /* beyazda 3.2:1 (bileşen sınırı) */
     background: white;
-    font-family: var(--font-heading);
+    font-family: var(--font-display);
     font-size: calc(var(--kk-tile) * 0.56);
     font-weight: 700;
     line-height: 1;
-    color: var(--text-muted);
-    transition: background-color var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out),
-                border-color var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+    color: var(--murekkep-orta);
+    transition: background-color var(--sure-gecis) var(--egri-out), color var(--sure-gecis) var(--egri-out),
+                border-color var(--sure-gecis) var(--egri-out), transform var(--sure-gecis) var(--egri-out);
 }
 
 .kk-tile.is-current {
@@ -150,36 +151,36 @@
     width: var(--kk-bubble);
     flex: 0 0 auto;
     aspect-ratio: 1;
-    border-radius: var(--radius-round);
+    border-radius: var(--r-hap);
     background: #EEF3FF;
     display: grid;
     place-items: center;
-    font-family: var(--font-heading);
+    font-family: var(--font-display);
     font-size: calc(var(--kk-bubble) * 0.55);
     font-weight: 700;
     line-height: 1;
     color: var(--kk-accent);
     box-shadow: inset 0 -4px 0 rgba(58, 134, 255, 0.12);
-    transition: background-color var(--dur-base) var(--ease-out);
+    transition: background-color var(--sure-gecis) var(--egri-out);
 }
 
-.kk-bubble.is-revealed.is-flown { animation: none; opacity: 0.45; transition: opacity 0.3s var(--ease-out); }   /* animation: none — kkPop 'both' dolgusu opacity 1'i ezmesin */
+.kk-bubble.is-revealed.is-flown { animation: none; opacity: 0.45; transition: opacity 0.3s var(--egri-out); }   /* animation: none — kkPop 'both' dolgusu opacity 1'i ezmesin */
 
 .kk-bubble.is-revealed {
-    background: var(--success-light);
+    background: var(--dogru-zemin);
     box-shadow: inset 0 -4px 0 rgba(46, 204, 113, 0.25);
-    animation: kkPop 0.36s var(--ease-spring) both;
+    animation: kkPop 0.36s var(--egri-yay) both;
 }
 
 .kk-caption {
     min-height: 1.4em;
-    font-family: var(--font-heading);
+    font-family: var(--font-display);
     font-size: clamp(0.95rem, 2.6vh, 1.2rem);
     font-weight: 600;
-    color: var(--text-muted);
+    color: var(--murekkep-orta);
     opacity: 0;
     transform: translateY(4px);
-    transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+    transition: opacity var(--sure-gecis) var(--egri-out), transform var(--sure-gecis) var(--egri-out);
 }
 
 .kk-caption.is-visible { opacity: 1; transform: none; }
@@ -203,9 +204,9 @@
     gap: var(--kk-gap);
     padding: 8px var(--kk-pad) 10px;
     margin: 0 -12px;                   /* dar ekranda .game-area paddinginden 12 px geri al */
-    border-radius: var(--radius-md);
+    border-radius: var(--r-kart);
     background: rgba(255, 255, 255, 0.55);
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--golge-1);
     max-width: calc(100% + 24px);
 }
 
@@ -225,24 +226,24 @@
     border-bottom: 3px solid var(--kk-cap-edge);
     border-radius: 9px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-    font-family: var(--font-heading);
+    font-family: var(--font-display);
     font-size: clamp(0.95rem, calc(var(--kk-unit) * 0.5), 1.5rem);
     font-weight: 700;
     line-height: 1;
-    color: var(--text-dark);
+    color: var(--murekkep);
     cursor: pointer;
     user-select: none;
     -webkit-user-select: none;
     touch-action: manipulation;
-    transition: transform var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out),
-                border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+    transition: transform var(--sure-bas) var(--egri-out), background-color var(--sure-bas) var(--egri-out),
+                border-color var(--sure-bas) var(--egri-out), box-shadow var(--sure-bas) var(--egri-out);
 }
 
 .kk-key--space {
     width: calc(var(--kk-unit) * 7 + var(--kk-gap) * 6);
     font-size: clamp(0.8rem, calc(var(--kk-unit) * 0.34), 1.05rem);
     letter-spacing: 0.04em;
-    color: var(--text-muted);
+    color: var(--murekkep-orta);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -266,7 +267,7 @@
 .kk-key.is-target {
     background: var(--kk-lit);
     border-bottom-color: var(--kk-lit-edge);
-    color: var(--text-dark);
+    color: var(--murekkep);
     box-shadow: 0 0 0 4px rgba(255, 209, 102, 0.45), 0 6px 14px rgba(224, 168, 0, 0.35);
 }
 
@@ -278,14 +279,14 @@
 }
 
 .kk-key.is-correct {
-    background: var(--success-light);
-    border-bottom-color: var(--success);
-    animation: successPulse 0.3s var(--ease-out);
+    background: var(--dogru-zemin);
+    border-bottom-color: var(--dogru);
+    animation: successPulse 0.3s var(--egri-out);
 }
 
 .kk-key.is-wrong {
-    background: var(--error-light);
-    border-bottom-color: var(--error);
+    background: var(--yanlis-zemin);
+    border-bottom-color: var(--yanlis);
     animation: wiggle 0.34s ease;
 }
 
@@ -300,21 +301,21 @@
     place-items: center;
     padding: 0;
     border: 0;
-    border-radius: var(--radius-round);
+    border-radius: var(--r-hap);
     background: white;
-    color: var(--text-muted);
-    box-shadow: var(--shadow-sm);
+    color: var(--murekkep-orta);
+    box-shadow: var(--golge-1);
     cursor: pointer;
-    transition: color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+    transition: color var(--sure-gecis) var(--egri-out), box-shadow var(--sure-gecis) var(--egri-out), transform var(--sure-bas) var(--egri-out);
 }
 
 .kk-speech svg { width: 24px; height: 24px; fill: currentColor; stroke: currentColor; }
-.kk-speech .kk-speech__wave { opacity: 0.35; transition: opacity var(--dur-base) var(--ease-out); }
+.kk-speech .kk-speech__wave { opacity: 0.35; transition: opacity var(--sure-gecis) var(--egri-out); }
 .kk-speech:active { transform: scale(0.94); }
 .kk-speech:focus-visible { outline: 3px solid var(--kk-accent); outline-offset: 2px; }
 .kk-speech.is-on {
     color: var(--kk-accent);
-    box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.25), var(--shadow-sm);
+    box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.25), var(--golge-1);
 }
 .kk-speech.is-on .kk-speech__wave { opacity: 1; }
 
@@ -343,7 +344,7 @@
 
 /* ── Geniş ekran: tuşlar büyür, boşluklar açılır ── */
 @media (min-width: 600px) {
-    .kk-game { --kk-gap: 6px; --kk-pad: 16px; --kk-outer: 32px; --kk-shelf-gap: 8px; gap: var(--space-md); }
+    .kk-game { --kk-gap: 6px; --kk-pad: 16px; --kk-outer: 32px; --kk-shelf-gap: 8px; gap: var(--ara-4); }
     .kk-keyboard { padding: 14px var(--kk-pad) 16px; margin: 0; max-width: 100%; }
     .kk-instruction { max-width: calc(100% - 128px); }
     .kk-key { border-radius: 11px; }
