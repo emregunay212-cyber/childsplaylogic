@@ -89,6 +89,9 @@ const KlavyeKasifi = (() => {
         GameEngine.setTotal(config.rounds);
 
         buildDom();
+        // Kutlama düğmesinden (Tekrar Oyna / Sonraki Seviye) kalan bayat odağı bırak: ilk basış oyuna gitsin
+        const ae = document.activeElement;
+        if (ae && ae !== document.body && !gameArea.contains(ae)) { try { ae.blur(); } catch (e) { /* yok say */ } }
         keydownHandler = onKeyDown;
         document.addEventListener('keydown', keydownHandler);
         startRound();
@@ -174,8 +177,11 @@ const KlavyeKasifi = (() => {
         // ileride bir form alanı) tuşu tarayıcıya bırak: Enter/Boşluk düğmeyi etkinleştirsin,
         // harf yazı alanına gitsin. Gövde odaktayken (normal oyun) davranış değişmez.
         const t = e.target;
+        // Gizlenmiş bir düğme (az önce tıklanan "Sonraki Seviye") odakta kalabilir: çizilmiyorsa (getClientRects 0)
+        // oyun tuşu işler; aksi hâlde çocuğun ilk basışları yutulurdu.
         if (t && t !== document.body && els.root && !els.root.contains(t)
-            && typeof t.closest === 'function' && t.closest('button, a, input, textarea, select, [contenteditable]')) return;
+            && typeof t.closest === 'function' && t.closest('button, a, input, textarea, select, [contenteditable]')
+            && t.getClientRects().length > 0) return;
         const isSpace = e.key === ' ' || e.key === 'Enter' || e.code === 'Space' || e.code === 'Enter' || e.code === 'NumpadEnter';
         if (isSpace) e.preventDefault();       // oyun alanı meşgul penceresinde de kaymasın
         if (busy || e.repeat) return;
