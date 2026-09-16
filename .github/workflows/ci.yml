@@ -65,6 +65,9 @@ jobs:
           npm run test:build
           npm run build:check
 
+      # EduKit (B5): 20 eğitsel iframe oyunu — kit yüklü, satır içi script 0, CSP provası (tests/edu-kit.spec.js)
+      - run: CI=true SITE_ROOT=.build-check npm run test:edu-kit
+
       - name: Duman testi — hash'li çıktı üzerinde (tüm aktif oyunlar, admin.html, oyunlar/index.html)
         run: npm run test:smoke
         env:
