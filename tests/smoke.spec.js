@@ -112,7 +112,8 @@ test.describe('Online sürümü yalnız hub kartından açılan oyunlar', () => 
             await page.locator('#hub-nav-scroll .hub-nav-chip[data-cat="online"]').click();
             const card = page.locator(`#hub-grid .game-card[data-game="${slug}"][data-online]`).first();
             await expect(card, 'online kart kilitsiz olmalı (öğretmen izni tohumlandı)').not.toHaveClass(/\b(locked|coming-soon)\b/);
-            await card.scrollIntoViewIfNeeded();
+            // click kaydırır ve kopan düğümde yeniden çözer (canlı adminConfig gelince hub yeniden çizilir);
+            // scrollIntoViewIfNeeded tek atımlıktır, kopan düğümde patlar
             await card.click();
             await expectGameViewOpen(page, slug, 'online');
             await expect(page.locator('#game-area .lobby-main'), 'Lobby ana menüsü çizilmeli').toBeVisible();
