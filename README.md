@@ -25,6 +25,8 @@ Bu dosya (ve tüm `*.md`) `.vercelignore` ile yayın dışıdır.
 | `admin.html` + `js/admin.js` | Öğretmen/yönetici paneli: oyun kilitle-aç, ilerleme sıfırla → RTDB `adminConfig` | |
 | `tests/`, `playwright.config.js`, `eslint.config.js`, `.github/workflows/ci.yml` | Lint + Playwright duman testi + CI (PR #19) | |
 | `tools/build.js` (+ `tools/lib/`) | Deploy anında içerik hash'li önbellek kırma: her yerel js/css/html başvurusu `?h=<hash>` (A10b). `--out .build-check` kopyaya üretir, `--check` çıktıyı doğrular | Vercel `buildCommand`; bağımlılıksız, Node ≥ 20; `.vercelignore`'a **eklenmez** |
+| `js/lib/` | Vendor kütüphaneler, **değiştirilmemiş** kopyalar: `chess.0.10.3.min.js` (BSD-2), `GLTFLoader.r128.js` (MIT), `stockfish.js` (GPL-3); `README.md` kaynak URL + sha256 + lisans tablosu, `LICENSES/` metinler (B8a). three.min.js r128 B6'ya kadar cdnjs'te | Lint dışı; build `?h=` ekler; Firebase SDK vendor değil — gstatic + SRI |
+| `tools/sri-check.js` | `index.html`/`admin.html`'deki dış `<script integrity>` hash'lerini indirip yeniden hesaplar; uyuşmazlık → çıkış 1; `--print` güncel değerleri yazar (yenileme) | `npm run sri:check` (CI'da); bağımlılıksız; `.vercelignore` ile yayın dışı |
 | `docs/inceleme-2026-09-15/`, `plans/` | 15 Eylül 2026 denetim raporları ve düzeltme blueprint'i | |
 | `fabrika/` | Eğitsel olmayan oyunların tek dosyalık satış build'leri (ayrı README) | Yayın dışı |
 
@@ -44,6 +46,7 @@ npm ci                                  # Node 20 (CI ile aynı)
 npx playwright install chromium         # ilk kurulumda bir kez
 npm run lint                            # eslint js/ games/ tools/ — no-undef hata, no-unused-vars uyarı
 npm run catalog:check                   # data/games.json şeması + js/catalog.js ve index.html altbilgisi güncel mi (CI koşar)
+npm run sri:check                       # Firebase SDK (gstatic) integrity hash'leri hâlâ doğru mu (CI koşar); yenileme: node tools/sri-check.js --print
 npm run build:check                     # deploy simülasyonu: kök → .build-check (hash'li), çıktı doğrulanır (?v= kalıntısı/eski hash = hata)
 npm run test:build                      # tools/build.js birim testleri (idempotence, döngü, eksik dosya, --out)
 npm run test:smoke                      # her aktif oyun /?oyun=<slug> ile açılır, 3 sn hatasız çalışmalı (60 test)
@@ -51,7 +54,7 @@ SITE_ROOT=.build-check PORT=8766 npm run test:smoke   # aynı test hash'li çık
 python seo/test_build_seo.py            # üretici birim testleri
 ```
 
-`BASE_URL=https://<vercel-önizleme> npm run test:smoke` dış ortamda koşar. CI (`ci.yml`) her PR'da lint + `catalog:check` + SEO üretimi tazelik kontrolü (`python seo/build_seo.py && git diff --exit-code -I lastmod …`) + `test:build` + `build:check` + duman testini (hash'li çıktı üzerinde) çalıştırır; iş adı `eslint + Playwright duman testi` master'da **required check**tir (branch protection, A10b) — kırmızıyken merge edilemez, force-push ve dal silme kapalı.
+`BASE_URL=https://<vercel-önizleme> npm run test:smoke` dış ortamda koşar. CI (`ci.yml`) her PR'da lint + `catalog:check` + `sri:check` + SEO üretimi tazelik kontrolü (`python seo/build_seo.py && git diff --exit-code -I lastmod …`) + `test:build` + `build:check` + duman testini (hash'li çıktı üzerinde) çalıştırır; iş adı `eslint + Playwright duman testi` master'da **required check**tir (branch protection, A10b) — kırmızıyken merge edilemez, force-push ve dal silme kapalı.
 
 ## Deploy
 
@@ -79,6 +82,7 @@ Oyunu kapatmak: JSON kaydında `active: false` (tek bayrak: hub'da "Yakında" ka
 - RTDB kuralları (PR #13): kök `.read/.write: false`; `lobbies`, `players`, `rooms/*` yalnız anahtar biçimi tutan tekil kayıtlara yazılır (`^[A-Z]{5}$`, `^[A-Z2-9]{4}$`, `^P[a-z0-9]{10,16}$`), lobi sayı alanları tip doğrulamalı; `users/{uid}` yalnız sahibine; `leaderboards/*` yalnız yeni kayıt, `timestamp == now`. Lobi/oda verisi tasarım gereği herkese okunur.
 - Firebase'den gelen ad/lobi alanları `innerHTML` öncesi kaçışlanır (PR #16); yeni kod `textContent` ya da `escapeHTML` kullanmalı.
 - `vercel.json` CSP **Report-Only** — zorlayıcı moda geçiş A9c'de (27 iframe sayfası satır içi `<script>` taşıyor).
+- Üçüncü taraf script (B8a): Firebase compat SDK gstatic'ten `integrity="sha384-…" crossorigin="anonymous"` ile yüklenir (Karar 5: vendor değil, SRI); hash uyuşmazsa tarayıcı script'i engeller, hub A4 çevrimdışı modunda açılır (tek kişilik oyunlar), CI `sri:check` kırmızı olur. chess.js ve GLTFLoader `js/lib/` altında yerel; unpkg CSP'den düştü, cdnjs yalnız three.min.js için (B6'ya kadar).
 - Sırlar: `js/firebase-config.js`'teki Firebase web yapılandırması herkese açık istemci anahtarıdır; gizli anahtar, token ya da servis hesabı repoda **bulunmaz**, eklenmez.
 - İstemci tarafı temizlikçi (`js/janitor.js`): ücretsiz Spark planında Cloud Functions yok; herkese okunur `lobbies` ve `rooms/*` altında çocuk takma adları birikmesin diye temizliği ziyaretçi tarayıcısı yapar — `createdAt` 24 saatten eski (ya da hiç olmayan) kayıtlar yol başına en çok 60'ar silinir.
 - Kapılar: yalnız Firebase açık, çevrimiçi ve üst pencerede; cihaz başına 6 saatte bir (`localStorage bo_janitor_last`); `js/app.js` oturum çözülünce boşta zamanda planlar (`requestIdleCallback`), oyun başlatma yolunda değil; asla fırlatmaz (`[Janitor]` console.info/warn).
