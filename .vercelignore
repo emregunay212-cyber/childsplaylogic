@@ -28,3 +28,7 @@ playwright.config.js
 test-results/
 playwright-report/
 .build-check/
+
+# Tasarım kaynakları (Claude Design çıktısı) yayına çıkmaz
+design/
+desing/
