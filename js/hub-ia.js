@@ -174,12 +174,15 @@ const HubIA = (() => {
             el.focus({ preventScroll: true });
             try { el.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch (e) { /* eski tarayıcı */ }
         }
-        // Izgarada satır değiştirme: en yakın üst/alt satırdaki, yatayda en yakın kart
+        // Izgarada satır değiştirme: en yakın üst/alt satırdaki, yatayda en yakın kart.
+        // Konum getBoundingClientRect ile DEĞİL offsetTop/offsetLeft ile okunur: odaklı kartın
+        // hover/focus transform'u (scale + translateY) rect'i kaydırıp aynı satırı "alt satır" gösteriyordu
+        // (CI'da ok tuşu yandaki karta gidiyordu); offset* yerleşim konumudur, transform'dan etkilenmez.
         function vertical(list, cur, dir) {
-            const r = cur.getBoundingClientRect();
+            const r = { top: cur.offsetTop, left: cur.offsetLeft };
             let best = null; let bestRow = null; let bestDx = Infinity;
             for (const c of list) {
-                const cr = c.getBoundingClientRect();
+                const cr = { top: c.offsetTop, left: c.offsetLeft };
                 const dy = dir > 0 ? cr.top - r.top : r.top - cr.top;
                 if (dy < 2) continue;
                 const rowKey = Math.round(cr.top);
