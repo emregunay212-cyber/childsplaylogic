@@ -47,9 +47,7 @@
 </head>
 <body>
     <canvas id="canvas"></canvas>
-    <script type="module">
-      import { start } from './js/main.js?v=5';
-      start().catch(err => console.error('Ateş & Buz başlatılamadı:', err));
-    </script>
+    <!-- Başlatıcı ES modülü ayrı dosyada (B6): satır içi script 0 → CSP script-src 'self' altında ihlal yok (B9). -->
+    <script type="module" src="js/boot.js"></script>
 </body>
 </html>

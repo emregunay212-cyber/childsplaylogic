@@ -137,7 +137,9 @@
   canvas.addEventListener('pointerdown', onPointer, { passive: false });
 
   // ════════════════════════════════════════════
-  //  AĞ KATMANI (parent bilnetoyun Firebase üzerinden)
+  //  AĞ KATMANI (hub'ın Firebase köprüsü parent.BilnetBridge üzerinden, B6)
+  //  Iframe SDK/config yüklemez; veritabanı window.parent.BilnetBridge.ready() ile alınır
+  //  (js/firebase-config.js). Bağımsız açılışta (parent yok) online desteklenmez (Karar 6).
   // ════════════════════════════════════════════
   let hhRef = null;
   let presenceRef = null;
@@ -150,14 +152,25 @@
 
   let lastStateSent = 0, lastInputSent = 0;
 
-  function initNet() {
-    const pwin = window.parent;
-    if (!lobbyId || !pwin || !pwin.firebase) {
-      console.warn('[HavaHokeyi] Parent Firebase yok — bağlantı kurulamadı');
+  // Hub köprüsünden veritabanı: hub içinde değilsek / köprü yoksa / çevrimdışıysa null (tek API, tek mesaj).
+  async function bridgeDb() {
+    let bridge = null;
+    try {
+      if (window.parent && window.parent !== window) bridge = window.parent.BilnetBridge || null;
+    } catch (e) { bridge = null; }   // çapraz-origin parent: erişim SecurityError fırlatır
+    if (!bridge || typeof bridge.ready !== 'function') return null;
+    try { return (await bridge.ready()) || null; } catch (e) { return null; }
+  }
+
+  // Promise<boolean>: online kuruldu mu. Asla reddetmez.
+  async function initNet() {
+    const db = lobbyId ? await bridgeDb() : null;
+    if (!lobbyId || !db) {
+      console.warn('[HavaHokeyi] Hub köprüsü (BilnetBridge) yok ya da çevrimdışı — bağlantı kurulamadı');
       return false;
     }
     try {
-      hhRef = pwin.firebase.database().ref('lobbies/' + lobbyId + '/hh');
+      hhRef = db.ref('lobbies/' + lobbyId + '/hh');
     } catch (err) {
       console.error('[HavaHokeyi] Firebase ref hatası:', err);
       return false;
@@ -171,7 +184,7 @@
 
     // Presence — her (re)connect'te yeniden kur (kısa kopmada yanlış "ayrıldı" deme)
     presenceRef = hhRef.child('presence/' + role);
-    const connRef = pwin.firebase.database().ref('.info/connected');
+    const connRef = db.ref('.info/connected');
     connRef.on('value', s => {
       if (s.val() === true && presenceRef) {
         presenceRef.onDisconnect().remove();
@@ -558,11 +571,12 @@
     drawHUD();
   }
 
-  // ── Başlat ──
-  const ok = initNet();
-  if (isHost) { phase = PH_COUNTDOWN; phaseTimer = 180; countdown = 3; }
-  requestAnimationFrame(rafLoop);
-  startBgTicker();
+  // ── Başlat ── (ağ önce, döngü sonra: eski senkron sırayla aynı; initNet asla reddetmez)
+  initNet().then(() => {
+    if (isHost) { phase = PH_COUNTDOWN; phaseTimer = 180; countdown = 3; }
+    requestAnimationFrame(rafLoop);
+    startBgTicker();
+  });
 })();
 </script>
 </body>

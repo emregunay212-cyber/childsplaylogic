@@ -1,5 +1,7 @@
-// Ateş & Buz Network Katmanı — parent bilnetoyun Firebase instance üzerinden online 2 oyuncu senkronu
+// Ateş & Buz Network Katmanı — hub'ın Firebase köprüsü (parent.BilnetBridge, B6) üzerinden online 2 oyuncu senkronu
 // Host = fireboy, Guest = watergirl. Her oyuncu kendi karakterini otoriter olarak simüle eder.
+// Iframe SDK/config yüklemez; veritabanı `window.parent.BilnetBridge.ready()` ile alınır (js/firebase-config.js).
+// Bağımsız açılışta (parent yok) online desteklenmez (Karar 6) → offline mod.
 
 let myRole = null;       // 'host' | 'guest'
 let lobbyId = null;
@@ -39,7 +41,18 @@ function parseURLParams() {
     };
 }
 
-function initNetwork() {
+// Hub köprüsünden veritabanı: hub içinde değilsek / köprü yoksa / çevrimdışıysa null (tek API, tek mesaj).
+async function bridgeDb() {
+    let bridge = null;
+    try {
+        if (window.parent && window.parent !== window) bridge = window.parent.BilnetBridge || null;
+    } catch (e) { bridge = null; }   // çapraz-origin parent: erişim SecurityError fırlatır
+    if (!bridge || typeof bridge.ready !== 'function') return null;
+    try { return (await bridge.ready()) || null; } catch (e) { return null; }
+}
+
+// Promise<boolean>: online kuruldu mu. Asla reddetmez.
+async function initNetwork() {
     const params = parseURLParams();
     if (!params.role || !params.lobbyId) {
         console.log('[AB Network] URL params yok — offline mod');
@@ -50,16 +63,13 @@ function initNetwork() {
     lobbyId = params.lobbyId;
     opponentName = params.opponentName;
 
-    // Parent'ın Firebase instance'ına eriş
-    const parentWin = window.parent;
-    if (!parentWin || !parentWin.firebase) {
-        console.warn('[AB Network] Parent Firebase bulunamadı — offline mod');
+    const parentDb = await bridgeDb();
+    if (!parentDb) {
+        console.warn('[AB Network] Hub köprüsü (BilnetBridge) yok ya da çevrimdışı — offline mod');
         return false;
     }
 
     try {
-        // db script-scope const, window'a attach değil. Doğrudan firebase.database() kullan.
-        const parentDb = parentWin.firebase.database();
         abRef = parentDb.ref('lobbies/' + lobbyId + '/ab');
     } catch (err) {
         console.error('[AB Network] Firebase ref hatası:', err);
@@ -102,7 +112,7 @@ function initNetwork() {
     // "ayrıldı" görüyordu. .info/connected ile her reconnect'te yeniden arm ediyoruz.
     presenceRef = abRef.child('presence/' + myRole);
     try {
-        const connectedRef = parentWin.firebase.database().ref('.info/connected');
+        const connectedRef = parentDb.ref('.info/connected');
         const connectedListener = connectedRef.on('value', snap => {
             if (snap.val() === true && presenceRef) {
                 presenceRef.onDisconnect().remove();

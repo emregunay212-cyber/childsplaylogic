@@ -13,8 +13,8 @@ export async function start() {
     await loadData();
     loadDataFromLocalStorage();
 
-    // Network kurulum (URL'de role varsa online mod)
-    const online = initNetwork();
+    // Network kurulum (URL'de role varsa online mod; veritabanı hub köprüsünden, B6) — asla reddetmez
+    const online = await initNetwork();
     if (online) {
         // Online modda menüyü atla, direkt level 1'den başla
         setCurrentLevel(1);
