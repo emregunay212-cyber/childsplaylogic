@@ -1,12 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <defs><linearGradient id="gbkx" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0%" stop-color="#1c2f52"/><stop offset="100%" stop-color="#080f1f"/></linearGradient></defs>
-  <rect x="6" y="6" width="88" height="88" rx="16" fill="url(#gbkx)"/>
-  
-  <rect x="34" y="56" width="32" height="28" rx="4" fill="#27406e" stroke="#3a5694" stroke-width="2"/>
-  <rect x="38" y="38" width="24" height="20" rx="4" fill="#3a5694" stroke="#4a6ab4" stroke-width="2"/>
-  <rect x="42" y="22" width="16" height="18" rx="4" fill="#ffd23f" stroke="#c2912b" stroke-width="2"/>
-  <path d="M50 10 L58 18 L42 18 Z" fill="#ff7a59"/>
-  <text x="50" y="76" font-family="system-ui" font-size="12" font-weight="900" text-anchor="middle" fill="#ffd23f">?</text>
-  <text x="20" y="34" font-size="13" text-anchor="middle">💡</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" xmlns:c2pa="http://c2pa.org/manifest"><defs><linearGradient id="e" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFD98A"></stop><stop offset="100%" stop-color="#D99A0B"></stop></linearGradient><clipPath id="c"><rect width="128" height="128" rx="28"></rect></clipPath></defs><g clip-path="url(#c)"><rect width="128" height="128" fill="url(#e)"></rect>
+  <rect x="0" y="104" width="128" height="24" fill="#A87407"></rect>
+  <g stroke="#B07E08" stroke-width="2.5">
+  <rect x="26" y="80" width="76" height="24" rx="5" fill="#4A9BE8"></rect>
+  <rect x="34" y="56" width="60" height="24" rx="5" fill="#5FBE4E"></rect>
+  <rect x="42" y="32" width="44" height="24" rx="5" fill="#FF8FB4"></rect></g>
+  <g font-family="Fredoka, Verdana, sans-serif" font-weight="700" text-anchor="middle" fill="#fff"><text x="64" y="97" font-size="15">3</text><text x="64" y="73" font-size="15">2</text><text x="64" y="49" font-size="15">1</text></g></g></svg>

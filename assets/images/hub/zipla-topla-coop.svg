@@ -1,27 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-  <rect width="256" height="256" rx="48" fill="#FF9800"/>
-  <rect x="20" y="180" width="216" height="20" rx="6" fill="#8B4513"/>
-  <rect x="20" y="180" width="216" height="5" rx="2" fill="#2ECC71"/>
-  <rect x="100" y="130" width="80" height="14" rx="4" fill="#8B4513"/>
-  <rect x="100" y="130" width="80" height="4" rx="2" fill="#2ECC71"/>
-  <!-- 1. oyuncu (platformda) -->
-  <circle cx="128" cy="96" r="16" fill="#FECA57"/>
-  <rect x="120" y="108" width="16" height="20" rx="3" fill="#3498DB"/>
-  <rect x="114" y="88" width="28" height="8" rx="2" fill="#E74C3C"/>
-  <rect x="118" y="82" width="20" height="8" rx="2" fill="#E74C3C"/>
-  <circle cx="134" cy="94" r="3" fill="#333"/>
-  <rect x="120" y="128" width="7" height="8" rx="2" fill="#2C3E50"/>
-  <rect x="130" y="128" width="7" height="8" rx="2" fill="#2C3E50"/>
-  <!-- 2. oyuncu (co-op: yerde, aynı üslup, renkler takas) -->
-  <circle cx="196" cy="146" r="16" fill="#FECA57"/>
-  <rect x="188" y="158" width="16" height="20" rx="3" fill="#2ECC71"/>
-  <rect x="182" y="138" width="28" height="8" rx="2" fill="#3498DB"/>
-  <rect x="186" y="132" width="20" height="8" rx="2" fill="#3498DB"/>
-  <circle cx="190" cy="144" r="3" fill="#333"/>
-  <rect x="188" y="178" width="7" height="8" rx="2" fill="#2C3E50"/>
-  <rect x="198" y="178" width="7" height="8" rx="2" fill="#2C3E50"/>
-  <!-- Paralar -->
-  <circle cx="60" cy="155" r="12" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
-  <circle cx="196" cy="104" r="12" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
-  <circle cx="160" cy="155" r="10" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" xmlns:c2pa="http://c2pa.org/manifest"><defs><linearGradient id="j" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#B08AFF"></stop><stop offset="100%" stop-color="#5B33C8"></stop></linearGradient><clipPath id="c"><rect width="128" height="128" rx="28"></rect></clipPath></defs><g clip-path="url(#c)"><rect width="128" height="128" fill="url(#j)"></rect>
+  <g fill="#7B5BFF" stroke="#43248F" stroke-width="2.5"><rect x="8" y="98" width="50" height="14" rx="7"></rect><rect x="66" y="76" width="50" height="14" rx="7"></rect></g>
+  <g><circle cx="34" cy="80" r="14" fill="#FFD54A" stroke="#D89A31" stroke-width="2.5"></circle><circle cx="29" cy="77" r="3" fill="#4A3110"></circle><circle cx="40" cy="77" r="3" fill="#4A3110"></circle></g>
+  <g><circle cx="90" cy="58" r="14" fill="#7BD0F0" stroke="#3F9FC9" stroke-width="2.5"></circle><circle cx="85" cy="55" r="3" fill="#14455C"></circle><circle cx="96" cy="55" r="3" fill="#14455C"></circle></g>
+  <path d="M50 74l26-8" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 8"></path></g></svg>

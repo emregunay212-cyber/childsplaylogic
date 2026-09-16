@@ -1,13 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <defs><linearGradient id="ckBg" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0%" stop-color="#aee3ff"/><stop offset="100%" stop-color="#5a9e5a"/></linearGradient></defs>
-  <rect x="6" y="6" width="88" height="88" rx="16" fill="url(#ckBg)"/>
-  <path d="M38 90 L46 34 L54 34 L62 90 Z" fill="#8a6a4a"/>
-  <line x1="50" y1="44" x2="50" y2="56" stroke="#fff" stroke-width="3"/>
-  <line x1="50" y1="64" x2="50" y2="76" stroke="#fff" stroke-width="3"/>
-  <rect x="20" y="22" width="26" height="14" rx="4" fill="#ffd23f" stroke="#a87413" stroke-width="2"/>
-  <text x="33" y="32" font-family="system-ui" font-size="9" font-weight="900" text-anchor="middle" fill="#3c2a0e">42</text>
-  <rect x="56" y="22" width="26" height="14" rx="4" fill="#ffd23f" stroke="#a87413" stroke-width="2"/>
-  <text x="69" y="32" font-family="system-ui" font-size="9" font-weight="900" text-anchor="middle" fill="#3c2a0e">40</text>
-  <text x="50" y="86" font-size="20" text-anchor="middle">🏃</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" xmlns:c2pa="http://c2pa.org/manifest"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#B08AFF"></stop><stop offset="100%" stop-color="#5B33C8"></stop></linearGradient><clipPath id="c"><rect width="128" height="128" rx="28"></rect></clipPath></defs><g clip-path="url(#c)"><rect width="128" height="128" fill="url(#g)"></rect>
+  <path d="M0 88h128v40H0z" fill="#43248F"></path>
+  <g stroke="#fff" stroke-width="4" stroke-dasharray="14 12" stroke-linecap="round"><path d="M0 108h128"></path></g>
+  <g><circle cx="44" cy="58" r="15" fill="#FFD54A" stroke="#D89A31" stroke-width="2.5"></circle><circle cx="39" cy="55" r="3" fill="#4A3110"></circle><circle cx="50" cy="55" r="3" fill="#4A3110"></circle>
+  <path d="M30 84a16 16 0 0 1 28 0z" fill="#FFD54A" stroke="#D89A31" stroke-width="2.5"></path></g>
+  <g stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".6"><path d="M12 52h14M8 66h18"></path></g>
+  <g><rect x="80" y="34" width="34" height="30" rx="8" fill="#fff"></rect><text x="97" y="57" text-anchor="middle" font-family="Fredoka, Verdana, sans-serif" font-weight="700" font-size="20" fill="#5B33C8">?</text></g></g></svg>

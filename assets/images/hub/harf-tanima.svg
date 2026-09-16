@@ -1,17 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#5DC8E8"/>
-      <stop offset="100%" stop-color="#45B7D1"/>
-    </linearGradient>
-  </defs>
-  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
-  <!-- Big A letter -->
-  <text x="40" y="75" font-family="sans-serif" font-weight="900" font-size="62" fill="white" opacity="0.95">A</text>
-  <!-- Small letters -->
-  <rect x="72" y="28" width="38" height="28" rx="8" fill="white" opacity="0.9"/>
-  <text x="91" y="49" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="18" fill="#45B7D1">bc</text>
-  <!-- Object hint -->
-  <rect x="72" y="64" width="38" height="38" rx="8" fill="white" opacity="0.9"/>
-  <text x="91" y="91" text-anchor="middle" font-size="26">🐝</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" xmlns:c2pa="http://c2pa.org/manifest"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8FD4F0"></stop><stop offset="100%" stop-color="#CFEcFA"></stop></linearGradient><linearGradient id="cube" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFD98A"></stop><stop offset="100%" stop-color="#F0B44E"></stop></linearGradient><linearGradient id="cube2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#9BE08A"></stop><stop offset="100%" stop-color="#5FBE4E"></stop></linearGradient><linearGradient id="cube3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFB0C8"></stop><stop offset="100%" stop-color="#EE7AA0"></stop></linearGradient><clipPath id="c"><rect width="128" height="128" rx="28"></rect></clipPath></defs><g clip-path="url(#c)"><rect width="128" height="128" fill="url(#sky)"></rect>
+   <circle cx="103" cy="25" r="14" fill="#FFD54A"></circle>
+   <ellipse cx="30" cy="30" rx="20" ry="9" fill="#fff" opacity=".85"></ellipse><circle cx="36" cy="25" r="10" fill="#fff" opacity=".85"></circle>
+   <path d="M0 94c18-8 34-8 48 0s36 8 52 2 28-6 28-6v38H0z" fill="#6FC44F"></path>
+   <path d="M0 104c22-6 40-4 56 2s34 6 48 2 24-4 24-4v24H0z" fill="#56A83B"></path>
+   <g>
+     <rect x="14" y="60" width="36" height="36" rx="8" fill="url(#cube)" stroke="#D89A31" stroke-width="2"></rect>
+     <text x="32" y="86" text-anchor="middle" font-family="Fredoka, Verdana, sans-serif" font-weight="700" font-size="25" fill="#7A4A12">A</text>
+     <rect x="46" y="44" width="36" height="36" rx="8" fill="url(#cube2)" stroke="#4E9B3C" stroke-width="2" transform="rotate(-5 64 62)"></rect>
+     <text x="64" y="70" text-anchor="middle" font-family="Fredoka, Verdana, sans-serif" font-weight="700" font-size="25" fill="#1F5A18" transform="rotate(-5 64 62)">B</text>
+     <rect x="78" y="60" width="36" height="36" rx="8" fill="url(#cube3)" stroke="#D2648C" stroke-width="2" transform="rotate(6 96 78)"></rect>
+     <text x="96" y="86" text-anchor="middle" font-family="Fredoka, Verdana, sans-serif" font-weight="700" font-size="25" fill="#8A2B4E" transform="rotate(6 96 78)">C</text>
+   </g></g></svg>

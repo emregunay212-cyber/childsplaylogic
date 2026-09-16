@@ -1,7 +1,7 @@
 # bilnetoyun.com
 
 > Bilnet Okulları'nın 4-12 yaş için ücretsiz, üyeliksiz, tarayıcıda çalışan eğitici oyun platformu — vanilla HTML/JS/CSS, derleme adımı yok.
-> 46 tek kişilik + 11 online = **57 oynanabilir** oyun, 1 kapalı (`data/games.json`: 56 kayıt = 47 solo + 11 online, `kod-macerasi`/`satranc` iki sürümlü; Kelime Madeni 3D `active: false`).
+> 47 tek kişilik + 11 online = **58 oynanabilir** oyun, 1 kapalı (`data/games.json`: 57 kayıt = 48 solo + 11 online, `kod-macerasi`/`satranc` iki sürümlü; Kelime Madeni 3D `active: false`). Hub dört **yaş rafına** ayrılır (Anaokulu 4-6 · 1-2. Sınıf · 3-4. Sınıf · 5-6. Sınıf; oyun yaş aralığının kestiği her rafta görünür), öğretmen görünümü kazanım + süre + arama ekler (B2b).
 
 Depo: `github.com/emregunay212-cyber/childsplaylogic` · dal `master` · canlı: **Vercel** (`master`'a push = otomatik deploy).
 Bu dosya (ve tüm `*.md`) `.vercelignore` ile yayın dışıdır.
@@ -10,20 +10,21 @@ Bu dosya (ve tüm `*.md`) `.vercelignore` ile yayın dışıdır.
 
 | Yol | Ne | Not |
 |---|---|---|
-| `data/games.json` | **Oyun bilgisinin TEK kaynağı** (B2a): slug, ad, modül, bölüm, ders, yaş, süre, kazanım, metinler, yıldız eşiği, online sürüm, tembel yükleme dosyaları; `sections` = hub bölümleri | Alan sözlüğü `docs/inceleme-2026-09-15/kanit/B2a-veri-notlari.md`; yayında açık (`/data/games.json`) |
-| `tools/build-catalog.js` | JSON → `js/catalog.js` (`GAME_SECTIONS/GAME_CATALOG/GAME_MODULES`, ÜRETİLMİŞ) + `index.html` altbilgi grupları (`<!-- catalog:start/end -->`); şema doğrular; `--check` fark varsa çıkış 1 | `npm run catalog` / `catalog:check`; bağımlılıksız; `.vercelignore` ile yayın dışı |
-| `index.html` + `js/app.js` | Hub (SPA). Kayıt defteri `gameCategoryDefs`/`mpGameDefs` `GAME_CATALOG`'dan türetilir — her oyun tembel thunk `{ game: GAME_MODULES[ad], id, levels, files, color: var(--kat-<bölüm>), comingSoon: !active }`; `resolveModule()` bozuk modülü yalnız kendi kartından düşürür | Derin bağlantı: `/?oyun=<slug>` (`tryDeepLink`) |
+| `data/games.json` | **Oyun bilgisinin TEK kaynağı** (B2a): slug, ad, modül, bölüm, ders, yaş, süre, kazanım, metinler, yıldız eşiği, online sürüm, tembel yükleme dosyaları; `sections` = hub bölümleri; `shelves` = yaş rafları (B2b: `ages` kapalı tam yaş aralığı, etiket) | Alan sözlüğü `docs/inceleme-2026-09-15/kanit/B2a-veri-notlari.md`; yayında açık (`/data/games.json`) |
+| `tools/build-catalog.js` | JSON → `js/catalog.js` (`GAME_SHELVES/GAME_SECTIONS/GAME_CATALOG/GAME_MODULES`, ÜRETİLMİŞ) + `index.html` altbilgi grupları (`<!-- catalog:start/end -->`), altbilgi giriş cümlesi (`catalog:lead`) ve SEO bloğu (`catalog:seo`: oyun sayıları, raf dağılımı, adlar); şema doğrular; `--check` fark varsa çıkış 1 | `npm run catalog` / `catalog:check`; bağımlılıksız; `.vercelignore` ile yayın dışı |
+| `index.html` + `js/app.js` | Hub (SPA). Kayıt defteri `gameCategoryDefs`/`mpGameDefs` `GAME_CATALOG`'dan türetilir — her oyun tembel thunk `{ game: GAME_MODULES[ad], id, levels, files, color: var(--kat-<bölüm>), comingSoon: !active, name, section, subject, age, minutes, teaches }`; `resolveModule()` bozuk modülü yalnız kendi kartından düşürür. Hub çizimi (B2b): yaş rafı çipleri (`bo_shelf`) × kategori çipleri, "Devam et" satırı (Progress v2 `lastPlayed`), öğretmen anahtarı (`bo_teacher`: kazanım + süre + ders çipleri + arama) — sözleşme `CLAUDE.md` | Derin bağlantı: `/?oyun=<slug>` (`tryDeepLink`) |
 | `js/games/<id>.js` | Oyun modülü. Ya hub içinde doğrudan çalışır (`const id = '<slug>'`, `init/destroy`) ya da `games/<id>/index.html`'i iframe'e gömen sarmalayıcıdır (örn. `js/games/bilgi-ciftligi.js`) | 62 modül |
 | `games/<id>/` | iframe'de çalışan bağımsız oyunlar (27); hepsi `noindex` + canonical `/oyunlar/<id>/` (PR #15). 20 eğitsel oyun (B5): `index.html` + `game.js` (satır içi script 0), kit `games/_shared/` | Bazılarında `kaynak/` + `build.py` ya da `tools/` — üretilen `index.html` elle düzenlenmez |
 | `games/_shared/edu-kit.js` + `edu-kit.css` | Eğitsel iframe oyunlarının ortak çekirdeği (B5): `window.EduKit` — tek AudioContext + `tone`, `pick/shuffle/randInt`, `window.storage` köprüsü, `onHidden` (visibilitychange + pagehide), `toast`; CSS: tokens.css kopyası `:root` (ham hex yalnız burada), `:focus-visible`, reduced-motion | API sözleşmesi CLAUDE.md; `npm run test:edu-kit` (kit + satır içi script 0 + CSP provası); üretilmiş değil, elle düzenlenir |
 | `js/lock-catalog.js` | Kilit listesi + yıldız eşikleri (`GAME_CATALOG`'dan türetilir; API aynı: `SOLO_GAMES/ONLINE_GAMES/LOCK_CATALOG/LOCK_STARS_BY_KEY`); hub ve admin paneli bunu okur | Eşik = JSON `stars` / `online.stars`; 0 = açık |
 | `js/auth.js`, `js/firebase-config.js`, `js/multiplayer.js`, `js/lobby.js` | Google girişi / misafir modu, `users/{uid}/gameSaves` bulut senkronu (`GAME_SAVE_KEYS`), Firebase **Realtime Database** lobi/oda | Firestore yok |
 | `js/bilnet-meta.js` | Eğitsel meta katman: jeton (`DAILY_CAP = 50`), giriş serisi, rozetler — istemci tarafı | |
+| `js/hub-ia.js` | Hub bilgi mimarisi yardımcıları (B2b): raf üyeliği (`GAME_SHELVES`), `bo_shelf`/`bo_teacher` tercihleri, aksan + İ/ı duyarsız arama katlaması ve sözcük-başlangıcı eşleşmesi, çip grubu (`role=radiogroup`, ok tuşları) ve kart grubu (roving tabindex; ızgarada Yukarı/Aşağı) klavye | Test `tests/hub-ia.spec.js` |
 | `js/dialog.js` | Tek modal/katman API'si (B3): `Dialog.open/close/isOpen/fromKeyboard` — `<dialog>` + `showModal()` (yedek yol: `open` + elle odak döngüsü), kardeşler `inert`, Escape/Tab/odak dönüşü tek yerde; kilit penceresi, meta panel, seviye tamamlama ve hesap menüsü (`modal:false`) bunu kullanır | Sözleşme `CLAUDE.md`; test `tests/dialog.spec.js` |
 | `seo/games_data.py` | `GAMES = data/games.json` yükler (`also_online` türetir) + `STATIC_PAGES` (gizlilik/hakkında/iletişim HTML içeriği) | `active: false` → noindex, sitemap/hub dışı |
-| `seo/build_seo.py` | Üretici: `oyunlar/<slug>/index.html` (56), `oyunlar/index.html`, `sitemap.xml`, `llms.txt` | **Üretilenler elle düzenlenmez** |
+| `seo/build_seo.py` | Üretici: `oyunlar/<slug>/index.html` (57), `oyunlar/index.html` (B2b §3.11: yaş × kategori süzgeci JS'siz, radio + CSS `:has()`; kartlar hub anatomisinde, kazanım hep açık), `sitemap.xml`, `llms.txt` | **Üretilenler elle düzenlenmez** |
 | `css/` | `tokens.css` (tasarım token'ları, B1 — her sayfada ilk stylesheet; kaynak `docs/tasarim-sozlesmesi.md`), `main.css`, `hub.css`, `landing.css`, `games.css`, `multiplayer.css`, `admin.css`, `imza.css` (hub kabuğu: ham hex yok, yalnız `var(--…)`), oyun başına `<slug>.css` (kendi temalı; B1'de dokunulmadı) | |
-| `assets/images/hub/<slug>.svg` | Hub kart ikonları | |
+| `assets/images/hub/<slug>.svg` | Hub kart görselleri v2 (128×128, rx 28, sahne dili; B2b) · `assets/images/categories/*.svg` kategori simgeleri v2 · `assets/maskot/bulut-{mutlu,uyuyan}.svg` maskot (marka onayı bekliyor) | `klavye-kasifi.svg` eski set (v2'si yok) |
 | `admin.html` + `js/admin.js` | Öğretmen/yönetici paneli: oyun kilitle-aç, ilerleme sıfırla → RTDB `adminConfig` | |
 | `tests/`, `playwright.config.js`, `eslint.config.js`, `.github/workflows/ci.yml` | Lint + Playwright duman testi + CI (PR #19) | |
 | `tools/build.js` (+ `tools/lib/`) | Deploy anında içerik hash'li önbellek kırma: her yerel js/css/html başvurusu `?h=<hash>` (A10b). `--out .build-check` kopyaya üretir, `--check` çıktıyı doğrular | Vercel `buildCommand`; bağımlılıksız, Node ≥ 20; `.vercelignore`'a **eklenmez** |
@@ -54,11 +55,12 @@ npm run test:build                      # tools/build.js birim testleri (idempot
 npm run test:smoke                      # her aktif oyun /?oyun=<slug> ile açılır, 3 sn hatasız çalışmalı (61 test)
 npm run test:dialog                     # js/dialog.js: dört katmanda odak/Tab/Escape/inert + yedek yol + erişilebilirlik ağacı (14 test, B3)
 npm run test:edu-kit                    # 20 eğitsel iframe oyunu: hub iframe + bağımsız açılış + CSP provası (script-src self, satır içi ihlal 0), edu-kit.css token eşitliği (63 test)
+npm run test:hub-ia                     # hub bilgi mimarisi (B2b): yaş rafı, çipler, öğretmen anahtarı, arama, klavye, kart durumları (sahte Firebase adminConfig), /oyunlar/ süzgeci (13 test)
 SITE_ROOT=.build-check PORT=8766 npm run test:smoke   # aynı test hash'li çıktı üzerinde (CI böyle koşar)
 python seo/test_build_seo.py            # üretici birim testleri
 ```
 
-`BASE_URL=https://<vercel-önizleme> npm run test:smoke` dış ortamda koşar. CI (`ci.yml`) her PR'da lint + `catalog:check` + `sri:check` + SEO üretimi tazelik kontrolü (`python seo/build_seo.py && git diff --exit-code -I lastmod …`) + `test:build` + `build:check` + `test:edu-kit` + duman, temizlikçi ve dialog testlerini (hepsi hash'li çıktı üzerinde) çalıştırır; iş adı `eslint + Playwright duman testi` master'da **required check**tir (branch protection, A10b) — kırmızıyken merge edilemez, force-push ve dal silme kapalı.
+`BASE_URL=https://<vercel-önizleme> npm run test:smoke` dış ortamda koşar. CI (`ci.yml`) her PR'da lint + `catalog:check` + `sri:check` + SEO üretimi tazelik kontrolü (`python seo/build_seo.py && git diff --exit-code -I lastmod …`) + `test:build` + `build:check` + `test:edu-kit` + duman, temizlikçi, dialog ve hub bilgi mimarisi testlerini (hash'li çıktı üzerinde) çalıştırır; iş adı `eslint + Playwright duman testi` master'da **required check**tir (branch protection, A10b) — kırmızıyken merge edilemez, force-push ve dal silme kapalı.
 
 ## Deploy
 

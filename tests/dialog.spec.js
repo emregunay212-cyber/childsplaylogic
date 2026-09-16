@@ -23,6 +23,7 @@ const { getActiveSlugs } = require('./helpers/slugs');
 const { seedGuest } = require('./helpers/guest-seed');
 
 const LOCKED_SLUG = 'tetris';                 // data/games.json stars:10 → yıldız 0 + öğretmen izni yok = kilitli
+// B2b: aynı oyun yaş aralığının kestiği her rafta görünür (tetris 6-10 → üç raf) → ilk raf kartı (.first()) kullanılır
 const LEVEL_GAME = 'sayi-sayma';              // çok seviyeli solo oyun (levels > 1)
 const TAB_ROUNDS = 20;
 const CELEBRATE_DELAY_MS = 400;               // js/engine.js onComplete → showLevelComplete gecikmesi
@@ -113,7 +114,7 @@ async function triggerLevelComplete(page, stars = 3) {
 test.describe('1) Kilit penceresi (js/app.js → Dialog, dismissible)', () => {
     test('aç → odak "Tamam", Tab içeride, arka plan inert, Escape kapatır ve odak karta döner', async ({ page, errors }) => {
         await openHub(page);
-        const card = page.locator(`#hub-grid .game-card[data-game="${LOCKED_SLUG}"]`);
+        const card = page.locator(`#hub-grid .game-card[data-game="${LOCKED_SLUG}"]`).first();
         await expect(card, 'tetris kilitli olmalı (Firebase engelli, öğretmen izni yok)').toHaveClass(/\blocked\b/);
         await clickLocked(card);
 
@@ -134,7 +135,7 @@ test.describe('1) Kilit penceresi (js/app.js → Dialog, dismissible)', () => {
 
     test('perdeye tık kapatır; "Tamam" kapatır; klavyeyle açılınca animasyonsuz (.dialog--aninda)', async ({ page, errors }) => {
         await openHub(page);
-        const card = page.locator(`#hub-grid .game-card[data-game="${LOCKED_SLUG}"]`);
+        const card = page.locator(`#hub-grid .game-card[data-game="${LOCKED_SLUG}"]`).first();
         await clickLocked(card);
         const dlg = page.locator('dialog.lock-modal');
         await expect(dlg).toBeVisible();
@@ -318,7 +319,7 @@ test.describe('5) Yedek yol — showModal ve inert yok (eski tarayıcı, Karar 1
     test('kilit penceresi: role/aria-modal elle, kardeşler aria-hidden, Tab döngüsü, Escape kapatır', async ({ page, errors }) => {
         await openHub(page);
         expect(await page.evaluate(() => typeof document.createElement('dialog').showModal)).toBe('undefined');
-        const card = page.locator(`#hub-grid .game-card[data-game="${LOCKED_SLUG}"]`);
+        const card = page.locator(`#hub-grid .game-card[data-game="${LOCKED_SLUG}"]`).first();
         await clickLocked(card);
         const dlg = page.locator('dialog.lock-modal');
         await expect(dlg).toBeVisible();
@@ -358,7 +359,7 @@ test.describe('6) Hareket: kapanış animasyonu (reduced-motion KAPALI)', () => 
 
     test('fareyle açılan kilit penceresi animasyonlu açılır, "Tamam" ile .dialog--kapaniyor üzerinden kapanır', async ({ page, errors }) => {
         await openHub(page);
-        await clickLocked(page.locator(`#hub-grid .game-card[data-game="${LOCKED_SLUG}"]`));
+        await clickLocked(page.locator(`#hub-grid .game-card[data-game="${LOCKED_SLUG}"]`).first());
         const dlg = page.locator('dialog.lock-modal');
         await expect(dlg).toBeVisible();
         await expect(dlg).not.toHaveClass(/dialog--aninda/);
@@ -386,7 +387,7 @@ test.describe('6) Hareket: kapanış animasyonu (reduced-motion KAPALI)', () => 
 test('7) Erişilebilirlik ağacı: üç modal katmanın rol/ad anlık görüntüsü (kanıt B3-a11y.md)', async ({ page }) => {
     await openHub(page);
     const out = {};
-    await clickLocked(page.locator(`#hub-grid .game-card[data-game="${LOCKED_SLUG}"]`));
+    await clickLocked(page.locator(`#hub-grid .game-card[data-game="${LOCKED_SLUG}"]`).first());
     out.kilit = await page.locator('dialog.lock-modal').ariaSnapshot();
     await page.keyboard.press('Escape');
     await page.locator('#coin-counter').click();

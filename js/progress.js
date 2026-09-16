@@ -7,12 +7,19 @@
      ('oyun_bahcesi_progress_bozuk') varsayılana dönülür — hub açılmaya devam eder.
    - resetToken: admin global sıfırlamasının bu PROFİLDE görülen jetonu. Blob'la
      birlikte buluta gider (users/{uid}/progress) → cihazdan bağımsız karşılaştırılır.
+   - Şema v2 (B2b): lastPlayed { <anahtar>: zaman damgası } — hub "Devam et" satırı. Anahtar kilit
+     anahtarıyla aynı (solo: slug, online: 'mp:' + slug). v1 kayıt normalize() ile v2'ye taşınır
+     (alan eklenir, version 2); bulut blob'u aynı şekil (Auth replaceAll → normalize). v1 istemci
+     v2 blob'u okursa fazladan alanı taşır, yok sayar (ileri uyumlu).
    ============================================ */
 
 const Progress = (() => {
     const STORAGE_KEY = 'oyun_bahcesi_progress';
     const BACKUP_KEY = 'oyun_bahcesi_progress_bozuk';
     const LOG_SNIPPET_LEN = 200;
+    const SCHEMA_VERSION = 2;
+    const LAST_PLAYED_MAX = 12;   // "Devam et" 3 gösterir; fazlası budanır (blob şişmesin)
+    const LAST_PLAYED_KEY_RE = /^(mp:)?[a-z0-9-]{1,64}$/;   // kilit anahtarı biçimi (js/lock-catalog.js)
     // Bulut senkron kancası — Google girişinde Auth ayarlar; her save sonrası çağrılır.
     // Misafir/çıkışta null'dur → yerel kalır, buluta yazılmaz.
     let syncHook = null;
@@ -20,9 +27,10 @@ const Progress = (() => {
     let cache = null;
 
     const defaultData = {
-        version: 1,
+        version: SCHEMA_VERSION,
         games: {},
         totalStars: 0,
+        lastPlayed: {},
         settings: {
             soundEnabled: true,
             teacherUnlocks: {},
@@ -41,12 +49,23 @@ const Progress = (() => {
             && typeof v.totalStars === 'number';
     }
 
-    // Geçerli kabul edilmiş veriyi bilinen şekle tamamla (eksik alt alanlar).
+    // Geçerli kabul edilmiş veriyi bilinen şekle tamamla (eksik alt alanlar) + v1 → v2 göçü.
     // resetToken bilerek varsayılana bağlanmaz: alan YOKSA profil hiç damgalanmamıştır (bkz. getResetToken).
     function normalize(data) {
         const merged = Object.assign(fresh(), isPlainObject(data) ? data : {});
         if (!isPlainObject(merged.games)) merged.games = {};
         if (!isPlainObject(merged.settings)) merged.settings = fresh().settings;
+        // v1 → v2: lastPlayed alanı eklenir; bozuk değerler atılır (yalnız sonlu sayı damgalar kalır)
+        // Anahtar biçimi kilit anahtarıdır (slug | 'mp:' + slug); buluttan gelen blob kullanıcı denetiminde →
+        // biçim dışı anahtar atılır, en yeni LAST_PLAYED_MAX kayıt tutulur (dev blob localStorage/bulut yazımını şişirmesin)
+        const lp = isPlainObject(merged.lastPlayed) ? merged.lastPlayed : {};
+        merged.lastPlayed = {};
+        const okKeys = Object.keys(lp)
+            .filter((k) => LAST_PLAYED_KEY_RE.test(k) && typeof lp[k] === 'number' && Number.isFinite(lp[k]))
+            .sort((a, b) => lp[b] - lp[a])
+            .slice(0, LAST_PLAYED_MAX);
+        for (const k of okKeys) merged.lastPlayed[k] = lp[k];
+        if (typeof merged.version !== 'number' || merged.version < SCHEMA_VERSION) merged.version = SCHEMA_VERSION;
         return merged;
     }
 
@@ -189,6 +208,25 @@ const Progress = (() => {
         save(fresh());
     }
 
+    // ── "Devam et" (B2b): son oynanan oyunlar ──
+    // key: kilit anahtarı (solo slug | 'mp:' + slug). Damga = şimdi; en yeni LAST_PLAYED_MAX kayıt tutulur.
+    function touchLastPlayed(key) {
+        if (typeof key !== 'string' || !key) return;
+        const data = load();
+        if (!isPlainObject(data.lastPlayed)) data.lastPlayed = {};
+        data.lastPlayed[key] = Date.now();
+        const keys = Object.keys(data.lastPlayed).sort((a, b) => data.lastPlayed[b] - data.lastPlayed[a]);
+        keys.slice(LAST_PLAYED_MAX).forEach((k) => { delete data.lastPlayed[k]; });
+        save(data);
+    }
+
+    // En son oynanandan eskiye doğru anahtar listesi
+    function getLastPlayed() {
+        const lp = load().lastPlayed;
+        if (!isPlainObject(lp)) return [];
+        return Object.keys(lp).sort((a, b) => lp[b] - lp[a]);
+    }
+
     // ── Admin global sıfırlama jetonu (app.js applyAdminConfig kullanır) ──
     // null → bu profil hiç damgalanmamış (eski kayıt / yeni hesap / az önce sıfırlanmış blob)
     function getResetToken() {
@@ -237,6 +275,8 @@ const Progress = (() => {
         isTeacherUnlocked,
         clearTeacherUnlocks,
         resetAll,
+        touchLastPlayed,
+        getLastPlayed,
         getResetToken,
         markResetSeen,
         applyReset,

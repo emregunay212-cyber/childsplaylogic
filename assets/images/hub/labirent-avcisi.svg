@@ -1,11 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <defs><linearGradient id="glax" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0%" stop-color="#1d3a6e"/><stop offset="100%" stop-color="#0a1122"/></linearGradient></defs>
-  <rect x="6" y="6" width="88" height="88" rx="16" fill="url(#glax)"/>
-  
-  <path d="M18 18 h64 v18 h-22 M18 18 v64 h64 v-30 M36 36 h28 v28 h-28 z" fill="none" stroke="#2a4a8a" stroke-width="7" stroke-linecap="square"/>
-  <text x="50" y="56" font-size="16" text-anchor="middle">😋</text>
-  <circle cx="26" cy="70" r="8" fill="#ffd23f"/>
-  <text x="26" y="74" font-family="system-ui" font-size="10" font-weight="900" text-anchor="middle" fill="#16264a">A</text>
-  <text x="74" y="30" font-size="14" text-anchor="middle">🌫️</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" xmlns:c2pa="http://c2pa.org/manifest"><defs><linearGradient id="lbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3E4C8A"></stop><stop offset="100%" stop-color="#26305C"></stop></linearGradient><linearGradient id="gem" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFE07A"></stop><stop offset="100%" stop-color="#F0B429"></stop></linearGradient><clipPath id="c"><rect width="128" height="128" rx="28"></rect></clipPath></defs><g clip-path="url(#c)"><rect width="128" height="128" fill="url(#lbg)"></rect>
+   <g stroke="#5C6CB0" stroke-width="7" stroke-linecap="round" fill="none">
+     <path d="M22 22h84M22 22v84M106 22v40M22 106h84M50 46h40M50 46v34M74 80h16"></path>
+   </g>
+   <path d="M34 34h28v22h22v34" stroke="#7BE0C0" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 9" fill="none"></path>
+   <circle cx="34" cy="34" r="9" fill="#7BE0C0"></circle>
+   <g>
+     <rect x="74" y="84" width="26" height="20" rx="4" fill="#A4683A" stroke="#6E4222" stroke-width="2"></rect>
+     <rect x="74" y="88" width="26" height="6" fill="#F0B429"></rect>
+     <path d="M74 88a13 8 0 0 1 26 0z" fill="#C2803F"></path>
+   </g></g></svg>

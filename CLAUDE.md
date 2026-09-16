@@ -63,8 +63,16 @@ const ModulAdi = (() => {
   oyun CSS/JS'leri için, B4'te kaldırılır; yeni kod bunları kullanmaz. Oyuna özel stil `css/<slug>.css`'e,
   registry `files`'a eklenir.
 - Kayıt defteri **`data/games.json`** (TEK kaynak, B2a): kayıt `{ slug, name, module: 'ModulAdi', section, cat, subject, age, minutes, levels, …, files: { js: ['js/games/<slug>.js'], css: ['css/<slug>.css'] } }`;
-  `npm run catalog` → `js/catalog.js` (`GAME_CATALOG` + `GAME_MODULES` thunk tablosu) + `index.html` altbilgisi. `js/app.js`, `js/lock-catalog.js`, `js/i18n.js TR.games` buradan türer; elle girdi yazılmaz.
+  `npm run catalog` → `js/catalog.js` (`GAME_SHELVES` + `GAME_SECTIONS` + `GAME_CATALOG` + `GAME_MODULES` thunk tablosu) + `index.html` altbilgisi, altbilgi giriş cümlesi (`catalog:lead`) ve SEO bloğu (`catalog:seo`; sayılar + oyun adları). `js/app.js`, `js/hub-ia.js`, `js/lock-catalog.js`, `js/i18n.js TR.games` buradan türer; elle girdi yazılmaz.
   **`index.html`'e etiket eklenmez** — dosyalar `files` ile tembel yüklenir (A9b); `?v=` yazılmaz (üretici reddeder; deploy hash'ler).
+- **Hub çizimi (B2b, `js/app.js showHub` → `renderHubControls` / `renderContinue` / `renderHubGrid`; yardımcılar `js/hub-ia.js`):**
+  birinci eksen **yaş rafı** (`data/games.json shelves`, `ages` kapalı tam yaş aralığı; oyun `age` kesişirse o rafa girer, birden çok raf olabilir;
+  `localStorage bo_shelf` = `'hepsi'` | raf id, ilk ziyaret Hepsi = raflar alt alta + raf başına yatay ray `.raf-ray`; tek raf = `.raf-izgara`),
+  ikinci eksen kategori çipi (`data-cat`/`data-value` = bölüm id, `'all'`; online oyunlar ayrı bölüm DEĞİL, raflara dağılır + `data-online` kart + "2 Oyuncu" rozeti).
+  "Devam et" ilk satır: `Progress` v2 `lastPlayed { <kilit anahtarı>: ts }` (`touchLastPlayed` `startGame`/`startMultiplayerGame`'de; boşsa maskotlu boş durum).
+  Öğretmen görünümü `localStorage bo_teacher` = `'1'` (`#btn-teacher role=switch`, `#hub.ogretmen`): kartlarda kazanım + süre, ders çipleri (`#hub-subject-nav`), arama (`#hub-search`, ad/kazanım/ders/bölüm, aksan + İ/ı duyarsız sözcük başlangıcı; sonuç `.raf--arama`). Çip grupları `role=radiogroup` (ok tuşları seçer), kartlarda roving tabindex (`HubIA.bindRoving`).
+  Kart tek yol `createGameCard(entry, { wide, shelf })` (DOM API, innerHTML yok): `data-section` → kategori şeridi (`css/hub.css`, yeni oyun için CSS satırı GEREKMEZ), yıldız satırı oyun düzeyi 3 yuva (`cardStarCount`), yaş rozeti; `applyLockedState`/`applyOfflineState`/yakında aynen.
+  Statik `oyunlar/index.html` aynı raf ve kategori verisiyle (`seo/build_seo.py build_hub`: JS'siz radio + `:has()` süzgeci, `css/landing.css`).
 - Duman testi (`tests/smoke.spec.js`) slug'ları `data/games.json`'dan türetir (`active:false` atlanır) → yeni oyun JSON'a
   girince otomatik kapsanır (`/?oyun=<slug>` 3 sn hatasız).
 
@@ -83,8 +91,8 @@ const ModulAdi = (() => {
 README "Yeni oyun ekleme" (B2a sonrası) güncel; kısa sıra:
 1. `js/games/<slug>.js` (+ `css/<slug>.css`) — yukarıdaki sözleşme; modül adı `eslint.config.js gameModuleGlobals`'a.
 2. `data/games.json` kaydı (hub sırasında; `stars` 0 = kilitsiz; `online` varsa `order`) → `npm run catalog`.
-3. `css/hub.css` `.game-card[data-game="<slug>"]::before` kategori grubuna eklenir (`var(--kat-<bölüm>)`; yeni renk adı AÇILMAZ) · `js/i18n.js` `TR.instructions` (yönerge varsa).
-4. `assets/images/hub/<slug>.svg` (128×128, `rx=28` yuvarlatılmış gradyan zemin kalıbı).
+3. Kategori şeridi otomatik (`data-section` → `var(--kat-<bölüm>)`, B2b; `css/hub.css`'e satır eklenmez, yeni renk adı AÇILMAZ) · `js/i18n.js` `TR.instructions` (yönerge varsa). Yaş rafı `age`'den türer (raf listesi `data/games.json shelves`).
+4. `assets/images/hub/<slug>.svg` (128×128, `rx=28` yuvarlatılmış gradyan zemin kalıbı; v2 sahne dili, emoji yok).
 5. `python seo/build_seo.py` (üretilenler elle düzenlenmez).
 6. `npm run lint && npm run catalog:check && npm run test:smoke && python seo/test_build_seo.py`.
 7. Kayıt anahtarı (localStorage) kullanıyorsa `js/auth.js GAME_SAVE_KEYS`.

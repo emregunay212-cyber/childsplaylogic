@@ -1,13 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
-  <rect width="96" height="96" rx="20" fill="#E040FB"/>
-  <circle cx="18" cy="48" r="10" fill="#F44336"/>
-  <circle cx="38" cy="48" r="10" fill="#2196F3"/>
-  <circle cx="58" cy="48" r="10" fill="#F44336"/>
-  <circle cx="78" cy="48" r="10" fill="white" opacity="0.4" stroke="white" stroke-width="2" stroke-dasharray="4,3"/>
-  <text x="78" y="53" text-anchor="middle" font-size="14" font-weight="bold" fill="white">?</text>
-  <text x="48" y="22" text-anchor="middle" font-size="11" font-weight="bold" fill="#FCE4EC" font-family="sans-serif">DESEN</text>
-  <path d="M12,72 L84,72" stroke="white" stroke-width="2" opacity="0.3" stroke-dasharray="6,4"/>
-  <circle cx="28" cy="80" r="5" fill="#FFEB3B" opacity="0.6"/>
-  <circle cx="48" cy="80" r="5" fill="#4CAF50" opacity="0.6"/>
-  <circle cx="68" cy="80" r="5" fill="#FFEB3B" opacity="0.6"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" xmlns:c2pa="http://c2pa.org/manifest"><defs><linearGradient id="d" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7FE3D8"></stop><stop offset="100%" stop-color="#1F8F86"></stop></linearGradient><clipPath id="c"><rect width="128" height="128" rx="28"></rect></clipPath></defs><g clip-path="url(#c)"><rect width="128" height="128" fill="url(#d)"></rect><rect x="0" y="98" width="128" height="30" fill="#17706A"></rect>
+  <g><circle cx="24" cy="52" r="13" fill="#FFD54A" stroke="#D89A31" stroke-width="2.5"></circle><rect x="43" y="39" width="26" height="26" rx="6" fill="#E8453C" stroke="#B02D26" stroke-width="2.5"></rect><circle cx="94" cy="52" r="13" fill="#FFD54A" stroke="#D89A31" stroke-width="2.5"></circle></g>
+  <rect x="44" y="74" width="40" height="24" rx="8" fill="#fff" opacity=".9" stroke="#12655E" stroke-width="2.5" stroke-dasharray="6 5"></rect>
+  <text x="64" y="93" text-anchor="middle" font-family="Fredoka, Verdana, sans-serif" font-weight="700" font-size="17" fill="#12655E">?</text></g></svg>

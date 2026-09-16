@@ -1,26 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
-  <rect width="96" height="96" rx="20" fill="#FF5722"/>
-  <!-- Zemin -->
-  <rect x="8" y="58" width="80" height="30" rx="6" fill="#4CAF50"/>
-  <!-- Bina -->
-  <rect x="14" y="34" width="22" height="24" rx="3" fill="#E74C3C"/>
-  <rect x="18" y="38" width="6" height="6" rx="1" fill="#87CEEB"/>
-  <rect x="26" y="38" width="6" height="6" rx="1" fill="#87CEEB"/>
-  <rect x="22" y="48" width="6" height="10" rx="1" fill="#5D4037"/>
-  <polygon points="13,34 36,34 25,22" fill="#8B4513"/>
-  <!-- Ağaç -->
-  <rect x="60" y="44" width="4" height="14" rx="1" fill="#8D6E63"/>
-  <polygon points="52,44 70,44 62,28" fill="#27AE60"/>
-  <!-- LEGO adam -->
-  <circle cx="48" cy="50" r="5" fill="#FFD600"/>
-  <rect x="44" y="48" width="8" height="3" rx="1" fill="#E74C3C"/>
-  <rect x="44" y="55" width="8" height="8" rx="2" fill="#E74C3C"/>
-  <rect x="44" y="63" width="4" height="5" rx="1" fill="#2980B9"/>
-  <rect x="48" y="63" width="4" height="5" rx="1" fill="#2980B9"/>
-  <!-- 3D text -->
-  <text x="48" y="84" text-anchor="middle" font-size="11" font-weight="bold" fill="white" font-family="sans-serif">3D WORLD</text>
-  <!-- Parça -->
-  <rect x="72" y="50" width="10" height="6" rx="2" fill="#3498DB"/>
-  <circle cx="75" cy="50" r="2.5" fill="#3498DB" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
-  <circle cx="80" cy="50" r="2.5" fill="#3498DB" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" xmlns:c2pa="http://c2pa.org/manifest"><defs><linearGradient id="d" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8FD4F0"></stop><stop offset="100%" stop-color="#3F9FC9"></stop></linearGradient><clipPath id="c"><rect width="128" height="128" rx="28"></rect></clipPath></defs><g clip-path="url(#c)"><rect width="128" height="128" fill="url(#d)"></rect>
+  <path d="M0 90h128v38H0z" fill="#6FC44F"></path>
+  <g><path d="M22 62l24-12 24 12-24 12z" fill="#E8453C"></path><path d="M22 62v22l24 12V74z" fill="#B02D26"></path><path d="M70 62v22L46 96V74z" fill="#C93A32"></path>
+  <ellipse cx="34" cy="55" rx="6" ry="3" fill="#F06A62"></ellipse><ellipse cx="46" cy="49" rx="6" ry="3" fill="#F06A62"></ellipse></g>
+  <g><path d="M62 40l22-11 22 11-22 11z" fill="#FFD54A"></path><path d="M62 40v20l22 11V51z" fill="#D89A31"></path><path d="M106 40v20L84 71V51z" fill="#EAB03C"></path>
+  <ellipse cx="73" cy="34" rx="5.5" ry="2.8" fill="#FFE68A"></ellipse></g>
+  <g><path d="M74 78l18-9 18 9-18 9z" fill="#4A9BE8"></path><path d="M74 78v16l18 9V87z" fill="#2E6FAE"></path><path d="M110 78v16l-18 9V87z" fill="#3B85CE"></path></g></g></svg>

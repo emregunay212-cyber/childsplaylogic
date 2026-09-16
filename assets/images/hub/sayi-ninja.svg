@@ -1,12 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <defs><linearGradient id="gsnx" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0%" stop-color="#3d2a55"/><stop offset="100%" stop-color="#160d22"/></linearGradient></defs>
-  <rect x="6" y="6" width="88" height="88" rx="16" fill="url(#gsnx)"/>
-  
-  <circle cx="38" cy="40" r="17" fill="#4aa8ff" stroke="#2f74bd" stroke-width="2.5"/>
-  <text x="38" y="46" font-family="system-ui" font-size="15" font-weight="900" text-anchor="middle" fill="#fff">12</text>
-  <circle cx="70" cy="62" r="14" fill="#ef5777" stroke="#b23a55" stroke-width="2.5"/>
-  <text x="70" y="67" font-family="system-ui" font-size="12" font-weight="900" text-anchor="middle" fill="#fff">7</text>
-  <line x1="14" y1="74" x2="86" y2="22" stroke="#fff" stroke-width="4.5" stroke-linecap="round" opacity=".9"/>
-  <text x="22" y="90" font-size="15" text-anchor="middle">🥷</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" xmlns:c2pa="http://c2pa.org/manifest"><defs><linearGradient id="d" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4A4058"></stop><stop offset="100%" stop-color="#221C2E"></stop></linearGradient><clipPath id="c"><rect width="128" height="128" rx="28"></rect></clipPath></defs><g clip-path="url(#c)"><rect width="128" height="128" fill="url(#d)"></rect>
+  <path d="M10 96C34 60 62 40 116 26" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" opacity=".6"></path>
+  <g><path d="M30 44l16 16-16 16-16-16z" fill="#F0B429" stroke="#BE8409" stroke-width="2"></path><text x="30" y="66" text-anchor="middle" font-family="Fredoka, Verdana, sans-serif" font-weight="700" font-size="16" fill="#7A4A12">7</text></g>
+  <g><path d="M72 68l14 14-14 14-14-14z" fill="#E8453C" stroke="#B02D26" stroke-width="2"></path><text x="72" y="88" text-anchor="middle" font-family="Fredoka, Verdana, sans-serif" font-weight="700" font-size="15" fill="#fff">3</text></g>
+  <g transform="rotate(-38 100 48)"><rect x="95" y="16" width="9" height="52" rx="4.5" fill="#D7DEE3"></rect><rect x="93" y="66" width="13" height="16" rx="4" fill="#2C3444"></rect></g></g></svg>

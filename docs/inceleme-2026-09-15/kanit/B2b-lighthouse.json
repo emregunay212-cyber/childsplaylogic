@@ -1,0 +1,69 @@
+{
+  "note": "B2b Lighthouse (chrome-devtools MCP, Lighthouse 13.4.1). Yerel sunucu tests/static-server.js :8779, misafir tohumu (tests/helpers/guest-seed.js anahtarları). Üç hub ölçümü snapshot (SPA durumu), /oyunlar/ navigation mobile. Erişilebilirlik dördünde 100. /oyunlar/ agentic-browsing 90: yalnız CLS (0.17, simüle edilmiş yavaş ağda font-display:swap yeniden akışı; gerçek yüklemede PerformanceObserver CLS 0.001) — B2b dışı, fonts.css size-adjust ile kapanır.",
+  "lh-hub": {
+    "what": "hub, misafir, Hepsi (desktop snapshot)",
+    "lighthouseVersion": "13.4.1",
+    "fetchTime": "2026-09-16T10:30:28.995Z",
+    "gatherMode": "snapshot",
+    "url": "http://127.0.0.1:8779/",
+    "formFactor": "desktop",
+    "scores": {
+      "accessibility": 100,
+      "best-practices": 100,
+      "seo": 100,
+      "agentic-browsing": 100
+    },
+    "failures": []
+  },
+  "lh-hub-ogretmen-arama": {
+    "what": "hub, öğretmen görünümü AÇIK + arama \"kesir\" sonuçları (desktop snapshot)",
+    "lighthouseVersion": "13.4.1",
+    "fetchTime": "2026-09-16T10:30:49.900Z",
+    "gatherMode": "snapshot",
+    "url": "http://127.0.0.1:8779/",
+    "formFactor": "desktop",
+    "scores": {
+      "accessibility": 100,
+      "best-practices": 100,
+      "seo": 100,
+      "agentic-browsing": 100
+    },
+    "failures": []
+  },
+  "lh-hub-ogretmen-raf": {
+    "what": "hub, öğretmen görünümü AÇIK + Anaokulu rafı ızgarası (desktop snapshot)",
+    "lighthouseVersion": "13.4.1",
+    "fetchTime": "2026-09-16T10:31:05.811Z",
+    "gatherMode": "snapshot",
+    "url": "http://127.0.0.1:8779/",
+    "formFactor": "desktop",
+    "scores": {
+      "accessibility": 100,
+      "best-practices": 100,
+      "seo": 100,
+      "agentic-browsing": 100
+    },
+    "failures": []
+  },
+  "lh-oyunlar": {
+    "what": "/oyunlar/ statik hub, süzgeç (mobile navigation)",
+    "lighthouseVersion": "13.4.1",
+    "fetchTime": "2026-09-16T10:31:17.477Z",
+    "gatherMode": "navigation",
+    "url": "http://127.0.0.1:8779/oyunlar/",
+    "formFactor": "mobile",
+    "scores": {
+      "accessibility": 100,
+      "best-practices": 100,
+      "seo": 100,
+      "agentic-browsing": 90
+    },
+    "failures": [
+      {
+        "id": "cumulative-layout-shift",
+        "score": 0.69,
+        "title": "Cumulative Layout Shift"
+      }
+    ]
+  }
+}

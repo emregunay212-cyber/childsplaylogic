@@ -198,12 +198,7 @@
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
             </button>
             <h1 class="top-title"><span class="top-brand">Bilnet Oyun</span><span class="top-sub">Eğitici Oyunlar</span></h1>
-            <!-- Kategori Navigasyonu (top-bar içinde) -->
-            <nav id="hub-nav" class="hub-nav">
-                <div class="hub-nav-scroll" id="hub-nav-scroll">
-                    <!-- JS ile render edilecek -->
-                </div>
-            </nav>
+            <div class="top-spacer"></div>
             <div class="top-right">
                 <div class="star-counter" id="star-counter">
                     <svg class="star-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
@@ -216,6 +211,12 @@
                 <button id="btn-sound" class="top-btn sound-btn" title="Ses" aria-label="Ses aç/kapa">
                     <svg class="sound-on" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
                     <svg class="sound-off hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+                </button>
+                <!-- Öğretmen anahtarı (B2b): açıkken kartlarda kazanım + süre, konu çipleri ve arama (localStorage bo_teacher; js/hub-ia.js) -->
+                <button id="btn-teacher" class="top-switch" type="button" role="switch" aria-checked="false">
+                    <svg class="switch-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5 12 5l9 4.5-9 4.5-9-4.5Z"/><path d="M6.5 11.5v4.2c0 1.5 2.5 2.8 5.5 2.8s5.5-1.3 5.5-2.8v-4.2"/><path d="M21 9.5v5"/></svg>
+                    <span class="switch-label">Öğretmen görünümü</span>
+                    <span class="switch-track" aria-hidden="true"><span class="switch-knob"></span></span>
                 </button>
                 <!-- Yönetim paneli bağlantısı: yalnız yönetici hesabı oturumundayken auth.js DOM'a ekler -->
                 <div id="user-chip" class="user-chip"></div>
@@ -234,12 +235,27 @@
                 <div class="hills"></div>
                 <div class="grass"></div>
             </div>
-            <!-- Çevrimdışı bandı: Firebase yüklenemediğinde (app.js gösterir) — giriş/bulut/online kapalı -->
+            <!-- Çevrimdışı bandı: Firebase yüklenemediğinde (app.js gösterir); giriş/bulut/online kapalı. Maskot: uyuyan Bulut Bili -->
             <div id="offline-banner" class="offline-banner hidden" role="status" aria-live="polite">
-                Çevrimdışısın — tek kişilik oyunlar açık
+                <img class="offline-maskot" src="assets/maskot/bulut-uyuyan.svg" width="44" height="40" alt="" decoding="async">
+                <span>Çevrimdışısın, tek kişilik oyunlar açık</span>
             </div>
-            <!-- Popüler Oyunlar -->
-            <div class="hub-popular" id="hub-popular"></div>
+            <!-- Süzgeçler (B2b): yaş rafı (birinci eksen, radiogroup), kategori çipleri (ikinci eksen),
+                 arama (yalnız öğretmen görünümünde). Hepsi js/app.js renderHubControls ile çizilir. -->
+            <nav id="hub-nav" class="hub-nav" aria-label="Oyun süzgeçleri">
+                <div class="hub-nav-row hub-shelf-nav" id="hub-shelf-nav" role="radiogroup" aria-label="Yaş rafı"></div>
+                <div class="hub-nav-row hub-nav-scroll" id="hub-nav-scroll" role="radiogroup" aria-label="Kategori"></div>
+                <div class="hub-nav-row hub-subject-nav" id="hub-subject-nav" role="radiogroup" aria-label="Ders" hidden></div>
+                <form class="hub-search" id="hub-search" role="search" hidden>
+                    <label class="sr-only" for="hub-search-input">Oyun ara</label>
+                    <svg class="hub-search-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+                    <input id="hub-search-input" type="search" autocomplete="off" spellcheck="false" maxlength="60" placeholder="Ad, kazanım ya da ders ara" enterkeyhint="search">
+                    <output class="hub-search-count" id="hub-search-count" for="hub-search-input" aria-live="polite"></output>
+                </form>
+            </nav>
+            <!-- Devam et: son oynanan 3 oyun (Progress v2 lastPlayed); hiç oynanmamışsa maskotlu boş durum -->
+            <section class="hub-continue" id="hub-continue" aria-labelledby="hub-continue-title"></section>
+            <!-- Raflar (Hepsi: raf başına yatay ray) ya da tek raf ızgarası ya da arama sonuçları -->
             <div class="hub-grid" id="hub-grid">
                 <!-- Oyun kartları JS ile render edilecek -->
             </div>
@@ -247,96 +263,99 @@
                  .hub kaydırma kapsayıcısı İÇİNDE; #app altına konursa overflow:hidden yüzünden hiç görünmez -->
             <footer id="hub-footer" class="hub-footer">
                 <div class="hub-footer-inner">
-                    <p class="hub-footer-lead"><strong>Bilnet Oyun</strong>, Bilnet Okulları'nın anaokulu ve ilkokul öğrencileri için hazırladığı 57 ücretsiz eğitici oyun. Üyelik yok, reklam yok; her oyun tarayıcıda açılır. <a href="/oyunlar/">Tüm oyunlar ve yaş grupları&nbsp;→</a></p>
+                    <!-- Giriş cümlesi ÜRETİLİR (oyun sayısı kataloğdan): data/games.json → tools/build-catalog.js -->
+                    <!-- catalog:lead:start -->
+                    <p class="hub-footer-lead"><strong>Bilnet Oyun</strong>, Bilnet Okulları'nın anaokulu ve ilkokul öğrencileri için hazırladığı 58 ücretsiz eğitici oyun. Üyelik yok, reklam yok; her oyun tarayıcıda açılır. <a href="/oyunlar/">Tüm oyunlar ve yaş grupları</a></p>
+                    <!-- catalog:lead:end -->
                     <nav class="hub-footer-nav" aria-label="Oyun sayfaları"><h2 class="sr-only">Tüm oyunlar</h2>
                         <!-- Altbilgi grupları ÜRETİLİR: data/games.json → tools/build-catalog.js (npm run catalog); elle düzenlenmez -->
                         <!-- catalog:start -->
-                        <div class="hub-footer-group">
-                            <h3>Harfler &amp; Kelimeler</h3>
-                            <ul>
-                                <li><a href="/oyunlar/harf-tanima/">Harf Tanıma</a></li>
-                                <li><a href="/oyunlar/klavye-kasifi/">Klavye Kâşifi</a></li>
-                                <li><a href="/oyunlar/hece-birlestirme/">Hece Birleştirme</a></li>
-                                <li><a href="/oyunlar/kelime-balonu/">Kelime Balonu</a></li>
-                                <li><a href="/oyunlar/kelime-canavarlari/">Kelime Canavarları</a></li>
-                                <li><a href="/oyunlar/kelime-kurtarma/">Kelime Kurtarma</a></li>
-                                <li><a href="/oyunlar/gunluk-kelime/">Günlük Kelime</a></li>
-                            </ul>
-                        </div>
-                        <div class="hub-footer-group">
-                            <h3>Sayılar &amp; Matematik</h3>
-                            <ul>
-                                <li><a href="/oyunlar/sayi-sayma/">Sayı Sayma</a></li>
-                                <li><a href="/oyunlar/matematik/">Matematik</a></li>
-                                <li><a href="/oyunlar/desen/">Desen Tamamlama</a></li>
-                                <li><a href="/oyunlar/bilgi-madencisi/">Bilgi Madencisi</a></li>
-                                <li><a href="/oyunlar/matematik-patlatma/">Matematik Patlatma</a></li>
-                                <li><a href="/oyunlar/matematik-kafe/">Matematik Kafe</a></li>
-                                <li><a href="/oyunlar/bilgi-yilani/">Bilgi Yılanı</a></li>
-                                <li><a href="/oyunlar/ritim-sorulari/">Ritim Soruları</a></li>
-                                <li><a href="/oyunlar/kesir-2048/">Kesir 2048</a></li>
-                                <li><a href="/oyunlar/sayi-ninja/">Sayı Ninja</a></li>
-                            </ul>
-                        </div>
-                        <div class="hub-footer-group">
-                            <h3>Bulmaca &amp; Mantık</h3>
-                            <ul>
-                                <li><a href="/oyunlar/hafiza-kartlari/">Hafıza Kartları</a></li>
-                                <li><a href="/oyunlar/sekil-bulmaca/">Şekil Bulmaca</a></li>
-                                <li><a href="/oyunlar/siralama/">Sıralama</a></li>
-                                <li><a href="/oyunlar/jigsaw/">Jigsaw Bulmaca</a></li>
-                                <li><a href="/oyunlar/tetris/">Tetris</a></li>
-                                <li><a href="/oyunlar/bilim-dedektifi/">Bilim Dedektifi</a></li>
-                                <li><a href="/oyunlar/eslestirme-ustasi/">Eşleştirme Ustası</a></li>
-                                <li><a href="/oyunlar/labirent-avcisi/">Labirent Avcısı</a></li>
-                            </ul>
-                        </div>
-                        <div class="hub-footer-group">
-                            <h3>Yaratıcılık</h3>
-                            <ul>
-                                <li><a href="/oyunlar/renk-eslestirme/">Renk Eşleştirme</a></li>
-                                <li><a href="/oyunlar/boyama/">Boyama</a></li>
-                                <li><a href="/oyunlar/tuval/">Tuval</a></li>
-                                <li><a href="/oyunlar/sayilarla-boyama/">Sayılarla Boyama</a></li>
-                                <li><a href="/oyunlar/emoji-yapici/">Emoji Yapıcı</a></li>
-                            </ul>
-                        </div>
-                        <div class="hub-footer-group">
-                            <h3>Strateji &amp; Macera</h3>
-                            <ul>
-                                <li><a href="/oyunlar/kod-macerasi/">Kod Macerası</a></li>
-                                <li><a href="/oyunlar/lego-macerasi/">LEGO Macerası</a></li>
-                                <li><a href="/oyunlar/lego-world/">LEGO World 3D</a></li>
-                                <li><a href="/oyunlar/satranc/">Satranç</a></li>
-                                <li><a href="/oyunlar/zipla-topla/">Zıpla Topla</a></li>
-                                <li><a href="/oyunlar/space-waves/">SpaceWaves</a></li>
-                                <li><a href="/oyunlar/egim/">Eğim</a></li>
-                                <li><a href="/oyunlar/buz-kulesi/">Buz Kulesi</a></li>
-                                <li><a href="/oyunlar/penalti/">Penaltı</a></li>
-                                <li><a href="/oyunlar/zindan-okcusu/">Zindan Okçusu</a></li>
-                                <li><a href="/oyunlar/bil-ve-fethet/">Bil ve Fethet</a></li>
-                                <li><a href="/oyunlar/bilgi-takimi/">Bilgi Takımı</a></li>
-                                <li><a href="/oyunlar/bilgi-ciftligi/">Bilgi Çiftliği</a></li>
-                                <li><a href="/oyunlar/bilgi-kulesi/">Bilgi Kulesi</a></li>
-                                <li><a href="/oyunlar/cevap-kosusu/">Cevap Koşusu</a></li>
-                                <li><a href="/oyunlar/bilgi-savunmasi/">Bilgi Savunması</a></li>
-                                <li><a href="/oyunlar/fizik-firlatma/">Fizik Fırlatma</a></li>
-                            </ul>
-                        </div>
-                        <div class="hub-footer-group">
-                            <h3>Online Çok Oyunculu</h3>
-                            <ul>
-                                <li><a href="/oyunlar/kelime-tahmin/">Kelime Tahmin</a></li>
-                                <li><a href="/oyunlar/harf-tahmin/">Harf Tahmin</a></li>
-                                <li><a href="/oyunlar/penalti-mp/">Penaltı Online</a></li>
-                                <li><a href="/oyunlar/ates-buz/">Ateş &amp; Buz</a></li>
-                                <li><a href="/oyunlar/zipla-topla-coop/">Zıpla Topla Online</a></li>
-                                <li><a href="/oyunlar/hava-hokeyi/">Hava Hokeyi</a></li>
-                                <li><a href="/oyunlar/altin-avi/">Altın Avı</a></li>
-                                <li><a href="/oyunlar/kelimelik/">Kelimelik</a></li>
-                                <li><a href="/oyunlar/son-kart/">Son Kart</a></li>
-                            </ul>
-                        </div>
+                                                <div class="hub-footer-group">
+                                                    <h3>Harfler &amp; Kelimeler</h3>
+                                                    <ul>
+                                                        <li><a href="/oyunlar/harf-tanima/">Harf Tanıma</a></li>
+                                                        <li><a href="/oyunlar/klavye-kasifi/">Klavye Kâşifi</a></li>
+                                                        <li><a href="/oyunlar/hece-birlestirme/">Hece Birleştirme</a></li>
+                                                        <li><a href="/oyunlar/kelime-balonu/">Kelime Balonu</a></li>
+                                                        <li><a href="/oyunlar/kelime-canavarlari/">Kelime Canavarları</a></li>
+                                                        <li><a href="/oyunlar/kelime-kurtarma/">Kelime Kurtarma</a></li>
+                                                        <li><a href="/oyunlar/gunluk-kelime/">Günlük Kelime</a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="hub-footer-group">
+                                                    <h3>Sayılar &amp; Matematik</h3>
+                                                    <ul>
+                                                        <li><a href="/oyunlar/sayi-sayma/">Sayı Sayma</a></li>
+                                                        <li><a href="/oyunlar/matematik/">Matematik</a></li>
+                                                        <li><a href="/oyunlar/desen/">Desen Tamamlama</a></li>
+                                                        <li><a href="/oyunlar/bilgi-madencisi/">Bilgi Madencisi</a></li>
+                                                        <li><a href="/oyunlar/matematik-patlatma/">Matematik Patlatma</a></li>
+                                                        <li><a href="/oyunlar/matematik-kafe/">Matematik Kafe</a></li>
+                                                        <li><a href="/oyunlar/bilgi-yilani/">Bilgi Yılanı</a></li>
+                                                        <li><a href="/oyunlar/ritim-sorulari/">Ritim Soruları</a></li>
+                                                        <li><a href="/oyunlar/kesir-2048/">Kesir 2048</a></li>
+                                                        <li><a href="/oyunlar/sayi-ninja/">Sayı Ninja</a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="hub-footer-group">
+                                                    <h3>Bulmaca &amp; Mantık</h3>
+                                                    <ul>
+                                                        <li><a href="/oyunlar/hafiza-kartlari/">Hafıza Kartları</a></li>
+                                                        <li><a href="/oyunlar/sekil-bulmaca/">Şekil Bulmaca</a></li>
+                                                        <li><a href="/oyunlar/siralama/">Sıralama</a></li>
+                                                        <li><a href="/oyunlar/jigsaw/">Jigsaw Bulmaca</a></li>
+                                                        <li><a href="/oyunlar/tetris/">Tetris</a></li>
+                                                        <li><a href="/oyunlar/bilim-dedektifi/">Bilim Dedektifi</a></li>
+                                                        <li><a href="/oyunlar/eslestirme-ustasi/">Eşleştirme Ustası</a></li>
+                                                        <li><a href="/oyunlar/labirent-avcisi/">Labirent Avcısı</a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="hub-footer-group">
+                                                    <h3>Yaratıcılık</h3>
+                                                    <ul>
+                                                        <li><a href="/oyunlar/renk-eslestirme/">Renk Eşleştirme</a></li>
+                                                        <li><a href="/oyunlar/boyama/">Boyama</a></li>
+                                                        <li><a href="/oyunlar/tuval/">Tuval</a></li>
+                                                        <li><a href="/oyunlar/sayilarla-boyama/">Sayılarla Boyama</a></li>
+                                                        <li><a href="/oyunlar/emoji-yapici/">Emoji Yapıcı</a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="hub-footer-group">
+                                                    <h3>Strateji &amp; Macera</h3>
+                                                    <ul>
+                                                        <li><a href="/oyunlar/kod-macerasi/">Kod Macerası</a></li>
+                                                        <li><a href="/oyunlar/lego-macerasi/">LEGO Macerası</a></li>
+                                                        <li><a href="/oyunlar/lego-world/">LEGO World 3D</a></li>
+                                                        <li><a href="/oyunlar/satranc/">Satranç</a></li>
+                                                        <li><a href="/oyunlar/zipla-topla/">Zıpla Topla</a></li>
+                                                        <li><a href="/oyunlar/space-waves/">SpaceWaves</a></li>
+                                                        <li><a href="/oyunlar/egim/">Eğim</a></li>
+                                                        <li><a href="/oyunlar/buz-kulesi/">Buz Kulesi</a></li>
+                                                        <li><a href="/oyunlar/penalti/">Penaltı</a></li>
+                                                        <li><a href="/oyunlar/zindan-okcusu/">Zindan Okçusu</a></li>
+                                                        <li><a href="/oyunlar/bil-ve-fethet/">Bil ve Fethet</a></li>
+                                                        <li><a href="/oyunlar/bilgi-takimi/">Bilgi Takımı</a></li>
+                                                        <li><a href="/oyunlar/bilgi-ciftligi/">Bilgi Çiftliği</a></li>
+                                                        <li><a href="/oyunlar/bilgi-kulesi/">Bilgi Kulesi</a></li>
+                                                        <li><a href="/oyunlar/cevap-kosusu/">Cevap Koşusu</a></li>
+                                                        <li><a href="/oyunlar/bilgi-savunmasi/">Bilgi Savunması</a></li>
+                                                        <li><a href="/oyunlar/fizik-firlatma/">Fizik Fırlatma</a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="hub-footer-group">
+                                                    <h3>Online Çok Oyunculu</h3>
+                                                    <ul>
+                                                        <li><a href="/oyunlar/kelime-tahmin/">Kelime Tahmin</a></li>
+                                                        <li><a href="/oyunlar/harf-tahmin/">Harf Tahmin</a></li>
+                                                        <li><a href="/oyunlar/penalti-mp/">Penaltı Online</a></li>
+                                                        <li><a href="/oyunlar/ates-buz/">Ateş &amp; Buz</a></li>
+                                                        <li><a href="/oyunlar/zipla-topla-coop/">Zıpla Topla Online</a></li>
+                                                        <li><a href="/oyunlar/hava-hokeyi/">Hava Hokeyi</a></li>
+                                                        <li><a href="/oyunlar/altin-avi/">Altın Avı</a></li>
+                                                        <li><a href="/oyunlar/kelimelik/">Kelimelik</a></li>
+                                                        <li><a href="/oyunlar/son-kart/">Son Kart</a></li>
+                                                    </ul>
+                                                </div>
                         <!-- catalog:end -->
                     </nav>
                     <nav class="hub-footer-links" aria-label="Site bağlantıları">
@@ -423,33 +442,37 @@
     <!-- SEO İçerik Bloğu (Google bot için) -->
     <section id="seo-content" class="seo-content" aria-label="Site Hakkında">
         <div class="seo-inner">
-            <h2>Bilnet Oyun — Çocuklar İçin Ücretsiz Eğitici Oyunlar</h2>
-            <p><strong>Bilnet Oyun</strong>, Bilnet Okulları'nın anaokulu ve ilkokul çağındaki çocuklar için tasarladığı <strong>57 ücretsiz eğitici oyun</strong> sunan bir web platformudur. İndirme veya kayıt gerektirmeden, doğrudan tarayıcıda oynayabileceğiniz interaktif oyunlarla çocuklarınızın öğrenme sürecini destekleyin.</p>
+            <!-- İçerik ÜRETİLİR (sayılar, raf dağılımı, oyun adları kataloğdan): data/games.json → tools/build-catalog.js; elle düzenlenmez -->
+            <!-- catalog:seo:start -->
+            <h2>Bilnet Oyun: Çocuklar İçin Ücretsiz Eğitici Oyunlar</h2>
+            <p><strong>Bilnet Oyun</strong>, Bilnet Okulları'nın anaokulu ve ilkokul çağındaki çocuklar için tasarladığı <strong>58 ücretsiz eğitici oyun</strong> sunan bir web platformudur. İndirme veya kayıt gerektirmeden, doğrudan tarayıcıda oynayabileceğiniz interaktif oyunlarla çocuklarınızın öğrenme sürecini destekleyin.</p>
 
             <h3>Hangi Oyunlar Var?</h3>
-            <p><strong>Strateji ve Macera:</strong> 9 seviyeli yapay zekaya karşı <em>Satranç</em>, blok tabanlı kodlama öğreten <em>Kod Macerası</em>, 3D açık dünya keşfi sunan <em>LEGO World 3D</em> ve 9 seviyeli kaleciye karşı <em>Penaltı</em> oyunları.</p>
-            <p><strong>Matematik ve Sayılar:</strong> Toplama-çıkarma pratiği yapan <em>Matematik</em>, nesneleri sayan <em>Sayı Sayma</em> ve tekrarlayan kalıpları tanıyan <em>Desen Tamamlama</em> oyunları.</p>
-            <p><strong>Harfler ve Kelimeler:</strong> Türk alfabesini öğreten <em>Harf Tanıma</em> ve heceleri birleştirerek kelime oluşturan <em>Hece Birleştirme</em> oyunları.</p>
-            <p><strong>Bulmaca ve Mantık:</strong> 10 seviyeli <em>Hafıza Kartları</em>, şekilleri yerleştiren <em>Şekil Bulmaca</em>, sıralama yapan <em>Sıralama</em> ve parçaları birleştiren <em>Jigsaw Bulmaca</em> oyunları.</p>
-            <p><strong>Yaratıcılık:</strong> 10 farklı resim boyayabileceğiniz <em>Boyama</em>, renkleri eşleştiren <em>Renk Eşleştirme</em> ve serbest pixel çizim yapabileceğiniz <em>Tuval</em> oyunları.</p>
+            <p><strong>Yaş raflarına göre:</strong> Anaokulu (4-6 yaş) 17 oyun, 1-2. Sınıf (6-8 yaş) 44 oyun, 3-4. Sınıf (8-10 yaş) 54 oyun, 5-6. Sınıf (10-12 yaş) 46 oyun. Her oyun, yaş aralığının kestiği her rafta görünür.</p>
+            <p><strong>Harfler ve Kelimeler (7 oyun):</strong> <em>Harf Tanıma</em>, <em>Klavye Kâşifi</em>, <em>Hece Birleştirme</em>, <em>Kelime Balonu</em>, <em>Kelime Canavarları</em>, <em>Kelime Kurtarma</em>, <em>Günlük Kelime</em>.</p>
+            <p><strong>Sayılar ve Matematik (10 oyun):</strong> <em>Sayı Sayma</em>, <em>Matematik</em>, <em>Desen Tamamlama</em>, <em>Bilgi Madencisi</em>, <em>Matematik Patlatma</em>, <em>Matematik Kafe</em>, <em>Bilgi Yılanı</em>, <em>Ritim Soruları</em>, <em>Kesir 2048</em>, <em>Sayı Ninja</em>.</p>
+            <p><strong>Bulmaca ve Mantık (8 oyun):</strong> <em>Hafıza Kartları</em>, <em>Şekil Bulmaca</em>, <em>Sıralama</em>, <em>Jigsaw Bulmaca</em>, <em>Tetris</em>, <em>Bilim Dedektifi</em>, <em>Eşleştirme Ustası</em>, <em>Labirent Avcısı</em>.</p>
+            <p><strong>Yaratıcılık (5 oyun):</strong> <em>Renk Eşleştirme</em>, <em>Boyama</em>, <em>Tuval</em>, <em>Sayılarla Boyama</em>, <em>Emoji Yapıcı</em>.</p>
+            <p><strong>Strateji ve Macera (17 oyun):</strong> <em>Kod Macerası</em>, <em>LEGO Macerası</em>, <em>LEGO World 3D</em>, <em>Satranç</em>, <em>Zıpla Topla</em>, <em>SpaceWaves</em>, <em>Eğim</em>, <em>Buz Kulesi</em>, <em>Penaltı</em>, <em>Zindan Okçusu</em>, <em>Bil ve Fethet</em>, <em>Bilgi Takımı</em>, <em>Bilgi Çiftliği</em>, <em>Bilgi Kulesi</em>, <em>Cevap Koşusu</em>, <em>Bilgi Savunması</em>, <em>Fizik Fırlatma</em>.</p>
 
             <h3>Online Çok Oyunculu Oyunlar</h3>
-            <p>Bilnet Oyun'da <strong>11 online çok oyunculu oyun</strong> bulunur. Arkadaşlarınızla gerçek zamanlı oynayabileceğiniz <em>Kelime Tahmin</em> (Wordle tarzı), <em>Harf Tahmin</em> (Adam Asmaca tarzı), <em>Kod Macerası Yarışı</em> (eşanlı puzzle çözme), <em>Online Satranç</em>, <em>Penaltı Online</em>, <em>Ateş &amp; Buz</em>, <em>Zıpla Topla Online</em>, <em>Hava Hokeyi</em>, <em>Altın Avı</em>, <em>Kelimelik</em> ve <em>Son Kart</em> oyunları mevcuttur. Lobi sistemiyle oda oluşturabilir, mevcut odalara katılabilir veya hızlı eşleşme ile anında oynamaya başlayabilirsiniz.</p>
+            <p>Bilnet Oyun'da <strong>11 online çok oyunculu oyun</strong> bulunur: <em>Kelime Tahmin</em>, <em>Harf Tahmin</em>, <em>Kod Macerası</em>, <em>Satranç</em>, <em>Penaltı Online</em>, <em>Ateş &amp; Buz</em>, <em>Zıpla Topla Online</em>, <em>Hava Hokeyi</em>, <em>Altın Avı</em>, <em>Kelimelik</em>, <em>Son Kart</em>. Arkadaşlarınızla gerçek zamanlı oynayabilir, lobi sistemiyle oda oluşturabilir, mevcut odalara katılabilir veya hızlı eşleşme ile anında oynamaya başlayabilirsiniz.</p>
 
             <h3>Neden Bilnet Oyun?</h3>
             <ul>
-                <li><strong>Tamamen ücretsiz</strong> - Reklam yok, abonelik yok, gizli ücret yok</li>
-                <li><strong>Kayıt gerektirmez</strong> - Hemen oynamaya başla</li>
-                <li><strong>Her cihazda çalışır</strong> - Telefon, tablet ve bilgisayarda mobil uyumlu tasarım</li>
-                <li><strong>Türkçe arayüz</strong> - Tamamen Türkçe, çocuklar kolayca anlayabilir</li>
-                <li><strong>Güvenli</strong> - Reklam ve izleme yok; misafir modunda hiçbir kişisel veri toplanmaz, Google ile girişte yalnızca ilerleme hesapta saklanır (<a href="/gizlilik/">gizlilik</a>)</li>
-                <li><strong>Eğitici</strong> - Matematik, kodlama, strateji, dil ve yaratıcılık becerileri geliştirir</li>
+                <li><strong>Tamamen ücretsiz</strong>: reklam yok, abonelik yok, gizli ücret yok</li>
+                <li><strong>Kayıt gerektirmez</strong>: hemen oynamaya başla</li>
+                <li><strong>Her cihazda çalışır</strong>: telefon, tablet ve bilgisayarda mobil uyumlu tasarım</li>
+                <li><strong>Türkçe arayüz</strong>: tamamen Türkçe, çocuklar kolayca anlayabilir</li>
+                <li><strong>Güvenli</strong>: reklam ve izleme yok; misafir modunda hiçbir kişisel veri toplanmaz, Google ile girişte yalnızca ilerleme hesapta saklanır (<a href="/gizlilik/">gizlilik</a>)</li>
+                <li><strong>Eğitici</strong>: matematik, kodlama, strateji, dil ve yaratıcılık becerileri geliştirir</li>
             </ul>
 
             <h3>Öğretmenler ve Veliler İçin</h3>
-            <p>Bilnet Oyun, sınıf ortamında veya evde kullanılmak üzere tasarlanmıştır. Yıldız ve seviye sistemiyle çocukların ilerlemesini takip edebilirsiniz. Her oyun anaokulu ve ilkokul müfredatına uygun beceriler geliştirir: problem çözme, mantıksal düşünme, el-göz koordinasyonu, alfabe ve sayı tanıma, kodlama temelleri ve stratejik planlama.</p>
+            <p>Bilnet Oyun, sınıf ortamında veya evde kullanılmak üzere tasarlanmıştır. Oyunlar yaş raflarına ayrılır; öğretmen görünümü her kartta kazanımı ve tipik süreyi gösterir, ada, kazanıma ya da derse göre arama yapılır. Yıldız ve seviye sistemiyle çocukların ilerlemesini takip edebilirsiniz. Her oyun anaokulu ve ilkokul müfredatına uygun beceriler geliştirir: problem çözme, mantıksal düşünme, el-göz koordinasyonu, alfabe ve sayı tanıma, kodlama temelleri ve stratejik planlama.</p>
 
-            <p><strong>Hemen oynamaya başlayın!</strong> Yukarıdaki "Oynamaya Başla" butonuna tıklayarak 57 eğitici oyuna ücretsiz erişin. <a href="https://bilnetoyun.com">bilnetoyun.com</a></p>
+            <p><strong>Hemen oynamaya başlayın!</strong> Yukarıdaki "Oynamaya Başla" butonuna tıklayarak 58 eğitici oyuna ücretsiz erişin. <a href="https://bilnetoyun.com">bilnetoyun.com</a></p>
+            <!-- catalog:seo:end -->
         </div>
     </section>
 
@@ -474,6 +497,7 @@
     <script defer src="js/lock-catalog.js?v=5"></script>
     <script defer src="js/auth.js?v=7"></script>
     <script defer src="js/bilnet-meta.js?v=2"></script>
+    <script defer src="js/hub-ia.js"></script><!-- yaş rafı / arama / klavye yardımcıları (B2b); app.js bundan önce yüklenmez -->
     <script defer src="js/app.js?v=24"></script>
 </body>
 </html>

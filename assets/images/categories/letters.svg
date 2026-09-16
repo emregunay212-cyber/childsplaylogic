@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" xmlns:c2pa="http://c2pa.org/manifest"><defs><linearGradient id="lb" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7FD0EE"></stop><stop offset="100%" stop-color="#3F9FC9"></stop></linearGradient><linearGradient id="pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFFFFF"></stop><stop offset="100%" stop-color="#E7F1F7"></stop></linearGradient><clipPath id="c"><rect width="128" height="128" rx="28"></rect></clipPath></defs><g clip-path="url(#c)"><rect width="128" height="128" fill="url(#lb)"></rect>
+  <ellipse cx="64" cy="108" rx="48" ry="9" fill="#2A7EA6" opacity=".35"></ellipse>
+  <path d="M64 40c-10-8-24-11-38-9v56c14-2 28 1 38 9z" fill="url(#pg)" stroke="#B9D3E0" stroke-width="2.5"></path>
+  <path d="M64 40c10-8 24-11 38-9v56c-14-2-28 1-38 9z" fill="url(#pg)" stroke="#B9D3E0" stroke-width="2.5"></path>
+  <path d="M64 40v56" stroke="#9FBFD0" stroke-width="3"></path>
+  <text x="41" y="78" text-anchor="middle" font-family="Fredoka, Verdana, sans-serif" font-weight="700" font-size="26" fill="#2A7EA6">A</text>
+  <path d="M76 58h18M76 70h18M76 82h12" stroke="#BBD4E1" stroke-width="4" stroke-linecap="round"></path></g></svg>

@@ -204,10 +204,13 @@ STATIC_PAGES = [
 _DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "games.json")
 
 
-def _load_games(path=_DATA_PATH):
-  """data/games.json -> kayit listesi (dict'ler). also_online turetilir; alanlar oldugu gibi gecer."""
+def _load_data(path=_DATA_PATH):
   with open(path, encoding="utf-8") as f:
-    data = json.load(f)
+    return json.load(f)
+
+
+def _load_games(data):
+  """data/games.json -> kayit listesi (dict'ler). also_online turetilir; alanlar oldugu gibi gecer."""
   games = []
   for rec in data["games"]:
     g = dict(rec)
@@ -216,4 +219,18 @@ def _load_games(path=_DATA_PATH):
   return games
 
 
-GAMES = _load_games()
+_DATA = _load_data()
+GAMES = _load_games(_DATA)
+# Yas raflari (B2b): {id, label, yas, ages [ilk, son]} — kapali tam yas araligi; /oyunlar/ suzgeci bunu okur.
+SHELVES = list(_DATA.get("shelves", []))
+# Hub bolumleri (kategori): {id, title, icon, color} — /oyunlar/ kategori suzgeci + kart seridi.
+SECTIONS = list(_DATA.get("sections", []))
+
+
+def shelves_of(g):
+  """Oyunun girdigi raf id'leri. Kural js/hub-ia.js inShelf ve tools/build-catalog.js shelvesOf ile AYNI:
+  oyun age [min,max] rafin ages [ilk,son] araligiyla kesisiyorsa girer (ucu birlikte degisir)."""
+  age = g.get("age")
+  if not isinstance(age, (list, tuple)) or len(age) != 2:
+    return []
+  return [s["id"] for s in SHELVES if age[0] <= s["ages"][1] and age[1] >= s["ages"][0]]

@@ -1,8 +1,10 @@
 /* ============================================
    ÜRETİLMİŞ — kaynak data/games.json (node tools/build-catalog.js). ELLE DÜZENLENMEZ.
    --------------------------------------------
-   Hub kataloğu: js/app.js (kayıt defteri), js/lock-catalog.js (kilit listesi), js/i18n.js (TR.games)
-   ve js/admin.js buradan türetir. Değişiklik data/games.json'a yapılır, sonra `npm run catalog`.
+   Hub kataloğu: js/app.js (kayıt defteri), js/hub-ia.js (yaş rafı), js/lock-catalog.js (kilit listesi),
+   js/i18n.js (TR.games) ve js/admin.js buradan türetir. Değişiklik data/games.json'a yapılır, sonra `npm run catalog`.
+   GAME_SHELVES  : yaş rafları (B2b), görünüm sırasıyla; ages = kapsanan tam yaşlar [ilk, son] (kapalı aralık),
+                   yas = görünen etiket. Oyun age aralığı ages ile kesişiyorsa o rafa girer (js/hub-ia.js).
    GAME_SECTIONS : hub bölümleri, görünüm sırasıyla; icon = js/app.js categoryIcons anahtarı,
                    color = css/tokens.css --kat-<id> gelene kadar yedek renk.
    GAME_CATALOG  : 57 kayıt (48 solo + 11 online), hub sırası; about/cat gibi yalnız
@@ -11,6 +13,13 @@
                    (window[ad] çalışmaz), eval CSP'yi kırar — tek güvenli yol bu thunk tablosudur.
    Sıra: index.html bu dosyayı js/errors.js'ten hemen sonra, i18n/lock-catalog/app.js'ten önce yükler.
    ============================================ */
+/* exported GAME_SHELVES */
+const GAME_SHELVES = [
+    {"id":"anaokulu","label":"Anaokulu","yas":"4-6","ages":[4,5]},
+    {"id":"sinif-1-2","label":"1-2. Sınıf","yas":"6-8","ages":[6,7]},
+    {"id":"sinif-3-4","label":"3-4. Sınıf","yas":"8-10","ages":[8,9]},
+    {"id":"sinif-5-6","label":"5-6. Sınıf","yas":"10-12","ages":[10,12]},
+];
 const GAME_SECTIONS = [
     {"id":"harf","title":"Harfler & Kelimeler","icon":"letters","color":"#45B7D1"},
     {"id":"sayi","title":"Sayılar & Matematik","icon":"numbers","color":"#4ECDC4"},
@@ -62,12 +71,12 @@ const GAME_CATALOG = [
     {"slug":"penalti","name":"Penaltı","module":"Penalti","section":"strateji","subject":"spor","age":[5,10],"minutes":3,"levels":9,"teaches":"El-göz koordinasyonu ve zamanlama","players":"Tek kişilik","players_range":[1,1],"active":true,"stars":35,"files":{"js":["js/games/penalti.js"],"css":["css/penalti.css"]}},
     {"slug":"zindan-okcusu","name":"Zindan Okçusu","module":"ZindanOkcusu","section":"strateji","subject":"strateji","age":[7,10],"minutes":10,"levels":1,"teaches":"Refleks, strateji ve karar verme","players":"Tek kişilik","players_range":[1,1],"active":true,"stars":40,"files":{"js":["js/games/zindan-okcusu.js"],"css":["css/zindan-okcusu.css"]}},
     {"slug":"bil-ve-fethet","name":"Bil ve Fethet","module":"BilVeFethet","section":"strateji","subject":"genel","age":[8,12],"minutes":15,"levels":1,"teaches":"Genel kültür, strateji ve hızlı karar verme","players":"Tek kişilik","players_range":[1,1],"active":true,"stars":0,"files":{"js":["js/games/bil-ve-fethet.js"],"css":["css/bil-ve-fethet.css"]}},
-    {"slug":"bilgi-takimi","name":"Bilgi Takımı","module":"BilgiTakimi","section":"strateji","subject":"genel","age":[8,12],"minutes":5,"levels":1,"teaches":"Matematik, Türkçe, fen ve İngilizce — düzenli çalışma alışkanlığı","players":"Tek kişilik","players_range":[1,1],"active":true,"stars":0,"files":{"js":["js/games/bilgi-takimi.js"],"css":["css/bilgi-takimi.css"]}},
+    {"slug":"bilgi-takimi","name":"Bilgi Takımı","module":"BilgiTakimi","section":"strateji","subject":"genel","age":[8,12],"minutes":5,"levels":1,"teaches":"Matematik, Türkçe, fen ve İngilizce; düzenli çalışma alışkanlığı","players":"Tek kişilik","players_range":[1,1],"active":true,"stars":0,"files":{"js":["js/games/bilgi-takimi.js"],"css":["css/bilgi-takimi.css"]}},
     {"slug":"bilgi-ciftligi","name":"Bilgi Çiftliği","module":"BilgiCiftligi","section":"strateji","subject":"genel","age":[8,12],"minutes":5,"levels":1,"teaches":"Tüm dersler + sabır ve planlama","players":"Tek kişilik","players_range":[1,1],"active":true,"stars":0,"files":{"js":["js/games/bilgi-ciftligi.js"],"css":["css/bilgi-ciftligi.css"]}},
-    {"slug":"bilgi-kulesi","name":"Bilgi Kulesi","module":"BilgiKulesi","section":"strateji","subject":"genel","age":[8,12],"minutes":6,"levels":1,"teaches":"Tüm dersler — strateji ve risk yönetimiyle birlikte","players":"Tek kişilik","players_range":[1,1],"active":true,"stars":0,"files":{"js":["js/games/bilgi-kulesi.js"],"css":["css/bilgi-kulesi.css"]}},
+    {"slug":"bilgi-kulesi","name":"Bilgi Kulesi","module":"BilgiKulesi","section":"strateji","subject":"genel","age":[8,12],"minutes":6,"levels":1,"teaches":"Tüm dersler, strateji ve risk yönetimiyle birlikte","players":"Tek kişilik","players_range":[1,1],"active":true,"stars":0,"files":{"js":["js/games/bilgi-kulesi.js"],"css":["css/bilgi-kulesi.css"]}},
     {"slug":"cevap-kosusu","name":"Cevap Koşusu","module":"CevapKosusu","section":"strateji","subject":"genel","age":[7,12],"minutes":3,"levels":1,"teaches":"Tüm dersler + hızlı karar verme ve refleks","players":"Tek kişilik","players_range":[1,1],"active":true,"stars":0,"files":{"js":["js/games/cevap-kosusu.js"],"css":["css/cevap-kosusu.css"]}},
     {"slug":"bilgi-savunmasi","name":"Bilgi Savunması","module":"BilgiSavunmasi","section":"strateji","subject":"matematik","age":[8,12],"minutes":5,"levels":1,"teaches":"İşlem akıcılığı + kaynak yönetimi ve strateji","players":"Tek kişilik","players_range":[1,1],"active":true,"stars":0,"files":{"js":["js/games/bilgi-savunmasi.js"],"css":["css/bilgi-savunmasi.css"]}},
-    {"slug":"fizik-firlatma","name":"Fizik Fırlatma","module":"FizikFirlatma","section":"strateji","subject":"fen","age":[8,12],"minutes":5,"levels":1,"teaches":"Açı, kuvvet ve yerçekimi — kinestetik fizik öğrenimi","players":"Tek kişilik","players_range":[1,1],"active":true,"stars":0,"files":{"js":["js/games/fizik-firlatma.js"],"css":["css/fizik-firlatma.css"]}},
+    {"slug":"fizik-firlatma","name":"Fizik Fırlatma","module":"FizikFirlatma","section":"strateji","subject":"fen","age":[8,12],"minutes":5,"levels":1,"teaches":"Açı, kuvvet ve yerçekimi: kinestetik fizik öğrenimi","players":"Tek kişilik","players_range":[1,1],"active":true,"stars":0,"files":{"js":["js/games/fizik-firlatma.js"],"css":["css/fizik-firlatma.css"]}},
     {"slug":"kelime-tahmin","name":"Kelime Tahmin","module":null,"section":"online","subject":"turkce","age":[7,10],"minutes":5,"teaches":"Kelime bilgisi ve tümdengelim","players":"Online çok oyunculu","players_range":[2,null],"active":true,"stars":0,"online":{"module":"KelimeTahmin","order":1,"stars":40},"files":{"js":["js/games/kelime-tahmin.js"],"css":[]}},
     {"slug":"harf-tahmin","name":"Harf Tahmin","module":null,"section":"online","subject":"turkce","age":[7,10],"minutes":5,"teaches":"Kelime bilgisi ve tahmin","players":"Online çok oyunculu","players_range":[2,null],"active":true,"stars":0,"online":{"module":"HarfTahmin","order":2,"stars":45},"files":{"js":["js/games/harf-tahmin.js"],"css":[]}},
     {"slug":"penalti-mp","name":"Penaltı Online","module":null,"section":"online","subject":"spor","age":[6,10],"minutes":3,"teaches":"Zamanlama, refleks ve rekabet","players":"Online 2 kişilik","players_range":[2,2],"active":true,"stars":0,"online":{"module":"PenaltiMP","order":5,"stars":60},"files":{"js":["js/games/penalti-mp.js"],"css":["css/penalti.css"]}},

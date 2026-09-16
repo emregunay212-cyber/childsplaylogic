@@ -200,15 +200,15 @@
         animation-delay: 0s !important;
     }
     /* 3) Durum geçişleri kısa ve düz (150 ms): hover/basma/odak geri bildirimi korunur */
-    .game-card, .popular-card, .hub-nav-chip, .top-btn, .coin-counter, .user-toggle,
+    .game-card, .hub-nav-chip, .top-switch, .top-btn, .coin-counter, .user-toggle,
     .splash-btn, .login-btn, .complete-btn, .lm-btn, .imza,
     .pill, .kb-key, .word-box, .guess-cell, .harf-cell, .mp-turn-badge, .lobby-refresh-btn {
         transition-duration: 150ms !important;
         transition-timing-function: ease-out !important;
     }
     /* Hover'da uzaysal kaldırma yok; gölge/kenarlık ve basma ölçeği (%3) yeter */
-    .game-card:hover, .game-card:focus-visible, .popular-card:hover { transform: none !important; }
-    .game-card:active, .popular-card:active { transform: scale(0.97) !important; }
+    .game-card:hover, .game-card:focus-visible { transform: none !important; }
+    .game-card:active { transform: scale(0.97) !important; }
     /* KASTEN korunur: starEarned, successPulse, numberPop, wiggle (hata), lm-bar-fill (ilerleme
        çubuğu), oyun içi hücre açılışları. (Kilitli karta dokunma zıplaması da 2. kuralla sönümlenir;
        geri bildirimi zaten açılan kilit penceresi verir.) */

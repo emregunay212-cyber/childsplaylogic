@@ -1,5 +1,12 @@
 {
   "_aciklama": "bilnetoyun.com oyun kataloğu — TEK KAYNAK. Okuyanlar: tools/build-catalog.js (→ js/catalog.js + index.html altbilgi), seo/games_data.py (→ /oyunlar/ landing, sitemap, llms.txt), tests/helpers/slugs.js (duman testi). Alan sözlüğü: docs/inceleme-2026-09-15/kanit/B2a-veri-notlari.md. Sıra = hub sırası; online bölümü sırası online.order.",
+  "_raf_aciklama": "shelves = yaş rafları (B2b, docs/tasarim-sozlesmesi.md §3.02). ages = rafın kapsadığı TAM YAŞLAR [ilk, son] (kapalı aralık: Anaokulu 4 ve 5 yaş; son raf 12 dahil), yas = görünen etiket. Bir oyun age [min,max] aralığı rafın ages aralığıyla kesişiyorsa o rafa girer (birden çok rafa girebilir). Okuyanlar: tools/build-catalog.js (→ GAME_SHELVES), seo/games_data.py (SHELVES → /oyunlar/ süzgeci).",
+  "shelves": [
+    { "id": "anaokulu", "label": "Anaokulu", "yas": "4-6", "ages": [4, 5] },
+    { "id": "sinif-1-2", "label": "1-2. Sınıf", "yas": "6-8", "ages": [6, 7] },
+    { "id": "sinif-3-4", "label": "3-4. Sınıf", "yas": "8-10", "ages": [8, 9] },
+    { "id": "sinif-5-6", "label": "5-6. Sınıf", "yas": "10-12", "ages": [10, 12] }
+  ],
   "sections": [
     {
       "id": "harf",
@@ -991,7 +998,7 @@
       "age": [8, 12],
       "minutes": 5,
       "levels": 1,
-      "teaches": "Matematik, Türkçe, fen ve İngilizce — düzenli çalışma alışkanlığı",
+      "teaches": "Matematik, Türkçe, fen ve İngilizce; düzenli çalışma alışkanlığı",
       "short": "Görevleri bitir, XP topla, bilgi takımına yeni karakterler kat!",
       "about": "Bilgi Takımı, soru çözerek görev tamamladığın bir macera-koleksiyon oyunudur. Kütüphane, laboratuvar ve sözlük görevlerinde matematik, Türkçe, fen ve İngilizce soruları çözer; XP ve puan toplarsın. Her 5 görevde takımına Matematikçi Aslı, Bilge Baykuş gibi yeni bir karakter katılır — karakterler sana asla cevap söylemez, sadece puanını artırır. Günlük 20 enerji sınırı ekran süresini dengeler; aylık 30 görevlik sezon kitabını bitirenler Sezon Kahramanı olur. Ücretsiz, üyeliksiz, tarayıcıda oynanır.",
       "players": "Tek kişilik",
@@ -1035,7 +1042,7 @@
       "age": [8, 12],
       "minutes": 6,
       "levels": 1,
-      "teaches": "Tüm dersler — strateji ve risk yönetimiyle birlikte",
+      "teaches": "Tüm dersler, strateji ve risk yönetimiyle birlikte",
       "short": "12 soruluk kuleyi tırman: jokerler, güvenli katlar ve zirvede taç!",
       "about": "Bilgi Kulesi, efsanevi yarışma formatını çocuklara uyarlar: 12 soruluk zorluk merdiveni Etek sorularıyla başlar, Zirve'de biter. Her doğru cevap kuleye kat ekler; 4. ve 8. katlar GÜVENLİDİR — yanlışta oraya inersin, kule yıkılmaz. Yarı yarıya, Bilge Baykuş ve Çift Hak jokerleri; istediğin an puanını alıp çekilme stratejisi! Günde 3 deneme hakkıyla her giriş kıymetlidir. Ücretsiz, üyeliksiz.",
       "players": "Tek kişilik",
@@ -1101,7 +1108,7 @@
       "age": [8, 12],
       "minutes": 5,
       "levels": 1,
-      "teaches": "Açı, kuvvet ve yerçekimi — kinestetik fizik öğrenimi",
+      "teaches": "Açı, kuvvet ve yerçekimi: kinestetik fizik öğrenimi",
       "short": "Sapanı çek, AÇI ve KUVVETİ sayılarla gör, 12 bölümde yıldızları vur!",
       "about": "Fizik Fırlatma'da her atış bir fizik dersi: sapanı çekerken açı ve kuvvet SAYISAL olarak ekranda görünür (45° / kuvvet 70), bölüm sonunda 'en verimli açın' raporu gelir — deneme-yanılma değil, bilinçli ayar! Mermiler bilgiyle kazanılır: atış öncesi mini soruları çöz. 12 el yapımı bölüm; AY bölümlerinde yerçekimi düşüktür ve merminin süzülüşü kavramı kendiliğinden öğretir. Ücretsiz, üyeliksiz.",
       "players": "Tek kişilik",

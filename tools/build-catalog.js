@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 /* ============================================
-   Oyun kataloğu üretici — data/games.json → js/catalog.js + index.html altbilgisi (B2a)
+   Oyun kataloğu üretici — data/games.json → js/catalog.js + index.html altbilgisi/SEO bloğu (B2a, B2b)
    --------------------------------------------
-   data/games.json oyun bilgisinin TEK kaynağıdır (hub kayıt defteri, kilit listesi, TR.games,
+   data/games.json oyun bilgisinin TEK kaynağıdır (hub kayıt defteri, yaş rafları, kilit listesi, TR.games,
    altbilgi bağlantıları, SEO üretici, duman testi). Bu araç JSON'u doğrular ve iki çıktı üretir:
-     js/catalog.js   GAME_SECTIONS / GAME_CATALOG / GAME_MODULES (hub izdüşümü; about/cat yok)
-     index.html      <!-- catalog:start --> … <!-- catalog:end --> arasındaki altbilgi grupları
+     js/catalog.js   GAME_SHELVES / GAME_SECTIONS / GAME_CATALOG / GAME_MODULES (hub izdüşümü; about/cat yok)
+     index.html      <!-- catalog:start --> … <!-- catalog:end -->   altbilgi grupları
+                     <!-- catalog:lead:start --> … <!-- catalog:lead:end --> altbilgi giriş cümlesi (oyun sayıları)
+                     <!-- catalog:seo:start --> … <!-- catalog:seo:end -->   SEO içerik bloğu (sayılar + oyun adları)
    Üretilen dosyalar elle düzenlenmez; değişiklik JSON'a yapılır, sonra `npm run catalog`.
 
    Kullanım:
@@ -14,6 +16,9 @@
    Bağımlılık yok (Node ≥ 20). Satır sonu: mevcut dosyanınki korunur (CRLF/LF); karşılaştırma LF'e göre.
 
    Şema (hepsi zorunlu, ? = isteğe bağlı):
+     shelves[]:  { id ([a-z0-9-], benzersiz), label, yas (görünen etiket, "4-6"), ages [ilk, son] (rafın kapsadığı
+                   tam yaşlar, KAPALI aralık; raflar bitişik ve 4..12'yi kesintisiz kaplar) } — B2b yaş rafı.
+                   Oyun age [min,max] rafın ages aralığıyla kesişiyorsa o rafa girer (birden çok raf olabilir).
      sections[]: { id (harf|sayi|bulmaca|yaratici|strateji|online), title, icon (js/app.js categoryIcons
                    anahtarı), color (#rrggbb — css/tokens.css --kat-<id> gelene kadar yedek) }
      games[]:    slug (benzersiz, [a-z0-9-]), name (benzersiz), module (ModülAdı | null; eslint.config.js
@@ -38,6 +43,10 @@ const INDEX_REL = 'index.html';
 const ESLINT_REL = 'eslint.config.js';
 const START_MARK = '<!-- catalog:start -->';
 const END_MARK = '<!-- catalog:end -->';
+const LEAD_START = '<!-- catalog:lead:start -->';
+const LEAD_END = '<!-- catalog:lead:end -->';
+const SEO_START = '<!-- catalog:seo:start -->';
+const SEO_END = '<!-- catalog:seo:end -->';
 
 const SUBJECTS = ['turkce', 'ingilizce', 'matematik', 'fen', 'kodlama', 'strateji', 'sanat', 'spor', 'genel'];
 const SECTION_IDS = ['harf', 'sayi', 'bulmaca', 'yaratici', 'strateji', 'online'];
@@ -104,12 +113,38 @@ function validate(data) {
     const moduleNames = eslintModuleNames();
     if (!moduleNames) err(`${ESLINT_REL}: gameModuleGlobals listesi okunamadı`);
 
-    if (!data || typeof data !== 'object' || Array.isArray(data)) { err('kök bir nesne olmalı ({ sections, games })'); return errors; }
+    if (!data || typeof data !== 'object' || Array.isArray(data)) { err('kök bir nesne olmalı ({ shelves, sections, games })'); return errors; }
+    const shelves = data.shelves;
     const sections = data.sections;
     const games = data.games;
+    if (!Array.isArray(shelves) || !shelves.length) err('shelves: boş olmayan dizi olmalı (yaş rafları, B2b)');
     if (!Array.isArray(sections) || !sections.length) err('sections: boş olmayan dizi olmalı');
     if (!Array.isArray(games) || !games.length) err('games: boş olmayan dizi olmalı');
     if (errors.length) return errors;
+
+    // Raflar: bitişik kapalı yaş aralıkları, 4..12'yi kesintisiz kaplar (ilk raf 4'te başlar, son raf 12'de biter)
+    const shelfIds = new Set();
+    let expectNext = SHELF_MIN;
+    shelves.forEach((s, i) => {
+        const at = `shelves[${i}]`;
+        if (!s || typeof s !== 'object') { err(`${at}: nesne olmalı`); return; }
+        if (!isStr(s.id) || !/^[a-z0-9-]+$/.test(s.id)) err(`${at}.id: [a-z0-9-] olmalı`);
+        else if (shelfIds.has(s.id)) err(`${at}.id: tekrar (${s.id})`);
+        shelfIds.add(s.id);
+        for (const k of ['label', 'yas']) {
+            if (!isStr(s[k])) err(`${at}.${k}: boş olamaz`);
+            else if (hasAngle(s[k])) err(`${at}.${k}: < > içeremez: ${s[k]}`);
+        }
+        if (!Array.isArray(s.ages) || s.ages.length !== 2 || !s.ages.every(isInt) || s.ages[0] > s.ages[1]) {
+            err(`${at}.ages: [ilk, son] tam sayı (ilk ≤ son) olmalı`);
+        } else {
+            if (s.ages[0] !== expectNext) err(`${at}.ages: ${expectNext} ile başlamalı (raflar bitişik; ${s.ages[0]} bulundu)`);
+            expectNext = s.ages[1] + 1;
+        }
+        const extra = Object.keys(s).filter((k) => !['id', 'label', 'yas', 'ages'].includes(k));
+        if (extra.length) err(`${at}: bilinmeyen anahtar ${extra.join(', ')}`);
+    });
+    if (expectNext !== SHELF_MAX + 1) err(`shelves: son raf ${SHELF_MAX} yaşında bitmeli (${expectNext - 1} bulundu)`);
 
     const sectionIds = new Set();
     sections.forEach((s, i) => {
@@ -240,8 +275,10 @@ function buildCatalogJs(data) {
         '/* ============================================',
         `   ÜRETİLMİŞ — kaynak ${DATA_REL} (node tools/build-catalog.js). ELLE DÜZENLENMEZ.`,
         '   --------------------------------------------',
-        '   Hub kataloğu: js/app.js (kayıt defteri), js/lock-catalog.js (kilit listesi), js/i18n.js (TR.games)',
-        `   ve js/admin.js buradan türetir. Değişiklik ${DATA_REL}'a yapılır, sonra \`npm run catalog\`.`,
+        '   Hub kataloğu: js/app.js (kayıt defteri), js/hub-ia.js (yaş rafı), js/lock-catalog.js (kilit listesi),',
+        `   js/i18n.js (TR.games) ve js/admin.js buradan türetir. Değişiklik ${DATA_REL}'a yapılır, sonra \`npm run catalog\`.`,
+        '   GAME_SHELVES  : yaş rafları (B2b), görünüm sırasıyla; ages = kapsanan tam yaşlar [ilk, son] (kapalı aralık),',
+        '                   yas = görünen etiket. Oyun age aralığı ages ile kesişiyorsa o rafa girer (js/hub-ia.js).',
         '   GAME_SECTIONS : hub bölümleri, görünüm sırasıyla; icon = js/app.js categoryIcons anahtarı,',
         '                   color = css/tokens.css --kat-<id> gelene kadar yedek renk.',
         `   GAME_CATALOG  : ${games.length} kayıt (${solo} solo + ${onlineOrdered(games).length} online), hub sırası; about/cat gibi yalnız`,
@@ -250,6 +287,10 @@ function buildCatalogJs(data) {
         '                   (window[ad] çalışmaz), eval CSP\'yi kırar — tek güvenli yol bu thunk tablosudur.',
         '   Sıra: index.html bu dosyayı js/errors.js\'ten hemen sonra, i18n/lock-catalog/app.js\'ten önce yükler.',
         '   ============================================ */',
+        '/* exported GAME_SHELVES */',
+        'const GAME_SHELVES = [',
+        ...data.shelves.map((s) => `    ${JSON.stringify(s)},`),
+        '];',
         'const GAME_SECTIONS = [',
         ...data.sections.map((s) => `    ${JSON.stringify(s)},`),
         '];',
@@ -289,14 +330,92 @@ function buildFooterGroups(data) {
     return groups.join('\n');
 }
 
-function spliceFooter(indexLf, groups) {
-    const a = indexLf.indexOf(START_MARK);
-    const b = indexLf.indexOf(END_MARK);
-    if (a < 0 || b < 0) fail(`${INDEX_REL}: ${START_MARK} / ${END_MARK} işaretleri yok`);
-    if (indexLf.indexOf(START_MARK, a + 1) >= 0 || indexLf.indexOf(END_MARK, b + 1) >= 0) fail(`${INDEX_REL}: işaret birden fazla`);
-    if (b < a) fail(`${INDEX_REL}: catalog:end, catalog:start'tan önce`);
+// index.html işaret çifti arasını yeniden yazar: START satırının girintisi gövde satırlarına uygulanır
+function spliceBlock(indexLf, startMark, endMark, bodyLines) {
+    const a = indexLf.indexOf(startMark);
+    const b = indexLf.indexOf(endMark);
+    if (a < 0 || b < 0) fail(`${INDEX_REL}: ${startMark} / ${endMark} işaretleri yok`);
+    if (indexLf.indexOf(startMark, a + 1) >= 0 || indexLf.indexOf(endMark, b + 1) >= 0) fail(`${INDEX_REL}: işaret birden fazla (${startMark})`);
+    if (b < a) fail(`${INDEX_REL}: ${endMark}, ${startMark}'tan önce`);
+    const startLineStart = indexLf.lastIndexOf('\n', a) + 1;
+    const indent = indexLf.slice(startLineStart, a).match(/^\s*/)[0];
     const endLineStart = indexLf.lastIndexOf('\n', b) + 1;          // END işaretinin satır başı (girintisiyle)
-    return indexLf.slice(0, a + START_MARK.length) + '\n' + groups + '\n' + indexLf.slice(endLineStart);
+    const body = bodyLines.map((l) => (l ? indent + l : l)).join('\n');
+    return indexLf.slice(0, a + startMark.length) + '\n' + body + '\n' + indexLf.slice(endLineStart);
+}
+
+function spliceFooter(indexLf, groups) {
+    return spliceBlock(indexLf, START_MARK, END_MARK, groups.split('\n'));
+}
+
+// Sayılar: aktif solo + aktif online (kod-macerasi/satranc iki sürümlü → iki kart, iki oyun)
+function counts(data) {
+    const solo = data.games.filter((g) => g.module && g.active);
+    const online = onlineOrdered(data.games).filter((g) => g.active);
+    return { solo, online, total: solo.length + online.length };
+}
+
+// Bir oyunun girdiği raflar: age [min,max] ile rafın ages [ilk,son] (kapalı) kesişimi — js/hub-ia.js ve
+// seo/games_data.py ile AYNI kural; değişecekse üçü birlikte değişir.
+function shelvesOf(data, g) {
+    return data.shelves.filter((s) => g.age[0] <= s.ages[1] && g.age[1] >= s.ages[0]).map((s) => s.id);
+}
+
+function nameList(items) {
+    return items.map((g) => `<em>${escapeHtml(g.name)}</em>`).join(', ');
+}
+
+// Altbilgi giriş cümlesi (index.html .hub-footer-lead): toplam oyun sayısı kataloğdan
+function buildFooterLead(data) {
+    const { total } = counts(data);
+    return [
+        `<p class="hub-footer-lead"><strong>Bilnet Oyun</strong>, Bilnet Okulları'nın anaokulu ve ilkokul öğrencileri için hazırladığı ${total} ücretsiz eğitici oyun. Üyelik yok, reklam yok; her oyun tarayıcıda açılır. <a href="/oyunlar/">Tüm oyunlar ve yaş grupları</a></p>`,
+    ];
+}
+
+// SEO içerik bloğu (index.html #seo-content): sayılar, raf dağılımı ve oyun adları kataloğdan;
+// sabit paragraflar (neden / öğretmen) burada durur. Uzun tire (—) sayfa metninde kullanılmaz.
+function buildSeoBlock(data) {
+    const { solo, online, total } = counts(data);
+    const cards = [...solo, ...online];
+    const shelfLine = data.shelves.map((s) => {
+        const n = cards.filter((g) => shelvesOf(data, g).includes(s.id)).length;
+        return `${escapeHtml(s.label)} (${escapeHtml(s.yas)} yaş) ${n} oyun`;
+    }).join(', ');
+    const lines = [
+        '<h2>Bilnet Oyun: Çocuklar İçin Ücretsiz Eğitici Oyunlar</h2>',
+        `<p><strong>Bilnet Oyun</strong>, Bilnet Okulları'nın anaokulu ve ilkokul çağındaki çocuklar için tasarladığı <strong>${total} ücretsiz eğitici oyun</strong> sunan bir web platformudur. İndirme veya kayıt gerektirmeden, doğrudan tarayıcıda oynayabileceğiniz interaktif oyunlarla çocuklarınızın öğrenme sürecini destekleyin.</p>`,
+        '',
+        '<h3>Hangi Oyunlar Var?</h3>',
+        `<p><strong>Yaş raflarına göre:</strong> ${shelfLine}. Her oyun, yaş aralığının kestiği her rafta görünür.</p>`,
+    ];
+    for (const s of data.sections) {
+        if (s.id === 'online') continue;
+        const items = solo.filter((g) => g.section === s.id);
+        if (!items.length) continue;
+        lines.push(`<p><strong>${escapeHtml(s.title.replace(' & ', ' ve '))} (${items.length} oyun):</strong> ${nameList(items)}.</p>`);
+    }
+    lines.push(
+        '',
+        '<h3>Online Çok Oyunculu Oyunlar</h3>',
+        `<p>Bilnet Oyun'da <strong>${online.length} online çok oyunculu oyun</strong> bulunur: ${nameList(online)}. Arkadaşlarınızla gerçek zamanlı oynayabilir, lobi sistemiyle oda oluşturabilir, mevcut odalara katılabilir veya hızlı eşleşme ile anında oynamaya başlayabilirsiniz.</p>`,
+        '',
+        '<h3>Neden Bilnet Oyun?</h3>',
+        '<ul>',
+        '    <li><strong>Tamamen ücretsiz</strong>: reklam yok, abonelik yok, gizli ücret yok</li>',
+        '    <li><strong>Kayıt gerektirmez</strong>: hemen oynamaya başla</li>',
+        '    <li><strong>Her cihazda çalışır</strong>: telefon, tablet ve bilgisayarda mobil uyumlu tasarım</li>',
+        '    <li><strong>Türkçe arayüz</strong>: tamamen Türkçe, çocuklar kolayca anlayabilir</li>',
+        '    <li><strong>Güvenli</strong>: reklam ve izleme yok; misafir modunda hiçbir kişisel veri toplanmaz, Google ile girişte yalnızca ilerleme hesapta saklanır (<a href="/gizlilik/">gizlilik</a>)</li>',
+        '    <li><strong>Eğitici</strong>: matematik, kodlama, strateji, dil ve yaratıcılık becerileri geliştirir</li>',
+        '</ul>',
+        '',
+        '<h3>Öğretmenler ve Veliler İçin</h3>',
+        '<p>Bilnet Oyun, sınıf ortamında veya evde kullanılmak üzere tasarlanmıştır. Oyunlar yaş raflarına ayrılır; öğretmen görünümü her kartta kazanımı ve tipik süreyi gösterir, ada, kazanıma ya da derse göre arama yapılır. Yıldız ve seviye sistemiyle çocukların ilerlemesini takip edebilirsiniz. Her oyun anaokulu ve ilkokul müfredatına uygun beceriler geliştirir: problem çözme, mantıksal düşünme, el-göz koordinasyonu, alfabe ve sayı tanıma, kodlama temelleri ve stratejik planlama.</p>',
+        '',
+        `<p><strong>Hemen oynamaya başlayın!</strong> Yukarıdaki "Oynamaya Başla" butonuna tıklayarak ${total} eğitici oyuna ücretsiz erişin. <a href="https://bilnetoyun.com">bilnetoyun.com</a></p>`,
+    );
+    return lines;
 }
 
 // ── Ana akış ──
@@ -321,9 +440,12 @@ function main() {
     const indexText = readText(INDEX_REL);
     if (indexText === null) fail(`${INDEX_REL} yok`);
     const indexLf = toLf(indexText);
+    let nextIndex = spliceFooter(indexLf, buildFooterGroups(data));
+    nextIndex = spliceBlock(nextIndex, LEAD_START, LEAD_END, buildFooterLead(data));
+    nextIndex = spliceBlock(nextIndex, SEO_START, SEO_END, buildSeoBlock(data));
     const outputs = [
         { rel: CATALOG_REL, existing: readText(CATALOG_REL), next: buildCatalogJs(data) },
-        { rel: INDEX_REL, existing: indexText, next: spliceFooter(indexLf, buildFooterGroups(data)) },
+        { rel: INDEX_REL, existing: indexText, next: nextIndex },
     ];
 
     const solo = data.games.filter((g) => g.module).length;
@@ -337,7 +459,7 @@ function main() {
             for (const o of stale) console.error(`[catalog] güncel değil: ${o.rel}`);
             fail(`üretilmiş çıktı ${DATA_REL} ile uyuşmuyor — \`npm run catalog\` çalıştırıp commit et`);
         }
-        console.log('[catalog] check OK — js/catalog.js ve index.html altbilgisi data/games.json ile aynı');
+        console.log('[catalog] check OK — js/catalog.js ve index.html (altbilgi, giriş cümlesi, SEO bloğu) data/games.json ile aynı');
         return;
     }
     const fallbackEol = eolFor(indexText, '\n');

@@ -1,1 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><rect x="12" y="12" width="72" height="72" rx="6" fill="#8B4513"/><rect x="16" y="16" width="16" height="16" fill="#F0D9B5"/><rect x="32" y="16" width="16" height="16" fill="#B58863"/><rect x="48" y="16" width="16" height="16" fill="#F0D9B5"/><rect x="64" y="16" width="16" height="16" fill="#B58863"/><rect x="16" y="32" width="16" height="16" fill="#B58863"/><rect x="32" y="32" width="16" height="16" fill="#F0D9B5"/><rect x="48" y="32" width="16" height="16" fill="#B58863"/><rect x="64" y="32" width="16" height="16" fill="#F0D9B5"/><text x="48" y="58" text-anchor="middle" font-size="28" fill="#333">♚</text><text x="48" y="82" text-anchor="middle" font-size="28" fill="#fff">♔</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" xmlns:c2pa="http://c2pa.org/manifest"><defs><linearGradient id="sbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F3E7D2"></stop><stop offset="100%" stop-color="#DCC7A4"></stop></linearGradient><linearGradient id="wp" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFFFFF"></stop><stop offset="100%" stop-color="#E2E6E9"></stop></linearGradient><linearGradient id="bp" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4A4038"></stop><stop offset="100%" stop-color="#241E19"></stop></linearGradient><clipPath id="c"><rect width="128" height="128" rx="28"></rect></clipPath></defs><g clip-path="url(#c)"><rect width="128" height="128" fill="url(#sbg)"></rect>
+   <g>
+     <path d="M8 86h112l8 26H0z" fill="#C9A87A"></path>
+     <path d="M14 86h100l6 20H8z" fill="#F0D9B5"></path>
+     <path d="M14 86h25l-3 20H8zM64 86h25l3 20H64zM39 96h25l-1 10H38z" fill="#B58863"></path>
+   </g>
+   <g>
+     <path d="M44 84c0-6 5-8 5-14 0-5-4-6-4-11 0-6 5-10 11-10s11 4 11 10c0 5-4 6-4 11 0 6 5 8 5 14z" fill="url(#bp)"></path>
+     <path d="M50 30h12M56 24v12" stroke="#241E19" stroke-width="5" stroke-linecap="round"></path>
+     <rect x="40" y="82" width="32" height="7" rx="3.5" fill="#241E19"></rect>
+   </g>
+   <g>
+     <path d="M78 88c0-5 4-7 4-12 0-4-3-5-3-9 0-5 4-8 9-8s9 3 9 8c0 4-3 5-3 9 0 5 4 7 4 12z" fill="url(#wp)" stroke="#B4BCC2" stroke-width="2"></path>
+     <circle cx="88" cy="50" r="8" fill="url(#wp)" stroke="#B4BCC2" stroke-width="2"></circle>
+     <rect x="74" y="86" width="28" height="7" rx="3.5" fill="#fff" stroke="#B4BCC2" stroke-width="2"></rect>
+   </g></g></svg>

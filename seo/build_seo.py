@@ -26,7 +26,7 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from games_data import GAMES, STATIC_PAGES, SCHOOL_NAME, SCHOOL_URL, SCHOOL_SOCIAL  # noqa: E402
+from games_data import GAMES, STATIC_PAGES, SCHOOL_NAME, SCHOOL_URL, SCHOOL_SOCIAL, SHELVES, SECTIONS, shelves_of  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = "https://bilnetoyun.com"
@@ -384,16 +384,22 @@ HUB_TMPL = """<!DOCTYPE html>
 </head>
 <body>
 <div class="wrap wrap--hub">
-<header><a class="home" href="/">🎮 Bilnet Oyun</a></header>
+<header><a class="home" href="/">Bilnet Oyun</a></header>
 <nav class="crumb" aria-label="Sayfa yolu"><a href="/">Ana Sayfa</a> › Oyunlar</nav>
 <main>
 <h1>Tüm Eğitici Oyunlar</h1>
-<p class="lead">Anaokulu, ilkokul ve ortaokul çocukları için {n} ücretsiz, üyeliksiz eğitici oyun. Bir oyuna dokun, tarayıcıda hemen oyna.</p>
+<p class="lead">Anaokulu, ilkokul ve ortaokul çocukları için {n} ücretsiz, üyeliksiz eğitici oyun. Yaş rafını ve kategoriyi seç, bir oyuna dokun, tarayıcıda hemen oyna.</p>
+<div class="hub-duzen">
+<form class="suzgec" aria-label="Oyun süzgeci">
+{filters}
+</form>
 <div class="grid">
 {cards}
 </div>
+<p class="bos" role="status"><strong>Burada bir oyun yok.</strong> Bu yaş ve kategori birleşiminde henüz oyun eklenmedi. Başka bir raf dene.</p>
+</div>
 </main>
-<footer>Bilnet Oyun — Bilnet Okulları Eğitici Oyun Platformu · <a href="/">Ana Sayfa</a>{static_links}</footer>
+<footer>Bilnet Oyun, Bilnet Okulları Eğitici Oyun Platformu · <a href="/">Ana Sayfa</a>{static_links}</footer>
 </div>
 {imza}
 </body>
@@ -524,17 +530,56 @@ def hub_description(n):
             f"online oyunlar. {AGE_SPAN} yaş, üyeliksiz, tarayıcıda oynanır.")
 
 
+# Kategori simgeleri v2 (assets/images/categories/<icon>.svg; js/app.js categoryIcons ile ayni dosyalar)
+def category_icon(section):
+    return f'/assets/images/categories/{section.get("icon", "strategy")}.svg'
+
+
+def hub_filters():
+    """/oyunlar/ suzgeci (sozlesme §3.11): yas rafi × kategori, radio + etiket; CSS :has() ile JS'siz suzer
+    (css/landing.css). Cip metinleri data/games.json shelves/sections'tan; 'Hepsi'/'Tümü' varsayilan."""
+    def chip(name, value, label, checked=False, icon=None, sub=None):
+        cid = f"{name}-{value}"
+        ico = f'<img src="{icon}" alt="" width="24" height="24" loading="lazy" decoding="async">' if icon else ""
+        small = f' <small>{esc(sub)}</small>' if sub else ""
+        return (f'<input class="suzgec-radio" type="radio" name="{name}" id="{cid}" value="{esc(value)}"{" checked" if checked else ""}>'
+                f'<label class="cip" for="{cid}">{ico}{esc(label)}{small}</label>')
+    yas = [chip("yas", "hepsi", "Hepsi", True)] + [chip("yas", s["id"], s["label"], sub=f'{s["yas"]} yaş') for s in SHELVES]
+    kat = [chip("kat", "hepsi", "Tümü", True)] + [chip("kat", s["id"], s["title"].replace(" & ", " ve "), icon=category_icon(s)) for s in SECTIONS]
+    return "\n".join([
+        '<fieldset class="suzgec-grup"><legend>Yaş rafı</legend><div class="suzgec-cipler">', *yas, '</div></fieldset>',
+        '<fieldset class="suzgec-grup"><legend>Kategori</legend><div class="suzgec-cipler">', *kat, '</div></fieldset>',
+    ])
+
+
+def hub_card(g):
+    """Kart anatomisi hub ile ayni (sozlesme §3.11): kategori seridi (data-section), gorsel, ad, kazanim satiri
+    hep acik, yas/sure/oyuncu; online rozet. data-raf = girdigi raflar (suzgec)."""
+    section = "online" if not g.get("module") else g.get("section", "")
+    rafs = " ".join(shelves_of(g))
+    online_attr = ' data-online=""' if (g.get("also_online") or section == "online") else ""
+    badge = ""
+    if section == "online":
+        badge = '<span class="g-rozet">2 Oyuncu</span>'
+    elif g.get("also_online"):
+        badge = '<span class="g-rozet">Solo + Online</span>'
+    meta = [f'<span class="g-yas">{esc(age_label(g))} yaş</span>']
+    if minutes_label(g):
+        meta.append(f'<span>{esc(minutes_label(g))}</span>')
+    meta.append(f'<span>{esc(g["players"])}</span>')
+    return (f'<a class="g" href="/oyunlar/{g["slug"]}/" data-section="{esc(section)}" data-raf="{esc(rafs)}"{online_attr}>'
+            f'{badge}<img class="g-ikon" src="/assets/images/hub/{g["slug"]}.svg" alt="" width="128" height="128" loading="lazy" decoding="async">'
+            f'<h2>{esc(g["name"])}</h2><p class="g-kazanim">{esc(g["teaches"])}</p>'
+            f'<span class="g-meta">{"".join(meta)}</span></a>')
+
+
 def build_hub(active, date):
-    cards = "\n".join(
-        f'<a class="g" href="/oyunlar/{g["slug"]}/"><h2>{esc(g["name"])}</h2>'
-        f'<p>{esc(g["short"])}</p><span class="t">{esc(g["cat"])} · {esc(age_label(g))} yaş'
-        + (f' · {esc(minutes_label(g))}' if minutes_label(g) else '') + ' ›</span></a>'
-        for g in active)
-    n = len(active)
+    cards = "\n".join(hub_card(g) for g in active)
+    n = total_games(active)   # duyurulan oyun sayisi (ayni sayfada online surumu olanlar +1); ana sayfa ile ayni
     desc = hub_description(n)
     return HUB_TMPL.format(
         title=esc(hub_title(n)), desc=esc(desc), site=SITE, og_image=OG_IMAGE, og_w=OG_W, og_h=OG_H,
-        head_common=HEAD_COMMON, jsonld=jsonld_hub(active, desc, date), n=n, cards=cards,
+        head_common=HEAD_COMMON, jsonld=jsonld_hub(active, desc, date), n=n, cards=cards, filters=hub_filters(),
         static_links=static_links(), imza=IMZA_HTML)
 
 

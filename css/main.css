@@ -504,10 +504,83 @@ button {
     text-align: center;
 }
 
+.top-spacer { flex: 1; min-width: 0; }
+
 .top-right {
     display: flex;
     align-items: center;
     gap: var(--ara-1);
+}
+
+/* Öğretmen anahtarı (B2b, role=switch): beyaz hap + etiket + ray/düğme; açıkken ray mavi-800.
+   Durum yalnız renkle değil: düğme konumu + aria-checked. ≤ 640 px'te etiket ekran okuyucuya kalır, simge görünür. */
+.top-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ara-2);
+    min-height: 44px;
+    padding: 0 var(--ara-3) 0 var(--ara-3);
+    margin-left: var(--ara-1);
+    background: var(--yuzey);
+    color: var(--murekkep);
+    border: 3px solid var(--beyaz);
+    border-radius: var(--r-hap);
+    box-shadow: var(--golge-1);
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: transform var(--sure-bas) var(--egri-out), box-shadow var(--sure-gecis) var(--egri-out);
+}
+.top-switch:hover { box-shadow: var(--golge-2); }
+.top-switch:active { transform: scale(0.97); }
+.top-switch .switch-ico {
+    width: 22px;
+    height: 22px;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.top-switch .switch-track {
+    position: relative;
+    flex: none;
+    width: 38px;
+    height: 22px;
+    border-radius: var(--r-hap);
+    background: var(--cizgi);
+    box-shadow: inset 0 0 0 2px var(--cizgi);
+    transition: background-color var(--sure-gecis) var(--egri-out), box-shadow var(--sure-gecis) var(--egri-out);
+}
+.top-switch .switch-knob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--beyaz);
+    box-shadow: 0 0 0 2px var(--murekkep-orta) inset, var(--golge-1);
+    transition: transform var(--sure-gecis) var(--egri-out), box-shadow var(--sure-gecis) var(--egri-out);
+}
+.top-switch[aria-checked="true"] .switch-track { background: var(--mavi-800); box-shadow: inset 0 0 0 2px var(--mavi-800); }
+.top-switch[aria-checked="true"] .switch-knob { transform: translateX(16px); box-shadow: 0 0 0 2px var(--mavi-800) inset, var(--golge-1); }
+.top-switch[aria-checked="true"] { color: var(--mavi-800); }
+@media (max-width: 640px) {
+    /* Dar üst bar tek satırda kalır: ev/ses 44 px, sayaçlar sıkı, anahtar yalnız simge (durum: dolgu + aria-checked) */
+    .top-bar { padding: 0 var(--ara-3); gap: var(--ara-1); flex-wrap: nowrap; }
+    .top-btn, .home-btn { width: 44px; height: 44px; }
+    .home-btn { margin-right: 0; }
+    .star-counter { padding: 6px 8px; margin-right: 0; min-height: 40px; }
+    .top-switch { width: 44px; min-width: 44px; padding: 0; justify-content: center; margin-left: 0; }
+    .top-switch .switch-track { display: none; }
+    .top-switch[aria-checked="true"] { background: var(--mavi-800); color: var(--beyaz); }
+    .top-switch .switch-label {
+        position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
+        clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+    }
 }
 
 .star-counter {

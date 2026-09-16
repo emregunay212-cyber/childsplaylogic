@@ -1,26 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#FF94D4"/>
-      <stop offset="100%" stop-color="#FF78C4"/>
-    </linearGradient>
-  </defs>
-  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
-  <!-- Canvas/paper -->
-  <rect x="20" y="24" width="60" height="76" rx="6" fill="white" opacity="0.95"/>
-  <!-- Drawn flower on canvas -->
-  <circle cx="44" cy="52" r="8" fill="#FFD700" opacity="0.8"/>
-  <circle cx="36" cy="44" r="5" fill="#FF6B6B"/>
-  <circle cx="52" cy="44" r="5" fill="#FF6B6B"/>
-  <circle cx="36" cy="60" r="5" fill="#FF6B6B"/>
-  <circle cx="52" cy="60" r="5" fill="#FF6B6B"/>
-  <rect x="42" y="60" width="4" height="24" rx="2" fill="#2ECC71"/>
-  <!-- Crayon -->
-  <rect x="82" y="30" width="14" height="50" rx="4" fill="#E74C3C"/>
-  <polygon points="82,80 96,80 89,98" fill="#FFD5CC"/>
-  <rect x="82" y="26" width="14" height="10" rx="3" fill="#C0392B"/>
-  <!-- Color swatches -->
-  <circle cx="86" cy="110" r="6" fill="#3498DB"/>
-  <circle cx="100" cy="110" r="6" fill="#2ECC71"/>
-  <circle cx="114" cy="110" r="6" fill="#F1C40F"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" xmlns:c2pa="http://c2pa.org/manifest"><defs><linearGradient id="pbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFF4FA"></stop><stop offset="100%" stop-color="#FBE0EE"></stop></linearGradient><clipPath id="c"><rect width="128" height="128" rx="28"></rect></clipPath></defs><g clip-path="url(#c)"><rect width="128" height="128" fill="url(#pbg)"></rect>
+   <circle cx="30" cy="26" r="13" fill="#FFD54A" opacity=".55"></circle>
+   <circle cx="104" cy="104" r="17" fill="#7BD0F0" opacity=".45"></circle>
+   <g>
+     <path d="M58 30c26 0 46 17 46 36 0 12-10 14-18 15-7 1-12 3-12 9 0 7-6 10-16 10-25 0-44-17-44-37S32 30 58 30z" fill="#fff" stroke="#E0A8C6" stroke-width="3"></path>
+     <circle cx="40" cy="48" r="7" fill="#E8453C"></circle>
+     <circle cx="62" cy="44" r="7" fill="#F0B429"></circle>
+     <circle cx="82" cy="56" r="7" fill="#4A9BE8"></circle>
+     <circle cx="44" cy="72" r="7" fill="#5FBE4E"></circle>
+     <ellipse cx="66" cy="76" rx="9" ry="7" fill="#F3DCEA"></ellipse>
+   </g>
+   <g transform="rotate(38 96 42)">
+     <rect x="90" y="8" width="11" height="42" rx="5" fill="#C98A4B"></rect>
+     <rect x="89" y="48" width="13" height="10" rx="3" fill="#9FB3BF"></rect>
+     <path d="M89 58h13l-3 14a4 4 0 0 1-7 0z" fill="#E8453C"></path>
+   </g></g></svg>

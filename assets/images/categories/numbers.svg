@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" xmlns:c2pa="http://c2pa.org/manifest"><defs><linearGradient id="nb" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#5FD3C8"></stop><stop offset="100%" stop-color="#1F8F86"></stop></linearGradient><clipPath id="c"><rect width="128" height="128" rx="28"></rect></clipPath></defs><g clip-path="url(#c)"><rect width="128" height="128" fill="url(#nb)"></rect>
+  <rect x="22" y="26" width="84" height="76" rx="10" fill="none" stroke="#12655E" stroke-width="7"></rect>
+  <g stroke="#0F544E" stroke-width="4"><path d="M26 48h76M26 68h76M26 88h76"></path></g>
+  <g fill="#FFD54A" stroke="#D89A31" stroke-width="2"><circle cx="40" cy="48" r="9"></circle><circle cx="60" cy="48" r="9"></circle></g>
+  <g fill="#FF8FB4" stroke="#D2648C" stroke-width="2"><circle cx="40" cy="68" r="9"></circle><circle cx="60" cy="68" r="9"></circle><circle cx="80" cy="68" r="9"></circle></g>
+  <g fill="#FFFFFF" stroke="#B9D3E0" stroke-width="2"><circle cx="88" cy="88" r="9"></circle></g></g></svg>

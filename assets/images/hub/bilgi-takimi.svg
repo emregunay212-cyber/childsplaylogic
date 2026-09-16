@@ -1,17 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <defs><linearGradient id="btBg" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0%" stop-color="#2a3a5e"/><stop offset="100%" stop-color="#141c30"/>
-  </linearGradient></defs>
-  <rect x="6" y="6" width="88" height="88" rx="16" fill="url(#btBg)"/>
-  <!-- takım üyeleri -->
-  <text x="30" y="46" font-size="26" text-anchor="middle">👧</text>
-  <text x="50" y="40" font-size="30" text-anchor="middle">🦉</text>
-  <text x="70" y="46" font-size="26" text-anchor="middle">👦</text>
-  <!-- görev parşömeni -->
-  <rect x="22" y="56" width="56" height="26" rx="6" fill="#ffe9c2" stroke="#c2a36b" stroke-width="2.5"/>
-  <line x1="29" y1="65" x2="58" y2="65" stroke="#a4683a" stroke-width="3" stroke-linecap="round"/>
-  <line x1="29" y1="73" x2="50" y2="73" stroke="#c9a877" stroke-width="3" stroke-linecap="round"/>
-  <text x="68" y="76" font-size="14" text-anchor="middle">✅</text>
-  <!-- enerji -->
-  <text x="82" y="26" font-size="15" text-anchor="middle">⚡</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" xmlns:c2pa="http://c2pa.org/manifest"><defs><linearGradient id="c" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7FE3D8"></stop><stop offset="100%" stop-color="#1F8F86"></stop></linearGradient><clipPath id="c"><rect width="128" height="128" rx="28"></rect></clipPath></defs><g clip-path="url(#c)"><rect width="128" height="128" fill="url(#c)"></rect>
+  <rect x="0" y="98" width="128" height="30" fill="#17706A"></rect>
+  <g><circle cx="34" cy="50" r="15" fill="#FFD54A" stroke="#D89A31" stroke-width="2.5"></circle><path d="M14 92a20 20 0 0 1 40 0z" fill="#FFD54A" stroke="#D89A31" stroke-width="2.5"></path></g>
+  <g><circle cx="94" cy="50" r="15" fill="#FF8FB4" stroke="#D2648C" stroke-width="2.5"></circle><path d="M74 92a20 20 0 0 1 40 0z" fill="#FF8FB4" stroke="#D2648C" stroke-width="2.5"></path></g>
+  <g><circle cx="64" cy="34" r="16" fill="#fff" stroke="#12655E" stroke-width="2.5"></circle><text x="64" y="42" text-anchor="middle" font-family="Fredoka, Verdana, sans-serif" font-weight="700" font-size="20" fill="#1F8F86">?</text></g></g></svg>

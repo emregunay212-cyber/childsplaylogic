@@ -1,24 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#C39BF2"/>
-      <stop offset="100%" stop-color="#A55EEA"/>
-    </linearGradient>
-    <filter id="shadow">
-      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.15"/>
-    </filter>
-  </defs>
-  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
-  <!-- Card 1 - face down -->
-  <rect x="18" y="22" width="40" height="52" rx="8" fill="white" opacity="0.95" filter="url(#shadow)"/>
-  <text x="38" y="55" text-anchor="middle" font-size="26" fill="#A55EEA">?</text>
-  <!-- Card 2 - face up with star -->
-  <rect x="70" y="22" width="40" height="52" rx="8" fill="white" opacity="0.95" filter="url(#shadow)"/>
-  <text x="90" y="55" text-anchor="middle" font-size="24">⭐</text>
-  <!-- Card 3 - face down -->
-  <rect x="18" y="58" width="40" height="52" rx="8" fill="white" opacity="0.85" filter="url(#shadow)" transform="translate(0,6)"/>
-  <text x="38" y="97" text-anchor="middle" font-size="26" fill="#A55EEA">?</text>
-  <!-- Card 4 - face up with star -->
-  <rect x="70" y="58" width="40" height="52" rx="8" fill="white" opacity="0.85" filter="url(#shadow)" transform="translate(0,6)"/>
-  <text x="90" y="97" text-anchor="middle" font-size="24">⭐</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" xmlns:c2pa="http://c2pa.org/manifest"><defs><linearGradient id="hk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFCE5C"></stop><stop offset="100%" stop-color="#D99A0B"></stop></linearGradient><linearGradient id="cf" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFFFFF"></stop><stop offset="100%" stop-color="#EDF2F6"></stop></linearGradient><clipPath id="c"><rect width="128" height="128" rx="28"></rect></clipPath></defs><g clip-path="url(#c)"><rect width="128" height="128" fill="url(#hk)"></rect>
+  <rect x="0" y="100" width="128" height="28" fill="#A87407"></rect>
+  <g transform="rotate(-8 44 66)"><rect x="18" y="32" width="52" height="68" rx="10" fill="#4A9BE8" stroke="#2E6FAE" stroke-width="3"></rect>
+  <path d="M30 48h28M30 60h28M30 72h18" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".6"></path></g>
+  <g transform="rotate(7 86 68)"><rect x="60" y="34" width="52" height="68" rx="10" fill="url(#cf)" stroke="#B9C7D2" stroke-width="3"></rect>
+  <path d="M86 52l6 12 13 2-9.5 9 2.5 13-12-6.5L74 88l2.5-13L67 66l13-2z" fill="#F4B400" stroke="#C99400" stroke-width="2" stroke-linejoin="round"></path></g></g></svg>
