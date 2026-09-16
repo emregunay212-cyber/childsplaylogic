@@ -11,8 +11,8 @@ Yalnız görevin dokunduğu dosyalar açılır. Yapıyı değiştiren iş bitinc
 
 ```js
 const ModulAdi = (() => {
-    const id = 'slug';                       // = kayıt defteri id'si, TR.games anahtarı, hub ikonu adı
-    const levels = [ { …seviye ayarı… } ];   // uzunluğu = js/app.js `levels:` değeri (uyuşmazsa console.error)
+    const id = 'slug';                       // = data/games.json slug'ı, TR.games anahtarı, hub ikonu adı
+    const levels = [ { …seviye ayarı… } ];   // uzunluğu = data/games.json `levels` değeri (uyuşmazsa console.error)
     let container, callbacks, timers = [];
     function init(gameArea, level, cbs) {   // cbs = { onCorrect, onWrong, onComplete }
         container = gameArea; callbacks = cbs;
@@ -45,25 +45,25 @@ const ModulAdi = (() => {
   `css/main.css :root` — `--<slug>-color`, `--touch-min: 52px`, `--radius-sm/md/lg`, `--ease-bounce/
   spring/out`, `--dur-fast/base`, `--success/--error(+-light)`, `--text-warm/--text-muted`, fontlar
   Fredoka (başlık) / Nunito (gövde). Oyuna özel stil `css/<slug>.css`'e, registry `files`'a eklenir.
-- Kayıt defteri `js/app.js gameCategoryDefs`: `{ game: () => ModulAdi, id, levels, files: ['js/games/<slug>.js', 'css/<slug>.css'], color: 'var(--<slug>-color)' }`.
-  **`index.html`'e etiket eklenmez** — dosyalar `files` ile tembel yüklenir (A9b); `?v=` elle artırılmaz.
-- Duman testi (`tests/smoke.spec.js`) slug'ları `js/lock-catalog.js`'ten türetir → yeni oyun kataloğa
+- Kayıt defteri **`data/games.json`** (TEK kaynak, B2a): kayıt `{ slug, name, module: 'ModulAdi', section, cat, subject, age, minutes, levels, …, files: { js: ['js/games/<slug>.js'], css: ['css/<slug>.css'] } }`;
+  `npm run catalog` → `js/catalog.js` (`GAME_CATALOG` + `GAME_MODULES` thunk tablosu) + `index.html` altbilgisi. `js/app.js`, `js/lock-catalog.js`, `js/i18n.js TR.games` buradan türer; elle girdi yazılmaz.
+  **`index.html`'e etiket eklenmez** — dosyalar `files` ile tembel yüklenir (A9b); `?v=` yazılmaz (üretici reddeder; deploy hash'ler).
+- Duman testi (`tests/smoke.spec.js`) slug'ları `data/games.json`'dan türetir (`active:false` atlanır) → yeni oyun JSON'a
   girince otomatik kapsanır (`/?oyun=<slug>` 3 sn hatasız).
 
 ### Yeni oyun ekleme (README "Yeni oyun ekleme" + düzeltme)
 
-README'nin 2. adımındaki "`index.html`'e `<link>`/`<script>`" **eskidir**; doğru sıra:
-1. `js/games/<slug>.js` (+ `css/<slug>.css`) — yukarıdaki sözleşme.
-2. `js/app.js` `gameCategoryDefs` kaydı (`files` ile) · `js/i18n.js` `TR.games` + `TR.instructions` ·
-   `css/main.css` `--<slug>-color` · `css/hub.css` `.game-card[data-game="<slug>"]::before`.
-3. `js/lock-catalog.js` `SOLO_GAMES` (hub sırasında; eşik yoksa yazılmaz = kilitsiz).
+README "Yeni oyun ekleme" (B2a sonrası) güncel; kısa sıra:
+1. `js/games/<slug>.js` (+ `css/<slug>.css`) — yukarıdaki sözleşme; modül adı `eslint.config.js gameModuleGlobals`'a.
+2. `data/games.json` kaydı (hub sırasında; `stars` 0 = kilitsiz; `online` varsa `order`) → `npm run catalog`.
+3. `css/hub.css` `.game-card[data-game="<slug>"]::before` · `js/i18n.js` `TR.instructions` (yönerge varsa).
 4. `assets/images/hub/<slug>.svg` (128×128, `rx=28` yuvarlatılmış gradyan zemin kalıbı).
-5. `seo/games_data.py` `GAMES` kaydı → `python seo/build_seo.py` (üretilenler elle düzenlenmez).
-6. `npm run lint && npm run test:smoke && python seo/test_build_seo.py`.
+5. `python seo/build_seo.py` (üretilenler elle düzenlenmez).
+6. `npm run lint && npm run catalog:check && npm run test:smoke && python seo/test_build_seo.py`.
 7. Kayıt anahtarı (localStorage) kullanıyorsa `js/auth.js GAME_SAVE_KEYS`.
 
 ## Çalışma kuralları
-- Tüm `*.md` `.vercelignore` ile yayın dışı; `oyunlar/**`, `sitemap.xml`, `llms.txt` üretilir, elle dokunulmaz.
+- Tüm `*.md` `.vercelignore` ile yayın dışı; `oyunlar/**`, `sitemap.xml`, `llms.txt`, `js/catalog.js` ve `index.html` altbilgi grupları üretilir, elle dokunulmaz (CI `catalog:check` + SEO tazelik kontrolüyle kırmızıya döner).
 - Dal → PR → Vercel önizleme → geçit incelemesi → sahip merge'ü. `master`'a doğrudan push yok.
 - Aynı depoda iki oturum paralel çalışmaz (`EGITSEL-FAZ-DURUM.md` dersi); çalışma ağacı kirliyse
   yeni iş ayrı worktree'de dallanır.

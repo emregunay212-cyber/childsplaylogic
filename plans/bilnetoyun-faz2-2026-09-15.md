@@ -69,6 +69,8 @@ Paralel küme 1 (başlangıç, dosya kesişimi yok): **B0, B2a, B5, B8a**. Küme
 
 ## B2a — Veri modeli: `data/games.json` tek kaynak  `[ ]`
 
+**Durum 2026-09-16:** dal `faz2/b2a-games-json` — görevler 1–6 uygulandı, PR kabul geçidi bekliyor. Notlar: kayıt sayısı **56** (58 = kart sayısı; kod-macerasi/satranc tek kayıtta `module`+`online`), veri sözlüğü + süre/ders kaynakları `docs/inceleme-2026-09-15/kanit/B2a-veri-notlari.md`; `tools/` yayında kalır (Vercel build), yalnız `tools/build-catalog.js` `.vercelignore`; SEO çıktı farkı: `ates-buz` adı "Ateş & Buz" (5/6 kaynak), `/oyunlar/` + llms + sitemap sırası = hub sırası, hub kartına "· N dk"; CI: `catalog:check` + `build_seo.py && git diff -I lastmod/dateModified` (sığ checkout'ta tarih satırları farklı çıkar).
+
 **Öncelik:** yapısal · **Model:** default · **Ajan:** `engineering-frontend-developer` + `marketing-seo-specialist` · **Bağımlılık:** A5b (üretici), A10a (test) · **Süre:** 5–6 saat
 **Bağlam:** Oyun bilgisi 5 yerde: `js/app.js:28-117` + `:336-348` (kategori, modül, renk, `comingSoon`), `js/lock-catalog.js` (hub sırası, tür, yıldız eşiği), `js/i18n.js:11` (`TR.games` adlar), `seo/games_data.py:132` `GAMES` (59 kayıt: name/cat/age/teaches/short/about/active/players), `index.html:282-379` footer grupları (A5a, elle). `active:false` (Python) ile `comingSoon:true` (JS) ayrı bayrak → sürüklenme. `tests/helpers/slugs.js` kataloğu regex'le okuyor. `age`/`teaches` zaten var; **`subject` ve `minutes` yok**.
 **Görevler**

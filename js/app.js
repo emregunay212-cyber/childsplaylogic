@@ -20,118 +20,51 @@ const App = (() => {
         online: 'assets/images/categories/online.png',
     };
 
-    // ── Kayıt defteri (A4 tembel referans + A9b tembel YÜKLEME) ──
-    // Her girdi: game (thunk), id, levels, files, color?, comingSoon?, badge?
-    //  game   : modüle TEMBEL referans. Dosyalar `files` ile yüklenmeden çözülmez (loadGame);
-    //           dosya inmez/parse edilmez/IIFE fırlatırsa yalnız o oyun açılmaz (toast), hub ölmez.
+    // ── Kayıt defteri (A4 tembel referans + A9b tembel YÜKLEME + B2a tek kaynak) ──
+    // Oyun bilgisi data/games.json'dadır; js/catalog.js (ÜRETİLMİŞ, `npm run catalog`) GAME_SECTIONS /
+    // GAME_CATALOG / GAME_MODULES globallerini verir, kayıt defteri buradan türetilir. Girdi şekli korunur:
+    //   { game (thunk), id, levels, files, color, comingSoon, badge? }  — kategori: { title, icon, color, games }
+    //  game   : GAME_MODULES[modülAdı] — modüle TEMBEL referans. Dosyalar `files` ile yüklenmeden çözülmez
+    //           (loadGame); dosya inmez/parse edilmez/IIFE fırlatırsa yalnız o oyun açılmaz (toast), hub ölmez.
     //           Neden window['HarfTanima'] değil: modüller top-level const → window'a bağlanmaz;
-    //           eval/Function ile ad çözmek ise CSP'yi (vercel.json) kırar.
+    //           eval/Function ile ad çözmek ise CSP'yi (vercel.json) kırar. Tabloda olmayan ad → boş thunk
+    //           (resolveModule console.error basar, yalnız o kart düşer).
     //  id     : oyunun slug'ı (= modül.id): TR.games, kilit anahtarı, hub ikonu, derin bağlantı.
     //  levels : seviye sayısı (= modül.levels.length) — kartın yıldız satırı modül yüklenmeden
     //           çizilir. Modül yüklenince doğrulanır; uyuşmazsa console.error (kart yanlış yıldız
-    //           sayısı gösteriyor demektir → burayı güncelle). Online oyunlarda yok.
-    //  files  : oyun açılınca yüklenecek JS/CSS (js/loader.js). Sıra = çalışma sırası; ortak
-    //           bağımlılık (kod-macerasi-shared, satranc-engine, zipla-topla-levels, …) önce.
-    //           `?v=` elle artırılmaz: deploy'da tools/build.js her yola içerik hash'i (?h=) ekler (A10b).
-    // tests/helpers/slugs.js comingSoon kayıtlarını `game:` ilk anahtar olacak biçimde okur → `game:` ilk anahtar kalır.
-    const CHESS_JS = 'https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js';
-    const THREE_JS = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
-    const GLTF_LOADER_JS = 'https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js';
-    const KOD_MACERASI_SHARED = ['js/games/kod-macerasi-shared.js', 'css/kod-macerasi.css'];
-    const SATRANC_SHARED = [CHESS_JS, 'js/games/satranc-engine.js', 'css/satranc.css'];
-    const ZIPLA_TOPLA_FILES = ['js/games/zipla-topla-levels.js', 'js/games/zipla-topla.js?v=6', 'css/zipla-topla.css?v=3'];
+    //           sayısı gösteriyor demektir → data/games.json `levels`'ı güncelle). Online oyunlarda yok.
+    //  files  : JSON files.js + files.css (js/loader.js). Sıra = çalışma sırası; ortak bağımlılık
+    //           (kod-macerasi-shared, satranc-engine, zipla-topla-levels, …) önce.
+    //           `?v=` yok: deploy'da tools/build.js her yola içerik hash'i (?h=) ekler (A10b).
+    //  color  : var(--kat-<section>) — css/tokens.css kategori token'ı (B1); kategori başlığı için
+    //           token gelene kadar JSON'daki yedek hex de verilir.
+    //  comingSoon : = !active (tek bayrak; seo/games_data.py de aynı alanı okur).
+    function fileList(files) { return [...(files.js || []), ...(files.css || [])]; }
+    function moduleThunk(name) {
+        const thunk = GAME_MODULES[name];
+        if (typeof thunk === 'function') return thunk;
+        console.error('js/catalog.js: GAME_MODULES tablosunda yok: ' + name + ' — data/games.json + npm run catalog');
+        return () => undefined;
+    }
+    function catToken(sectionId, fallbackHex) {
+        return 'var(--kat-' + sectionId + (fallbackHex ? ', ' + fallbackHex : '') + ')';
+    }
 
-    const gameCategoryDefs = [
-        {
-            title: 'Harfler & Kelimeler',
-            icon: categoryIcons.letters,
-            color: '#45B7D1',
-            games: [
-                { game: () => HarfTanima, id: 'harf-tanima', levels: 3, files: ['js/games/harf-tanima.js'], color: 'var(--harf-color)' },
-                { game: () => HeceBirlestirme, id: 'hece-birlestirme', levels: 3, files: ['js/games/hece-birlestirme.js'], color: 'var(--hece-color)' },
-                // Eğitsel seri (Faz 0+): kilitsiz — İngilizce kelime öğretimi.
-                // Şimdilik kapalı (kullanıcı isteği, 2026-06-16) — yeniden açmak için "comingSoon: true"yu kaldır.
-                { game: () => KelimeMadeni3D, id: 'kelime-madeni-3d', levels: 1, files: ['js/games/kelime-madeni-3d.js', 'css/kelime-madeni-3d.css'], color: 'var(--kelime-madeni-color)', comingSoon: true },
-                { game: () => KelimeBalonu, id: 'kelime-balonu', levels: 1, files: ['js/games/kelime-balonu.js', 'css/kelime-balonu.css'], color: 'var(--kelime-balonu-color)' },
-                { game: () => KelimeCanavarlari, id: 'kelime-canavarlari', levels: 1, files: ['js/games/kelime-canavarlari.js', 'css/kelime-canavarlari.css'], color: 'var(--kelime-canavar-color)' },
-                { game: () => KelimeKurtarma, id: 'kelime-kurtarma', levels: 1, files: ['js/games/kelime-kurtarma.js', 'css/kelime-kurtarma.css'], color: 'var(--kelime-kurtarma-color)' },
-                { game: () => GunlukKelime, id: 'gunluk-kelime', levels: 1, files: ['js/games/gunluk-kelime.js', 'css/gunluk-kelime.css'], color: 'var(--gunluk-kelime-color)' },
-            ]
-        },
-        {
-            title: 'Sayılar & Matematik',
-            icon: categoryIcons.numbers,
-            color: '#4ECDC4',
-            games: [
-                { game: () => SayiSayma, id: 'sayi-sayma', levels: 3, files: ['js/games/sayi-sayma.js'], color: 'var(--sayi-color)' },
-                { game: () => Matematik, id: 'matematik', levels: 3, files: ['js/games/matematik.js'], color: 'var(--matematik-color)' },
-                { game: () => Desen, id: 'desen', levels: 3, files: ['js/games/desen.js'], color: 'var(--desen-color)' },
-                // Eğitsel seri Faz 1 (4.1, 4.2): kilitsiz — işlem akıcılığı.
-                { game: () => BilgiMadencisi, id: 'bilgi-madencisi', levels: 1, files: ['js/games/bilgi-madencisi.js', 'css/bilgi-madencisi.css'], color: 'var(--bilgi-madencisi-color)' },
-                { game: () => MatematikPatlatma, id: 'matematik-patlatma', levels: 1, files: ['js/games/matematik-patlatma.js', 'css/matematik-patlatma.css'], color: 'var(--matematik-patlatma-color)' },
-                { game: () => MatematikKafe, id: 'matematik-kafe', levels: 1, files: ['js/games/matematik-kafe.js', 'css/matematik-kafe.css'], color: 'var(--matematik-kafe-color)' },
-                { game: () => BilgiYilani, id: 'bilgi-yilani', levels: 1, files: ['js/games/bilgi-yilani.js', 'css/bilgi-yilani.css'], color: 'var(--bilgi-yilani-color)' },
-                { game: () => RitimSorulari, id: 'ritim-sorulari', levels: 1, files: ['js/games/ritim-sorulari.js', 'css/ritim-sorulari.css'], color: 'var(--ritim-color)' },
-                { game: () => Kesir2048, id: 'kesir-2048', levels: 1, files: ['js/games/kesir-2048.js', 'css/kesir-2048.css'], color: 'var(--kesir-color)' },
-                { game: () => SayiNinja, id: 'sayi-ninja', levels: 1, files: ['js/games/sayi-ninja.js', 'css/sayi-ninja.css'], color: 'var(--sayi-ninja-color)' },
-            ]
-        },
-        {
-            title: 'Bulmaca & Mantık',
-            icon: categoryIcons.puzzles,
-            color: '#A55EEA',
-            games: [
-                { game: () => HafizaKartlari, id: 'hafiza-kartlari', levels: 10, files: ['js/games/hafiza-kartlari.js'], color: 'var(--hafiza-color)' },
-                { game: () => SekilBulmaca, id: 'sekil-bulmaca', levels: 3, files: ['js/games/sekil-bulmaca.js'], color: 'var(--sekil-color)' },
-                { game: () => Siralama, id: 'siralama', levels: 3, files: ['js/games/siralama.js'], color: 'var(--siralama-color)' },
-                { game: () => Jigsaw, id: 'jigsaw', levels: 3, files: ['js/games/jigsaw.js'], color: 'var(--jigsaw-color)' },
-                { game: () => Tetris, id: 'tetris', levels: 1, files: ['js/games/tetris.js', 'css/tetris.css'], color: 'var(--tetris-color)' },
-                // Eğitsel seri (Faz 3): kilitsiz — fen gözlem/dikkat.
-                { game: () => BilimDedektifi, id: 'bilim-dedektifi', levels: 1, files: ['js/games/bilim-dedektifi.js', 'css/bilim-dedektifi.css'], color: 'var(--bilim-dedektifi-color)' },
-                { game: () => EslestirmeUstasi, id: 'eslestirme-ustasi', levels: 1, files: ['js/games/eslestirme-ustasi.js', 'css/eslestirme-ustasi.css'], color: 'var(--eslestirme-color)' },
-                { game: () => LabirentAvcisi, id: 'labirent-avcisi', levels: 1, files: ['js/games/labirent-avcisi.js', 'css/labirent-avcisi.css'], color: 'var(--labirent-color)' },
-            ]
-        },
-        {
-            title: 'Yaratıcılık',
-            icon: categoryIcons.creativity,
-            color: '#FF78C4',
-            games: [
-                { game: () => RenkEslestirme, id: 'renk-eslestirme', levels: 3, files: ['js/games/renk-eslestirme.js'], color: 'var(--renk-color)' },
-                { game: () => Boyama, id: 'boyama', levels: 10, files: ['js/games/boyama.js'], color: 'var(--boyama-color)' },
-                { game: () => Tuval, id: 'tuval', levels: 3, files: ['js/games/tuval.js', 'css/tuval.css'], color: 'var(--tuval-color)' },
-                { game: () => SayilarlaBoyama, id: 'sayilarla-boyama', levels: 6, files: ['js/games/sayilarla-boyama.js?v=2', 'css/sayilarla-boyama.css'], color: 'var(--sayilarla-boyama-color)' },
-                { game: () => EmojiYapici, id: 'emoji-yapici', levels: 1, files: ['js/games/emoji-yapici.js?v=4', 'css/emoji-yapici.css?v=2'], color: 'var(--emoji-yapici-color)' },
-            ]
-        },
-        {
-            title: 'Strateji & Macera',
-            icon: categoryIcons.strategy,
-            color: '#27AE60',
-            games: [
-                { game: () => KodMacerasi, id: 'kod-macerasi', levels: 3, files: [...KOD_MACERASI_SHARED, 'js/games/kod-macerasi.js'], color: 'var(--kodmacerasi-color)' },
-                // lego-macerasi'nin stilleri css/kod-macerasi.css içinde (.lego-*, .kod-*): tembel yüklemede eksikti → oyun stilsiz açılıyordu
-                { game: () => LegoMacerasi, id: 'lego-macerasi', levels: 3, files: ['css/kod-macerasi.css', 'js/games/lego-macerasi.js'], color: 'var(--lego-color)' },
-                { game: () => LegoWorld, id: 'lego-world', levels: 9, files: [THREE_JS, GLTF_LOADER_JS, 'js/games/lego-world.js', 'css/lego-world.css'], color: 'var(--lego-world-color)' },
-                { game: () => Satranc, id: 'satranc', levels: 1, files: [...SATRANC_SHARED, 'js/games/satranc.js'], color: 'var(--satranc-color)' },
-                // Kilit eşikleri js/lock-catalog.js'te (LOCK_CATALOG). Buradaki sıra = görünüm sırası.
-                { game: () => ZiplaTopla, id: 'zipla-topla', levels: 12, files: ZIPLA_TOPLA_FILES, color: 'var(--zipla-topla-color)' },
-                { game: () => SpaceWaves, id: 'space-waves', levels: 1, files: ['js/games/space-waves-questions.js', 'js/games/space-waves.js', 'css/space-waves.css?v=2'], color: 'var(--space-waves-color)' },
-                { game: () => Egim, id: 'egim', levels: 1, files: ['js/games/egim.js?v=2', 'css/egim.css?v=2'], color: 'var(--egim-color)' },
-                { game: () => BuzKulesi, id: 'buz-kulesi', levels: 1, files: ['js/games/buz-kulesi.js', 'css/buz-kulesi.css?v=2'], color: 'var(--buz-kulesi-color)' },
-                { game: () => Penalti, id: 'penalti', levels: 9, files: ['js/games/penalti.js', 'css/penalti.css'], color: 'var(--penalti-color)' },
-                { game: () => ZindanOkcusu, id: 'zindan-okcusu', levels: 1, files: ['js/games/zindan-okcusu.js?v=7', 'css/zindan-okcusu.css'], color: 'var(--zindan-okcusu-color)' },
-                // Eğitsel seri (Faz 0+): kilitsiz — eğitsel içeriğe engelsiz erişim.
-                { game: () => BilVeFethet, id: 'bil-ve-fethet', levels: 1, files: ['js/games/bil-ve-fethet.js', 'css/bil-ve-fethet.css'], color: 'var(--bil-ve-fethet-color)' },
-                { game: () => BilgiTakimi, id: 'bilgi-takimi', levels: 1, files: ['js/games/bilgi-takimi.js', 'css/bilgi-takimi.css'], color: 'var(--bilgi-takimi-color)' },
-                { game: () => BilgiCiftligi, id: 'bilgi-ciftligi', levels: 1, files: ['js/games/bilgi-ciftligi.js', 'css/bilgi-ciftligi.css'], color: 'var(--bilgi-ciftligi-color)' },
-                { game: () => BilgiKulesi, id: 'bilgi-kulesi', levels: 1, files: ['js/games/bilgi-kulesi.js', 'css/bilgi-kulesi.css'], color: 'var(--bilgi-kulesi-color)' },
-                { game: () => CevapKosusu, id: 'cevap-kosusu', levels: 1, files: ['js/games/cevap-kosusu.js', 'css/cevap-kosusu.css'], color: 'var(--cevap-kosusu-color)' },
-                { game: () => BilgiSavunmasi, id: 'bilgi-savunmasi', levels: 1, files: ['js/games/bilgi-savunmasi.js', 'css/bilgi-savunmasi.css'], color: 'var(--savunma-color)' },
-                { game: () => FizikFirlatma, id: 'fizik-firlatma', levels: 1, files: ['js/games/fizik-firlatma.js', 'css/fizik-firlatma.css'], color: 'var(--firlatma-color)' },
-            ]
-        },
-    ];
+    const gameCategoryDefs = GAME_SECTIONS.filter(s => s.id !== 'online').map(s => ({
+        title: s.title,
+        icon: categoryIcons[s.icon] || categoryIcons.home,
+        color: catToken(s.id, s.color),
+        games: GAME_CATALOG.filter(g => g.module && g.section === s.id).map(g => ({
+            game: moduleThunk(g.module),
+            id: g.slug,
+            levels: g.levels,
+            files: fileList(g.files),
+            color: catToken(g.section),
+            comingSoon: !g.active,
+            badge: g.badge,
+        })),
+    }));
+    const onlineSection = GAME_SECTIONS.find(s => s.id === 'online') || { color: '#5B4A8A' };
 
     // Tembel referansın adı (hata metni için): "() => Tetris" → "Tetris"
     function thunkName(fn) {
@@ -332,22 +265,18 @@ const App = (() => {
         try { ov._btn.focus(); } catch (e) {}
     }
 
-    // Multiplayer games list
-    // Online oyunların kilit eşikleri js/lock-catalog.js'te (LOCK_CATALOG, 'mp:' önekli key).
-    const mpGameDefs = [
-        { game: () => KelimeTahmin, id: 'kelime-tahmin', files: ['js/games/kelime-tahmin.js?v=2'] },
-        { game: () => HarfTahmin, id: 'harf-tahmin', files: ['js/games/harf-tahmin.js?v=3'] },
-        { game: () => KodMacerasiMP, id: 'kod-macerasi', files: [...KOD_MACERASI_SHARED, 'js/games/kod-macerasi-mp.js'] },
-        { game: () => SatrancMP, id: 'satranc', files: [...SATRANC_SHARED, 'js/games/satranc-mp.js'] },
-        { game: () => PenaltiMP, id: 'penalti-mp', files: ['js/games/penalti-mp.js', 'css/penalti.css'] },
-        { game: () => AtesBuz, id: 'ates-buz', files: ['js/games/ates-buz.js', 'css/ates-buz.css'] },
-        { game: () => ZiplaToplaCoop, id: 'zipla-topla-coop', files: ZIPLA_TOPLA_FILES },   // ZiplaToplaCoop zipla-topla.js içinde tanımlı
-        { game: () => HavaHokeyi, id: 'hava-hokeyi', files: ['js/games/hava-hokeyi.js', 'css/hava-hokeyi.css'] },
-        // Cinzel/Cinzel Decorative/Bebas Neue yalnız bu oyunda: css/fonts-altin-avi.css (self-host) burada yüklenir
-        { game: () => AltinAvi, id: 'altin-avi', files: ['js/games/altin-avi-questions.js', 'js/games/altin-avi.js?v=4', 'css/altin-avi.css?v=4', 'css/fonts-altin-avi.css'] },
-        { game: () => Kelimelik, id: 'kelimelik', files: ['js/games/kelimelik.js?v=2'] },
-        { game: () => SonKart, id: 'son-kart', files: ['js/games/son-kart.js?v=2'], badge: '2-4 Oyuncu' },
-    ];
+    // Online oyunlar: GAME_CATALOG'da `online` alanı olan kayıtlar, online.order sırasıyla (kapalı olanlar hariç).
+    // Kilit eşikleri js/lock-catalog.js'te (LOCK_CATALOG, 'mp:' önekli key). Dosyalar: online.files yoksa kaydın files'ı
+    // (yalnız-online oyunlar); kod-macerasi/satranc gibi çift sürümlülerde online.files ayrı listedir.
+    const mpGameDefs = GAME_CATALOG
+        .filter(g => g.online && g.active)
+        .sort((a, b) => a.online.order - b.online.order)
+        .map(g => ({
+            game: moduleThunk(g.online.module),
+            id: g.slug,
+            files: fileList(g.online.files || g.files),
+            badge: g.online.badge,
+        }));
     const mpGamesList = mpGameDefs.map(e => Object.assign({}, e, { online: true }));   // şekil: { game, id, files, online, badge? }
     // Kendi lobisini/odasını yöneten online oyunlar (paylaşılan Lobby kullanmaz)
     const SELF_LOBBY_GAMES = new Set(['altin-avi', 'kelimelik', 'son-kart']);
@@ -844,7 +773,7 @@ const App = (() => {
             const mpHeader = document.createElement('div');
             mpHeader.className = 'hub-category-header mp-section-header';
             const mpH2 = document.createElement('h2');
-            mpH2.style.setProperty('--cat-color', '#5B4A8A');
+            mpH2.style.setProperty('--cat-color', catToken('online', onlineSection.color));
             const mpImg = document.createElement('img');
             mpImg.src = categoryIcons.online;
             mpImg.alt = '';
