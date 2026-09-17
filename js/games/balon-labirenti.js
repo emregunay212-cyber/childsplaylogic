@@ -83,6 +83,7 @@ const BalonLabirenti = (() => {
         if (bolum !== level) console.error('[BalonLabirenti] seviye aralık dışı: ' + level + ' → ' + bolum);
         labirentler = LEVELS.filter((m) => m.bolum === bolum);
         if (labirentler.length !== 5) console.error('[BalonLabirenti] bölüm ' + bolum + ' için ' + labirentler.length + ' labirent (5 bekleniyordu)');
+        if (!labirentler.length) return;                     // bozuk veri: boş sahne yerine hiç kurma (motor geri dönüşü açık kalır)
         GameEngine.setTotal(labirentler.length);
         azHareketMQ = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
         azHareket = !!(azHareketMQ && azHareketMQ.matches);
@@ -211,7 +212,7 @@ const BalonLabirenti = (() => {
 
     function okumaGuncelle(atis) {
         if (!atis) {
-            if (labirent && labirent.sira === 1 && labirent.ipucu && (state === 'hazir' || state === 'destroyed')) {
+            if (labirent && labirent.sira === 1 && labirent.ipucu && state === 'hazir' && !aim && !klavyeNisan.aktif) {
                 okuma.textContent = labirent.ipucu;
                 okuma.classList.add('is-acik', 'is-ipucu');
             } else {
@@ -381,6 +382,7 @@ const BalonLabirenti = (() => {
         unbindInput();
         onPointerDown = (e) => {
             if (state !== 'hazir') return;
+            if (aim) return;                                     // ikinci parmak/işaretçi nişanı devralmaz
             if (e.button !== undefined && e.button !== 0) return;
             const p = toLogical(e.clientX, e.clientY);
             aim = { start: p, cur: p, pointerId: e.pointerId };

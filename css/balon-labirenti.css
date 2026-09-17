@@ -92,7 +92,7 @@
     white-space: nowrap;
     transition: color var(--sure-gecis) var(--egri-out), background-color var(--sure-gecis) var(--egri-out);
 }
-.bl-pill--kalan.is-son .bl-pill__deger { color: var(--dogru); }
+.bl-pill--kalan.is-son { background: var(--dogru-zemin); }   /* son balon: zemin yeşili, metin mürekkep (kontrast 11:1) */
 .bl-pill__etiket { font-weight: 500; color: var(--murekkep-orta); }
 .bl-pill__deger { font-weight: 700; }
 

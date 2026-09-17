@@ -55,25 +55,43 @@ parça saçılımı ve düşen ip.
 
 ## 7. Dosyalar / entegrasyon (CLAUDE.md "Yeni oyun ekleme")
 
-- [ ] `tests/balon-labirenti.spec.js` + `package.json` `test:balon` (önce kırmızı)
-- [ ] `js/games/balon-labirenti-fizik.js` — saf fizik
-- [ ] `tools/balon-labirenti-coz.js` — çözüm tarayıcı; `js/games/balon-labirenti-levels.js` bölüm 1
-- [ ] `data/games.json` kaydı (`files.js` sırası fizik → levels → modül) · `eslint.config.js` globali · `npm run catalog` · `js/i18n.js` yönerge
-- [ ] `js/games/balon-labirenti.js` — modül (nişan, uçuş, sonuç, klavye, duyuru, destroy) · `css/balon-labirenti.css`
-- [ ] Hareketli platform + sıcak hava + hayalet ipucu · bölüm 2-6 labirentleri
-- [ ] `css/games.css` dikey döndürme + tam ekran `.bl-wrap`
-- [ ] `impeccable` geçişi · `emil-design-eng` geçişi (`design-taste-frontend` atlandı: açılış sayfası değil)
-- [ ] `assets/images/hub/balon-labirenti.svg` · `python seo/build_seo.py` · README/CLAUDE.md sayıları
-- [ ] Doğrulama: lint · catalog:check · test:balon · test:smoke (62) · build:check · seo testleri
-- [ ] Kabul geçidi: reality-checker · evidence-collector (`docs/kanit/balon-labirenti-<tarih>/`) · güvenlik denetçisi · /code-review — bkz. §9
+- [x] `tests/balon-labirenti.spec.js` + `package.json` `test:balon` (önce kırmızı: dosyalar yokken ENOENT ile düştü)
+- [x] `js/games/balon-labirenti-fizik.js` — saf fizik (sabitler + gerekçe dosya başında)
+- [x] `tools/balon-labirenti-coz.js` — çözüm tarayıcı (`--check`, `--yaz`, `--ascii`, orta-kuvvet tercihi); `js/games/balon-labirenti-levels.js` 30 labirent
+- [x] `data/games.json` kaydı (`files.js` sırası fizik → levels → modül) · `eslint.config.js` globali · `npm run catalog` · `js/i18n.js` yönerge
+- [x] `js/games/balon-labirenti.js` — modül (çekiş/klavye nişanı, HUD, okuma, tost, `aria-live`, hayalet ipucu, destroy temizliği, `?dev=1`) · `css/balon-labirenti.css`
+- [x] Hareketli platform + sıcak hava çizimi/rayı · hayalet ipucu yayı · bölüm 2-6 labirentleri (tarayıcı 30/30 9/9)
+- [x] `css/games.css` dikey döndürme + tam ekran `.bl-wrap`; yatay telefonda oran koruma (`flex: 0 0 auto`)
+- [x] `impeccable` geçişi (hap metinleri doğal dil, glif yerine metin, sabit tip ölçeği, ilk labirent ipucu metni, odak halkası) ·
+      `emil-design-eng` geçişi (tost çıkışı girişten hızlı, patlama halkası 150 ms, hover yalnız ince işaretçide) ·
+      `design-taste-frontend` atlandı: açılış sayfası/portfolyo değil, oyun ekranı
+- [x] `assets/images/hub/balon-labirenti.svg` · `python seo/build_seo.py` · README/CLAUDE.md sayıları · CI adımı
+- [x] Doğrulama: lint 0 hata · catalog:check · test:balon 6/6 (Node sunucu + hash'li çıktı) · test:smoke 62/62 · build:check · seo 42/42
+- [x] Kanıt: `docs/kanit/balon-labirenti-2026-09-17/` (17 görüntü + `olcumler.json` + README)
+- [ ] Kabul geçidi: reality-checker · evidence-collector · güvenlik denetçisi · /code-review — bkz. §9
 - [ ] PR → Vercel önizleme → CI yeşil → merge
 
-## 8. Doğrulama kaydı
+## 8. Doğrulama kaydı (2026-09-17)
 
-(uygulama sırasında doldurulur)
+- **Fizik/seviye (tarayıcısız):** `npm run test:balon` test 1-3: 30 labirent × 9 varyant (açı ±1°, kuvvet ±2) hepsi temiz, çözüm ≤ 10 s;
+  aynı atış iki kez → bit-bit aynı yol; tünelleme değişmezi (1400/240 = 5,8 px < 10 px); geometri kuralları (kenar payı, duvar içi balon yok,
+  platform süpürmesi duvarla kesişmez, bölüm-mekanik kapıları). `node tools/balon-labirenti-coz.js --check` 30/30 OK.
+- **Canlı (Playwright, Node statik sunucu):** kayıtlı çözüm çekişi → `data-atis` = cozum (±1°/±2), `temizlendi`, 2/5, skor {1,0};
+  kasıtlı ıska ×2 → `kacirdi`, skor wrong 2, `data-ipucu=1`; klavye Sol/Sol/Yukarı → okuma "açı 48° · kuvvet 65", Enter → uçuş, duyuru;
+  `#game-home` → wrap 0, `rafAktif false`; karttan yeniden → tek wrap, `rafAktif true`, pop sesi ≤ balon sayısı. Aynı 6 test
+  `SITE_ROOT=.build-check` hash'li çıktıda geçti.
+- **Elle (Claude Browser, localhost):** bölüm 1 baştan sona (1-1 çekişle, 1-5 çözümle) → kutlama penceresi 3 yıldız → Sonraki Seviye → bölüm 2;
+  bölüm 4-1 platform rayı, bölüm 5-3 sıcak hava sahnesi; 375×812 dikey (döndürülmüş eşleme "açı 54° · kuvvet 82" beklenen 55/82) ve
+  812×375 yatay (oran 1,60). Not: Claude Browser paneli sekme etkinleştirirken kanvasa hayalet sürüklemeler gönderdi (panel eseri;
+  kanıt Playwright ile alındı) ve panel `prefers-reduced-motion` emüle ettiğinden iz/salınım panelde görünmez.
+- **Bulunup kapatılanlar:** çekilen top kanvas dışına çıkıyordu → çizim kırpılır; Yeniden düğmesi sağ altta duvarı örtüyordu → HUD satırına;
+  yatay telefonda `flex-shrink` sahneyi eziyordu → `flex: 0 0 auto` + yükseklik bütçesi; son balon habı 4,17:1 → zemin yeşili;
+  Python `server.py` ile canlı testler kararsız → Node sunucu; ıska sonrası ipucu metni geri gelmiyordu → `okumaGuncelle(null)`.
+- **Sayılar:** lint 0 hata (48 önceden var olan uyarı) · catalog:check OK · build:check OK · SEO title 60/60, desc 146/150, 42/42 ·
+  smoke 62/62 · test:balon 6/6 · rAF 2 s'de 122 kare (headless) · Yeniden 90×52 · kontrastlar kanıt README §2.
 
-## 9. Kabul geçidi
+## 9. Kabul geçidi (2026-09-17)
 
 | Ajan | Hüküm | Bulgu → yapılan |
 |---|---|---|
-| | | |
+| (doldurulacak) | | |
