@@ -35,7 +35,8 @@ const YAZ = args.includes('--yaz');     // önerilen cozum'u levels dosyasına y
 const LEVELS_PATH = path.join(ROOT, 'js/games/balon-labirenti-levels.js');
 function cozumYaz(id, aci, kuvvet) {
     const src = fs.readFileSync(LEVELS_PATH, 'utf8');
-    const re = new RegExp("(id: '" + id + "'[\\s\\S]*?cozum: \\{ aci: )\\d+(, kuvvet: )\\d+( \\})");
+    const guvenliId = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');   // id'de regex metakarakteri olmasın
+    const re = new RegExp("(id: '" + guvenliId + "'[\\s\\S]*?cozum: \\{ aci: )\\d+(, kuvvet: )\\d+( \\})");
     if (!re.test(src)) { console.error('cozum satırı bulunamadı: ' + id); return false; }
     fs.writeFileSync(LEVELS_PATH, src.replace(re, '$1' + aci + '$2' + kuvvet + '$3'));
     return true;

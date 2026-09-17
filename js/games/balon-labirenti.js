@@ -78,7 +78,15 @@ const BalonLabirenti = (() => {
             console.error('[BalonLabirenti] fizik ya da labirent dosyası yüklenmemiş (registry files.js sırası: fizik → levels → modül)');
             return;
         }
-        dev = (() => { try { return new URLSearchParams(location.search).get('dev') === '1'; } catch (e) { return false; } })();
+        // Geliştirici kipi (?dev=1): yalnız yerel sunucuda ya da cihazda bo_dev=1 ile — canlıda URL'den açılmaz
+        // (labirent atlama yıldız üretebilirdi; güvenlik denetçisi bulgusu, 17 Eyl).
+        dev = (() => {
+            try {
+                if (new URLSearchParams(location.search).get('dev') !== '1') return false;
+                const yerel = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+                return yerel || localStorage.getItem('bo_dev') === '1';
+            } catch (e) { return false; }
+        })();
         bolum = clamp(parseInt(level, 10) || 1, 1, levels.length);
         if (bolum !== level) console.error('[BalonLabirenti] seviye aralık dışı: ' + level + ' → ' + bolum);
         labirentler = LEVELS.filter((m) => m.bolum === bolum);
