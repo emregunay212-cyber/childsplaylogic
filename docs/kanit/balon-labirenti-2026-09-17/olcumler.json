@@ -1,5 +1,5 @@
 {
-  "tarih": "2026-09-17T14:42:44.421Z",
+  "tarih": "2026-09-17T14:54:48.720Z",
   "base": "http://127.0.0.1:8790",
   "goruntuler": [
     {
@@ -176,7 +176,9 @@
       "murekkep-orta/beyaz (hap etiketi, ipucu)": 6.34,
       "dogru/beyaz (Temiz! tostu, son balon)": 4.17,
       "yanlis/beyaz (Iskaladın tostu)": 5.44,
-      "beyaz/mavi-800 (Yeniden düğmesi)": 8.37
-    }
+      "beyaz/mavi-800 (Yeniden düğmesi)": 8.37,
+      "son balon habi: murekkep / dogru-zemin (#DFF5E7)": 10.36
+    },
+    "not": "17 Eyl 17:58 yeniden yakalandi: cila + inceleme + guvenlik duzeltmeleri sonrasi HEAD (Reality Checker bulgusu: eski gorunuler cila oncesiydi)."
   }
 }

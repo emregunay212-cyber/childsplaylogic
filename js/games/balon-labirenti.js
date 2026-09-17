@@ -88,7 +88,7 @@ const BalonLabirenti = (() => {
             } catch (e) { return false; }
         })();
         bolum = clamp(parseInt(level, 10) || 1, 1, levels.length);
-        if (bolum !== level) console.error('[BalonLabirenti] seviye aralık dışı: ' + level + ' → ' + bolum);
+        if (bolum !== Number(level)) console.error('[BalonLabirenti] seviye aralık dışı: ' + level + ' → ' + bolum);
         labirentler = LEVELS.filter((m) => m.bolum === bolum);
         if (labirentler.length !== 5) console.error('[BalonLabirenti] bölüm ' + bolum + ' için ' + labirentler.length + ' labirent (5 bekleniyordu)');
         if (!labirentler.length) return;                     // bozuk veri: boş sahne yerine hiç kurma (motor geri dönüşü açık kalır)
@@ -122,7 +122,7 @@ const BalonLabirenti = (() => {
         if (dev && window.__blDebug) delete window.__blDebug;
         aim = null; shot = null; ipucuYol = null;
         if (container) container.innerHTML = '';
-        wrap = canvas = ctx = ui = null;
+        wrap = canvas = ctx = ui = hudBolum = hudKalan = okuma = yenidenBtn = toast = duyuru = null;
     }
 
     // ---- DOM ----
@@ -215,7 +215,7 @@ const BalonLabirenti = (() => {
         clearTimeout(toastTimer);
         toast.textContent = metin;
         toast.className = 'bl-toast is-acik ' + (tur === 'basari' ? 'is-basari' : 'is-hata');
-        toastTimer = setTimeout(() => { if (toast) toast.classList.remove('is-acik'); }, TOST_MS);
+        toastTimer = setTimeout(() => { if (state !== 'destroyed' && toast) toast.classList.remove('is-acik'); }, TOST_MS);
     }
 
     function okumaGuncelle(atis) {

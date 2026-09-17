@@ -1,7 +1,8 @@
 # Balon Labirenti — kanıt klasörü (17 Eylül 2026)
 
 Yakalama: Playwright (chromium, headless) + `tests/static-server.js` (`--port 8790`), misafir tohumu ve sahte
-Firebase (canlı RTDB'ye dokunulmadı). Betik scratchpad'de tutuldu, depoya eklenmedi (Klavye Kâşifi kanıtıyla
+Firebase (canlı RTDB'ye dokunulmadı). Görüntüler 17 Eyl 17:58'de, cila + inceleme + güvenlik düzeltmelerinden SONRAKİ
+HEAD üzerinde yeniden yakalandı (Reality Checker: ilk set cila öncesiydi). Betik scratchpad'de tutuldu, depoya eklenmedi (Klavye Kâşifi kanıtıyla
 aynı yaklaşım). Ölçümler `olcumler.json`.
 
 ## 1. Görüntüler
@@ -41,7 +42,7 @@ aynı yaklaşım). Ölçümler `olcumler.json`.
 | Hap etiketi / ipucu | `--murekkep-orta` beyazda 6,34:1 | ≥ 4,5 ✓ |
 | Tost "Iskaladın" | `--yanlis` beyazda 5,44:1 | ≥ 4,5 ✓ |
 | Tost "Temiz!" | `--dogru` beyazda 4,17:1 (24 px kalın = büyük metin) | ≥ 3:1 ✓ |
-| Son balon habı | zemin `--dogru-zemin`, metin mürekkep | 11,86:1 ✓ (metin rengiyle değil zeminle işaretlenir) |
+| Son balon habı | zemin `--dogru-zemin` (#DFF5E7), metin mürekkep | 10,36:1 ✓ (metin rengiyle değil zeminle işaretlenir) |
 | Hub gidiş-dönüş ×3 | kapalı: `.bl-wrap` 0, `rafAktif false`; açık: 1 wrap, 1 canvas, `rafAktif true` | sızıntı yok ✓ |
 | 2 s uçuşta rAF | 122 kare | ≥ 100 ✓ (headless) |
 | Dikey 375×812 | wrap 375×600, `scrollWidth = clientWidth = 375`, çözüm temizledi | yatay taşma yok ✓ |
