@@ -3,7 +3,7 @@
    --------------------------------------------
    Kanvas 800×500 mantıksal; koordinatlar px. Her kayıt:
      id 'b<bölüm>-<sıra>' · bolum 1-6 · sira 1-5 · ad
-     baslangic {x,y}            topun fırlatma noktası (60 px çevresinde duvar yok)
+     baslangic {x,y}            topun fırlatma noktası (60 px çevresinde duvar yok; tam çekiş 140 px kanvas içinde kalacak kadar içeride)
      duvarlar  [{x,y,w,h}]      eksene paralel kutu, w/h ≥ 20 (zemin 24)
      balonlar  [{x,y}]          yarıçap 16; duvar yüzeyinden ≥ 20, birbirinden ≥ 30, kenardan ≥ 24
      hareketli [{x,y,w,h,hedef:{x,y},sure}]  (bölüm 4+) x,y ↔ hedef gidiş-dönüş sure s; nişanda başlangıçta bekler
@@ -19,31 +19,31 @@ window.BALON_LABIRENTI_LEVELS = [
     // ===== BÖLÜM 1 — KOVA: düşür (parabol, kuvvet = mesafe) =====
     {
         id: 'b1-1', bolum: 1, sira: 1, ad: 'Tek Kova',
-        baslangic: { x: 100, y: 420 },
+        baslangic: { x: 150, y: 360 },
         duvarlar: [
             { x: 400, y: 436, w: 224, h: 24 },
             { x: 400, y: 260, w: 24, h: 176 },
             { x: 600, y: 260, w: 24, h: 176 },
         ],
         balonlar: [{ x: 460, y: 412 }, { x: 512, y: 412 }, { x: 564, y: 412 }],
-        cozum: { aci: 55, kuvvet: 82 },
+        cozum: { aci: 53, kuvvet: 70 },
         ipucu: 'Topu geri çek, kovaya at!',
     },
     {
         id: 'b1-2', bolum: 1, sira: 2, ad: 'Uzak Kova',
-        baslangic: { x: 100, y: 420 },
+        baslangic: { x: 150, y: 360 },
         duvarlar: [
             { x: 580, y: 436, w: 220, h: 24 },
             { x: 580, y: 236, w: 24, h: 200 },
             { x: 776, y: 236, w: 24, h: 200 },
         ],
         balonlar: [{ x: 636, y: 412 }, { x: 690, y: 412 }, { x: 744, y: 412 }],
-        cozum: { aci: 55, kuvvet: 95 },
+        cozum: { aci: 49, kuvvet: 88 },
         ipucu: 'Daha uzağa: daha çok çek.',
     },
     {
         id: 'b1-3', bolum: 1, sira: 3, ad: 'Basamaklı Kova',
-        baslangic: { x: 100, y: 420 },
+        baslangic: { x: 150, y: 360 },
         duvarlar: [
             { x: 400, y: 280, w: 24, h: 180 },
             { x: 424, y: 380, w: 136, h: 80 },
@@ -51,24 +51,24 @@ window.BALON_LABIRENTI_LEVELS = [
             { x: 696, y: 280, w: 24, h: 180 },
         ],
         balonlar: [{ x: 470, y: 356 }, { x: 530, y: 356 }, { x: 600, y: 412 }, { x: 660, y: 412 }],
-        cozum: { aci: 52, kuvvet: 80 },
+        cozum: { aci: 49, kuvvet: 69 },
         ipucu: 'Önce üst basamağa düşür.',
     },
     {
         id: 'b1-4', bolum: 1, sira: 4, ad: 'Yüksek Kova',
-        baslangic: { x: 100, y: 420 },
+        baslangic: { x: 150, y: 360 },
         duvarlar: [
             { x: 420, y: 300, w: 220, h: 24 },
             { x: 420, y: 180, w: 24, h: 120 },
             { x: 616, y: 180, w: 24, h: 120 },
         ],
         balonlar: [{ x: 470, y: 276 }, { x: 515, y: 276 }, { x: 560, y: 276 }, { x: 595, y: 276 }],
-        cozum: { aci: 61, kuvvet: 91 },
+        cozum: { aci: 59, kuvvet: 82 },
         ipucu: 'Yukarıdaki kovaya lob at.',
     },
     {
         id: 'b1-5', bolum: 1, sira: 5, ad: 'Huni',
-        baslangic: { x: 100, y: 420 },
+        baslangic: { x: 150, y: 360 },
         duvarlar: [
             { x: 300, y: 260, w: 24, h: 200 },
             { x: 676, y: 260, w: 24, h: 200 },
@@ -77,7 +77,7 @@ window.BALON_LABIRENTI_LEVELS = [
             { x: 552, y: 376, w: 124, h: 60 },
         ],
         balonlar: [{ x: 390, y: 352 }, { x: 440, y: 352 }, { x: 514, y: 352 }, { x: 514, y: 412 }],
-        cozum: { aci: 60, kuvvet: 85 },
+        cozum: { aci: 57, kuvvet: 78 },
         ipucu: 'Sol basamağa düşür, huni gerisini yapar.',
     },
 
@@ -109,32 +109,33 @@ window.BALON_LABIRENTI_LEVELS = [
     },
     {
         id: 'b2-3', bolum: 2, sira: 3, ad: 'Köşe',
-        baslangic: { x: 100, y: 420 },
+        baslangic: { x: 150, y: 360 },
         duvarlar: [
             { x: 300, y: 436, w: 500, h: 24 },
+            { x: 300, y: 300, w: 24, h: 136 },
             { x: 776, y: 100, w: 24, h: 336 },
             { x: 520, y: 330, w: 256, h: 24 },
             { x: 520, y: 234, w: 256, h: 24 },
         ],
         balonlar: [{ x: 600, y: 294 }, { x: 700, y: 294 }, { x: 420, y: 412 }, { x: 350, y: 412 }],
-        cozum: { aci: 73, kuvvet: 79 },
+        cozum: { aci: 38, kuvvet: 75 },
         ipucu: 'Köşedeki kovuğa gir; duvar geri gönderir, top aşağı düşer.',
     },
     {
         id: 'b2-4', bolum: 2, sira: 4, ad: 'Tünel',
-        baslangic: { x: 100, y: 420 },
+        baslangic: { x: 150, y: 360 },
         duvarlar: [
             { x: 360, y: 336, w: 440, h: 24 },
             { x: 360, y: 432, w: 440, h: 24 },
             { x: 776, y: 360, w: 24, h: 72 },
         ],
         balonlar: [{ x: 430, y: 396 }, { x: 520, y: 396 }, { x: 610, y: 396 }, { x: 700, y: 396 }],
-        cozum: { aci: 32, kuvvet: 61 },
+        cozum: { aci: 21, kuvvet: 49 },
         ipucu: 'Tünelin ağzını tuttur, gerisi sekme.',
     },
     {
         id: 'b2-5', bolum: 2, sira: 5, ad: 'Kutu',
-        baslangic: { x: 100, y: 420 },
+        baslangic: { x: 150, y: 360 },
         duvarlar: [
             { x: 440, y: 436, w: 240, h: 24 },
             { x: 440, y: 180, w: 24, h: 256 },
@@ -143,14 +144,14 @@ window.BALON_LABIRENTI_LEVELS = [
             { x: 602, y: 180, w: 78, h: 24 },
         ],
         balonlar: [{ x: 490, y: 412 }, { x: 540, y: 412 }, { x: 590, y: 412 }, { x: 630, y: 412 }],
-        cozum: { aci: 60, kuvvet: 91 },
+        cozum: { aci: 61, kuvvet: 82 },
         ipucu: 'Dar ağızdan içeri; arka duvar topu geri düşürür.',
     },
 
     // ===== BÖLÜM 3 — BACA: yönlendirme =====
     {
         id: 'b3-1', bolum: 3, sira: 1, ad: 'Baca',
-        baslangic: { x: 100, y: 420 },
+        baslangic: { x: 150, y: 360 },
         duvarlar: [
             { x: 538, y: 260, w: 24, h: 200 },
             { x: 638, y: 120, w: 24, h: 340 },
@@ -158,7 +159,7 @@ window.BALON_LABIRENTI_LEVELS = [
             { x: 470, y: 260, w: 68, h: 20 },
         ],
         balonlar: [{ x: 600, y: 412 }, { x: 600, y: 370 }, { x: 600, y: 328 }, { x: 600, y: 286 }],
-        cozum: { aci: 59, kuvvet: 92 },
+        cozum: { aci: 52, kuvvet: 82 },
         ipucu: 'Bacanın ağzına yukarıdan düşür.',
     },
     {
@@ -177,7 +178,7 @@ window.BALON_LABIRENTI_LEVELS = [
     },
     {
         id: 'b3-3', bolum: 3, sira: 3, ad: 'Langırt',
-        baslangic: { x: 100, y: 420 },
+        baslangic: { x: 150, y: 360 },
         duvarlar: [
             { x: 216, y: 436, w: 584, h: 24 },
             { x: 216, y: 300, w: 24, h: 136 },
@@ -188,7 +189,7 @@ window.BALON_LABIRENTI_LEVELS = [
             { x: 380, y: 340, w: 40, h: 40 },
         ],
         balonlar: [{ x: 330, y: 412 }, { x: 400, y: 412 }, { x: 470, y: 412 }, { x: 600, y: 412 }, { x: 700, y: 412 }],
-        cozum: { aci: 60, kuvvet: 91 },
+        cozum: { aci: 58, kuvvet: 80 },
         ipucu: 'Tamponların arasından süzül, zeminde yuvarlan.',
     },
     {
@@ -206,7 +207,7 @@ window.BALON_LABIRENTI_LEVELS = [
     },
     {
         id: 'b3-5', bolum: 3, sira: 5, ad: 'Plinko',
-        baslangic: { x: 100, y: 420 },
+        baslangic: { x: 150, y: 360 },
         duvarlar: [
             { x: 440, y: 436, w: 280, h: 24 },
             { x: 440, y: 260, w: 24, h: 176 },
@@ -218,14 +219,14 @@ window.BALON_LABIRENTI_LEVELS = [
             { x: 620, y: 220, w: 20, h: 20 },
         ],
         balonlar: [{ x: 490, y: 412 }, { x: 546, y: 412 }, { x: 602, y: 412 }, { x: 658, y: 412 }],
-        cozum: { aci: 61, kuvvet: 83 },
+        cozum: { aci: 52, kuvvet: 73 },
         ipucu: 'Çivilerden süzülüp kovaya.',
     },
 
     // ===== BÖLÜM 4 — KAPI: hareketli platform, zamanlama =====
     {
         id: 'b4-1', bolum: 4, sira: 1, ad: 'Kayan Kapak',
-        baslangic: { x: 100, y: 420 },
+        baslangic: { x: 150, y: 360 },
         duvarlar: [
             { x: 400, y: 436, w: 224, h: 24 },
             { x: 400, y: 236, w: 24, h: 200 },
@@ -233,12 +234,12 @@ window.BALON_LABIRENTI_LEVELS = [
         ],
         hareketli: [{ x: 424, y: 216, w: 80, h: 20, hedef: { x: 520, y: 216 }, sure: 2.4 }],
         balonlar: [{ x: 460, y: 412 }, { x: 512, y: 412 }, { x: 564, y: 412 }],
-        cozum: { aci: 62, kuvvet: 83 },
+        cozum: { aci: 59, kuvvet: 72 },
         ipucu: 'Kapak açıkken düşür: attığın an hareket başlar.',
     },
     {
         id: 'b4-2', bolum: 4, sira: 2, ad: 'Ping-Pong Kapı',
-        baslangic: { x: 100, y: 420 },
+        baslangic: { x: 150, y: 360 },
         duvarlar: [
             { x: 360, y: 336, w: 440, h: 24 },
             { x: 360, y: 432, w: 440, h: 24 },
@@ -246,12 +247,12 @@ window.BALON_LABIRENTI_LEVELS = [
         ],
         hareketli: [{ x: 520, y: 360, w: 20, h: 24, hedef: { x: 520, y: 408 }, sure: 2.0 }],
         balonlar: [{ x: 420, y: 396 }, { x: 470, y: 396 }, { x: 600, y: 396 }, { x: 700, y: 396 }],
-        cozum: { aci: 36, kuvvet: 59 },
+        cozum: { aci: 23, kuvvet: 48 },
         ipucu: 'Kapı inip çıkar; açık yanından geç.',
     },
     {
         id: 'b4-3', bolum: 4, sira: 3, ad: 'Perde',
-        baslangic: { x: 100, y: 420 },
+        baslangic: { x: 150, y: 360 },
         duvarlar: [
             { x: 360, y: 200, w: 440, h: 24 },
             { x: 360, y: 296, w: 280, h: 24 },
@@ -260,7 +261,7 @@ window.BALON_LABIRENTI_LEVELS = [
         ],
         hareketli: [{ x: 336, y: 224, w: 20, h: 24, hedef: { x: 336, y: 296 }, sure: 1.2 }],
         balonlar: [{ x: 420, y: 260 }, { x: 480, y: 260 }, { x: 540, y: 260 }, { x: 600, y: 260 }],
-        cozum: { aci: 54, kuvvet: 74 },
+        cozum: { aci: 52, kuvvet: 61 },
         ipucu: 'Perde inerken üst koridora gir.',
     },
     {
@@ -278,7 +279,7 @@ window.BALON_LABIRENTI_LEVELS = [
     },
     {
         id: 'b4-5', bolum: 4, sira: 5, ad: 'Çift Kapaklı Kova',
-        baslangic: { x: 100, y: 420 },
+        baslangic: { x: 150, y: 360 },
         duvarlar: [
             { x: 400, y: 436, w: 280, h: 24 },
             { x: 400, y: 216, w: 24, h: 220 },
@@ -289,7 +290,7 @@ window.BALON_LABIRENTI_LEVELS = [
             { x: 550, y: 196, w: 40, h: 20, hedef: { x: 616, y: 196 }, sure: 2.4 },
         ],
         balonlar: [{ x: 460, y: 412 }, { x: 516, y: 412 }, { x: 572, y: 412 }, { x: 632, y: 412 }],
-        cozum: { aci: 60, kuvvet: 90 },
+        cozum: { aci: 72, kuvvet: 91 },
         ipucu: 'Kapaklar açılırken düşür; kapanmadan önce.',
     },
 
@@ -424,7 +425,7 @@ window.BALON_LABIRENTI_LEVELS = [
     },
     {
         id: 'b6-4', bolum: 6, sira: 4, ad: 'Fırtına Langırtı',
-        baslangic: { x: 100, y: 420 },
+        baslangic: { x: 150, y: 360 },
         duvarlar: [
             { x: 400, y: 436, w: 280, h: 24 },
             { x: 400, y: 260, w: 24, h: 176 },
@@ -437,7 +438,7 @@ window.BALON_LABIRENTI_LEVELS = [
         ],
         hava: [{ x: 680, y: 140, w: 76, h: 296, guc: 1.5 }],
         balonlar: [{ x: 570, y: 412 }, { x: 620, y: 412 }, { x: 718, y: 412 }, { x: 718, y: 340 }, { x: 718, y: 268 }, { x: 718, y: 196 }],
-        cozum: { aci: 48, kuvvet: 88 },
+        cozum: { aci: 43, kuvvet: 81 },
         ipucu: 'Çivilerden kovaya; basamaktan aşağı, sıcak bacaya.',
     },
     {

@@ -68,7 +68,7 @@ parça saçılımı ve düşen ip.
 - [x] `assets/images/hub/balon-labirenti.svg` · `python seo/build_seo.py` · README/CLAUDE.md sayıları · CI adımı
 - [x] Doğrulama: lint 0 hata · catalog:check · test:balon 6/6 (Node sunucu + hash'li çıktı) · test:smoke 62/62 · build:check · seo 42/42
 - [x] Kanıt: `docs/kanit/balon-labirenti-2026-09-17/` (17 görüntü + `olcumler.json` + README)
-- [x] Kabul geçidi: reality-checker ✓ · güvenlik denetçisi ✓ · /code-review ✓ · evidence-collector (rapor bekleniyor) — bkz. §9
+- [x] Kabul geçidi: reality-checker ✓ · güvenlik denetçisi ✓ · /code-review ✓ · evidence-collector ✓ (bulgular kapatıldı) — bkz. §9
 - [ ] PR → Vercel önizleme → CI yeşil → merge
 
 ## 8. Doğrulama kaydı (2026-09-17)
@@ -97,4 +97,4 @@ parça saçılımı ve düşen ip.
 | **AI-Generated Code Security Auditor** | MERGE-READY (0 kritik/yüksek/orta, 1 düşük, 3 bilgi) | Düşük: `?dev=1` labirent atlama canlıda URL'den yıldız üretebilirdi → yalnız `localhost/127.0.0.1` ya da `localStorage bo_dev=1` ile açılır. Bilgi: `tools/balon-labirenti-coz.js` yayına çıkıyordu → `.vercelignore`; `--yaz` regex'inde id kaçışı eklendi. Bilgi (diff dışı): `seo/build_seo.py` JSON-LD `</` kaçışı — not edildi, dokunulmadı. |
 | **Kod incelemesi** (`/code-review high`) | 3 bulgu, hepsi kapatıldı | İkinci parmak nişanı devralıyordu → `if (aim) return`; boş bölümde `console.error` sonrası TypeError → `init` erken döner; 12 px altı çekişte ipucu metni titriyordu → nişan/klavye aktifken ipucu gizli. |
 | **Reality Checker** | APPROVED (8 iddiadan 8'i kanıtla; 2 dürüst çekince) | Çekince 1: `tests/balon-labirenti.spec.js` tek başına eslint'te `no-undef` (page.evaluate içindeki hub globalleri) — `tests/**` `npm run lint` kapsamında değil, `tests/smoke.spec.js` ile aynı sınıf, önceden var olan yapılandırma boşluğu (bu PR'da dokunulmadı). Çekince 2: kanıt görüntüleri cila commit'lerinden önceydi → 17:58'de son HEAD'de yeniden yakalandı. Nitler: `bolum !== Number(level)`, tost zamanlayıcısına `destroyed` koruması, `destroy`'da HUD referansları null, README modül sayısı 66. |
-| **Evidence Collector** | (rapor bekleniyor) | |
+| **Evidence Collector** | NEEDS WORK (1 yüksek, 3 orta, 2 düşük) → hepsi ele alındı, kanıt yeniden alındı | Yüksek: telefonda ipucu metni hiç görünmüyordu → dar görünümde ipucu tostu. Orta: çekilen top köşede kırpılıyor, bant %57'de doyuyordu → fırlatma noktası (150,360) + ışın boyunca kırpma, 30 çözüm yeniden tarandı; hayalet yay tost altında/soluk → tost üst bant, beyaz altlıklı yay, nişanda tost kapanır; hub günlük giriş tostu oyunu örtüyor → kabuk işi, ayrı görev açıldı. Düşük: 4 kanıt görüntüsü iddiayı göstermiyordu → betik düzeltildi, 18 görüntü yeniden; dikey telefonda HUD 90° dönük → kabul edilen risk (Eğim kalıbı), 12 px. |

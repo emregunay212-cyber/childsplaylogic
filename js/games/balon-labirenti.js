@@ -211,11 +211,15 @@ const BalonLabirenti = (() => {
         requestAnimationFrame(() => { if (duyuru) duyuru.textContent = metin; });
     }
 
-    function tostGoster(metin, tur) {
+    function tostGoster(metin, tur, sure) {
         clearTimeout(toastTimer);
         toast.textContent = metin;
-        toast.className = 'bl-toast is-acik ' + (tur === 'basari' ? 'is-basari' : 'is-hata');
-        toastTimer = setTimeout(() => { if (state !== 'destroyed' && toast) toast.classList.remove('is-acik'); }, TOST_MS);
+        toast.className = 'bl-toast is-acik ' + (tur === 'basari' ? 'is-basari' : tur === 'bilgi' ? 'is-bilgi' : 'is-hata');
+        toastTimer = setTimeout(tostKapat, sure || TOST_MS);
+    }
+    function tostKapat() {
+        clearTimeout(toastTimer);
+        if (state !== 'destroyed' && toast) toast.classList.remove('is-acik');
     }
 
     function okumaGuncelle(atis) {
@@ -251,6 +255,8 @@ const BalonLabirenti = (() => {
         wrap.dataset.durum = 'nisan';
         hudGuncelle();
         okumaGuncelle(null);
+        // Dar görünümde (HUD ipucu habı gizli) bölümün ilk labirentinin ipucu tost olarak verilir: yeni mekanik açıklamasız gelmesin
+        if (labirent.sira === 1 && labirent.ipucu && getComputedStyle(okuma).display === 'none') tostGoster(labirent.ipucu, 'bilgi', 2600);
         duyur('Bölüm ' + bolum + ', labirent ' + (labirentIdx + 1) + ': ' + labirent.ad + '. ' + labirent.balonlar.length + ' balon.');
         if (canvas && document.activeElement !== canvas && !(document.activeElement && document.activeElement.closest && document.activeElement.closest('.game-toolbar'))) {
             try { canvas.focus({ preventScroll: true }); } catch (e) { /* yok */ }
@@ -372,13 +378,20 @@ const BalonLabirenti = (() => {
         if (len > S.CEKME_MAX) { dx *= S.CEKME_MAX / len; dy *= S.CEKME_MAX / len; }
         return { dx, dy, len: Math.min(len, S.CEKME_MAX) };
     }
-    // Çekişteki topun ÇİZİM konumu: kanvas içinde kalır (fizik yalnız vektöre bakar, çizim kırpılır)
+    // Çekişteki topun ÇİZİM konumu: çekiş ışını boyunca kanvas içinde kalacak en uzak nokta (köşeye kaymaz;
+    // fizik yalnız vektöre bakar). Fırlatma noktaları tam çekişi içeride tutacak kadar içeride seçilir.
     function cekisNoktasi() {
         const v = cekisVektoru();
         const b = labirent.baslangic;
         if (!v) return { x: b.x, y: b.y };
-        const R = S.TOP_R + 2;
-        return { x: clamp(b.x + v.dx, R, W - R), y: clamp(b.y + v.dy, R, H - R) };
+        const R = S.TOP_R + 8;                       // dikenler dahil
+        let k = 1;
+        if (v.dx < 0) k = Math.min(k, (b.x - R) / -v.dx);
+        if (v.dx > 0) k = Math.min(k, (W - R - b.x) / v.dx);
+        if (v.dy < 0) k = Math.min(k, (b.y - R) / -v.dy);
+        if (v.dy > 0) k = Math.min(k, (H - R - b.y) / v.dy);
+        k = clamp(k, 0, 1);
+        return { x: b.x + v.dx * k, y: b.y + v.dy * k };
     }
     function aimAtis() {
         const v = cekisVektoru();
@@ -394,6 +407,7 @@ const BalonLabirenti = (() => {
             if (e.button !== undefined && e.button !== 0) return;
             const p = toLogical(e.clientX, e.clientY);
             aim = { start: p, cur: p, pointerId: e.pointerId };
+            tostKapat();
             ipucuYol = null; delete wrap.dataset.ipucu;
             klavyeNisan.aktif = false;
             try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* desteklenmiyor */ }
@@ -433,6 +447,7 @@ const BalonLabirenti = (() => {
             if (k === 'ArrowLeft' || k === 'ArrowRight' || k === 'ArrowUp' || k === 'ArrowDown') {
                 e.preventDefault();
                 aim = null; ipucuYol = null; delete wrap.dataset.ipucu;
+                tostKapat();
                 klavyeNisan.aktif = true;
                 const da = e.shiftKey ? KLAVYE_ACI_HIZLI : KLAVYE_ACI;
                 const dk = e.shiftKey ? KLAVYE_KUVVET_HIZLI : KLAVYE_KUVVET;
@@ -720,9 +735,7 @@ const BalonLabirenti = (() => {
     function drawIpucu() {
         if (!ipucuYol || ipucuAlfa <= 0) return;
         ctx.save();
-        ctx.globalAlpha = 0.42 * ipucuAlfa;
-        ctx.strokeStyle = renk.dogru;
-        ctx.lineWidth = 4;
+        ctx.globalAlpha = 0.85 * ipucuAlfa;
         ctx.setLineDash([2, 10]);
         ctx.lineCap = 'round';
         ctx.beginPath();
@@ -730,6 +743,11 @@ const BalonLabirenti = (() => {
             const p = ipucuYol[i];
             if (i === 0) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
         }
+        ctx.strokeStyle = 'rgba(255,255,255,0.95)';   // beyaz altlık: gök üstünde okunur
+        ctx.lineWidth = 7;
+        ctx.stroke();
+        ctx.strokeStyle = renk.dogru;
+        ctx.lineWidth = 4;
         ctx.stroke();
         ctx.restore();
     }

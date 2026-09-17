@@ -203,6 +203,8 @@ async function openGame(page) {
     await expect(page.locator('#login-screen')).toBeHidden();
     await expect(wrap(page)).toHaveAttribute('data-durum', 'nisan');
     await expect(wrap(page).locator('canvas')).toBeVisible();
+    // Açılış ekranı 500 ms solarak kalkar (js/app.js hideSplash); görünmezken de işaretçiyi yutar → kalkmasını bekle
+    await expect(page.locator('#splash-screen')).toBeHidden();
 }
 // Kayıtlı çözümü (ya da verilen atışı) kanvasta fare çekişine çevirir: çekiş = fırlatma yönünün tersi.
 async function cekVeBirak(page, atis) {

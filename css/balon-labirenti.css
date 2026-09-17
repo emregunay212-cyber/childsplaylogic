@@ -143,7 +143,7 @@
 .bl-toast {
     position: absolute;
     left: 50%;
-    top: 42%;
+    top: 22%;   /* üst bant: labirentler orta/alt kuşakta, ipucu yayı örtülmez */
     transform: translate(-50%, -50%) scale(0.92);
     padding: var(--ara-3) var(--ara-5);
     border-radius: var(--r-giris);
@@ -161,6 +161,7 @@
 .bl-toast:not(.is-acik) { transition-duration: var(--sure-bas); }
 .bl-toast.is-basari { color: var(--dogru); }
 .bl-toast.is-hata { color: var(--yanlis); }
+.bl-toast.is-bilgi { color: var(--murekkep); font-weight: 600; font-size: 18px; white-space: normal; text-align: center; max-width: 82%; }
 
 /* Ekran okuyucu duyurusu */
 .bl-duyuru {

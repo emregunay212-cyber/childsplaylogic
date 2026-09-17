@@ -1,5 +1,5 @@
 {
-  "tarih": "2026-09-17T14:54:48.720Z",
+  "tarih": "2026-09-17T15:10:05.934Z",
   "base": "http://127.0.0.1:8790",
   "goruntuler": [
     {
@@ -36,7 +36,7 @@
     },
     {
       "dosya": "09-klavye-nisan-1366.png",
-      "not": "Klavye nişanı: ok + önizleme + okuma (odak halkası)"
+      "not": "Klavye nişanı: Tab ile kanvasa odak (focus-visible halkası), ok + önizleme + okuma"
     },
     {
       "dosya": "10-bolum-sonu-3yildiz-1366.png",
@@ -52,7 +52,7 @@
     },
     {
       "dosya": "13-b5-1-yukselis-1366.png",
-      "not": "Sıcak havada yükselen top (uçuş ortası)"
+      "not": "Sıcak hava sütununda yükselen top (ilk balonlar patlamış)"
     },
     {
       "dosya": "14-b1-1-375x812-dikey.png",
@@ -63,8 +63,12 @@
       "not": "812×375: oran korunur (1,6), kaydırma yok"
     },
     {
+      "dosya": "15b-b4-1-812x375-ipucu-tostu.png",
+      "not": "812×375, Bölüm 4 · 1/5: dar görünümde ipucu tost olarak (\"Kapak açıkken düşür…\")"
+    },
+    {
       "dosya": "16-azaltilmis-hareket-ucus-1366.png",
-      "not": "prefers-reduced-motion: iz yok, sarsıntı yok, balon salınımı yok"
+      "not": "prefers-reduced-motion, uçuşta: iz yok, sarsıntı yok, balon salınımı yok"
     },
     {
       "dosya": "17-landing-oyunlar-balon-labirenti.png",
@@ -77,7 +81,7 @@
       "sinif-3-4",
       "sinif-5-6"
     ],
-    "okuma": "açı 55°·kuvvet 82",
+    "okuma": "açı 53°·kuvvet 70",
     "skor1": {
       "correct": 1,
       "wrong": 0,
@@ -157,6 +161,10 @@
       "clientW": 375
     },
     "dikeyCozumTemiz": true,
+    "yatayIpucuTost": {
+      "metin": "Kapak açıkken düşür: attığın an hareket başlar.",
+      "acik": true
+    },
     "yatay": {
       "wrap": [
         459,
@@ -176,9 +184,7 @@
       "murekkep-orta/beyaz (hap etiketi, ipucu)": 6.34,
       "dogru/beyaz (Temiz! tostu, son balon)": 4.17,
       "yanlis/beyaz (Iskaladın tostu)": 5.44,
-      "beyaz/mavi-800 (Yeniden düğmesi)": 8.37,
-      "son balon habi: murekkep / dogru-zemin (#DFF5E7)": 10.36
-    },
-    "not": "17 Eyl 17:58 yeniden yakalandi: cila + inceleme + guvenlik duzeltmeleri sonrasi HEAD (Reality Checker bulgusu: eski gorunuler cila oncesiydi)."
+      "beyaz/mavi-800 (Yeniden düğmesi)": 8.37
+    }
   }
 }
