@@ -1,0 +1,190 @@
+{
+  "tarih": "2026-09-17T15:10:05.934Z",
+  "base": "http://127.0.0.1:8790",
+  "goruntuler": [
+    {
+      "dosya": "01-hub-kart-1366.png",
+      "not": "Hub: Balon Labirenti kartı (1-2. Sınıf rafı, Strateji şeridi, yeni ikon)"
+    },
+    {
+      "dosya": "02-b1-1-baslangic-1366.png",
+      "not": "Bölüm 1 · 1/5 Tek Kova: ilk görünüm, ipucu metni HUD ortasında"
+    },
+    {
+      "dosya": "03-b1-1-nisan-1366.png",
+      "not": "Nişan: lastik bant, önizleme noktaları, okuma \"açı · kuvvet\""
+    },
+    {
+      "dosya": "04-b1-1-ucus-1366.png",
+      "not": "Uçuş: dikenli top, iz"
+    },
+    {
+      "dosya": "05-b1-1-temiz-1366.png",
+      "not": "Temiz! tostu, balon parçaları, sayaç 0"
+    },
+    {
+      "dosya": "06-b1-2-baslangic-1366.png",
+      "not": "Bölüm 1 · 2/5 Uzak Kova otomatik yüklendi"
+    },
+    {
+      "dosya": "07-iska-tost-1366.png",
+      "not": "Iskaladın tostu (kırmızı metin, beyaz cam)"
+    },
+    {
+      "dosya": "08-ipucu-yayi-1366.png",
+      "not": "İkinci ıska: hayalet çözüm yayı (yeşil noktalı, 0,5 s)"
+    },
+    {
+      "dosya": "09-klavye-nisan-1366.png",
+      "not": "Klavye nişanı: Tab ile kanvasa odak (focus-visible halkası), ok + önizleme + okuma"
+    },
+    {
+      "dosya": "10-bolum-sonu-3yildiz-1366.png",
+      "not": "Bölüm 1 bitti: kutlama penceresi, 3 yıldız (0 ıska)"
+    },
+    {
+      "dosya": "11-b4-1-kayan-kapak-1366.png",
+      "not": "Bölüm 4 · Kayan Kapak: hareketli platform (ray noktalı), nişanda beklemede"
+    },
+    {
+      "dosya": "12-b5-1-sicak-hava-1366.png",
+      "not": "Bölüm 5 · Sıcak Hava: çukur + sıcak hava sütunu (turuncu kesikler)"
+    },
+    {
+      "dosya": "13-b5-1-yukselis-1366.png",
+      "not": "Sıcak hava sütununda yükselen top (ilk balonlar patlamış)"
+    },
+    {
+      "dosya": "14-b1-1-375x812-dikey.png",
+      "not": "375×812: sahne 90° döndürülmüş, HUD sahneyle döner"
+    },
+    {
+      "dosya": "15-b1-1-812x375-yatay.png",
+      "not": "812×375: oran korunur (1,6), kaydırma yok"
+    },
+    {
+      "dosya": "15b-b4-1-812x375-ipucu-tostu.png",
+      "not": "812×375, Bölüm 4 · 1/5: dar görünümde ipucu tost olarak (\"Kapak açıkken düşür…\")"
+    },
+    {
+      "dosya": "16-azaltilmis-hareket-ucus-1366.png",
+      "not": "prefers-reduced-motion, uçuşta: iz yok, sarsıntı yok, balon salınımı yok"
+    },
+    {
+      "dosya": "17-landing-oyunlar-balon-labirenti.png",
+      "not": "/oyunlar/balon-labirenti/ üretilmiş landing"
+    }
+  ],
+  "olcumler": {
+    "raflar": [
+      "sinif-1-2",
+      "sinif-3-4",
+      "sinif-5-6"
+    ],
+    "okuma": "açı 53°·kuvvet 70",
+    "skor1": {
+      "correct": 1,
+      "wrong": 0,
+      "total": 5
+    },
+    "skorIska": {
+      "correct": 1,
+      "wrong": 2,
+      "total": 5
+    },
+    "hud": {
+      "yeniden": {
+        "w": 90,
+        "h": 52
+      },
+      "pillRenk": "rgb(31, 58, 77)",
+      "pillZemin": "rgba(255, 255, 255, 0.85)",
+      "pillFont": "Fredoka",
+      "okumaFont": "16px",
+      "yenidenRenk": "rgb(255, 255, 255)",
+      "yenidenZemin": "rgb(23, 115, 159)",
+      "canvasFocus": true
+    },
+    "yildiz": "3 üzerinden 3 yıldız",
+    "skorBolum": {
+      "correct": 5,
+      "wrong": 0,
+      "total": 5
+    },
+    "bolum2": "2",
+    "hubGidisDonus": [
+      {
+        "kapali": {
+          "wraps": 0,
+          "raf": false
+        },
+        "acik": {
+          "wraps": 1,
+          "canvas": 1,
+          "raf": true
+        }
+      },
+      {
+        "kapali": {
+          "wraps": 0,
+          "raf": false
+        },
+        "acik": {
+          "wraps": 1,
+          "canvas": 1,
+          "raf": true
+        }
+      },
+      {
+        "kapali": {
+          "wraps": 0,
+          "raf": false
+        },
+        "acik": {
+          "wraps": 1,
+          "canvas": 1,
+          "raf": true
+        }
+      }
+    ],
+    "rafSayisi2s": 122,
+    "dikey": {
+      "wrap": [
+        375,
+        600
+      ],
+      "yeniden": [
+        52,
+        83
+      ],
+      "scrollW": 375,
+      "clientW": 375
+    },
+    "dikeyCozumTemiz": true,
+    "yatayIpucuTost": {
+      "metin": "Kapak açıkken düşür: attığın an hareket başlar.",
+      "acik": true
+    },
+    "yatay": {
+      "wrap": [
+        459,
+        287
+      ],
+      "oran": 1.6,
+      "tasma": false
+    },
+    "landing": {
+      "title": "Balon Labirenti Oyna – Ücretsiz Oyun | Bilnet Oyun",
+      "desc": "Dikenli topu geri çek, bırak: sekerek 30 labirentteki tüm balonları tek atışta patlat! 7-12 yaş için ücretsiz, üyeliksiz.",
+      "canonical": "https://bilnetoyun.com/oyunlar/balon-labirenti/",
+      "imza": true
+    },
+    "kontrast": {
+      "murekkep/beyaz (hap metni)": 11.86,
+      "murekkep-orta/beyaz (hap etiketi, ipucu)": 6.34,
+      "dogru/beyaz (Temiz! tostu, son balon)": 4.17,
+      "yanlis/beyaz (Iskaladın tostu)": 5.44,
+      "beyaz/mavi-800 (Yeniden düğmesi)": 8.37
+    }
+  }
+}

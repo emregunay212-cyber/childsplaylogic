@@ -62,7 +62,7 @@ const gameModuleGlobals = Object.fromEntries([
     'RenkEslestirme', 'Boyama', 'Tuval', 'SayilarlaBoyama', 'EmojiYapici',
     'KodMacerasi', 'LegoMacerasi', 'LegoWorld', 'Satranc', 'ZiplaTopla', 'SpaceWaves', 'Egim',
     'BuzKulesi', 'Penalti', 'ZindanOkcusu', 'BilVeFethet', 'BilgiTakimi', 'BilgiCiftligi',
-    'BilgiKulesi', 'CevapKosusu', 'BilgiSavunmasi', 'FizikFirlatma',
+    'BilgiKulesi', 'CevapKosusu', 'BilgiSavunmasi', 'FizikFirlatma', 'BalonLabirenti',
     // Online (online.order sırasıyla)
     'KelimeTahmin', 'HarfTahmin', 'KodMacerasiMP', 'SatrancMP', 'PenaltiMP', 'AtesBuz',
     'ZiplaToplaCoop', 'HavaHokeyi', 'AltinAvi', 'Kelimelik', 'SonKart',

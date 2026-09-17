@@ -2,11 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://bilnetoyun.com/</loc>
-    <lastmod>2026-09-16</lastmod>
+    <lastmod>2026-09-17</lastmod>
   </url>
   <url>
     <loc>https://bilnetoyun.com/oyunlar/</loc>
-    <lastmod>2026-09-16</lastmod>
+    <lastmod>2026-09-17</lastmod>
   </url>
   <url>
     <loc>https://bilnetoyun.com/gizlilik/</loc>
@@ -14,7 +14,7 @@
   </url>
   <url>
     <loc>https://bilnetoyun.com/hakkinda/</loc>
-    <lastmod>2026-09-16</lastmod>
+    <lastmod>2026-09-17</lastmod>
   </url>
   <url>
     <loc>https://bilnetoyun.com/iletisim/</loc>
@@ -207,6 +207,10 @@
   <url>
     <loc>https://bilnetoyun.com/oyunlar/fizik-firlatma/</loc>
     <lastmod>2026-09-16</lastmod>
+  </url>
+  <url>
+    <loc>https://bilnetoyun.com/oyunlar/balon-labirenti/</loc>
+    <lastmod>2026-09-17</lastmod>
   </url>
   <url>
     <loc>https://bilnetoyun.com/oyunlar/kelime-tahmin/</loc>

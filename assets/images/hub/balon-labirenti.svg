@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#9AD8F2"></stop><stop offset="100%" stop-color="#4FA8E0"></stop></linearGradient><linearGradient id="b1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FF8FA6"></stop><stop offset="100%" stop-color="#E8455F"></stop></linearGradient><linearGradient id="b2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFD37A"></stop><stop offset="100%" stop-color="#F0A020"></stop></linearGradient><linearGradient id="b3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8CE29B"></stop><stop offset="100%" stop-color="#3FAE55"></stop></linearGradient><clipPath id="c"><rect width="128" height="128" rx="28"></rect></clipPath></defs><g clip-path="url(#c)"><rect width="128" height="128" fill="url(#g)"></rect>
+  <path d="M18 100C30 62 56 46 88 40" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="1 8" fill="none" opacity=".9"></path>
+  <g fill="#4F6272" stroke="#3A4A58" stroke-width="2"><rect x="56" y="56" width="12" height="60" rx="4"></rect><rect x="112" y="56" width="12" height="60" rx="4"></rect><rect x="56" y="108" width="68" height="12" rx="4"></rect></g>
+  <rect x="59" y="58" width="6" height="3" rx="1.5" fill="#7D93A6"></rect><rect x="115" y="58" width="6" height="3" rx="1.5" fill="#7D93A6"></rect>
+  <g stroke="#3A4A58" stroke-width="1.5" opacity=".7"><path d="M77 104c3-4 2-8 0-12M90 104c3-4 2-8 0-12M103 104c3-4 2-8 0-12" fill="none"></path></g>
+  <ellipse cx="77" cy="86" rx="9" ry="10.5" fill="url(#b1)" stroke="#B02D3E" stroke-width="1.5"></ellipse>
+  <ellipse cx="90" cy="82" rx="9" ry="10.5" fill="url(#b2)" stroke="#B87616" stroke-width="1.5"></ellipse>
+  <ellipse cx="103" cy="86" rx="9" ry="10.5" fill="url(#b3)" stroke="#2E7F3E" stroke-width="1.5"></ellipse>
+  <g fill="#fff" opacity=".7"><ellipse cx="73" cy="81" rx="2.5" ry="3.5" transform="rotate(-25 73 81)"></ellipse><ellipse cx="86" cy="77" rx="2.5" ry="3.5" transform="rotate(-25 86 77)"></ellipse><ellipse cx="99" cy="81" rx="2.5" ry="3.5" transform="rotate(-25 99 81)"></ellipse></g>
+  <g transform="translate(20 100)"><path d="M0-15l3 9 9-3-6 8 8 5-9 1 1 9-6-7-7 6 2-9-9-2 8-4-5-8 9 2z" fill="#1B222C"></path><circle r="8" fill="#2B3644"></circle><circle cx="-2.5" cy="-2.5" r="2.5" fill="#fff" opacity=".35"></circle></g>
+  <path d="M8 112l12-12 12 12" stroke="#D9534F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity=".9"></path>
+</g></svg>

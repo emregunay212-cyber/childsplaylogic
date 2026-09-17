@@ -23,6 +23,7 @@
 @media (orientation: portrait) and (max-width: 820px) {
     body[data-active-game="space-waves"] .sw-wrap,
     body[data-active-game="egim"] .eg-wrap,
+    body[data-active-game="balon-labirenti"] .bl-wrap,
     body[data-active-game="zipla-topla"] .zt-wrap {
         position: fixed;
         top: calc(50% + 28px); /* toolbar (56px) altı merkez */
@@ -44,6 +45,12 @@
 
     /* Eğim — aspect 800:500 */
     body[data-active-game="egim"] .eg-wrap {
+        width: min(calc(100vh - 64px), calc(100vw * 800 / 500));
+        height: calc(min(calc(100vh - 64px), calc(100vw * 800 / 500)) * 500 / 800);
+    }
+
+    /* Balon Labirenti — aspect 800:500 (Eğim ile aynı; HUD katmanı sahneyle döner) */
+    body[data-active-game="balon-labirenti"] .bl-wrap {
         width: min(calc(100vh - 64px), calc(100vw * 800 / 500));
         height: calc(min(calc(100vh - 64px), calc(100vw * 800 / 500)) * 500 / 800);
     }
@@ -216,6 +223,12 @@
     justify-content: center;
 }
 .game-container.is-fullscreen .eg-wrap {
+    width: min(100vw, calc((100vh - 56px) * 800 / 500));
+    height: min(calc(100vh - 56px), calc(100vw * 500 / 800));
+    max-width: none;
+    border-radius: 0;
+}
+.game-container.is-fullscreen .bl-wrap {
     width: min(100vw, calc((100vh - 56px) * 800 / 500));
     height: min(calc(100vh - 56px), calc(100vw * 500 / 800));
     max-width: none;

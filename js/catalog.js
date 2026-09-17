@@ -7,7 +7,7 @@
                    yas = görünen etiket. Oyun age aralığı ages ile kesişiyorsa o rafa girer (js/hub-ia.js).
    GAME_SECTIONS : hub bölümleri, görünüm sırasıyla; icon = js/app.js categoryIcons anahtarı,
                    color = css/tokens.css --kat-<id> gelene kadar yedek renk.
-   GAME_CATALOG  : 57 kayıt (48 solo + 11 online), hub sırası; about/cat gibi yalnız
+   GAME_CATALOG  : 58 kayıt (49 solo + 11 online), hub sırası; about/cat gibi yalnız
                    SEO üreticide (seo/build_seo.py) kullanılan alanlar burada yok.
    GAME_MODULES  : modül adı → tembel referans. Üst düzey const modüller window'a bağlanmaz
                    (window[ad] çalışmaz), eval CSP'yi kırar — tek güvenli yol bu thunk tablosudur.
@@ -77,6 +77,7 @@ const GAME_CATALOG = [
     {"slug":"cevap-kosusu","name":"Cevap Koşusu","module":"CevapKosusu","section":"strateji","subject":"genel","age":[7,12],"minutes":3,"levels":1,"teaches":"Tüm dersler + hızlı karar verme ve refleks","players":"Tek kişilik","players_range":[1,1],"active":true,"stars":0,"files":{"js":["js/games/cevap-kosusu.js"],"css":["css/cevap-kosusu.css"]}},
     {"slug":"bilgi-savunmasi","name":"Bilgi Savunması","module":"BilgiSavunmasi","section":"strateji","subject":"matematik","age":[8,12],"minutes":5,"levels":1,"teaches":"İşlem akıcılığı + kaynak yönetimi ve strateji","players":"Tek kişilik","players_range":[1,1],"active":true,"stars":0,"files":{"js":["js/games/bilgi-savunmasi.js"],"css":["css/bilgi-savunmasi.css"]}},
     {"slug":"fizik-firlatma","name":"Fizik Fırlatma","module":"FizikFirlatma","section":"strateji","subject":"fen","age":[8,12],"minutes":5,"levels":1,"teaches":"Açı, kuvvet ve yerçekimi: kinestetik fizik öğrenimi","players":"Tek kişilik","players_range":[1,1],"active":true,"stars":0,"files":{"js":["js/games/fizik-firlatma.js"],"css":["css/fizik-firlatma.css"]}},
+    {"slug":"balon-labirenti","name":"Balon Labirenti","module":"BalonLabirenti","section":"strateji","subject":"fen","age":[7,12],"minutes":4,"levels":6,"teaches":"Açı-kuvvet tahmini, yansıma ve tek atışta sonuç öngörme","players":"Tek kişilik","players_range":[1,1],"active":true,"stars":0,"files":{"js":["js/games/balon-labirenti-fizik.js","js/games/balon-labirenti-levels.js","js/games/balon-labirenti.js"],"css":["css/balon-labirenti.css"]}},
     {"slug":"kelime-tahmin","name":"Kelime Tahmin","module":null,"section":"online","subject":"turkce","age":[7,10],"minutes":5,"teaches":"Kelime bilgisi ve tümdengelim","players":"Online çok oyunculu","players_range":[2,null],"active":true,"stars":0,"online":{"module":"KelimeTahmin","order":1,"stars":40},"files":{"js":["js/games/kelime-tahmin.js"],"css":[]}},
     {"slug":"harf-tahmin","name":"Harf Tahmin","module":null,"section":"online","subject":"turkce","age":[7,10],"minutes":5,"teaches":"Kelime bilgisi ve tahmin","players":"Online çok oyunculu","players_range":[2,null],"active":true,"stars":0,"online":{"module":"HarfTahmin","order":2,"stars":45},"files":{"js":["js/games/harf-tahmin.js"],"css":[]}},
     {"slug":"penalti-mp","name":"Penaltı Online","module":null,"section":"online","subject":"spor","age":[6,10],"minutes":3,"teaches":"Zamanlama, refleks ve rekabet","players":"Online 2 kişilik","players_range":[2,2],"active":true,"stars":0,"online":{"module":"PenaltiMP","order":5,"stars":60},"files":{"js":["js/games/penalti-mp.js"],"css":["css/penalti.css"]}},
@@ -136,6 +137,7 @@ const GAME_MODULES = {
     CevapKosusu: () => CevapKosusu,
     BilgiSavunmasi: () => BilgiSavunmasi,
     FizikFirlatma: () => FizikFirlatma,
+    BalonLabirenti: () => BalonLabirenti,
     KelimeTahmin: () => KelimeTahmin,
     HarfTahmin: () => HarfTahmin,
     KodMacerasiMP: () => KodMacerasiMP,

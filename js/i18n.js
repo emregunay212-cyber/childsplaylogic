@@ -129,6 +129,7 @@ const TR = {
         'cevap-kosusu': 'Koş, engellerden kaç, yol ayrımında doğru tabelaya gir!',
         'bilgi-savunmasi': 'Soru çözerek enerji üret, kulelerini dik, bahçeni koru!',
         'fizik-firlatma': 'Açıyı ve kuvveti ayarla, sapanla yıldız kutularını vur!',
+        'balon-labirenti': 'Topu geri çek, bırak: sekerek tüm balonları tek atışta patlat!',
     },
 
     // Kod Macerasi stringleri
