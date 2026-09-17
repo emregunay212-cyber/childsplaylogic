@@ -95,6 +95,14 @@ jobs:
           CI: true
           SITE_ROOT: .build-check
 
+      # Balon Labirenti: 30 labirentin kayıtlı çözümü 3×3 toleransla deterministik fizikte temizler (tarayıcısız),
+      # canlı akış (çekiş → temiz/ıska → ipucu), klavye nişanı, hub'a dönüş/yeniden açılış sızıntısız.
+      - name: Balon Labirenti testi — hash'li çıktı üzerinde
+        run: npm run test:balon
+        env:
+          CI: true
+          SITE_ROOT: .build-check
+
       # Kırmızı koşuda adli kayıt: trace (ilk retry), ekran görüntüsü, video, error-context.md
       - name: Hata artefaktları
         if: failure()

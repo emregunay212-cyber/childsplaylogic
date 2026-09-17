@@ -1,0 +1,191 @@
+/* ============================================
+   Balon Labirenti — oyun stilleri (bl- öneki)
+   --------------------------------------------
+   Yapısal token'lar css/tokens.css'ten (yarıçap, gölge, süre, eğri, yazı, aralık, hedef ölçüsü).
+   Oyunun kendi vurgu renkleri aşağıda --bl-* olarak tanımlıdır (emsal: css/klavye-kasifi.css);
+   kanvas bu değerleri init'te getComputedStyle ile bir kez okur (hex yedekli).
+   Sahne 800×500 mantıksal; dikey telefonda css/games.css 90° döndürür, tam ekran kuralı da orada.
+   ============================================ */
+
+.bl-wrap {
+    --bl-duvar: #4F6272;          /* labirent duvarı (mürekkep-mavi gri) */
+    --bl-duvar-ust: #7D93A6;      /* duvar üst kenarı (ışık) */
+    --bl-duvar-golge: #3A4A58;    /* duvar alt kenarı */
+    --bl-top: #2B3644;            /* dikenli top gövdesi */
+    --bl-top-diken: #1B222C;
+    --bl-balon-1: #FF5E7E;
+    --bl-balon-2: #FFB547;
+    --bl-balon-3: #58C86B;
+    --bl-balon-4: #4FA8F5;
+    --bl-balon-5: #B27BF0;
+    --bl-sicak: rgba(255, 140, 60, 0.22);
+    --bl-sicak-cizgi: rgba(255, 120, 40, 0.55);
+    --bl-platform: #6B5B95;
+    --bl-platform-ray: rgba(107, 91, 149, 0.35);
+    --bl-bant: #D9534F;
+
+    position: relative;
+    /* Kısa yatay görünümde (telefon yatay) yükseklik bütçesine göre daralır; flex-shrink ile ezilmez → oran korunur */
+    width: min(100%, calc((100vh - 88px) * 800 / 500));
+    max-width: 800px;
+    flex: 0 0 auto;
+    margin: 0 auto;
+    aspect-ratio: 800 / 500;
+    overflow: hidden;
+    border-radius: var(--r-kart);
+    box-shadow: var(--golge-2);
+    background: var(--gok-alt);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+.bl-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    outline: none;
+    touch-action: none;
+    cursor: crosshair;
+}
+.bl-canvas:focus-visible {
+    outline: 2px solid var(--odak);
+    outline-offset: -2px;
+}
+
+/* ---- Katman: HUD (kanvasın üstünde, tıklamayı çocuklarına bırakır) ---- */
+.bl-ui {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    font-family: var(--font-display);
+    color: var(--murekkep);
+}
+.bl-ui > * { pointer-events: auto; }
+
+.bl-hud {
+    position: absolute;
+    top: var(--ara-3);
+    left: var(--ara-3);
+    right: var(--ara-3);
+    display: flex;
+    align-items: center;
+    gap: var(--ara-2);
+    min-height: var(--hedef-min);
+    pointer-events: none;
+}
+.bl-hud > * { pointer-events: auto; }
+
+.bl-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ara-2);
+    min-height: 32px;
+    padding: 4px var(--ara-3);
+    border-radius: var(--r-hap);
+    background: var(--yuzey-cam);
+    box-shadow: var(--golge-1);
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    transition: color var(--sure-gecis) var(--egri-out), background-color var(--sure-gecis) var(--egri-out);
+}
+.bl-pill--kalan.is-son .bl-pill__deger { color: var(--dogru); }
+.bl-pill__etiket { font-weight: 500; color: var(--murekkep-orta); }
+.bl-pill__deger { font-weight: 700; }
+
+/* Açı/kuvvet okuması — HUD satırının ortasında, yalnız nişan alırken (sahneyi örtmez) */
+.bl-okuma {
+    margin: 0 auto;
+    padding: 6px var(--ara-4);
+    border-radius: var(--r-hap);
+    background: var(--yuzey-cam);
+    box-shadow: var(--golge-1);
+    font-weight: 600;
+    font-size: 16px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity var(--sure-bas) var(--egri-out);
+    pointer-events: none;
+}
+.bl-okuma.is-acik { opacity: 1; }
+.bl-okuma.is-ipucu { font-weight: 500; color: var(--murekkep-orta); white-space: normal; text-align: center; max-width: 46ch; }
+.bl-okuma__ayrac { margin: 0 var(--ara-2); color: var(--murekkep-orta); }
+
+/* Yeniden düğmesi — HUD satırının sağ ucu (oyun alanının üstünde durmaz) */
+.bl-yeniden {
+    margin-left: auto;
+    flex: 0 0 auto;
+    min-width: var(--hedef-min);
+    min-height: var(--hedef-min);
+    padding: 0 var(--ara-4);
+    border: 0;
+    border-radius: var(--r-hap);
+    background: var(--dugme-dolgu);
+    color: var(--dugme-metin);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: var(--golge-1);
+    transition: transform var(--sure-bas) var(--egri-out), box-shadow var(--sure-bas) var(--egri-out);
+}
+@media (hover: hover) and (pointer: fine) {
+    .bl-yeniden:hover { box-shadow: var(--golge-2); }
+}
+.bl-yeniden:active { transform: scale(0.97); }
+.bl-yeniden:focus-visible { outline: 3px solid var(--odak); outline-offset: 3px; }
+
+/* Tost: Temiz! / Iskaladın */
+.bl-toast {
+    position: absolute;
+    left: 50%;
+    top: 42%;
+    transform: translate(-50%, -50%) scale(0.92);
+    padding: var(--ara-3) var(--ara-5);
+    border-radius: var(--r-giris);
+    background: var(--yuzey-cam);
+    box-shadow: var(--golge-2);
+    font-weight: 700;
+    font-size: 24px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--sure-gecis) var(--egri-out), transform var(--sure-gecis) var(--egri-out);
+}
+.bl-toast.is-acik { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+/* Çıkış girişten hızlı: sistem yanıt verirken beklenmez */
+.bl-toast:not(.is-acik) { transition-duration: var(--sure-bas); }
+.bl-toast.is-basari { color: var(--dogru); }
+.bl-toast.is-hata { color: var(--yanlis); }
+
+/* Ekran okuyucu duyurusu */
+.bl-duyuru {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+
+@media (max-width: 480px), (max-height: 480px) {
+    .bl-pill { font-size: 12px; min-height: 26px; padding: 2px var(--ara-2); }
+    .bl-pill--bolum .bl-pill__etiket { display: none; }
+    .bl-okuma { font-size: 13px; padding: 4px var(--ara-3); }
+    .bl-okuma.is-ipucu { display: none; }
+    .bl-toast { font-size: 20px; }
+    .bl-yeniden { font-size: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bl-toast, .bl-okuma, .bl-yeniden, .bl-pill { transition: none; }
+    .bl-toast { transform: translate(-50%, -50%); }
+}

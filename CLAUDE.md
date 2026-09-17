@@ -89,7 +89,7 @@ const ModulAdi = (() => {
 ### Yeni oyun ekleme (README "Yeni oyun ekleme" + düzeltme)
 
 README "Yeni oyun ekleme" (B2a sonrası) güncel; kısa sıra:
-1. `js/games/<slug>.js` (+ `css/<slug>.css`) — yukarıdaki sözleşme; modül adı `eslint.config.js gameModuleGlobals`'a.
+1. `js/games/<slug>.js` (+ `css/<slug>.css`) — yukarıdaki sözleşme; modül adı `eslint.config.js gameModuleGlobals`'a. Modül birden çok dosyaysa (örn. Balon Labirenti: `balon-labirenti-fizik.js` → `balon-labirenti-levels.js` → `balon-labirenti.js`) yardımcı dosyalar `window.X` yayımlar (eslint globali gerekmez) ve `files.js` sırası yükleme sırasıdır.
 2. `data/games.json` kaydı (hub sırasında; `stars` 0 = kilitsiz; `online` varsa `order`) → `npm run catalog`.
 3. Kategori şeridi otomatik (`data-section` → `var(--kat-<bölüm>)`, B2b; `css/hub.css`'e satır eklenmez, yeni renk adı AÇILMAZ) · `js/i18n.js` `TR.instructions` (yönerge varsa). Yaş rafı `age`'den türer (raf listesi `data/games.json shelves`).
 4. `assets/images/hub/<slug>.svg` (128×128, `rx=28` yuvarlatılmış gradyan zemin kalıbı; v2 sahne dili, emoji yok).
