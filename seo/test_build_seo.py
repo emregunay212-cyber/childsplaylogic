@@ -185,10 +185,14 @@ class DataTests(unittest.TestCase):
     def test_real_data_validates(self):
         b.validate_data()
 
-    def test_exactly_one_inactive_and_new_records_present(self):
+    def test_inactive_set_and_new_records_present(self):
+        # Kapalı oyunlar burada TEK TEK yazılır: bir oyun sessizce kapanmasın (kapatma bilinçli karardır).
         slugs = {g["slug"] for g in b.GAMES}
         self.assertTrue({"son-kart", "hava-hokeyi", "zipla-topla-coop"} <= slugs)
-        self.assertEqual([g["slug"] for g in b.GAMES if not b.is_active(g)], ["kelime-madeni-3d"])
+        self.assertEqual(
+            sorted(g["slug"] for g in b.GAMES if not b.is_active(g)),
+            sorted(["kelime-madeni-3d", "ates-buz"]),
+        )
 
     def test_fresh_render_falls_back_to_today_for_untracked_file(self):
         text, date, source = b.render_fresh("oyunlar/boyle-bir-dosya-yok/index.html", lambda d: "x" + d)
