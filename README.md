@@ -1,7 +1,7 @@
 # bilnetoyun.com
 
 > Bilnet Okulları'nın 4-12 yaş için ücretsiz, üyeliksiz, tarayıcıda çalışan eğitici oyun platformu — vanilla HTML/JS/CSS, derleme adımı yok.
-> 48 tek kişilik + 11 online = **59 oynanabilir** oyun, 1 kapalı (`data/games.json`: 58 kayıt = 49 solo + 11 online, `kod-macerasi`/`satranc` iki sürümlü; Kelime Madeni 3D `active: false`). Hub dört **yaş rafına** ayrılır (Anaokulu 4-6 · 1-2. Sınıf · 3-4. Sınıf · 5-6. Sınıf; oyun yaş aralığının kestiği her rafta görünür), öğretmen görünümü kazanım + süre + arama ekler (B2b).
+> 48 tek kişilik + 10 online = **58 oynanabilir** oyun, 2 kapalı (`data/games.json`: 58 kayıt = 49 solo + 11 online, `kod-macerasi`/`satranc` iki sürümlü; Kelime Madeni 3D ve Ateş & Buz `active: false`). Hub dört **yaş rafına** ayrılır (Anaokulu 4-6 · 1-2. Sınıf · 3-4. Sınıf · 5-6. Sınıf; oyun yaş aralığının kestiği her rafta görünür), öğretmen görünümü kazanım + süre + arama ekler (B2b).
 
 Depo: `github.com/emregunay212-cyber/childsplaylogic` · dal `master` · canlı: **Vercel** (`master`'a push = otomatik deploy).
 Bu dosya (ve tüm `*.md`) `.vercelignore` ile yayın dışıdır.
@@ -52,7 +52,7 @@ npm run catalog:check                   # data/games.json şeması + js/catalog.
 npm run sri:check                       # Firebase SDK (gstatic) integrity hash'leri hâlâ doğru mu (CI koşar); yenileme: node tools/sri-check.js --print
 npm run build:check                     # deploy simülasyonu: kök → .build-check (hash'li), çıktı doğrulanır (?v= kalıntısı/eski hash = hata)
 npm run test:build                      # tools/build.js birim testleri (idempotence, döngü, eksik dosya, --out)
-npm run test:smoke                      # her aktif oyun /?oyun=<slug> ile açılır, 3 sn hatasız çalışmalı (62 test)
+npm run test:smoke                      # her aktif oyun /?oyun=<slug> ile açılır, 3 sn hatasız çalışmalı (61 test)
 npm run test:dialog                     # js/dialog.js: dört katmanda odak/Tab/Escape/inert + yedek yol + erişilebilirlik ağacı (14 test, B3)
 npm run test:edu-kit                    # 20 eğitsel iframe oyunu: hub iframe + bağımsız açılış + CSP provası (script-src self, satır içi ihlal 0), edu-kit.css token eşitliği (63 test)
 npm run test:hub-ia                     # hub bilgi mimarisi (B2b): yaş rafı, çipler, öğretmen anahtarı, arama, klavye, kart durumları (sahte Firebase adminConfig), /oyunlar/ süzgeci (13 test)
@@ -78,7 +78,7 @@ python seo/test_build_seo.py            # üretici birim testleri
 5. `python seo/build_seo.py` → `oyunlar/<slug>/`, `oyunlar/index.html`, `sitemap.xml`, `llms.txt` yeniden üretilir (title ≤60 / description ≤150 aşılırsa üretim durur).
 6. `npm run lint && npm run catalog:check && npm run test:smoke && python seo/test_build_seo.py` — duman testi slug listesini JSON'dan türetir, yeni oyun otomatik kapsanır.
 
-Oyunu kapatmak: JSON kaydında `active: false` (tek bayrak: hub'da "Yakında" kartı, landing noindex, sitemap/llms/altbilgi dışı, duman testi atlar) → `npm run catalog && python seo/build_seo.py` (örnek: Kelime Madeni 3D).
+Oyunu kapatmak: JSON kaydında `active: false` (tek bayrak: hub'da "Yakında" kartı, landing noindex, sitemap/llms/altbilgi dışı, duman testi atlar) → `npm run catalog && python seo/build_seo.py`; kapalı oyun listesi `seo/test_build_seo.py` içinde de güncellenir (sessiz kapanma olmasın). Yalnız-online oyun kapatılınca kart ve `/?oyun=` derin bağlantısı tamamen düşer (`js/app.js` `mpGameDefs` `active` süzer), "Yakında" kartı çıkmaz. Örnekler: Kelime Madeni 3D (tek kişilik), Ateş & Buz (online).
 
 ## Admin paneli
 

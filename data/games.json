@@ -1234,7 +1234,7 @@
       "about": "Ateş ve Buz, iki karakteri (ateş ve buz) birlikte yönlendirerek engelleri aştığın bir iş birliği oyunudur. Eş güdüm ve birlikte problem çözmeyi geliştirir. Ücretsiz oynanır.",
       "players": "2 kişilik / online",
       "players_range": [2, 2],
-      "active": true,
+      "active": false,
       "stars": 0,
       "online": {
         "module": "AtesBuz",
