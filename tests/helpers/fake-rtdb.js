@@ -81,6 +81,19 @@ function fakeFirebaseScript(opts = {}) {
             setAt(path, value);
             notify(path);
         };
+        // Sunucu onayı: gerçek SDK'da yazı/transaction söz'ü YEREL olaydan sonra (50-500 ms) çözülür; bu sahte
+        // varsayılan olarak hemen çözer. Test __rtdb.holdAcks(true) ile onayları bekletip yerel-olay → HUD
+        // sırasının (ör. yanlış "ÇALINDI!" alarmı) gerçekteki gibi olmasını sağlar; holdAcks(false) bekleyenleri bırakır.
+        let holding = false;
+        let pendingAcks = [];
+        const ack = (fn) => new Promise((resolve) => {
+            const run = () => resolve(fn());
+            if (holding) pendingAcks.push(run); else run();
+        });
+        const holdAcks = (on) => {
+            holding = !!on;
+            if (!holding) { const q = pendingAcks; pendingAcks = []; q.forEach((f) => f()); }
+        };
         const special = (path) => {
             if (path === '.info/connected') return true;
             if (path === '.info/serverTimeOffset') return OFFSET;
@@ -104,18 +117,20 @@ function fakeFirebaseScript(opts = {}) {
                     const sp = special(path);
                     return Promise.resolve(sp !== undefined ? { val: () => sp, exists: () => true } : snap(path));
                 },
-                set(v) { write(path, v); return Promise.resolve(); },
-                remove() { write(path, null); return Promise.resolve(); },
+                set(v) { write(path, v); return ack(() => undefined); },
+                remove() { write(path, null); return ack(() => undefined); },
                 update(obj) {
                     for (const k of Object.keys(obj)) write(join(path, k), obj[k]);
-                    return Promise.resolve();
+                    return ack(() => undefined);
                 },
+                // Güncelleme fonksiyonu SENKRON çalışır ve yerel yazı/olay hemen olur (gerçek SDK gibi);
+                // söz (committed/snapshot) sunucu onayından sonra çözülür (bkz. holdAcks).
                 transaction(fn) {
                     const cur = clone(getAt(path));
                     const res = fn(cur);
-                    if (res === undefined) return Promise.resolve({ committed: false, snapshot: snap(path) });
+                    if (res === undefined) return ack(() => ({ committed: false, snapshot: snap(path) }));
                     write(path, res);
-                    return Promise.resolve({ committed: true, snapshot: snap(path) });
+                    return ack(() => ({ committed: true, snapshot: snap(path) }));
                 },
                 onDisconnect() { return { remove() { return Promise.resolve(); }, set() { return Promise.resolve(); } }; },
                 orderByChild(k) {
@@ -141,12 +156,18 @@ function fakeFirebaseScript(opts = {}) {
         auth.GoogleAuthProvider = function () {};
         const database = () => ({ ref: (p) => makeRef(p || '') });
         database.ServerValue = { TIMESTAMP: TS };
-        window.firebase = { initializeApp() {}, database, auth };
+        // YAZILAMAZ: engellenmeyen gerçek SDK betiği (ör. CDN adresi değişirse) bu sahteyi sessizce ezip canlı
+        // RTDB'ye bağlanamasın — ezmeye kalkarsa TypeError → test kırılır (fail-closed).
+        Object.defineProperty(window, 'firebase', {
+            value: { initializeApp() {}, database, auth },
+            writable: false, configurable: false,
+        });
         window.__rtdb = {
             OFFSET, serverNow, writes,
             get: (p) => clone(getAt(p)),
             set: (p, v) => write(p, v),
             tree: () => clone(tree),
+            holdAcks,
         };
     })();`;
 }

@@ -508,6 +508,7 @@
   animation: aaGoldShimmer 3s ease-in-out infinite;
 }
 
+.aa-players-header > span:first-child { white-space: nowrap; }
 .aa-players-header {
   display: flex;
   justify-content: space-between;
@@ -888,22 +889,30 @@
 .aa-opt-text { flex: 1; }
 
 /* ── OKUMA KİLİDİ (tıklayarak geçmeye karşı) ──
-   Soru çizilince şıklar kısa süre kapalı (.locked + disabled); ince çubuk süreyi gösterir.
-   Süre bitince çubuk gizlenir (yer tutar: düzen kaymaz). */
+   Soru çizilince şıklar kısa süre kapalı (.locked + disabled). Gösterge SORUNUN ALTINDA, şıkların
+   üstünde (küçük ekranda şıklar taşsa da sebep görünür); bitince "CEVAPLA!" ipucuna döner (yer
+   değiştirmez). Kalkan (.aa-read-shield) kilitliyken şıklara dokunmayı yutup ipucunu vurgular. */
+.aa-options { position: relative; }
 .aa-option-btn:disabled { cursor: not-allowed; }
+.aa-option-btn.locked { opacity: 0.55; }
+.aa-read-shield {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  cursor: not-allowed;
+}
 .aa-read-wrap {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-top: 12px;
+  margin: -4px 0 -2px;
 }
-.aa-read-wrap.done { visibility: hidden; }
 .aa-read-hint {
   font-family: var(--rt-font-body);
-  font-size: 0.6rem;
+  font-size: 0.65rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--rt-yellow-dim);
+  color: var(--rt-text);
   white-space: nowrap;
 }
 .aa-read-bar {
@@ -920,8 +929,34 @@
   transition-property: width;
   transition-timing-function: linear;
 }
+.aa-read-wrap.done .aa-read-fill { width: 100%; background: var(--rt-cyan); }
+.aa-read-wrap.done .aa-read-hint { color: var(--rt-cyan-dim); font-weight: bold; }
+.aa-read-wrap.nudge .aa-read-hint { color: var(--rt-pink); font-weight: bold; }
+.aa-read-wrap.nudge .aa-read-fill { background: var(--rt-pink); }
+@media (prefers-reduced-motion: no-preference) {
+  .aa-read-wrap.nudge { animation: aaNudge 0.35s ease; }
+}
+@keyframes aaNudge {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+/* Azaltılmış hareket: dolan çubuk anında %100 gösterip "hazır" sanılıyordu → çubuğu gizle, yalnız
+   "SORUYU OKU" → "CEVAPLA!" yazısı ve şıkların kilit görünümü kalsın. */
 @media (prefers-reduced-motion: reduce) {
-  .aa-read-fill { transition: none; }
+  .aa-read-bar { display: none; }
+}
+/* Yalnız ekran okuyucuya (canlı bölge) */
+.aa-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 .aa-options-reveal .aa-option-btn { cursor: default; }
 .aa-options-reveal .aa-option-btn:hover { transform: none; }
@@ -1469,7 +1504,7 @@
   .aa-stat-num { font-size: 1.05rem; }
   .aa-upgrade-btn { font-size: 0.42rem; padding: 6px 4px; }
   .aa-game-top { flex-wrap: wrap; }
-  .aa-timer-wrap { order: 3; width: 100%; max-width: 100%; }
+  .aa-timer-wrap { order: 3; flex: 1 1 100%; width: 100%; max-width: 100%; }
   .aa-code-box { width: 130px; height: 130px; }
   .aa-code-value { font-size: 1.5rem; letter-spacing: 0.15em; }
   .aa-battle-vs { padding: 8px; gap: 4px; }
@@ -1673,7 +1708,7 @@
   border-radius: 2px;
   margin-left: 10px;
 }
-.aa-timer-clock { min-width: 64px; }
+.aa-timer-clock { min-width: 64px; color: var(--rt-text); }
 
 /* ── DOĞRU / YANLIŞ tam alan splash ── */
 .aa-splash {

@@ -80,6 +80,7 @@ const AltinAvi = (() => {
   let offsetListener = null;
   let serverOffset = 0;
   let timers = [];              // bekleyen zamanlayıcılar (destroy/final/yeni oyunda temizlenir)
+  let finalRoster = {};         // final ekranında id → SON BİLİNEN oyuncu kaydı (çıkanların düğümü silinse de podyum bozulmasın)
 
   // Kendi-hızında oyun durumu (tamamen yerel — oda event'leri buna dokunmaz)
   let myOrder = [];             // soru indekslerinin bana özel karışık sırası
@@ -223,6 +224,7 @@ const AltinAvi = (() => {
     prevMyGold = 0;
     stageLocked = false;
     lastFinishTry = 0;
+    finalRoster = {};
   }
 
   // ── Helpers ──
@@ -274,6 +276,14 @@ const AltinAvi = (() => {
   }
   function clearEl(el) {
     while (el && el.firstChild) el.removeChild(el.firstChild);
+  }
+  // Ekran okuyucu duyurusu: kalıcı bir canlı bölgeye yazılır (yeni eklenen düğümdeki metin çoğu okuyucuda
+  // okunmaz; boşaltıp kısa gecikmeyle doldurmak güvenilir). Görsel arayüze dokunmaz.
+  function announce(msg) {
+    const el = container && container.querySelector('#aa-live');
+    if (!el) return;
+    el.textContent = '';
+    later(() => { el.textContent = msg; }, 60);
   }
   function toast(msg, ms) {
     const el = h('div', { class: 'aa-toast', text: msg });
@@ -701,7 +711,7 @@ const AltinAvi = (() => {
     const settingsInfo = container.querySelector('#aa-room-settings-info');
     if (settingsInfo && roomData) {
       const dk = Math.round((roomData.durationMs ?? GAME_DURATION_DEFAULT_MS) / 60000);
-      settingsInfo.textContent = dk + ' DK · ÇALMA ' + (stealOn() ? 'AÇIK' : 'KAPALI') + ' · EN ÇOK ALTIN KAZANIR';
+      settingsInfo.textContent = dk + ' DK · ÇALMA ' + (stealOn() ? 'AÇIK' : 'KAPALI');
     }
     const maxDisplay = container.querySelector('#aa-maxplayers-display');
     if (maxDisplay && roomData) {
@@ -777,7 +787,8 @@ const AltinAvi = (() => {
     container.appendChild(h('div', { class: 'aa-game' },
       topBar,
       leaderboard,
-      h('div', { class: 'aa-game-main' }, stage)
+      h('div', { class: 'aa-game-main' }, stage),
+      h('div', { id: 'aa-live', class: 'aa-sr-only', role: 'status', 'aria-live': 'polite' })
     ));
 
     renderLeaderboard();
@@ -875,15 +886,28 @@ const AltinAvi = (() => {
       return btn;
     });
 
+    // Okuma göstergesi SORUNUN HEMEN ALTINDA (şıkların üstünde): küçük ekranda şıklar ekran altına
+    // taşsa da çocuk kilidin sebebini görür. Bitince yer değiştirmez: "CEVAPLA!" ipucuna dönüşür.
     const readFill = h('div', { class: 'aa-read-fill' });
+    const readHint = h('span', { class: 'aa-read-hint', text: 'SORUYU OKU' });
     const readWrap = h('div', { class: 'aa-read-wrap', 'aria-hidden': 'true' },
-      h('span', { class: 'aa-read-hint', text: 'SORUYU OKU' }),
+      readHint,
       h('div', { class: 'aa-read-bar' }, readFill)
     );
+    // Kilitliyken şıklara dokunma sessiz kalmasın: kalkan tıklamayı yutar ve ipucunu vurgular
+    // (devre dışı düğme olay üretmez → çocuk "bozuk" sanıp daha çok basıyordu).
+    const shield = h('div', {
+      class: 'aa-read-shield',
+      onClick: () => {
+        readWrap.classList.add('nudge');
+        later(() => readWrap.classList.remove('nudge'), 450);
+      }
+    });
+    optsRoot.appendChild(shield);
     stage.appendChild(h('div', { class: 'aa-question-card' },
       h('div', { class: 'aa-question-text', text: q.q }),
-      optsRoot,
-      readWrap
+      readWrap,
+      optsRoot
     ));
 
     readFill.style.transitionDuration = readMs + 'ms';
@@ -892,6 +916,8 @@ const AltinAvi = (() => {
     later(() => {
       stageLocked = false;
       buttons.forEach((b) => { b.disabled = false; b.classList.remove('locked'); });
+      shield.remove();
+      readHint.textContent = 'CEVAPLA!';
       readWrap.classList.add('done');
     }, readMs);
   }
@@ -925,6 +951,9 @@ const AltinAvi = (() => {
           setMyGoldHud(res.total);
           if (lossEl && lossEl.parentNode) lossEl.textContent = '−' + res.lost + ' ALTIN';
         }
+        announce('Yanlış. Doğru cevap: ' + q.options[q.correctIdx] + '.' +
+          (res.lost > 0 ? ' ' + res.lost + ' altın kaybettin.' : '') +
+          ' ' + Math.round(lockMs / 1000) + ' saniye bekle.');
       });
     }
   }
@@ -972,7 +1001,7 @@ const AltinAvi = (() => {
     stage.appendChild(h('div', { class: 'aa-splash wrong locked' },
       h('div', { class: 'aa-splash-title', text: 'YANLIŞ!' }),
       h('div', { class: 'aa-splash-mark', text: '✕' }),
-      h('div', { class: 'aa-splash-answer', role: 'status', text: 'Doğru Cevap: ' + correctText }),
+      h('div', { class: 'aa-splash-answer', text: 'Doğru Cevap: ' + correctText }),
       lossEl,
       hint
     ));
@@ -1020,7 +1049,8 @@ const AltinAvi = (() => {
           picked = true;
           sfx('flip');
           const reward = drawReward();
-          boxes.forEach(b => { if (b !== box) b.classList.add('dimmed'); });
+          // Seçilmeyenler soluk + DEVRE DIŞI: Tab soluk kutulara girmesin, klavye odağı DEVAM'a gitsin
+          boxes.forEach(b => { b.disabled = true; if (b !== box) b.classList.add('dimmed'); });
           box.classList.add('opened');
 
           const others = playersArray().filter(p => p.id !== myId);
@@ -1058,10 +1088,15 @@ const AltinAvi = (() => {
   function showChestResult(stage, text) {
     sfx('star');
     stage.appendChild(h('div', { class: 'aa-chest-result', text: text }));
-    stage.appendChild(h('button', {
+    const btn = h('button', {
       class: 'aa-btn aa-btn-primary aa-continue-btn',
       onClick: () => { sfx('tap'); nextQuestion(); }
-    }, 'DEVAM ▸'));
+    }, 'DEVAM ▸');
+    stage.appendChild(btn);
+    announce(text);
+    // Odak tıklanan kasada/hedefte kaldıysa (ya da devre dışı kalıp gövdeye düştüyse) DEVAM'a taşı
+    const a = document.activeElement;
+    if (!a || a === document.body || stage.contains(a)) btn.focus({ preventScroll: true });
   }
 
   // ÇAL: 3 gizli hedef kutusu — isimler seçimden sonra görünür (sürpriz korunur)
@@ -1088,6 +1123,7 @@ const AltinAvi = (() => {
           if (picked) return;
           picked = true;
           sfx('flip');
+          grid.querySelectorAll('.aa-target-box').forEach(b => { b.disabled = true; });
           box.classList.add('selected');
           box.classList.remove('aa-target-hidden');
           nameEl.textContent = p.name || '?';
@@ -1110,8 +1146,10 @@ const AltinAvi = (() => {
   // ── ALTIN İŞLEMLERİ (hepsi transaction — eşzamanlı çalmalarla yarış güvenli) ──
   // Oyun bittiyse (FINISHED) altın YAZILMAZ: yolda kalan kasa/çalma tıklaması podyumu bozmasın.
   // Dönen null → çağıran setMyGoldHud(null) ile hiçbir şey göstermez.
-  function applyGoldDelta(delta) {
-    if (!canWriteGold()) return Promise.resolve(null);
+  // force: çalmanın İKİNCİ aşaması (kazanç) bitiş kapısından muaf — kurbandan düşen altın zaten yazıldı;
+  // kapı arada kapanırsa altın yok olurdu (toplam korunmalı).
+  function applyGoldDelta(delta, force) {
+    if (force ? !(myRoomCode && myId) : !canWriteGold()) return Promise.resolve(null);
     return playerRef(myId).child('gold')
       .transaction(g => Math.max(0, Math.min(GOLD_CAP, (g || 0) + delta)))
       .then(tx => (tx && tx.snapshot ? tx.snapshot.val() : 0))
@@ -1125,6 +1163,9 @@ const AltinAvi = (() => {
     let lost = 0;
     return playerRef(myId).child('gold')
       .transaction(g => {
+        // Düğüm silinmişse (kısa kopma → onDisconnect) YAZMA: kısmi {gold:0} düğümü self-heal'de
+        // geri yüklenen altını 0'la ezerdi (yanlış cevap yüzünden tüm altını kaybetmek).
+        if (g === null) return;
         const cur = g || 0;
         lost = Math.min(cur, amount);
         prevMyGold = cur - lost;
@@ -1163,7 +1204,7 @@ const AltinAvi = (() => {
       });
       if (!tx.committed) return 0;
       if (stolen > 0) {
-        const total = await applyGoldDelta(stolen);
+        const total = await applyGoldDelta(stolen, true);   // kurban zaten kaybetti → kazanç bitiş kapısından muaf
         setMyGoldHud(total);
       }
       return stolen;
@@ -1210,8 +1251,22 @@ const AltinAvi = (() => {
   // ── FINAL SCREEN ──
   // Sıralama görünümü: podyum yuvaları + benim satırım + başlık. renderFinalScreen VE bitişten sonra
   // gelen yazımlar (updateFinalStandings) aynı yerden çizer → cihazlar aynı sonucu gösterir.
+  // Kaynak canlı oyuncu listesi DEĞİL, finalRoster: podyuma bakan biri HUB/RESTART ile çıkınca (ya da sekmesi
+  // kapanınca) düğümü silinir; canlı listeden çizersek herkesin sıralaması kayar (birinci gidince ikinci
+  // "WINNER" olur). Roster yalnız günceller, asla silmez.
+  function mergeFinalRoster() {
+    const ps = (roomData && roomData.players) || {};
+    Object.keys(ps).forEach((k) => {
+      const p = ps[k];
+      if (!p || !p.name) return;          // isimsiz kısmi düğüm (self-heal öncesi) podyuma girmesin
+      finalRoster[k] = Object.assign({ id: k }, finalRoster[k], p);
+    });
+  }
+
   function standingsView() {
-    const players = playersArray().sort((a, b) => (b.gold || 0) - (a.gold || 0));
+    mergeFinalRoster();
+    const players = Object.keys(finalRoster).map((k) => finalRoster[k])
+      .sort((a, b) => (b.gold || 0) - (a.gold || 0));
     const myRank = players.findIndex(p => p.id === myId) + 1;
     const winner = players[0];
     const iWon = !!(winner && winner.id === myId);
