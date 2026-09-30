@@ -57,6 +57,7 @@ npm run test:dialog                     # js/dialog.js: dört katmanda odak/Tab/
 npm run test:edu-kit                    # 20 eğitsel iframe oyunu: hub iframe + bağımsız açılış + CSP provası (script-src self, satır içi ihlal 0), edu-kit.css token eşitliği (63 test)
 npm run test:hub-ia                     # hub bilgi mimarisi (B2b): yaş rafı, çipler, öğretmen anahtarı, arama, klavye, kart durumları (sahte Firebase adminConfig), /oyunlar/ süzgeci (13 test)
 npm run test:balon                      # Balon Labirenti: 30 labirent × 9 tolerans varyantı deterministik fizikte çözülür (tarayıcısız) + canlı çekiş/ıska/ipucu, klavye, hub'a dönüş sızıntısız (6 test)
+npm run test:altin-avi                  # Altın Avı (sahte RTDB, page.clock): şıklar her gösterimde karışır, yanlış = tıklanamayan bekleme (3→5→8 sn) + −10 altın, okuma kilidi, ÇALMA AÇIK/KAPALI, sunucu saati, final sıralaması ve soru bankası uzunluk ipucu (22 test)
 SITE_ROOT=.build-check PORT=8766 npm run test:smoke   # aynı test hash'li çıktı üzerinde (CI böyle koşar)
 python seo/test_build_seo.py            # üretici birim testleri
 ```

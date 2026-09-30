@@ -86,6 +86,15 @@ const ModulAdi = (() => {
   Oyun deseni: `const Audio2 = (() => { const { init, tone } = EduKit.audio; return { init, ok: () => tone(660, 0.1, 'triangle', 0.07), … }; })();` — ses adları/frekanslar oyunda kalır, zarf kit'te.
 - Kit CSS token'ları `css/tokens.css`'in KOPYASIdır (iframe'e tokens.css ulaşmaz); yeni token gerekirse tokens.css'ten kopyalanır, test (`edu-kit.spec.js`) ad+değer eşitliğini denetler. Kit sürümü `EduKit.version` (semver; API kırılırsa majör).
 
+### Altın Avı (online, kendi lobisi — `js/games/altin-avi.js`, `rooms/altin-avi/<KOD>`)
+
+- Blooket tarzı kendi hızında yarış: oyuncu kendi node'unu yazar (çalma hedefin `gold`'una da yazar), altın HEP transaction. Test: `npm run test:altin-avi` (sahte RTDB `tests/helpers/fake-rtdb.js` + `page.clock`; canlı DB'ye dokunmaz; `window.firebase` yazılamaz, canlı Firebase isteği/websocket'i testi düşürür).
+- **Kurallar İSTEMCİ tarafı caydırıcıdır, sunucuda zorlanmaz:** `database.rules.json` `rooms/altin-avi/$code` altında kimliksiz yazıma izin verir (konsoldan altın/durum yazılabilir). Ceza/kilit çocukların okumadan basmasını önler, hileyi değil. Gerçek çözüm Firebase Anonymous Auth + kural sıkılaştırma (ayrı iş; KVKK/çocuk verisi değerlendirmesi ister).
+- **"Tıklayarak geç" istismarına karşı** (30 Eyl 2026 sınıf gözlemi: yanlışın bedeli yoktu, doğru cevap %64 B'ydi): şıklar HER gösterimde oyuncuya özel karışır (`shown`; `correctIdx` veridir, ekran konumu değil) · soru çizilince okuma kilidi (`READ_LOCK_*`, şıklar `disabled`, devreden tıklama sayılmaz) · yanlış = **tıklanamayan** bekleme `WRONG_LOCK_MS` 3/5/8 sn (art arda; doğruda sıfırlanır) + `WRONG_GOLD_PENALTY` altın. Testler bu sayıları kilitler (bekleme sınırları ±100 ms, okuma kilidi alt sınırı, ikinci koruma katmanı; mutasyonla doğrulandı). **Yanlış ekranını tıklayınca geçilir yapma.** Okuma göstergesi sorunun ALTINDA, şıkların üstünde (küçük ekranda şıklar taşar); `prefers-reduced-motion`'da çubuk gizlenir (dolu görünüp "hazır" sanılmasın).
+- Çalma kasası KALIR (Blooket kimliği); host oda kurarken `ÇALMA KASASI: AÇIK/KAPALI` seçer (`room.stealEnabled`; alan yoksa açık). Kapalıysa havuzdan çıkar.
+- Bitiş SUNUCU saatiyle: `serverNow()` = `Date.now()` + `.info/serverTimeOffset`; istemci saatiyle `endsAt` yazılmaz/okunmaz (kayık saatli tek cihaz oyunu erken bitirirdi). Altın yalnız `state === 'PLAYING'` iken yazılır (`canWriteGold`; çalmanın kazanç aşaması muaf — toplam korunur). Final podyumu `finalRoster`'dan (son bilinen oyuncular; çıkanların düğümü silinse de sıralama kaymaz) çizilir ve bitişten sonra gelen yazımlarla tazelenir. Zamanlayıcılar `later()` ile izlenir, `cleanup()` temizler. Ekran okuyucu: kalıcı `#aa-live` bölgesine `announce()`.
+- Soru bankasına soru eklerken: doğru cevabın konumu önemsiz (karışıyor) ama doğru şık hep en uzun olmasın (bankada %79 böyleydi → "en uzun şıkkı seç" okumadan dürüst oyuncudan çok kazandırıyordu, simülasyonla ölçüldü). Test (`tests/altin-avi.spec.js` "soru bankası") en uzun-şık payını sınırlar.
+
 ### Yeni oyun ekleme (README "Yeni oyun ekleme" + düzeltme)
 
 README "Yeni oyun ekleme" (B2a sonrası) güncel; kısa sıra:
