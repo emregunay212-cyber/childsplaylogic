@@ -387,6 +387,34 @@ const makeRamp = (x, y, w, h) => ({ shape: 'ramp', hitbox: { position: { x, y },
     const dx = Math.abs(p.position.x - x0);
     check('S10 eğim hücresiyle kafa çarpışmasında hücrenin öbür yüzüne ışınlanmaz (|Δx| ≤ 16)', dx <= 16, `Δx ${dx.toFixed(1)}`);
 }
+{ // S11: kayma iptali YALNIZ kare bloğa yaslıyken — serbest havada kayma bayrağı açıkken yürüme iptal OLMAZ (eğimde tırmanma/iniş bozulmasın)
+    const s = setup(2), p = fire(s); park(s, p); place(p, 300, 50); // seviye 2 üst boşluk: çevrede kare blok yok
+    p.sliding.left = true;
+    const x0 = p.position.x;
+    step(s, { fire: { right: true } });
+    check('S11 serbest havada kayma bayrağı yürümeyi iptal etmez (Δx ≥ 2,5)', p.position.x - x0 >= 2.5, `Δx ${(p.position.x - x0).toFixed(2)}`);
+}
+{ // S12a: küp iniş koruması — küp, yüksek (80 px) bir rampanın üst kenarından 40 px içinde (yan gömülme) → rampanın üstüne ışınlanmaz
+    const s = setup(2); park(s, null); s.assets.push(makeRamp(400, 300, 108, 80));
+    const cube = new Cube({ position: { x: 420, y: 273 }, collisionBlocks: s.blocks, allAssets: s.assets, players: s.players });
+    s.cubes.push(cube); s.assets.push(cube); cube.hitboxPositionCalc();
+    const y0 = cube.position.y; cube.update();
+    check('S12a küp rampanın içine gömülüyken tek karede yukarı ışınlanmaz (yükselme ≤ 10)', y0 - cube.position.y <= 10, `yükselme ${(y0 - cube.position.y).toFixed(1)} px`);
+}
+{ // S12b: küp tavan koruması — küpün üstü rampanın alt yüzüne 20 px gömülü → rampanın ALTINA aşağı ışınlanmaz
+    const s = setup(2); park(s, null); s.assets.push(makeRamp(400, 300, 108, 80));
+    const cube = new Cube({ position: { x: 420, y: 359 }, collisionBlocks: s.blocks, allAssets: s.assets, players: s.players });
+    s.cubes.push(cube); s.assets.push(cube); cube.hitboxPositionCalc();
+    const y0 = cube.position.y; cube.update();
+    check('S12b küp rampanın alt yüzüne gömülüyken tek karede aşağı ışınlanmaz (inme ≤ 10)', cube.position.y - y0 <= 10, `inme ${(cube.position.y - y0).toFixed(1)} px`);
+}
+{ // S13: top tavan koruması — topun üstü rampanın alt yüzüne 20 px gömülü → rampanın ALTINA aşağı ışınlanmaz
+    const s = setup(2); park(s, null); s.assets.push(makeRamp(400, 300, 108, 80));
+    const ball = new Ball({ position: { x: 440, y: 359 }, collisionBlocks: s.blocks, allAssets: s.assets });
+    s.balls.push(ball); s.assets.push(ball); ball.hitboxPositionCalc();
+    const y0 = ball.position.y; ball.update();
+    check('S13 top rampanın alt yüzüne gömülüyken tek karede aşağı ışınlanmaz (inme ≤ 10)', ball.position.y - y0 <= 10, `inme ${(ball.position.y - y0).toFixed(1)} px`);
+}
 
 console.log(`\n${failures.length ? 'BAŞARISIZ' : 'GEÇTİ'}: ${total - failures.length}/${total} denetim` + (failures.length ? `\n  kırmızı: ${failures.join(' | ')}` : ''));
 process.exit(failures.length ? 1 : 0);

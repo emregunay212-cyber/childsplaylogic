@@ -100,10 +100,11 @@ const ModulAdi = (() => {
   eğimde kayarken iptal YOK — eğim inişini/tırmanışını bozar); (4) `checkStuck()` bekçisi: gövde ≥8 px gömülü 30 kare → son serbest
   konum (`lastSafe`; yeniden doğuşta `game.js` sıfırlar; `unstuckCount` ölçer).
 - Test kapsamı: `tests/ates-buz-fizik.mjs` hız/zıplama sabitlerini `game.js`'ten okur; `SEEDS=10 FRAMES=6000 node tests/ates-buz-fizik.mjs`
-  geniş tarama (1,8 M kare, ~2 dk; CI'da yok). Her koruma mutasyonla sınandı (bir korumayı bozunca ilgili S-senaryosu kırmızı olmalı).
+  geniş tarama (1,8 M kare, ~2 dk; CI'da yok). Korumalar mutasyonla sınandı (bir korumayı bozunca ilgili S-senaryosu kırmızı olmalı;
+  istisna: eğim çekme sınırı yalnız varsayılan taramayla yakalanır).
 - Seviye 1–6 elle, 7–10 `tools/build_levels.py` ile üretilir (yalnız `GENERATED LEVELS 7-10` bloğu); seviye dizisi değişince
   görsel eşitliği testi (`tests/ates-buz-veri.spec.js`) kırar — ızgara görselden türetilir, tersi değil.
-- Bilinen kusurlar (özgün kodda var, bilerek dokunulmadı): seviye 4 kol #0 rampası ara konumdayken bir eğim/blok köşesiyle ~16 px'lik
+- Bilinen kusurlar (özgün kodda var, bilerek dokunulmadı): seviye 4 kol #0 ve #1 rampaları ara konumdayken bir eğim/blok köşesiyle ~16 px'lik
   dar aralık → oyuncu ~0,5 sn takılır, bekçi çözer (rampalar oyuncuyu itmez/taşımaz); seviye 4/6'da eğim kenarlarında 14–24 px'lik
   tek karelik sıçrama/titreme; iki oyuncu küpü ters yönlerde iterken küpün ~40 px sıçraması. Oyun hub'da `active:false` (kapalı);
   yeniden açma kararı sahibinde (önce iki cihazda insan testi).

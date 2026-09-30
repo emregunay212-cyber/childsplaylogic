@@ -1,8 +1,8 @@
 import { ctx } from "../helpers.js";
 import { Sprite } from "../sprite.js";
 
-// Dikey çarpışma "yanlış eksen" korumaları (px) — bkz. player.js / cube.js.
-const LAND_MAX_DEPTH = 30;
+// Dikey çarpışma "yanlış eksen" koruması (px) — bkz. player.js / cube.js. (İniş sınırı yok: top 28 px, kafası blok üstündeyken
+// ayak derinliği ≤ 28 olur; kafa bloğun içindeyken zaten "üst çarpışma" dalı devreye girer — sınır ulaşılamaz olurdu.)
 const BUMP_MAX_DEPTH = 12;
 
 export class Ball extends Sprite {
@@ -231,9 +231,7 @@ export class Ball extends Sprite {
                     //ball going down bottom collision
                     if (
                         this.velocity.y > 0 &&
-                        this.hitbox.position.y + this.hitbox.height >= block.hitbox.position.y &&
-                        this.hitbox.position.y + this.hitbox.height - block.hitbox.position.y <=
-                            LAND_MAX_DEPTH
+                        this.hitbox.position.y + this.hitbox.height >= block.hitbox.position.y
                     ) {
                         if (block.canMove) {
                             block.pressed = true;

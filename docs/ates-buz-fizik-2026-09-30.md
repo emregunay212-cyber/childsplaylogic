@@ -29,11 +29,16 @@ bulguları").
 - **Varsayılan test** (360 bin kare): en uzun gömülü seri **80 → 0 kare**, bloğun içinden "batıp" geçme **57 → 0**, tünelleme **2 → 0**,
   tek karede >40 px ışınlanma **28 → 0**. **Geniş tarama** (`SEEDS=10 FRAMES=6000`, 1,8 M kare): batma **279 → 8**, tünelleme
   **4 → 0**, ışınlanma **129 → 0**, en uzun gömülü seri **80 → 8 kare**.
-- **Test kalitesi:** 19 denetimden eski kodda **14'ü kırmızı** (S5 yeni bekçiyi sınadığı için eski kodda kendiliğinden kırmızıdır).
-  Her koruma **mutasyonla** sınandı (iniş/tavan sınırı, küp/top yüz seçimi, üçgen yüz seçimi, eğim çekme sınırı): her biri ilgili
-  denetimi kırmızı yapıyor.
-- **Normal oyun:** eğim inişi karşılaştırması (29 587 deneme, eğime düşerek yaklaşma): eski-başarılı/yeni-başarısız **42**,
-  yeni-başarılı/eski-başarısız **235**. Rastgele girdilerle eski↔yeni: koşuların yarıya yakını 4000 kare boyunca bit-bit aynı;
+- **Test kalitesi:** 23 denetimden eski kodda **18'i kırmızı; S5 hariç 17** (S5 yeni bekçiyi sınadığı için eski kodda kendiliğinden
+  kırmızıdır). Korumalar **mutasyonla** sınandı: oyuncu iniş/tavan sınırı (S8/S9), küp iniş/tavan (S12a/b), top tavan (S13), küp/top/oyuncu
+  yüz seçimi (S6/S7/S3), üçgen yüz seçimi (S10), kayma iptali ve daraltması (S1/S11), bekçi (S5), top konumları (veri+S4): her biri ilgili
+  denetimi kırmızı yapıyor. **İstisna:** eğim çekme sınırı (`TRI_LIFT_MAX`) yalnız varsayılan taramadaki ">40 px ışınlanma" denetimiyle
+  yakalanır (özel senaryosu yok). Topun iniş sınırı kaldırıldı (28 px'lik top için ulaşılamaz). Bütçeler gözlenen değerlere yakın
+  (batma 8/9, bekçi 9/12): sıfır değil, bilinen seviye 4 sınırının bütçesi.
+- **Normal oyun:** eğim inişi karşılaştırması. Benim ızgaramda (29 587 deneme, seviye 3/4/6, eğime düşerek yaklaşma): eski-başarılı/
+  yeni-başarısız **42** (%0,14), yeni-başarılı/eski-başarısız **235**. Denetçinin bağımsız örneklemiyle (yalnız yukarıdan düşüş,
+  4743 deneme): **42 (%0,9)** ve **192**; son gömülme ≥8 px: eski 99 → yeni 15. Oran örnekleme göre %0,14–0,9; yön aynı: yeni kod net
+  olarak daha çok iniş düzeltiyor. Rastgele girdilerle eski↔yeni: koşuların yarıya yakını 4000 kare boyunca bit-bit aynı;
   ilk sapmaların çoğu eski kodun hatalı durumunda ya da kayma bağlamında.
 
 ## İnceleme bulguları (dürüst kayıt)
@@ -47,13 +52,14 @@ bulguları").
 
 ## Bilinen ve bilerek dokunulmayanlar
 
-- **Seviye 4, kol #0 rampası ara konumdayken** (612→504; yalnız kol çekilirken): bir eğim/blok köşesiyle ~16 px'lik dar aralık oluşur;
+- **Seviye 4, kol #0 (612→504) ve kol #1 (756→864, y=792) rampaları ara konumdayken** (yalnız kol çekilirken): bir eğim/blok köşesiyle ~16 px'lik dar aralık oluşur;
   gövde sığmaz, oyuncu ~0,5 sn takılır ve bekçi son serbest konuma alır (geniş taramada 1,8 M karede 9 kez). Rampaların oyuncuyu
   itmesi/taşıması özgün tasarımda yok; eğim tırmanışı tavan denetimi yapmıyor.
 - Eğim kenarlarında 14–24 px'lik tek karelik sıçrama/titreme (üçgen dalları; özgün kodda, hız 2.0'da da var).
 - İki oyuncu küpü ters yönlerde iterken küpün ~40 px sıçraması (nadir).
-- **Davranış değişikliği (küçük):** eğime yukarıdan düşerken ~%0,14 oranında inişler artık yana itilerek başarısız oluyor (eskiden
-  yüzeye ışınlanarak başarılıydı); bunun karşılığında 235 iniş düzeldi.
+- **Davranış değişikliği (küçük):** eğime yukarıdan düşerken %0,14–0,9 oranında inişler artık yana itilerek başarısız oluyor (eskiden
+  yüzeye 36–60 px ışınlanarak başarılıydı; örnek: seviye 3 (13,7) ve (33,9) hücreleri, oyuncu bazen ~78 px yana itilip düşüyor);
+  bunun karşılığında 192–235 iniş düzeldi.
 - Çevrimiçi tarafta (host otoriter, misafir 20 Hz girdi) gecikme kaynaklı görsel kayma kapsam dışı.
 - Node 20 (CI) altında bu oturumda koşturulamadı (yalnız Node 24); test geçici paket + `{"type":"module"}` ile Node 20'de çalışacak
   biçimde yazıldı, CI ilk koşuda doğrular.
