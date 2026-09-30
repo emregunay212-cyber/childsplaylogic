@@ -57,11 +57,12 @@ npm run test:dialog                     # js/dialog.js: dört katmanda odak/Tab/
 npm run test:edu-kit                    # 20 eğitsel iframe oyunu: hub iframe + bağımsız açılış + CSP provası (script-src self, satır içi ihlal 0), edu-kit.css token eşitliği (63 test)
 npm run test:hub-ia                     # hub bilgi mimarisi (B2b): yaş rafı, çipler, öğretmen anahtarı, arama, klavye, kart durumları (sahte Firebase adminConfig), /oyunlar/ süzgeci (13 test)
 npm run test:balon                      # Balon Labirenti: 30 labirent × 9 tolerans varyantı deterministik fizikte çözülür (tarayıcısız) + canlı çekiş/ıska/ipucu, klavye, hub'a dönüş sızıntısız (6 test)
+npm run test:ates-buz                   # Ateş & Buz: gerçek fizik modülleri sahte DOM'da 10 seviye × 3 oyun biçimi (+ kapı/rampa zorlaması) oynatılır — gömülme/tünelleme/ışınlanma/kalıcı sıkışma 0, parça/oyuncu/elmas duvarda doğmaz, bulunan kök nedenlerin yapıcı senaryoları (Node, tarayıcısız) + seviye görseli ↔ çarpışma ızgarası eşitliği (tarayıcı); oyun hub'da kapalı olsa da koşar
 SITE_ROOT=.build-check PORT=8766 npm run test:smoke   # aynı test hash'li çıktı üzerinde (CI böyle koşar)
 python seo/test_build_seo.py            # üretici birim testleri
 ```
 
-`BASE_URL=https://<vercel-önizleme> npm run test:smoke` dış ortamda koşar. CI (`ci.yml`) her PR'da lint + `catalog:check` + `sri:check` + SEO üretimi tazelik kontrolü (`python seo/build_seo.py && git diff --exit-code -I lastmod …`) + `test:build` + `build:check` + `test:edu-kit` + duman, temizlikçi, dialog, hub bilgi mimarisi ve Balon Labirenti testlerini (hash'li çıktı üzerinde) çalıştırır; iş adı `eslint + Playwright duman testi` master'da **required check**tir (branch protection, A10b) — kırmızıyken merge edilemez, force-push ve dal silme kapalı.
+`BASE_URL=https://<vercel-önizleme> npm run test:smoke` dış ortamda koşar. CI (`ci.yml`) her PR'da lint + `catalog:check` + `sri:check` + SEO üretimi tazelik kontrolü (`python seo/build_seo.py && git diff --exit-code -I lastmod …`) + `test:build` + `build:check` + `test:edu-kit` + duman, temizlikçi, dialog, hub bilgi mimarisi ve Balon Labirenti ve Ateş & Buz testlerini (hash'li çıktı üzerinde) çalıştırır; iş adı `eslint + Playwright duman testi` master'da **required check**tir (branch protection, A10b) — kırmızıyken merge edilemez, force-push ve dal silme kapalı.
 
 ## Deploy
 
