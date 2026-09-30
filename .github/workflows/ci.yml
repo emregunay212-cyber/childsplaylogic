@@ -108,6 +108,11 @@ jobs:
       # Oyun hub'da kapalı (active:false) olsa da dosyalar depoda; yeniden açılırsa bu test regresyonu yakalar.
       - name: Ateş & Buz fizik (kaynak ağaç) + veri testi (hash'li çıktı)
         run: npm run test:ates-buz
+
+      # Altın Avı: "tıklayarak geç" istismarına karşı ceza (yanlış = tıklanamayan bekleme + altın, okuma kilidi,
+      # karışık şıklar), çalma kasası AÇIK/KAPALI, sunucu saati, final sıralaması. Sahte RTDB — canlı DB'ye dokunmaz.
+      - name: Altın Avı testi — hash'li çıktı üzerinde
+        run: npm run test:altin-avi
         env:
           CI: true
           SITE_ROOT: .build-check

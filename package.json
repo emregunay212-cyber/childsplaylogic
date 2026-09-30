@@ -18,7 +18,8 @@
     "test:build": "playwright test tests/build.spec.js",
     "test:edu-kit": "playwright test tests/edu-kit.spec.js",
     "test:balon": "playwright test tests/balon-labirenti.spec.js",
-    "test:ates-buz": "node tests/ates-buz-fizik.mjs && playwright test tests/ates-buz-veri.spec.js"
+    "test:ates-buz": "node tests/ates-buz-fizik.mjs && playwright test tests/ates-buz-veri.spec.js",
+    "test:altin-avi": "playwright test tests/altin-avi.spec.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",

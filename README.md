@@ -58,6 +58,7 @@ npm run test:edu-kit                    # 20 eğitsel iframe oyunu: hub iframe +
 npm run test:hub-ia                     # hub bilgi mimarisi (B2b): yaş rafı, çipler, öğretmen anahtarı, arama, klavye, kart durumları (sahte Firebase adminConfig), /oyunlar/ süzgeci (13 test)
 npm run test:balon                      # Balon Labirenti: 30 labirent × 9 tolerans varyantı deterministik fizikte çözülür (tarayıcısız) + canlı çekiş/ıska/ipucu, klavye, hub'a dönüş sızıntısız (6 test)
 npm run test:ates-buz                   # Ateş & Buz: gerçek fizik modülleri sahte DOM'da 10 seviye × 3 oyun biçimi (+ kapı/rampa zorlaması) oynatılır — gömülme/tünelleme/ışınlanma/kalıcı sıkışma 0, parça/oyuncu/elmas duvarda doğmaz, bulunan kök nedenlerin yapıcı senaryoları (Node, tarayıcısız) + seviye görseli ↔ çarpışma ızgarası eşitliği (tarayıcı); oyun hub'da kapalı olsa da koşar
+npm run test:altin-avi                  # Altın Avı (sahte RTDB, page.clock): şıklar her gösterimde karışır, yanlış = tıklanamayan bekleme (3→5→8 sn) + −10 altın, okuma kilidi, ÇALMA AÇIK/KAPALI, sunucu saati, final sıralaması ve soru bankası uzunluk ipucu (22 test)
 SITE_ROOT=.build-check PORT=8766 npm run test:smoke   # aynı test hash'li çıktı üzerinde (CI böyle koşar)
 python seo/test_build_seo.py            # üretici birim testleri
 ```
