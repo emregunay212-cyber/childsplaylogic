@@ -86,6 +86,14 @@ const ModulAdi = (() => {
   Oyun deseni: `const Audio2 = (() => { const { init, tone } = EduKit.audio; return { init, ok: () => tone(660, 0.1, 'triangle', 0.07), … }; })();` — ses adları/frekanslar oyunda kalır, zarf kit'te.
 - Kit CSS token'ları `css/tokens.css`'in KOPYASIdır (iframe'e tokens.css ulaşmaz); yeni token gerekirse tokens.css'ten kopyalanır, test (`edu-kit.spec.js`) ad+değer eşitliğini denetler. Kit sürümü `EduKit.version` (semver; API kırılırsa majör).
 
+### Altın Avı (online, kendi lobisi — `js/games/altin-avi.js`, `rooms/altin-avi/<KOD>`)
+
+- Blooket tarzı kendi hızında yarış: her oyuncu yalnız KENDİ node'unu yazar, altın HEP transaction. Test: `npm run test:altin-avi` (sahte RTDB `tests/helpers/fake-rtdb.js` + `page.clock`; canlı DB'ye dokunmaz).
+- **"Tıklayarak geç" istismarına karşı** (30 Eyl 2026 sınıf gözlemi: yanlışın bedeli yoktu, doğru cevap %64 B'ydi): şıklar HER gösterimde oyuncuya özel karışır (`shown`; `correctIdx` veridir, ekran konumu değil) · soru çizilince okuma kilidi (`READ_LOCK_*`, şıklar `disabled`, devreden tıklama sayılmaz) · yanlış = **tıklanamayan** bekleme `WRONG_LOCK_MS` 3/5/8 sn (art arda; doğruda sıfırlanır) + `WRONG_GOLD_PENALTY` altın. Testler bu sayıları kilitler. **Yanlış ekranını tıklayınca geçilir yapma.**
+- Çalma kasası KALIR (Blooket kimliği); host oda kurarken `ÇALMA KASASI: AÇIK/KAPALI` seçer (`room.stealEnabled`; alan yoksa açık). Kapalıysa havuzdan çıkar.
+- Bitiş SUNUCU saatiyle: `serverNow()` = `Date.now()` + `.info/serverTimeOffset`; istemci saatiyle `endsAt` yazılmaz/okunmaz (kayık saatli tek cihaz oyunu erken bitirirdi). Altın yalnız `state === 'PLAYING'` iken yazılır (`canWriteGold`); final podyumu bitişten sonra gelen yazımlarla tazelenir. Zamanlayıcılar `later()` ile izlenir, `cleanup()` temizler.
+- Soru bankasına soru eklerken: doğru cevabın konumu önemsiz (karışıyor) ama doğru şık hep en uzun olmasın (bankada %79 böyleydi → gözle tarayan çocuk okumadan bulur).
+
 ### Yeni oyun ekleme (README "Yeni oyun ekleme" + düzeltme)
 
 README "Yeni oyun ekleme" (B2a sonrası) güncel; kısa sıra:

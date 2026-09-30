@@ -886,6 +886,43 @@
 .aa-option-btn.selected .aa-opt-letter { background: var(--rt-yellow-dim); color: var(--rt-panel-light); }
 .aa-option-btn.correct .aa-opt-letter { background: var(--rt-cyan-dim); color: var(--rt-panel-light); }
 .aa-opt-text { flex: 1; }
+
+/* ── OKUMA KİLİDİ (tıklayarak geçmeye karşı) ──
+   Soru çizilince şıklar kısa süre kapalı (.locked + disabled); ince çubuk süreyi gösterir.
+   Süre bitince çubuk gizlenir (yer tutar: düzen kaymaz). */
+.aa-option-btn:disabled { cursor: not-allowed; }
+.aa-read-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+.aa-read-wrap.done { visibility: hidden; }
+.aa-read-hint {
+  font-family: var(--rt-font-body);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--rt-yellow-dim);
+  white-space: nowrap;
+}
+.aa-read-bar {
+  flex: 1;
+  height: 6px;
+  background: rgba(0,0,0,0.25);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.aa-read-fill {
+  width: 0;
+  height: 100%;
+  background: var(--rt-yellow);
+  transition-property: width;
+  transition-timing-function: linear;
+}
+@media (prefers-reduced-motion: reduce) {
+  .aa-read-fill { transition: none; }
+}
 .aa-options-reveal .aa-option-btn { cursor: default; }
 .aa-options-reveal .aa-option-btn:hover { transform: none; }
 
@@ -1508,6 +1545,7 @@
   width: 100%;
 }
 .aa-target-box {
+  font: inherit;
   flex: 1 1 140px;
   max-width: 180px;
   display: flex;
@@ -1533,6 +1571,7 @@
   border-color: var(--rt-pink-dim);
 }
 .aa-target-name {
+  display: block;
   font-family: var(--rt-font-body);
   font-size: 0.72rem;
   letter-spacing: 0.06em;
@@ -1659,6 +1698,21 @@
   background: var(--rt-pink);
   color: var(--rt-panel-light);
 }
+.aa-splash.locked { cursor: default; }
+.aa-splash.locked .aa-splash-hint {
+  /* geri sayım: çocuğun "neden tıklayamıyorum"u anlaması gereken tek bilgi → büyük ve net */
+  font-family: var(--rt-font-num);
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+  opacity: 1;
+  animation: none;
+}
+.aa-splash-loss {
+  font-family: var(--rt-font-num);
+  font-size: 1.1rem;
+  letter-spacing: 0.06em;
+  min-height: 1.3em;
+}
 .aa-splash-title {
   font-family: var(--rt-font-display);
   font-size: 1.7rem;
@@ -1719,6 +1773,9 @@
   gap: 12px;
 }
 .aa-chest-box {
+  padding: 0;
+  font: inherit;
+  color: inherit;
   min-height: 120px;
   background: var(--rt-panel-light);
   border: 2px solid var(--rt-border-color);
@@ -1744,6 +1801,7 @@
 .aa-chest-box.opened .aa-chest-q { color: var(--rt-bg-deep); }
 .aa-chest-box.dimmed { opacity: 0.35; pointer-events: none; }
 .aa-chest-q {
+  display: block;
   font-family: var(--rt-font-num);
   font-size: 1.9rem;
   color: var(--rt-yellow);
@@ -1763,6 +1821,11 @@
   letter-spacing: 0.03em;
 }
 .aa-continue-btn { width: 100%; }
+.aa-chest-box:focus-visible,
+.aa-target-box:focus-visible {
+  outline: 3px solid var(--rt-yellow);
+  outline-offset: 3px;
+}
 
 @media (max-width: 420px) {
   .aa-splash-title { font-size: 1.25rem; }
