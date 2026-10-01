@@ -191,7 +191,7 @@ class DataTests(unittest.TestCase):
         self.assertTrue({"son-kart", "hava-hokeyi", "zipla-topla-coop"} <= slugs)
         self.assertEqual(
             sorted(g["slug"] for g in b.GAMES if not b.is_active(g)),
-            sorted(["kelime-madeni-3d", "ates-buz"]),
+            sorted(["kelime-madeni-3d"]),
         )
 
     def test_fresh_render_falls_back_to_today_for_untracked_file(self):
