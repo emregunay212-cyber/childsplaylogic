@@ -670,6 +670,9 @@ function playGame() {
                             if (startPos) {
                                 p.position.x = startPos.x;
                                 p.position.y = startPos.y;
+                                // sıkışma bekçisi eski (ölüm yerindeki) konuma dönmesin
+                                p.lastSafe = { x: startPos.x, y: startPos.y };
+                                p.stuckFrames = 0;
                             }
                             p.velocity.x = 0;
                             p.velocity.y = 0;

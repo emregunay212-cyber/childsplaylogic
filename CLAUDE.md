@@ -86,6 +86,29 @@ const ModulAdi = (() => {
   Oyun deseni: `const Audio2 = (() => { const { init, tone } = EduKit.audio; return { init, ok: () => tone(660, 0.1, 'triangle', 0.07), … }; })();` — ses adları/frekanslar oyunda kalır, zarf kit'te.
 - Kit CSS token'ları `css/tokens.css`'in KOPYASIdır (iframe'e tokens.css ulaşmaz); yeni token gerekirse tokens.css'ten kopyalanır, test (`edu-kit.spec.js`) ad+değer eşitliğini denetler. Kit sürümü `EduKit.version` (semver; API kırılırsa majör).
 
+### Ateş & Buz fizik sözleşmesi (`games/ates-buz/js/`, 30 Eyl 2026 düzeltmesi — `docs/ates-buz-fizik-2026-09-30.md`)
+
+- Elle yazılmış dikdörtgen çarpışma (`player.js`/`ingameAssets/cube.js`/`ball.js`) **hıza ve veriye duyarlıdır**:
+  `game.js MOVE_SPEED` (orijinal 2.0 → şimdi 3.0) ya da `collisionBlocks.js`/`data/*.json` değişince **`npm run test:ates-buz`** koşulur;
+  kırmızıysa oyun yeniden açılmaz. Sayılar değil **değişmezler** denetlenir: gövde blokta gömülü kalmaz, tek karede ışınlanma yok,
+  duvar "tünellemesi" yok, parça/oyuncu/elmas katı blokta doğmaz, seviye görseli ↔ çarpışma ızgarası birebir.
+- Kurallar (kırmızıyı bozmadan değiştirme): (1) yatay itme yönü **hız işaretiyle değil bloğa göre en az bindirmeyle** seçilir
+  (kare/rampa/küp, üçgen kafa-çarpışması, küp, top; yatay bindirme dikeyden büyükse dikey çözüme bırakılır);
+  (2) dikey düzeltme "iniş ≤ 16 px / tavan ≤ 12 px" (küp/top 30/12), eğim yüzeyine çekme ≤ 36 px (hücre yüksekliği) — daha derini
+  yan gömülmedir, "üstüne/altına/yüzeye ışınlama" yapılmaz, girdiği yüzden itilir;
+  (3) `sliding` bayrağı açıkken **ve oyuncu bir KARE bloğa yaslıyken** bloğa doğru yürüme o kare iptal (kayma her hızda yürümeyi yener;
+  eğimde kayarken iptal YOK — eğim inişini/tırmanışını bozar); (4) `checkStuck()` bekçisi: gövde ≥8 px gömülü 30 kare → son serbest
+  konum (`lastSafe`; yeniden doğuşta `game.js` sıfırlar; `unstuckCount` ölçer).
+- Test kapsamı: `tests/ates-buz-fizik.mjs` hız/zıplama sabitlerini `game.js`'ten okur; `SEEDS=10 FRAMES=6000 node tests/ates-buz-fizik.mjs`
+  geniş tarama (1,8 M kare, ~2 dk; CI'da yok). Korumalar mutasyonla sınandı (bir korumayı bozunca ilgili S-senaryosu kırmızı olmalı;
+  istisna: eğim çekme sınırı yalnız varsayılan taramayla yakalanır).
+- Seviye 1–6 elle, 7–10 `tools/build_levels.py` ile üretilir (yalnız `GENERATED LEVELS 7-10` bloğu); seviye dizisi değişince
+  görsel eşitliği testi (`tests/ates-buz-veri.spec.js`) kırar — ızgara görselden türetilir, tersi değil.
+- Bilinen kusurlar (özgün kodda var, bilerek dokunulmadı): seviye 4 kol #0 ve #1 rampaları ara konumdayken bir eğim/blok köşesiyle ~16 px'lik
+  dar aralık → oyuncu ~0,5 sn takılır, bekçi çözer (rampalar oyuncuyu itmez/taşımaz); seviye 4/6'da eğim kenarlarında 14–24 px'lik
+  tek karelik sıçrama/titreme; iki oyuncu küpü ters yönlerde iterken küpün ~40 px sıçraması. Oyun hub'da `active:false` (kapalı);
+  yeniden açma kararı sahibinde (önce iki cihazda insan testi).
+
 ### Altın Avı (online, kendi lobisi — `js/games/altin-avi.js`, `rooms/altin-avi/<KOD>`)
 
 - Blooket tarzı kendi hızında yarış: oyuncu kendi node'unu yazar (çalma hedefin `gold`'una da yazar), altın HEP transaction. Test: `npm run test:altin-avi` (sahte RTDB `tests/helpers/fake-rtdb.js` + `page.clock`; canlı DB'ye dokunmaz; `window.firebase` yazılamaz, canlı Firebase isteği/websocket'i testi düşürür).

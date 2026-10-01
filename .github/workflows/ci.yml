@@ -103,6 +103,12 @@ jobs:
           CI: true
           SITE_ROOT: .build-check
 
+      # Ateş & Buz: gerçek fizik modülleri sahte DOM'da 10 seviye × 3 oyun biçimi oynatılır (gömülme/tünelleme/
+      # ışınlanma/kalıcı sıkışma 0, parça/oyuncu duvarda doğmaz) + seviye görseli ↔ çarpışma ızgarası (tarayıcı).
+      # Oyun hub'da kapalı (active:false) olsa da dosyalar depoda; yeniden açılırsa bu test regresyonu yakalar.
+      - name: Ateş & Buz fizik (kaynak ağaç) + veri testi (hash'li çıktı)
+        run: npm run test:ates-buz
+
       # Altın Avı: "tıklayarak geç" istismarına karşı ceza (yanlış = tıklanamayan bekleme + altın, okuma kilidi,
       # karışık şıklar), çalma kasası AÇIK/KAPALI, sunucu saati, final sıralaması. Sahte RTDB — canlı DB'ye dokunmaz.
       - name: Altın Avı testi — hash'li çıktı üzerinde

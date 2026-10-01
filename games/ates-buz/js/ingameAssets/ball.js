@@ -1,6 +1,10 @@
 import { ctx } from "../helpers.js";
 import { Sprite } from "../sprite.js";
 
+// Dikey çarpışma "yanlış eksen" koruması (px) — bkz. player.js / cube.js. (İniş sınırı yok: top 28 px, kafası blok üstündeyken
+// ayak derinliği ≤ 28 olur; kafa bloğun içindeyken zaten "üst çarpışma" dalı devreye girer — sınır ulaşılamaz olurdu.)
+const BUMP_MAX_DEPTH = 12;
+
 export class Ball extends Sprite {
     constructor({ position, collisionBlocks, allAssets }) {
         const imgSrc = "./img/ball.png";
@@ -82,6 +86,13 @@ export class Ball extends Sprite {
         this.velocity.y += 0.25;
         this.position.y += this.velocity.y;
     }
+    // Top, bloğun hangi yanında? (en az bindirme). Hız işaretine bakmak, geniş yatay rampada topu
+    // bloğun öbür ucuna (~136 px) ışınlıyordu.
+    pushSide(block) {
+        const penLeft = this.hitbox.position.x + this.hitbox.width - block.hitbox.position.x;
+        const penRight = block.hitbox.position.x + block.hitbox.width - this.hitbox.position.x;
+        return penLeft < penRight ? "left" : "right";
+    }
     horizontalCollision(blocks) {
         for (let i = 0; i < blocks.length; i++) {
             const block = blocks[i];
@@ -95,20 +106,23 @@ export class Ball extends Sprite {
                 this.hitbox.position.y <= block.hitbox.position.y + block.hitbox.height
             ) {
                 if (block.shape == "square" || block.shape == "ramp") {
-                    //ball going right
-                    if (this.velocity.x > 0) {
-                        this.velocity.x = -this.velocity.x / 2;
-                        const offset = this.hitbox.position.x - this.position.x + this.hitbox.width;
-                        this.position.x = block.hitbox.position.x - offset - 0.01;
-                        break;
-                    }
-                    //ball going left
-                    else if (this.velocity.x < 0) {
-                        this.velocity.x = -this.velocity.x / 2;
-                        const offset = this.hitbox.position.x - this.position.x;
-                        this.position.x =
-                            block.hitbox.position.x + block.hitbox.width - offset + 0.01;
-                        break;
+                    if (this.velocity.x !== 0) {
+                        //ball bounced off the left side of the block
+                        if (this.pushSide(block) == "left") {
+                            this.velocity.x = -Math.abs(this.velocity.x) / 2;
+                            const offset =
+                                this.hitbox.position.x - this.position.x + this.hitbox.width;
+                            this.position.x = block.hitbox.position.x - offset - 0.01;
+                            break;
+                        }
+                        //ball bounced off the right side of the block
+                        else {
+                            this.velocity.x = Math.abs(this.velocity.x) / 2;
+                            const offset = this.hitbox.position.x - this.position.x;
+                            this.position.x =
+                                block.hitbox.position.x + block.hitbox.width - offset + 0.01;
+                            break;
+                        }
                     }
                 } else if (
                     block.shape == "triangle" &&
@@ -204,7 +218,9 @@ export class Ball extends Sprite {
                     //ball top collision
                     if (
                         this.hitbox.position.y <= block.hitbox.position.y + block.hitbox.height &&
-                        this.hitbox.position.y >= block.hitbox.position.y
+                        this.hitbox.position.y >= block.hitbox.position.y &&
+                        block.hitbox.position.y + block.hitbox.height - this.hitbox.position.y <=
+                            BUMP_MAX_DEPTH
                     ) {
                         this.velocity.y = 0;
                         const offset = this.hitbox.position.y - this.position.y;

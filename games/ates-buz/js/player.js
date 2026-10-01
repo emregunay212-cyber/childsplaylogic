@@ -1,5 +1,17 @@
 import { Sprite } from "./sprite.js";
 
+// Dikey çarpışma "yanlış eksen" korumaları (px). Ölçüm (10 seviye × 3 oyun biçimi, ~2M kare): gerçek
+// iniş/tavan düzeltmeleri hep < 8 px; hatalı ışınlanmalar ≥ 24 px. Eşikler bu ikisinin arasında.
+const LAND_MAX_DEPTH = 16;
+const BUMP_MAX_DEPTH = 12;
+const TRI_LIFT_MAX = 36; // eğim hücresi 36 px: meşru yüzeye çekme ≤ 36; üstü = ayaklar hücrenin ALTINDA (katının içinden geçmiş)
+
+// Kalıcı sıkışma bekçisi: gövde (üst 36 px) bir kare/rampa/köprüye STUCK_DEPTH px'ten fazla gömülü kalırsa
+// STUCK_FRAMES kare sonra oyuncu son serbest konumuna döner. Bilinmeyen bir durumda bile kalıcı takılma olmasın.
+const STUCK_DEPTH = 8;
+const STUCK_FRAMES = 30;
+const FREE_DEPTH = 2; // bundan azı "serbest" sayılır; son serbest konum yalnız burada güncellenir
+
 export class Player extends Sprite {
     constructor({
         position,
@@ -65,6 +77,10 @@ export class Player extends Sprite {
 
         this.rampBlocked = false;
         this.isOnRamp = false;
+
+        this.lastSafe = { x: this.position.x, y: this.position.y };
+        this.stuckFrames = 0;
+        this.unstuckCount = 0; // bekçi kaç kez devreye girdi (test/ölçüm)
     }
     update() {
         this.hitboxPositionCalc();
@@ -84,6 +100,18 @@ export class Player extends Sprite {
         //     this.hitbox.legs.width,
         //     this.hitbox.legs.height
         // );
+
+        // Köşeden sıyrılma (sliding bayrağı: x−− / x∓3, toplam ≈3 px/kare) yürümeden baskın olmalı.
+        // Orijinal oyun 2.0 hızla yazılmıştı (kayma net −1); hız 3.0 olunca kayma ile yürüme birbirini
+        // sıfırlıyor, oyuncu köşede asılı kalıp bloğun İÇİNDEN düşüyordu. Bayrak sürerken bloğa doğru
+        // yürüme bu kare iptal: kayma her hızda kazanır, köşe temizlenince yürüyüş geri gelir.
+        // Yalnız GERÇEKTEN bir kare bloğa yaslıyken (eğimde kayarken değil): eğimde tırmanma (kayma 1 px) eskisi gibi sürer.
+        if (
+            ((this.sliding.left && this.velocity.x > 0) || (this.sliding.right && this.velocity.x < 0)) &&
+            this.overlapsSolidSquare()
+        ) {
+            this.velocity.x = 0;
+        }
 
         this.position.x += this.velocity.x;
 
@@ -108,12 +136,79 @@ export class Player extends Sprite {
         this.verticalCollision(this.allAssets);
 
         this.hitboxPositionCalc();
+        this.checkStuck();
         this.calculateAngle();
 
         this.legs.position = {
             x: this.position.x + 37,
             y: this.position.y + 72,
         };
+    }
+    // Oyuncu, bloğun hangi yanına daha yakın? (en az bindirme): "left" = sol yüzüne yaslı, "right" = sağ yüzüne
+    nearestSide(block) {
+        const penLeft = this.hitbox.position.x + this.hitbox.width - block.hitbox.position.x;
+        const penRight = block.hitbox.position.x + block.hitbox.width - this.hitbox.position.x;
+        return penLeft < penRight ? "left" : "right";
+    }
+    // Tüm hitbox bir KARE bloğa yatayda ve dikeyde >1 px bindiriyor mu? (üçgen/havuz sayılmaz)
+    overlapsSolidSquare() {
+        const hb = this.hitbox;
+        this.hitboxPositionCalc();
+        for (const block of this.collisionBlocks) {
+            if (block.shape != "square") continue;
+            const ox =
+                Math.min(hb.position.x + hb.width, block.hitbox.position.x + block.hitbox.width) -
+                Math.max(hb.position.x, block.hitbox.position.x);
+            if (ox <= 1) continue;
+            const oy =
+                Math.min(hb.position.y + hb.height, block.hitbox.position.y + block.hitbox.height) -
+                Math.max(hb.position.y, block.hitbox.position.y);
+            if (oy > 1) return true;
+        }
+        return false;
+    }
+    // Gövde dikdörtgeninin katı bloklara (kare/rampa/köprü) en derin bindirmesi (px, en az iki eksenin küçüğü)
+    bodyEmbedDepth() {
+        const hb = this.hitbox;
+        const bx = hb.position.x;
+        const by = hb.position.y;
+        const bw = hb.width;
+        const bh = hb.height - hb.legs.height;
+        let depth = 0;
+        const test = (block) => {
+            const ox = Math.min(bx + bw, block.hitbox.position.x + block.hitbox.width) - Math.max(bx, block.hitbox.position.x);
+            if (ox <= 0) return;
+            const oy = Math.min(by + bh, block.hitbox.position.y + block.hitbox.height) - Math.max(by, block.hitbox.position.y);
+            if (oy <= 0) return;
+            depth = Math.max(depth, Math.min(ox, oy));
+        };
+        for (const block of this.collisionBlocks) if (block.shape == "square") test(block);
+        for (const asset of this.allAssets) {
+            if (asset.shape == "ramp" || asset.shape == "square") test(asset);
+        }
+        return depth;
+    }
+    checkStuck() {
+        const depth = this.bodyEmbedDepth();
+        if (depth < FREE_DEPTH) {
+            this.lastSafe.x = this.position.x;
+            this.lastSafe.y = this.position.y;
+            this.stuckFrames = 0;
+        } else if (depth >= STUCK_DEPTH) {
+            if (++this.stuckFrames >= STUCK_FRAMES) {
+                this.position.x = this.lastSafe.x;
+                this.position.y = this.lastSafe.y;
+                this.velocity.x = 0;
+                this.velocity.y = 0;
+                this.sliding.left = false;
+                this.sliding.right = false;
+                this.stuckFrames = 0;
+                this.unstuckCount++;
+                this.hitboxPositionCalc();
+            }
+        } else {
+            this.stuckFrames = 0;
+        }
     }
     changeSprite(name) {
         if (name != this.currentAnimation) {
@@ -301,15 +396,38 @@ export class Player extends Sprite {
                                 block.velocity.x = -1.5;
                             }
                         }
-                        //player going to left
-                        if (this.velocity.x < 0 || moveTo == "right") {
+                        // İtme yönü: kare/rampa/küpte hız işareti DEĞİL, oyuncunun bloğa göre hangi yanda olduğu
+                        // (en az bindirme) belirler. Hıza bakınca bloktan UZAĞA yürüyen (ya da duran) oyuncu
+                        // bloğun öbür yüzüne ışınlanıyordu (dikey rampada +51 px = "duvardan geçiyor").
+                        let pushTo = null;
+                        if (
+                            block.shape == "square" ||
+                            block.shape == "ramp" ||
+                            block.shape == "cube"
+                        ) {
+                            const penLeft =
+                                this.hitbox.position.x + this.hitbox.width - block.hitbox.position.x;
+                            const penRight =
+                                block.hitbox.position.x + block.hitbox.width - this.hitbox.position.x;
+                            pushTo = penLeft < penRight ? "left" : "right";
+                            // Yatay bindirme dikeyden belirgin büyükse bu yan çarpışma değil (ör. oyuncu geniş bir
+                            // rampanın altında/içinde): yana ~70 px ışınlama yerine dikey çözüm/kayma devralsın.
+                            const bodyBottom =
+                                this.hitbox.position.y + this.hitbox.height - this.hitbox.legs.height;
+                            const overlapY =
+                                Math.min(bodyBottom, block.hitbox.position.y + block.hitbox.height) -
+                                Math.max(this.hitbox.position.y, block.hitbox.position.y);
+                            if (Math.min(penLeft, penRight) > overlapY + 2) pushTo = "none";
+                        }
+                        //player pushed to the right side of the block (was going left)
+                        if (pushTo ? pushTo == "right" : this.velocity.x < 0 || moveTo == "right") {
                             const offset = this.hitbox.position.x - this.position.x;
                             this.position.x =
                                 block.hitbox.position.x + block.hitbox.width - offset + 0.01;
                             break;
                         }
-                        //player going to right
-                        else if (this.velocity.x > 0 || moveTo == "left") {
+                        //player pushed to the left side of the block (was going right)
+                        else if (pushTo ? pushTo == "left" : this.velocity.x > 0 || moveTo == "left") {
                             const offset =
                                 this.hitbox.position.x - this.position.x + this.hitbox.width;
                             this.position.x = block.hitbox.position.x - offset - 0.01;
@@ -333,12 +451,14 @@ export class Player extends Sprite {
                             }
                         }
                         //player going to left
+                        // (+ ayaklar bloğun SAĞ yüzünü kesmeli; sağ dalla simetrik. Yoksa sol yüzüne yaslı,
+                        //  sola yürüyen oyuncu bloğun öbür yanına ışınlanıyordu)
                         if (
                             this.velocity.x < 0 &&
                             this.hitbox.legs.position.x <=
                                 block.hitbox.position.x + block.hitbox.width &&
                             this.hitbox.legs.position.x + this.hitbox.legs.width >=
-                                block.hitbox.position.x
+                                block.hitbox.position.x + block.hitbox.width
                         ) {
                             const offset = this.hitbox.legs.position.x - this.position.x;
                             this.position.x =
@@ -519,19 +639,23 @@ export class Player extends Sprite {
                             !this.sliding.left &&
                             !this.sliding.right
                         ) {
-                            //player going to left
-                            if (this.velocity.x < 0) {
-                                const offset = this.hitbox.position.x - this.position.x;
-                                this.position.x =
-                                    block.hitbox.position.x + block.hitbox.width - offset + 0.01;
-                                break;
-                            }
-                            //player going to right
-                            else if (this.velocity.x > 0) {
-                                const offset =
-                                    this.hitbox.position.x - this.position.x + this.hitbox.width;
-                                this.position.x = block.hitbox.position.x - offset - 0.01;
-                                break;
+                            // Hücrenin hangi yanında olduğuna göre it (hız işaretine göre değil): hücrenin
+                            // uzak yüzüne (ölçüm: 65–72 px) atlama olmasın.
+                            if (this.velocity.x !== 0) {
+                                //player ends on the right side of the cell
+                                if (this.nearestSide(block) == "right") {
+                                    const offset = this.hitbox.position.x - this.position.x;
+                                    this.position.x =
+                                        block.hitbox.position.x + block.hitbox.width - offset + 0.01;
+                                    break;
+                                }
+                                //player ends on the left side of the cell
+                                else {
+                                    const offset =
+                                        this.hitbox.position.x - this.position.x + this.hitbox.width;
+                                    this.position.x = block.hitbox.position.x - offset - 0.01;
+                                    break;
+                                }
                             }
                         }
                         //player sliding
@@ -587,19 +711,23 @@ export class Player extends Sprite {
                             !this.sliding.left &&
                             !this.sliding.right
                         ) {
-                            //player going to left
-                            if (this.velocity.x < 0) {
-                                const offset = this.hitbox.position.x - this.position.x;
-                                this.position.x =
-                                    block.hitbox.position.x + block.hitbox.width - offset + 0.01;
-                                break;
-                            }
-                            //player going to right
-                            else if (this.velocity.x > 0) {
-                                const offset =
-                                    this.hitbox.position.x - this.position.x + this.hitbox.width;
-                                this.position.x = block.hitbox.position.x - offset - 0.01;
-                                break;
+                            // Hücrenin hangi yanında olduğuna göre it (hız işaretine göre değil): hücrenin
+                            // uzak yüzüne (ölçüm: 65–72 px) atlama olmasın.
+                            if (this.velocity.x !== 0) {
+                                //player ends on the right side of the cell
+                                if (this.nearestSide(block) == "right") {
+                                    const offset = this.hitbox.position.x - this.position.x;
+                                    this.position.x =
+                                        block.hitbox.position.x + block.hitbox.width - offset + 0.01;
+                                    break;
+                                }
+                                //player ends on the left side of the cell
+                                else {
+                                    const offset =
+                                        this.hitbox.position.x - this.position.x + this.hitbox.width;
+                                    this.position.x = block.hitbox.position.x - offset - 0.01;
+                                    break;
+                                }
                             }
                         }
                         //player sliding
@@ -684,6 +812,25 @@ export class Player extends Sprite {
             block.direction.y == "up" &&
             this.hitbox.position.y + this.hitbox.height >= block.hitbox.position.y + xPos
         ) {
+            // Ayaklar eğim yüzeyinin TRI_LIFT_MAX px (= hücre yüksekliği) altındaysa oyuncu hücrenin ALTINA/dik YANINA girmiştir;
+            // yüzeye 20–58 px "ışınlamak" duvardan yukarı tırmanıp geçmekti (ölçüm: hepsi düşerken). Girdiği yüzden it.
+            if (
+                this.hitbox.position.y + this.hitbox.height - (block.hitbox.position.y + xPos) >
+                TRI_LIFT_MAX
+            ) {
+                const penLeft =
+                    this.hitbox.position.x + this.hitbox.width - block.hitbox.position.x;
+                const penRight =
+                    block.hitbox.position.x + block.hitbox.width - this.hitbox.position.x;
+                if (penLeft < penRight) {
+                    const offset = this.hitbox.position.x - this.position.x + this.hitbox.width;
+                    this.position.x = block.hitbox.position.x - offset - 0.01;
+                } else {
+                    const offset = this.hitbox.position.x - this.position.x;
+                    this.position.x = block.hitbox.position.x + block.hitbox.width - offset + 0.01;
+                }
+                return;
+            }
             this.isOnBlock = true;
             this.velocity.y = 0;
             const offset = this.hitbox.position.y + this.hitbox.height - this.position.y;
@@ -732,6 +879,9 @@ export class Player extends Sprite {
                     }
 
                     //player going down legs collision
+                    // (ayaklar blok üstünden en çok LAND_MAX_DEPTH px aşağıdaysa: gerçek iniş. Daha derinse
+                    //  oyuncu blokun YANINA gömülmüştür — dikey rampa kapısı vb.; "üstüne ışınla" değil,
+                    //  aşağıdaki kayma dalı yana sıyırsın)
                     if (
                         this.velocity.y >= 0 &&
                         this.hitbox.legs.position.x <
@@ -740,7 +890,9 @@ export class Player extends Sprite {
                             block.hitbox.position.x &&
                         this.hitbox.position.y + this.hitbox.height >= block.hitbox.position.y &&
                         this.hitbox.position.y + this.hitbox.height <=
-                            block.hitbox.position.y + block.hitbox.height
+                            block.hitbox.position.y + block.hitbox.height &&
+                        this.hitbox.position.y + this.hitbox.height - block.hitbox.position.y <=
+                            LAND_MAX_DEPTH
                     ) {
                         if (block.shape == "button") {
                             block.pressed = true;
@@ -775,10 +927,14 @@ export class Player extends Sprite {
                         break;
                     }
                     //player going up
+                    // (kafa blok altına en çok BUMP_MAX_DEPTH px girdiyse gerçek tavan çarpması; daha derinse
+                    //  oyuncu blokun yanına gömülmüştür — bloğun ALTINA ışınlama)
                     else if (
                         this.velocity.y < 0 &&
                         this.hitbox.position.y <= block.hitbox.position.y + block.hitbox.height &&
-                        this.hitbox.position.y >= block.hitbox.position.y
+                        this.hitbox.position.y >= block.hitbox.position.y &&
+                        block.hitbox.position.y + block.hitbox.height - this.hitbox.position.y <=
+                            BUMP_MAX_DEPTH
                     ) {
                         this.velocity.y = 0;
                         const offset = this.hitbox.position.y - this.position.y;

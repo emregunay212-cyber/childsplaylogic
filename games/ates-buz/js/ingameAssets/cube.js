@@ -1,5 +1,10 @@
 import { Sprite } from "../sprite.js";
 
+// Dikey çarpışma "yanlış eksen" korumaları (px) — player.js ile aynı gerekçe: gerçek iniş/tavan düzeltmeleri
+// küçük; büyük olanı blokun YANINA gömülmenin işaretidir ve "üstüne/altına ışınlama" yapmamalıdır.
+const LAND_MAX_DEPTH = 30; // küp serbest düşüşte ~22 px/kare'ye çıkabilir
+const BUMP_MAX_DEPTH = 12;
+
 export class Cube extends Sprite {
     constructor({ position, collisionBlocks, allAssets, players }) {
         const imgSrc = "./img/cube.png";
@@ -82,6 +87,13 @@ export class Cube extends Sprite {
         this.velocity.y += 0.25;
         this.position.y += this.velocity.y;
     }
+    // Küp, bloğun hangi yanında? (en az bindirme). Hız işaretine bakmak, bloktan UZAĞA giden küpü
+    // bloğun öbür yüzüne (oyuncuda ~100 px) ışınlıyordu.
+    pushSide(block) {
+        const penLeft = this.hitbox.position.x + this.hitbox.width - block.hitbox.position.x;
+        const penRight = block.hitbox.position.x + block.hitbox.width - this.hitbox.position.x;
+        return penLeft < penRight ? "left" : "right";
+    }
     horizontalCollision(blocks) {
         for (let i = 0; i < blocks.length; i++) {
             const block = blocks[i];
@@ -99,18 +111,21 @@ export class Cube extends Sprite {
                         break;
                     }
 
-                    //cube going right
-                    if (this.velocity.x > 0) {
-                        const offset = this.hitbox.position.x - this.position.x + this.hitbox.width;
-                        this.position.x = block.hitbox.position.x - offset - 0.01;
-                        break;
-                    }
-                    //cube going left
-                    else if (this.velocity.x < 0) {
-                        const offset = this.hitbox.position.x - this.position.x;
-                        this.position.x =
-                            block.hitbox.position.x + block.hitbox.width - offset + 0.01;
-                        break;
+                    if (this.velocity.x !== 0) {
+                        //cube pushed to the left side of the block
+                        if (this.pushSide(block) == "left") {
+                            const offset =
+                                this.hitbox.position.x - this.position.x + this.hitbox.width;
+                            this.position.x = block.hitbox.position.x - offset - 0.01;
+                            break;
+                        }
+                        //cube pushed to the right side of the block
+                        else {
+                            const offset = this.hitbox.position.x - this.position.x;
+                            this.position.x =
+                                block.hitbox.position.x + block.hitbox.width - offset + 0.01;
+                            break;
+                        }
                     }
                 } else if (block.constructor.name == "Player") {
                     //head collision
@@ -120,21 +135,23 @@ export class Cube extends Sprite {
                         this.hitbox.position.y <=
                             block.hitbox.position.y + block.hitbox.height - block.hitbox.legs.height
                     ) {
-                        //cube going to left
-                        if (this.velocity.x < 0) {
-                            block.velocity.x -= 1;
-                            const offset = this.hitbox.position.x - this.position.x;
-                            this.position.x =
-                                block.hitbox.position.x + block.hitbox.width - offset + 0.01;
-                            break;
-                        }
-                        //cube going to right
-                        else if (this.velocity.x > 0) {
-                            block.velocity.x += 1;
-                            const offset =
-                                this.hitbox.position.x - this.position.x + this.hitbox.width;
-                            this.position.x = block.hitbox.position.x - offset - 0.01;
-                            break;
+                        if (this.velocity.x !== 0) {
+                            //cube ends on the right side of the player
+                            if (this.pushSide(block) == "right") {
+                                if (this.velocity.x < 0) block.velocity.x -= 1;
+                                const offset = this.hitbox.position.x - this.position.x;
+                                this.position.x =
+                                    block.hitbox.position.x + block.hitbox.width - offset + 0.01;
+                                break;
+                            }
+                            //cube ends on the left side of the player
+                            else {
+                                if (this.velocity.x > 0) block.velocity.x += 1;
+                                const offset =
+                                    this.hitbox.position.x - this.position.x + this.hitbox.width;
+                                this.position.x = block.hitbox.position.x - offset - 0.01;
+                                break;
+                            }
                         }
                     }
                 }
@@ -198,7 +215,9 @@ export class Cube extends Sprite {
                     //cube top collision
                     if (
                         this.hitbox.position.y <= block.hitbox.position.y + block.hitbox.height &&
-                        this.hitbox.position.y >= block.hitbox.position.y
+                        this.hitbox.position.y >= block.hitbox.position.y &&
+                        block.hitbox.position.y + block.hitbox.height - this.hitbox.position.y <=
+                            BUMP_MAX_DEPTH
                     ) {
                         this.velocity.y = 0;
                         const offset = this.hitbox.position.y - this.position.y;
@@ -209,7 +228,9 @@ export class Cube extends Sprite {
                     //cube going down bottom collision
                     if (
                         this.velocity.y > 0 &&
-                        this.hitbox.position.y + this.hitbox.height >= block.hitbox.position.y
+                        this.hitbox.position.y + this.hitbox.height >= block.hitbox.position.y &&
+                        this.hitbox.position.y + this.hitbox.height - block.hitbox.position.y <=
+                            LAND_MAX_DEPTH
                     ) {
                         if (block.canMove) {
                             block.pressed = true;
