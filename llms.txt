@@ -1,12 +1,12 @@
 # Bilnet Oyun
 
-> Bilnet Okulları'nın 4-12 yaş çocuklar için ücretsiz, üyeliksiz eğitici oyun platformu. 58 oyun doğrudan tarayıcıda çalışır; kurulum, indirme ve hesap gerekmez. Türkçe arayüz; telefon, tablet ve bilgisayarda oynanır. Dersler: matematik, Türkçe, İngilizce, fen, kodlama, strateji, hafıza ve sanat; tek kişilik ve online çok oyunculu modlar.
+> Bilnet Okulları'nın 4-12 yaş çocuklar için ücretsiz, üyeliksiz eğitici oyun platformu. 59 oyun doğrudan tarayıcıda çalışır; kurulum, indirme ve hesap gerekmez. Türkçe arayüz; telefon, tablet ve bilgisayarda oynanır. Dersler: matematik, Türkçe, İngilizce, fen, kodlama, strateji, hafıza ve sanat; tek kişilik ve online çok oyunculu modlar.
 
 - Ana sayfa: https://bilnetoyun.com/
 - Tüm oyunlar: https://bilnetoyun.com/oyunlar/
 - Site haritası: https://bilnetoyun.com/sitemap.xml
 
-## Oyunlar (56 sayfa; Kod Macerası ve Satranç için 2 kişilik online sürüm de var, ayrı sayfası yok)
+## Oyunlar (57 sayfa; Kod Macerası ve Satranç için 2 kişilik online sürüm de var, ayrı sayfası yok)
 
 - [Harf Tanıma](https://bilnetoyun.com/oyunlar/harf-tanima/): Harfleri tanı, okumaya ilk adımı at.
 - [Klavye Kâşifi](https://bilnetoyun.com/oyunlar/klavye-kasifi/): Yanan tuşu bul, harfe bas, resmi kazan — klavyeye ilk adım.
@@ -59,6 +59,7 @@
 - [Kelime Tahmin](https://bilnetoyun.com/oyunlar/kelime-tahmin/): Wordle tarzı: gizli kelimeyi arkadaşınla yarışarak bul.
 - [Harf Tahmin](https://bilnetoyun.com/oyunlar/harf-tahmin/): Adam asmaca tarzı: harf tahmin ederek kelimeyi çöz.
 - [Penaltı Online](https://bilnetoyun.com/oyunlar/penalti-mp/): Arkadaşınla online penaltı düellosu: at ve kurtar.
+- [Ateş & Buz](https://bilnetoyun.com/oyunlar/ates-buz/): İki karakteri yönet, engelleri birlikte aş.
 - [Zıpla Topla Online](https://bilnetoyun.com/oyunlar/zipla-topla-coop/): Mario tarzı platformlarda 2 kişilik online co-op: arkadaşınla birlikte zıpla, 12 bölümü beraber bitir!
 - [Hava Hokeyi](https://bilnetoyun.com/oyunlar/hava-hokeyi/): Arkadaşınla online hava hokeyi: tokmağı kaydır, diski rakibin kalesine sok — ilk 7 golü atan kazanır!
 - [Altın Avı](https://bilnetoyun.com/oyunlar/altin-avi/): 5-30 kişilik bilgi yarışı: doğru cevapla kasa aç, altın topla.

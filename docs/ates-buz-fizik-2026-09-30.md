@@ -1,8 +1,8 @@
 # Ateş & Buz — fizik/veri hataları: kök neden raporu (30 Eyl 2026)
 
 **Şikâyet:** karakter sıkışıp düşüyor · bulmacaların ana parçaları kayboluyor · zıplarken karakterler geçmemesi gereken
-duvarlardan geçip orada sıkışıyor. **Durum:** oyun hub'da `active: false` (PR #48); dosyalar depoda. Düzeltme dalı
-`fix/ates-buz-fizik`. Yeniden açma kararı sahibinde (**öneri: önce iki cihazda insan testi** — burada gerçek zamanlı oynanamıyor).
+duvarlardan geçip orada sıkışıyor. **Durum:** düzeltme PR #50 ile `master`'da (merge `ba06163`, 1 Eki 2026); oyun PR #48 ile kapatılmıştı, sahip testinden sonra 1 Eki 2026'da yeniden açıldı. Düzeltme dalı
+`fix/ates-buz-fizik`. Gerçek zamanlı oynama bu ortamda yapılamadığı için insan testi sahip tarafından bağımsız sayfada yapıldı.
 
 ## Yöntem (tahmin değil, ölçüm)
 

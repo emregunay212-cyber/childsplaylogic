@@ -106,8 +106,8 @@ const ModulAdi = (() => {
   görsel eşitliği testi (`tests/ates-buz-veri.spec.js`) kırar — ızgara görselden türetilir, tersi değil.
 - Bilinen kusurlar (özgün kodda var, bilerek dokunulmadı): seviye 4 kol #0 ve #1 rampaları ara konumdayken bir eğim/blok köşesiyle ~16 px'lik
   dar aralık → oyuncu ~0,5 sn takılır, bekçi çözer (rampalar oyuncuyu itmez/taşımaz); seviye 4/6'da eğim kenarlarında 14–24 px'lik
-  tek karelik sıçrama/titreme; iki oyuncu küpü ters yönlerde iterken küpün ~40 px sıçraması. Oyun hub'da `active:false` (kapalı);
-  yeniden açma kararı sahibinde (önce iki cihazda insan testi).
+  tek karelik sıçrama/titreme; iki oyuncu küpü ters yönlerde iterken küpün ~40 px sıçraması. Oyun hub'da AÇIK (1 Eki 2026: sahip bağımsız sayfada elle test etti, öğrencilere açıldı);
+  sahada sorun bildirilirse önce bu belgedeki bilinen kusurlara bak.
 
 ### Altın Avı (online, kendi lobisi — `js/games/altin-avi.js`, `rooms/altin-avi/<KOD>`)
 
