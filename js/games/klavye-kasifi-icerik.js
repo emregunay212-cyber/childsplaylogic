@@ -3,7 +3,9 @@
    --------------------------------------------
    Sıra (sahip kararı, 13 Eki 2026): Harfler → Heceler → Kelimeler → Cümleler → Rakamlar → Noktalama.
    Kısım = motor seviyesi (araç çubuğu noktası, yıldız kaydı); bölüm = kısım içindeki tur dizisi.
-   Bölümler arasında düğme yok: oyun çıkılana kadar kendiliğinden ilerler.
+   Oyun açılınca başlangıç seçici: kısım kartı (kısmın başı) ya da bölüm numarası; oradan sonra bölümler
+   arasında düğme yok, oyun çıkılana kadar kendiliğinden ilerler.
+   Kısım alanları: id, name, sample (seçici kartındaki örnek), stages.
    Bölüm alanları:
      name   ekranda görünen bölüm adı
      kind   'key'      tek tuş (büyük kart)
@@ -22,6 +24,7 @@ window.KLAVYE_KASIFI_ICERIK = [
     {
         id: 'harf',
         name: 'Harfler',
+        sample: 'A S D F',
         stages: [
             { name: 'Orta sıra', kind: 'key', hint: 'always', items: ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Ş', 'İ'] },
             { name: 'Üst sıra', kind: 'key', hint: 'always', items: ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'Ğ', 'Ü'] },
@@ -35,6 +38,7 @@ window.KLAVYE_KASIFI_ICERIK = [
     {
         id: 'hece',
         name: 'Heceler',
+        sample: 'BA · KE · TOP',
         stages: [
             { name: 'Açık heceler 1', kind: 'word', hint: 'delayed', tip: 'Heceyi yaz, sonra Boşluk!', items: ['BA', 'BE', 'DA', 'Dİ', 'KA', 'KO', 'LA', 'LE', 'MA', 'Mİ', 'NE', 'NU'] },
             { name: 'Açık heceler 2', kind: 'word', hint: 'delayed', tip: 'Heceyi yaz, sonra Boşluk!', items: ['SA', 'SU', 'TA', 'Tİ', 'YA', 'YE', 'RA', 'RO', 'ÇA', 'ÇO', 'ŞU', 'ŞE'] },
@@ -47,6 +51,7 @@ window.KLAVYE_KASIFI_ICERIK = [
     {
         id: 'kelime',
         name: 'Kelimeler',
+        sample: 'ELMA · KÖPEK',
         stages: [
             { name: 'Kısa kelimeler', kind: 'word', hint: 'delayed', items: [['EV', '🏠'], ['AT', '🐴'], ['SU', '💧'], ['OK', '🏹'], ['AY', '🌙'], ['KUŞ', '🐦'], ['FİL', '🐘'], ['GÜL', '🌹'], ['BAL', '🍯'], ['DAĞ', '⛰️'], ['ZİL', '🔔'], ['TOP', '⚽']] },
             { name: 'Dört harfli kelimeler', kind: 'word', hint: 'delayed', items: [['ELMA', '🍎'], ['KEDİ', '🐱'], ['KAPI', '🚪'], ['GEMİ', '🚢'], ['KUZU', '🐑'], ['FARE', '🐭'], ['ÜZÜM', '🍇'], ['KALE', '🏰'], ['KUTU', '📦'], ['OKUL', '🏫'], ['BOYA', '🎨'], ['SAAT', '⌚']] },
@@ -60,6 +65,7 @@ window.KLAVYE_KASIFI_ICERIK = [
     {
         id: 'cumle',
         name: 'Cümleler',
+        sample: 'Kedi süt içti',
         stages: [
             { name: 'İki kelimelik cümleler', kind: 'sentence', hint: 'delayed', items: [['Kedi uyudu', '🐱'], ['Ali koştu', '🏃'], ['Kuş uçtu', '🐦'], ['Bebek güldü', '👶'], ['Su aktı', '💧'], ['Top düştü', '⚽'], ['Güneş doğdu', '🌅'], ['Ayşe okudu', '📖']] },
             { name: 'Üç kelimelik cümleler', kind: 'sentence', hint: 'delayed', items: [['Ali topu attı', '⚽'], ['Kedi süt içti', '🐱'], ['Ben elma yedim', '🍎'], ['Kuşlar ağaçta öter', '🐦'], ['Annem kek yaptı', '🍰'], ['Babam çay içti', '☕'], ['Balık suda yüzer', '🐟'], ['Arı bal yapar', '🐝']] },
@@ -76,6 +82,7 @@ window.KLAVYE_KASIFI_ICERIK = [
     {
         id: 'rakam',
         name: 'Rakamlar',
+        sample: '1 2 3 · 2026',
         stages: [
             { name: 'Rakamlar sırayla', kind: 'key', hint: 'always', order: 'fixed', items: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'] },
             { name: 'Rakam avı', kind: 'key', hint: 'delayed', items: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] },
@@ -87,6 +94,7 @@ window.KLAVYE_KASIFI_ICERIK = [
     {
         id: 'noktalama',
         name: 'Noktalama',
+        sample: '. , ? !',
         stages: [
             { name: 'Nokta ve virgül', kind: 'key', hint: 'always', items: ['.', ',', '.', ',', '.', ',', '.', ','] },
             { name: 'Soru ve ünlem', kind: 'key', hint: 'always', tip: 'Shift tuşunu basılı tut, yanan tuşa bas!', items: ['?', '!', '?', '!', '?', '!', '?', '!'] },

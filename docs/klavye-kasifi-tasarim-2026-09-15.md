@@ -8,7 +8,11 @@
 
 - **Seviye geçiş düğmesi kalktı.** 6 kısım (motor seviyesi) × 39 bölüm; bölüm bitince 1,8 sn'lik şerit ("Bölüm 7 tamam! Sıradaki: …"),
   kısım bitince 2,8 sn'lik şerit + yıldızlar (`onLevelUp`, katman yok), sonra kendiliğinden devam. Kutlama katmanı yalnız en sonda.
-  Çıkıp girince baştan başlar (laboratuvarda bilgisayar ortak; misafir modu kayıt tutmaz).
+  Çıkıp girince kaldığı yerden devam etmez (laboratuvarda bilgisayar ortak; misafir modu kayıt tutmaz).
+- **Başlangıç seçici** (sahip isteği, aynı gün): oyun açılınca 6 kısım kartı + 39 bölüm numarası; kart kısmın başından, numara o
+  bölümden başlatır (3. sınıf doğrudan Kelimeler'den). İlk odak Harfler kartında: Enter = baştan. Seçim motoru o kısımla yeniden
+  başlatır (araç çubuğu noktası ve yıldız kaydı doğru kısma); kısım ortasından başlanırsa yıldız yalnız oynanan bölümlerden.
+  Son kutlama katmanındaki "Tekrar Oyna" da seçiciyi açar.
 - **Sıra:** Harfler (klavyedeki 32 harf: orta/üst/alt sıra yanan tuşla, sonra sesli/sessiz harfler) → Heceler (açık, kapalı, üç harfli)
   → Kelimeler (2–10 harf, Türkçe harf yoğun bölüm) → Cümleler (noktalamasız; 2 kelimeden usta cümlelerine, atasözü, tekerleme) →
   Rakamlar (sırayla, avı, iki basamaklı, büyük sayılar) → Noktalama (. , tuşları; ? ! Shift ile; noktalı/soru/ünlem/virgüllü/sayılı

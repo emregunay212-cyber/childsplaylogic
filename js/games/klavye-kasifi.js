@@ -6,6 +6,8 @@
    seviyesi (yıldız kaydı, araç çubuğu noktası); kısım içindeki bölümler kısa bir şeritle KENDİLİĞİNDEN
    geçer — çıkılmadıkça "Sonraki Seviye" düğmesi yok. Kısım bitince callbacks.onLevelUp(yıldız) (katman
    açılmaz), yalnız son kısım onComplete ile kutlama katmanını açar. İçerik: klavye-kasifi-icerik.js.
+   Açılışta başlangıç seçici: kısım kartı ya da bölüm numarası → motor o kısımla yeniden başlatılır
+   (araç çubuğu ve yıldız kaydı doğru seviyeye yazılsın), modül seçilen bölümden başlar.
    Süre/can/hız baskısı yok. Fiziksel klavye birincil giriş; ekran klavyesi (TR Q dizilimi) hem dokunmatik
    giriş hem de "tuş nerede" haritasıdır — ikisi aynı press() yoluna girer.
    ============================================ */
@@ -79,6 +81,7 @@ const KlavyeKasifi = (() => {
     let keydownHandler = null;
     let voicesHandler = null;
     let speechOn = false;
+    let pendingStart = null; // seçiciden: { stage } — GameEngine.startGame ile gelen sıradaki init'te tüketilir
 
     function later(fn, ms) {
         const t = setTimeout(() => { timers = timers.filter((x) => x !== t); fn(); }, ms);
@@ -111,14 +114,70 @@ const KlavyeKasifi = (() => {
         sectionIdx = Math.min(Math.max(level, 1), levels.length) - 1;
         stageIdx = 0; target = null; busy = true; shiftOn = false;
         keyEls = {}; shiftEls = [];
+        const start = pendingStart;
+        pendingStart = null;
 
-        buildDom();
         // Kutlama düğmesinden (Tekrar Oyna) kalan bayat odağı bırak: ilk basış oyuna gitsin
         const ae = document.activeElement;
         if (ae && ae !== document.body && !gameArea.contains(ae)) { try { ae.blur(); } catch (e) { /* yok say */ } }
+        // Hub kartı, derin bağlantı ve "Tekrar Oyna" seçiciyi açar; oyun tuş dinleyicisi seçimden sonra kurulur
+        // (seçicide Enter/Boşluk düğmeyi etkinleştirsin, oyun yutmasın)
+        if (!start) { buildPicker(); return; }
+        stageIdx = Math.min(start.stage, levels[sectionIdx].stages.length - 1);
+        buildDom();
         keydownHandler = onKeyDown;
         document.addEventListener('keydown', keydownHandler);
         startSection();
+    }
+
+    // ── Başlangıç seçici: kısım kartı → kısmın ilk bölümü; numara → o bölüm. İlk odak Harfler (Enter = baştan) ──
+    function buildPicker() {
+        container.innerHTML = '';
+        const root = el('div', 'kk-picker');
+        root.appendChild(el('h2', 'kk-picker__title', 'Nereden başlamak istersin?'));
+        root.appendChild(el('p', 'kk-picker__sub', 'Bir kısım ya da bölüm numarası seç; oyun oradan sona kadar kendiliğinden ilerler.'));
+        const grid = el('div', 'kk-picker__grid');
+        let no = 1;
+        let first = null;
+        levels.forEach((sec, si) => {
+            const card = el('div', 'kk-picker__kart');
+            card.dataset.kisim = sec.id;
+            const main = el('button', 'kk-picker__kisim');
+            main.type = 'button';
+            main.appendChild(el('span', 'kk-picker__ad', sec.name));
+            main.appendChild(el('span', 'kk-picker__ornek', sec.sample));
+            const last = no + sec.stages.length - 1;
+            main.appendChild(el('span', 'kk-picker__aralik', 'Bölüm ' + no + '–' + last));
+            main.setAttribute('aria-label', sec.name + ', bölüm ' + no + '–' + last + ', baştan başla');
+            main.addEventListener('click', () => startFrom(si, 0));
+            card.appendChild(main);
+            const chips = el('div', 'kk-picker__bolumler');
+            chips.setAttribute('role', 'group');
+            chips.setAttribute('aria-label', sec.name + ' bölümleri');
+            sec.stages.forEach((st, ti) => {
+                const b = el('button', 'kk-picker__bolum', String(no));
+                b.type = 'button';
+                b.dataset.bolumSec = String(no);
+                b.title = 'Bölüm ' + no + ': ' + st.name;
+                b.setAttribute('aria-label', b.title);
+                b.addEventListener('click', () => startFrom(si, ti));
+                chips.appendChild(b);
+                no++;
+            });
+            card.appendChild(chips);
+            grid.appendChild(card);
+            if (!first) first = main;
+        });
+        root.appendChild(grid);
+        container.appendChild(root);
+        els = { root };
+        try { first.focus({ preventScroll: true }); } catch (e) { /* yok say */ }
+    }
+
+    function startFrom(si, ti) {
+        AudioManager.play('tap');
+        pendingStart = { stage: ti };
+        GameEngine.startGame(GameEngine.getCurrentGame(), si + 1);   // araç çubuğu + yıldız kaydı seçilen kısma
     }
 
     function buildDom() {
@@ -294,7 +353,8 @@ const KlavyeKasifi = (() => {
     }
 
     function startSection() {
-        sectionRounds = levels[sectionIdx].stages.reduce((n, s) => n + s.items.length, 0);
+        // Kısım ortasından başlandıysa yıldız yalnız oynanan bölümlerden
+        sectionRounds = levels[sectionIdx].stages.slice(stageIdx).reduce((n, s) => n + s.items.length, 0);
         sectionWrong = 0;
         GameEngine.setTotal(sectionRounds);
         startStage();

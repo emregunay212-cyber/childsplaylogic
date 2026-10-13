@@ -6,9 +6,10 @@
       yalnız ekran klavyesindeki karakterler; bölüm ≤ 12 tur; data/games.json levels = kısım sayısı.
    2) "35 dakikalık ders" bütçesi: hatasız, okuma payı SIFIR alt sınırla bile 30 kelime/dk (2,5 vuruş/sn)
       bitiremez; 48 kelime/dk (4 vuruş/sn, usta) bitirir. İçerik kısalırsa burası kırılır.
-   3) Canlı akış (tarayıcı, page.clock): bölümler düğmesiz geçer; kısım sonunda yıldız sessizce kaydedilir,
-      kutlama katmanı yalnız SON kısımda açılır; TR Q ve İngilizce dizilimde (TR kapak) fiziksel tuşlar;
-      ekran klavyesinde Shift; yanlış sayımı; çıkıp girince baştan.
+   3) Canlı akış (tarayıcı, page.clock): açılışta başlangıç seçici (Enter = baştan; kısım kartı; bölüm numarası →
+      motor o kısımla başlar); bölümler düğmesiz geçer; kısım sonunda yıldız sessizce kaydedilir, kutlama katmanı
+      yalnız SON kısımda açılır, "Tekrar Oyna" seçiciye döner; TR Q ve İngilizce dizilimde (TR kapak) fiziksel
+      tuşlar; ekran klavyesinde Shift; yanlış sayımı; çıkıp girince seçici yeniden (kaldığı yerden devam yok).
    Çalıştırma: npm run test:klavye
    ============================================ */
 'use strict';
@@ -96,6 +97,7 @@ test.describe('Klavye Kâşifi — içerik (tarayıcısız)', () => {
     test('kısım sırası, kapsam ve karakter kümesi', () => {
         const C = loadContent();
         expect(C.map((s) => s.id)).toEqual(['harf', 'hece', 'kelime', 'cumle', 'rakam', 'noktalama']);
+        C.forEach((s) => expect(typeof s.sample === 'string' && s.sample.length > 0, s.id + '.sample').toBe(true));
         const byId = Object.fromEntries(C.map((s) => [s.id, s]));
         const keysOf = (sec) => new Set(sec.stages.filter((st) => st.kind === 'key').flatMap((st) => st.items.map(textOf)));
         const textsOf = (sec) => sec.stages.flatMap((st) => st.items.map(textOf));
@@ -165,13 +167,26 @@ test.describe('Klavye Kâşifi — içerik (tarayıcısız)', () => {
 const game = (page) => page.locator('.kk-game');
 const overlayOpen = (page) => page.evaluate(() => Dialog.isOpen(document.getElementById('level-complete')));
 
+const picker = (page) => page.locator('.kk-picker');
+
+// Derin bağlantı → başlangıç seçici → Enter (ilk odak Harfler) = baştan
 async function openGame(page) {
     await page.clock.install({ time: new Date('2026-10-13T09:00:00Z') });
     await page.goto('/?oyun=' + SLUG);
     await expect(page.locator('#login-screen')).toBeHidden();
-    await expect(game(page)).toHaveAttribute('data-bolum', '1/39');
     await expect(page.locator('#splash-screen')).toBeHidden();
+    await expect(picker(page)).toBeVisible();
+    await expect(page.locator('.kk-picker__kart[data-kisim="harf"] .kk-picker__kisim')).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(game(page)).toHaveAttribute('data-bolum', '1/39');
     await page.clock.pauseAt(new Date('2026-10-13T09:05:00Z'));
+}
+
+// Seçiciden belirli bölüme gider (seçici açık değilse motoru seviye 1 ile yeniden başlatıp açar)
+async function startAt(page, no) {
+    if (!(await picker(page).count())) await page.evaluate(() => GameEngine.startGame(KlavyeKasifi, 1));
+    await page.locator(`.kk-picker__bolum[data-bolum-sec="${no}"]`).click();
+    await expect(game(page)).toHaveAttribute('data-bolum', no + '/39');
 }
 
 // Turun kalanını beklenen tuşlarla yazar (tek evaluate); dönüş: yazılan vuruş sayısı
@@ -236,15 +251,19 @@ test.describe('Klavye Kâşifi — canlı akış', () => {
     test('son kısım (Noktalama) bitince kutlama katmanı açılır; ? ve ! Shift ile yazılır', async ({ page, errors }) => {
         test.setTimeout(120000);
         await openGame(page);
-        await page.evaluate(() => GameEngine.startGame(KlavyeKasifi, 6));
+        await startAt(page, 31);
         await expect(game(page)).toHaveAttribute('data-kisim', 'noktalama');
-        await expect(game(page)).toHaveAttribute('data-bolum', '31/39');
+        expect(await page.evaluate(() => GameEngine.getCurrentLevel())).toBe(6);
         const r = await playSection(page);
         expect(r.finished).toBe(true);
         expect(r.overlayMidway).toBe(false);
         expect([...new Set(r.seen)]).toEqual(['31/39', '32/39', '33/39', '34/39', '35/39', '36/39', '37/39', '38/39', '39/39']);
         expect(await page.evaluate(() => Progress.getLevelStars('klavye-kasifi', 6))).toBe(3);
         await expect(page.locator('#btn-next')).toBeHidden();   // son seviye: "Sonraki Seviye" yok
+        // "Tekrar Oyna" son kısmı değil seçiciyi açar
+        await page.locator('#btn-replay').click();
+        await expect(picker(page)).toBeVisible();
+        expect(await overlayOpen(page)).toBe(false);
         errors.assertClean();
     });
 
@@ -261,7 +280,7 @@ test.describe('Klavye Kâşifi — canlı akış', () => {
         }
         expect(await page.evaluate(() => GameEngine.getScore().wrong)).toBe(0);
         // Noktalama: nokta/virgül ve soru/ünlem tuşları
-        await page.evaluate(() => GameEngine.startGame(KlavyeKasifi, 6));
+        await startAt(page, 31);
         for (const bolum of ['31/39', '32/39']) {
             await expect(game(page)).toHaveAttribute('data-bolum', bolum);
             while ((await game(page).getAttribute('data-bolum')) === bolum) {
@@ -283,8 +302,7 @@ test.describe('Klavye Kâşifi — canlı akış', () => {
         expect(await page.evaluate(() => GameEngine.getScore().wrong)).toBe(1);
         await expect(page.locator(`.kk-key[data-key="${exp}"]`)).toHaveClass(/is-target|is-hint/);
 
-        await page.evaluate(() => GameEngine.startGame(KlavyeKasifi, 6));
-        await expect(game(page)).toHaveAttribute('data-bolum', '31/39');
+        await startAt(page, 31);
         // Nokta ve virgül: ekran tuşuna dokunarak
         while ((await game(page).getAttribute('data-bolum')) === '31/39') {
             const ch = await game(page).getAttribute('data-beklenen');
@@ -306,7 +324,7 @@ test.describe('Klavye Kâşifi — canlı akış', () => {
         errors.assertClean();
     });
 
-    test('çıkıp yeniden girince oyun baştan başlar', async ({ page, errors }) => {
+    test('çıkıp yeniden girince seçici yeniden açılır (kaldığı yerden devam yok)', async ({ page, errors }) => {
         await openGame(page);
         while ((await game(page).getAttribute('data-bolum')) === '1/39') {
             await typeRound(page);
@@ -318,8 +336,33 @@ test.describe('Klavye Kâşifi — canlı akış', () => {
         await expect(page.locator('#hub')).toBeVisible();
         await page.locator('.game-card[data-game="klavye-kasifi"]').first().click();   // hub kartı seviye 1 ile açar
         await page.clock.fastForward(500);
+        await expect(picker(page)).toBeVisible();
+        await page.locator('.kk-picker__kart[data-kisim="harf"] .kk-picker__kisim').click();
         await expect(game(page)).toHaveAttribute('data-bolum', '1/39');
         expect(await page.evaluate(() => GameEngine.getCurrentLevel())).toBe(1);
+        errors.assertClean();
+    });
+
+    test('başlangıç seçici: kısım kartı ve bölüm numarası — motor seviyesi, araç çubuğu ve yıldız o kısma', async ({ page, errors }) => {
+        test.setTimeout(60000);
+        await openGame(page);
+        // Kelimeler kartı → kısmın ilk bölümü (12), motor seviyesi 3, araç çubuğunda 3. nokta
+        await page.evaluate(() => GameEngine.startGame(KlavyeKasifi, 1));
+        await page.locator('.kk-picker__kart[data-kisim="kelime"] .kk-picker__kisim').click();
+        await expect(game(page)).toHaveAttribute('data-bolum', '12/39');
+        await expect(game(page)).toHaveAttribute('data-kisim', 'kelime');
+        expect(await page.evaluate(() => GameEngine.getCurrentLevel())).toBe(3);
+        await expect(page.locator('#toolbar-level .level-dot').nth(2)).toHaveClass(/active/);
+        // Bölüm 17 (Kelimeler'in son bölümü) → bitince Cümleler'e düğmesiz geçer, yıldız seviye 3'e yazılır
+        await startAt(page, 17);
+        expect(await page.evaluate(() => GameEngine.getScore().total)).toBe(10);   // yalnız oynanan bölümün turları
+        const r = await playSection(page);
+        expect(r.overlayMidway).toBe(false);
+        await expect(game(page)).toHaveAttribute('data-bolum', '18/39');
+        await expect(game(page)).toHaveAttribute('data-kisim', 'cumle');
+        expect(await page.evaluate(() => GameEngine.getCurrentLevel())).toBe(4);
+        expect(await page.evaluate(() => Progress.getLevelStars('klavye-kasifi', 3))).toBe(3);
+        expect(await page.evaluate(() => Progress.getLevelStars('klavye-kasifi', 1))).toBe(0);
         errors.assertClean();
     });
 });

@@ -115,7 +115,10 @@ const ModulAdi = (() => {
 
 - Sıra sahip kararı: Harfler → Heceler → Kelimeler → Cümleler (noktalamasız) → Rakamlar → Noktalama. **Kısım = motor seviyesi**
   (`data/games.json levels` = kısım sayısı, 6); kısım içindeki bölümler (39) şeritle kendiliğinden geçer — "Sonraki Seviye" düğmesi
-  yok; kısım sonu `onLevelUp`, yalnız son kısım `onComplete` (katman). Hub hep seviye 1 açar → her giriş baştan (misafir kaydı yok).
+  yok; kısım sonu `onLevelUp`, yalnız son kısım `onComplete` (katman). Açılışta (hub kartı, derin bağlantı, "Tekrar Oyna")
+  **başlangıç seçici**: kısım kartı ya da bölüm numarası → modül `pendingStart` bırakıp `GameEngine.startGame(oyun, kısım)` çağırır
+  (araç çubuğu + yıldız kaydı doğru seviyeye), yeni init seçilen bölümden başlar; oyun tuş dinleyicisi seçimden SONRA kurulur.
+  Kaldığı yerden devam yok (misafir kaydı yok, laboratuvarda bilgisayar ortak).
 - İçerik yalnız ekran klavyesindeki karakterler (TR Q + rakam satırı + `, .` + Shift karakterleri); bölüm ≤ 12 tur. Fiziksel tuş:
   `e.key` ve `e.code`'un TR Q kapağı aday, beklenenle uyuşan seçilir (İngilizce dizilimli PC'de TR kapak çalışır).
 - **Süre bütçesi** ("35 dk'lık derste usta olmayan bitiremez"): içerik değişince `npm run test:klavye`; hatasız alt sınırla 30 kelime/dk

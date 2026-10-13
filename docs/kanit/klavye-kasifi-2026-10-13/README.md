@@ -18,6 +18,8 @@ Görüntüler Playwright (Chromium, `reducedMotion: reduce`, `page.clock` ile du
 | 10 | `10-cumleler-360x640.png` | Dikey telefon |
 | 11 | `11-en-uzun-paragraf-360x640.png` | En uzun içerik (102 karakter) dikey telefonda tek ekran |
 | 12 | `12-en-uzun-paragraf-640x360-yatay.png` | En uzun içerik yatay telefonda tek ekran (alçak görünümde tuş 27 px) |
+| 14 | `14-baslangic-secici-1366.png` | Başlangıç seçici: 6 kısım kartı + 39 bölüm numarası; ilk odak Harfler (Enter = baştan) |
+| 15 | `15-baslangic-secici-360x640.png` | Seçici telefonda (2 sütun, son satır için kısa kaydırma; oyun alanı dikey kayar) |
 | 13 | `13-kisim-seridi-360x640.png` | Kısım şeridi telefonda tam genişlik (inceleme bulgusu: `left: 50%` kendiliğinden genişliği yarıya indiriyordu → `width: max-content`) |
 
 En uzun paragrafla ek ölçüm (taşma 0): 1366×650, 1280×600, 360×640, 320×568, 768×1024, 640×360.
@@ -39,7 +41,7 @@ kısım şeridi 2,8 sn) ≈ 8,6 dk. Hatasız ve okuma/arama payı sıfır **alt 
 
 ## Testler
 
-- `npm run test:klavye` 7/7 (kaynak ağaç ve `SITE_ROOT=.build-check`). Mutasyon: kısım sonunda `onLevelUp` yerine
+- `npm run test:klavye` 8/8 (kaynak ağaç ve `SITE_ROOT=.build-check`). Mutasyon: kısım sonunda `onLevelUp` yerine
   eski `onComplete` çağrılınca "Harfler kısmı düğmesiz biter" testi kırmızı (katman kısım ortasında açıldı).
 - `npm run test:smoke` + `test:dialog` + `test:hub-ia` 96/96 · `npm run lint` 0 hata · `catalog:check` OK ·
   `build:check` OK · `python seo/test_build_seo.py` 42/42.
@@ -48,4 +50,4 @@ kısım şeridi 2,8 sn) ≈ 8,6 dk. Hatasız ve okuma/arama payı sıfır **alt 
 
 Bağımsız inceleme (durum makinesi, zamanlayıcı temizliği, `onLevelUp`, `resolveKey` ↔ TR Q kapağı, Shift, içerik, CSS):
 yüksek güvenli hata yok. Düşük güvenli iki not: (1) telefonda şerit dar → düzeltildi (13); (2) son katmandaki
-"Tekrar Oyna" motorun genel davranışıyla son kısmı (Noktalama) yeniden başlatır — bilinçli bırakıldı, hub kartı hep baştan açar.
+"Tekrar Oyna" yalnız son kısmı yeniden başlatıyordu → başlangıç seçici eklenince "Tekrar Oyna" seçiciyi açar.
