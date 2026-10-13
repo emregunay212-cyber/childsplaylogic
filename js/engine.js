@@ -40,7 +40,7 @@ const GameEngine = (() => {
         const gen = ++generation;
         const bound = (fn) => (...args) => { if (gen === generation) return fn(...args); };
         if (game.init) {
-            game.init(gameArea, level, { onCorrect: bound(onCorrect), onWrong: bound(onWrong), onComplete: bound(onComplete) });
+            game.init(gameArea, level, { onCorrect: bound(onCorrect), onWrong: bound(onWrong), onComplete: bound(onComplete), onLevelUp: bound(onLevelUp) });
         }
     }
 
@@ -106,6 +106,20 @@ const GameEngine = (() => {
             Particles.celebrate();
             showLevelComplete(stars);
         }, 400);
+    }
+
+    // Kesintisiz akış (Klavye Kâşifi): seviye kutlama katmanı AÇILMADAN biter — yıldız kaydedilir, araç
+    // çubuğu sonraki seviyeye geçer; modül yeniden init EDİLMEZ, akışı kendisi sürdürür. Son seviye onComplete'in işi.
+    function onLevelUp(stars) {
+        if (state !== 'PLAYING') return;
+        const totalLevels = currentGame.levels ? currentGame.levels.length : 3;
+        if (currentLevel >= totalLevels) return;
+        Progress.setLevelStars(currentGame.id, currentLevel, stars);
+        currentLevel++;
+        score = { correct: 0, wrong: 0, total: 0 };
+        updateToolbarLevel(currentGame, currentLevel);
+        updateToolbarStars(0);
+        App.updateStarCounter();
     }
 
     function showLevelComplete(stars) {

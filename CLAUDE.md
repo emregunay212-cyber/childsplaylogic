@@ -34,6 +34,8 @@ const ModulAdi = (() => {
   ses çalar (modül aynı sesi tekrar ÇALMAZ); `onComplete(customStars?)` yıldızı hesaplar
   (deneme doğruluğu = doğru/(doğru+yanlış): ≥%95 → 3, ≥%70 → 2, altı → 1; deneme 0 ise 3),
   `Progress`'e yazar, kutlama overlay'ini açar. Modül `GameEngine.getCurrentLevel()` ile aktif seviyeyi okuyabilir.
+  `cbs.onLevelUp(stars)` (kesintisiz akış, Klavye Kâşifi): seviyeyi overlay AÇMADAN bitirir — yıldız `Progress`'e,
+  araç çubuğu sonraki seviyeye geçer, modül yeniden init EDİLMEZ (akışı kendi sürdürür); son seviyede `onComplete`.
 - Paylaşılan yardımcılar (hepsi global, `index.html` yükler):
   `AudioManager.play('tap'|'success'|'error'|'star'|'complete'|'pop'|'whoosh'|'flip')` (Web Audio, dosya yok);
   `Particles.sparkle(x,y,n)` / `.confetti(x,y,n)` / `.stars(x,y,n)` / `.celebrate()`;
@@ -108,6 +110,19 @@ const ModulAdi = (() => {
   dar aralık → oyuncu ~0,5 sn takılır, bekçi çözer (rampalar oyuncuyu itmez/taşımaz); seviye 4/6'da eğim kenarlarında 14–24 px'lik
   tek karelik sıçrama/titreme; iki oyuncu küpü ters yönlerde iterken küpün ~40 px sıçraması. Oyun hub'da AÇIK (1 Eki 2026: sahip bağımsız sayfada elle test etti, öğrencilere açıldı);
   sahada sorun bildirilirse önce bu belgedeki bilinen kusurlara bak.
+
+### Klavye Kâşifi (kesintisiz akış — `js/games/klavye-kasifi.js` + `klavye-kasifi-icerik.js`, 13 Eki 2026)
+
+- Sıra sahip kararı: Harfler → Heceler → Kelimeler → Cümleler (noktalamasız) → Rakamlar → Noktalama. **Kısım = motor seviyesi**
+  (`data/games.json levels` = kısım sayısı, 6); kısım içindeki bölümler (39) şeritle kendiliğinden geçer — "Sonraki Seviye" düğmesi
+  yok; kısım sonu `onLevelUp`, yalnız son kısım `onComplete` (katman). Açılışta (hub kartı, derin bağlantı, "Tekrar Oyna")
+  **başlangıç seçici**: kısım kartı ya da bölüm numarası → modül `pendingStart` bırakıp `GameEngine.startGame(oyun, kısım)` çağırır
+  (araç çubuğu + yıldız kaydı doğru seviyeye), yeni init seçilen bölümden başlar; oyun tuş dinleyicisi seçimden SONRA kurulur.
+  Kaldığı yerden devam yok (misafir kaydı yok, laboratuvarda bilgisayar ortak).
+- İçerik yalnız ekran klavyesindeki karakterler (TR Q + rakam satırı + `, .` + Shift karakterleri); bölüm ≤ 12 tur. Fiziksel tuş:
+  `e.key` ve `e.code`'un TR Q kapağı aday, beklenenle uyuşan seçilir (İngilizce dizilimli PC'de TR kapak çalışır).
+- **Süre bütçesi** ("35 dk'lık derste usta olmayan bitiremez"): içerik değişince `npm run test:klavye`; hatasız alt sınırla 30 kelime/dk
+  bitirmemeli, 48 kelime/dk bitirmeli. İçerik kısaltılırsa test kırılır.
 
 ### Altın Avı (online, kendi lobisi — `js/games/altin-avi.js`, `rooms/altin-avi/<KOD>`)
 

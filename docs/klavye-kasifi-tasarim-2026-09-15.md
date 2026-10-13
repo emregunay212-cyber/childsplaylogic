@@ -4,6 +4,25 @@
 > `EGITSEL-FAZ-DURUM.md`'ye satır eklenmez (eğitsel 8–12 serisinin parçası değil; okul öncesi hub oyunu).
 > Slug `klavye-kasifi` · kategori Harfler & Kelimeler · yaş 4–6 · hub-içi modül (iframe değil) · 3 seviye.
 
+## 0. Güncelleme 13 Eki 2026 — kesintisiz akış (sahip isteği; bu belgenin §2 5. madde, §3 ve §4 şemasının yerine geçer)
+
+- **Seviye geçiş düğmesi kalktı.** 6 kısım (motor seviyesi) × 39 bölüm; bölüm bitince 1,8 sn'lik şerit ("Bölüm 7 tamam! Sıradaki: …"),
+  kısım bitince 2,8 sn'lik şerit + yıldızlar (`onLevelUp`, katman yok), sonra kendiliğinden devam. Kutlama katmanı yalnız en sonda.
+  Çıkıp girince kaldığı yerden devam etmez (laboratuvarda bilgisayar ortak; misafir modu kayıt tutmaz).
+- **Başlangıç seçici** (sahip isteği, aynı gün): oyun açılınca 6 kısım kartı + 39 bölüm numarası; kart kısmın başından, numara o
+  bölümden başlatır (3. sınıf doğrudan Kelimeler'den). İlk odak Harfler kartında: Enter = baştan. Seçim motoru o kısımla yeniden
+  başlatır (araç çubuğu noktası ve yıldız kaydı doğru kısma); kısım ortasından başlanırsa yıldız yalnız oynanan bölümlerden.
+  Son kutlama katmanındaki "Tekrar Oyna" da seçiciyi açar.
+- **Sıra:** Harfler (klavyedeki 32 harf: orta/üst/alt sıra yanan tuşla, sonra sesli/sessiz harfler) → Heceler (açık, kapalı, üç harfli)
+  → Kelimeler (2–10 harf, Türkçe harf yoğun bölüm) → Cümleler (noktalamasız; 2 kelimeden usta cümlelerine, atasözü, tekerleme) →
+  Rakamlar (sırayla, avı, iki basamaklı, büyük sayılar) → Noktalama (. , tuşları; ? ! Shift ile; noktalı/soru/ünlem/virgüllü/sayılı
+  cümleler, usta paragrafları). İçerik `js/games/klavye-kasifi-icerik.js`.
+- **Süre:** 372 tur, ~4.500 vuruş. Hatasız ve okuma payı sıfır alt sınırla 30 kelime/dk ≈ 39 dk, 48 kelime/dk ≈ 27 dk →
+  35 dakikalık derste yalnız usta biter (`tests/klavye-kasifi.spec.js` bütçe testi kilitler).
+- **Klavye:** rakam satırı (Shift karakterleri kapakta üstte), `, ;` ve `. :` tuşları, iki Shift. Fiziksel klavyede Shift basılı
+  tutulur; ekranda Shift'e dokunup tuşa basılır. `? !` hedefinde Shift tuşları da yanar. Yaş 4–10 (Anaokulu, 1-2, 3-4. sınıf rafları).
+- **Yıldız:** kısım başına, hatalı tur oranı ≤ %15 → 3, ≤ %50 → 2, üstü → 1.
+
 ## 1. Kim, ne öğrenir
 
 Anaokulu çocuğu (4–6) okuma bilmez, büyük harflerin bir kısmını tanır, tek parmakla tuşa basar.
