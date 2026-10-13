@@ -1,5 +1,5 @@
 /* ============================================
-   Klavye Kâşifi — okul öncesi klavye oyunu (hub-içi)
+   Klavye Kâşifi — klavye oyunu, 4–10 yaş (hub-içi; kesintisiz kısım/bölüm akışı)
    Token'lar css/tokens.css (B1: --ara-*, --r-*, --golge-*, --egri-*, --sure-*, --dogru/--yanlis, --murekkep);
    paylaşılan .game-instruction css/games.css.
    Tek ekran: 360×640 dikey telefon, 1366×768 okul PC'si — kaydırma yok.
@@ -13,22 +13,22 @@
     --kk-gap: 3px;
     --kk-pad: 4px;                     /* klavye iç boşluğu */
     --kk-outer: 8px;                   /* klavyenin dışında kalan yatay pay (dar ekranda alan paddingi geri alınır) */
-    /* Tuş genişliği: 12 tuşluk üst sıra + boşluklar görünür genişliğe sığar; 24–56 px */
-    --kk-unit: clamp(24px, calc((min(100vw, 780px) - var(--kk-outer) - 2 * var(--kk-pad) - 11 * var(--kk-gap)) / 12), 56px);
-    /* Tuş yüksekliği: 4 sıra + sahne 640 px yükseklikte tek ekrana sığar */
-    --kk-key-h: clamp(36px, 8vh, 60px);
+    /* Tuş genişliği: en geniş sıra (A sırası: ¾ kayma + 12 tuş = 12,75 birim, 12 boşluk) görünür genişliğe sığar; 20–56 px */
+    --kk-unit: clamp(20px, calc((min(100vw, 780px) - var(--kk-outer) - 2 * var(--kk-pad) - 12 * var(--kk-gap)) / 12.75), 56px);
+    /* Tuş yüksekliği: 5 sıra (rakam satırı dahil) + sahne 640 px yükseklikte tek ekrana sığar */
+    --kk-key-h: clamp(30px, 6.6vh, 56px);
     /* Genişlik bütçesi: .game-area yatay padding 2×16 px; JS tur sayısını (--kk-rounds) ve kelime
        uzunluğunu (--kk-word-len) yazar → defter yuvaları ve harf kutuları dar telefonda küçülür, taşmaz */
     --kk-rounds: 6;
     --kk-word-len: 5;
     --kk-avail: calc(min(100vw, 780px) - 32px);
     --kk-shelf-gap: 6px;
-    --kk-slot: clamp(24px, min(6vh, calc((var(--kk-avail) - 20px - (var(--kk-rounds) - 1) * var(--kk-shelf-gap)) / var(--kk-rounds))), 44px);
+    --kk-slot: clamp(18px, min(6vh, calc((var(--kk-avail) - 20px - (var(--kk-rounds) - 1) * var(--kk-shelf-gap)) / var(--kk-rounds))), 44px);
     --kk-bubble: clamp(52px, 12vh, 96px);
     --kk-card-px: clamp(12px, 4vw, 32px);
     --kk-card-gap: clamp(10px, 3vw, 28px);
     --kk-tile-gap: clamp(4px, 1.2vw, 10px);
-    --kk-tile: clamp(28px, min(9vh, calc((var(--kk-avail) - 2 * var(--kk-card-px) - var(--kk-card-gap) - var(--kk-bubble) - (var(--kk-word-len) - 1) * var(--kk-tile-gap)) / var(--kk-word-len))), 62px);
+    --kk-tile: clamp(20px, min(9vh, calc((var(--kk-avail) - 2 * var(--kk-card-px) - var(--kk-card-gap) - var(--kk-bubble) - (var(--kk-word-len) - 1) * var(--kk-tile-gap)) / var(--kk-word-len))), 62px);
     position: relative;
     width: 100%;
     max-width: 780px;
@@ -42,9 +42,31 @@
 
 .kk-instruction {
     margin-bottom: 0;
-    max-width: calc(100% - 112px);     /* sağ üstteki 44 px ses düğmesi + paylar: bindirme yok */
+    max-width: calc(100% - 112px);     /* sol üstte bölüm sayacı, sağ üstte 44 px ses düğmesi + paylar: bindirme yok */
     text-wrap: balance;
 }
+
+/* ── Bölüm sayacı (sol üst; ses düğmesinin aynası) ── */
+.kk-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    min-width: 44px;
+    height: 44px;
+    padding: 0 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--r-hap);
+    background: white;
+    box-shadow: var(--golge-1);
+    font-family: var(--font-display);
+    line-height: 1.05;
+    color: var(--murekkep);
+}
+.kk-progress__label { font-size: 0.62rem; font-weight: 600; color: var(--murekkep-orta); }
+.kk-progress__num { font-size: 0.9rem; font-weight: 700; }
 
 /* ── Kâşif defteri: tur başına bir yuva; kazanılan resim buraya uçar ── */
 .kk-shelf {
@@ -112,7 +134,7 @@
 
 .kk-letter.kk-pop { animation: kkPop 0.32s var(--egri-yay) both; }
 
-/* Kelime Yolu: harf kutuları — sıradaki zıplar, yazılan doluyor */
+/* Hece / kelime / sayı: harf kutuları — sıradaki zıplar, yazılan doluyor */
 .kk-word {
     display: flex;
     gap: var(--kk-tile-gap);
@@ -145,6 +167,45 @@
     background: var(--kk-accent);
     border-color: var(--kk-accent);
     color: white;
+}
+
+/* Cümle: akan satır — kelime grupları bölünmez, yazılan maviye döner, sıradaki karakter (boşluk dahil) yanar */
+.kk-game--sentence .kk-card { width: 100%; justify-content: space-between; }
+.kk-game--sentence { --kk-bubble: clamp(44px, 9vh, 76px); }
+
+.kk-line {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 0.15em;
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--murekkep-orta);
+}
+.kk-line--l { font-size: clamp(1.4rem, 5vh, 2.4rem); }
+.kk-line--m { font-size: clamp(1.15rem, 4vh, 1.9rem); }
+.kk-line--s { font-size: clamp(1rem, 3.2vh, 1.5rem); }
+
+.kk-w { display: inline-flex; white-space: nowrap; }
+
+.kk-ch {
+    display: inline-block;
+    min-width: 0.3em;
+    padding: 0 0.02em;
+    border-bottom: 0.12em solid transparent;
+    border-radius: 0.15em 0.15em 0 0;
+    text-align: center;
+    transition: color var(--sure-gecis) var(--egri-out), background-color var(--sure-gecis) var(--egri-out);
+}
+.kk-ch--space { width: 0.55em; }
+.kk-ch.is-done { color: var(--kk-accent); }
+.kk-ch.is-current {
+    color: var(--murekkep);
+    background: rgba(255, 209, 102, 0.55);
+    border-bottom-color: var(--kk-accent);
 }
 
 .kk-bubble {
@@ -211,9 +272,10 @@
 }
 
 .kk-row { display: flex; gap: var(--kk-gap); }
-.kk-row--2 { padding-left: calc(var(--kk-unit) * 0.25 + var(--kk-gap) * 0.25); }
+/* Gerçek kaymalar rakam satırına göre: Q +½, A +¾, Z +1¼ birim (sol Shift o payı doldurur) */
+.kk-row--2 { padding-left: calc(var(--kk-unit) * 0.5 + var(--kk-gap) * 0.5); }
 .kk-row--3 { padding-left: calc(var(--kk-unit) * 0.75 + var(--kk-gap) * 0.75); }
-.kk-row--4 { padding-left: calc(var(--kk-unit) * 2.5 + var(--kk-gap) * 2.5); }
+.kk-row--5 { padding-left: calc(var(--kk-unit) * 3.25 + var(--kk-gap) * 3.25); }
 
 .kk-key {
     width: var(--kk-unit);
@@ -240,10 +302,42 @@
 }
 
 .kk-key--space {
-    width: calc(var(--kk-unit) * 7 + var(--kk-gap) * 6);
+    width: calc(var(--kk-unit) * 6 + var(--kk-gap) * 5);
     font-size: clamp(0.8rem, calc(var(--kk-unit) * 0.34), 1.05rem);
     letter-spacing: 0.04em;
     color: var(--murekkep-orta);
+}
+
+/* Çift kapak: Shift karakteri üstte küçük (gerçek tuş kapağı gibi) */
+.kk-key--dual {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.04em;
+    font-size: min(clamp(0.95rem, calc(var(--kk-unit) * 0.5), 1.5rem), calc(var(--kk-key-h) * 0.5));   /* iki satır tuş yüksekliğine sığar */
+}
+.kk-key__shift {
+    font-size: 0.6em;
+    font-weight: 600;
+    color: var(--murekkep-orta);
+}
+
+.kk-key--shift {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3em;
+    font-size: clamp(0.9rem, calc(var(--kk-unit) * 0.46), 1.3rem);
+    color: var(--murekkep-orta);
+}
+.kk-key--shift-left { width: calc(var(--kk-unit) * 1.25 + var(--kk-gap) * 0.25); }
+.kk-key--shift-right { width: calc(var(--kk-unit) * 1.5 + var(--kk-gap) * 0.5); }
+.kk-key--shift .kk-key__word { display: none; font-size: 0.62em; letter-spacing: 0.02em; }
+.kk-key--shift.is-on {
+    background: #E6EFFF;
+    border-bottom-color: var(--kk-accent);
+    color: var(--kk-accent);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -289,6 +383,29 @@
     border-bottom-color: var(--yanlis);
     animation: wiggle 0.34s ease;
 }
+
+/* ── Bölüm / kısım geçiş şeridi: düğmesiz, kendiliğinden kalkar ── */
+.kk-banner {
+    position: absolute;
+    left: 50%;
+    top: 30%;
+    z-index: 5;
+    max-width: calc(100% - 32px);
+    padding: 14px 26px;
+    border-radius: var(--r-kart);
+    background: white;
+    box-shadow: var(--golge-3);
+    text-align: center;
+    font-family: var(--font-display);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(0.94);
+    transition: opacity var(--sure-gecis) var(--egri-out), transform var(--sure-gecis) var(--egri-yay);
+}
+.kk-banner.is-visible { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.kk-banner__title { font-size: clamp(1.3rem, 4vh, 1.9rem); font-weight: 700; color: var(--kk-accent); }
+.kk-banner__stars { font-size: clamp(1.4rem, 4.5vh, 2rem); letter-spacing: 0.1em; margin-top: 2px; }
+.kk-banner__sub { margin-top: 4px; font-size: clamp(0.95rem, 2.6vh, 1.15rem); font-weight: 600; color: var(--murekkep-orta); }
 
 /* ── Sesli okuma düğmesi (yalnız tr-TR sesi olan cihazlarda görünür) ── */
 .kk-speech {
@@ -348,6 +465,8 @@
     .kk-keyboard { padding: 14px var(--kk-pad) 16px; margin: 0; max-width: 100%; }
     .kk-instruction { max-width: calc(100% - 128px); }
     .kk-key { border-radius: 11px; }
+    .kk-key--shift .kk-key__word { display: inline; }
+    .kk-progress { min-width: 56px; }
 }
 
 /* ── Alçak görünüm (yatay telefon): tek ekranda kalsın ── */
@@ -359,18 +478,22 @@
     .kk-letter { font-size: clamp(2.6rem, 13vh, 6.5rem); }
     .kk-keyboard { padding: 6px var(--kk-pad) 8px; }
     .kk-caption { display: none; }
-    .kk-game { --kk-key-h: 34px; }
+    .kk-game { --kk-key-h: 27px; }   /* 5 sıra: 360 px yükseklikte en uzun paragrafla da tek ekran */
 }
 
 /* Dar ekranda Kelime Yolu: ödül balonu harf kutularını ezmesin (kutular bütçeden büyür) */
 @media (max-width: 599px) {
-    .kk-game--word { --kk-bubble: clamp(52px, 8vh, 72px); }
+    .kk-game--word { --kk-bubble: clamp(44px, 8vh, 72px); }
+    .kk-game--sentence { --kk-bubble: clamp(36px, 7vh, 56px); }
+    .kk-game--sentence .kk-card { padding: 8px 10px; gap: 8px; }
+    .kk-line--m { font-size: clamp(1rem, 3.4vh, 1.9rem); }
+    .kk-line--s { font-size: clamp(0.9rem, 2.6vh, 1.5rem); }
 }
 
 @media (prefers-reduced-motion: reduce) {
     .kk-key.is-hint { animation: none; box-shadow: 0 0 0 4px rgba(255, 209, 102, 0.55); }
     .kk-tile.is-current { animation: none; transform: translateY(-3px); }
-    .kk-flyer { transition: none; }
+    .kk-flyer, .kk-banner { transition: none; }
     .kk-card.kk-nudge, .kk-letter.kk-pop, .kk-bubble.is-revealed, .kk-slot.is-filled,
     .kk-key.is-correct, .kk-key.is-wrong { animation: none; }
 }

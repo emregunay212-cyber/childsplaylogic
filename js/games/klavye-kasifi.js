@@ -1,63 +1,83 @@
 /* ============================================
-   OYUN: Klavye Kâşifi (okul öncesi klavye oyunu)
+   OYUN: Klavye Kâşifi (klavye oyunu, 4–10 yaş)
    --------------------------------------------
-   Tasarım: docs/klavye-kasifi-tasarim-2026-09-15.md
-   4–6 yaş: ekrandaki harfi klavyede BULMAK, tek tuşa TEK basış, 3. seviyede sıra + Boşluk.
-   Süre/can/hız baskısı yok. Fiziksel klavye birincil giriş; ekran klavyesi (TR Q dizilimi)
-   hem dokunmatik giriş hem de "tuş nerede" haritasıdır — ikisi aynı press() yoluna girer.
+   Tasarım: docs/klavye-kasifi-tasarim-2026-09-15.md (+ 13 Eki 2026 kesintisiz akış)
+   Kesintisiz akış: Harfler → Heceler → Kelimeler → Cümleler → Rakamlar → Noktalama. Kısım = motor
+   seviyesi (yıldız kaydı, araç çubuğu noktası); kısım içindeki bölümler kısa bir şeritle KENDİLİĞİNDEN
+   geçer — çıkılmadıkça "Sonraki Seviye" düğmesi yok. Kısım bitince callbacks.onLevelUp(yıldız) (katman
+   açılmaz), yalnız son kısım onComplete ile kutlama katmanını açar. İçerik: klavye-kasifi-icerik.js.
+   Süre/can/hız baskısı yok. Fiziksel klavye birincil giriş; ekran klavyesi (TR Q dizilimi) hem dokunmatik
+   giriş hem de "tuş nerede" haritasıdır — ikisi aynı press() yoluna girer.
    ============================================ */
 
 const KlavyeKasifi = (() => {
     const id = 'klavye-kasifi';
 
-    // Türkçe Q dizilimi — satır kaymaları CSS'te (.kk-row--2 / --3)
+    // Türkçe Q dizilimi — satır kaymaları CSS'te (.kk-row--N). Çift kapaklı tuş [taban, Shift]:
+    // Shift karakteri kapağın üstünde küçük yazılır (gerçek tuş kapağı gibi).
     const ROWS = [
+        [['1', '!'], ['2', "'"], ['3', '^'], ['4', '+'], ['5', '%'], ['6', '&'], ['7', '/'], ['8', '('], ['9', ')'], ['0', '='], ['*', '?']],
         ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'Ğ', 'Ü'],
-        ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Ş', 'İ'],
-        ['Z', 'X', 'C', 'V', 'B', 'N', 'M', 'Ö', 'Ç'],
+        ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Ş', 'İ', [',', ';']],
+        ['Z', 'X', 'C', 'V', 'B', 'N', 'M', 'Ö', 'Ç', ['.', ':']],
     ];
     const SPACE = ' ';
-    const ALL_KEYS = new Set(ROWS.flat());
-    // İşletim sistemi İngilizce dizilimdeyse e.key harf vermez (";" gibi); fiziksel tuş KONUMU
-    // (e.code) TR Q'daki harfe çevrilir — tuş kapağında ne yazıyorsa o gelir.
-    const CODE_MAP = { Semicolon: 'Ş', Quote: 'İ', BracketLeft: 'Ğ', BracketRight: 'Ü', Comma: 'Ö', Period: 'Ç' };
+    const SHIFT_OF = {};            // Shift karakteri → taban ('!' → '1')
+    const TYPEABLE = new Set([SPACE]);
+    ROWS.flat().forEach((k) => {
+        if (Array.isArray(k)) { TYPEABLE.add(k[0]); TYPEABLE.add(k[1]); SHIFT_OF[k[1]] = k[0]; } else TYPEABLE.add(k);
+    });
+    const needsShift = (ch) => Object.prototype.hasOwnProperty.call(SHIFT_OF, ch);
+    // Fiziksel tuş KONUMU (e.code) → TR Q kapağındaki karakter [taban, Shift]. İşletim sistemi dizilimi
+    // İngilizceyse e.key kapakla uyuşmaz (";" gibi): kapaktaki karakter de aday olur, beklenenle uyuşan seçilir.
+    const CODE_MAP = {
+        Semicolon: ['Ş', 'Ş'], Quote: ['İ', 'İ'], BracketLeft: ['Ğ', 'Ğ'], BracketRight: ['Ü', 'Ü'],
+        Comma: ['Ö', 'Ö'], Period: ['Ç', 'Ç'], KeyI: ['I', 'I'],
+        Slash: ['.', ':'], Backslash: [',', ';'], Minus: ['*', '?'],
+    };
+    ROWS[0].slice(0, 10).forEach((k) => { CODE_MAP['Digit' + k[0]] = k; });
 
-    // Sesli okuma: harf adları (yalnız tr-TR sesi varsa ve düğme açıksa)
+    // Sesli okuma: harf ve işaret adları (yalnız tr-TR sesi varsa ve düğme açıksa)
     const LETTER_NAMES = {
         A: 'a', B: 'be', C: 'ce', Ç: 'çe', D: 'de', E: 'e', F: 'fe', G: 'ge', Ğ: 'yumuşak ge', H: 'he',
-        I: 'ı', İ: 'i', J: 'je', K: 'ke', L: 'le', M: 'me', N: 'ne', O: 'o', Ö: 'ö', P: 'pe',
-        R: 're', S: 'se', Ş: 'şe', T: 'te', U: 'u', Ü: 'ü', V: 've', Y: 'ye', Z: 'ze',
+        I: 'ı', İ: 'i', J: 'je', K: 'ke', L: 'le', M: 'me', N: 'ne', O: 'o', Ö: 'ö', P: 'pe', Q: 'ku',
+        R: 're', S: 'se', Ş: 'şe', T: 'te', U: 'u', Ü: 'ü', V: 've', W: 'dabılyu', X: 'iks', Y: 'ye', Z: 'ze',
     };
+    const KEY_NAMES = { '.': 'nokta', ',': 'virgül', '?': 'soru işareti', '!': 'ünlem' };
+    const REWARDS = ['⭐', '🌟', '🏅', '🎈', '🍀', '💎', '🚀', '🎉'];   // resmi olmayan tur (hece, sayı, Q/W/X)
 
-    const HINT_DELAY_MS = 5000;     // 2–3. seviye: bu kadar boşta kalınca hedef tuş nefes alır
+    const HINT_DELAY_MS = 5000;     // gecikmeli ipucu: bu kadar boşta kalınca hedef tuş nefes alır
     const REVEAL_MS = 450;          // resim balonda görünür, sonra deftere uçar
     const FLY_MS = 470;             // uçuş süresi (CSS geçişi 460 ms + pay)
     const NEXT_ROUND_MS = 1150;     // doğru → yeni tur
     const DOWN_MS = 140;            // fiziksel basışta ekran tuşunun çökük kalma süresi
+    const STAGE_BANNER_MS = 1800;   // bölüm arası şerit (düğme yok)
+    const SECTION_BANNER_MS = 2800; // kısım arası şerit: kazanılan yıldızlar + sıradaki kısım
 
-    const levels = [
-        { kind: 'letter', rounds: 6, hint: 'always' },    // Işıklı Tuş
-        { kind: 'letter', rounds: 8, hint: 'delayed' },   // Harf Avı
-        { kind: 'word', rounds: 4, hint: 'delayed' },     // Kelime Yolu
-    ];
+    const levels = window.KLAVYE_KASIFI_ICERIK;   // kısım listesi = motor seviyeleri
+    const TOTAL_STAGES = levels.reduce((n, s) => n + s.stages.length, 0);
 
     let container = null;
     let callbacks = null;
-    let config = null;
-    let els = {};           // instruction, shelf, stage, card, letter, bubble, caption, word, speech
-    let keyEls = {};        // 'A' → <button>, ' ' → boşluk
+    let els = {};           // root, progress, instruction, shelf, card, main, bubble, caption, banner, speech
+    let keyEls = {};        // karakter → <button> (çift kapaklıda iki karakter aynı düğme), ' ' → boşluk
+    let shiftEls = [];
     let timers = [];
     let hintTimer = null;
-    let round = 0;
-    let wrongRounds = 0;    // içinde en az bir yanlış olan tur sayısı → yıldız
+    let sectionIdx = 0;     // levels[sectionIdx]
+    let stageIdx = 0;       // levels[sectionIdx].stages[stageIdx]
+    let stage = null;
+    let queue = [];         // bölümün öğeleri bu girişteki sırasıyla
+    let round = 0;          // bölüm içi tur (1…)
+    let sectionRounds = 0;
+    let sectionWrong = 0;   // kısımda içinde en az bir yanlış olan tur sayısı → yıldız
     let wrongThisRound = false;
-    let target = null;      // { letter, word, emoji, label }
-    let wordPos = 0;        // 3. seviye: sıradaki harf; === word.length → Boşluk bekleniyor
-    let busy = true;        // doğru sonrası geçişte / oyun bitince giriş kapalı
-    let usedPicks = new Set(); // bu seviyede çıkan hedefler — havuz bitmeden tekrar yok
+    let target = null;      // { text, chars (büyük harf, karşılaştırma), emoji, label, say }
+    let pos = 0;            // word/sentence: sıradaki karakter; word'de === chars.length → Boşluk bekleniyor
+    let busy = true;        // doğru sonrası geçişte / şeritte / oyun bitince giriş kapalı
+    let shiftOn = false;    // ekran klavyesinde Shift'e dokunuldu (dokunmatik giriş)
     let keydownHandler = null;
     let voicesHandler = null;
-    let wordPool = null;
     let speechOn = false;
 
     function later(fn, ms) {
@@ -76,69 +96,71 @@ const KlavyeKasifi = (() => {
         try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; }
     }
     function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function shuffle(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+        return a;
+    }
+    function capitalize(s) { return s.charAt(0).toLocaleUpperCase('tr-TR') + s.slice(1).toLocaleLowerCase('tr-TR'); }
 
     // ── Kurulum ──
     function init(gameArea, level, cbs) {
         container = gameArea;
         callbacks = cbs;
-        config = levels[level - 1] || levels[0];
         clearTimers();
-        round = 0; wrongRounds = 0; wrongThisRound = false; target = null; wordPos = 0; usedPicks = new Set();
-        busy = false;
-        keyEls = {};
-        GameEngine.setTotal(config.rounds);
+        sectionIdx = Math.min(Math.max(level, 1), levels.length) - 1;
+        stageIdx = 0; target = null; busy = true; shiftOn = false;
+        keyEls = {}; shiftEls = [];
 
         buildDom();
-        // Kutlama düğmesinden (Tekrar Oyna / Sonraki Seviye) kalan bayat odağı bırak: ilk basış oyuna gitsin
+        // Kutlama düğmesinden (Tekrar Oyna) kalan bayat odağı bırak: ilk basış oyuna gitsin
         const ae = document.activeElement;
         if (ae && ae !== document.body && !gameArea.contains(ae)) { try { ae.blur(); } catch (e) { /* yok say */ } }
         keydownHandler = onKeyDown;
         document.addEventListener('keydown', keydownHandler);
-        startRound();
+        startSection();
     }
 
     function buildDom() {
         container.innerHTML = '';
         const root = el('div', 'kk-game');
-        root.classList.add('kk-game--' + config.kind);
-        root.style.setProperty('--kk-rounds', String(config.rounds));   // defter yuvaları genişlik bütçesi
+
+        // Bölüm sayacı (sol üst; ses düğmesinin aynası)
+        const progress = el('div', 'kk-progress');
+        progress.appendChild(el('span', 'kk-progress__label', 'Bölüm'));
+        progress.appendChild(el('span', 'kk-progress__num'));
+        root.appendChild(progress);
 
         const instruction = el('div', 'game-instruction kk-instruction');
         instruction.setAttribute('aria-live', 'polite');
         root.appendChild(instruction);
 
-        // Kâşif defteri: tur sayısı kadar yuva — kazanılan resimler buraya uçar (ilerleme = resim)
+        // Kâşif defteri: bölümün tur sayısı kadar yuva — kazanılan resimler buraya uçar (ilerleme = resim)
         const shelf = el('div', 'kk-shelf');
         shelf.setAttribute('aria-label', 'Kâşif defteri');
-        for (let i = 0; i < config.rounds; i++) shelf.appendChild(el('span', 'kk-slot'));
         root.appendChild(shelf);
 
-        const stage = el('div', 'kk-stage');
+        const stageEl = el('div', 'kk-stage');
         const card = el('div', 'kk-card');
-        let letter = null, word = null;
-        if (config.kind === 'letter') {
-            letter = el('div', 'kk-letter');
-            card.appendChild(letter);
-        } else {
-            word = el('div', 'kk-word');
-            word.setAttribute('aria-label', 'Yazılacak kelime');
-            card.appendChild(word);
-        }
         const bubble = el('div', 'kk-bubble', '?');
         bubble.setAttribute('aria-hidden', 'true');
         card.appendChild(bubble);
-        stage.appendChild(card);
+        stageEl.appendChild(card);
         const caption = el('div', 'kk-caption');
-        stage.appendChild(caption);
-        root.appendChild(stage);
+        stageEl.appendChild(caption);
+        root.appendChild(stageEl);
 
         root.appendChild(buildKeyboard());
+
+        const banner = el('div', 'kk-banner');
+        banner.setAttribute('aria-hidden', 'true');   // aynı metin yönergede (aria-live) duyurulur
+        root.appendChild(banner);
 
         const speech = buildSpeechToggle();
         if (speech) root.appendChild(speech);
 
         container.appendChild(root);
-        els = { root, instruction, shelf, stage, card, letter, word, bubble, caption, speech };
+        els = { root, progress, instruction, shelf, card, main: null, bubble, caption, banner, speech };
     }
 
     function buildKeyboard() {
@@ -147,27 +169,65 @@ const KlavyeKasifi = (() => {
         kb.setAttribute('aria-label', 'Ekran klavyesi');
         ROWS.forEach((row, i) => {
             const r = el('div', 'kk-row kk-row--' + (i + 1));
-            row.forEach((ch) => r.appendChild(makeKey(ch, ch, ch + ' tuşu')));
+            if (i === 3) r.appendChild(makeShiftKey('left'));
+            row.forEach((k) => r.appendChild(makeKey(k)));
+            if (i === 3) r.appendChild(makeShiftKey('right'));
             kb.appendChild(r);
         });
-        const r4 = el('div', 'kk-row kk-row--4');
-        r4.appendChild(makeKey(SPACE, 'Boşluk', 'Boşluk tuşu'));
-        kb.appendChild(r4);
+        const r5 = el('div', 'kk-row kk-row--5');
+        r5.appendChild(makeKey(SPACE));
+        kb.appendChild(r5);
         return kb;
     }
 
-    function makeKey(key, label, aria) {
+    function keyButton(cls, aria) {
         const b = document.createElement('button');
         b.type = 'button';
-        b.className = 'kk-key' + (key === SPACE ? ' kk-key--space' : '');
-        b.dataset.key = key;
-        b.tabIndex = -1;                       // fiziksel klavye zaten erişilebilir giriş; Tab ile 30 tuş gezilmez
+        b.className = 'kk-key' + (cls ? ' ' + cls : '');
+        b.tabIndex = -1;                       // fiziksel klavye zaten erişilebilir giriş; Tab ile 50 tuş gezilmez
         b.setAttribute('aria-label', aria);
-        b.appendChild(el('span', 'kk-key__cap', label));
         b.addEventListener('mousedown', (e) => e.preventDefault());   // odak alma → fiziksel Boşluk düğmeyi ikinci kez tetiklemesin
-        b.addEventListener('click', () => { press(key); b.blur(); });
-        keyEls[key] = b;
         return b;
+    }
+
+    function makeKey(k) {
+        const dual = Array.isArray(k);
+        const base = dual ? k[0] : k;
+        const shifted = dual ? k[1] : null;
+        if (base === SPACE) {
+            const b = keyButton('kk-key--space', 'Boşluk tuşu');
+            b.appendChild(el('span', 'kk-key__cap', 'Boşluk'));
+            b.addEventListener('click', () => { setShift(false); press(SPACE); b.blur(); });
+            keyEls[SPACE] = b;
+            return b;
+        }
+        const b = keyButton(dual ? 'kk-key--dual' : '', dual ? base + ' ve ' + shifted + ' tuşu' : base + ' tuşu');
+        b.dataset.key = base;
+        if (dual) b.appendChild(el('span', 'kk-key__shift', shifted));
+        b.appendChild(el('span', 'kk-key__cap', base));
+        b.addEventListener('click', () => {
+            const ch = shiftOn && shifted ? shifted : base;
+            setShift(false);
+            press(ch);
+            b.blur();
+        });
+        keyEls[base] = b;
+        if (dual) keyEls[shifted] = b;
+        return b;
+    }
+
+    // Dokunmatik Shift: bir kez dokun → sıradaki tuş Shift karakterini verir (fiziksel klavyede basılı tutulur)
+    function makeShiftKey(side) {
+        const b = keyButton('kk-key--shift kk-key--shift-' + side, 'Shift tuşu');
+        b.appendChild(el('span', 'kk-key__cap', '⇧'));
+        b.appendChild(el('span', 'kk-key__word', 'Shift'));
+        b.addEventListener('click', () => { setShift(!shiftOn); b.blur(); });
+        shiftEls.push(b);
+        return b;
+    }
+    function setShift(on) {
+        shiftOn = on;
+        shiftEls.forEach((b) => { b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', String(on)); });
     }
 
     // ── Fiziksel klavye ──
@@ -177,32 +237,48 @@ const KlavyeKasifi = (() => {
         // ileride bir form alanı) tuşu tarayıcıya bırak: Enter/Boşluk düğmeyi etkinleştirsin,
         // harf yazı alanına gitsin. Gövde odaktayken (normal oyun) davranış değişmez.
         const t = e.target;
-        // Gizlenmiş bir düğme (az önce tıklanan "Sonraki Seviye") odakta kalabilir: çizilmiyorsa (getClientRects 0)
+        // Gizlenmiş bir düğme (az önce tıklanan "Tekrar Oyna") odakta kalabilir: çizilmiyorsa (getClientRects 0)
         // oyun tuşu işler; aksi hâlde çocuğun ilk basışları yutulurdu.
         if (t && t !== document.body && els.root && !els.root.contains(t)
             && typeof t.closest === 'function' && t.closest('button, a, input, textarea, select, [contenteditable]')
             && t.getClientRects().length > 0) return;
         const isSpace = e.key === ' ' || e.key === 'Enter' || e.code === 'Space' || e.code === 'Enter' || e.code === 'NumpadEnter';
         if (isSpace) e.preventDefault();       // oyun alanı meşgul penceresinde de kaymasın
-        if (busy || e.repeat) return;
-        if (isSpace) {                         // Enter = Boşluk (3. seviye "gönder")
+        if (e.repeat) return;
+        if (e.key === 'Shift') {               // ekrandaki Shift de çöker: "Shift nerede" eşlemesi
+            const b = shiftEls[e.code === 'ShiftRight' ? 1 : 0];
+            if (b) { b.classList.add('is-down'); later(() => b.classList.remove('is-down'), DOWN_MS); }
+            return;
+        }
+        if (busy) return;
+        if (isSpace) {                         // Enter = Boşluk ("gönder")
             flashKey(SPACE);
             press(SPACE);
             return;
         }
-        if (typeof e.key !== 'string' || e.key.length !== 1) return;
-        let ch = e.key.toLocaleUpperCase('tr-TR');
-        // İngilizce dizilimde KeyI "i" verir → tr-TR büyük harfi İ; hedef I (noktasız) ise o tuş I'dır.
-        // TR dizilimde aynı tuş "ı" verir (→ I), İ ayrı tuştur; bu dal orada devreye girmez.
-        if (ch === 'İ' && e.code === 'KeyI' && e.key === 'i' && expectedKey() === 'I') ch = 'I';
-        if (!ALL_KEYS.has(ch)) ch = CODE_MAP[e.code] || null;
+        const ch = resolveKey(e);
         if (!ch) return;
         e.preventDefault();
         flashKey(ch);
         press(ch);
     }
 
-    // Fiziksel basışta ekrandaki tuş da çöker — harf ↔ tuş konumu eşlemesi pekişir
+    // Adaylar: e.key (işletim sistemi dizilimi) ve e.code'un TR Q kapağı. Beklenen karakterle uyuşan seçilir —
+    // İngilizce dizilimde "i" veren KeyI hedef I iken I, Period hedef Ç iken Ç; uyuşmazsa ilk aday (yanlış geri bildirimi).
+    function resolveKey(e) {
+        const cands = [];
+        if (typeof e.key === 'string' && e.key.length === 1) {
+            const k = e.key.toLocaleUpperCase('tr-TR');
+            if (TYPEABLE.has(k)) cands.push(k);
+        }
+        const m = CODE_MAP[e.code];
+        if (m) cands.push(m[e.shiftKey ? 1 : 0]);
+        const exp = expectedKey();
+        if (exp && cands.includes(exp)) return exp;
+        return cands[0] || null;
+    }
+
+    // Fiziksel basışta ekrandaki tuş da çöker — karakter ↔ tuş konumu eşlemesi pekişir
     function flashKey(key) {
         const b = keyEls[key];
         if (!b) return;
@@ -210,93 +286,149 @@ const KlavyeKasifi = (() => {
         later(() => b.classList.remove('is-down'), DOWN_MS);
     }
 
+    // ── Kısım / bölüm ──
+    function stageNumber() {
+        let n = stageIdx + 1;
+        for (let i = 0; i < sectionIdx; i++) n += levels[i].stages.length;
+        return n;
+    }
+
+    function startSection() {
+        sectionRounds = levels[sectionIdx].stages.reduce((n, s) => n + s.items.length, 0);
+        sectionWrong = 0;
+        GameEngine.setTotal(sectionRounds);
+        startStage();
+    }
+
+    function startStage() {
+        stage = levels[sectionIdx].stages[stageIdx];
+        queue = stage.order === 'fixed' ? stage.items.slice() : shuffle(stage.items);
+        round = 0;
+        const root = els.root;
+        root.classList.remove('kk-game--key', 'kk-game--word', 'kk-game--sentence');
+        root.classList.add('kk-game--' + stage.kind);
+        root.style.setProperty('--kk-rounds', String(queue.length));   // defter yuvaları genişlik bütçesi
+        root.dataset.kisim = levels[sectionIdx].id;
+        root.dataset.bolum = stageNumber() + '/' + TOTAL_STAGES;
+        els.progress.lastChild.textContent = stageNumber() + '/' + TOTAL_STAGES;
+        els.progress.title = levels[sectionIdx].name + ' · ' + stage.name;
+
+        els.shelf.innerHTML = '';
+        for (let i = 0; i < queue.length; i++) els.shelf.appendChild(el('span', 'kk-slot'));
+
+        if (els.main) els.main.remove();
+        const cls = { key: 'kk-letter', word: 'kk-word', sentence: 'kk-line' }[stage.kind];
+        els.main = el('div', cls);
+        if (stage.kind === 'word') els.main.setAttribute('aria-label', 'Yazılacak kelime');
+        els.card.insertBefore(els.main, els.bubble);
+        startRound();
+    }
+
+    function makeTarget(item) {
+        const text = Array.isArray(item) ? item[0] : item;
+        const chars = [...text].map((c) => c.toLocaleUpperCase('tr-TR'));
+        if (stage.kind === 'key') {
+            const pics = (TR.letterImages && TR.letterImages[text]) || [];
+            const img = pics.length ? pick(pics) : null;
+            const name = KEY_NAMES[text];
+            return {
+                text, chars,
+                emoji: img ? img.emoji : pick(REWARDS),
+                label: img ? img.word : (name ? capitalize(name) : ''),
+                say: LETTER_NAMES[text] || name || text,
+            };
+        }
+        const emoji = Array.isArray(item) ? item[1] : null;
+        return {
+            text, chars,
+            emoji: emoji || pick(REWARDS),
+            label: stage.kind === 'word' && emoji ? capitalize(text) : '',
+            say: text,
+        };
+    }
+
     // ── Tur ──
     function startRound() {
         round++;
         wrongThisRound = false;
-        wordPos = 0;
+        pos = 0;
         busy = false;
         clearHint();
+        setShift(false);
         AudioManager.play('pop');
 
-        target = config.kind === 'letter' ? pickLetterTarget() : pickWordTarget();
-        els.bubble.textContent = '?';
+        target = makeTarget(queue[round - 1]);
+        els.bubble.textContent = target.text.includes('?') ? '🎁' : '?';   // gizli resim; hedef "?" iken karışmasın
         els.bubble.classList.remove('is-revealed', 'is-flown');
         els.caption.textContent = '';
         els.caption.classList.remove('is-visible');
 
-        if (config.kind === 'letter') {
-            els.letter.textContent = target.letter;
-            els.letter.classList.remove('kk-pop'); void els.letter.offsetWidth; els.letter.classList.add('kk-pop');
-            setInstruction(config.hint === 'always'
-                ? 'Yanan tuşa bas: «' + target.letter + '»'
-                : '«' + target.letter + '» tuşunu bul ve bas!');
-            speak(LETTER_NAMES[target.letter] || target.letter);
+        if (stage.kind === 'key') {
+            const ch = target.text;
+            els.main.textContent = ch;
+            els.main.classList.remove('kk-pop'); void els.main.offsetWidth; els.main.classList.add('kk-pop');
+            const shown = '«' + ch + '»' + (KEY_NAMES[ch] ? ' (' + KEY_NAMES[ch] + ')' : '');
+            setInstruction(stage.tip || (stage.hint === 'always' ? 'Yanan tuşa bas: ' + shown : shown + ' tuşunu bul ve bas!'));
+        } else if (stage.kind === 'word') {
+            renderTiles();
+            setInstruction(stage.tip || 'Harfleri sırayla yaz, sonra Boşluk!');
         } else {
-            renderWord();
-            setInstruction('Harfleri sırayla yaz, sonra Boşluk!');
-            speak(target.label);
+            renderLine();
+            setInstruction(stage.tip || 'Cümleyi yaz! Kelimelerin arasında Boşluk tuşuna bas.');
         }
+        speak(target.say);
         armHint();
     }
 
-    function pickLetterTarget() {
-        const letters = Object.keys(TR.letterImages).filter((L) => ALL_KEYS.has(L) && TR.letterImages[L].length);
-        const fresh = letters.filter((L) => !usedPicks.has(L));
-        const letter = pick(fresh.length ? fresh : letters);
-        usedPicks.add(letter);
-        const img = pick(TR.letterImages[letter]);
-        return { letter, emoji: img.emoji, label: img.word };
-    }
-
-    // 2–5 harfli kelimeler TR.letterImages'tan (tek kaynak); aynı emoji iki kelimede kullanılmaz (Elma/Nar 🍎)
-    function getWordPool() {
-        if (wordPool) return wordPool;
-        const seen = new Set();
-        const list = [];
-        Object.keys(TR.letterImages).forEach((L) => {
-            TR.letterImages[L].forEach((o) => {
-                const w = o.word.toLocaleUpperCase('tr-TR');
-                if (w.length < 2 || w.length > 5 || seen.has(o.emoji)) return;
-                if (![...w].every((ch) => ALL_KEYS.has(ch))) return;
-                seen.add(o.emoji);
-                list.push({ word: w, emoji: o.emoji, label: o.word });
-            });
-        });
-        wordPool = list;
-        return list;
-    }
-
-    function pickWordTarget() {
-        const all = getWordPool();
-        const fresh = all.filter((w) => !usedPicks.has(w.word));
-        const t = pick(fresh.length ? fresh : all);
-        usedPicks.add(t.word);
-        return { word: t.word, letters: [...t.word], emoji: t.emoji, label: t.label };
-    }
-
-    function renderWord() {
-        els.word.innerHTML = '';
-        els.root.style.setProperty('--kk-word-len', String(target.letters.length));   // kutu genişliği bütçesi
-        target.letters.forEach((ch, i) => {
+    function renderTiles() {
+        els.main.innerHTML = '';
+        els.root.style.setProperty('--kk-word-len', String(target.chars.length));   // kutu genişliği bütçesi
+        [...target.text].forEach((ch, i) => {
             const tile = el('span', 'kk-tile', ch);
             if (i === 0) tile.classList.add('is-current');
-            els.word.appendChild(tile);
+            els.main.appendChild(tile);
         });
+    }
+
+    // Cümle: kelime grupları satır sonunda bölünmez; boşluk önceki kelimenin sonunda durur (satır boşlukla başlamaz)
+    function renderLine() {
+        const line = els.main;
+        line.innerHTML = '';
+        const n = target.chars.length;
+        line.classList.remove('kk-line--l', 'kk-line--m', 'kk-line--s');
+        line.classList.add(n <= 20 ? 'kk-line--l' : (n <= 45 ? 'kk-line--m' : 'kk-line--s'));
+        line.setAttribute('aria-label', 'Yazılacak cümle: ' + target.text);
+        const words = target.text.split(SPACE);
+        words.forEach((w, wi) => {
+            const group = el('span', 'kk-w');
+            group.setAttribute('aria-hidden', 'true');
+            [...w].forEach((c) => group.appendChild(el('span', 'kk-ch', c)));
+            if (wi < words.length - 1) group.appendChild(el('span', 'kk-ch kk-ch--space'));
+            line.appendChild(group);
+        });
+        line.querySelector('.kk-ch').classList.add('is-current');
     }
 
     function setInstruction(text) { els.instruction.textContent = text; }
 
-    // ── İpucu: hedef tuş yanar (1. seviye hep; 2–3. seviye boşta kalınca ya da yanlışta) ──
+    // ── İpucu: hedef tuş yanar ('always' hep; 'delayed' boşta kalınca ya da yanlışta). Shift karakterinde
+    //    Shift tuşları da yanar. Kelimenin sonundaki Boşluk ("gönder") yeni kavram: hep yanar. ──
     function expectedKey() {
-        if (config.kind === 'letter') return target.letter;
-        return wordPos < target.letters.length ? target.letters[wordPos] : SPACE;
+        if (!target) return null;
+        if (stage.kind === 'key') return target.chars[0];
+        return pos < target.chars.length ? target.chars[pos] : SPACE;
+    }
+    function light(key, cls) {
+        const b = keyEls[key];
+        if (b) b.classList.add(cls);
+        if (needsShift(key)) shiftEls.forEach((s) => s.classList.add(cls));
     }
     function armHint() {
         clearHint();
         const key = expectedKey();
-        if (config.hint === 'always' || key === SPACE) {
-            keyEls[key].classList.add('is-target');       // Boşluk yeni kavram: hep yanar
+        els.root.dataset.beklenen = key;
+        if (stage.hint === 'always' || (stage.kind === 'word' && pos >= target.chars.length)) {
+            light(key, 'is-target');
             return;
         }
         hintTimer = setTimeout(() => { hintTimer = null; showHint(); }, HINT_DELAY_MS);
@@ -305,46 +437,37 @@ const KlavyeKasifi = (() => {
         clearTimeout(hintTimer); hintTimer = null;
         const key = expectedKey();
         const b = keyEls[key];
-        if (b && !b.classList.contains('is-target')) b.classList.add('is-hint');
+        if (b && !b.classList.contains('is-target')) light(key, 'is-hint');
     }
     function clearHint() {
         clearTimeout(hintTimer); hintTimer = null;
         Object.keys(keyEls).forEach((k) => keyEls[k].classList.remove('is-target', 'is-hint'));
+        shiftEls.forEach((s) => s.classList.remove('is-target', 'is-hint'));
     }
 
     // ── Giriş ──
     function press(key) {
         if (busy || !target) return;
         AudioManager.play('tap');
-        if (config.kind === 'letter') {
-            if (key === target.letter) correct(key);
-            else wrong(key);
-            return;
-        }
-        // Kelime Yolu
-        if (wordPos < target.letters.length) {
-            if (key === target.letters[wordPos]) advanceWord(key);
-            else wrong(key);
-        } else if (key === SPACE) {
-            correct(SPACE);
-        } else {
-            wrong(key);
-        }
+        if (key !== expectedKey()) { wrong(key); return; }
+        if (stage.kind === 'key' || (stage.kind === 'word' && pos >= target.chars.length)) { correct(key); return; }
+        advance(key);
     }
 
-    function advanceWord(key) {
-        const tiles = els.word.querySelectorAll('.kk-tile');
-        const tile = tiles[wordPos];
-        tile.classList.remove('is-current');
-        tile.classList.add('is-done');
+    function advance(key) {
+        const cells = els.main.querySelectorAll(stage.kind === 'word' ? '.kk-tile' : '.kk-ch');
+        cells[pos].classList.remove('is-current');
+        cells[pos].classList.add('is-done');
         const b = keyEls[key];
         b.classList.remove('is-target', 'is-hint');
         b.classList.add('is-correct');
         later(() => b.classList.remove('is-correct'), 420);
-        wordPos++;
-        if (wordPos < target.letters.length) {
-            tiles[wordPos].classList.add('is-current');
+        pos++;
+        if (pos < target.chars.length) {
+            cells[pos].classList.add('is-current');
             armHint();
+        } else if (stage.kind === 'sentence') {
+            correct(key);                        // cümle son karakterle biter
         } else {
             setInstruction('Şimdi Boşluk tuşuna bas!');
             AudioManager.play('flip');
@@ -355,6 +478,7 @@ const KlavyeKasifi = (() => {
     function correct(key) {
         busy = true;
         clearHint();
+        els.root.dataset.beklenen = '';
         callbacks.onCorrect();
         const b = keyEls[key];
         b.classList.add('is-correct');
@@ -364,21 +488,18 @@ const KlavyeKasifi = (() => {
         els.bubble.textContent = target.emoji;
         els.bubble.classList.add('is-revealed');
         els.caption.textContent = target.label;
-        els.caption.classList.add('is-visible');
+        els.caption.classList.toggle('is-visible', !!target.label);
         const r = els.bubble.getBoundingClientRect();
         Particles.sparkle(r.left + r.width / 2, r.top + r.height / 2, 10);
-        speak(target.label);
+        if (target.label) speak(target.label);
 
         // Resim deftere uçar (sabit konumlu klon, transform geçişi); hareket azaltılmışsa doğrudan yerleşir
         const slot = els.shelf.children[round - 1];
         const emoji = target.emoji;
         later(() => flyToSlot(slot, emoji), REVEAL_MS);
 
-        if (round >= config.rounds) {
-            later(() => finish(), NEXT_ROUND_MS + 350);
-        } else {
-            later(() => startRound(), NEXT_ROUND_MS);
-        }
+        if (round >= queue.length) later(endStage, NEXT_ROUND_MS + 350);
+        else later(startRound, NEXT_ROUND_MS);
     }
 
     function flyToSlot(slot, emoji) {
@@ -412,7 +533,7 @@ const KlavyeKasifi = (() => {
         }
         if (!wrongThisRound) {
             wrongThisRound = true;
-            wrongRounds++;
+            sectionWrong++;
             callbacks.onWrong();                 // yalnız turun İLK yanlışı sayılır (el yordamı cezalanmaz)
         } else {
             AudioManager.play('error');
@@ -421,17 +542,56 @@ const KlavyeKasifi = (() => {
         showHint();                              // yanlıştan sonra çocuk asla takılı kalmaz
     }
 
-    // Yıldız: hatalı tur sayısına göre (motorun doğruluk formülüne bağlı değil)
+    // Kısım yıldızı: hatalı tur oranına göre (motorun doğruluk formülüne bağlı değil)
     function computeStars() {
-        if (wrongRounds <= 1) return 3;
-        if (wrongRounds <= Math.ceil(config.rounds / 2)) return 2;
+        const ratio = sectionWrong / Math.max(1, sectionRounds);
+        if (ratio <= 0.15) return 3;
+        if (ratio <= 0.5) return 2;
         return 1;
     }
 
-    function finish() {
+    // Bölüm bitti: düğme yok — şerit gösterilir, sıradaki bölüm kendiliğinden başlar.
+    function endStage() {
         busy = true;
         clearHint();
-        callbacks.onComplete(computeStars());
+        const section = levels[sectionIdx];
+        const doneNo = stageNumber();
+        if (stageIdx < section.stages.length - 1) {
+            stageIdx++;
+            showBanner('Bölüm ' + doneNo + ' tamam!', null, 'Sıradaki: ' + section.stages[stageIdx].name, STAGE_BANNER_MS);
+            later(startStage, STAGE_BANNER_MS);
+            return;
+        }
+        const stars = computeStars();
+        if (sectionIdx >= levels.length - 1) { finish(stars); return; }
+        callbacks.onLevelUp(stars);              // motor yıldızı kaydeder, araç çubuğu sonraki kısma geçer
+        AudioManager.play('star');
+        sectionIdx++;
+        stageIdx = 0;
+        const next = levels[sectionIdx];
+        showBanner(section.name + ' bitti!', stars, 'Sıradaki: ' + next.name + ' · ' + next.stages[0].name, SECTION_BANNER_MS);
+        later(startSection, SECTION_BANNER_MS);
+    }
+
+    function showBanner(title, stars, sub, ms) {
+        const b = els.banner;
+        b.innerHTML = '';
+        b.appendChild(el('div', 'kk-banner__title', title));
+        if (stars) {
+            const s = el('div', 'kk-banner__stars', '⭐'.repeat(stars));
+            s.setAttribute('aria-label', '3 üzerinden ' + stars + ' yıldız');
+            b.appendChild(s);
+        }
+        b.appendChild(el('div', 'kk-banner__sub', sub));
+        b.classList.add('is-visible');
+        setInstruction(title + ' ' + sub);
+        later(() => b.classList.remove('is-visible'), ms - 250);
+    }
+
+    function finish(stars) {
+        busy = true;
+        clearHint();
+        callbacks.onComplete(stars);
     }
 
     // ── Sesli okuma (isteğe bağlı; yalnız tr-TR sesi varsa) ──
@@ -481,7 +641,7 @@ const KlavyeKasifi = (() => {
             b.setAttribute('aria-pressed', String(speechOn));
             b.classList.toggle('is-on', speechOn);
             try { Progress.saveSetting('kkSpeech', speechOn); } catch (e) { /* ayar kaydı isteğe bağlı */ }
-            if (speechOn) speak(config.kind === 'letter' && target ? LETTER_NAMES[target.letter] : (target && target.label));
+            if (speechOn) speak(target && target.say);
             else { try { window.speechSynthesis.cancel(); } catch (e) { /* yok say */ } }
             b.blur();
         });
@@ -504,7 +664,7 @@ const KlavyeKasifi = (() => {
         try { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); } catch (e) { /* yok say */ }
         document.querySelectorAll('.kk-flyer').forEach((n) => n.remove());
         if (container) container.innerHTML = '';
-        els = {}; keyEls = {}; target = null;
+        els = {}; keyEls = {}; shiftEls = []; target = null; stage = null;
     }
 
     return { id, levels, init, destroy };

@@ -117,6 +117,14 @@ jobs:
           CI: true
           SITE_ROOT: .build-check
 
+      # Klavye Kâşifi: kısım sırası + içerik kapsamı (32 harf, rakamlar, . , ? !), "35 dakikalık ders" süre bütçesi
+      # (tarayıcısız); canlı akış: bölümler düğmesiz geçer, kutlama katmanı yalnız son kısımda, TR Q / İngilizce dizilim, Shift.
+      - name: Klavye Kâşifi testi — hash'li çıktı üzerinde
+        run: npm run test:klavye
+        env:
+          CI: true
+          SITE_ROOT: .build-check
+
       # Kırmızı koşuda adli kayıt: trace (ilk retry), ekran görüntüsü, video, error-context.md
       - name: Hata artefaktları
         if: failure()
