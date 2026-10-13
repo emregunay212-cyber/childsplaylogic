@@ -390,6 +390,7 @@
     left: 50%;
     top: 30%;
     z-index: 5;
+    width: max-content;                /* left:50% ile kendiliğinden genişlik yarıya inerdi (telefonda başlık kırılıyordu) */
     max-width: calc(100% - 32px);
     padding: 14px 26px;
     border-radius: var(--r-kart);
