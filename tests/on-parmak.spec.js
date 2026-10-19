@@ -465,6 +465,20 @@ test.describe('ON_PARMAK_ICERIK — içerik kuralları (tarayıcısız)', () => 
         expect(yeniler).toEqual(['fj', ' ', 'dk', 'sl', 'aş', 'gh', 'i,']);
     });
 
+    test('kayıt: içerikte geçen her oyun adının dosyası files.js içinde (js/games/on-parmak-<ad>.js), modülden önce', () => {
+        const kayit = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/games.json'), 'utf8')).games.find((g) => g.slug === 'on-parmak');
+        const modul = kayit.files.js.indexOf('js/games/on-parmak.js');
+        const adlar = new Set(bolumler().filter((x) => x.b.tur === 'oyun').map((x) => x.b.oyun));
+        expect(adlar.size).toBeGreaterThan(0);
+        for (const ad of adlar) {
+            const dosya = 'js/games/on-parmak-' + ad + '.js';
+            const i = kayit.files.js.indexOf(dosya);
+            expect(i, dosya).toBeGreaterThanOrEqual(0);
+            expect(i, dosya).toBeLessThan(modul);
+            expect(fs.existsSync(path.join(ROOT, dosya)), dosya).toBe(true);
+        }
+    });
+
     test('kayıt: data/games.json levels = ON_PARMAK_ICERIK.length; kapalı; dosya sırası dizilim → ölçüm → içerik → ekran → oyun ortak → oyunlar → modül', () => {
         const kayit = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/games.json'), 'utf8')).games.find((g) => g.slug === 'on-parmak');
         expect(kayit, 'on-parmak kaydı').toBeTruthy();
@@ -1459,6 +1473,62 @@ opTest.describe('OnParmak — Balon Vadisi (oyun bölümü)', () => {
         errors.assertClean();
     });
 
+    opTest('Caps Lock açıkken oyun durur (can gitmez, balon alçalmaz, basış sayılmaz); kapanınca hemen sürer', async ({ page, errors }) => {
+        opTest.setTimeout(90000);
+        await opAc(page, OP_BALON1);
+        const b = OP_BOLUMLER[OP_BALON1 - 1];
+        await page.evaluate(() => window.__opBas(document.querySelector('.op-oyun').dataset.beklenen));
+        await page.clock.runFor(300);
+        const konum = () => page.locator('.op-balon__pit').getAttribute('transform');
+        await page.evaluate(() => window.__opTus('CapsLock', 'CapsLock', { caps: true }));
+        await expect(page.locator('.op-caps')).toBeVisible();
+        await expect(opBalon(page)).toHaveAttribute('data-durum', 'duraklatildi');
+        const once = await konum();
+        await page.clock.runFor(20000);
+        expect(await konum()).toBe(once);
+        await expect(opBalon(page)).toHaveAttribute('data-can', '3');
+        await page.evaluate((ch) => window.__opBas(ch, { caps: true }), b.metin[1]);        // Caps açıkken: sayılmaz
+        await expect(opOyun(page)).toHaveAttribute('data-beklenen', b.metin[1]);
+        await expect(page.locator('.op-balon__devam')).toBeHidden();                        // devam tuşu istenmez
+        await page.evaluate(() => window.__opTus('CapsLock', 'CapsLock', { caps: false }));
+        await expect(page.locator('.op-caps')).toBeHidden();
+        await expect(opBalon(page)).toHaveAttribute('data-durum', 'calisiyor');            // hemen sürer
+        await page.clock.runFor(2000);
+        expect(await konum()).not.toBe(once);                                                // alçalma sürüyor
+        await opYaz(page, 'oyun', 300);
+        await expect(opOyun(page)).toHaveAttribute('data-mod', 'sonuc');
+        await expect(page.locator('.op-serit__alt')).toContainText('doğruluk %100');
+        errors.assertClean();
+    });
+
+    opTest('sekme dönüşünde Caps Lock açıksa Caps tuşu ve harfler oyunu sürdürmez; Caps kapanınca tuşla sürer', async ({ page, errors }) => {
+        opTest.setTimeout(90000);
+        await opAc(page, OP_BALON1);
+        const b = OP_BOLUMLER[OP_BALON1 - 1];
+        await page.clock.runFor(300);
+        await opGorun(page, 'hidden');
+        await opGorun(page, 'visible');
+        await expect(opBalon(page)).toHaveAttribute('data-durum', 'devam-bekliyor');
+        const konum = () => page.locator('.op-balon__pit').getAttribute('transform');
+        const once = await konum();
+        await page.evaluate(() => window.__opTus('CapsLock', 'CapsLock', { caps: true }));   // Caps tuşu (açtı): sürdürmez
+        await expect(opBalon(page)).toHaveAttribute('data-durum', 'devam-bekliyor');
+        await page.evaluate((ch) => window.__opBas(ch, { caps: true }), b.metin[0]);       // harf de sürdürmez, sayılmaz
+        await expect(opBalon(page)).toHaveAttribute('data-durum', 'devam-bekliyor');
+        await page.clock.runFor(10000);
+        expect(await konum()).toBe(once);
+        await expect(opBalon(page)).toHaveAttribute('data-can', '3');
+        await expect(opOyun(page)).toHaveAttribute('data-beklenen', b.metin[0]);
+        // Caps'i kapatan tuş: Caps artık kapalı → devam tuşu sayılır (yutulur, sayılmaz)
+        await page.evaluate(() => window.__opTus('CapsLock', 'CapsLock', { caps: false }));
+        await expect(opBalon(page)).toHaveAttribute('data-durum', 'calisiyor');
+        await expect(opOyun(page)).toHaveAttribute('data-beklenen', b.metin[0]);
+        await opYaz(page, 'oyun', 300);
+        await expect(opOyun(page)).toHaveAttribute('data-mod', 'sonuc');
+        await expect(page.locator('.op-serit__alt')).toContainText('doğruluk %100');
+        errors.assertClean();
+    });
+
     opTest('rAF: oyun sürerken bekleyen kare ve ResizeObserver var; oyundan sonraki bölüme geçişte ikisi de 0', async ({ page, errors }) => {
         opTest.setTimeout(90000);
         await opAc(page, OP_BALON1, OP_N, (p) => p.addInitScript(OP_RAF));
@@ -1779,6 +1849,49 @@ test.describe('OnParmakOyunOrtak.dongu (tarayıcı, sahte saat)', () => {
         expect(s.durum).toBe('durdu');
         expect(s.hata.length).toBe(1);
         expect(s.hata[0]).toContain('patladi');
+    });
+
+    test('duraklat/surdur: rAF durur, adım gelmez, devamTusu false; nedenler bağımsız; surdur hemen sürer, dt sıçramaz', async ({ page }) => {
+        await page.clock.runFor(200);
+        await page.evaluate(() => { window.__d.duraklat('caps'); window.__d.duraklat('baska'); });
+        expect(await page.evaluate(() => window.__d.durum())).toBe('duraklatildi');
+        const n = await page.evaluate(() => window.__adim.length);
+        await page.clock.runFor(2000);
+        expect(await page.evaluate(() => window.__adim.length)).toBe(n);
+        expect(await page.evaluate(() => window.__d.devamTusu())).toBe(false);        // tuş yutulmaz (çağıranın işi)
+        await page.evaluate(() => window.__d.surdur('caps'));
+        expect(await page.evaluate(() => window.__d.durum())).toBe('duraklatildi');  // bir neden daha var
+        await page.clock.runFor(500);
+        expect(await page.evaluate(() => window.__adim.length)).toBe(n);
+        await page.evaluate(() => window.__d.surdur('baska'));
+        expect(await page.evaluate(() => window.__d.durum())).toBe('calisiyor');     // devam tuşu gerekmez
+        await page.clock.runFor(300);
+        const adimlar = await page.evaluate(() => window.__adim);
+        expect(adimlar.length).toBeGreaterThan(n);
+        expect(adimlar[n]).toBe(0);                                                  // ilk adım: bekleme süresi dt'ye girmez
+        expect(await page.evaluate(() => window.__durumlar)).toEqual(['duraklatildi', 'calisiyor']);
+    });
+
+    test('gizli + duraklat: görünür olunca devam bekler; neden sürerken devam tuşu sürdürmez; neden kalkınca tuşla sürer', async ({ page }) => {
+        await page.clock.runFor(200);
+        await page.evaluate(() => window.__d.duraklat('caps'));
+        await page.evaluate(() => window.__gorun('hidden'));
+        expect(await page.evaluate(() => window.__d.durum())).toBe('gizli');
+        await page.evaluate(() => window.__gorun('visible'));
+        expect(await page.evaluate(() => window.__d.durum())).toBe('devam-bekliyor');
+        const n = await page.evaluate(() => window.__adim.length);
+        expect(await page.evaluate(() => window.__d.devamTusu())).toBe(true);         // yutulur ama SÜRDÜRMEZ
+        expect(await page.evaluate(() => window.__d.durum())).toBe('devam-bekliyor');
+        await page.evaluate(() => window.__d.surdur('caps'));
+        expect(await page.evaluate(() => window.__d.durum())).toBe('devam-bekliyor');  // sekme dönüşü yine tuş ister
+        await page.clock.runFor(500);
+        expect(await page.evaluate(() => window.__adim.length)).toBe(n);
+        expect(await page.evaluate(() => window.__d.devamTusu())).toBe(true);
+        expect(await page.evaluate(() => window.__d.durum())).toBe('calisiyor');
+        await page.clock.runFor(300);
+        expect(await page.evaluate(() => window.__adim.length)).toBeGreaterThan(n);
+        await page.evaluate(() => { window.__d.durdur(); window.__d.duraklat('x'); window.__d.surdur('x'); });
+        expect(await page.evaluate(() => window.__d.durum())).toBe('durdu');
     });
 
     test('başta gizli sekme: durumDegisti(gizli) dongu() döndükten sonra gelir (eşzamanlı değil)', async ({ page }) => {

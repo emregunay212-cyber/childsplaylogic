@@ -9,9 +9,10 @@
 
    Sözleşme (spec §6.1 + modül başlığı js/games/on-parmak.js):
      baslat(alan, { metin, el, tohum }, { tus(dogruMu), bitti({ canliBitti }), hedef?(ch|null) }) → tutamaç
-       tutamaç = { bas(ch), devamTusu() → bool }
+       tutamaç = { bas(ch), devamTusu() → bool, duraklat(acik) }
        - Oyun kendi keydown dinleyicisini KURMAZ; modül her tuşta önce devamTusu() çağırır (true = yutuldu, sayılmaz),
-         sonra yazılabilir karakteri bas(ch) ile verir.
+         sonra yazılabilir karakteri bas(ch) ile verir. duraklat(true|false): Caps Lock — açıkken döngü durur (balon
+         alçalmaz, can gitmez), kapanınca hemen sürer; açıkken devam tuşu oyunu sürdürmez (dongu duraklat/surdur 'caps').
        - tus(dogruMu) her sayılan basışta tam bir kez, bas() içinde EŞZAMANLI çağrılır; son doğru harfte bitti() de
          eşzamanlı gelir (sahte saatte döngü dönmese de akış ilerler). Can bitişi döngüden gelir.
        - hedef(ch): beklenen karakter değişince (başta, doğru basışta, can kaybında; bitişte null).
@@ -195,6 +196,11 @@
         return {
             bas: (ch) => { if (s === benim) bas(ch); },
             devamTusu: () => (s === benim && s.dongu ? s.dongu.devamTusu() : false),
+            // Caps Lock (modül): açıkken alçalma/zaman durur; kapanınca hemen sürer (devam tuşu gerekmez)
+            duraklat: (acik) => {
+                if (s !== benim || !s.dongu) return;
+                if (acik) s.dongu.duraklat('caps'); else s.dongu.surdur('caps');
+            },
         };
     }
 
@@ -271,7 +277,10 @@
         const cur = s.balonlar[s.i];
         if (!s.bitti) {
             cur.y += s.hiz.deger() * dt / 1000;
-            if (cur.y + AYAK_Y >= SU_Y) suyaDustu();
+            if (cur.y + AYAK_Y >= SU_Y) {
+                suyaDustu();
+                if (!s) return;          // modül bitti() içinde durdurduysa (bas() ile aynı koruma)
+            }
         }
         if (s.zip) { s.zip.t += dt; if (s.zip.t >= s.zip.sure) s.zip = null; }
         s.balonlar.forEach((b) => {

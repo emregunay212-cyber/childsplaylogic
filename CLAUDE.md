@@ -130,7 +130,7 @@ const ModulAdi = (() => {
 
 ### On Parmak (on parmak klavye, Türkçe Q — `js/games/on-parmak*.js` + `klavye-dizilim.js`, **`active:false`**, 15 Eki 2026)
 
-- Durum: PR1 (Adım 1) — yalnız Kısım 1 "Orta sıra" (`levels: 1`), hub'da "Yakında" kartı; kısım 2–7, oyun bölümleri ve açılış sonraki adımlarda.
+- Durum: PR2 (Adım 2) sürüyor — yalnız Kısım 1 "Orta sıra" (`levels: 1`, 16 bölüm; iki oyun bölümü: Balon Vadisi ×2), hub'da "Yakında" kartı; diğer üç mini oyun Adım 2'nin sonraki görevlerinde, kısım 2–7 ve açılış sonraki adımlarda.
   Spec `docs/on-parmak-tasarim-2026-10-15.md`, plan `plans/on-parmak-2026-10-15.md`. TypingClub metni/görseli/sesi kullanılmaz (yalnız işleyiş örnek).
 - **Dosya sırası** (`data/games.json files.js` = yükleme sırası): `klavye-dizilim.js` → `on-parmak-olcum.js` → `on-parmak-icerik.js` →
   `on-parmak-ekran.js` → `on-parmak-oyun-ortak.js` → oyunlar (`on-parmak-balon.js`; Adım 2'de diğer üçü) → `on-parmak.js`; css `css/on-parmak.css` (sahne renkleri yalnız burada). Yardımcılar `window.X` yayımlar, modül `window.X` ile okur
@@ -164,12 +164,12 @@ const ModulAdi = (() => {
 - **Ekran (`on-parmak-ekran.js`, `window.OnParmakEkran`):** klavye + iki el TEK SVG (`createElementNS`; parmak uçları tuşlarla her ölçekte hizalı). `olustur(kap, { el = true, klavye = true, basinca })` →
   `{ vurgula(ch), bas(ch, dogruMu), goster({el, klavye}), yokEt() }`. `vurgula` tuşu + parmak(lar)ı + gerekiyorsa karşı Shift'i `is-hedef` yapar (null/'' temizler); `bas` kısa süre `is-down` / `is-yanlis`.
   Tuş `<g data-code>` pointerdown → `basinca(Shift'siz karakter)`; el/vurgu/etiket katmanları `pointer-events: none`; pasif `< >`, Shift, süs tuşları tepkisiz; birincil olmayan düğme yok sayılır.
-- **Test:** `npm run test:on-parmak` (92 test; CI `ci.yml` adımı, hash'li çıktıda `SITE_ROOT=.build-check PORT=8766 npm run test:on-parmak`): tarayıcısız (`vm`) dizilim + `karakterOf` + ölçüm + içerik kuralları,
+- **Test:** `npm run test:on-parmak` (97 test; CI `ci.yml` adımı, hash'li çıktıda `SITE_ROOT=.build-check PORT=8766 npm run test:on-parmak`): tarayıcısız (`vm`) dizilim + `karakterOf` + ölçüm + içerik kuralları,
   tarayıcıda ekran ve oyun akışı. **Kapalı oyun test yolu:** `tests/on-parmak.spec.js` bağlamında `js/catalog.js` isteği (`/\/js\/catalog\.js(\?|$)/`) yakalanır, gövdede `"slug":"on-parmak"` satırındaki
   `"active":false` → `true` yapılır (hash'li çıktıda `?h=` de eşleşir); kısım geçişi için ayrıca 2 kısımlı içerik + `levels:2` katalog yaması fikstürü. Üretim kodu değişmez; oyun
   açılınca (`active:true`) yama gereksizleşir ve **kaldırılır** (yamasız "kapalı oyun" describe'ı da silinir) (duman testi `data/games.json`'dan kendiliğinden kapsar). Açılışta `seo/test_build_seo.py` kapalı listesinden `on-parmak` de çıkar.
 - **Oyun bölümü (`tur: 'oyun'`, Adım 2):** `window.OnParmakOyunlari[ad] = { baslat(alan, { metin, el, tohum }, { tus(dogruMu), bitti({ canliBitti }), hedef(ch|null) }), durdur() }`;
-  `baslat` → tutamaç `{ bas(ch), devamTusu() }`. Oyun keydown dinleyicisi KURMAZ: modül her tuşta önce `devamTusu()` (true = yutuldu, sayılmaz — sekme dönüşü
+  `baslat` → tutamaç `{ bas(ch), devamTusu(), duraklat(acik) }` (Caps Lock açıkken modül oyunu durdurur — balon alçalmaz, can gitmez; kapanınca hemen sürer; açıkken devam tuşu sürdürmez; `dongu.duraklat/surdur(neden)`). Oyun keydown dinleyicisi KURMAZ: modül her tuşta önce `devamTusu()` (true = yutuldu, sayılmaz — sekme dönüşü
   "Devam etmek için bir tuşa bas"), sonra `karakterOf` karakterini `bas(ch)`'a verir. `tus()` sayılan her basışta bir kez (eşzamanlı), `hedef()` klavye vurgusu +
   `data-beklenen`, son doğru harfte `bitti` eşzamanlı (sahte saatte akış döngüsüz ilerler). `tohum` = genel bölüm numarası (`OnParmakOyunOrtak.rng`, belirleyici).
   Yıldız: `bolumYildizi({ …, hedefHiz: yok, canliBitti })` — önce %80 (hiç basmadan canları bitirmek de tekrar), sonra can (en çok 1, akış sürer; şerit "Bölüm N bitti").

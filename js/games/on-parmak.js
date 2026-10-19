@@ -8,11 +8,12 @@
    imleç her basışta ilerler, canlı hız + doğruluk) ve 'oyun' (mini oyun, aşağıda). Bölüm sonu sonuç şeridi;
    doğruluk < %80 → aynı bölüm baştan.
    Oyun bölümü (tur:'oyun', spec §6.1, sapma 9): window.OnParmakOyunlari[bolum.oyun].baslat(alan, { metin, el, tohum },
-   { tus(dogruMu), bitti({ canliBitti }), hedef(ch|null) }) → tutamaç { bas(ch), devamTusu() }. tohum = genel bölüm
+   { tus(dogruMu), bitti({ canliBitti }), hedef(ch|null) }) → tutamaç { bas(ch), devamTusu(), duraklat(acik) }. tohum = genel bölüm
    numarası (belirleyici; tekrar aynı sahne). Tuşlar oyuna YALNIZ bu modülün keydown yolundan gelir (oyun dinleyici
    kurmaz): her tuşta (Shift/Enter/Caps dahil; Caps durmasından ve yazılabilirlikten ÖNCE) tutamaç.devamTusu() çağrılır —
    true = yutuldu (sekme dönüşü "Devam etmek için bir tuşa bas"; sayılmaz); sonra karakterOf karakteri bas(ch)'a gider.
-   Ekran tuşuna dokunma da aynı yol. tus() doğruluk sayımına (her basış ilk basıştır), hedef() klavye vurgusuna ve
+   Caps Lock oyunu da durdurur: capsGuncelle → tutamaç.duraklat(acik) (bölüm Caps açıkken başlarsa oyunBaslat'ta);
+   kapanınca hemen sürer, açıkken devam tuşu oyunu sürdürmez. Ekran tuşuna dokunma da aynı yol. tus() doğruluk sayımına (her basış ilk basıştır), hedef() klavye vurgusuna ve
    data-beklenen'e. bitti → bolumYildizi({ dogruluk, hiz, hedefHiz: yok (oyunda hız şartı yok), canliBitti }) → aynı
    sonuç şeridi; öncelik: önce %80 (hiç basmadan canları bitirmek de tekrar), sonra can (en çok 1 yıldız, akış sürer).
    Oyun bölüm değişiminde, kısım sonunda ve destroy()'da durdur() edilir. Bilinmeyen oyun adı → console.error + bölüm atlanır.
@@ -386,6 +387,8 @@ const OnParmak = (() => {
         capsAcik = acik;
         els.caps.hidden = !acik;
         if (els.root) els.root.classList.toggle('is-caps', acik);
+        // Oyun bölümünde Caps Lock oyunu da durdurur (balon alçalmaz, can gitmez); kapanınca hemen sürer
+        if (mod === 'oyun' && oyun) oyun.tutamac.duraklat(acik);
         const capsMetin = acik ? 'Büyük harf kilidi açık. Kapatmak için Caps Lock tuşuna bas.' : 'Büyük harf kilidi kapandı, devam edebilirsin.';
         // Sonuç / kısım şeridi açıkken onun duyurusu kaybolmasın: Caps bilgisi ardına eklenir
         duyur(seritDuyuru && (mod === 'sonuc' || mod === 'gecis') ? seritDuyuru + ' ' + capsMetin : capsMetin);
@@ -470,7 +473,11 @@ const OnParmak = (() => {
                 bolumBitti(!(sonuc && sonuc.canliBitti === false));
             },
         });
-        if (etkin()) { ekran.vurgula(oyunHedef); durumYaz(); }
+        if (etkin()) {
+            if (capsAcik) kayit.tutamac.duraklat(true);    // bölüm Caps açıkken başladı
+            ekran.vurgula(oyunHedef);
+            durumYaz();
+        }
     }
 
     function oyunDurdur() {

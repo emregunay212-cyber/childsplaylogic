@@ -5,10 +5,15 @@
 
    dongu(adimFn, { simdi?, azami? })  →  denetleyici
      adimFn(dt, t): dt = ms (en çok `azami`, vars. 100 — devamdan sonra sıçrama olmasın), t = rAF zaman damgası.
-     denetleyici: { durdur(), durum(), devamTusu() }
-       durum(): 'calisiyor' | 'gizli' (sekme gizli, rAF yok) | 'devam-bekliyor' (sekme göründü, tuş bekleniyor) | 'durdu'
+     denetleyici: { durdur(), durum(), devamTusu(), duraklat(neden), surdur(neden) }
+       durum(): 'calisiyor' | 'duraklatildi' (en az bir duraklatma nedeni var, rAF yok) | 'gizli' (sekme gizli, rAF yok)
+         | 'devam-bekliyor' (sekme göründü, tuş bekleniyor) | 'durdu'
        devamTusu(): oyun modülü HER tuşta ÖNCE bunu çağırır. true → tuş yutuldu (sayma, işleme); 'devam-bekliyor'
-         durumundaysa döngüyü yeniden başlatır (devam tuşu sayılmaz). 'gizli' durumunda da true döner.
+         durumundaysa döngüyü yeniden başlatır (devam tuşu sayılmaz) — ama açık bir duraklatma nedeni varsa (ör. Caps
+         Lock) BAŞLATMAZ, yine true döner. 'gizli' durumunda da true; 'duraklatildi' durumunda false (çağıranın işi).
+       duraklat(neden) / surdur(neden): nedenler bağımsızdır (ör. 'caps'); hepsi kalkınca döngü HEMEN sürer (devam tuşu
+         gerekmez), dt sıçramaz (onceki sıfırlanır). Sekme gizliliği ayrı yoldur: gizli/devam-bekliyor iken surdur
+         döngüyü başlatmaz, görünür + tuş gerekir. 'durdu' sonrası ikisi de etkisiz.
        Oyun, durum 'devam-bekliyor' olunca "Devam etmek için bir tuşa bas" yazısını durum() ile çizer
        (opts.durumDegisti(durum) çağrılır).
      adimFn fırlatırsa: console.error + döngü durur (durum 'durdu').
@@ -38,6 +43,7 @@
         let durum = 'calisiyor';
         let rafId = 0;
         let onceki = null;
+        const nedenler = new Set();
 
         function bildir() { if (typeof o.durumDegisti === 'function') o.durumDegisti(durum); }
         function gizliMi() { return typeof document !== 'undefined' && document.visibilityState === 'hidden'; }
@@ -65,8 +71,26 @@
                 durum = 'gizli';
                 bildir();
             } else if (durum === 'gizli') {
-                durum = 'devam-bekliyor';
+                durum = 'devam-bekliyor';   // duraklatma nedeni sürse de: önce nedenler kalkar, sonra tuş
                 bildir();
+            }
+        }
+        function duraklat(neden) {
+            if (durum === 'durdu') return;
+            nedenler.add(String(neden));
+            if (durum === 'calisiyor') {
+                if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+                durum = 'duraklatildi';
+                bildir();
+            }
+        }
+        function surdur(neden) {
+            if (durum === 'durdu') return;
+            nedenler.delete(String(neden));
+            if (nedenler.size === 0 && durum === 'duraklatildi') {
+                durum = 'calisiyor';
+                bildir();
+                baslat();
             }
         }
         function durdur() {
@@ -76,8 +100,8 @@
             document.removeEventListener('visibilitychange', gorunurluk);
         }
         function devamTusu() {
-            if (durum === 'calisiyor' || durum === 'durdu') return false;
-            if (durum === 'devam-bekliyor') {
+            if (durum === 'calisiyor' || durum === 'durdu' || durum === 'duraklatildi') return false;
+            if (durum === 'devam-bekliyor' && nedenler.size === 0) {
                 durum = 'calisiyor';
                 bildir();
                 baslat();
@@ -91,7 +115,7 @@
             // dongu() dönmeden bildirim çağıran henüz denetleyiciyi tutmaz → bir mikro görev ertelenir
             Promise.resolve().then(() => { if (durum === 'gizli') bildir(); });
         } else baslat();
-        return { durdur, durum: () => durum, devamTusu };
+        return { durdur, durum: () => durum, devamTusu, duraklat, surdur };
     }
 
     function uyarlanirHiz({ taban, min, max, artis, azalis, azaltilmisHareket }) {
