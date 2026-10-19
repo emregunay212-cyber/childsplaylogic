@@ -8,10 +8,15 @@
    - Sıradaki tuş ve parmağı AYNI renkte (--gunes) yanar: göz tuştan parmağa tek renkle bağ kurar. Shift'li karakterde
      karşı Shift ve karşı serçe de aynı renkte.
    - Basış klavyeden gelir, dakikada yüzlerce kez → AÇILIŞ ANINDA (geçişsiz), sönüş kısa ease-out. Tuş kapağı 3 birim iner.
-   - Yanlış: kırmızı kenar + kısa yatay sallanma (200 ms). Hedefte nabız yalnız hale saydamlığında (konum oynamaz).
+   - Yanlış: kırmızı kenar + kısa yatay sallanma (--op-salla-sure, 200 ms). Hedefte nabız yalnız hale saydamlığında (konum oynamaz).
    - Hedef/basış vurgusu ELLERİN ÜSTÜNDEKİ vurgu katmanında: alt sıra tuşları parmak altında da yanar.
    - prefers-reduced-motion: nabız/sallanma/iniş yok — durağan vurgu (renk + hale), spec §8.
    ============================================ */
+
+.op-ekran,
+.op-oyun {
+    --op-salla-sure: 200ms;            /* yanlış tuş sallanması: kısa, okunur; seyrek an (tanıtım, ekran tuşu) */
+}
 
 .op-ekran {
     width: 100%;
@@ -100,7 +105,7 @@
 .op-tus.is-yanlis,
 .op-vurgu.is-yanlis,
 .op-etiket.is-yanlis {
-    animation: op-salla 200ms var(--egri-out);
+    animation: op-salla var(--op-salla-sure) var(--egri-out);
 }
 
 /* ── Vurgu katmanı (ellerin üstünde, etiketlerin altında; tıklanmaz) ──
@@ -306,12 +311,18 @@
      başına bilgi taşımaz: doğru kutuda ✓, yanlış kutuda basılan karakter, düzeltilen kutu ✓'siz ve kesik kenarlı.
    - Klavyeden gelen durum değişimleri (kutu, harf, imleç) ANINDA — dakikada yüzlerce kez görülür, geçiş yok.
      Hareket yalnız seyrek anlarda: şerit girişi (--sure-gecis, --egri-out; çıkış daha hızlı --sure-bas),
-     satır kayması (--sure-gecis), tanıtımda yanlış tuş sallanması (200 ms).
+     satır kayması (--sure-gecis), tanıtımda yanlış tuş sallanması (--op-salla-sure).
+   - Yerleşim kararlı: sahne SABİT yükseklikte (en uzun içerik = 3 satır + ölçüm), Caps uyarısı sahnenin üstüne biner →
+     bölüm türü değişince ya da uyarı gelip gidince klavye ve eller dikeyde oynamaz.
    - prefers-reduced-motion: kayma/sallanma/ölçek yok; şerit yalnız saydamlıkla.
    ============================================ */
 
 .op-oyun {
-    --op-ekran-pay: 430px;             /* ekran dışındaki dikey bütçe (araç çubuğu + üst + sahne); ekran kalan yüksekliğe sığar */
+    --op-satir-boy: clamp(1.3rem, 0.9rem + 1.6vw, 2rem);   /* satır motoru yazı boyu */
+    --op-sahne-ic: 128px;              /* sahnede satırlar dışındaki pay: iç boşluk + yönerge + ölçüm + aralıklar */
+    --op-sahne-yuk: calc(var(--op-satir-boy) * 5.1 + var(--op-sahne-ic));   /* 3 satır × 1,7em */
+    /* ekran dışındaki dikey bütçe: araç çubuğu (56) + alan iç boşluğu (2×16) + üst (44) + aralıklar (2×12) + sahne */
+    --op-ekran-pay: calc(var(--op-sahne-yuk) + 160px);
     position: relative;
     width: 100%;
     max-width: 960px;
@@ -404,6 +415,22 @@
     background: var(--mavi-800);
 }
 
+/* Simge yalnız dar ekranda (yazının yerine); geniş ekranda nokta + yazı */
+.op-dugme__ikon {
+    display: none;
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.op-dugme[aria-pressed="true"] .op-dugme__kapali {
+    display: none;
+}
+
 .op-dugme:active:not(:disabled) {
     transform: scale(0.97);
 }
@@ -426,8 +453,13 @@
     }
 }
 
-/* ── Caps Lock uyarısı: yazma durur, uyarı sahnenin hemen üstünde ── */
+/* ── Caps Lock uyarısı: yazma durur; uyarı sahnenin üst kenarına BİNER (yer kaplamaz → klavye oynamaz) ── */
 .op-caps {
+    position: absolute;
+    top: var(--ara-3);
+    left: var(--ara-3);
+    right: var(--ara-3);
+    z-index: 3;
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
@@ -473,7 +505,8 @@
     border-radius: var(--r-kart);
     background: var(--beyaz);
     box-shadow: var(--golge-2);
-    min-height: 196px;
+    height: var(--op-sahne-yuk);
+    flex: none;
 }
 
 .op-yonerge {
@@ -533,7 +566,7 @@
 }
 
 .op-tanitim__tus.is-yanlis {
-    animation: op-salla 200ms var(--egri-out);
+    animation: op-salla var(--op-salla-sure) var(--egri-out);
 }
 
 .op-tanitim__cumle {
@@ -668,7 +701,7 @@
     width: 100%;
     height: calc(3 * var(--op-satir-yuk));
     overflow: hidden;
-    font-size: clamp(1.3rem, 0.9rem + 1.6vw, 2rem);
+    font-size: var(--op-satir-boy);
     font-weight: 500;
 }
 
@@ -733,6 +766,11 @@
 
 .op-oyun.is-olcum .op-olcum {
     visibility: visible;
+}
+
+/* Tekrar şeridinde hız gösterilmez (yalnız doğruluk ve hedef): %80 altında hız övgü/baskı olmasın */
+.op-oyun[data-sonuc="tekrar"] .op-olcum__oge--hiz {
+    visibility: hidden;
 }
 
 .op-olcum__deger {
@@ -999,22 +1037,108 @@
         gap: var(--ara-2);
     }
 
+    .op-oyun {
+        --op-sahne-ic: 112px;
+        --op-ekran-pay: calc(var(--op-sahne-yuk) + 136px);
+    }
+
+    /* Başlık + El/Klavye tek satırda: düğmeler yalnız simge (ad görünmez ama erişilebilir ad olarak okunur) */
     .op-ust {
-        flex-wrap: wrap;
+        gap: var(--ara-2);
+    }
+
+    .op-ilerleme {
+        gap: var(--ara-1) var(--ara-2);
+    }
+
+    .op-ilerleme__no {
+        padding-inline: var(--ara-2);
+        font-size: 0.88rem;
     }
 
     .op-ilerleme__ad {
         font-size: 1rem;
     }
 
+    .op-dugmeler {
+        gap: var(--ara-1);
+    }
+
     .op-dugme {
-        padding: 0 var(--ara-3) 0 var(--ara-2);
-        font-size: 0.92rem;
+        justify-content: center;
+        width: 44px;
+        padding: 0;
+    }
+
+    .op-dugme::before {
+        display: none;
+    }
+
+    .op-dugme__ikon {
+        display: block;
+    }
+
+    .op-dugme__ad {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+    }
+
+    /* Açık: dolu mavi zemin + beyaz simge; kapalı: beyaz zemin + çapraz çizgi */
+    .op-dugme[aria-pressed="true"] {
+        background: var(--mavi-800);
+        color: var(--beyaz);
     }
 
     .op-sahne {
         padding: var(--ara-3);
-        min-height: 170px;
+    }
+
+    .op-caps {
+        top: var(--ara-2);
+        left: var(--ara-2);
+        right: var(--ara-2);
+        padding: var(--ara-2) var(--ara-3);
+    }
+
+    .op-caps__baslik {
+        font-size: 1.05rem;
+    }
+
+    .op-caps__metin {
+        font-size: 0.95rem;
+    }
+
+    /* Klavye telefonda kenardan kenara: alanın iç boşluğunu (--ara-4) geri al, 4 px pay bırak */
+    .op-ekran-kap {
+        margin-inline: calc(4px - var(--ara-4));
+    }
+
+    /* Küçük ölçekte etiketler büyür; üst satırın ikincil (Shift) karakterleri okunmayacak kadar küçülür → gizlenir,
+       alttaki karakter kapağın ortasına çıkar */
+    .op-etiket__harf {
+        font-size: 36px;
+    }
+
+    .op-etiket__alt {
+        font-size: 32px;
+        transform: translateY(-10px);
+    }
+
+    .op-etiket__ust {
+        display: none;
+    }
+
+    .op-etiket__kucuk {
+        font-size: 18px;
+    }
+
+    .op-etiket.is-down .op-etiket__alt,
+    .op-etiket.is-yanlis .op-etiket__alt {
+        transform: translateY(-7px);
     }
 
     .op-kutular {
@@ -1069,5 +1193,13 @@
     .op-picker__kisim:active,
     .op-picker__bolum:active {
         transform: none;
+    }
+}
+
+/* Telefon + azaltılmış hareket: basışta etiket inmez, ortalanmış konumda kalır */
+@media (max-width: 599px) and (prefers-reduced-motion: reduce) {
+    .op-etiket.is-down .op-etiket__alt,
+    .op-etiket.is-yanlis .op-etiket__alt {
+        transform: translateY(-10px);
     }
 }

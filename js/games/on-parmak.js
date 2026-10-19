@@ -40,6 +40,12 @@ const OnParmak = (() => {
     let ekran = null;
     let timers = [];
     let keydownHandler = null;
+    // Odak kaynağı: Chrome bir tuşa basılınca odaktaki öğeyi :focus-visible yapar (keydown'dan ÖNCE) → fareyle mi
+    // odaklandığı kendimiz izlenir. sonGirdi: son girdi türü; fareOdak: fareyle/dokunarak odak almış öğe.
+    let sonGirdi = 'tus';
+    let fareOdak = null;
+    const isaretGirdisi = () => { sonGirdi = 'isaret'; };
+    const odakGirdi = (e) => { fareOdak = sonGirdi === 'isaret' ? e.target : null; };
     let pendingStart = null;  // seçiciden: { bolum } — GameEngine.startGame ile gelen sıradaki init'te tüketilir
 
     // Oturum içi tercih (kaydedilmez): el çizimi kullanıcı değiştirmedikçe kısmın varsayılanını izler
@@ -64,6 +70,7 @@ const OnParmak = (() => {
     let tanitimAdimlari = [];
     let tanitimIdx = 0;
     let sonucAcilis = 0;
+    let seritDuyuru = '';     // açık sonuç/kısım şeridinin duyurusu: Caps duyurusu onu ezmesin, ardına eklensin
     let satirlar = [];        // satır motoru: [{ dugum, bas, son }]
     let harfDugumleri = [];   // satır motoru: karakter → <span>
     let etkinSatir = -1;
@@ -116,6 +123,9 @@ const OnParmak = (() => {
         oyunKur();
         keydownHandler = onKeyDown;
         document.addEventListener('keydown', keydownHandler);
+        sonGirdi = 'tus'; fareOdak = null;
+        document.addEventListener('pointerdown', isaretGirdisi, true);
+        document.addEventListener('focusin', odakGirdi, true);
         kisimBaslat();
     }
 
@@ -191,8 +201,8 @@ const OnParmak = (() => {
         ilerleme.append(ilerlemeNo, ilerlemeAd);
         ust.appendChild(ilerleme);
         const dugmeler = el('div', 'op-dugmeler');
-        const elDugme = dugmeKur('El', () => { elTercih = !elAcikMi(); ekranGuncelle(); });
-        const klavyeDugme = dugmeKur('Klavye', () => { klavyeAcik = !klavyeAcik; ekranGuncelle(); });
+        const elDugme = dugmeKur('El', IKON_EL, () => { elTercih = !elAcikMi(); ekranGuncelle(); });
+        const klavyeDugme = dugmeKur('Klavye', IKON_KLAVYE, () => { klavyeAcik = !klavyeAcik; ekranGuncelle(); });
         dugmeler.append(elDugme, klavyeDugme);
         ust.appendChild(dugmeler);
         root.appendChild(ust);
@@ -201,8 +211,8 @@ const OnParmak = (() => {
         caps.hidden = true;
         caps.appendChild(el('strong', 'op-caps__baslik', 'Büyük harf kilidi açık'));
         caps.appendChild(el('span', 'op-caps__metin', 'Kapatmak için Caps Lock tuşuna bas.'));
-        root.appendChild(caps);
 
+        // Sahne sabit yükseklikte (css): bölüm türü ve Caps uyarısı klavyeyi dikeyde oynatmaz — uyarı sahnenin üstüne biner
         const sahne = el('div', 'op-sahne');
         const yonerge = el('p', 'op-yonerge');
         sahne.appendChild(yonerge);
@@ -211,9 +221,9 @@ const OnParmak = (() => {
         const olcum = el('div', 'op-olcum');
         const hizDeger = el('span', 'op-olcum__deger');
         const dogrulukDeger = el('span', 'op-olcum__deger');
-        const hizKutu = el('span', 'op-olcum__oge');
+        const hizKutu = el('span', 'op-olcum__oge op-olcum__oge--hiz');
         hizKutu.append(hizDeger, el('span', 'op-olcum__birim', ' kelime/dk'));
-        const dogrulukKutu = el('span', 'op-olcum__oge');
+        const dogrulukKutu = el('span', 'op-olcum__oge op-olcum__oge--dogruluk');
         dogrulukKutu.append(el('span', 'op-olcum__birim', 'doğruluk '), dogrulukDeger);
         olcum.append(hizKutu, dogrulukKutu);
         olcum.setAttribute('aria-hidden', 'true');   // her basışta değişir; ekran okuyucuya bölüm sonunda tek özet
@@ -221,6 +231,7 @@ const OnParmak = (() => {
         const serit = el('div', 'op-serit');
         serit.setAttribute('aria-hidden', 'true');   // aynı bilgi canlı bölgede duyurulur
         sahne.appendChild(serit);
+        sahne.appendChild(caps);
         root.appendChild(sahne);
 
         const ekranKap = el('div', 'op-ekran-kap');
@@ -238,9 +249,33 @@ const OnParmak = (() => {
             hizDeger, dogrulukDeger, serit, canli };
     }
 
-    function dugmeKur(ad, fn) {
-        const b = el('button', 'op-dugme', ad);
+    // Düğme simgeleri (telefonda yazının yerine; 24×24 çizgi, Lucide "hand" / "keyboard" biçiminden, ISC).
+    // Kapalıyken çapraz çizgi görünür (css): renk dışında biçim de değişir.
+    const IKON_EL = ['M18 11V6a2 2 0 0 0-4 0', 'M14 10V4a2 2 0 0 0-4 0v2', 'M10 10.5V6a2 2 0 0 0-4 0v8',
+        'M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15'];
+    const IKON_KLAVYE = ['M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z',
+        'M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8'];
+    function ikonKur(yollar) {
+        const NS = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(NS, 'svg');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('class', 'op-dugme__ikon');
+        svg.setAttribute('aria-hidden', 'true');
+        svg.setAttribute('focusable', 'false');
+        yollar.concat('M3 3l18 18').forEach((d, i, a) => {
+            const p = document.createElementNS(NS, 'path');
+            p.setAttribute('d', d);
+            if (i === a.length - 1) p.setAttribute('class', 'op-dugme__kapali');
+            svg.appendChild(p);
+        });
+        return svg;
+    }
+
+    function dugmeKur(ad, ikon, fn) {
+        const b = el('button', 'op-dugme');
         b.type = 'button';
+        b.append(ikonKur(ikon), el('span', 'op-dugme__ad', ad));
+        b.title = ad + ' çizimini göster / gizle';
         b.setAttribute('aria-pressed', 'true');
         b.addEventListener('mousedown', (e) => e.preventDefault());   // fareyle odak almasın: Boşluk düğmeye gitmesin
         b.addEventListener('click', fn);
@@ -286,16 +321,27 @@ const OnParmak = (() => {
 
     // ── Fiziksel klavye ──
     function onKeyDown(e) {
+        sonGirdi = 'tus';
         if (e.ctrlKey || e.metaKey || e.altKey) return;
-        // Odak oyun kökünün DIŞINDA görünür bir etkileşimli öğedeyse (araç çubuğu) tuş tarayıcıya bırakılır
         const t = e.target;
-        if (t && t !== document.body && els.root && !els.root.contains(t)
-            && typeof t.closest === 'function' && t.closest('button, a, input, textarea, select, [contenteditable]')
-            && t.getClientRects().length > 0) return;
         const enter = e.key === 'Enter' || e.code === 'Enter' || e.code === 'NumpadEnter';
         const bosluk = e.code === 'Space' || e.key === ' ';
-        // Oyun içindeki El/Klavye düğmesi Tab ile odaktaysa Enter/Boşluk düğmeyi etkinleştirir
-        if ((enter || bosluk) && t && els.root && els.root.contains(t) && t.tagName === 'BUTTON') return;
+        // Odak görünür bir etkileşimli öğede (araç çubuğu, oyun içindeki El/Klavye düğmesi):
+        // - FAREYLE odaklanmışsa (fareOdak) ve tuş yazılabilirse (Boşluk dahil) odak bırakılır, basış oyuna
+        //   gider (spec §8 "yazma odağı kaybolursa tuş geri getirir"; Boşluk düğmeyi tetiklemez — keydown'da preventDefault);
+        // - KLAVYEYLE odaklanmışsa Tab/Escape/Enter/Boşluk tarayıcının (düğmeyi etkinleştirir); oyun dışı öğede her tuş.
+        const etkilesimli = t && t !== document.body && typeof t.closest === 'function'
+            && t.closest('button, a, input, textarea, select, [contenteditable]') && t.getClientRects().length > 0;
+        if (etkilesimli) {
+            const fareyle = t === fareOdak && !t.closest('input, textarea, select, [contenteditable]');
+            if (fareyle && window.KlavyeDizilim.karakterOf(e) != null) {
+                try { t.blur(); } catch (err) { /* yok say */ }
+                fareOdak = null;
+            } else {
+                if (els.root && !els.root.contains(t)) return;
+                if ((enter || bosluk) && t.tagName === 'BUTTON') return;
+            }
+        }
         if (typeof e.getModifierState === 'function') capsGuncelle(e.getModifierState('CapsLock'));
         if (enter || bosluk) e.preventDefault();          // sayfa kaymasın
         if (e.repeat) return;
@@ -320,7 +366,9 @@ const OnParmak = (() => {
         capsAcik = acik;
         els.caps.hidden = !acik;
         if (els.root) els.root.classList.toggle('is-caps', acik);
-        duyur(acik ? 'Büyük harf kilidi açık. Kapatmak için Caps Lock tuşuna bas.' : 'Büyük harf kilidi kapandı, devam edebilirsin.');
+        const capsMetin = acik ? 'Büyük harf kilidi açık. Kapatmak için Caps Lock tuşuna bas.' : 'Büyük harf kilidi kapandı, devam edebilirsin.';
+        // Sonuç / kısım şeridi açıkken onun duyurusu kaybolmasın: Caps bilgisi ardına eklenir
+        duyur(seritDuyuru && (mod === 'sonuc' || mod === 'gecis') ? seritDuyuru + ' ' + capsMetin : capsMetin);
     }
 
     function enterBasildi() {
@@ -342,6 +390,7 @@ const OnParmak = (() => {
 
     function bolumBaslat(tekrar) {
         clearTimers();
+        seritDuyuru = '';
         const b = bolum();
         metin = b.metin;
         poz = 0; dogruIlk = 0; toplamBasis = 0; baslangic = 0; bitis = 0; hataliPoz = false;
@@ -618,7 +667,7 @@ const OnParmak = (() => {
         if (!baslangic) { els.root.classList.remove('is-olcum'); return; }
         els.root.classList.add('is-olcum');
         const ms = (bitis || simdi()) - baslangic;
-        els.hizDeger.textContent = String(Math.round(O.hiz(poz, ms)));
+        els.hizDeger.textContent = String(Math.floor(O.hiz(poz, ms)));   // ekranda aşağı yuvarla (karar ham değerle)
         els.dogrulukDeger.textContent = '%' + Math.floor(O.dogruluk(dogruIlk, toplamBasis));
     }
 
@@ -641,18 +690,20 @@ const OnParmak = (() => {
         if (y === 0) {
             AudioManager.play('whoosh');
             seritGoster('Bir daha deneyelim', 'doğruluk %' + dGoster + ', hedef %' + GECER_DOGRULUK, null, 'is-tekrar');
-            duyur('Bir daha deneyelim. Doğruluk yüzde ' + dGoster + ', hedef yüzde ' + GECER_DOGRULUK + '. Bölüm ' + no + ' baştan başlıyor.');
+            seritDuyuru = 'Bir daha deneyelim. Doğruluk yüzde ' + dGoster + ', hedef yüzde ' + GECER_DOGRULUK + '. Bölüm ' + no + ' baştan başlıyor.';
+            duyur(seritDuyuru);
         } else {
             kisimYildizlari.push(y);
             AudioManager.play('star');
-            const hGoster = Math.round(h);
+            const hGoster = Math.floor(h);      // doğrulukla aynı: gösterim aşağı yuvarlanır, karar ham değerle
             const sure = sureMetni(ms);
             // Parçalar dar ekranda kendi içinde bölünmesin ("11 / sn" olmasın): parça içi bölünmez boşluk
             const NBSP = String.fromCharCode(0xA0);
             const parca = ['doğruluk %' + dGoster, hGoster + ' kelime/dk', sure].map((x) => x.split(' ').join(NBSP));
             seritGoster('Bölüm ' + no + ' tamam!', parca.join(' · '), y, 'is-basari');
-            duyur('Bölüm ' + no + ' tamam: 3 üzerinden ' + y + ' yıldız. Doğruluk yüzde ' + dGoster + ', hız ' + hGoster
-                + ' kelime/dk, süre ' + sure + '.');
+            seritDuyuru = 'Bölüm ' + no + ' tamam: 3 üzerinden ' + y + ' yıldız. Doğruluk yüzde ' + dGoster + ', hız ' + hGoster
+                + ' kelime/dk, süre ' + sure + '.';
+            duyur(seritDuyuru);
         }
         durumYaz();
         later(sonucuGec, SONUC_MS);
@@ -694,7 +745,8 @@ const OnParmak = (() => {
         els.alan.innerHTML = '';
         els.yonerge.textContent = '';
         seritGoster(biten.ad + ' tamam!', 'Sıradaki: ' + kisim().ad, y, 'is-kisim');
-        duyur(biten.ad + ' tamam: 3 üzerinden ' + y + ' yıldız. Sıradaki: ' + kisim().ad + '.');
+        seritDuyuru = biten.ad + ' tamam: 3 üzerinden ' + y + ' yıldız. Sıradaki: ' + kisim().ad + '.';
+        duyur(seritDuyuru);
         durumYaz();
         later(() => { seritKapat(); kisimBaslat(); }, KISIM_SERIT_MS);
     }
@@ -737,6 +789,9 @@ const OnParmak = (() => {
         clearTimers();
         mod = 'yok';
         if (keydownHandler) { document.removeEventListener('keydown', keydownHandler); keydownHandler = null; }
+        document.removeEventListener('pointerdown', isaretGirdisi, true);
+        document.removeEventListener('focusin', odakGirdi, true);
+        fareOdak = null;
         if (ekran) { ekran.yokEt(); ekran = null; }
         if (container) container.innerHTML = '';
         els = {};
