@@ -488,6 +488,17 @@
     font-weight: 700;
 }
 
+/* Oyun bölümünde bant sahnenin ALT kenarına biner: canlar, sayaç ve yönerge (üstte) görünür kalır; oyun zaten duraklar */
+.op-oyun[data-tur="oyun"] .op-caps {
+    top: auto;
+    bottom: var(--ara-3);
+}
+
+/* Caps bandı açıkken "Oyun durdu" kartı gizli: önce Caps kapanır, sonra kart (tek mesaj, aynı yerde) */
+.op-oyun.is-caps .op-mini__devam {
+    display: none;
+}
+
 /* Caps açıkken sahne soluk: basışların sayılmadığı görünür */
 .op-oyun.is-caps .op-alan {
     opacity: 0.35;
@@ -521,6 +532,17 @@
 
 .op-yonerge:empty {
     display: none;
+}
+
+/* Oyun bölümünde yönerge TEK satır, sabit yükseklik (metinler kısa tutulur; taşarsa üç nokta) */
+.op-oyun[data-tur="oyun"] .op-yonerge {
+    flex: none;
+    width: 100%;
+    height: 1.5em;
+    line-height: 1.5;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .op-alan {
@@ -818,6 +840,12 @@
     font-weight: 700;
     color: var(--murekkep-orta);
     font-variant-numeric: tabular-nums;
+    text-wrap: balance;
+}
+
+/* Sonuç parçası bölünmez ("14 sn" yetim kalmaz; satırlar dengeli) */
+.op-serit__parca {
+    white-space: nowrap;
 }
 
 .op-serit.is-bilgi .op-serit__alt {
@@ -1039,25 +1067,43 @@
 
     .op-oyun {
         --op-sahne-ic: 112px;
-        --op-ekran-pay: calc(var(--op-sahne-yuk) + 136px);
+        /* + bölüm adının kendi satırı (≈ 28 px) */
+        --op-ekran-pay: calc(var(--op-sahne-yuk) + 164px);
     }
 
-    /* Başlık + El/Klavye tek satırda: düğmeler yalnız simge (ad görünmez ama erişilebilir ad olarak okunur) */
+    /* Üst iki satır: bölüm hapı + El/Klavye (yalnız simge; ad erişilebilir ad olarak okunur) aynı satırda, bölüm adı
+       altında TAM genişlikte — kesilmez ("Canavar Saldırısı: orta sıra kelimeleri" 375 px'te tek satıra sığar) */
     .op-ust {
-        gap: var(--ara-2);
-    }
-
-    .op-ilerleme {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas: "no dugmeler" "ad ad";
+        align-items: center;
         gap: var(--ara-1) var(--ara-2);
     }
 
+    .op-ilerleme {
+        display: contents;
+    }
+
     .op-ilerleme__no {
+        grid-area: no;
+        justify-self: start;
         padding-inline: var(--ara-2);
         font-size: 0.88rem;
     }
 
     .op-ilerleme__ad {
+        grid-area: ad;
+        overflow: visible;
+        white-space: normal;
+        text-overflow: clip;
+        text-wrap: balance;
         font-size: 1rem;
+        line-height: 1.35;
+    }
+
+    .op-dugmeler {
+        grid-area: dugmeler;
     }
 
     .op-dugmeler {
@@ -1235,7 +1281,8 @@
 }
 
 /* ── Balon Vadisi ── */
-.op-balon {
+/* Ortak kök + SVG + HUD (dört oyun: .op-mini + .op-<oyun>; OnParmakOyunOrtak) */
+.op-mini {
     position: relative;
     width: 100%;
     height: 100%;
@@ -1244,12 +1291,21 @@
     background: linear-gradient(var(--gok-ust), var(--gok-alt));
 }
 
-.op-balon__svg {
+.op-mini__svg {
     display: block;
     width: 100%;
     height: 100%;
     user-select: none;
     -webkit-user-select: none;
+}
+
+.op-mini__hud {
+    position: absolute;
+    inset: var(--ara-2) var(--ara-2) auto var(--ara-2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
 }
 
 .op-balon__gunes-ic { fill: var(--gunes); }
@@ -1319,6 +1375,10 @@
 
 .op-balon__b.is-hedef .op-balon__ok { display: inline; }
 
+/* İsabet: harfi doğru yazılan balonun üstünde onay (renk dışı; klavye eylemi → anında, geçiş yok) */
+.op-balon__tik { display: none; }
+.op-balon__b.is-tamam .op-balon__tik { display: inline; }
+
 .op-balon__b.is-hedef .op-balon__govde {
     stroke: var(--murekkep);
     stroke-width: 4;
@@ -1357,19 +1417,9 @@
     stroke-linecap: round;
 }
 
-/* HUD: canlar solda, ilerleme sağda — gökyüzü üstünde cam hap */
-.op-balon__hud {
-    position: absolute;
-    inset: var(--ara-2) var(--ara-2) auto var(--ara-2);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    pointer-events: none;
-}
-
+/* HUD: canlar solda, sayaç/güç sağda — gökyüzü üstünde cam hap */
 .op-mini__canlar,
-.op-balon__ilerleme,
-.op-baloncuk__ilerleme {
+.op-mini__sayac {
     display: flex;
     align-items: center;
     gap: var(--ara-1);
@@ -1393,7 +1443,7 @@
     stroke: var(--murekkep-orta);
 }
 
-.op-balon__ilerleme {
+.op-mini__sayac {
     font-family: var(--font-body);
     font-size: 1rem;
     font-weight: 800;
@@ -1401,31 +1451,65 @@
     font-variant-numeric: tabular-nums;
 }
 
-/* Sekme dönüşü: oyun durdu, bir tuş bekler */
+/* Sayaç simgesi (Baloncuk / Elma) */
+.op-mini__sayac svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: var(--mavi-500);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Sekme dönüşü: oyun durdu, bir tuş bekler. Sahnenin ALT kenarında geniş şerit — hedefler (üst/orta) görünür kalır;
+   geniş ekranda tek satır, telefonda en çok iki satır. Girişte kısa yükseliş (seyrek an), azaltılmış harekette yok. */
 .op-mini__devam {
     position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    left: var(--ara-3);
+    right: var(--ara-3);
+    bottom: var(--ara-3);
+    z-index: 2;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--ara-1);
-    max-width: calc(100% - 2 * var(--ara-4));
-    padding: var(--ara-4) var(--ara-6);
-    border-radius: var(--r-kart);
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0 var(--ara-2);
+    padding: var(--ara-2) var(--ara-4);
+    border: 2px solid var(--murekkep);
+    border-radius: var(--r-giris);
     background: var(--beyaz);
-    box-shadow: var(--golge-3);
+    box-shadow: var(--golge-2);
     text-align: center;
+    animation: op-devam-gir var(--sure-gecis) var(--egri-out);
+}
+
+@keyframes op-devam-gir {
+    from { opacity: 0; transform: translateY(6px); }
 }
 
 .op-mini__devam[hidden] { display: none; }
-.op-mini__devam strong { font-size: 1.3rem; }
+.op-mini__devam strong { font-size: 1.15rem; }
 
 .op-mini__devam span {
     font-family: var(--font-body);
     font-weight: 700;
     color: var(--murekkep-orta);
+}
+
+/* İsabet işareti (renk dışı): beyaz daire + mürekkep konturlu onay; doğru rengi ikinci ipucu */
+.op-mini__tik-zemin {
+    fill: var(--beyaz);
+    stroke: var(--dogru);
+    stroke-width: 2.5;
+}
+
+.op-mini__tik-cizgi {
+    fill: none;
+    stroke: var(--dogru);
+    stroke-width: 3.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 @media (max-width: 599px) {
@@ -1442,31 +1526,39 @@
         height: 20px;
     }
 
-    .op-balon__ilerleme {
+    .op-mini__sayac {
         font-size: 0.9rem;
     }
+
+    .op-mini__sayac svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .op-mini__devam {
+        left: var(--ara-2);
+        right: var(--ara-2);
+        bottom: var(--ara-2);
+        padding: var(--ara-2) var(--ara-3);
+    }
+
+    .op-mini__devam strong { font-size: 1.05rem; }
+    .op-mini__devam span { font-size: 0.95rem; }
+
+    .op-oyun[data-tur="oyun"] .op-caps {
+        bottom: var(--ara-2);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .op-mini__devam { animation: none; }
 }
 
 /* ── Canavar Saldırısı (js/games/on-parmak-canavar.js) ──
    Karlı çayır; Pıt solda, tüylü canavar sağdan gelir. Can kalpleri ve "Kalan güç" çubuğu üstte cam haplarda, kelime
    kutuları onların altında ortada. Kalp/devam stilleri tüm mini oyunlarda ortak (.op-mini__canlar/__can/__devam, OnParmakOyunOrtak.canlarHud/devamKatmani).
    Hareket JS döngüsünde; burada yalnız renk, kutu durumları ve kısa renk geçişleri. */
-.op-canavar {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    border-radius: var(--r-giris);
-    background: linear-gradient(var(--gok-ust), var(--gok-alt));
-}
 
-.op-canavar__svg {
-    display: block;
-    width: 100%;
-    height: 100%;
-    user-select: none;
-    -webkit-user-select: none;
-}
 
 .op-canavar__tepe--uzak { fill: var(--beyaz); opacity: 0.8; }
 /* Yakın kar zemini açık mavi: beyaz oyun kartında sahnenin alt kenarı kaybolmasın */
@@ -1555,15 +1647,16 @@
 .op-canavar__cv.is-vuruldu .op-canavar__cv-gozler { display: none; }
 .op-canavar__cv.is-vuruldu .op-canavar__cv-kapali { display: inline; }
 
-/* HUD: canlar solda, canavarın gücü sağda */
+/* HUD: canlar solda, canavarın gücü sağda ("Güç" etiketiyle: bu sayaç ilerleme değil, kalan güç) */
 .op-canavar__hud {
-    position: absolute;
-    inset: var(--ara-2) var(--ara-2) auto var(--ara-2);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     gap: var(--ara-2);
-    pointer-events: none;
+}
+
+.op-canavar__guc-ad {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--murekkep-orta);
 }
 
 .op-canavar__guc {
@@ -1652,6 +1745,31 @@
     box-shadow: inset 0 0 0 2px var(--dogru-isik);
 }
 
+/* Yazılan kutuda onay rozeti (renk dışı isabet; anında) — sağ üst köşede, harfin dışında: daire (::before) + onay (::after) */
+.op-canavar__kutu.is-yazildi::before {
+    content: '';
+    position: absolute;
+    top: -7px;
+    right: -7px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--beyaz);
+    box-shadow: inset 0 0 0 2px var(--dogru);
+}
+
+.op-canavar__kutu.is-yazildi::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    right: 0;
+    width: 4px;
+    height: 8px;
+    border: solid var(--dogru);
+    border-width: 0 2.5px 2.5px 0;
+    transform: rotate(45deg);
+}
+
 .op-canavar__kutu.is-sira {
     translate: 0 -4px;
     box-shadow: inset 0 0 0 3px var(--mavi-800), var(--golge-2);
@@ -1707,22 +1825,7 @@
    içinde mürekkep renginde (yarı saydam beyaz gövde üstünde, her zeminde okunur). Kilitli baloncuk renge bağlı
    kalmadan da ayrılır: kalın kontur + ikinci kesikli halka + 1,08 büyüme + sıradaki harfin altı çizili; diğerleri
    kilit sürerken geri çekilir (soluklaşır). Hareket JS döngüsünde; burada yalnız renk ve durumlar. */
-.op-baloncuk {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    border-radius: var(--r-giris);
-    background: linear-gradient(var(--gok-ust), var(--gok-alt));
-}
 
-.op-baloncuk__svg {
-    display: block;
-    width: 100%;
-    height: 100%;
-    user-select: none;
-    -webkit-user-select: none;
-}
 
 .op-baloncuk__bulut path { fill: var(--beyaz); opacity: 0.75; }
 .op-baloncuk__cayir { fill: var(--cim); }
@@ -1794,37 +1897,7 @@
 /* Oyun bitince kalan baloncuklar donar ve söner */
 .op-baloncuk[data-bitti] .op-baloncuk__b { opacity: 0.4; }
 
-/* HUD: canlar solda, patlatılan sayısı sağda */
-.op-baloncuk__hud {
-    position: absolute;
-    inset: var(--ara-2) var(--ara-2) auto var(--ara-2);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    pointer-events: none;
-}
 
-.op-baloncuk__ilerleme {
-    font-family: var(--font-body);
-    font-size: 1rem;
-    font-weight: 800;
-    color: var(--murekkep);
-    font-variant-numeric: tabular-nums;
-}
-
-.op-baloncuk__ilerleme-ik {
-    width: 22px;
-    height: 22px;
-    fill: none;
-    stroke: var(--mavi-500);
-    stroke-width: 2;
-    stroke-linecap: round;
-}
-
-@media (max-width: 599px) {
-    .op-baloncuk__ilerleme { font-size: 0.9rem; }
-    .op-baloncuk__ilerleme-ik { width: 18px; height: 18px; }
-}
 
 /* ── Elma Bekçisi (js/games/on-parmak-elma.js) ──
    Gökyüzü + tepeler + çimen; ortada mürekkep anahatlı elma ağacı, tacında 5 elma. Sincaplar iki şeritte (uzak küçük,
@@ -1832,22 +1905,7 @@
    okunur). Kilitli etiket renge bağlı kalmadan da ayrılır: kalın kontur + ikinci kesikli çerçeve + 1,1 büyüme + dolu uç
    + sıradaki harfin altı çizili; kilit sürerken diğer sincaplar ve etiketleri geri çekilir (soluklaşır). Alınan elmanın
    yuvası kesikli boş daire olarak kalır (sayı tek bakışta okunur; renk dışında biçim). Hareket JS döngüsünde. */
-.op-elma {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    border-radius: var(--r-giris);
-    background: linear-gradient(var(--gok-ust), var(--gok-alt));
-}
 
-.op-elma__svg {
-    display: block;
-    width: 100%;
-    height: 100%;
-    user-select: none;
-    -webkit-user-select: none;
-}
 
 .op-elma__tepe { fill: var(--cim-koyu); opacity: 0.55; }
 .op-elma__cimen { fill: var(--cim); }
@@ -1890,6 +1948,9 @@
 .op-elma__etiket-zemin { fill: var(--beyaz); stroke: var(--murekkep); stroke-width: 2; }
 .op-elma__etiket-uc { fill: var(--beyaz); stroke: var(--murekkep); stroke-width: 2; stroke-linejoin: round; }
 .op-elma__etiket-halka { display: none; }
+/* Sap: etiketi (üst bant) sincaba bağlar */
+.op-elma__etiket-sap { fill: none; stroke: var(--murekkep); stroke-width: 2.5; stroke-linecap: round; }
+.op-elma__etiket.is-kilitli .op-elma__etiket-sap { stroke: var(--mavi-800); stroke-width: 3; }
 
 .op-elma__kelime {
     font-family: var(--font-display);
@@ -1924,6 +1985,9 @@
 
 .op-elma__s,
 .op-elma__etiket { transition: opacity var(--sure-gecis) var(--egri-out); }
+/* Saydamlığı döngü sürer (giriş, "tamam" sönüşü): CSS geçişi ikinci kez sürmesin */
+.op-elma__etiket.is-giris,
+.op-elma__etiket--pop { transition: none; }
 .op-elma.is-kilitli .op-elma__s:not(.is-kilitli),
 .op-elma.is-kilitli .op-elma__etiket:not(.is-kilitli) { opacity: 0.6; }
 
@@ -1931,45 +1995,10 @@
 .op-elma[data-bitti] .op-elma__s:not(.is-kaciyor):not(.is-aliyor),
 .op-elma[data-bitti] .op-elma__etiket { opacity: 0.4; }
 
-/* HUD: elmalar solda (canlar), bitirilen kelime sağda */
-.op-elma__hud {
-    position: absolute;
-    inset: var(--ara-2) var(--ara-2) auto var(--ara-2);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    pointer-events: none;
-}
-
+/* HUD (ortak .op-mini__hud): elmalar solda (canlar), ele alınan kelime sağda */
 .op-elma__hud-elma { stroke-width: 1.2; }
 
-.op-elma__ilerleme {
-    display: flex;
-    align-items: center;
-    gap: var(--ara-1);
-    padding: var(--ara-1) var(--ara-3);
-    border-radius: var(--r-hap);
-    background: var(--yuzey-cam);
-    box-shadow: var(--golge-1);
-    font-family: var(--font-body);
-    font-size: 1rem;
-    font-weight: 800;
-    color: var(--murekkep);
-    font-variant-numeric: tabular-nums;
-}
-
-.op-elma__ilerleme-ik {
-    width: 22px;
-    height: 22px;
-    fill: none;
-    stroke: var(--mavi-500);
-    stroke-width: 2;
-    stroke-linejoin: round;
-}
-
 @media (max-width: 599px) {
-    .op-elma__ilerleme { font-size: 0.9rem; }
-    .op-elma__ilerleme-ik { width: 18px; height: 18px; }
     /* Beş elma dar ekranda daha sık */
     .op-elma .op-mini__canlar { gap: 2px; padding-inline: var(--ara-2); }
 }
