@@ -237,7 +237,7 @@
         const hedef = s.balonlar[s.i + 1];
         if (ch !== beklenen()) {
             s.cbs.tus(false);
-            if (hedef) hedef.salla = SALLA_MS;
+            if (hedef) { hedef.salla = SALLA_MS; hedef.g.classList.add('is-yanlis'); }   // işaret hemen; döngü söndürür
             return;
         }
         s.cbs.tus(true);

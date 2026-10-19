@@ -133,7 +133,7 @@ const ModulAdi = (() => {
 - Durum: PR1 (Adım 1) — yalnız Kısım 1 "Orta sıra" (`levels: 1`), hub'da "Yakında" kartı; kısım 2–7, oyun bölümleri ve açılış sonraki adımlarda.
   Spec `docs/on-parmak-tasarim-2026-10-15.md`, plan `plans/on-parmak-2026-10-15.md`. TypingClub metni/görseli/sesi kullanılmaz (yalnız işleyiş örnek).
 - **Dosya sırası** (`data/games.json files.js` = yükleme sırası): `klavye-dizilim.js` → `on-parmak-olcum.js` → `on-parmak-icerik.js` →
-  `on-parmak-ekran.js` → `on-parmak.js`; css `css/on-parmak.css` (sahne renkleri yalnız burada). Yardımcılar `window.X` yayımlar, modül `window.X` ile okur
+  `on-parmak-ekran.js` → `on-parmak-oyun-ortak.js` → oyunlar (`on-parmak-balon.js`; Adım 2'de diğer üçü) → `on-parmak.js`; css `css/on-parmak.css` (sahne renkleri yalnız burada). Yardımcılar `window.X` yayımlar, modül `window.X` ile okur
   (modül yalnız `{ id, levels, init, destroy }`; `levels = window.ON_PARMAK_ICERIK`, uzunluk = JSON `levels`). Kapalı oyun: motor `?oyun=` dahil açmaz.
 - **`KlavyeDizilim`** (`klavye-dizilim.js`, saf, `window.KlavyeDizilim`): `SATIRLAR` (4 satır; tuş `{ code, alt, ust, parmak }`, okul klavyesinin `< >` =
   `IntlBackslash` **pasif**), `PARMAKLAR`, `BOSLUK`, `SHIFT`; `tusOf(ch) → {code, shift}|null`, `parmaklarOf(ch)` (Shift'liyse ÖNCE karşı serçe),
@@ -164,10 +164,19 @@ const ModulAdi = (() => {
 - **Ekran (`on-parmak-ekran.js`, `window.OnParmakEkran`):** klavye + iki el TEK SVG (`createElementNS`; parmak uçları tuşlarla her ölçekte hizalı). `olustur(kap, { el = true, klavye = true, basinca })` →
   `{ vurgula(ch), bas(ch, dogruMu), goster({el, klavye}), yokEt() }`. `vurgula` tuşu + parmak(lar)ı + gerekiyorsa karşı Shift'i `is-hedef` yapar (null/'' temizler); `bas` kısa süre `is-down` / `is-yanlis`.
   Tuş `<g data-code>` pointerdown → `basinca(Shift'siz karakter)`; el/vurgu/etiket katmanları `pointer-events: none`; pasif `< >`, Shift, süs tuşları tepkisiz; birincil olmayan düğme yok sayılır.
-- **Test:** `npm run test:on-parmak` (73 test; CI `ci.yml` adımı, hash'li çıktıda `SITE_ROOT=.build-check PORT=8766 npm run test:on-parmak`): tarayıcısız (`vm`) dizilim + `karakterOf` + ölçüm + içerik kuralları,
+- **Test:** `npm run test:on-parmak` (92 test; CI `ci.yml` adımı, hash'li çıktıda `SITE_ROOT=.build-check PORT=8766 npm run test:on-parmak`): tarayıcısız (`vm`) dizilim + `karakterOf` + ölçüm + içerik kuralları,
   tarayıcıda ekran ve oyun akışı. **Kapalı oyun test yolu:** `tests/on-parmak.spec.js` bağlamında `js/catalog.js` isteği (`/\/js\/catalog\.js(\?|$)/`) yakalanır, gövdede `"slug":"on-parmak"` satırındaki
   `"active":false` → `true` yapılır (hash'li çıktıda `?h=` de eşleşir); kısım geçişi için ayrıca 2 kısımlı içerik + `levels:2` katalog yaması fikstürü. Üretim kodu değişmez; oyun
   açılınca (`active:true`) yama gereksizleşir ve **kaldırılır** (yamasız "kapalı oyun" describe'ı da silinir) (duman testi `data/games.json`'dan kendiliğinden kapsar). Açılışta `seo/test_build_seo.py` kapalı listesinden `on-parmak` de çıkar.
+- **Oyun bölümü (`tur: 'oyun'`, Adım 2):** `window.OnParmakOyunlari[ad] = { baslat(alan, { metin, el, tohum }, { tus(dogruMu), bitti({ canliBitti }), hedef(ch|null) }), durdur() }`;
+  `baslat` → tutamaç `{ bas(ch), devamTusu() }`. Oyun keydown dinleyicisi KURMAZ: modül her tuşta önce `devamTusu()` (true = yutuldu, sayılmaz — sekme dönüşü
+  "Devam etmek için bir tuşa bas"), sonra `karakterOf` karakterini `bas(ch)`'a verir. `tus()` sayılan her basışta bir kez (eşzamanlı), `hedef()` klavye vurgusu +
+  `data-beklenen`, son doğru harfte `bitti` eşzamanlı (sahte saatte akış döngüsüz ilerler). `tohum` = genel bölüm numarası (`OnParmakOyunOrtak.rng`, belirleyici).
+  Yıldız: `bolumYildizi({ …, hedefHiz: yok, canliBitti })` — önce %80 (hiç basmadan canları bitirmek de tekrar), sonra can (en çok 1, akış sürer; şerit "Bölüm N bitti").
+  Modül oyunu bölüm değişiminde, kısım sonunda ve `destroy()`'da `durdur()` eder; bilinmeyen oyun adı → `console.error` + bölüm atlanır. Oyunda ekran klavyesi
+  küçük (`.op-oyun[data-tur="oyun"]`, ≤ 600 px). Zaman yalnız döngünün `dt`'si (oyunda `setTimeout` yok). **Balon Vadisi** (`on-parmak-balon.js`, harf oyunu):
+  doğru harf → karakter oklu balona atlar; tutunulan balon alçalır (`uyarlanirHiz`), suya değince can gider ve karakter sıradaki balona taşınır (o harf atlanır,
+  basış sayılmaz); 3 can. İçerik kuralı: `oyun` ∈ balon|canavar|baloncuk|elma; harf oyununda boşluksuz ≥ 20 harf, kelime oyununda ≥ 8 kelime; ≤ hedefHiz × 10.
 - Yeni kısım/bölüm eklerken: içerik kuralları testi koşar (`npm run test:on-parmak`); `levels` = `ON_PARMAK_ICERIK.length` (JSON'u + `npm run catalog` güncelle); bu bölümü o PR'ın eklediği sözleşmeyle güncelle.
 
 ### Altın Avı (online, kendi lobisi — `js/games/altin-avi.js`, `rooms/altin-avi/<KOD>`)
