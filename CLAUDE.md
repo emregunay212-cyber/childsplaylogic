@@ -148,11 +148,14 @@ const ModulAdi = (() => {
   kaldığı yerden devam yok, yeni `localStorage` anahtarı yok. `onCorrect/onWrong` tuş başına ÇAĞRILMAZ (ses tekrarı + sayaç şişer); yıldızı modül hesaplar.
   **Enter Boşluk değildir:** yazmada Enter/Backspace yok sayılır ve sayılmaz; Enter yalnız seçicide (düğme) ve sonuç şeridini geçmekte işler — şerit açıldıktan
   sonraki `ENTER_KILIT_MS = 400` içinde yok sayılır. **Caps Lock açıkken** (`getModifierState('CapsLock')`) belirgin uyarı, basışlar yok sayılır ve sayılmaz; Caps Lock
-  tuşunun kendi basışı uyarıyı günceller; hoşgörü yok (Shift kuralı öğretilir). Zamanlayıcılar `later()` ile izlenir, `destroy()` dinleyiciyi + ekranı kaldırır.
+  tuşunun kendi basışı uyarıyı günceller; hoşgörü yok (Shift kuralı öğretilir). Uyarı sahnenin üstüne BİNER; sahne sabit yükseklikte (`--op-sahne-yuk`) → bölüm türü/uyarı
+  klavyeyi dikeyde oynatmaz. Açık sonuç/kısım şeridinde Caps duyurusu şerit duyurusunun ardına eklenir (ezmez). **Odak kaçışı:** fareyle odak almış düğmede
+  (araç çubuğu ya da El/Klavye; `pointerdown`→`focusin` ile izlenir — Chrome tuşta `:focus-visible`'ı keydown'dan önce açar) yazılabilir tuş (`karakterOf` ≠ null,
+  Boşluk dahil) gelirse odak bırakılır ve basış işlenir; klavyeyle odaklanmış düğmede Enter/Boşluk/Tab tarayıcının. Zamanlayıcılar `later()` ile izlenir, `destroy()` dinleyiciyi + ekranı kaldırır.
 - **Ölçüm (`on-parmak-olcum.js`, saf):** `dogruluk(dogruIlk, toplam)` = ilk basışta doğru / toplam basış (%); **toplam 0 → 0**. `hiz(karakter, ms)` = (karakter/5)/dakika;
   **ms < 1000 → 0** (sahte saatte sonsuz hız yok). `bolumYildizi({dogruluk, hiz, hedefHiz, canliBitti = true})`: doğruluk < 80 → **0 = bölüm baştan (tekrar)**;
   `canliBitti:false` → en çok 1; ≥ 95 ve hız ≥ hedefHiz (hedefHiz yoksa yalnız ≥ 95) → 3; ≥ 90 → 2; değilse 1. `kisimYildizi(dizi)` = ortalama, en yakın tam sayı, boş → 0.
-  Kutu bölümünde hız şartı yok (`hedefHiz` verilmez). Oyunlarda öncelik: önce %80 kuralı (hiç basmadan canları bitirmek de tekrar), sonra can kuralı. Ham değerle karar, ekranda `Math.floor` (%79,6 asla "%80" görünmez).
+  Kutu bölümünde hız şartı yok (`hedefHiz` verilmez). Oyunlarda öncelik (Adım 2'de oyunlar gelince geçerli): önce %80 kuralı (hiç basmadan canları bitirmek de tekrar), sonra can kuralı. Ham değerle karar, ekranda `Math.floor` — doğruluk VE hız, canlı ve sonuçta (%79,6 asla "%80" görünmez). Tekrar şeridinde (yıldız 0) hız gösterilmez (yalnız doğruluk + hedef).
 - **İçerik (`on-parmak-icerik.js`, `window.ON_PARMAK_ICERIK`):** kısım `{ ad, ornek, hedefHiz, el, bolumler: [ { tur: 'kutu'|'satir', ad, yeni?: [...], yeniShift?: 'sol'|'sag', metin } ] }`.
   Kurallar (spec §5, `tests/on-parmak.spec.js` denetler): bölüm yalnız o ana kadar **öğrenilmiş** tuşları kullanır (kutu `yeni`'leri sırayla BİRİKİR; boşluk kendi kutu bölümüyle gelir; `yeniShift`
   verilen bölümden sonra, küçüğü öğrenilmiş ve karşı elde olan harflerin büyükleri öğrenilmiş sayılır); her karakter `yazilabilir`; kutu 21–35 karakter, satır ≥ 50 ve **≤ hedefHiz × 10**
@@ -161,10 +164,10 @@ const ModulAdi = (() => {
 - **Ekran (`on-parmak-ekran.js`, `window.OnParmakEkran`):** klavye + iki el TEK SVG (`createElementNS`; parmak uçları tuşlarla her ölçekte hizalı). `olustur(kap, { el = true, klavye = true, basinca })` →
   `{ vurgula(ch), bas(ch, dogruMu), goster({el, klavye}), yokEt() }`. `vurgula` tuşu + parmak(lar)ı + gerekiyorsa karşı Shift'i `is-hedef` yapar (null/'' temizler); `bas` kısa süre `is-down` / `is-yanlis`.
   Tuş `<g data-code>` pointerdown → `basinca(Shift'siz karakter)`; el/vurgu/etiket katmanları `pointer-events: none`; pasif `< >`, Shift, süs tuşları tepkisiz; birincil olmayan düğme yok sayılır.
-- **Test:** `npm run test:on-parmak` (65 test; CI `ci.yml` adımı, hash'li çıktıda `SITE_ROOT=.build-check PORT=8766 npm run test:on-parmak`): tarayıcısız (`vm`) dizilim + `karakterOf` + ölçüm + içerik kuralları,
+- **Test:** `npm run test:on-parmak` (73 test; CI `ci.yml` adımı, hash'li çıktıda `SITE_ROOT=.build-check PORT=8766 npm run test:on-parmak`): tarayıcısız (`vm`) dizilim + `karakterOf` + ölçüm + içerik kuralları,
   tarayıcıda ekran ve oyun akışı. **Kapalı oyun test yolu:** `tests/on-parmak.spec.js` bağlamında `js/catalog.js` isteği (`/\/js\/catalog\.js(\?|$)/`) yakalanır, gövdede `"slug":"on-parmak"` satırındaki
   `"active":false` → `true` yapılır (hash'li çıktıda `?h=` de eşleşir); kısım geçişi için ayrıca 2 kısımlı içerik + `levels:2` katalog yaması fikstürü. Üretim kodu değişmez; oyun
-  açılınca (`active:true`) yama gereksizleşir ve **kaldırılır** (duman testi `data/games.json`'dan kendiliğinden kapsar). Açılışta `seo/test_build_seo.py` kapalı listesinden `on-parmak` de çıkar.
+  açılınca (`active:true`) yama gereksizleşir ve **kaldırılır** (yamasız "kapalı oyun" describe'ı da silinir) (duman testi `data/games.json`'dan kendiliğinden kapsar). Açılışta `seo/test_build_seo.py` kapalı listesinden `on-parmak` de çıkar.
 - Yeni kısım/bölüm eklerken: içerik kuralları testi koşar (`npm run test:on-parmak`); `levels` = `ON_PARMAK_ICERIK.length` (JSON'u + `npm run catalog` güncelle); bu bölümü o PR'ın eklediği sözleşmeyle güncelle.
 
 ### Altın Avı (online, kendi lobisi — `js/games/altin-avi.js`, `rooms/altin-avi/<KOD>`)
