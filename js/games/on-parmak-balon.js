@@ -16,7 +16,8 @@
        - tus(dogruMu) her sayılan basışta tam bir kez, bas() içinde EŞZAMANLI çağrılır; son doğru harfte bitti() de
          eşzamanlı gelir (sahte saatte döngü dönmese de akış ilerler). Can bitişi döngüden gelir.
        - hedef(ch): beklenen karakter değişince (başta, doğru basışta, can kaybında; bitişte null).
-     durdur(): döngü + ResizeObserver durur, DOM boşalır; tekrar çağrılabilir.
+     durdur(): döngü + ResizeObserver durur, DOM boşalır; tekrar çağrılabilir. Ölçü/döngü/durum/tutamaç/durdur
+     OnParmakOyunOrtak.oyunKabugu'nda; kalpler canlarHud, devam katmanı devamKatmani (ortak, kopya yok).
    Belirleyicilik: balon yükseklikleri/renkleri/bulutlar rng(tohum) ile (modül tohum = genel bölüm numarası).
    Zaman yalnız döngünün dt'si (setTimeout yok). prefers-reduced-motion: sallanma/salınım/yay yok, atlayış ve kamera
    anında, sıçrama halkaları yerinde söner; temel hız düşük (uyarlanirHiz).
@@ -24,7 +25,8 @@
 (function () {
     'use strict';
 
-    const NS = 'http://www.w3.org/2000/svg';
+    const O = window.OnParmakOyunOrtak;           // ortak çekirdek + sahne yardımcıları + oyun kabuğu (önce yüklenir)
+    const { svgEl, htmlEl, easeOut } = O;
     const H = 320;              // sahne yüksekliği (SVG birimi); genişlik kabın en/boy oranından
     const SU_Y = 272;           // su yüzeyi
     const ARALIK = 150;         // balonlar arası yatay uzaklık
@@ -43,20 +45,6 @@
     const HIZ = { taban: 9, min: 5, max: 20, artis: 0.35, azalis: 2 };   // alçalma, birim/sn
 
     let s = null;   // etkin oyun durumu (tek örnek)
-
-    function svgEl(tag, attrs, parent) {
-        const n = document.createElementNS(NS, tag);
-        if (attrs) for (const k in attrs) n.setAttribute(k, attrs[k]);
-        if (parent) parent.appendChild(n);
-        return n;
-    }
-    function htmlEl(tag, cls, text) {
-        const n = document.createElement(tag);
-        if (cls) n.className = cls;
-        if (text !== undefined) n.textContent = text;
-        return n;
-    }
-    const easeOut = (t) => 1 - Math.pow(1 - t, 3);
 
     // ── Çizim parçaları ──
     function balonCiz(parent, b) {
@@ -98,18 +86,10 @@
         return { g, ic };
     }
 
-    function tepeYolu(uzunluk, rnd, taban, genlik) {
-        let d = 'M-200 ' + H + ' L-200 ' + taban;
-        for (let x = -200; x <= uzunluk; x += 120) {
-            const y = taban - genlik * (0.4 + rnd() * 0.6);
-            d += ' Q' + (x + 60) + ' ' + y + ' ' + (x + 120) + ' ' + taban;
-        }
-        return d + ' L' + (uzunluk + 120) + ' ' + H + ' Z';
-    }
+    const tepeYolu = (uzunluk, rnd, taban, genlik) => O.tepeYolu(rnd, { x0: -200, son: uzunluk, adim: 120, taban, genlik, alt: H });
 
     function baslat(alan, ayar, cbs) {
         durdur();
-        const O = window.OnParmakOyunOrtak;
         const metin = String(ayar.metin || '');
         const rnd = O.rng((ayar.tohum >>> 0) || 1);
         const azalt = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -150,23 +130,12 @@
 
         // HUD (HTML): canlar + ilerleme; duraklama katmanı
         const hud = htmlEl('div', 'op-balon__hud');
-        const canlar = htmlEl('div', 'op-balon__canlar');
-        canlar.setAttribute('role', 'img');
-        const canIkon = [];
-        for (let i = 0; i < CAN; i++) {
-            const c = svgEl('svg', { viewBox: '0 0 24 24', class: 'op-balon__can', 'aria-hidden': 'true', focusable: 'false' }, canlar);
-            svgEl('path', { d: 'M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2.2 0 3.7 1.3 5.2 3.1 1.5-1.8 3-3.1 5.2-3.1 3.8 0 5.9 3.9 4.4 7.3C19.5 16.4 12 21 12 21z' }, c);
-            canIkon.push(c);
-        }
+        const canlar = O.canlarHud(CAN);
         const ilerleme = htmlEl('div', 'op-balon__ilerleme');
         ilerleme.setAttribute('aria-hidden', 'true');
-        hud.append(canlar, ilerleme);
+        hud.append(canlar.el, ilerleme);
         kok.appendChild(hud);
-        const devam = htmlEl('div', 'op-balon__devam');
-        devam.setAttribute('role', 'status');
-        devam.hidden = true;
-        devam.appendChild(htmlEl('strong', '', 'Oyun durdu'));
-        devam.appendChild(htmlEl('span', '', 'Devam etmek için bir tuşa bas'));
+        const devam = O.devamKatmani();
         kok.appendChild(devam);
         alan.appendChild(kok);
 
@@ -181,50 +150,27 @@
         }
 
         s = { alan, kok, svg, metin, cbs, azalt, balonlar, pit, dunya, gunes, bulutlar, tepeUzak, tepeYakin, dalgaYol, sicraKat,
-            canIkon, canlar, ilerleme, devam, i: 0, can: CAN, bitti: false, kazandi: false, zaman: 0, W: 800, kamera: 0,
-            zip: null, sicralar: [], hiz: O.uyarlanirHiz(HIZ), dongu: null, ro: null };
-
-        olcuGuncelle();
+            canlar, ilerleme, i: 0, can: CAN, bitti: false, kazandi: false, zaman: 0, W: 800, kamera: 0,
+            zip: null, sicralar: [], hiz: O.uyarlanirHiz(HIZ), kabuk: null };
+        const benim = s;
+        // Kabuk: ölçü (viewBox + güneş), ResizeObserver, döngü, durum/devam katmanı, tutamaç, durdur
+        s.kabuk = O.oyunKabugu({ kok, svg, H, devam, adim, olcu: (W) => {
+            benim.W = W;
+            gunes.setAttribute('transform', 'translate(' + Math.round(W * 0.78) + ' 214)');
+        } });
         s.kamera = kameraHedef();
-        if (typeof ResizeObserver === 'function') { s.ro = new ResizeObserver(olcuGuncelle); s.ro.observe(kok); }
         hudYaz();
         hedefYaz();
         ciz();
-        const benim = s;
-        s.dongu = O.dongu(adim, { durumDegisti: (d) => { if (s === benim) durumYaz(d); } });
-        durumYaz(s.dongu.durum());
-        return {
-            bas: (ch) => { if (s === benim) bas(ch); },
-            devamTusu: () => (s === benim && s.dongu ? s.dongu.devamTusu() : false),
-            // Caps Lock (modül): açıkken alçalma/zaman durur; kapanınca hemen sürer (devam tuşu gerekmez)
-            duraklat: (acik) => {
-                if (s !== benim || !s.dongu) return;
-                if (acik) s.dongu.duraklat('caps'); else s.dongu.surdur('caps');
-            },
-        };
-    }
-
-    function olcuGuncelle() {
-        if (!s) return;
-        const w = s.kok.clientWidth, h = s.kok.clientHeight;
-        s.W = w > 0 && h > 0 ? Math.max(360, Math.min(1600, Math.round(H * w / h))) : 800;
-        s.svg.setAttribute('viewBox', '0 0 ' + s.W + ' ' + H);
-        s.gunes.setAttribute('transform', 'translate(' + Math.round(s.W * 0.78) + ' 214)');
+        return s.kabuk.baslat(bas);
     }
 
     // Karakter hep sahnenin %26'sında (başlangıç balonu da): sol üstteki can HUD'u ile çakışmaz
     function kameraHedef() { return karakterKonum().x - s.W * 0.26; }
 
-    function durumYaz(d) {
-        if (!s) return;
-        s.kok.dataset.durum = d;
-        s.devam.hidden = d !== 'devam-bekliyor';
-    }
-
     function hudYaz() {
         s.kok.dataset.can = String(s.can);
-        s.canIkon.forEach((c, i) => c.classList.toggle('is-gitti', i >= s.can));
-        s.canlar.setAttribute('aria-label', 'Can: ' + s.can + ' / ' + CAN);
+        s.canlar.guncelle(s.can);
         s.ilerleme.textContent = Math.min(s.i, s.metin.length) + ' / ' + s.metin.length;
     }
 
@@ -379,9 +325,7 @@
         if (!s) return;
         const eski = s;
         s = null;
-        if (eski.dongu) eski.dongu.durdur();
-        if (eski.ro) eski.ro.disconnect();
-        if (eski.kok.parentNode) eski.kok.parentNode.removeChild(eski.kok);
+        eski.kabuk.durdur();
     }
 
     window.OnParmakOyunlari = window.OnParmakOyunlari || {};

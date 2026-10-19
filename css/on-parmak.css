@@ -1367,7 +1367,7 @@
     pointer-events: none;
 }
 
-.op-balon__canlar,
+.op-mini__canlar,
 .op-balon__ilerleme {
     display: flex;
     align-items: center;
@@ -1378,7 +1378,7 @@
     box-shadow: var(--golge-1);
 }
 
-.op-balon__can {
+.op-mini__can {
     width: 24px;
     height: 24px;
     fill: var(--yanlis);
@@ -1387,7 +1387,7 @@
 }
 
 /* Giden can: içi boş (renk dışında biçim de değişir) */
-.op-balon__can.is-gitti {
+.op-mini__can.is-gitti {
     fill: none;
     stroke: var(--murekkep-orta);
 }
@@ -1401,7 +1401,7 @@
 }
 
 /* Sekme dönüşü: oyun durdu, bir tuş bekler */
-.op-balon__devam {
+.op-mini__devam {
     position: absolute;
     left: 50%;
     top: 50%;
@@ -1418,10 +1418,10 @@
     text-align: center;
 }
 
-.op-balon__devam[hidden] { display: none; }
-.op-balon__devam strong { font-size: 1.3rem; }
+.op-mini__devam[hidden] { display: none; }
+.op-mini__devam strong { font-size: 1.3rem; }
 
-.op-balon__devam span {
+.op-mini__devam span {
     font-family: var(--font-body);
     font-weight: 700;
     color: var(--murekkep-orta);
@@ -1436,7 +1436,7 @@
         padding: var(--ara-2);
     }
 
-    .op-balon__can {
+    .op-mini__can {
         width: 20px;
         height: 20px;
     }
@@ -1448,7 +1448,7 @@
 
 /* ── Canavar Saldırısı (js/games/on-parmak-canavar.js) ──
    Karlı çayır; Pıt solda, tüylü canavar sağdan gelir. Can kalpleri ve "Kalan güç" çubuğu üstte cam haplarda, kelime
-   kutuları onların altında ortada. Kalp/devam stilleri Balon'la ortak (.op-balon__canlar/__can/__devam).
+   kutuları onların altında ortada. Kalp/devam stilleri tüm mini oyunlarda ortak (.op-mini__canlar/__can/__devam, OnParmakOyunOrtak.canlarHud/devamKatmani).
    Hareket JS döngüsünde; burada yalnız renk, kutu durumları ve kısa renk geçişleri. */
 .op-canavar {
     position: relative;

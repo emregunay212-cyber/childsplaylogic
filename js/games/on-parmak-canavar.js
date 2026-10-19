@@ -18,7 +18,8 @@
        - tus(dogruMu) her sayılan basışta tam bir kez, bas() içinde EŞZAMANLI; son doğru basışta bitti() de eşzamanlı.
          Can bitişi döngüden gelir. Güç çubuğu basışta (eşzamanlı) azalır; kar topunun uçuşu ve geri sekme görseldir.
        - hedef(ch): beklenen karakter değişince (başta, doğru basışta; bitişte null).
-     durdur(): döngü + ResizeObserver durur, DOM boşalır; tekrar çağrılabilir.
+     durdur(): döngü + ResizeObserver durur, DOM boşalır; tekrar çağrılabilir. Ölçü/döngü/durum/tutamaç/durdur
+     OnParmakOyunOrtak.oyunKabugu'nda; kalpler canlarHud, devam katmanı devamKatmani (ortak, kopya yok).
    Belirleyicilik: canavar rengi, ağaçlar, kar taneleri rng(tohum) ile. Zaman yalnız döngünün dt'si (setTimeout yok).
    prefers-reduced-motion: uçuş yayı, ezilme, yürüme salınımı, kar yağışı yok — top canavarda belirip söner, geri sekme
    ve geri çekilme anında; temel hız düşük (uyarlanirHiz).
@@ -26,7 +27,8 @@
 (function () {
     'use strict';
 
-    const NS = 'http://www.w3.org/2000/svg';
+    const O = window.OnParmakOyunOrtak;           // ortak çekirdek + sahne yardımcıları + oyun kabuğu (önce yüklenir)
+    const { svgEl, htmlEl, easeOut } = O;
     const H = 320;               // sahne yüksekliği (SVG birimi); genişlik kabın en/boy oranından
     const ZEMIN_Y = 272;         // karların üstü (ayaklar burada)
     const CAN = 3;
@@ -50,19 +52,6 @@
 
     let s = null;   // etkin oyun durumu (tek örnek)
 
-    function svgEl(tag, attrs, parent) {
-        const n = document.createElementNS(NS, tag);
-        if (attrs) for (const k in attrs) n.setAttribute(k, attrs[k]);
-        if (parent) parent.appendChild(n);
-        return n;
-    }
-    function htmlEl(tag, cls, text) {
-        const n = document.createElement(tag);
-        if (cls) n.className = cls;
-        if (text !== undefined) n.textContent = text;
-        return n;
-    }
-    const easeOut = (t) => 1 - Math.pow(1 - t, 3);
     const easeOutQuint = (t) => 1 - Math.pow(1 - t, 5);
 
     // ── Çizim parçaları ──
@@ -140,14 +129,7 @@
         return { g, ic, kolIc, top };
     }
 
-    function tepeYolu(uzunluk, rnd, taban, genlik) {
-        let d = 'M-40 ' + H + ' L-40 ' + taban;
-        for (let x = -40; x <= uzunluk; x += 160) {
-            const y = taban - genlik * (0.4 + rnd() * 0.6);
-            d += ' Q' + (x + 80) + ' ' + y.toFixed(1) + ' ' + (x + 160) + ' ' + taban;
-        }
-        return d + ' L' + (uzunluk + 160) + ' ' + H + ' Z';
-    }
+    const tepeYolu = (uzunluk, rnd, taban, genlik) => O.tepeYolu(rnd, { x0: -40, son: uzunluk, adim: 160, taban, genlik, alt: H });
 
     function agacCiz(parent, x, k) {
         const g = svgEl('g', { class: 'op-canavar__agac', transform: 'translate(' + x.toFixed(1) + ' ' + (ZEMIN_Y - 26) + ') scale(' + k.toFixed(2) + ')' }, parent);
@@ -159,7 +141,6 @@
 
     function baslat(alan, ayar, cbs) {
         durdur();
-        const O = window.OnParmakOyunOrtak;
         const metin = String(ayar.metin || '');
         const kelimeler = metin.split(' ').filter(Boolean);
         const rnd = O.rng((ayar.tohum >>> 0) || 1);
@@ -193,14 +174,7 @@
 
         // HUD (HTML): canlar solda, canavarın gücü sağda; kelime kutuları altında ortada
         const hud = htmlEl('div', 'op-canavar__hud');
-        const canlar = htmlEl('div', 'op-canavar__canlar op-balon__canlar');
-        canlar.setAttribute('role', 'img');
-        const canIkon = [];
-        for (let i = 0; i < CAN; i++) {
-            const c = svgEl('svg', { viewBox: '0 0 24 24', class: 'op-balon__can', 'aria-hidden': 'true', focusable: 'false' }, canlar);
-            svgEl('path', { d: 'M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2.2 0 3.7 1.3 5.2 3.1 1.5-1.8 3-3.1 5.2-3.1 3.8 0 5.9 3.9 4.4 7.3C19.5 16.4 12 21 12 21z' }, c);
-            canIkon.push(c);
-        }
+        const canlar = O.canlarHud(CAN);
         const guc = htmlEl('div', 'op-canavar__guc op-canavar__cv--' + renk);
         guc.setAttribute('role', 'img');
         const yuz = svgEl('svg', { viewBox: '0 0 24 24', class: 'op-canavar__guc-yuz', 'aria-hidden': 'true', focusable: 'false' }, guc);
@@ -215,50 +189,30 @@
         const gucSayi = htmlEl('span', 'op-canavar__guc-sayi');
         gucSayi.setAttribute('aria-hidden', 'true');
         guc.append(yuz, cubuk, gucSayi);
-        hud.append(canlar, guc);
+        hud.append(canlar.el, guc);
         const kelimeKap = htmlEl('div', 'op-canavar__kelime');
         kelimeKap.setAttribute('role', 'img');
         kok.append(hud, kelimeKap);
 
-        const devam = htmlEl('div', 'op-balon__devam op-canavar__devam');
-        devam.setAttribute('role', 'status');
-        devam.hidden = true;
-        devam.appendChild(htmlEl('strong', '', 'Oyun durdu'));
-        devam.appendChild(htmlEl('span', '', 'Devam etmek için bir tuşa bas'));
+        const devam = O.devamKatmani();
         kok.appendChild(devam);
         alan.appendChild(kok);
 
         s = { alan, kok, svg, cbs, azalt, kelimeler, ki: 0, hi: 0, kutular: [], kelimeKap, pit, cv, atisKat, agaclar, taneler,
-            canIkon, canlar, guc, dilimler, gucSayi, devam, can: CAN, saglik: kelimeler.length, bitti: false, kazandi: false,
+            canlar, guc, dilimler, gucSayi, can: CAN, saglik: kelimeler.length, bitti: false, kazandi: false,
             zaman: 0, W: 800, m: 1, anim: null, toplar: [], sacilar: [], ezil: 0, atis: 0, yanlis: 0, sirt: 0, kar: 0,
-            hiz: O.uyarlanirHiz(HIZ), dongu: null, ro: null };
-
-        olcuGuncelle();
-        if (typeof ResizeObserver === 'function') { s.ro = new ResizeObserver(olcuGuncelle); s.ro.observe(kok); }
+            hiz: O.uyarlanirHiz(HIZ), kabuk: null };
+        const benim = s;
+        // Kabuk: ölçü (viewBox), ResizeObserver, döngü, durum/devam katmanı, tutamaç, durdur
+        s.kabuk = O.oyunKabugu({ kok, svg, H, devam, adim, olcu: (W) => { benim.W = W; } });
         kelimeCiz();
         hudYaz();
         hedefYaz();
         ciz();
-        const benim = s;
-        s.dongu = O.dongu(adim, { durumDegisti: (d) => { if (s === benim) durumYaz(d); } });
-        durumYaz(s.dongu.durum());
-        return {
-            bas: (ch) => { if (s === benim) bas(ch); },
-            devamTusu: () => (s === benim && s.dongu ? s.dongu.devamTusu() : false),
-            duraklat: (acik) => {
-                if (s !== benim || !s.dongu) return;
-                if (acik) s.dongu.duraklat('caps'); else s.dongu.surdur('caps');
-            },
-        };
+        return s.kabuk.baslat(bas);
     }
 
     // ── Geometri ──
-    function olcuGuncelle() {
-        if (!s) return;
-        const w = s.kok.clientWidth, h = s.kok.clientHeight;
-        s.W = w > 0 && h > 0 ? Math.max(360, Math.min(1600, Math.round(H * w / h))) : 800;
-        s.svg.setAttribute('viewBox', '0 0 ' + s.W + ' ' + H);
-    }
     function pitX() { return Math.max(56, Math.round(s.W * 0.13)); }
     function temasX() { return pitX() + 74; }                 // canavar ayağının karaktere değdiği yer
     function basX() { return s.W - 62; }
@@ -305,17 +259,10 @@
         s.kok.dataset.kelime = String(s.ki);
     }
 
-    function durumYaz(d) {
-        if (!s) return;
-        s.kok.dataset.durum = d;
-        s.devam.hidden = d !== 'devam-bekliyor';
-    }
-
     function hudYaz() {
         s.kok.dataset.can = String(s.can);
         s.kok.dataset.saglik = String(s.saglik);
-        s.canIkon.forEach((c, i) => c.classList.toggle('is-gitti', i >= s.can));
-        s.canlar.setAttribute('aria-label', 'Can: ' + s.can + ' / ' + CAN);
+        s.canlar.guncelle(s.can);
         s.dilimler.forEach((d, i) => d.classList.toggle('is-dolu', i < s.saglik));
         s.gucSayi.textContent = s.saglik + '/' + s.kelimeler.length;
         s.guc.setAttribute('aria-label', 'Canavarın gücü: ' + s.saglik + ' / ' + s.kelimeler.length);
@@ -349,6 +296,11 @@
         }
         s.cbs.tus(true);
         if (!s) return;              // modül çağrı içinde durdurduysa
+        if (s.yanlis > 0) {          // bekleyen yanlış işareti bu kutuda söner, sıradaki kutuya geçmez
+            s.yanlis = 0;
+            const eski = s.kutular[s.hi];
+            if (eski) { eski.classList.remove('is-yanlis'); eski.style.transform = ''; }
+        }
         s.hi += 1;
         const k = s.kelimeler[s.ki];
         const atis = exp === ' ' || (s.hi >= k.length && sonKelimeMi());
@@ -361,7 +313,7 @@
         // Kar topu: güç çubuğu hemen azalır (eşzamanlı), uçuş + geri sekme döngüde
         s.saglik -= 1;
         s.hiz.basari();
-        topAt();
+        topAt(s.saglik === 0);
         s.ki += 1;
         s.hi = 0;
         hudYaz();
@@ -370,17 +322,18 @@
         hedefYaz();
     }
 
-    function topAt() {
+    // son = son kar topu (güç bitti): vurulur ama geri itilmez, canavar karlar içinde yerinde kalır
+    function topAt(son) {
         s.pit.g.classList.remove('is-hazir');
         s.atis = ATIS_MS;
         const x0 = pitX() + 30, y0 = ZEMIN_Y - 42;
-        if (s.azalt) { vurus(); return; }            // azaltılmış hareket: uçuş yok, top canavarda belirip söner
+        if (s.azalt) { vurus(son); return; }         // azaltılmış hareket: uçuş yok, top canavarda belirip söner
         const el = svgEl('circle', { class: 'op-canavar__top', r: 9, cx: x0, cy: y0 }, s.atisKat);
-        s.toplar.push({ el, t: 0, x0, y0 });
+        s.toplar.push({ el, t: 0, x0, y0, son });
     }
 
-    // Top canavara değdi: ezilme, kapalı gözler, kar lekesi, serpinti, geri sekme
-    function vurus() {
+    // Top canavara değdi: ezilme, kapalı gözler, kar lekesi, serpinti, geri sekme (son topta yok)
+    function vurus(son) {
         const mx = canavarX(gorunenM());
         const sx = mx - 22, sy = ZEMIN_Y - 54;
         const g = svgEl('g', { class: 'op-canavar__sac', transform: 'translate(' + sx.toFixed(1) + ' ' + sy + ')' }, s.atisKat);
@@ -399,7 +352,7 @@
         s.ezil = EZIL_MS;
         s.cv.g.classList.add('is-vuruldu');
         if (window.AudioManager) window.AudioManager.play('pop');
-        if (s.bitti && s.kazandi) return;            // son top: canavar yerinde kalır, karlar içinde el sallar
+        if (son) return;                             // son top: canavar yerinde kalır, karlar içinde zıplar
         const m0 = gorunenM();
         s.m = Math.min(1, m0 + GERI);
         s.anim = s.azalt ? null : { tur: 'sek', m0, m1: s.m, t: 0, sure: SEK_MS };
@@ -420,7 +373,7 @@
         // Uçan toplar (konumdan bağımsız: değince vuruş)
         s.toplar = s.toplar.filter((t) => {
             t.t += dt;
-            if (t.t >= UCUS_MS) { t.el.remove(); vurus(); return false; }
+            if (t.t >= UCUS_MS) { t.el.remove(); vurus(t.son); return false; }
             return true;
         });
         if (s.anim) {
@@ -536,9 +489,7 @@
         if (!s) return;
         const eski = s;
         s = null;
-        if (eski.dongu) eski.dongu.durdur();
-        if (eski.ro) eski.ro.disconnect();
-        if (eski.kok.parentNode) eski.kok.parentNode.removeChild(eski.kok);
+        eski.kabuk.durdur();
     }
 
     window.OnParmakOyunlari = window.OnParmakOyunlari || {};

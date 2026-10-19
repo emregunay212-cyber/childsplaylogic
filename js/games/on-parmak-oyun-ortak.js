@@ -33,6 +33,25 @@
      çağıran KlavyeDizilim.karakterOf çıktısını olduğu gibi verir.
 
    rng(tohum)  →  () => [0,1)   mulberry32; aynı tohum = aynı dizi.
+
+   ── Sahne yardımcıları (dört oyunda ortak; kopya yazılmaz) ──
+   svgEl(tag, attrs?, parent?) / htmlEl(tag, cls?, text?)  createElementNS / createElement; metin YALNIZ textContent ile.
+   easeOut(t) = 1 − (1 − t)³.
+   tepeYolu(rnd, { x0, son, adim, taban, genlik, alt })  →  SVG yol dizgesi: x0'dan son'a adim aralıklı tepeler, alt kenarı kapalı;
+     tepe başına tam bir rnd() (belirleyici).
+   canlarHud(n)  →  { el, guncelle(can) }   kalp hapı (.op-mini__canlar, n × .op-mini__can); guncelle giden canları
+     is-gitti (içi boş) yapar ve aria-label "Can: c / n" yazar.
+   devamKatmani()  →  el   "Oyun durdu / Devam etmek için bir tuşa bas" (.op-mini__devam, role=status, başta hidden).
+
+   oyunKabugu({ kok, svg, H, devam, adim, olcu? })  →  kabuk   — bir oyunun döngü + ölçü + durum + tutamaç kabuğu
+     kok DOM'da olmalı. Oluşturunca: ölçü okunur (kabuk.W = H × en/boy, 360–1600; ölçü yoksa 800), svg viewBox '0 0 W H',
+     olcu(W) çağrılır, ResizeObserver kurulur (boyut değişince aynısı). Oyun ilk çizimini yaptıktan sonra:
+     kabuk.baslat(basFn) → tutamaç { bas(ch), devamTusu(), duraklat(acik) } — dongu(adim) başlar; durum her değişince
+       kok.dataset.durum yazılır, devam katmanı yalnız 'devam-bekliyor'da görünür; duraklat(true|false) = dongu duraklat/surdur('caps').
+     kabuk.dongu (denetleyici), kabuk.etkin() (durdur'dan sonra false). kabuk.durdur(): döngü + ResizeObserver durur, kok
+     DOM'dan çıkar; durdur'dan sonra tutamaç, ölçü ve durum geri çağrıları etkisizdir (eski oyun yeni oyuna yazamaz). Tekrar çağrılabilir.
+   Oyun dosyası kalıbı: s = {…}; s.kabuk = O.oyunKabugu({ …, olcu: (W) => { s.W = W; … } }); ilk çizim; return s.kabuk.baslat(bas);
+   durdur() { if (!s) return; const e = s; s = null; e.kabuk.durdur(); }
    ============================================ */
 (function () {
     'use strict';
@@ -153,5 +172,98 @@
         };
     }
 
-    window.OnParmakOyunOrtak = { dongu, uyarlanirHiz, hedefSec, rng };
+    // ── Sahne yardımcıları ──
+    const NS = 'http://www.w3.org/2000/svg';
+    function svgEl(tag, attrs, parent) {
+        const n = document.createElementNS(NS, tag);
+        if (attrs) for (const k in attrs) n.setAttribute(k, attrs[k]);
+        if (parent) parent.appendChild(n);
+        return n;
+    }
+    function htmlEl(tag, cls, text) {
+        const n = document.createElement(tag);
+        if (cls) n.className = cls;
+        if (text !== undefined) n.textContent = text;
+        return n;
+    }
+    const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+
+    function tepeYolu(rnd, { x0, son, adim, taban, genlik, alt }) {
+        let d = 'M' + x0 + ' ' + alt + ' L' + x0 + ' ' + taban;
+        let x = x0;
+        for (; x <= son; x += adim) {
+            const y = taban - genlik * (0.4 + rnd() * 0.6);
+            d += ' Q' + (x + adim / 2) + ' ' + y.toFixed(1) + ' ' + (x + adim) + ' ' + taban;
+        }
+        return d + ' L' + (son + adim) + ' ' + alt + ' Z';
+    }
+
+    const KALP = 'M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2.2 0 3.7 1.3 5.2 3.1 1.5-1.8 3-3.1 5.2-3.1 3.8 0 5.9 3.9 4.4 7.3C19.5 16.4 12 21 12 21z';
+    function canlarHud(n) {
+        const el = htmlEl('div', 'op-mini__canlar');
+        el.setAttribute('role', 'img');
+        const ikon = [];
+        for (let i = 0; i < n; i++) {
+            const c = svgEl('svg', { viewBox: '0 0 24 24', class: 'op-mini__can', 'aria-hidden': 'true', focusable: 'false' }, el);
+            svgEl('path', { d: KALP }, c);
+            ikon.push(c);
+        }
+        function guncelle(can) {
+            ikon.forEach((c, i) => c.classList.toggle('is-gitti', i >= can));
+            el.setAttribute('aria-label', 'Can: ' + can + ' / ' + n);
+        }
+        guncelle(n);
+        return { el, guncelle };
+    }
+
+    function devamKatmani() {
+        const el = htmlEl('div', 'op-mini__devam');
+        el.setAttribute('role', 'status');
+        el.hidden = true;
+        el.appendChild(htmlEl('strong', '', 'Oyun durdu'));
+        el.appendChild(htmlEl('span', '', 'Devam etmek için bir tuşa bas'));
+        return el;
+    }
+
+    function oyunKabugu({ kok, svg, H, devam, adim, olcu }) {
+        let acik = true;
+        const k = { W: 800, dongu: null, ro: null, etkin: () => acik };
+        function olcuGuncelle() {
+            if (!acik) return;
+            const w = kok.clientWidth, h = kok.clientHeight;
+            k.W = w > 0 && h > 0 ? Math.max(360, Math.min(1600, Math.round(H * w / h))) : 800;
+            svg.setAttribute('viewBox', '0 0 ' + k.W + ' ' + H);
+            if (typeof olcu === 'function') olcu(k.W);
+        }
+        function durumYaz(d) {
+            if (!acik) return;
+            kok.dataset.durum = d;
+            if (devam) devam.hidden = d !== 'devam-bekliyor';
+        }
+        olcuGuncelle();
+        if (typeof ResizeObserver === 'function') { k.ro = new ResizeObserver(olcuGuncelle); k.ro.observe(kok); }
+        k.baslat = function (basFn) {
+            k.dongu = dongu(adim, { durumDegisti: durumYaz });
+            durumYaz(k.dongu.durum());
+            return {
+                bas: (ch) => { if (acik) basFn(ch); },
+                devamTusu: () => (acik && k.dongu ? k.dongu.devamTusu() : false),
+                // Caps Lock (modül): açıkken döngü durur; kapanınca hemen sürer (devam tuşu gerekmez)
+                duraklat: (ac) => {
+                    if (!acik || !k.dongu) return;
+                    if (ac) k.dongu.duraklat('caps'); else k.dongu.surdur('caps');
+                },
+            };
+        };
+        k.durdur = function () {
+            if (!acik) return;
+            acik = false;
+            if (k.dongu) k.dongu.durdur();
+            if (k.ro) k.ro.disconnect();
+            if (kok.parentNode) kok.parentNode.removeChild(kok);
+        };
+        return k;
+    }
+
+    window.OnParmakOyunOrtak = { dongu, uyarlanirHiz, hedefSec, rng, svgEl, htmlEl, easeOut, tepeYolu, canlarHud, devamKatmani, oyunKabugu };
 })();
