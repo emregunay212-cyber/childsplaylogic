@@ -139,8 +139,8 @@
         alan.appendChild(kok);
 
         s = { kok, svg, kat, efekt, cbs, azalt, rnd, kelimeler, sonraki: 0, aktif: [], kilit: null, can: CAN, patlayan: 0,
-            kacan: 0, bitti: false, kazandi: false, zaman: 0, W: 800, dogus: 0, efektler: [], yanlis: 0, sonHedef: undefined,
-            canlar, sayac, sayi, hiz: O.uyarlanirHiz(HIZ), kabuk: null };
+            kacan: 0, bitti: false, kazandi: false, zaman: 0, W: 800, dogus: 0, efektler: [], yanlis: 0,
+            hedefBildir: O.hedefBildirici(kok, cbs.hedef), canlar, sayac, sayi, hiz: O.uyarlanirHiz(HIZ), kabuk: null };
         const benim = s;
         s.kabuk = O.oyunKabugu({ kok, svg, H, devam, adim, olcu: (W) => { benim.W = W; if (benim.aktif.length) ciz(); } });
         for (const p of BASLANGIC) if (s.sonraki < kelimeler.length) dogur(p, true);
@@ -194,24 +194,8 @@
         s.sayi.textContent = s.patlayan + '/' + s.kelimeler.length;
         s.sayac.setAttribute('aria-label', 'Patlatılan baloncuk: ' + s.patlayan + ' / ' + s.kelimeler.length);
     }
-    function enAcil() {
-        let en = null;
-        for (const b of s.aktif) if (en === null || b.p > en.p) en = b;
-        return en;
-    }
-    function beklenen() {
-        if (s.bitti) return null;
-        if (s.kilit) return [...s.kilit.kelime][s.kilit.ilerleme] || null;
-        const b = enAcil();
-        return b ? [...b.kelime][0] : null;
-    }
-    function hedefYaz() {
-        const ch = beklenen();
-        if (ch === s.sonHedef) return;
-        s.sonHedef = ch;
-        s.kok.dataset.hedef = ch || '';
-        if (typeof s.cbs.hedef === 'function') s.cbs.hedef(ch);
-    }
+    // Klavye vurgusu: kilitli kelimenin sıradaki harfi ya da en acil baloncuğun ilk harfi (ortak, tehlike = p)
+    function hedefYaz() { s.hedefBildir(s.bitti ? null : O.beklenenHarf(s.aktif, s.kilit)); }
 
     // ── Girdi ──
     function bas(ch) {
@@ -231,7 +215,6 @@
             ilerle(b);
             return;
         }
-        for (const b of s.aktif) b.tehlike = b.p;
         const h = O.hedefSec(s.aktif, ch, null);
         if (!h) { s.cbs.tus(false); return; }
         s.cbs.tus(true);
@@ -303,6 +286,7 @@
             const kacanlar = [];
             for (const b of s.aktif) {
                 b.p += v;
+                b.tehlike = b.p;
                 if (b.p >= 1) kacanlar.push(b);
             }
             for (const b of kacanlar) {

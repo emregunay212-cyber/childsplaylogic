@@ -1825,3 +1825,151 @@
     .op-baloncuk__ilerleme { font-size: 0.9rem; }
     .op-baloncuk__ilerleme-ik { width: 18px; height: 18px; }
 }
+
+/* ── Elma Bekçisi (js/games/on-parmak-elma.js) ──
+   Gökyüzü + tepeler + çimen; ortada mürekkep anahatlı elma ağacı, tacında 5 elma. Sincaplar iki şeritte (uzak küçük,
+   yakın büyük) kenarlardan ağaca seker; kelime sincabın üstünde beyaz hap etikette, mürekkep renginde (her zeminde
+   okunur). Kilitli etiket renge bağlı kalmadan da ayrılır: kalın kontur + ikinci kesikli çerçeve + 1,1 büyüme + dolu uç
+   + sıradaki harfin altı çizili; kilit sürerken diğer sincaplar ve etiketleri geri çekilir (soluklaşır). Alınan elmanın
+   yuvası kesikli boş daire olarak kalır (sayı tek bakışta okunur; renk dışında biçim). Hareket JS döngüsünde. */
+.op-elma {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: var(--r-giris);
+    background: linear-gradient(var(--gok-ust), var(--gok-alt));
+}
+
+.op-elma__svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.op-elma__tepe { fill: var(--cim-koyu); opacity: 0.55; }
+.op-elma__cimen { fill: var(--cim); }
+.op-elma__otlar path { fill: none; stroke: var(--cim-koyu); stroke-width: 2; stroke-linecap: round; }
+
+/* Ağaç: gövde kahve, taç iki tonlu yeşil, mürekkep anahat */
+.op-elma__govde { fill: var(--kat-strateji); stroke: var(--murekkep); stroke-width: 2.5; stroke-linejoin: round; }
+.op-elma__dal { fill: none; stroke: var(--murekkep); stroke-width: 6; stroke-linecap: round; }
+.op-elma__tac-anahat circle { fill: var(--murekkep); }
+.op-elma__tac circle { fill: var(--cim-koyu); }
+.op-elma__tac-isik { fill: var(--cim); opacity: 0.8; }
+
+/* Elma: kırmızı gövde, mürekkep kontur, yeşil yaprak, beyaz parıltı */
+.op-elma__elma-govde { fill: var(--yanlis); stroke: var(--murekkep); stroke-width: 2; }
+.op-elma__elma-sap { fill: none; stroke: var(--murekkep); stroke-width: 2.5; stroke-linecap: round; }
+.op-elma__elma-yaprak { fill: var(--cim); stroke: var(--murekkep); stroke-width: 1.5; stroke-linejoin: round; }
+.op-elma__elma-isik { fill: var(--beyaz); opacity: 0.85; }
+
+/* Boş yuva: kesikli halka (alınan elmanın yeri) */
+.op-elma__yuva-bos { display: none; fill: var(--yuzey-cam-hafif); stroke: var(--beyaz); stroke-width: 2; stroke-dasharray: 4 4; }
+.op-elma__yuva.is-alindi .op-elma__yuva-bos { display: inline; }
+.op-elma__yuva.is-alindi .op-elma__elma { display: none; }
+
+/* Sincap: tüy rengi currentColor (iki ton, tohumla), karın ve kuyruk çizgisi açık, mürekkep anahat */
+.op-elma__sincap { stroke: var(--murekkep); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.op-elma__sincap--kizil { color: var(--kat-bulmaca); }
+.op-elma__sincap--kahve { color: var(--kat-strateji); }
+.op-elma__kuyruk,
+.op-elma__beden,
+.op-elma__bas,
+.op-elma__kulak,
+.op-elma__ayak,
+.op-elma__pati { fill: currentColor; }
+.op-elma__kuyruk-cizgi { fill: none; stroke: var(--beyaz); stroke-width: 2.5; opacity: 0.7; }
+.op-elma__karin { fill: var(--beyaz); stroke: none; }
+.op-elma__goz,
+.op-elma__burun { fill: var(--murekkep); stroke: none; }
+
+/* Etiket: beyaz hap, mürekkep kontur, ucu sincaba iner */
+.op-elma__etiket-zemin { fill: var(--beyaz); stroke: var(--murekkep); stroke-width: 2; }
+.op-elma__etiket-uc { fill: var(--beyaz); stroke: var(--murekkep); stroke-width: 2; stroke-linejoin: round; }
+.op-elma__etiket-halka { display: none; }
+
+.op-elma__kelime {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-anchor: middle;
+    fill: var(--murekkep);
+}
+
+.op-elma__kelime .is-yazildi { fill: var(--dogru); }
+
+.op-elma__kelime .is-sira {
+    fill: var(--mavi-800);
+    text-decoration: underline;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 4px;
+}
+
+.op-elma__kelime .is-sira.is-yanlis { fill: var(--yanlis); }
+
+/* Kilit: kalın mavi kontur + kesikli ikinci çerçeve + dolu uç; diğerleri geri çekilir */
+.op-elma__etiket.is-kilitli .op-elma__etiket-zemin { stroke: var(--mavi-800); stroke-width: 4; }
+.op-elma__etiket.is-kilitli .op-elma__etiket-uc { fill: var(--mavi-800); stroke: var(--mavi-800); }
+
+.op-elma__etiket.is-kilitli .op-elma__etiket-halka {
+    display: inline;
+    fill: none;
+    stroke: var(--mavi-800);
+    stroke-width: 2;
+    stroke-dasharray: 6 5;
+    opacity: 0.7;
+}
+
+.op-elma__s,
+.op-elma__etiket { transition: opacity var(--sure-gecis) var(--egri-out); }
+.op-elma.is-kilitli .op-elma__s:not(.is-kilitli),
+.op-elma.is-kilitli .op-elma__etiket:not(.is-kilitli) { opacity: 0.6; }
+
+/* Kaçan / elma alan sincap seçilemez: etiketsiz; oyun bitince kalan sincaplar donar ve söner */
+.op-elma[data-bitti] .op-elma__s:not(.is-kaciyor):not(.is-aliyor),
+.op-elma[data-bitti] .op-elma__etiket { opacity: 0.4; }
+
+/* HUD: elmalar solda (canlar), bitirilen kelime sağda */
+.op-elma__hud {
+    position: absolute;
+    inset: var(--ara-2) var(--ara-2) auto var(--ara-2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+}
+
+.op-elma__hud-elma { stroke-width: 1.2; }
+
+.op-elma__ilerleme {
+    display: flex;
+    align-items: center;
+    gap: var(--ara-1);
+    padding: var(--ara-1) var(--ara-3);
+    border-radius: var(--r-hap);
+    background: var(--yuzey-cam);
+    box-shadow: var(--golge-1);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--murekkep);
+    font-variant-numeric: tabular-nums;
+}
+
+.op-elma__ilerleme-ik {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: var(--mavi-500);
+    stroke-width: 2;
+    stroke-linejoin: round;
+}
+
+@media (max-width: 599px) {
+    .op-elma__ilerleme { font-size: 0.9rem; }
+    .op-elma__ilerleme-ik { width: 18px; height: 18px; }
+    /* Beş elma dar ekranda daha sık */
+    .op-elma .op-mini__canlar { gap: 2px; padding-inline: var(--ara-2); }
+}

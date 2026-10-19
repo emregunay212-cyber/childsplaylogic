@@ -32,6 +32,12 @@
      (basış hata sayılır). Harf eşleşmesi harf büyüklüğüne duyarlıdır, BİLEREK (Shift öğretilir: 'e' "Elma"yı vurmaz);
      çağıran KlavyeDizilim.karakterOf çıktısını olduğu gibi verir.
 
+   enAcil(hedefler)  →  hedef | null   tehlikesi en yüksek hedef (eşitte ilk).
+   beklenenHarf(hedefler, kilit?)  →  harf | null   çok hedefli oyunda klavye vurgusu: kilit varsa kilitli kelimenin
+     sıradaki harfi (kelime[ilerleme]); yoksa en acil hedefin İLK harfi (o harf basılırsa hedefSec de aynı hedefi seçer).
+     hedefler = SEÇİLEBİLİR hedefler (ör. Elma'da yalnız sahnede görünen sincaplar).
+   hedefBildirici(kok, cb?)  →  yaz(ch)   hedef değişince (yalnız o zaman) kok.dataset.hedef + cb(ch|null).
+
    rng(tohum)  →  () => [0,1)   mulberry32; aynı tohum = aynı dizi.
 
    ── Sahne yardımcıları (dört oyunda ortak; kopya yazılmaz) ──
@@ -39,8 +45,8 @@
    easeOut(t) = 1 − (1 − t)³.
    tepeYolu(rnd, { x0, son, adim, taban, genlik, alt })  →  SVG yol dizgesi: x0'dan son'a adim aralıklı tepeler, alt kenarı kapalı;
      tepe başına tam bir rnd() (belirleyici).
-   canlarHud(n)  →  { el, guncelle(can) }   kalp hapı (.op-mini__canlar, n × .op-mini__can); guncelle giden canları
-     is-gitti (içi boş) yapar ve aria-label "Can: c / n" yazar.
+   canlarHud(n, { ad = 'Can', yol = kalp, sinif? })  →  { el, guncelle(can) }   can hapı (.op-mini__canlar, n × .op-mini__can
+     [+ sinif]); guncelle giden canları is-gitti (içi boş) yapar ve aria-label "<ad>: c / n" yazar. Elma Bekçisi elma yoluyla çağırır.
    devamKatmani()  →  el   "Oyun durdu / Devam etmek için bir tuşa bas" (.op-mini__devam, role=status, başta hidden).
 
    oyunKabugu({ kok, svg, H, devam, adim, olcu? })  →  kabuk   — bir oyunun döngü + ölçü + durum + tutamaç kabuğu
@@ -161,6 +167,29 @@
         return en;
     }
 
+    function enAcil(hedefler) {
+        let en = null;
+        for (const h of hedefler) if (en === null || h.tehlike > en.tehlike) en = h;
+        return en;
+    }
+
+    function beklenenHarf(hedefler, kilit) {
+        if (kilit) return [...kilit.kelime][kilit.ilerleme || 0] || null;
+        const h = enAcil(hedefler);
+        return h ? [...h.kelime][0] || null : null;
+    }
+
+    function hedefBildirici(kok, cb) {
+        let son;
+        return function (ch) {
+            const c = ch || null;
+            if (c === son) return;
+            son = c;
+            kok.dataset.hedef = c || '';
+            if (typeof cb === 'function') cb(c);
+        };
+    }
+
     function rng(tohum) {
         let a = tohum >>> 0;
         return function () {
@@ -199,18 +228,20 @@
     }
 
     const KALP = 'M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2.2 0 3.7 1.3 5.2 3.1 1.5-1.8 3-3.1 5.2-3.1 3.8 0 5.9 3.9 4.4 7.3C19.5 16.4 12 21 12 21z';
-    function canlarHud(n) {
+    function canlarHud(n, opts) {
+        const o = opts || {};
+        const ad = o.ad || 'Can';
         const el = htmlEl('div', 'op-mini__canlar');
         el.setAttribute('role', 'img');
         const ikon = [];
         for (let i = 0; i < n; i++) {
-            const c = svgEl('svg', { viewBox: '0 0 24 24', class: 'op-mini__can', 'aria-hidden': 'true', focusable: 'false' }, el);
-            svgEl('path', { d: KALP }, c);
+            const c = svgEl('svg', { viewBox: '0 0 24 24', class: 'op-mini__can' + (o.sinif ? ' ' + o.sinif : ''), 'aria-hidden': 'true', focusable: 'false' }, el);
+            svgEl('path', { d: o.yol || KALP }, c);
             ikon.push(c);
         }
         function guncelle(can) {
             ikon.forEach((c, i) => c.classList.toggle('is-gitti', i >= can));
-            el.setAttribute('aria-label', 'Can: ' + can + ' / ' + n);
+            el.setAttribute('aria-label', ad + ': ' + can + ' / ' + n);
         }
         guncelle(n);
         return { el, guncelle };
@@ -265,5 +296,5 @@
         return k;
     }
 
-    window.OnParmakOyunOrtak = { dongu, uyarlanirHiz, hedefSec, rng, svgEl, htmlEl, easeOut, tepeYolu, canlarHud, devamKatmani, oyunKabugu };
+    window.OnParmakOyunOrtak = { dongu, uyarlanirHiz, hedefSec, enAcil, beklenenHarf, hedefBildirici, rng, svgEl, htmlEl, easeOut, tepeYolu, canlarHud, devamKatmani, oyunKabugu };
 })();

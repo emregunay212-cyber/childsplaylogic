@@ -490,7 +490,7 @@ test.describe('ON_PARMAK_ICERIK — içerik kuralları (tarayıcısız)', () => 
         expect(kayit.module).toBe('OnParmak');
         expect(kayit.files.js).toEqual(['js/games/klavye-dizilim.js', 'js/games/on-parmak-olcum.js', 'js/games/on-parmak-icerik.js',
             'js/games/on-parmak-ekran.js', 'js/games/on-parmak-oyun-ortak.js', 'js/games/on-parmak-balon.js', 'js/games/on-parmak-canavar.js',
-            'js/games/on-parmak-baloncuk.js', 'js/games/on-parmak.js']);
+            'js/games/on-parmak-baloncuk.js', 'js/games/on-parmak-elma.js', 'js/games/on-parmak.js']);
         expect(kayit.files.css).toEqual(['css/on-parmak.css']);
     });
 
@@ -777,7 +777,15 @@ const opLockKeys = (() => {
 // kısım geçişi (onLevelUp) üretimde tek kısım varken sınanamaz (sapma 6).
 const OP_TEST_KISIM = "window.ON_PARMAK_ICERIK.push({ ad: 'Deneme kısmı', ornek: 'F J', hedefHiz: 8, el: true, bolumler: "
     + "[ { tur: 'satir', ad: 'Deneme satırı', metin: 'fj jf fj jf fj jf fj jf fj jf' } ] });\n";
-function opTestKur({ parcali = false } = {}) {
+// Elma Bekçisi Kısım 1'de yok (Adım 3'te Kısım 2'de ilk kez) → oyun bu fikstürle sınanır: ikinci test kısmı = Elma bölümü
+// + ardından bir satır (kaybedince akışın sürdüğü görülsün). Kelimeler orta sıradan; f/j hiçbir kelimenin ilk harfi değil.
+// Sıra testlere göre seçildi: 0 "hala" görünür başlar, 1 "dal" kenardan girer (ilk harfi farklı → giriş bitmeden seçilemez),
+// 2 "kasa" ve 3 "kaş" aynı ilk harf (ağaca en yakın olan kilitlenmeli).
+const OP_ELMA_METIN = 'hala dal kasa kaş saha gaga şal ada sakal lala';
+const OP_TEST_ELMA = "window.ON_PARMAK_ICERIK.push({ ad: 'Deneme: Elma', ornek: 'F J', hedefHiz: 8, el: true, bolumler: "
+    + "[ { tur: 'oyun', ad: 'Elma Bekçisi: deneme', oyun: 'elma', metin: '" + OP_ELMA_METIN + "' }, "
+    + "{ tur: 'satir', ad: 'Deneme satırı', metin: 'fj jf fj jf fj jf fj jf fj jf' } ] });\n";
+function opTestKur({ parcali = false, elma = false } = {}) {
     return test.extend({
         context: async ({ context }, use) => {
             await seedGuest(context, opLockKeys);
@@ -787,14 +795,14 @@ function opTestKur({ parcali = false } = {}) {
                 const govde = (await res.text()).split('\n').map((satir) => {
                     if (!satir.includes('"slug":"on-parmak"')) return satir;
                     const yamali = satir.replace('"active":false', '"active":true');
-                    return parcali ? yamali.replace('"levels":1', '"levels":2') : yamali;
+                    return parcali || elma ? yamali.replace('"levels":1', '"levels":2') : yamali;
                 }).join('\n');
                 await route.fulfill({ response: res, body: govde });
             });
-            if (parcali) {
+            if (parcali || elma) {
                 await context.route(/\/js\/games\/on-parmak-icerik\.js(\?|$)/, async (route) => {
                     const res = await route.fetch();
-                    await route.fulfill({ response: res, body: (await res.text()) + '\n' + OP_TEST_KISIM });
+                    await route.fulfill({ response: res, body: (await res.text()) + '\n' + (elma ? OP_TEST_ELMA : OP_TEST_KISIM) });
                 });
             }
             await context.addInitScript(OP_FIREBASE_STUB);
@@ -823,6 +831,7 @@ function opTestKur({ parcali = false } = {}) {
 }
 const opTest = opTestKur();
 const opTestParcali = opTestKur({ parcali: true });
+const opTestElma = opTestKur({ elma: true });
 
 // Bölüm numaraları ve metinleri içerik dosyasından türer (sabit numara yok)
 const OP_ICERIK = loadIcerik();
@@ -2338,6 +2347,451 @@ opTest.describe('OnParmak — Uçan Baloncuklar, normal hareket', () => {
     });
 });
 
+// ── Mini oyun: Elma Bekçisi (tur:'oyun', js/games/on-parmak-elma.js) ──
+// Kelime oyunu, çok hedef: ilk harf GÖRÜNEN sincaplardan ağaca en yakını seçer (hedefSec), kilit kelime bitene dek sürer;
+// BOŞLUK yazılmaz. Ağaca varan sincap bir elma alır (5 elma = can). Kısım 1'de yok → opTestElma fikstürü (2. kısım:
+// Elma bölümü + satır). Öncelik (sapma 9): önce %80, sonra elmalar.
+const OP_ELMA = OP_N + 1;                 // fikstürdeki Elma bölümünün genel numarası (= tohum)
+const OP_ELMA_N = OP_N + 2;               // fikstürle toplam bölüm
+const OP_ELMA_K = OP_ELMA_METIN.split(' ');
+const opElma = (page) => page.locator('.op-elma');
+// Sahnedeki seçilebilir/yürüyen sincaplar (kaçanlar data-sira taşımaz): kelime, sıra, taraf, şerit, yol m, görünür, kilit, x
+const opSnc = (page) => page.evaluate(() => [...document.querySelectorAll('.op-elma__s[data-sira]')].map((g) => ({
+    k: g.dataset.kelime, sira: Number(g.dataset.sira), taraf: g.dataset.taraf, serit: g.dataset.serit, m: Number(g.dataset.m),
+    gorunur: g.dataset.gorunur === '1', kilit: g.classList.contains('is-kilitli'),
+    x: Number(/translate\(([-\d.]+)/.exec(g.getAttribute('transform'))[1]),
+})).sort((a, b) => a.sira - b.sira));   // şeritler ayrı katman → DOM sırası değil doğuş sırası
+async function opElmaSonra(page) {
+    await page.clock.runFor(2600);
+    await expect(opOyun(page)).toHaveAttribute('data-bolum', (OP_ELMA + 1) + '/' + OP_ELMA_N);
+    await expect(opOyun(page)).toHaveAttribute('data-mod', 'satir');
+    await expect(opElma(page)).toHaveCount(0);
+}
+// data-beklenen'i yazar; beklenen boşsa (yalnız giren sincap var) saat ilerler ve bekler
+async function opElmaYaz(page, ms = 300, azami = 400) {
+    for (let n = 0; n < azami; n++) {
+        const d = await opOyun(page).evaluate((r) => ({ mod: r.dataset.mod, ch: r.dataset.beklenen }));
+        if (d.mod !== 'oyun') return;
+        if (d.ch) await page.evaluate((ch) => window.__opBas(ch), d.ch);
+        if (await opOyun(page).getAttribute('data-mod') !== 'oyun') return;
+        await page.clock.runFor(ms);
+    }
+    throw new Error('Elma bölümü bitmedi');
+}
+async function opElmaAc(page, hazirla = null) { await opAc(page, OP_ELMA, OP_ELMA_N, hazirla); }
+
+opTestElma.describe('OnParmak — Elma Bekçisi (oyun bölümü, test fikstürü)', () => {
+    opTestElma('kazanma: ilk harf kilitler, kelime bitince sincap kaçar, yenisi doğar → kelimeler biter, 5 elma → 3 yıldız', async ({ page, errors }) => {
+        opTestElma.setTimeout(90000);
+        await opElmaAc(page);
+        const k = OP_ELMA_K;
+        await expect(opOyun(page)).toHaveAttribute('data-mod', 'oyun');
+        await expect(page.locator('.op-ilerleme__ad')).toHaveText('Elma Bekçisi: deneme');
+        await expect(opElma(page)).toHaveAttribute('data-elma', '5');
+        await expect(opElma(page)).toHaveAttribute('data-tohum', String(OP_ELMA));
+        await expect(page.locator('.op-elma__hud-elma')).toHaveCount(5);
+        await expect(page.locator('.op-elma .op-mini__canlar')).toHaveAttribute('aria-label', 'Elma: 5 / 5');
+        await expect(page.locator('.op-elma__ilerleme')).toHaveAttribute('aria-label', 'Bitirilen kelime: 0 / ' + k.length);
+        await expect(page.locator('.op-elma__yuva:not(.is-alindi)')).toHaveCount(5);
+        const ilk = await opSnc(page);
+        expect(ilk.map((b) => b.k)).toEqual(k.slice(0, 2));
+        expect(ilk.map((b) => b.taraf).sort()).toEqual(['sag', 'sol']);       // ilk çift iki yandan
+        expect(ilk[0].gorunur).toBe(true);
+        // Kilitsiz: beklenen = ağaca en yakın GÖRÜNEN sincabın ilk harfi; klavyede o tuş yanar; Boşluk beklenmez
+        await expect(opOyun(page)).toHaveAttribute('data-beklenen', k[0][0]);
+        const kod = await page.evaluate((ch) => window.KlavyeDizilim.tusOf(ch).code, k[0][0]);
+        await expect(page.locator('.op-tus[data-code="' + kod + '"]')).toHaveClass(/is-hedef/);
+        await page.clock.runFor(2000);
+        const s0 = await opSnc(page);
+        expect(s0[0].m).toBeGreaterThan(0.2);                                   // ağaca yürüyor
+        expect(s0[1].gorunur).toBe(true);                                       // giriş bitti
+        // İlk harf → kilit; sıradaki harf altı çizili, kilitli etiket işaretli, diğerleri soluk
+        await page.evaluate((c) => window.__opBas(c), k[0][0]);
+        await expect(opElma(page)).toHaveAttribute('data-kilit', '0');
+        await expect(opElma(page)).toHaveClass(/is-kilitli/);
+        await expect(page.locator('.op-elma__etiket.is-kilitli tspan.is-sira')).toHaveText(k[0][1]);
+        await expect(page.locator('.op-elma__etiket.is-kilitli tspan.is-yazildi')).toHaveCount(1);
+        await expect(page.locator('.op-elma__s.is-kilitli')).toHaveAttribute('data-kelime', k[0]);
+        await expect(opOyun(page)).toHaveAttribute('data-beklenen', k[0][1]);
+        for (const ch of [...k[0]].slice(1)) await page.evaluate((c) => window.__opBas(c), ch);
+        // Kelime bitti: sincap kaçar (seçilemez, etiketsiz), sayılır, kilit düşer, eksilen yerine sıradaki doğar
+        await expect(opElma(page)).toHaveAttribute('data-biten', '1');
+        await expect(opElma(page)).toHaveAttribute('data-kilit', '');
+        await expect(page.locator('.op-elma__ilerleme')).toHaveAttribute('aria-label', 'Bitirilen kelime: 1 / ' + k.length);
+        await expect(page.locator('.op-elma__s.is-kaciyor')).toHaveCount(1);
+        await expect(page.locator('.op-elma__etiket[data-sira="0"]')).toHaveCount(0);
+        expect((await opSnc(page)).map((b) => b.k)).toEqual(k.slice(1, 3));
+        await expect(opOyun(page)).toHaveAttribute('data-beklenen', k[1][0]);
+        await page.clock.runFor(3000);
+        await expect(page.locator('.op-elma__s.is-kaciyor')).toHaveCount(0);   // kaçan sahneden çıktı (azaltılmış: soldu)
+        await opElmaYaz(page, 300);
+        await expect(opOyun(page)).toHaveAttribute('data-mod', 'sonuc');
+        await expect(opElma(page)).toHaveAttribute('data-bitti', 'canli');
+        await expect(opElma(page)).toHaveAttribute('data-biten', String(k.length));
+        await expect(opElma(page)).toHaveAttribute('data-elma', '5');
+        await expect(opOyun(page)).toHaveAttribute('data-sonuc', '3');
+        await expect(page.locator('.op-serit__baslik')).toHaveText('Bölüm ' + OP_ELMA + ' tamam!');
+        await expect(page.locator('.op-serit__alt')).toContainText('doğruluk %100');
+        await opElmaSonra(page);
+        errors.assertClean();
+    });
+
+    opTestElma('yavaş ama doğru: kilitli sincap ağaca varır (elma + kilit gider), 5 elma biter → en çok 1 yıldız, akış sürer', async ({ page, errors }) => {
+        opTestElma.setTimeout(150000);
+        await opElmaAc(page);
+        const k = OP_ELMA_K;
+        await page.evaluate(() => { const r = document.querySelector('.op-oyun'); window.__opBas(r.dataset.beklenen); window.__opBas(r.dataset.beklenen); });
+        await expect(opElma(page)).toHaveAttribute('data-kilit', '0');
+        for (let i = 0; i < 80 && (await opElma(page).getAttribute('data-elma')) === '5'; i++) await page.clock.runFor(1000);
+        await expect(opElma(page)).toHaveAttribute('data-elma', '4');
+        await expect(page.locator('.op-elma .op-mini__can.is-gitti')).toHaveCount(1);
+        await expect(page.locator('.op-elma .op-mini__canlar')).toHaveAttribute('aria-label', 'Elma: 4 / 5');
+        await expect(page.locator('.op-elma__yuva.is-alindi')).toHaveCount(1);
+        await expect(opElma(page)).toHaveAttribute('data-kilit', '');           // kilitli sincap ağaca vardı
+        await expect(page.locator('.op-elma__s[data-sira="0"]')).toHaveCount(0);
+        const kalan = await opSnc(page);
+        expect(kalan.length).toBeGreaterThan(0);
+        for (const b of kalan) expect(k.slice(1)).toContain(b.k);
+        await opOyunBitene(page, 300);
+        await expect(opElma(page)).toHaveAttribute('data-elma', '0');
+        await expect(page.locator('.op-elma__yuva.is-alindi')).toHaveCount(5);
+        await expect(opElma(page)).toHaveAttribute('data-bitti', 'elmalar');
+        await expect(opOyun(page)).toHaveAttribute('data-sonuc', '1');
+        await expect(page.locator('.op-serit__baslik')).toHaveText('Bölüm ' + OP_ELMA + ' bitti');
+        await expect(page.locator('.op-serit .op-yildiz.is-kazanildi')).toHaveCount(1);
+        await expect(page.locator('.op-serit__alt')).toContainText('doğruluk %100');
+        await opElmaSonra(page);
+        errors.assertClean();
+    });
+
+    opTestElma('hiç basmadan 5 elma gider → tekrar (önce %80 kuralı); aynı bölüm 5 elmayla, ilk iki kelimeyle baştan', async ({ page, errors }) => {
+        opTestElma.setTimeout(150000);
+        await opElmaAc(page);
+        await opOyunBitene(page, 300);
+        await expect(opElma(page)).toHaveAttribute('data-bitti', 'elmalar');
+        await expect(opOyun(page)).toHaveAttribute('data-sonuc', 'tekrar');
+        await expect(page.locator('.op-serit__baslik')).toHaveText('Bir daha deneyelim');
+        await expect(page.locator('.op-serit__alt')).toHaveText('doğruluk %0, hedef %80');
+        await page.clock.runFor(2600);
+        await expect(opOyun(page)).toHaveAttribute('data-bolum', OP_ELMA + '/' + OP_ELMA_N);
+        await expect(opOyun(page)).toHaveAttribute('data-mod', 'oyun');
+        await expect(opElma(page)).toHaveAttribute('data-elma', '5');
+        await expect(page.locator('.op-elma__yuva.is-alindi')).toHaveCount(0);
+        expect((await opSnc(page)).map((b) => b.k)).toEqual(OP_ELMA_K.slice(0, 2));
+        await expect(opOyun(page)).toHaveAttribute('data-beklenen', OP_ELMA_K[0][0]);
+        errors.assertClean();
+    });
+
+    opTestElma('rastgele basma (doğruluk < %80) canlı bitse de tekrar', async ({ page, errors }) => {
+        opTestElma.setTimeout(90000);
+        await opElmaAc(page);
+        for (let n = 0; n < 400 && (await opOyun(page).getAttribute('data-mod')) === 'oyun'; n++) {
+            await page.evaluate(() => {
+                const r = document.querySelector('.op-oyun');
+                if (!r.dataset.beklenen) return;                          // yalnız giren sincap: bekle
+                window.__opBas('f');                                      // hiçbir kelimenin harfi değil → hata
+                if (r.dataset.mod === 'oyun') window.__opBas(r.dataset.beklenen);
+            });
+            await page.clock.runFor(100);
+        }
+        await expect(opOyun(page)).toHaveAttribute('data-mod', 'sonuc');
+        await expect(opElma(page)).toHaveAttribute('data-bitti', 'canli');
+        await expect(opOyun(page)).toHaveAttribute('data-sonuc', 'tekrar');
+        await expect(page.locator('.op-serit__alt')).toHaveText('doğruluk %50, hedef %80');
+        await page.clock.runFor(2600);
+        await expect(opOyun(page)).toHaveAttribute('data-bolum', OP_ELMA + '/' + OP_ELMA_N);
+        await expect(opOyun(page)).toHaveAttribute('data-mod', 'oyun');
+        errors.assertClean();
+    });
+
+    opTestElma('ilk harf: sahneye girmemiş sincap seçilemez; aynı harfle başlayanlardan ağaca en yakını kilitlenir; kilitliyken yanlış harf (öbürünün ilk harfi de) hata, kilit sürer', async ({ page, errors }) => {
+        opTestElma.setTimeout(120000);
+        await opElmaAc(page);
+        const k = OP_ELMA_K;
+        // Açılışta 2. sincap ("dal") kenardan giriyor: görünmüyor → ilk harfi hata, kilit yok, vurgu onu göstermez
+        const bas = await opSnc(page);
+        expect(bas[1].k).toBe(k[1]);
+        expect(bas[1].gorunur).toBe(false);
+        await expect(page.locator('.op-elma__s[data-sira="1"]')).toHaveAttribute('data-gorunur', '0');
+        await expect(opOyun(page)).toHaveAttribute('data-beklenen', k[0][0]);
+        await page.evaluate((c) => window.__opBas(c), k[1][0]);
+        await expect(opElma(page)).toHaveAttribute('data-kilit', '');
+        // Kilitsiz, hiçbir sincabın ilk harfi değil → hata
+        await page.evaluate(() => window.__opBas('f'));
+        await expect(opElma(page)).toHaveAttribute('data-kilit', '');
+        // Giriş bitince aynı harf onu kilitler
+        await page.clock.runFor(1200);
+        await expect(page.locator('.op-elma__s[data-sira="1"]')).toHaveAttribute('data-gorunur', '1');
+        await page.evaluate((c) => window.__opBas(c), k[1][0]);
+        await expect(opElma(page)).toHaveAttribute('data-kilit', '1');
+        // Kilitliyken öbür sincabın ilk harfi (sıradaki harf değil) → hata; kilit ve ilerleme yerinde, sıradaki harf kırmızı
+        expect(k[0][0]).not.toBe(k[1][1]);
+        await page.evaluate((c) => window.__opBas(c), k[0][0]);
+        await expect(opElma(page)).toHaveAttribute('data-kilit', '1');
+        await expect(page.locator('.op-elma__etiket.is-kilitli tspan.is-sira')).toHaveClass(/is-yanlis/);
+        await expect(page.locator('.op-elma__etiket.is-kilitli tspan.is-yazildi')).toHaveCount(1);
+        await expect(opOyun(page)).toHaveAttribute('data-beklenen', k[1][1]);
+        for (const ch of [...k[1]].slice(1)) await page.evaluate((c) => window.__opBas(c), ch);
+        await expect(opElma(page)).toHaveAttribute('data-biten', '1');
+        // "kasa" ve "kaş" (aynı ilk harf) ikisi de görünür olana dek bekle; "k" ağaca en yakın olanı kilitler
+        let adaylar = [];
+        for (let i = 0; i < 40; i++) {
+            adaylar = (await opSnc(page)).filter((b) => b.gorunur && b.k[0] === 'k');
+            if (adaylar.length >= 2) break;
+            await page.clock.runFor(500);
+        }
+        expect(adaylar.length, 'aynı ilk harfli iki görünür sincap').toBeGreaterThanOrEqual(2);
+        adaylar.sort((a, b) => b.m - a.m);
+        expect(adaylar[0].m).toBeGreaterThan(adaylar[1].m);
+        expect(adaylar[0].taraf).not.toBe(adaylar[1].taraf);                   // iki yandan
+        await page.evaluate(() => window.__opBas('k'));
+        await expect(opElma(page)).toHaveAttribute('data-kilit', String(adaylar[0].sira));
+        await expect(page.locator('.op-elma__s.is-kilitli')).toHaveCount(1);
+        await expect(page.locator('.op-elma__s.is-kilitli')).toHaveAttribute('data-sira', String(adaylar[0].sira));
+        await opElmaYaz(page, 300);
+        await expect(opOyun(page)).toHaveAttribute('data-mod', 'sonuc');
+        await expect(opElma(page)).toHaveAttribute('data-bitti', 'canli');
+        // 3 hata (girmemiş sincabın harfi, f, kilitliyken öbür harf); basış = boşluksuz harf sayısı + 3
+        const harfSayisi = k.join('').length;
+        await expect(page.locator('.op-serit__alt')).toContainText('doğruluk %' + Math.floor((harfSayisi / (harfSayisi + 3)) * 100));
+        errors.assertClean();
+    });
+
+    opTestElma('sekme gizlenince durur; görünür olunca "Devam etmek için bir tuşa bas"; devam tuşu sayılmaz', async ({ page, errors }) => {
+        opTestElma.setTimeout(90000);
+        await opElmaAc(page);
+        const k = OP_ELMA_K;
+        await page.evaluate(() => window.__opBas(document.querySelector('.op-oyun').dataset.beklenen));
+        await page.clock.runFor(500);
+        await opGorun(page, 'hidden');
+        await expect(opElma(page)).toHaveAttribute('data-durum', 'gizli');
+        const once = (await opSnc(page))[0].m;
+        await page.clock.runFor(60000);                        // gizliyken sincaplar yürümez, elma gitmez
+        expect((await opSnc(page))[0].m).toBe(once);
+        await opGorun(page, 'visible');
+        await expect(opElma(page)).toHaveAttribute('data-durum', 'devam-bekliyor');
+        await expect(page.locator('.op-mini__devam')).toBeVisible();
+        await expect(page.locator('.op-mini__devam')).toContainText('Devam etmek için bir tuşa bas');
+        await page.clock.runFor(5000);
+        expect((await opSnc(page))[0].m).toBe(once);
+        await expect(opElma(page)).toHaveAttribute('data-elma', '5');
+        // Devam tuşu YANLIŞ harf: sayılsaydı doğruluk %100 olmazdı; yanlış işareti yok, kilit/hedef aynı
+        await page.evaluate(() => window.__opBas('f'));
+        await expect(opElma(page)).toHaveAttribute('data-durum', 'calisiyor');
+        await expect(page.locator('.op-mini__devam')).toBeHidden();
+        await expect(page.locator('tspan.is-yanlis')).toHaveCount(0);
+        await expect(opOyun(page)).toHaveAttribute('data-beklenen', k[0][1]);
+        await page.clock.runFor(1000);
+        expect((await opSnc(page))[0].m).toBeGreaterThan(once);
+        await opElmaYaz(page, 300);
+        await expect(opOyun(page)).toHaveAttribute('data-mod', 'sonuc');
+        await expect(page.locator('.op-serit__alt')).toContainText('doğruluk %100');
+        errors.assertClean();
+    });
+
+    opTestElma('Caps Lock açıkken oyun durur (sincap yürümez, basış sayılmaz); kapanınca hemen sürer', async ({ page, errors }) => {
+        opTestElma.setTimeout(90000);
+        await opElmaAc(page);
+        const k = OP_ELMA_K;
+        await page.evaluate(() => window.__opBas(document.querySelector('.op-oyun').dataset.beklenen));
+        await page.clock.runFor(300);
+        await page.evaluate(() => window.__opTus('CapsLock', 'CapsLock', { caps: true }));
+        await expect(page.locator('.op-caps')).toBeVisible();
+        await expect(opElma(page)).toHaveAttribute('data-durum', 'duraklatildi');
+        const once = (await opSnc(page))[0].m;
+        await page.clock.runFor(60000);
+        expect((await opSnc(page))[0].m).toBe(once);
+        await expect(opElma(page)).toHaveAttribute('data-elma', '5');
+        await page.evaluate((ch) => window.__opBas(ch, { caps: true }), k[0][1]);   // Caps açıkken: sayılmaz
+        await expect(opOyun(page)).toHaveAttribute('data-beklenen', k[0][1]);
+        await page.evaluate(() => window.__opTus('CapsLock', 'CapsLock', { caps: false }));
+        await expect(page.locator('.op-caps')).toBeHidden();
+        await expect(opElma(page)).toHaveAttribute('data-durum', 'calisiyor');
+        await page.clock.runFor(2000);
+        expect((await opSnc(page))[0].m).toBeGreaterThan(once);
+        await opElmaYaz(page, 300);
+        await expect(opOyun(page)).toHaveAttribute('data-mod', 'sonuc');
+        await expect(page.locator('.op-serit__alt')).toContainText('doğruluk %100');
+        errors.assertClean();
+    });
+
+    opTestElma('rAF: oyun sürerken bekleyen kare + ResizeObserver; bitince oyun durur (RO 0, sahne yok)', async ({ page, errors }) => {
+        opTestElma.setTimeout(90000);
+        await opElmaAc(page, (p) => p.addInitScript(OP_RAF));
+        await page.clock.runFor(200);
+        expect(await page.evaluate(() => window.__opRafBekleyen())).toBeGreaterThan(0);
+        expect(await page.evaluate(() => window.__opDinleyiciSayisi('visibilitychange'))).toBeGreaterThan(0);
+        expect(await page.evaluate(() => window.__opRoEtkin())).toBe(1);
+        await opElmaYaz(page, 100);
+        await opElmaSonra(page);
+        expect(await page.evaluate(() => window.__opRoEtkin())).toBe(0);
+        errors.assertClean();
+    });
+
+    opTestElma('rAF: oyun ortasında hub\'a dönünce bekleyen kare 0, dinleyiciler açılış öncesine döner', async ({ page, errors }) => {
+        opTestElma.setTimeout(90000);
+        await page.clock.install({ time: new Date('2026-10-19T09:00:00Z') });
+        await page.addInitScript(OP_RAF);
+        await page.goto('/?oyun=' + OP_SLUG);
+        await expect(opPicker(page)).toBeVisible();
+        await page.keyboard.press('Shift');
+        await page.clock.runFor(500);
+        const once = await page.evaluate(() => ({ k: window.__opKeydownSayisi(), v: window.__opDinleyiciSayisi('visibilitychange'), raf: window.__opRafBekleyen() }));
+        await page.locator('.op-picker__bolum[data-bolum-sec="' + OP_ELMA + '"]').click();
+        await expect(opOyun(page)).toHaveAttribute('data-mod', 'oyun');
+        await page.evaluate(() => { const r = document.querySelector('.op-oyun'); for (let i = 0; i < 4; i++) window.__opBas(r.dataset.beklenen); });
+        await page.clock.runFor(150);
+        await expect(page.locator('.op-elma__s.is-kaciyor')).toHaveCount(1);   // kaçış efekti sürüyor
+        expect(await page.evaluate(() => window.__opRafBekleyen())).toBeGreaterThan(once.raf);
+        await page.locator('#game-home').click();
+        await page.clock.runFor(1000);
+        await expect(page.locator('#hub')).toBeVisible();
+        await page.clock.runFor(1000);
+        expect(await page.evaluate(() => window.__opRafBekleyen())).toBe(0);
+        expect(await page.evaluate(() => window.__opKeydownSayisi())).toBe(once.k);
+        expect(await page.evaluate(() => window.__opDinleyiciSayisi('visibilitychange'))).toBe(once.v);
+        expect(await page.evaluate(() => window.__opRoEtkin())).toBe(0);
+        await expect(opElma(page)).toHaveCount(0);
+        errors.assertClean();
+    });
+
+    opTestElma('aynı tohum iki açılışta aynı doğuş sırası, taraf, şerit ve konum; taraf/şerit basış zamanlamasından bağımsız; başka tohum başka sahne', async ({ page, errors }) => {
+        opTestElma.setTimeout(180000);
+        // Açılışlar hub kartından (saat duruk → kare zamanlaması iki açılışta birebir aynı); ilk açılış yalnız giriş
+        await opElmaAc(page);
+        const ac = async (p) => {
+            await p.locator('#game-home').click();
+            await p.clock.runFor(1000);
+            await p.locator('.game-card[data-game="on-parmak"]').first().click();
+            await p.clock.runFor(500);
+            await expect(opPicker(p)).toBeVisible();
+            await p.locator('.op-picker__bolum[data-bolum-sec="' + OP_ELMA + '"]').click();
+            await expect(opOyun(p)).toHaveAttribute('data-bolum', OP_ELMA + '/' + OP_ELMA_N);
+        };
+        // Doğuş sırası + taraf + şerit birebir; x (= yoldaki ilerleme) kare evresine göre ±birkaç birim oynar → toleransla
+        const konum = async (p) => (await opSnc(p)).map((b) => ({ id: b.sira + ':' + b.taraf + ':' + b.serit, x: b.x }));
+        const ayniKonum = (u, v) => {
+            expect(u.map((o) => o.id)).toEqual(v.map((o) => o.id));
+            u.forEach((o, i) => expect(Math.abs(o.x - v[i].x), o.id).toBeLessThan(4));
+        };
+        // Sıra → taraf:şerit haritası (doğan her sincap)
+        const harita = async (p, h) => { for (const b of await opSnc(p)) h[b.sira] = b.taraf + ':' + b.serit; };
+        const iz = async (p, yaz) => {
+            await ac(p);
+            const tepe = await p.locator('.op-elma__tepe').getAttribute('d');
+            const bas = await konum(p);
+            const h = {};
+            const hedefler = [], seyir = [];
+            for (let i = 0; i < 40; i++) {
+                await harita(p, h);
+                if (yaz && i % 2 === 0) {
+                    const ch = await opOyun(p).getAttribute('data-beklenen');
+                    hedefler.push(ch);
+                    if (ch) await p.evaluate((c) => window.__opBas(c), ch);
+                }
+                await p.clock.runFor(700);
+                if (await opOyun(p).getAttribute('data-mod') !== 'oyun') break;
+                seyir.push(await konum(p));
+            }
+            return { tohum: await opElma(p).getAttribute('data-tohum'), tepe, bas, hedefler, seyir, harita: h };
+        };
+        const a = await iz(page, true);
+        const b = await iz(page, true);
+        expect(a.tohum).toBe(String(OP_ELMA));
+        expect([b.tohum, b.tepe, b.hedefler, b.harita]).toEqual([a.tohum, a.tepe, a.hedefler, a.harita]);
+        ayniKonum(b.bas, a.bas);
+        expect(b.seyir.length).toBe(a.seyir.length);
+        a.seyir.forEach((u, i) => ayniKonum(b.seyir[i], u));
+        expect(Object.keys(a.harita).length).toBeGreaterThan(5);
+        // Hiç basmadan (bambaşka zamanlama): açılış aynı; aynı sıra numarasının tarafı ve şeridi aynı
+        const c = await iz(page, false);
+        ayniKonum(c.bas, a.bas);
+        const ortak = Object.keys(c.harita).filter((s) => a.harita[s]);
+        expect(ortak.length).toBeGreaterThan(3);
+        for (const s of ortak) expect(c.harita[s], 'sıra ' + s).toBe(a.harita[s]);
+        // Sözleşme: taraf/şerit YALNIZ rng(tohum)'dan (oyun başlığındaki plan): çift başına bir rnd() (ilki hangi yandan),
+        // her yanda şerit yakın(1)/uzak(0) sırayla. Kare zamanlamasına, doluluğa bakan bir seçim bu eşitliği bozar.
+        const rnd = loadOyunOrtak().rng(OP_ELMA);
+        const plan = {}, sayac = { sol: 0, sag: 0 };
+        for (let i = 0; i < OP_ELMA_K.length; i += 2) {
+            const once = rnd() < 0.5 ? 'sol' : 'sag', sonra = once === 'sol' ? 'sag' : 'sol';
+            [once, sonra].forEach((t, j) => { if (i + j < OP_ELMA_K.length) plan[i + j] = t + ':' + (1 - (sayac[t]++ % 2)); });
+        }
+        for (const h of [a.harita, c.harita]) for (const s of Object.keys(h)) expect(h[s], 'plan, sıra ' + s).toBe(plan[s]);
+        // Başka tohum → başka tepe çizgisi; durdur DOM'u boşaltır
+        const d = await page.evaluate(() => {
+            const kap = document.createElement('div');
+            kap.style.cssText = 'position:fixed;width:800px;height:360px;left:0;top:0';
+            document.body.appendChild(kap);
+            const oy = window.OnParmakOyunlari.elma;
+            oy.baslat(kap, { metin: 'hala daha', tohum: 999 }, { tus() {}, bitti() {} });
+            const x = kap.querySelector('.op-elma__tepe').getAttribute('d');
+            oy.durdur();
+            const bos = kap.childElementCount;
+            kap.remove();
+            return { x, bos };
+        });
+        expect(d.x).not.toBe(a.tepe);
+        expect(d.bos).toBe(0);
+        errors.assertClean();
+    });
+});
+
+// Normal hız yolu: sekme, kaçışta zıplama + koşu (sahneden çıkar), elmanın daldan pati'ye uçuşu, kazanınca elma zıplaması
+opTestElma.describe('OnParmak — Elma Bekçisi, normal hareket', () => {
+    opTestElma.use({ reducedMotion: 'no-preference' });
+    opTestElma('sincaplar sekerek yürür; kaçan sincap koşarak sahneden çıkar; elma daldan uçup sincapla gider; kazanma ≥ 1 yıldız, elmalar zıplar', async ({ page, errors }) => {
+        opTestElma.setTimeout(150000);
+        await opElmaAc(page);
+        const k = OP_ELMA_K;
+        expect(await page.evaluate(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(false);
+        // Sekme: iç grupta dikey öteleme değişir; normal hız azaltılmıştan yüksek (1 sn'de > 0,04 m)
+        const sek = () => page.locator('.op-elma__s[data-sira="0"] > g').getAttribute('transform');
+        const m0 = (await opSnc(page))[0].m;
+        const s1 = await sek();
+        await page.clock.runFor(1000);
+        expect(await sek()).not.toBe(s1);
+        expect((await opSnc(page))[0].m - m0).toBeGreaterThan(0.04);
+        // Kaçış: ilk kelimeyi bitir → sincap kendi kenarına doğru koşar ve sahneden çıkar
+        const taraf = (await opSnc(page))[0].taraf;
+        for (const ch of k[0]) await page.evaluate((c) => window.__opBas(c), ch);
+        const kacan = page.locator('.op-elma__s.is-kaciyor');
+        await expect(kacan).toHaveCount(1);
+        await expect(page.locator('.op-elma__etiket--pop')).toHaveCount(1);     // etiket yerinde büyüyüp söner
+        const xOf = () => kacan.evaluate((g) => Number(/translate\(([-\d.]+)/.exec(g.getAttribute('transform'))[1]));
+        const x0 = await xOf();
+        await page.clock.runFor(400);
+        const x1 = await xOf();
+        if (taraf === 'sol') expect(x1).toBeLessThan(x0 - 40); else expect(x1).toBeGreaterThan(x0 + 40);
+        await expect(page.locator('.op-elma__etiket--pop')).toHaveCount(0);
+        await page.clock.runFor(2500);
+        await expect(kacan).toHaveCount(0);
+        // Elma alma: bir sincap ağaca varınca elma daldan uçar (sincap bekler), sonra sincapla gider
+        for (let i = 0; i < 400 && (await opElma(page).getAttribute('data-elma')) === '5'; i++) await page.clock.runFor(100);
+        await expect(opElma(page)).toHaveAttribute('data-elma', '4');
+        await expect(page.locator('.op-elma__s.is-aliyor')).toHaveCount(1);
+        const tasinan = page.locator('.op-elma__tasinan');
+        await expect(tasinan).toHaveCount(1);
+        const yOf = () => tasinan.evaluate((g) => Number(/translate\([-\d.]+ ([-\d.]+)/.exec(g.getAttribute('transform'))[1]));
+        const y0 = await yOf();
+        await page.clock.runFor(500);
+        await expect(page.locator('.op-elma__s.is-aliyor')).toHaveCount(0);
+        await expect(page.locator('.op-elma__s.is-kaciyor')).toHaveCount(1);
+        expect(await yOf()).toBeGreaterThan(y0 + 40);                           // daldan sincabın eline indi
+        await tasinan.evaluate((g) => { g.dataset.iz = '1'; });
+        await page.clock.runFor(3000);
+        await expect(page.locator('.op-elma__tasinan[data-iz]')).toHaveCount(0);   // sincapla sahneden çıktı
+        await opElmaYaz(page, 250);
+        await expect(opOyun(page)).toHaveAttribute('data-mod', 'sonuc');
+        await expect(opElma(page)).toHaveAttribute('data-bitti', 'canli');
+        expect(Number(await opOyun(page).getAttribute('data-sonuc'))).toBeGreaterThanOrEqual(1);
+        // Kutlama: daldaki elmalar sırayla zıplar
+        await page.clock.runFor(150);
+        expect(await page.locator('.op-elma__yuva:not(.is-alindi) .op-elma__elma').first().getAttribute('transform')).toMatch(/translate\(0 -/);
+        errors.assertClean();
+    });
+});
+
 // Kapalı oyun (active:false), katalog YAMASIZ: hiçbir yoldan açılmaz, hub'da "Yakında" kartı + ikon.
 // PR3'te oyun açılınca (active:true) bu describe silinir.
 const opTestYamasiz = test.extend({
@@ -2461,6 +2915,29 @@ test.describe('OnParmakOyunOrtak — rng / hedefSec / uyarlanirHiz (tarayıcıs�
         expect(O.hedefSec([a, b], 'e', a)).toBe(a);              // tehlikesi daha yüksek b'ye geçmez
         expect(O.hedefSec([a, b], 'e')).toBe(b);                 // kilitsiz: a başlanmış, b seçilir
         expect(O.hedefSec([b], 'e', a)).toBe(b);                 // kilit artık listede yok
+    });
+
+    test('enAcil / beklenenHarf: kilit varsa kilitli kelimenin sıradaki harfi; yoksa tehlikesi en yüksek hedefin ilk harfi (eşitte ilk)', () => {
+        const a = { kelime: 'elma', tehlike: 0.2 }, b = { kelime: 'ışık', tehlike: 0.7 }, c = { kelime: 'ağaç', tehlike: 0.7 };
+        expect(O.enAcil([a, b, c])).toBe(b);
+        expect(O.enAcil([])).toBe(null);
+        expect(O.beklenenHarf([a, b, c])).toBe('ı');
+        expect(O.beklenenHarf([a, b], { kelime: 'şişe', ilerleme: 2 })).toBe('ş');
+        expect(O.beklenenHarf([a], { kelime: 'elma', ilerleme: 4 })).toBe(null);   // bitmiş kilit
+        expect(O.beklenenHarf([])).toBe(null);
+        // en acilin ilk harfi basılırsa hedefSec de AYNI hedefi seçer (vurgu ile seçim tutarlı)
+        expect(O.hedefSec([a, b, c], O.beklenenHarf([a, b, c]))).toBe(b);
+    });
+
+    test('hedefBildirici: yalnız değişince kok.dataset.hedef + geri çağrı; null ve boş aynı', () => {
+        const kok = { dataset: {} }, gelen = [];
+        const yaz = O.hedefBildirici(kok, (ch) => gelen.push(ch));
+        yaz('a'); yaz('a'); yaz(null); yaz(''); yaz('b');
+        expect(gelen).toEqual(['a', null, 'b']);
+        expect(kok.dataset.hedef).toBe('b');
+        const yalniz = O.hedefBildirici(kok);                     // geri çağrısız da çalışır
+        yalniz(null);
+        expect(kok.dataset.hedef).toBe('');
     });
 
     test('uyarlanirHiz: taban başlangıç, başarıda artar (≤ max), can kaybında azalır (≥ min); reduced-motion tabanı düşürür', () => {
@@ -2641,8 +3118,8 @@ test.describe('OnParmakOyunOrtak — tepeYolu (tarayıcısız)', () => {
 
     test('yayımlanan API: çekirdek + sahne yardımcıları + kabuk', () => {
         const O = loadOyunOrtak();
-        expect(Object.keys(O).sort()).toEqual(['canlarHud', 'devamKatmani', 'dongu', 'easeOut', 'hedefSec', 'htmlEl', 'oyunKabugu',
-            'rng', 'svgEl', 'tepeYolu', 'uyarlanirHiz'].sort());
+        expect(Object.keys(O).sort()).toEqual(['beklenenHarf', 'canlarHud', 'devamKatmani', 'dongu', 'easeOut', 'enAcil', 'hedefBildirici',
+            'hedefSec', 'htmlEl', 'oyunKabugu', 'rng', 'svgEl', 'tepeYolu', 'uyarlanirHiz'].sort());
         expect(O.easeOut(0)).toBe(0);
         expect(O.easeOut(1)).toBe(1);
         expect(O.easeOut(0.5)).toBeCloseTo(0.875, 9);
@@ -2688,6 +3165,15 @@ test.describe('OnParmakOyunOrtak — canlarHud / devamKatmani / oyunKabugu (tara
         });
         expect(r.a).toEqual({ sinif: 'op-mini__canlar', rol: 'img', etiket: 'Can: 3 / 3', d: [false, false, false] });
         expect(r.b).toEqual({ etiket: 'Can: 1 / 3', d: [false, true, true] });
+        // Seçenekler: ad (aria-label), ikon yolu, ek sınıf (Elma Bekçisi: 5 elma)
+        const e = await page.evaluate(() => {
+            const h = window.OnParmakOyunOrtak.canlarHud(5, { ad: 'Elma', yol: 'M1 1h2v2z', sinif: 'x-elma' });
+            h.guncelle(4);
+            const c = h.el.querySelectorAll('.op-mini__can');
+            return { n: c.length, sinif: c[0].getAttribute('class'), yol: c[0].querySelector('path').getAttribute('d'),
+                etiket: h.el.getAttribute('aria-label'), gitti: c[4].classList.contains('is-gitti') };
+        });
+        expect(e).toEqual({ n: 5, sinif: 'op-mini__can x-elma', yol: 'M1 1h2v2z', etiket: 'Elma: 4 / 5', gitti: true });
     });
 
     test('devamKatmani: başta gizli, role=status, iki satır metin', async ({ page }) => {
