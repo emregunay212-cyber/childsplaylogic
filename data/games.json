@@ -86,8 +86,30 @@
       "active": true,
       "stars": 0,
       "files": {
-        "js": ["js/games/klavye-kasifi-icerik.js", "js/games/klavye-kasifi.js"],
+        "js": ["js/games/klavye-dizilim.js", "js/games/klavye-kasifi-icerik.js", "js/games/klavye-kasifi.js"],
         "css": ["css/klavye-kasifi.css"]
+      }
+    },
+    {
+      "slug": "on-parmak",
+      "name": "On Parmak",
+      "module": "OnParmak",
+      "section": "harf",
+      "cat": "Klavye",
+      "subject": "kodlama",
+      "age": [6, 12],
+      "minutes": 30,
+      "levels": 1,
+      "teaches": "On parmak klavye: parmakları orta sıraya yerleştirme, her tuşa doğru parmakla basma, doğruluk ve hız",
+      "short": "On parmak klavye kullanmayı adım adım öğren: orta sıradan başla, her tuşa doğru parmakla bas.",
+      "about": "On Parmak, çocuğun Türkçe Q klavyede on parmakla yazmayı adım adım öğrendiği klavye oyunudur. Her yeni tuş önce tanıtılır: ekrandaki klavyede tuş, el çiziminde de basacak parmak yanar. Ardından kısa alıştırmalar ve satır satır yazma gelir; her bölümün sonunda doğruluk, hız (kelime/dk) ve süre gösterilir. Doğruluk yüzde 80'in altında kalırsa bölüm baştan tekrarlanır, böylece hız değil önce doğru parmak alışkanlığı kazanılır. Açılışta istenen kısım ya da bölüm seçilir; oyun oradan kendiliğinden ilerler. Fiziksel klavyeyle oynanır. 6-12 yaş için ücretsiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": false,
+      "stars": 0,
+      "files": {
+        "js": ["js/games/klavye-dizilim.js", "js/games/on-parmak-olcum.js", "js/games/on-parmak-icerik.js", "js/games/on-parmak-ekran.js", "js/games/on-parmak.js"],
+        "css": ["css/on-parmak.css"]
       }
     },
     {

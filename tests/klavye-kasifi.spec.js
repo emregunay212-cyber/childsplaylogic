@@ -139,7 +139,7 @@ test.describe('Klavye Kâşifi — içerik (tarayıcısız)', () => {
         // Kayıt defteri: levels = kısım sayısı, içerik dosyası modülden önce yüklenir
         const entry = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/games.json'), 'utf8')).games.find((g) => g.slug === SLUG);
         expect(entry.levels).toBe(C.length);
-        expect(entry.files.js).toEqual(['js/games/klavye-kasifi-icerik.js', 'js/games/klavye-kasifi.js']);
+        expect(entry.files.js).toEqual(['js/games/klavye-dizilim.js', 'js/games/klavye-kasifi-icerik.js', 'js/games/klavye-kasifi.js']);
     });
 
     test('35 dakikalık ders: orta hız bitiremez, usta bitirir', () => {
@@ -159,6 +159,39 @@ test.describe('Klavye Kâşifi — içerik (tarayıcısız)', () => {
         const minutes = (cps) => (keys / cps + fixed) / 60;   // hatasız, okuma/arama payı sıfır → ALT sınır
         expect(minutes(2.5), '30 kelime/dk bitirmemeli').toBeGreaterThan(35);
         expect(minutes(4), '48 kelime/dk (usta) bitirebilmeli').toBeLessThan(35);
+    });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Ortak dizilim (tarayıcısız): ROWS/CODE_MAP artık js/games/klavye-dizilim.js'in Kâşifi görünümünden gelir.
+// Aşağıdaki iki sabit, dizilim modülüne taşınmadan ÖNCEKİ Kâşifi değerleridir (fikstür): görünüm bunlarla
+// derin-eşit kalmalı — Kâşifi'nin ekran klavyesi ve fiziksel tuş eşlemesi hiç değişmemeli.
+const ESKI_ROWS = [
+    [['1', '!'], ['2', "'"], ['3', '^'], ['4', '+'], ['5', '%'], ['6', '&'], ['7', '/'], ['8', '('], ['9', ')'], ['0', '='], ['*', '?']],
+    ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'Ğ', 'Ü'],
+    ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Ş', 'İ', [',', ';']],
+    ['Z', 'X', 'C', 'V', 'B', 'N', 'M', 'Ö', 'Ç', ['.', ':']],
+];
+const ESKI_CODE_MAP = {
+    Semicolon: ['Ş', 'Ş'], Quote: ['İ', 'İ'], BracketLeft: ['Ğ', 'Ğ'], BracketRight: ['Ü', 'Ü'],
+    Comma: ['Ö', 'Ö'], Period: ['Ç', 'Ç'], KeyI: ['I', 'I'],
+    Slash: ['.', ':'], Backslash: [',', ';'], Minus: ['*', '?'],
+};
+ESKI_ROWS[0].slice(0, 10).forEach((k) => { ESKI_CODE_MAP['Digit' + k[0]] = k; });
+
+function loadDizilim() {
+    const window = {};
+    const rel = 'js/games/klavye-dizilim.js';
+    vm.runInNewContext(fs.readFileSync(path.join(ROOT, rel), 'utf8'), { window }, { filename: rel });
+    return window.KlavyeDizilim;
+}
+
+test.describe('Klavye Kâşifi — ortak dizilim görünümü (tarayıcısız)', () => {
+    test('kasifi.satirlar() / kodHaritasi() bugünkü ROWS / CODE_MAP ile derin-eşit', () => {
+        const D = loadDizilim();
+        expect(D.kasifi.satirlar()).toEqual(ESKI_ROWS);
+        expect(D.kasifi.kodHaritasi()).toEqual(ESKI_CODE_MAP);
+        expect(Object.keys(D.kasifi.kodHaritasi()).sort(), 'anahtar kümesi aynen').toEqual(Object.keys(ESKI_CODE_MAP).sort());
     });
 });
 

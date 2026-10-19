@@ -1,0 +1,1205 @@
+/* ============================================
+   On Parmak — oyun stili (hub-içi). Token'lar css/tokens.css; bu dosyada ham hex YOK.
+   Bölüm 1: ekran — klavye + eller tek SVG (js/games/on-parmak-ekran.js).
+   Bölüm 2: oyun — seçici, üst şerit (ilerleme + El/Klavye), Caps Lock uyarısı, sahne (tanıtım / kutu / satır),
+   canlı ölçüm, sonuç ve kısım şeridi (js/games/on-parmak.js).
+
+   Ekran ilkeleri:
+   - Sıradaki tuş ve parmağı AYNI renkte (--gunes) yanar: göz tuştan parmağa tek renkle bağ kurar. Shift'li karakterde
+     karşı Shift ve karşı serçe de aynı renkte.
+   - Basış klavyeden gelir, dakikada yüzlerce kez → AÇILIŞ ANINDA (geçişsiz), sönüş kısa ease-out. Tuş kapağı 3 birim iner.
+   - Yanlış: kırmızı kenar + kısa yatay sallanma (--op-salla-sure, 200 ms). Hedefte nabız yalnız hale saydamlığında (konum oynamaz).
+   - Hedef/basış vurgusu ELLERİN ÜSTÜNDEKİ vurgu katmanında: alt sıra tuşları parmak altında da yanar.
+   - prefers-reduced-motion: nabız/sallanma/iniş yok — durağan vurgu (renk + hale), spec §8.
+   ============================================ */
+
+.op-ekran,
+.op-oyun {
+    --op-salla-sure: 200ms;            /* yanlış tuş sallanması: kısa, okunur; seyrek an (tanıtım, ekran tuşu) */
+}
+
+.op-ekran {
+    width: 100%;
+    max-width: 960px;
+    margin-inline: auto;
+}
+
+.op-ekran__svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+/* ── Tepsi ve tuşlar ── */
+.op-tepsi {
+    fill: var(--mavi-050);
+    stroke: var(--cizgi);
+    stroke-width: 2;
+}
+
+.op-tus {
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.op-tus__taban {
+    fill: var(--cizgi);
+}
+
+.op-tus__kapak {
+    fill: var(--beyaz);
+    stroke: var(--cizgi);
+    stroke-width: 2;
+    transition: fill var(--sure-gecis) var(--egri-out), stroke var(--sure-gecis) var(--egri-out),
+        transform var(--sure-bas) var(--egri-out);
+}
+
+.op-tus--sus {
+    fill: none;
+    stroke: var(--cizgi);
+    stroke-width: 2;
+    pointer-events: none;
+}
+
+.op-tus.is-pasif {
+    cursor: default;
+}
+
+.op-tus.is-pasif .op-tus__kapak {
+    fill: var(--mavi-050);
+    stroke-dasharray: 5 5;
+}
+
+/* Sıradaki tuş */
+.op-tus.is-hedef .op-tus__kapak {
+    fill: var(--gunes);
+    stroke: var(--murekkep);
+    stroke-width: 3;
+    transition: none;
+}
+
+/* Basış — açılışta geçiş yok (anında), sönüş .op-tus__kapak geçişiyle */
+.op-tus.is-down .op-tus__kapak,
+.op-tus.is-yanlis .op-tus__kapak {
+    transition: none;
+    transform: translateY(3px);
+}
+
+.op-tus.is-down .op-tus__kapak {
+    fill: var(--dogru-zemin);
+    stroke: var(--dogru);
+    stroke-width: 3;
+}
+
+.op-tus.is-yanlis .op-tus__kapak {
+    fill: var(--yanlis-zemin);
+    stroke: var(--yanlis);
+    stroke-width: 3;
+}
+
+.op-tus.is-yanlis,
+.op-vurgu.is-yanlis,
+.op-etiket.is-yanlis {
+    animation: op-salla var(--op-salla-sure) var(--egri-out);
+}
+
+/* ── Vurgu katmanı (ellerin üstünde, etiketlerin altında; tıklanmaz) ──
+   Her tuşun kopyası; yalnız durum sınıfı varken görünür. Yarı saydam dolgu: alttaki parmak sezilir, tuş rengi okunur. */
+.op-vurgular {
+    pointer-events: none;
+}
+
+.op-vurgu {
+    display: none;
+}
+
+.op-vurgu.is-hedef,
+.op-vurgu.is-down,
+.op-vurgu.is-yanlis {
+    display: inline;
+}
+
+.op-vurgu__kapak {
+    fill: var(--gunes);
+    fill-opacity: 0.6;
+    stroke: var(--murekkep);
+    stroke-width: 3;
+}
+
+.op-vurgu__hale {
+    fill: none;
+    stroke: var(--gunes);
+    stroke-width: 4;
+    opacity: 0;
+}
+
+.op-vurgu.is-hedef .op-vurgu__hale {
+    animation: op-nabiz 1.1s ease-in-out infinite alternate;
+}
+
+/* Basış hedefin önüne geçer (aynı tuş hem hedef hem basılı olabilir) */
+.op-vurgu.is-down .op-vurgu__kapak,
+.op-vurgu.is-yanlis .op-vurgu__kapak {
+    transform: translateY(3px);
+}
+
+.op-vurgu.is-down .op-vurgu__kapak {
+    fill: var(--dogru-zemin);
+    fill-opacity: 0.75;
+    stroke: var(--dogru);
+}
+
+.op-vurgu.is-yanlis .op-vurgu__kapak {
+    fill: var(--yanlis-zemin);
+    fill-opacity: 1;
+    stroke: var(--yanlis);
+}
+
+.op-vurgu.is-down .op-vurgu__hale,
+.op-vurgu.is-yanlis .op-vurgu__hale {
+    animation: none;
+    opacity: 0;
+}
+
+/* ── Etiketler (elin üstünde; tıklanmaz) ── */
+.op-etiketler {
+    pointer-events: none;
+}
+
+.op-etiket {
+    fill: var(--murekkep);
+    font-family: var(--font-display);
+    font-weight: 600;
+}
+
+/* İnce zemin halesi: parmak çizgileri harfin içinden geçmesin (paint-order: önce kontur, sonra dolgu) */
+.op-etiket text {
+    stroke: var(--beyaz);
+    stroke-width: 4px;
+    stroke-linejoin: round;
+    paint-order: stroke fill;
+    transition: transform var(--sure-bas) var(--egri-out);
+}
+
+.op-etiket.is-hedef text {
+    stroke: var(--gunes);
+}
+
+.op-etiket.is-down text,
+.op-etiket.is-yanlis text {
+    transition: none;
+    transform: translateY(3px);
+}
+
+.op-etiket.is-yanlis {
+    fill: var(--yanlis);
+}
+
+.op-etiket.is-pasif {
+    fill: var(--murekkep-orta);
+}
+
+.op-etiket__harf {
+    font-size: 26px;
+}
+
+.op-etiket__alt {
+    font-size: 20px;
+}
+
+.op-etiket__ust {
+    font-size: 15px;
+    fill: var(--murekkep-orta);
+}
+
+.op-etiket__kucuk {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 700;
+    fill: var(--murekkep-orta);
+}
+
+.op-etiket.is-hedef .op-etiket__ust,
+.op-etiket.is-hedef .op-etiket__kucuk {
+    fill: var(--murekkep);
+}
+
+.op-etiket__kabarti {
+    stroke: var(--murekkep-orta);
+    stroke-width: 3;
+    stroke-linecap: round;
+}
+
+/* ── Eller ── beyaz eldiven; katman saydamlığı alttaki tuşu gösterir (parmak ile avuç üst üste binse de çift koyulaşmaz) */
+.op-eller {
+    pointer-events: none;
+    opacity: 0.78;
+}
+
+.op-parmak,
+.op-avuc {
+    fill: var(--beyaz);
+    stroke: var(--murekkep-orta);
+    stroke-width: 2.5;
+    stroke-linejoin: round;
+}
+
+.op-parmak.is-hedef {
+    fill: var(--gunes);
+    stroke: var(--murekkep);
+    stroke-width: 3;
+}
+
+/* ── Göster / gizle ── */
+.op-ekran--elsiz .op-eller,
+.op-ekran--klavyesiz .op-tepsi,
+.op-ekran--klavyesiz .op-tuslar,
+.op-ekran--klavyesiz .op-vurgular,
+.op-ekran--klavyesiz .op-etiketler {
+    display: none;
+}
+
+@keyframes op-nabiz {
+    from { opacity: 0.25; }
+    to { opacity: 0.9; }
+}
+
+@keyframes op-salla {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .op-vurgu.is-hedef .op-vurgu__hale {
+        animation: none;
+        opacity: 0.7;
+    }
+
+    .op-tus.is-yanlis,
+    .op-vurgu.is-yanlis,
+    .op-etiket.is-yanlis {
+        animation: none;
+    }
+
+    .op-tus.is-down .op-tus__kapak,
+    .op-tus.is-yanlis .op-tus__kapak,
+    .op-vurgu.is-down .op-vurgu__kapak,
+    .op-vurgu.is-yanlis .op-vurgu__kapak,
+    .op-etiket.is-down text,
+    .op-etiket.is-yanlis text {
+        transform: none;
+    }
+
+    .op-tus__kapak,
+    .op-etiket text {
+        transition: fill var(--sure-gecis) var(--egri-out), stroke var(--sure-gecis) var(--egri-out);
+    }
+}
+
+
+/* ============================================
+   Bölüm 2 — oyun (js/games/on-parmak.js)
+   --------------------------------------------
+   İlkeler (impeccable + emil-design-eng):
+   - Hedef rengi TEK: --gunes (ekrandaki tuş/parmak, tanıtım tuş kapağı). Doğru --dogru, yanlış --yanlis; renk tek
+     başına bilgi taşımaz: doğru kutuda ✓, yanlış kutuda basılan karakter, düzeltilen kutu ✓'siz ve kesik kenarlı.
+   - Klavyeden gelen durum değişimleri (kutu, harf, imleç) ANINDA — dakikada yüzlerce kez görülür, geçiş yok.
+     Hareket yalnız seyrek anlarda: şerit girişi (--sure-gecis, --egri-out; çıkış daha hızlı --sure-bas),
+     satır kayması (--sure-gecis), tanıtımda yanlış tuş sallanması (--op-salla-sure).
+   - Yerleşim kararlı: sahne SABİT yükseklikte (en uzun içerik = 3 satır + ölçüm), Caps uyarısı sahnenin üstüne biner →
+     bölüm türü değişince ya da uyarı gelip gidince klavye ve eller dikeyde oynamaz.
+   - prefers-reduced-motion: kayma/sallanma/ölçek yok; şerit yalnız saydamlıkla.
+   ============================================ */
+
+.op-oyun {
+    --op-satir-boy: clamp(1.3rem, 0.9rem + 1.6vw, 2rem);   /* satır motoru yazı boyu */
+    --op-sahne-ic: 128px;              /* sahnede satırlar dışındaki pay: iç boşluk + yönerge + ölçüm + aralıklar */
+    --op-sahne-yuk: calc(var(--op-satir-boy) * 5.1 + var(--op-sahne-ic));   /* 3 satır × 1,7em */
+    /* ekran dışındaki dikey bütçe: araç çubuğu (56) + alan iç boşluğu (2×16) + üst (44) + aralıklar (2×12) + sahne */
+    --op-ekran-pay: calc(var(--op-sahne-yuk) + 160px);
+    position: relative;
+    width: 100%;
+    max-width: 960px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--ara-3);
+    font-family: var(--font-display);
+    color: var(--murekkep);
+}
+
+/* ── Üst: ilerleme + El / Klavye ── */
+.op-ust {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ara-3);
+    min-width: 0;
+}
+
+.op-ilerleme {
+    display: flex;
+    align-items: baseline;
+    gap: var(--ara-2);
+    min-width: 0;
+}
+
+.op-ilerleme__no {
+    flex: none;
+    padding: var(--ara-1) var(--ara-3);
+    border-radius: var(--r-hap);
+    background: var(--beyaz);
+    box-shadow: var(--golge-1);
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.op-ilerleme__ad {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.op-dugmeler {
+    flex: none;
+    display: flex;
+    gap: var(--ara-2);
+}
+
+.op-dugme {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ara-2);
+    min-height: 44px;
+    padding: 0 var(--ara-4) 0 var(--ara-3);
+    border: 2px solid var(--cizgi);
+    border-radius: var(--r-hap);
+    background: var(--beyaz);
+    color: var(--murekkep-orta);
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform var(--sure-bas) var(--egri-out), border-color var(--sure-gecis) var(--egri-out),
+        background-color var(--sure-gecis) var(--egri-out), color var(--sure-gecis) var(--egri-out);
+}
+
+/* Anahtar göstergesi: boş halka (kapalı) / dolu nokta (açık) — renk dışında biçim de değişir */
+.op-dugme::before {
+    content: "";
+    width: 12px;
+    height: 12px;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    box-sizing: border-box;
+}
+
+.op-dugme[aria-pressed="true"] {
+    border-color: var(--mavi-800);
+    background: var(--mavi-050);
+    color: var(--murekkep);
+}
+
+.op-dugme[aria-pressed="true"]::before {
+    border-color: var(--mavi-800);
+    background: var(--mavi-800);
+}
+
+/* Simge yalnız dar ekranda (yazının yerine); geniş ekranda nokta + yazı */
+.op-dugme__ikon {
+    display: none;
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.op-dugme[aria-pressed="true"] .op-dugme__kapali {
+    display: none;
+}
+
+.op-dugme:active:not(:disabled) {
+    transform: scale(0.97);
+}
+
+.op-dugme:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.op-dugme:focus-visible,
+.op-picker__kisim:focus-visible,
+.op-picker__bolum:focus-visible {
+    outline: 3px solid var(--mavi-800);
+    outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .op-dugme:hover:not(:disabled) {
+        border-color: var(--mavi-800);
+    }
+}
+
+/* ── Caps Lock uyarısı: yazma durur; uyarı sahnenin üst kenarına BİNER (yer kaplamaz → klavye oynamaz) ── */
+.op-caps {
+    position: absolute;
+    top: var(--ara-3);
+    left: var(--ara-3);
+    right: var(--ara-3);
+    z-index: 3;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: center;
+    gap: var(--ara-1) var(--ara-2);
+    padding: var(--ara-3) var(--ara-4);
+    border: 2px solid var(--murekkep);
+    border-radius: var(--r-giris);
+    background: var(--gunes);
+    box-shadow: var(--golge-2);
+    text-align: center;
+}
+
+.op-caps[hidden] {
+    display: none;
+}
+
+.op-caps__baslik {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.op-caps__metin {
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+/* Caps açıkken sahne soluk: basışların sayılmadığı görünür */
+.op-oyun.is-caps .op-alan {
+    opacity: 0.35;
+}
+
+/* ── Sahne kartı ── */
+.op-sahne {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--ara-3);
+    padding: var(--ara-4) var(--ara-5);
+    border-radius: var(--r-kart);
+    background: var(--beyaz);
+    box-shadow: var(--golge-2);
+    height: var(--op-sahne-yuk);
+    flex: none;
+}
+
+.op-yonerge {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--murekkep-orta);
+    text-align: center;
+    text-wrap: balance;
+}
+
+.op-yonerge:empty {
+    display: none;
+}
+
+.op-alan {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--ara-3);
+    transition: opacity var(--sure-gecis) var(--egri-out);
+}
+
+.op-oyun.is-serit .op-alan,
+.op-oyun.is-serit .op-yonerge,
+.op-oyun.is-serit .op-olcum {
+    opacity: 0.18;
+}
+
+/* ── Tanıtım: büyük tuş kapağı + cümle ── */
+.op-alan--tanitim {
+    gap: var(--ara-4);
+    padding-block: var(--ara-2);
+}
+
+.op-tanitim__tus {
+    display: grid;
+    place-items: center;
+    min-width: 96px;
+    height: 96px;
+    padding: 0 var(--ara-4);
+    border: 2px solid var(--murekkep);
+    border-bottom-width: 7px;
+    border-radius: var(--r-giris);
+    background: var(--gunes);
+    font-size: 3.2rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.op-tanitim__tus--genis {
+    min-width: 220px;
+    font-size: 1.8rem;
+}
+
+.op-tanitim__tus.is-yanlis {
+    animation: op-salla var(--op-salla-sure) var(--egri-out);
+}
+
+.op-tanitim__cumle {
+    margin: 0;
+    font-size: clamp(1.25rem, 1rem + 1.2vw, 1.7rem);
+    font-weight: 500;
+    text-align: center;
+    text-wrap: balance;
+}
+
+.op-tanitim__cumle strong {
+    font-weight: 700;
+}
+
+/* ── Kutu motoru ── */
+.op-kutular {
+    /* Kutu: görünüm genişliğinden (yükseklik ve yazı boyu da buna bağlı; % burada kullanılamaz) */
+    --op-kutu: clamp(38px, calc((min(100vw, 960px) - 96px - 6 * var(--ara-2)) / 7), 76px);
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: var(--ara-2);
+    padding-top: 10px;                 /* ✓ rozeti kutunun üstüne taşar */
+}
+
+.op-kutu {
+    position: relative;
+    flex: 0 0 var(--op-kutu);
+    height: calc(var(--op-kutu) * 1.15);
+    display: grid;
+    place-items: center;
+    border: 2px solid var(--cizgi);
+    border-radius: var(--r-giris);
+    background: var(--beyaz);
+    font-size: calc(var(--op-kutu) * 0.52);
+    font-weight: 600;
+    line-height: 1;
+}
+
+/* Etkin kutu: kalın alt çizgi (yazı imleci) + mavi kenar */
+.op-kutu.is-etkin {
+    border-color: var(--mavi-800);
+}
+
+.op-kutu.is-etkin::after {
+    content: "";
+    position: absolute;
+    left: 18%;
+    right: 18%;
+    bottom: -10px;
+    height: 4px;
+    border-radius: var(--r-hap);
+    background: var(--mavi-800);
+}
+
+.op-kutu--bosluk .op-kutu__harf {
+    color: var(--murekkep-orta);
+}
+
+.op-kutu.is-dogru {
+    border-color: var(--dogru);
+    background: var(--dogru-zemin);
+}
+
+.op-kutu.is-dogru .op-kutu__harf {
+    color: var(--dogru);
+}
+
+.op-kutu.is-yanlis {
+    border-color: var(--yanlis);
+    background: var(--yanlis-zemin);
+}
+
+.op-kutu.is-yanlis .op-kutu__harf {
+    color: var(--yanlis);
+}
+
+/* Düzeltildi: geçti ama ✓ yok — kesik kenar, soluk harf */
+.op-kutu.is-duzeltildi {
+    border-style: dashed;
+    border-color: var(--murekkep-orta);
+}
+
+.op-kutu.is-duzeltildi .op-kutu__harf {
+    color: var(--murekkep-orta);
+}
+
+.op-kutu__tik {
+    position: absolute;
+    top: -10px;
+    right: -8px;
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    border: 2px solid var(--beyaz);
+    border-radius: 50%;
+    background: var(--dogru);
+    color: var(--beyaz);
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.op-sayfalar {
+    display: flex;
+    gap: 6px;
+    margin-top: var(--ara-2);
+}
+
+.op-sayfa {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--cizgi);
+}
+
+.op-sayfa.is-bitti {
+    background: var(--dogru);
+}
+
+.op-sayfa.is-etkin {
+    width: 22px;
+    border-radius: var(--r-hap);
+    background: var(--mavi-800);
+}
+
+/* ── Satır motoru: 3 görünür satır, etkin satır ortada ── */
+.op-satirlar {
+    --op-satir-yuk: 1.7em;
+    width: 100%;
+    height: calc(3 * var(--op-satir-yuk));
+    overflow: hidden;
+    font-size: var(--op-satir-boy);
+    font-weight: 500;
+}
+
+.op-satirlar__ic {
+    transition: transform var(--sure-gecis) var(--egri-out);
+}
+
+.op-satir {
+    height: var(--op-satir-yuk);
+    line-height: var(--op-satir-yuk);
+    white-space: pre;
+    text-align: left;
+    color: var(--murekkep-orta);
+}
+
+.op-satir.is-etkin {
+    color: var(--murekkep);
+}
+
+.op-harf {
+    display: inline-block;
+    min-width: 0.32em;
+    padding: 0 0.02em;
+    border-radius: 6px;
+    line-height: 1.35;
+    white-space: pre;
+}
+
+.op-harf.is-dogru {
+    background: var(--dogru-zemin);
+    color: var(--dogru);
+}
+
+.op-harf.is-yanlis {
+    background: var(--yanlis-zemin);
+    color: var(--yanlis);
+    text-decoration: underline wavy var(--yanlis);
+    text-underline-offset: 0.18em;
+}
+
+/* İmleç: sıradaki karakterin altında kalın çizgi */
+.op-harf.is-imlec {
+    background: var(--mavi-050);
+    box-shadow: inset 0 -4px 0 var(--mavi-800);
+    color: var(--murekkep);
+}
+
+/* ── Canlı ölçüm (ilk basıştan sonra) ── */
+.op-olcum {
+    display: flex;
+    gap: var(--ara-5);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--murekkep-orta);
+    visibility: hidden;
+    transition: opacity var(--sure-gecis) var(--egri-out);
+}
+
+.op-oyun[data-tur="kutu"] .op-olcum {
+    display: none;
+}
+
+.op-oyun.is-olcum .op-olcum {
+    visibility: visible;
+}
+
+/* Tekrar şeridinde hız gösterilmez (yalnız doğruluk ve hedef): %80 altında hız övgü/baskı olmasın */
+.op-oyun[data-sonuc="tekrar"] .op-olcum__oge--hiz {
+    visibility: hidden;
+}
+
+.op-olcum__deger {
+    font-weight: 800;
+    color: var(--murekkep);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ── Şerit: sonuç / tekrar / bilgi / kısım — sahne kartının ortasında, düğmesiz ── */
+.op-serit {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 2;
+    width: max-content;
+    max-width: calc(100% - 2 * var(--ara-4));
+    padding: var(--ara-4) var(--ara-6);
+    border-radius: var(--r-kart);
+    background: var(--beyaz);
+    box-shadow: var(--golge-3);
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%) translateY(8px) scale(0.97);
+    transition: opacity var(--sure-bas) var(--egri-out), transform var(--sure-bas) var(--egri-out);
+}
+
+.op-serit.is-acik {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+    transition-duration: var(--sure-gecis);
+}
+
+.op-serit__baslik {
+    font-size: clamp(1.4rem, 1.1rem + 1.2vw, 1.9rem);
+    font-weight: 700;
+    line-height: 1.15;
+    text-wrap: balance;
+}
+
+.op-serit__alt {
+    margin-top: var(--ara-2);
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--murekkep-orta);
+    font-variant-numeric: tabular-nums;
+}
+
+.op-serit.is-bilgi .op-serit__alt {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--murekkep);
+}
+
+.op-serit.is-tekrar {
+    box-shadow: var(--golge-3), inset 0 0 0 2px var(--yanlis);
+}
+
+.op-yildizlar {
+    display: flex;
+    justify-content: center;
+    gap: var(--ara-1);
+    margin-top: var(--ara-2);
+}
+
+.op-yildiz {
+    width: 40px;
+    height: 40px;
+    fill: var(--yildiz-bos);
+}
+
+.op-yildiz.is-kazanildi {
+    fill: var(--yildiz);
+    filter: drop-shadow(0 2px 3px var(--yildiz-isik));
+}
+
+/* ── Ekran: kalan yüksekliğe sığar ── */
+.op-ekran-kap .op-ekran {
+    max-width: min(960px, calc((100dvh - var(--op-ekran-pay)) * 924 / 400));
+}
+
+.op-not {
+    margin: 0;
+    align-self: center;
+    padding: var(--ara-1) var(--ara-3);
+    border-radius: var(--r-hap);
+    background: var(--mavi-050);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--murekkep);
+    text-align: center;
+}
+
+/* Ekran okuyucu bölgesi: görünmez ama okunur */
+.op-canli {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ── Başlangıç seçici ── */
+.op-picker {
+    width: 100%;
+    max-width: 780px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ara-3);
+    font-family: var(--font-display);
+    color: var(--murekkep);
+}
+
+.op-picker__title {
+    margin: 0;
+    font-size: clamp(1.4rem, 1.1rem + 1.4vw, 2rem);
+    font-weight: 700;
+    text-align: center;
+    text-wrap: balance;
+}
+
+.op-picker__ipucu {
+    margin: 0;
+    max-width: 52ch;
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--murekkep-orta);
+    text-align: center;
+    text-wrap: balance;
+}
+
+.op-picker__tus {
+    white-space: nowrap;
+}
+
+/* F ve J tuş kapağı gibi: hedef sarısı, mürekkep kenar */
+.op-picker__ipucu strong {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.6em;
+    padding: 0 0.2em;
+    border: 2px solid var(--murekkep);
+    border-bottom-width: 4px;
+    border-radius: 8px;
+    background: var(--gunes);
+    color: var(--murekkep);
+    font-family: var(--font-display);
+    line-height: 1.3;
+}
+
+.op-picker__grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 360px));
+    justify-content: center;
+    gap: var(--ara-4);
+    margin-top: var(--ara-2);
+}
+
+.op-picker__kart {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ara-3);
+    padding: var(--ara-3);
+    border-radius: var(--r-kart);
+    background: var(--beyaz);
+    box-shadow: var(--golge-2);
+}
+
+.op-picker__kisim {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-height: var(--hedef-min);
+    padding: var(--ara-3) var(--ara-2) var(--ara-4);
+    border: 0;
+    border-radius: var(--r-giris);
+    background: var(--mavi-800);       /* beyaz metin 5.3:1 AA */
+    box-shadow: inset 0 -4px 0 var(--cizgi-saydam);
+    color: var(--beyaz);
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform var(--sure-bas) var(--egri-out), background-color var(--sure-gecis) var(--egri-out);
+}
+
+.op-picker__no {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.op-picker__ad {
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.15;
+}
+
+.op-picker__ornek {
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+}
+
+.op-picker__aralik {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+}
+
+.op-picker__bolumler {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+}
+
+.op-picker__bolum {
+    min-width: 40px;
+    height: 40px;
+    padding: 0 6px;
+    border: 2px solid var(--murekkep-orta);
+    border-radius: var(--r-hap);
+    background: var(--beyaz);
+    color: var(--murekkep);
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    transition: transform var(--sure-bas) var(--egri-out), border-color var(--sure-gecis) var(--egri-out),
+        background-color var(--sure-gecis) var(--egri-out);
+}
+
+.op-picker__kisim:active,
+.op-picker__bolum:active {
+    transform: scale(0.97);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .op-picker__kisim:hover {
+        background: var(--murekkep);
+    }
+
+    .op-picker__bolum:hover {
+        border-color: var(--mavi-800);
+        background: var(--mavi-050);
+    }
+}
+
+/* ── Dar ekran (telefon): yatay taşma yok ── */
+@media (max-width: 599px) {
+    .op-oyun {
+        --op-ekran-pay: 400px;
+        gap: var(--ara-2);
+    }
+
+    .op-oyun {
+        --op-sahne-ic: 112px;
+        --op-ekran-pay: calc(var(--op-sahne-yuk) + 136px);
+    }
+
+    /* Başlık + El/Klavye tek satırda: düğmeler yalnız simge (ad görünmez ama erişilebilir ad olarak okunur) */
+    .op-ust {
+        gap: var(--ara-2);
+    }
+
+    .op-ilerleme {
+        gap: var(--ara-1) var(--ara-2);
+    }
+
+    .op-ilerleme__no {
+        padding-inline: var(--ara-2);
+        font-size: 0.88rem;
+    }
+
+    .op-ilerleme__ad {
+        font-size: 1rem;
+    }
+
+    .op-dugmeler {
+        gap: var(--ara-1);
+    }
+
+    .op-dugme {
+        justify-content: center;
+        width: 44px;
+        padding: 0;
+    }
+
+    .op-dugme::before {
+        display: none;
+    }
+
+    .op-dugme__ikon {
+        display: block;
+    }
+
+    .op-dugme__ad {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+    }
+
+    /* Açık: dolu mavi zemin + beyaz simge; kapalı: beyaz zemin + çapraz çizgi */
+    .op-dugme[aria-pressed="true"] {
+        background: var(--mavi-800);
+        color: var(--beyaz);
+    }
+
+    .op-sahne {
+        padding: var(--ara-3);
+    }
+
+    .op-caps {
+        top: var(--ara-2);
+        left: var(--ara-2);
+        right: var(--ara-2);
+        padding: var(--ara-2) var(--ara-3);
+    }
+
+    .op-caps__baslik {
+        font-size: 1.05rem;
+    }
+
+    .op-caps__metin {
+        font-size: 0.95rem;
+    }
+
+    /* Klavye telefonda kenardan kenara: alanın iç boşluğunu (--ara-4) geri al, 4 px pay bırak */
+    .op-ekran-kap {
+        margin-inline: calc(4px - var(--ara-4));
+    }
+
+    /* Küçük ölçekte etiketler büyür; üst satırın ikincil (Shift) karakterleri okunmayacak kadar küçülür → gizlenir,
+       alttaki karakter kapağın ortasına çıkar */
+    .op-etiket__harf {
+        font-size: 36px;
+    }
+
+    .op-etiket__alt {
+        font-size: 32px;
+        transform: translateY(-10px);
+    }
+
+    .op-etiket__ust {
+        display: none;
+    }
+
+    .op-etiket__kucuk {
+        font-size: 18px;
+    }
+
+    .op-etiket.is-down .op-etiket__alt,
+    .op-etiket.is-yanlis .op-etiket__alt {
+        transform: translateY(-7px);
+    }
+
+    .op-kutular {
+        --op-kutu: clamp(34px, calc((100vw - 64px - 6 * 5px) / 7), 76px);
+        gap: 5px;
+    }
+
+    .op-tanitim__tus {
+        min-width: 76px;
+        height: 76px;
+        font-size: 2.5rem;
+    }
+
+    .op-tanitim__tus--genis {
+        min-width: 170px;
+        font-size: 1.5rem;
+    }
+
+    .op-serit {
+        padding: var(--ara-3) var(--ara-4);
+    }
+
+    .op-olcum {
+        gap: var(--ara-3);
+        font-size: 0.92rem;
+    }
+
+    .op-picker__bolum {
+        min-width: 36px;
+        height: 36px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .op-satirlar__ic,
+    .op-alan,
+    .op-olcum {
+        transition: none;
+    }
+
+    .op-tanitim__tus.is-yanlis {
+        animation: none;
+    }
+
+    .op-serit,
+    .op-serit.is-acik {
+        transform: translate(-50%, -50%);
+        transition: opacity var(--sure-gecis) linear;
+    }
+
+    .op-dugme:active:not(:disabled),
+    .op-picker__kisim:active,
+    .op-picker__bolum:active {
+        transform: none;
+    }
+}
+
+/* Telefon + azaltılmış hareket: basışta etiket inmez, ortalanmış konumda kalır */
+@media (max-width: 599px) and (prefers-reduced-motion: reduce) {
+    .op-etiket.is-down .op-etiket__alt,
+    .op-etiket.is-yanlis .op-etiket__alt {
+        transform: translateY(-10px);
+    }
+}

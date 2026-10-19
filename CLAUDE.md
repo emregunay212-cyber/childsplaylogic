@@ -121,8 +121,54 @@ const ModulAdi = (() => {
   Kaldığı yerden devam yok (misafir kaydı yok, laboratuvarda bilgisayar ortak).
 - İçerik yalnız ekran klavyesindeki karakterler (TR Q + rakam satırı + `, .` + Shift karakterleri); bölüm ≤ 12 tur. Fiziksel tuş:
   `e.key` ve `e.code`'un TR Q kapağı aday, beklenenle uyuşan seçilir (İngilizce dizilimli PC'de TR kapak çalışır).
+- **Dizilim verisi `js/games/klavye-dizilim.js`'ten türer** (On Parmak'la ortak, `files.js` ilk sırası): `ROWS` ve `CODE_MAP` artık modülde
+  elle yazılmaz, `KlavyeDizilim.kasifi.satirlar()` / `.kodHaritasi()` verir (eski sabitlerin birebir türevi; `tests/klavye-kasifi.spec.js`
+  derin-eşitlik testi korur). `SHIFT_OF` / `TYPEABLE` / `resolveKey` kalıbı ve davranış DEĞİŞMEDİ — fiziksel tuş kuralını (e.key + kod adayı)
+  On Parmak'a taşıma, o `karakterOf` ile konumdan çalışır.
 - **Süre bütçesi** ("35 dk'lık derste usta olmayan bitiremez"): içerik değişince `npm run test:klavye`; hatasız alt sınırla 30 kelime/dk
   bitirmemeli, 48 kelime/dk bitirmeli. İçerik kısaltılırsa test kırılır.
+
+### On Parmak (on parmak klavye, Türkçe Q — `js/games/on-parmak*.js` + `klavye-dizilim.js`, **`active:false`**, 15 Eki 2026)
+
+- Durum: PR1 (Adım 1) — yalnız Kısım 1 "Orta sıra" (`levels: 1`), hub'da "Yakında" kartı; kısım 2–7, oyun bölümleri ve açılış sonraki adımlarda.
+  Spec `docs/on-parmak-tasarim-2026-10-15.md`, plan `plans/on-parmak-2026-10-15.md`. TypingClub metni/görseli/sesi kullanılmaz (yalnız işleyiş örnek).
+- **Dosya sırası** (`data/games.json files.js` = yükleme sırası): `klavye-dizilim.js` → `on-parmak-olcum.js` → `on-parmak-icerik.js` →
+  `on-parmak-ekran.js` → `on-parmak.js`; css `css/on-parmak.css` (sahne renkleri yalnız burada). Yardımcılar `window.X` yayımlar, modül `window.X` ile okur
+  (modül yalnız `{ id, levels, init, destroy }`; `levels = window.ON_PARMAK_ICERIK`, uzunluk = JSON `levels`). Kapalı oyun: motor `?oyun=` dahil açmaz.
+- **`KlavyeDizilim`** (`klavye-dizilim.js`, saf, `window.KlavyeDizilim`): `SATIRLAR` (4 satır; tuş `{ code, alt, ust, parmak }`, okul klavyesinin `< >` =
+  `IntlBackslash` **pasif**), `PARMAKLAR`, `BOSLUK`, `SHIFT`; `tusOf(ch) → {code, shift}|null`, `parmaklarOf(ch)` (Shift'liyse ÖNCE karşı serçe),
+  `shiftTusuOf(ch)`, `elOf(ch)`, `yazilabilir(ch)` (dizilimde var ve pasif değil — içerik yalnız bunları kullanır), `kasifi` görünümü (Kâşifi bölümü).
+  Türkçe büyük/küçük HER ZAMAN `toLocaleUpperCase/LowerCase('tr-TR')` (`'i'.toUpperCase()` yanlış). **`karakterOf(e)` = fiziksel tuş KONUMU:** `e.code`
+  dizilimde (ya da Space) varsa karakter YALNIZ koddan türer, `e.key`'e bakılmaz (İngilizce dizilimde KeyI → `ı`, Quote → `i`, Comma → `ö`; yanlış
+  fiziksel tuş doğru sayılmaz; Windows TR Q ölü tuş `^` koddan doğru çıkar). Harfte büyük/küçük = `shiftKey XOR CapsLock`; rakam/noktalamada `shiftKey ? ust : alt`.
+  `e.code` boşsa (sanal klavye) tek karakterlik `e.key` dizilimdeyse o. `e.code` dolu ama haritada yoksa (Numpad, F tuşları, Shift, Enter) ya da pasif `< >` → `null`:
+  basış yok sayılır ve SAYILMAZ. Ctrl/Meta/Alt süzmesi çağıranın işidir.
+- **Modül kuralları (`on-parmak.js`):** Kısım = motor seviyesi; kısım sonu `cbs.onLevelUp`, yalnız son kısım `cbs.onComplete` (modül çağırır, motor son kısımda
+  `onLevelUp`'ta hiçbir şey yapmaz). Açılışta başlangıç seçici (`pendingStart = { bolum }` + `GameEngine.startGame`, tuş dinleyicisi seçimden SONRA; Kâşifi kalıbı),
+  kaldığı yerden devam yok, yeni `localStorage` anahtarı yok. `onCorrect/onWrong` tuş başına ÇAĞRILMAZ (ses tekrarı + sayaç şişer); yıldızı modül hesaplar.
+  **Enter Boşluk değildir:** yazmada Enter/Backspace yok sayılır ve sayılmaz; Enter yalnız seçicide (düğme) ve sonuç şeridini geçmekte işler — şerit açıldıktan
+  sonraki `ENTER_KILIT_MS = 400` içinde yok sayılır. **Caps Lock açıkken** (`getModifierState('CapsLock')`) belirgin uyarı, basışlar yok sayılır ve sayılmaz; Caps Lock
+  tuşunun kendi basışı uyarıyı günceller; hoşgörü yok (Shift kuralı öğretilir). Uyarı sahnenin üstüne BİNER; sahne sabit yükseklikte (`--op-sahne-yuk`) → bölüm türü/uyarı
+  klavyeyi dikeyde oynatmaz. Açık sonuç/kısım şeridinde Caps duyurusu şerit duyurusunun ardına eklenir (ezmez). **Odak kaçışı:** fareyle odak almış düğmede
+  (araç çubuğu ya da El/Klavye; `pointerdown`→`focusin` ile izlenir — Chrome tuşta `:focus-visible`'ı keydown'dan önce açar) yazılabilir tuş (`karakterOf` ≠ null,
+  Boşluk dahil) gelirse odak bırakılır ve basış işlenir; klavyeyle odaklanmış düğmede Enter/Boşluk/Tab tarayıcının. Zamanlayıcılar `later()` ile izlenir, `destroy()` dinleyiciyi + ekranı kaldırır.
+- **Ölçüm (`on-parmak-olcum.js`, saf):** `dogruluk(dogruIlk, toplam)` = ilk basışta doğru / toplam basış (%); **toplam 0 → 0**. `hiz(karakter, ms)` = (karakter/5)/dakika;
+  **ms < 1000 → 0** (sahte saatte sonsuz hız yok). `bolumYildizi({dogruluk, hiz, hedefHiz, canliBitti = true})`: doğruluk < 80 → **0 = bölüm baştan (tekrar)**;
+  `canliBitti:false` → en çok 1; ≥ 95 ve hız ≥ hedefHiz (hedefHiz yoksa yalnız ≥ 95) → 3; ≥ 90 → 2; değilse 1. `kisimYildizi(dizi)` = ortalama, en yakın tam sayı, boş → 0.
+  Kutu bölümünde hız şartı yok (`hedefHiz` verilmez). Oyunlarda öncelik (Adım 2'de oyunlar gelince geçerli): önce %80 kuralı (hiç basmadan canları bitirmek de tekrar), sonra can kuralı. Ham değerle karar, ekranda `Math.floor` — doğruluk VE hız, canlı ve sonuçta (%79,6 asla "%80" görünmez). Tekrar şeridinde (yıldız 0) hız gösterilmez (yalnız doğruluk + hedef).
+- **İçerik (`on-parmak-icerik.js`, `window.ON_PARMAK_ICERIK`):** kısım `{ ad, ornek, hedefHiz, el, bolumler: [ { tur: 'kutu'|'satir', ad, yeni?: [...], yeniShift?: 'sol'|'sag', metin } ] }`.
+  Kurallar (spec §5, `tests/on-parmak.spec.js` denetler): bölüm yalnız o ana kadar **öğrenilmiş** tuşları kullanır (kutu `yeni`'leri sırayla BİRİKİR; boşluk kendi kutu bölümüyle gelir; `yeniShift`
+  verilen bölümden sonra, küçüğü öğrenilmiş ve karşı elde olan harflerin büyükleri öğrenilmiş sayılır); her karakter `yazilabilir`; kutu 21–35 karakter, satır ≥ 50 ve **≤ hedefHiz × 10**
+  (hedef hızda ≤ 2 dk; kutuda hedef 8); `yeni` tuşları kendi metninde geçer; baştaki/sondaki/çift boşluk yok; boşluk öğrenildikten sonra her satırda birden çok sözcük;
+  **yasak sözcük listesi** testi (metindeki her sözcük). Genel bölüm numarası dizi sırasından türer, elle yazılmaz.
+- **Ekran (`on-parmak-ekran.js`, `window.OnParmakEkran`):** klavye + iki el TEK SVG (`createElementNS`; parmak uçları tuşlarla her ölçekte hizalı). `olustur(kap, { el = true, klavye = true, basinca })` →
+  `{ vurgula(ch), bas(ch, dogruMu), goster({el, klavye}), yokEt() }`. `vurgula` tuşu + parmak(lar)ı + gerekiyorsa karşı Shift'i `is-hedef` yapar (null/'' temizler); `bas` kısa süre `is-down` / `is-yanlis`.
+  Tuş `<g data-code>` pointerdown → `basinca(Shift'siz karakter)`; el/vurgu/etiket katmanları `pointer-events: none`; pasif `< >`, Shift, süs tuşları tepkisiz; birincil olmayan düğme yok sayılır.
+- **Test:** `npm run test:on-parmak` (73 test; CI `ci.yml` adımı, hash'li çıktıda `SITE_ROOT=.build-check PORT=8766 npm run test:on-parmak`): tarayıcısız (`vm`) dizilim + `karakterOf` + ölçüm + içerik kuralları,
+  tarayıcıda ekran ve oyun akışı. **Kapalı oyun test yolu:** `tests/on-parmak.spec.js` bağlamında `js/catalog.js` isteği (`/\/js\/catalog\.js(\?|$)/`) yakalanır, gövdede `"slug":"on-parmak"` satırındaki
+  `"active":false` → `true` yapılır (hash'li çıktıda `?h=` de eşleşir); kısım geçişi için ayrıca 2 kısımlı içerik + `levels:2` katalog yaması fikstürü. Üretim kodu değişmez; oyun
+  açılınca (`active:true`) yama gereksizleşir ve **kaldırılır** (yamasız "kapalı oyun" describe'ı da silinir) (duman testi `data/games.json`'dan kendiliğinden kapsar). Açılışta `seo/test_build_seo.py` kapalı listesinden `on-parmak` de çıkar.
+- Yeni kısım/bölüm eklerken: içerik kuralları testi koşar (`npm run test:on-parmak`); `levels` = `ON_PARMAK_ICERIK.length` (JSON'u + `npm run catalog` güncelle); bu bölümü o PR'ın eklediği sözleşmeyle güncelle.
 
 ### Altın Avı (online, kendi lobisi — `js/games/altin-avi.js`, `rooms/altin-avi/<KOD>`)
 

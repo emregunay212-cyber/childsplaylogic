@@ -17,12 +17,8 @@ const KlavyeKasifi = (() => {
 
     // Türkçe Q dizilimi — satır kaymaları CSS'te (.kk-row--N). Çift kapaklı tuş [taban, Shift]:
     // Shift karakteri kapağın üstünde küçük yazılır (gerçek tuş kapağı gibi).
-    const ROWS = [
-        [['1', '!'], ['2', "'"], ['3', '^'], ['4', '+'], ['5', '%'], ['6', '&'], ['7', '/'], ['8', '('], ['9', ')'], ['0', '='], ['*', '?']],
-        ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'Ğ', 'Ü'],
-        ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Ş', 'İ', [',', ';']],
-        ['Z', 'X', 'C', 'V', 'B', 'N', 'M', 'Ö', 'Ç', ['.', ':']],
-    ];
+    // Dizilim verisi ortak modülden gelir (js/games/klavye-dizilim.js; files.js'te ilk sıra, On Parmak da kullanır).
+    const ROWS = window.KlavyeDizilim.kasifi.satirlar();
     const SPACE = ' ';
     const SHIFT_OF = {};            // Shift karakteri → taban ('!' → '1')
     const TYPEABLE = new Set([SPACE]);
@@ -32,12 +28,7 @@ const KlavyeKasifi = (() => {
     const needsShift = (ch) => Object.prototype.hasOwnProperty.call(SHIFT_OF, ch);
     // Fiziksel tuş KONUMU (e.code) → TR Q kapağındaki karakter [taban, Shift]. İşletim sistemi dizilimi
     // İngilizceyse e.key kapakla uyuşmaz (";" gibi): kapaktaki karakter de aday olur, beklenenle uyuşan seçilir.
-    const CODE_MAP = {
-        Semicolon: ['Ş', 'Ş'], Quote: ['İ', 'İ'], BracketLeft: ['Ğ', 'Ğ'], BracketRight: ['Ü', 'Ü'],
-        Comma: ['Ö', 'Ö'], Period: ['Ç', 'Ç'], KeyI: ['I', 'I'],
-        Slash: ['.', ':'], Backslash: [',', ';'], Minus: ['*', '?'],
-    };
-    ROWS[0].slice(0, 10).forEach((k) => { CODE_MAP['Digit' + k[0]] = k; });
+    const CODE_MAP = window.KlavyeDizilim.kasifi.kodHaritasi();
 
     // Sesli okuma: harf ve işaret adları (yalnız tr-TR sesi varsa ve düğme açıksa)
     const LETTER_NAMES = {
