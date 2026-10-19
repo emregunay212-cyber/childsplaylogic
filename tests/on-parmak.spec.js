@@ -5,6 +5,8 @@
    1) Ortak klavye dizilimi (js/games/klavye-dizilim.js, Node `vm`, TARAYICISIZ): satırların veri sabiti,
       parmak haritası (spec §5.1), tusOf / parmaklarOf / shiftTusuOf / elOf / yazilabilir örnek tablosu ve
       karakterOf — "fiziksel tuş = konum": TR Q, İngilizce dizilim (TR kapak), Caps Lock, ölü tuş, Numpad, boş e.code.
+   Ekran (js/games/on-parmak-ekran.js, TARAYICI): 404.html + addScriptTag (fikstür dosyası yok) — tuşlar, etiketler, vurgula/bas,
+   dokunma (el katmanı geçirgen, pasif tepkisiz), parmak uçları orta sırada, goster, yokEt.
    Çalıştırma: npm run test:on-parmak
    ============================================ */
 'use strict';
@@ -435,5 +437,170 @@ test.describe('ON_PARMAK_ICERIK — içerik kuralları (tarayıcısız)', () => 
         for (const x of bolumler().filter((y) => y.b.tur === 'satir' && y.ogrenilen.has(' '))) {
             expect(x.b.metin.split(' ').length, etiket(x)).toBeGreaterThanOrEqual(5);
         }
+    });
+});
+
+// ── Ekran: klavye + eller tek SVG (js/games/on-parmak-ekran.js, TARAYICI) ──
+// Fikstür dosyası yok: düz bir sayfaya (404.html, hub'sız) dizilim + ekran modülü + CSS eklenir, olustur() bir kapta çağrılır.
+test.describe('OnParmakEkran — klavye + eller (tarayıcı)', () => {
+    test.beforeEach(async ({ page }) => {
+        await page.goto('/404.html');
+        await page.addStyleTag({ url: '/css/on-parmak.css' });
+        await page.addScriptTag({ url: '/js/games/klavye-dizilim.js' });
+        await page.addScriptTag({ url: '/js/games/on-parmak-ekran.js' });
+        await page.evaluate(() => {
+            const kap = document.createElement('div');
+            kap.id = 'kap';
+            kap.style.width = '900px';
+            document.body.prepend(kap);
+            window.__basilan = [];
+            window.__ekran = window.OnParmakEkran.olustur(kap, {
+                el: true, klavye: true, basinca: (ch) => window.__basilan.push(ch),
+            });
+        });
+    });
+
+    const hedefler = (page) => page.evaluate(() => ({
+        tuslar: [...document.querySelectorAll('#kap [data-code].is-hedef')].map((g) => g.dataset.code).sort(),
+        parmaklar: [...document.querySelectorAll('#kap [data-parmak].is-hedef')].map((p) => p.dataset.parmak).sort(),
+    }));
+
+    test('tek SVG: dizilimdeki her tuş (pasif < > dahil) + Boşluk + iki Shift; 10 parmak yolu; el katmanı tıklanmaz', async ({ page }) => {
+        const r = await page.evaluate(() => {
+            const kap = document.getElementById('kap');
+            const D = window.KlavyeDizilim;
+            const beklenen = D.SATIRLAR.flat().map((t) => t.code).concat(['Space', 'ShiftLeft', 'ShiftRight']).sort();
+            const kodlar = [...kap.querySelectorAll('[data-code]')].map((g) => g.dataset.code).sort();
+            const el = kap.querySelector('.op-eller');
+            return {
+                svgSayisi: kap.querySelectorAll('svg').length,
+                beklenen, kodlar,
+                parmaklar: [...kap.querySelectorAll('[data-parmak]')].map((p) => p.dataset.parmak).sort(),
+                elPointer: getComputedStyle(el).pointerEvents,
+                elSvgde: el.ownerSVGElement === kap.querySelector('svg'),
+            };
+        });
+        expect(r.svgSayisi).toBe(1);
+        expect(r.kodlar).toEqual(r.beklenen);
+        expect(r.parmaklar).toEqual(['basparmak', 'basparmak', 'sag-isaret', 'sag-orta', 'sag-serce', 'sag-yuzuk',
+            'sol-isaret', 'sol-orta', 'sol-serce', 'sol-yuzuk']);
+        expect(r.elPointer).toBe('none');
+        expect(r.elSvgde).toBe(true);
+    });
+
+    test('tuş etiketleri: harf küçük, rakam/noktalama iki yüzlü, " ve - görünür, pasif < > işaretli', async ({ page }) => {
+        const r = await page.evaluate(() => {
+            const yazi = (code) => [...document.querySelectorAll(`#kap .op-etiket[data-etiket="${code}"] text`)]
+                .map((t) => t.textContent).sort();
+            return {
+                f: yazi('KeyF'), i: yazi('Quote'), bir: yazi('Digit1'), tirnak: yazi('Backquote'), eksi: yazi('Equal'),
+                pasif: document.querySelector('#kap [data-code="IntlBackslash"]').classList.contains('is-pasif'),
+            };
+        });
+        expect(r.f).toEqual(['f']);
+        expect(r.i).toEqual(['i']);
+        expect(r.bir).toEqual(['!', '1']);
+        expect(r.tirnak).toEqual(['"', 'é']);
+        expect(r.eksi).toEqual(['-', '_']);
+        expect(r.pasif).toBe(true);
+    });
+
+    test('vurgula: sıradaki tuş + parmak; Shift\'li karakterde karşı Shift + karşı serçe; boşlukta iki başparmak', async ({ page }) => {
+        await page.evaluate(() => window.__ekran.vurgula('f'));
+        expect(await hedefler(page)).toEqual({ tuslar: ['KeyF'], parmaklar: ['sol-isaret'] });
+
+        await page.evaluate(() => window.__ekran.vurgula('F'));
+        expect(await hedefler(page)).toEqual({ tuslar: ['KeyF', 'ShiftRight'], parmaklar: ['sag-serce', 'sol-isaret'] });
+
+        await page.evaluate(() => window.__ekran.vurgula('Ş'));
+        expect(await hedefler(page)).toEqual({ tuslar: ['Semicolon', 'ShiftLeft'], parmaklar: ['sag-serce', 'sol-serce'] });
+
+        await page.evaluate(() => window.__ekran.vurgula('ı'));
+        expect(await hedefler(page)).toEqual({ tuslar: ['KeyI'], parmaklar: ['sag-orta'] });
+
+        await page.evaluate(() => window.__ekran.vurgula(' '));
+        expect(await hedefler(page)).toEqual({ tuslar: ['Space'], parmaklar: ['basparmak', 'basparmak'] });
+
+        await page.evaluate(() => window.__ekran.vurgula(null));
+        expect(await hedefler(page)).toEqual({ tuslar: [], parmaklar: [] });
+    });
+
+    test('bas: doğru basış kısa süre is-down, yanlış is-yanlis; sonra kendiliğinden söner', async ({ page }) => {
+        await page.evaluate(() => { window.__ekran.bas('f', true); window.__ekran.bas('j', false); });
+        const sinif = (code) => page.evaluate((c) => document.querySelector(`#kap [data-code="${c}"]`).getAttribute('class'), code);
+        expect(await sinif('KeyF')).toContain('is-down');
+        expect(await sinif('KeyJ')).toContain('is-yanlis');
+        await expect.poll(() => sinif('KeyF')).not.toContain('is-down');
+        await expect.poll(() => sinif('KeyJ')).not.toContain('is-yanlis');
+    });
+
+    test('dokunma: tuşa basış basinca(karakter) çağırır; el katmanı geçirgen; pasif < > ve Shift tepkisiz', async ({ page }) => {
+        // Gerçek tıklama: Playwright noktadaki en üst öğenin tuş olduğunu doğrular → el/etiket katmanı engellerse düşer
+        await page.locator('#kap [data-code="KeyA"]').click();      // sol serçe ucunun altında
+        await page.locator('#kap [data-code="KeyJ"]').click();      // sağ işaret ucunun altında
+        await page.locator('#kap [data-code="Digit1"]').click();
+        await page.locator('#kap [data-code="Space"]').click({ position: { x: 40, y: 10 } });
+        await page.locator('#kap [data-code="IntlBackslash"]').click();
+        await page.locator('#kap [data-code="ShiftLeft"]').click();
+        expect(await page.evaluate(() => window.__basilan)).toEqual(['a', 'j', '1', ' ']);
+    });
+
+    test('parmak uçları orta sıra tuşlarının üstünde (A S D F · J K L Ş), başparmaklar Boşlukta', async ({ page }) => {
+        const r = await page.evaluate(() => {
+            const kap = document.getElementById('kap');
+            const kutu = (code) => kap.querySelector(`[data-code="${code}"] .op-tus__kapak`).getBBox();
+            const uc = (sec) => kap.querySelector(sec).getBBox();
+            const cift = [
+                ['sol-serce', 'KeyA'], ['sol-yuzuk', 'KeyS'], ['sol-orta', 'KeyD'], ['sol-isaret', 'KeyF'],
+                ['sag-isaret', 'KeyJ'], ['sag-orta', 'KeyK'], ['sag-yuzuk', 'KeyL'], ['sag-serce', 'Semicolon'],
+            ];
+            const sonuc = cift.map(([p, code]) => {
+                const b = uc(`[data-parmak="${p}"]`);
+                const k = kutu(code);
+                const kx = k.x + k.width / 2;
+                // ucun tepesi tuşun içinde ve tuşun ortası parmağın yatay aralığında
+                return [p, b.y >= k.y && b.y <= k.y + k.height && kx >= b.x && kx <= b.x + b.width];
+            });
+            const bosluk = kutu('Space');
+            const bas = [...kap.querySelectorAll('[data-parmak="basparmak"]')].map((p) => {
+                const b = p.getBBox();
+                return b.y >= bosluk.y && b.y <= bosluk.y + bosluk.height && b.x + b.width / 2 >= bosluk.x
+                    && b.x + b.width / 2 <= bosluk.x + bosluk.width;
+            });
+            return { sonuc, bas };
+        });
+        for (const [p, ok] of r.sonuc) expect(ok, p).toBe(true);
+        expect(r.bas).toEqual([true, true]);
+    });
+
+    test('goster: el ve klavye ayrı ayrı gizlenir; ikisi kapalıysa ekran hiç yer kaplamaz', async ({ page }) => {
+        const gorunur = () => page.evaluate(() => {
+            const kap = document.getElementById('kap');
+            const g = (el) => !!el && el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden';
+            return { svg: g(kap.querySelector('svg')), el: g(kap.querySelector('.op-eller')), tus: g(kap.querySelector('[data-code="KeyF"]')) };
+        });
+        expect(await gorunur()).toEqual({ svg: true, el: true, tus: true });
+        await page.evaluate(() => window.__ekran.goster({ el: false, klavye: true }));
+        expect(await gorunur()).toEqual({ svg: true, el: false, tus: true });
+        await page.evaluate(() => window.__ekran.goster({ el: false, klavye: false }));
+        expect((await gorunur()).svg).toBe(false);
+        await page.evaluate(() => window.__ekran.goster({ el: true, klavye: true }));
+        expect(await gorunur()).toEqual({ svg: true, el: true, tus: true });
+    });
+
+    test('yokEt: DOM temizlenir, bekleyen söndürme zamanlayıcısı kopuk düğüme yazmaz, dinleyici kalmaz', async ({ page }) => {
+        const r = await page.evaluate(async () => {
+            const kap = document.getElementById('kap');
+            const tus = kap.querySelector('[data-code="KeyA"]');
+            window.__ekran.bas('a', true);
+            window.__ekran.yokEt();
+            const bos = kap.childNodes.length === 0;
+            await new Promise((res) => setTimeout(res, 700));
+            tus.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+            return { bos, sinif: tus.getAttribute('class'), basilan: window.__basilan.length };
+        });
+        expect(r.bos).toBe(true);
+        expect(r.sinif).toContain('is-down');     // söndürme iptal edildi: kopuk düğüme dokunulmadı
+        expect(r.basilan).toBe(0);
     });
 });
