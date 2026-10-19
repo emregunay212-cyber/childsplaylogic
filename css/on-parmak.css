@@ -1368,7 +1368,8 @@
 }
 
 .op-mini__canlar,
-.op-balon__ilerleme {
+.op-balon__ilerleme,
+.op-baloncuk__ilerleme {
     display: flex;
     align-items: center;
     gap: var(--ara-1);
@@ -1699,4 +1700,128 @@
     .op-canavar__kelime { top: calc(var(--ara-2) + 40px); }
 
     .op-canavar__kutu { border-radius: 8px; }
+}
+
+/* ── Uçan Baloncuklar (js/games/on-parmak-baloncuk.js) ──
+   Gökyüzü + bulutlar; sabun baloncukları önde duran çayırın arkasından doğar ve yukarı süzülür. Kelime baloncuğun
+   içinde mürekkep renginde (yarı saydam beyaz gövde üstünde, her zeminde okunur). Kilitli baloncuk renge bağlı
+   kalmadan da ayrılır: kalın kontur + ikinci kesikli halka + 1,08 büyüme + sıradaki harfin altı çizili; diğerleri
+   kilit sürerken geri çekilir (soluklaşır). Hareket JS döngüsünde; burada yalnız renk ve durumlar. */
+.op-baloncuk {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: var(--r-giris);
+    background: linear-gradient(var(--gok-ust), var(--gok-alt));
+}
+
+.op-baloncuk__svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.op-baloncuk__bulut path { fill: var(--beyaz); opacity: 0.75; }
+.op-baloncuk__cayir { fill: var(--cim); }
+.op-baloncuk__cayir--arka { fill: var(--cim-koyu); }
+
+.op-baloncuk__govde {
+    fill: var(--yuzey-cam-hafif);
+    stroke: var(--mavi-500);
+    stroke-width: 2.5;
+}
+
+.op-baloncuk__yansima {
+    fill: none;
+    stroke: var(--beyaz);
+    stroke-width: 4;
+    stroke-linecap: round;
+    opacity: 0.95;
+}
+
+.op-baloncuk__isik { fill: var(--beyaz); }
+.op-baloncuk__halka { display: none; }
+
+.op-baloncuk__kelime {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-anchor: middle;
+    fill: var(--murekkep);
+    paint-order: stroke;
+    stroke: var(--yuzey-cam);
+    stroke-width: 3px;
+    stroke-linejoin: round;
+}
+
+.op-baloncuk__kelime .is-yazildi { fill: var(--dogru); }
+
+.op-baloncuk__kelime .is-sira {
+    fill: var(--mavi-800);
+    text-decoration: underline;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 4px;
+}
+
+.op-baloncuk__kelime .is-sira.is-yanlis { fill: var(--yanlis); }
+
+.op-baloncuk__b { transition: opacity var(--sure-gecis) var(--egri-out); }
+.op-baloncuk.is-kilitli .op-baloncuk__b:not(.is-kilitli) { opacity: 0.72; }
+
+.op-baloncuk__b.is-kilitli .op-baloncuk__govde {
+    fill: var(--yuzey-cam);
+    stroke: var(--mavi-800);
+    stroke-width: 4;
+}
+
+.op-baloncuk__b.is-kilitli .op-baloncuk__halka {
+    display: inline;
+    fill: none;
+    stroke: var(--mavi-800);
+    stroke-width: 2;
+    stroke-dasharray: 6 6;
+    opacity: 0.7;
+}
+
+/* Patlama, kaçış pufu, kutlama (konum/saydamlık döngüde) */
+.op-baloncuk__pop-halka { fill: none; stroke: var(--mavi-500); stroke-width: 2.5; }
+.op-baloncuk__damla { fill: var(--beyaz); stroke: var(--mavi-500); stroke-width: 1.2; }
+.op-baloncuk__puf-c { fill: var(--beyaz); opacity: 0.9; }
+.op-baloncuk__mini { fill: var(--yuzey-cam-hafif); stroke: var(--mavi-500); stroke-width: 1.5; }
+
+/* Oyun bitince kalan baloncuklar donar ve söner */
+.op-baloncuk[data-bitti] .op-baloncuk__b { opacity: 0.4; }
+
+/* HUD: canlar solda, patlatılan sayısı sağda */
+.op-baloncuk__hud {
+    position: absolute;
+    inset: var(--ara-2) var(--ara-2) auto var(--ara-2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+}
+
+.op-baloncuk__ilerleme {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--murekkep);
+    font-variant-numeric: tabular-nums;
+}
+
+.op-baloncuk__ilerleme-ik {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: var(--mavi-500);
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+
+@media (max-width: 599px) {
+    .op-baloncuk__ilerleme { font-size: 0.9rem; }
+    .op-baloncuk__ilerleme-ik { width: 18px; height: 18px; }
 }

@@ -108,7 +108,7 @@
       "active": false,
       "stars": 0,
       "files": {
-        "js": ["js/games/klavye-dizilim.js", "js/games/on-parmak-olcum.js", "js/games/on-parmak-icerik.js", "js/games/on-parmak-ekran.js", "js/games/on-parmak-oyun-ortak.js", "js/games/on-parmak-balon.js", "js/games/on-parmak-canavar.js", "js/games/on-parmak.js"],
+        "js": ["js/games/klavye-dizilim.js", "js/games/on-parmak-olcum.js", "js/games/on-parmak-icerik.js", "js/games/on-parmak-ekran.js", "js/games/on-parmak-oyun-ortak.js", "js/games/on-parmak-balon.js", "js/games/on-parmak-canavar.js", "js/games/on-parmak-baloncuk.js", "js/games/on-parmak.js"],
         "css": ["css/on-parmak.css"]
       }
     },

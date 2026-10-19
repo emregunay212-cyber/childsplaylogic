@@ -49,6 +49,8 @@ window.ON_PARMAK_ICERIK = [
               metin: 'gg hh gh hg ghg hgh ag ha' },
             { tur: 'satir', ad: 'G H tekrar ve kelimeler',
               metin: 'gh hg ghg hgh gaf fgh hak had hal gaga daha hala halka sakal' },
+            { tur: 'oyun',  ad: 'Uçan Baloncuklar: orta sıra', oyun: 'baloncuk',
+              metin: 'hala halka saha daha kasa kaş ada gaga şal sakal' },
             { tur: 'kutu',  ad: 'İ ve virgül', yeni: ['i', ','],
               metin: 'ii ,, i, ,i ii, hi, ki, si,' },
             { tur: 'satir', ad: 'Orta sıra kelimeleri',
