@@ -328,3 +328,112 @@ test.describe('OnParmakOlcum — ölçüm (tarayıcısız)', () => {
         expect(Object.keys(ctx)).toEqual(['window']);
     });
 });
+
+/* ---------- ON_PARMAK_ICERIK (içerik kuralları, tarayıcısız) ---------- */
+function loadIcerik() {
+    const window = {};
+    const rel = 'js/games/on-parmak-icerik.js';
+    vm.runInNewContext(fs.readFileSync(path.join(ROOT, rel), 'utf8'), { window }, { filename: rel });
+    return window.ON_PARMAK_ICERIK;
+}
+
+test.describe('ON_PARMAK_ICERIK — içerik kuralları (tarayıcısız)', () => {
+    // Bölümleri genel numarasıyla (diziden türer, sabit numara yok) düzleştirir; öğrenilmiş küme birikimlidir.
+    function bolumler() {
+        const kume = new Set();
+        const sonuc = [];
+        let no = 0;
+        loadIcerik().forEach((kisim, ki) => {
+            for (const b of kisim.bolumler) {
+                no += 1;
+                (b.yeni || []).forEach((k) => kume.add(k));
+                if (b.yeniShift) {
+                    // Karşı elin Shift'i: 'sol' Shift → sağ el harfleri büyük (sapma 11)
+                    const hedefEl = b.yeniShift === 'sol' ? 'sag' : 'sol';
+                    for (const k of [...kume]) {
+                        if (D.elOf(k) === hedefEl && k.toLocaleUpperCase('tr-TR') !== k) kume.add(k.toLocaleUpperCase('tr-TR'));
+                    }
+                }
+                sonuc.push({ no, kisim: ki, kisimAd: kisim.ad, hedefHiz: kisim.hedefHiz, b, ogrenilen: new Set(kume) });
+            }
+        });
+        return sonuc;
+    }
+    const etiket = (x) => `bölüm ${x.no} (${x.b.ad})`;
+
+    test('şema: kısım alanları, tur kutu|satir, metin dolu', () => {
+        const icerik = loadIcerik();
+        expect(Array.isArray(icerik)).toBe(true);
+        expect(icerik.length).toBeGreaterThan(0);
+        for (const k of icerik) {
+            expect(typeof k.ad).toBe('string');
+            expect(typeof k.ornek).toBe('string');
+            expect(k.hedefHiz).toBeGreaterThan(0);
+            expect(typeof k.el).toBe('boolean');
+            expect(k.bolumler.length).toBeGreaterThan(0);
+        }
+        for (const x of bolumler()) {
+            expect(['kutu', 'satir'], etiket(x)).toContain(x.b.tur);
+            expect(typeof x.b.ad, etiket(x)).toBe('string');
+            expect(x.b.metin.length, etiket(x)).toBeGreaterThan(0);
+            if (x.b.tur === 'kutu') expect(Array.isArray(x.b.yeni) && x.b.yeni.length > 0, etiket(x)).toBe(true);
+        }
+    });
+
+    test('her karakter dizilimde yazılabilir', () => {
+        for (const x of bolumler()) {
+            for (const ch of x.b.metin) expect(D.yazilabilir(ch), `${etiket(x)} "${ch}"`).toBe(true);
+        }
+    });
+
+    test('birikimli öğrenilmiş küme dışında karakter yok', () => {
+        for (const x of bolumler()) {
+            for (const ch of x.b.metin) expect(x.ogrenilen.has(ch), `${etiket(x)} "${ch}" henüz öğrenilmedi`).toBe(true);
+        }
+    });
+
+    test('kutu 21–35 karakter; satır ≥ 50 ve ≤ hedefHiz × 10 (kutuda hedef 8)', () => {
+        for (const x of bolumler()) {
+            const n = [...x.b.metin].length;
+            if (x.b.tur === 'kutu') {
+                expect(n, etiket(x)).toBeGreaterThanOrEqual(21);
+                expect(n, etiket(x)).toBeLessThanOrEqual(35);
+            } else {
+                expect(n, etiket(x)).toBeGreaterThanOrEqual(50);
+                expect(n, etiket(x)).toBeLessThanOrEqual(x.hedefHiz * 10);
+            }
+        }
+    });
+
+    test('kutu bölümünün yeni tuşları kendi metninde geçer', () => {
+        for (const x of bolumler().filter((y) => y.b.tur === 'kutu')) {
+            for (const k of x.b.yeni) expect(x.b.metin.includes(k), `${etiket(x)} yeni "${k}"`).toBe(true);
+        }
+    });
+
+    test('metinde baştaki/sondaki boşluk ve çift boşluk yok', () => {
+        for (const x of bolumler()) {
+            expect(x.b.metin, etiket(x)).toBe(x.b.metin.trim());
+            expect(x.b.metin.includes('  '), etiket(x)).toBe(false);
+        }
+    });
+
+    test('Kısım 1 (Orta sıra): el açık, hedefHiz 8, oyun bölümü yok', () => {
+        const k1 = loadIcerik()[0];
+        expect(k1.ad).toBe('Orta sıra');
+        expect(k1.hedefHiz).toBe(8);
+        expect(k1.el).toBe(true);
+        expect(k1.bolumler.some((b) => b.tur === 'oyun')).toBe(false);
+    });
+
+    test('Kısım 1 yeni tuş sırası: f j, boşluk, d k, s l, a ş, g h, i ,', () => {
+        const yeniler = loadIcerik()[0].bolumler.filter((b) => b.tur === 'kutu').map((b) => b.yeni.join(''));
+        expect(yeniler).toEqual(['fj', ' ', 'dk', 'sl', 'aş', 'gh', 'i,']);
+    });
+
+    test('boşluk öğrenildikten sonra her satır birden çok sözcük içerir', () => {
+        for (const x of bolumler().filter((y) => y.b.tur === 'satir' && y.ogrenilen.has(' '))) {
+            expect(x.b.metin.split(' ').length, etiket(x)).toBeGreaterThanOrEqual(5);
+        }
+    });
+});

@@ -1,0 +1,52 @@
+/* ============================================
+   On Parmak — içerik (sabit veri; her açılışta aynı, rastgelelik yok)
+   --------------------------------------------
+   Yayımlar: window.ON_PARMAK_ICERIK. Şema: docs/on-parmak-tasarim-2026-10-15.md §5.4.
+   Bu dosyada yalnız Kısım 1 "Orta sıra" var; sonraki kısımlar sonraki adımlarda eklenir.
+
+   Kısım: { ad, ornek, hedefHiz, el, bolumler: [ { tur: 'kutu'|'satir', ad, yeni?: [...], metin } ] }
+   Kurallar (tests/on-parmak.spec.js denetler):
+     - Bir bölüm yalnız o ana kadar ÖĞRENİLMİŞ tuşları kullanır (kutu `yeni`'leri sırayla birikir; boşluk 2. bölümden sonra).
+     - kutu 21–35 karakter; satır 50–80 ve en çok hedefHiz × 10 karakter (hedef hızda ≤ 2 dk).
+     - Kutu bölümünün `yeni` tuşları kendi metninde geçer.
+   Genel bölüm numarası dizinin sırasından türer, elle yazılmaz.
+   ============================================ */
+
+window.ON_PARMAK_ICERIK = [
+    {
+        ad: 'Orta sıra',
+        ornek: 'F J D K',
+        hedefHiz: 8,
+        el: true,
+        bolumler: [
+            { tur: 'kutu',  ad: 'F ve J', yeni: ['f', 'j'],
+              metin: 'ffjjfjfjjfjffjjfjffjfjjf' },
+            { tur: 'kutu',  ad: 'Boşluk', yeni: [' '],
+              metin: 'ff jj fj jf fjf jfj ff jj' },
+            { tur: 'satir', ad: 'F J tekrar',
+              metin: 'fff jjj fj jf fjf jfj ffj jjf fjfj jfjf ffjj jjff fjj jff fj jf' },
+            { tur: 'kutu',  ad: 'D ve K', yeni: ['d', 'k'],
+              metin: 'dd kk dk kd dkd kdk fd jk' },
+            { tur: 'satir', ad: 'D K tekrar',
+              metin: 'dk kd dkd kdk fdk jkd dfk kjd dd kk fdjk kjdf dkdk kdkd fk jd' },
+            { tur: 'kutu',  ad: 'S ve L', yeni: ['s', 'l'],
+              metin: 'ss ll sl ls sls lsl ds kl' },
+            { tur: 'satir', ad: 'S L tekrar',
+              metin: 'sl ls sls lsl dsl kls sdk lkj ss ll fsl jls sfdl lkjs sl ls dk' },
+            { tur: 'kutu',  ad: 'A ve Ş', yeni: ['a', 'ş'],
+              metin: 'aa şş aş şa aşa şaş fa jş' },
+            { tur: 'satir', ad: 'A Ş tekrar',
+              metin: 'aş şa aşa şaş asd şlk afj şjk aa şş fasş jşla sdaş kşfa as şl' },
+            { tur: 'satir', ad: 'İlk kelimeler',
+              metin: 'al as ad aş dal kal sal şal fal saf kaş aşk kasa kafa' },
+            { tur: 'kutu',  ad: 'G ve H', yeni: ['g', 'h'],
+              metin: 'gg hh gh hg ghg hgh ag ha' },
+            { tur: 'satir', ad: 'G H tekrar ve kelimeler',
+              metin: 'gh hg ghg hgh gaf fgh hak had hal gaga daha hala halka sahaf' },
+            { tur: 'kutu',  ad: 'İ ve virgül', yeni: ['i', ','],
+              metin: 'ii ,, i, ,i ii, hi, ki, si,' },
+            { tur: 'satir', ad: 'Orta sıra kelimeleri',
+              metin: 'fil, dil, kil, sil, şiş, hilal, kişi, silah, ilgi, şifa, hadi' },
+        ],
+    },
+];
