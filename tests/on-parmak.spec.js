@@ -448,7 +448,7 @@ test.describe('ON_PARMAK_ICERIK — içerik kuralları (tarayıcısız)', () => 
         }
     });
 
-    test('Kısım 1 (Orta sıra): el açık, hedefHiz 8; Balon Vadisi "D K tekrar" ve "İlk kelimeler"den hemen sonra', () => {
+    test('Kısım 1 (Orta sıra): el açık, hedefHiz 8; Balon Vadisi "D K tekrar" ve "İlk kelimeler"den sonra, Canavar Saldırısı kısım sonunda', () => {
         const k1 = loadIcerik()[0];
         expect(k1.ad).toBe('Orta sıra');
         expect(k1.hedefHiz).toBe(8);
@@ -457,7 +457,9 @@ test.describe('ON_PARMAK_ICERIK — içerik kuralları (tarayıcısız)', () => 
         expect(oyunlar.map((x) => [x.onceki.ad, x.b.oyun, x.b.ad])).toEqual([
             ['D K tekrar', 'balon', 'Balon Vadisi: F J D K'],
             ['İlk kelimeler', 'balon', 'Balon Vadisi: ilk sekiz tuş'],
+            ['Orta sıra kelimeleri', 'canavar', 'Canavar Saldırısı: orta sıra kelimeleri'],
         ]);
+        expect(k1.bolumler[k1.bolumler.length - 1].oyun).toBe('canavar');
     });
 
     test('Kısım 1 yeni tuş sırası: f j, boşluk, d k, s l, a ş, g h, i ,', () => {
@@ -486,7 +488,7 @@ test.describe('ON_PARMAK_ICERIK — içerik kuralları (tarayıcısız)', () => 
         expect(kayit.active).toBe(false);
         expect(kayit.module).toBe('OnParmak');
         expect(kayit.files.js).toEqual(['js/games/klavye-dizilim.js', 'js/games/on-parmak-olcum.js', 'js/games/on-parmak-icerik.js',
-            'js/games/on-parmak-ekran.js', 'js/games/on-parmak-oyun-ortak.js', 'js/games/on-parmak-balon.js', 'js/games/on-parmak.js']);
+            'js/games/on-parmak-ekran.js', 'js/games/on-parmak-oyun-ortak.js', 'js/games/on-parmak-balon.js', 'js/games/on-parmak-canavar.js', 'js/games/on-parmak.js']);
         expect(kayit.files.css).toEqual(['css/on-parmak.css']);
     });
 
@@ -1046,7 +1048,7 @@ opTest.describe('OnParmak — oyun modülü (tarayıcı)', () => {
         opTest.setTimeout(90000);
         await opAc(page, OP_N);
         const oyun = opOyun(page);
-        await opYaz(page, 'satir', 100);
+        await opYaz(page, OP_BOLUMLER[OP_N - 1].tur, 100);           // son bölüm (oyun ya da satır)
         await expect(oyun).toHaveAttribute('data-mod', 'sonuc');
         expect(await opOverlayAcik(page)).toBe(false);
         await page.clock.runFor(400);
@@ -1293,10 +1295,17 @@ opTest.describe('OnParmak — oyun modülü (tarayıcı)', () => {
                 const ilkSayfa = await page.locator('.op-kutu .op-kutu__harf').allTextContents();
                 expect(ilkSayfa.join('')).toBe(b.metin.slice(0, 7).split(' ').join('␣'));
             } else if (b.tur === 'oyun') {
-                // Oyun bölümü: balonların harfleri içerikten, sıra korunur; ilk hedef ilk harf
+                // Oyun bölümü: sahnedeki harfler/kelime içerikten, sıra korunur; ilk hedef ilk harf
                 await expect(oyun).toHaveAttribute('data-mod', 'oyun');
-                const harfler = await page.locator('.op-balon__b[data-harf]').evaluateAll((d) => d.map((g) => g.dataset.harf));
-                expect(harfler.join('')).toBe(b.metin);
+                if (b.oyun === 'balon') {
+                    const harfler = await page.locator('.op-balon__b[data-harf]').evaluateAll((d) => d.map((g) => g.dataset.harf));
+                    expect(harfler.join('')).toBe(b.metin);
+                } else {
+                    // Canavar: ilk kelime kutularda (+ Boşluk kutusu), güç çubuğu = kelime sayısı
+                    const ilk = b.metin.split(' ')[0];
+                    await expect(page.locator('.op-canavar__kutu:not(.op-canavar__kutu--bosluk)')).toHaveText([...ilk]);
+                    await expect(page.locator('.op-canavar__dilim.is-dolu')).toHaveCount(b.metin.split(' ').length);
+                }
                 await expect(oyun).toHaveAttribute('data-beklenen', b.metin[0]);
             } else {
                 await expect(oyun).toHaveAttribute('data-mod', 'satir');
@@ -1629,6 +1638,317 @@ opTest.describe('OnParmak — Balon Vadisi, normal hareket', () => {
     });
 });
 
+// ── Mini oyun: Canavar Saldırısı (tur:'oyun', kelime oyunu, js/games/on-parmak-canavar.js) ──
+// Kelime + Boşluk yazılır (Boşluk kar topunu atar; son kelimede son harf). Güç çubuğu = kelime sayısı. Kısım 1'in son
+// bölümü → bitince kısım (tek kısımlı içerikte oyun) biter: "akış sürer" = kısım sonu (kutlama katmanı).
+const OP_CANAVAR = opNo((b) => b.tur === 'oyun' && b.oyun === 'canavar');
+const opCanavar = (page) => page.locator('.op-canavar');
+async function opCanavarSonra(page) {
+    // Şerit geçince akış sürer: sonraki bölüm ya da (son bölümse) kısım/oyun sonu; sahne kalkar
+    await page.clock.runFor(2600);
+    if (OP_CANAVAR < OP_N) await expect(opOyun(page)).toHaveAttribute('data-bolum', (OP_CANAVAR + 1) + '/' + OP_N);
+    else await expect(opOyun(page)).toHaveAttribute('data-mod', 'bitti');
+    await expect(opCanavar(page)).toHaveCount(0);
+}
+const opM = async (page) => Number(await opCanavar(page).getAttribute('data-m'));
+
+opTest.describe('OnParmak — Canavar Saldırısı (oyun bölümü)', () => {
+    opTest('kazanma: kelimeler + Boşluk yazılır → her kelimede kar topu, güç çubuğu azalır, canavar geri seker → canlı biter', async ({ page, errors }) => {
+        opTest.setTimeout(90000);
+        await opAc(page, OP_CANAVAR);
+        const b = OP_BOLUMLER[OP_CANAVAR - 1];
+        const kelimeler = b.metin.split(' ');
+        await expect(opOyun(page)).toHaveAttribute('data-mod', 'oyun');
+        await expect(opCanavar(page)).toHaveAttribute('data-can', '3');
+        await expect(opCanavar(page)).toHaveAttribute('data-saglik', String(kelimeler.length));
+        await expect(page.locator('.op-canavar__dilim')).toHaveCount(kelimeler.length);
+        await expect(page.locator('.op-canavar__guc')).toHaveAttribute('aria-label', 'Canavarın gücü: ' + kelimeler.length + ' / ' + kelimeler.length);
+        await expect(opOyun(page)).toHaveAttribute('data-beklenen', b.metin[0]);
+        await expect(page.locator('.op-canavar__kutu.is-sira')).toHaveText(b.metin[0]);
+        await expect(page.locator('.op-canavar__kutu--bosluk')).toHaveCount(1);
+        const kod = await page.evaluate((ch) => window.KlavyeDizilim.tusOf(ch).code, b.metin[0]);
+        await expect(page.locator('.op-tus[data-code="' + kod + '"]')).toHaveClass(/is-hedef/);
+        expect((await page.locator('.op-ekran').boundingBox()).width).toBeLessThanOrEqual(601);
+        // Canavar yaklaşır; ilk kelimenin harfleri → beklenen Boşluk (elde kar topu), Boşluk → atış
+        await page.clock.runFor(3000);
+        const m0 = await opM(page);
+        expect(m0).toBeLessThan(1);
+        for (const ch of kelimeler[0]) await page.evaluate((c) => window.__opBas(c), ch);
+        await expect(opOyun(page)).toHaveAttribute('data-beklenen', ' ');
+        await expect(page.locator('.op-canavar__pit')).toHaveClass(/is-hazir/);
+        await expect(page.locator('.op-canavar__kutu.is-yazildi')).toHaveCount(kelimeler[0].length);
+        await page.evaluate(() => window.__opBas(' '));
+        await expect(opCanavar(page)).toHaveAttribute('data-saglik', String(kelimeler.length - 1));
+        await expect(page.locator('.op-canavar__dilim.is-dolu')).toHaveCount(kelimeler.length - 1);
+        await expect(opCanavar(page)).toHaveAttribute('data-kelime', '1');
+        await expect(opOyun(page)).toHaveAttribute('data-beklenen', kelimeler[1][0]);
+        await expect(page.locator('.op-canavar__kutu:not(.op-canavar__kutu--bosluk)')).toHaveText([...kelimeler[1]]);
+        await expect(page.locator('.op-canavar__cv')).toHaveClass(/is-vuruldu/);   // azaltılmış harekette vuruş anında
+        await page.clock.runFor(100);
+        expect(await opM(page)).toBeCloseTo(Math.min(1, m0 + 0.5), 1);              // geri sekti
+        const n = await opYaz(page, 'oyun', 300);
+        expect(n).toBe(b.metin.length - kelimeler[0].length - 1);
+        await expect(opOyun(page)).toHaveAttribute('data-mod', 'sonuc');
+        await expect(opCanavar(page)).toHaveAttribute('data-bitti', 'canli');
+        await expect(opCanavar(page)).toHaveAttribute('data-saglik', '0');
+        await expect(opCanavar(page)).toHaveAttribute('data-can', '3');
+        await expect(opOyun(page)).toHaveAttribute('data-sonuc', '3');
+        await expect(page.locator('.op-serit__baslik')).toHaveText('Bölüm ' + OP_CANAVAR + ' tamam!');
+        await expect(page.locator('.op-serit__alt')).toContainText('doğruluk %100');
+        await opCanavarSonra(page);
+        errors.assertClean();
+    });
+
+    opTest('yavaş ama doğru: birkaç doğru basış, canavar 3 kez ulaşır (ilerleme korunur) → en çok 1 yıldız, akış sürer', async ({ page, errors }) => {
+        opTest.setTimeout(150000);
+        await opAc(page, OP_CANAVAR);
+        const b = OP_BOLUMLER[OP_CANAVAR - 1];
+        for (let i = 0; i < 3; i++) await page.evaluate(() => window.__opBas(document.querySelector('.op-oyun').dataset.beklenen));
+        await expect(opOyun(page)).toHaveAttribute('data-beklenen', b.metin[3]);
+        // İlk temas: bir can gider, canavar başa çekilir, kelime ve ilerleme yerinde kalır
+        for (let i = 0; i < 80 && (await opCanavar(page).getAttribute('data-can')) === '3'; i++) await page.clock.runFor(1000);
+        await expect(opCanavar(page)).toHaveAttribute('data-can', '2');
+        await expect(page.locator('.op-balon__can.is-gitti')).toHaveCount(1);
+        await expect(opOyun(page)).toHaveAttribute('data-beklenen', b.metin[3]);
+        await expect(opCanavar(page)).toHaveAttribute('data-kelime', '0');
+        expect(await opM(page)).toBeGreaterThan(0.9);
+        await opOyunBitene(page, 200);
+        await expect(opCanavar(page)).toHaveAttribute('data-can', '0');
+        await expect(opCanavar(page)).toHaveAttribute('data-bitti', 'canlar');
+        await expect(opOyun(page)).toHaveAttribute('data-sonuc', '1');
+        await expect(page.locator('.op-serit__baslik')).toHaveText('Bölüm ' + OP_CANAVAR + ' bitti');
+        await expect(page.locator('.op-serit .op-yildiz.is-kazanildi')).toHaveCount(1);
+        await expect(page.locator('.op-serit__alt')).toContainText('canlar');
+        await expect(page.locator('.op-serit__alt')).toContainText('doğruluk %100');
+        await opCanavarSonra(page);
+        errors.assertClean();
+    });
+
+    opTest('hiç basmadan canlar biter → tekrar (önce %80 kuralı); aynı bölüm 3 canla, tam güçle baştan', async ({ page, errors }) => {
+        opTest.setTimeout(150000);
+        await opAc(page, OP_CANAVAR);
+        const b = OP_BOLUMLER[OP_CANAVAR - 1];
+        await opOyunBitene(page, 200);
+        await expect(opCanavar(page)).toHaveAttribute('data-bitti', 'canlar');
+        await expect(opOyun(page)).toHaveAttribute('data-sonuc', 'tekrar');
+        await expect(page.locator('.op-serit__baslik')).toHaveText('Bir daha deneyelim');
+        await expect(page.locator('.op-serit__alt')).toHaveText('doğruluk %0, hedef %80');
+        await page.clock.runFor(2600);
+        await expect(opOyun(page)).toHaveAttribute('data-bolum', OP_CANAVAR + '/' + OP_N);
+        await expect(opOyun(page)).toHaveAttribute('data-mod', 'oyun');
+        await expect(opCanavar(page)).toHaveAttribute('data-can', '3');
+        await expect(opCanavar(page)).toHaveAttribute('data-saglik', String(b.metin.split(' ').length));
+        await expect(opOyun(page)).toHaveAttribute('data-beklenen', b.metin[0]);
+        errors.assertClean();
+    });
+
+    opTest('rastgele basma (doğruluk < %80) canlı bitse de tekrar; yanlış basış ilerletmez, sıradaki kutu kırmızı', async ({ page, errors }) => {
+        await opAc(page, OP_CANAVAR);
+        await page.evaluate(() => window.__opBas(document.querySelector('.op-oyun').dataset.beklenen === 'f' ? 'j' : 'f'));
+        await expect(page.locator('.op-canavar__kutu.is-sira')).toHaveClass(/is-yanlis/);
+        await expect(opOyun(page)).toHaveAttribute('data-beklenen', OP_BOLUMLER[OP_CANAVAR - 1].metin[0]);
+        await page.clock.runFor(400);
+        await expect(page.locator('.op-canavar__kutu.is-yanlis')).toHaveCount(0);           // işaret kendiliğinden söner
+        await page.evaluate(() => {
+            const r = document.querySelector('.op-oyun');
+            window.__opBas(r.dataset.beklenen);
+            for (let n = 0; n < 400 && r.dataset.mod === 'oyun'; n++) {
+                window.__opBas(r.dataset.beklenen === 'f' ? 'j' : 'f');
+                if (r.dataset.mod === 'oyun') window.__opBas(r.dataset.beklenen);
+            }
+        });
+        await expect(opOyun(page)).toHaveAttribute('data-mod', 'sonuc');
+        await expect(opCanavar(page)).toHaveAttribute('data-bitti', 'canli');
+        await expect(opOyun(page)).toHaveAttribute('data-sonuc', 'tekrar');
+        await expect(page.locator('.op-serit__alt')).toHaveText('doğruluk %50, hedef %80');
+        await page.clock.runFor(2600);
+        await expect(opOyun(page)).toHaveAttribute('data-bolum', OP_CANAVAR + '/' + OP_N);
+        await expect(opOyun(page)).toHaveAttribute('data-mod', 'oyun');
+        errors.assertClean();
+    });
+
+    opTest('sekme gizlenince durur; görünür olunca "Devam etmek için bir tuşa bas"; devam tuşu sayılmaz', async ({ page, errors }) => {
+        opTest.setTimeout(90000);
+        await opAc(page, OP_CANAVAR);
+        const b = OP_BOLUMLER[OP_CANAVAR - 1];
+        await page.evaluate(() => { window.__opBas(document.querySelector('.op-oyun').dataset.beklenen); window.__opBas(document.querySelector('.op-oyun').dataset.beklenen); });
+        await page.clock.runFor(500);
+        await opGorun(page, 'hidden');
+        await expect(opCanavar(page)).toHaveAttribute('data-durum', 'gizli');
+        const once = await opM(page);
+        await page.clock.runFor(30000);                        // gizliyken canavar yürümez, can gitmez
+        expect(await opM(page)).toBe(once);
+        await opGorun(page, 'visible');
+        await expect(opCanavar(page)).toHaveAttribute('data-durum', 'devam-bekliyor');
+        await expect(page.locator('.op-canavar__devam')).toBeVisible();
+        await expect(page.locator('.op-canavar__devam')).toContainText('Devam etmek için bir tuşa bas');
+        await page.clock.runFor(5000);
+        expect(await opM(page)).toBe(once);
+        await expect(opCanavar(page)).toHaveAttribute('data-can', '3');
+        // Devam tuşu: YANLIŞ harf — sayılsaydı doğruluk %100 olmazdı; hedef de değişmez
+        await page.evaluate(() => window.__opBas(document.querySelector('.op-oyun').dataset.beklenen === 'f' ? 'j' : 'f'));
+        await expect(opCanavar(page)).toHaveAttribute('data-durum', 'calisiyor');
+        await expect(page.locator('.op-canavar__devam')).toBeHidden();
+        await expect(page.locator('.op-canavar__kutu.is-yanlis')).toHaveCount(0);
+        await expect(opOyun(page)).toHaveAttribute('data-beklenen', b.metin[2]);
+        await page.clock.runFor(1000);
+        expect(await opM(page)).toBeLessThan(once);            // yürüyüş sürüyor
+        await opYaz(page, 'oyun', 300);
+        await expect(opOyun(page)).toHaveAttribute('data-mod', 'sonuc');
+        await expect(page.locator('.op-serit__alt')).toContainText('doğruluk %100');
+        errors.assertClean();
+    });
+
+    opTest('Caps Lock açıkken oyun durur (canavar yürümez, can gitmez, basış sayılmaz); kapanınca hemen sürer', async ({ page, errors }) => {
+        opTest.setTimeout(90000);
+        await opAc(page, OP_CANAVAR);
+        const b = OP_BOLUMLER[OP_CANAVAR - 1];
+        await page.evaluate(() => window.__opBas(document.querySelector('.op-oyun').dataset.beklenen));
+        await page.clock.runFor(300);
+        await page.evaluate(() => window.__opTus('CapsLock', 'CapsLock', { caps: true }));
+        await expect(page.locator('.op-caps')).toBeVisible();
+        await expect(opCanavar(page)).toHaveAttribute('data-durum', 'duraklatildi');
+        const once = await opM(page);
+        await page.clock.runFor(40000);
+        expect(await opM(page)).toBe(once);
+        await expect(opCanavar(page)).toHaveAttribute('data-can', '3');
+        await page.evaluate((ch) => window.__opBas(ch, { caps: true }), b.metin[1]);        // Caps açıkken: sayılmaz
+        await expect(opOyun(page)).toHaveAttribute('data-beklenen', b.metin[1]);
+        await expect(page.locator('.op-canavar__devam')).toBeHidden();
+        await page.evaluate(() => window.__opTus('CapsLock', 'CapsLock', { caps: false }));
+        await expect(page.locator('.op-caps')).toBeHidden();
+        await expect(opCanavar(page)).toHaveAttribute('data-durum', 'calisiyor');
+        await page.clock.runFor(2000);
+        expect(await opM(page)).toBeLessThan(once);
+        await opYaz(page, 'oyun', 300);
+        await expect(opOyun(page)).toHaveAttribute('data-mod', 'sonuc');
+        await expect(page.locator('.op-serit__alt')).toContainText('doğruluk %100');
+        errors.assertClean();
+    });
+
+    opTest('rAF: oyun sürerken bekleyen kare + ResizeObserver; bitince oyun durur (RO 0, sahne yok)', async ({ page, errors }) => {
+        opTest.setTimeout(90000);
+        await opAc(page, OP_CANAVAR, OP_N, (p) => p.addInitScript(OP_RAF));
+        await page.clock.runFor(200);
+        expect(await page.evaluate(() => window.__opRafBekleyen())).toBeGreaterThan(0);
+        expect(await page.evaluate(() => window.__opDinleyiciSayisi('visibilitychange'))).toBeGreaterThan(0);
+        expect(await page.evaluate(() => window.__opRoEtkin())).toBe(1);
+        await opYaz(page, 'oyun', 0);
+        await opCanavarSonra(page);
+        expect(await page.evaluate(() => window.__opRoEtkin())).toBe(0);
+        errors.assertClean();
+    });
+
+    opTest('rAF: oyun ortasında (top havadayken) hub\'a dönünce bekleyen kare 0, dinleyiciler açılış öncesine döner', async ({ page, errors }) => {
+        opTest.setTimeout(90000);
+        await page.clock.install({ time: new Date('2026-10-19T09:00:00Z') });
+        await page.addInitScript(OP_RAF);
+        await page.goto('/?oyun=' + OP_SLUG);
+        await expect(opPicker(page)).toBeVisible();
+        await page.keyboard.press('Shift');
+        await page.clock.runFor(500);
+        const once = await page.evaluate(() => ({ k: window.__opKeydownSayisi(), v: window.__opDinleyiciSayisi('visibilitychange'), raf: window.__opRafBekleyen() }));
+        await page.locator('.op-picker__bolum[data-bolum-sec="' + OP_CANAVAR + '"]').click();
+        await expect(opOyun(page)).toHaveAttribute('data-mod', 'oyun');
+        await page.evaluate(() => { const r = document.querySelector('.op-oyun'); for (let i = 0; i < 6; i++) window.__opBas(r.dataset.beklenen); });
+        await page.clock.runFor(150);
+        expect(await page.evaluate(() => window.__opRafBekleyen())).toBeGreaterThan(once.raf);
+        await page.locator('#game-home').click();
+        await page.clock.runFor(1000);
+        await expect(page.locator('#hub')).toBeVisible();
+        await page.clock.runFor(1000);
+        expect(await page.evaluate(() => window.__opRafBekleyen())).toBe(0);
+        expect(await page.evaluate(() => window.__opKeydownSayisi())).toBe(once.k);
+        expect(await page.evaluate(() => window.__opDinleyiciSayisi('visibilitychange'))).toBe(once.v);
+        expect(await page.evaluate(() => window.__opRoEtkin())).toBe(0);
+        await expect(opCanavar(page)).toHaveCount(0);
+        errors.assertClean();
+    });
+
+    opTest('aynı tohum (bölüm numarası) iki açılışta aynı sahne ve aynı hedef dizisi; başka tohum başka sahne', async ({ page, errors }) => {
+        opTest.setTimeout(90000);
+        let ilk = true;
+        const iz = async (p, no) => {
+            if (ilk) { ilk = false; await opAc(p, no); } else {
+                await p.locator('#game-home').click();
+                await p.clock.runFor(1000);
+                await p.locator('.game-card[data-game="on-parmak"]').first().click();
+                await p.clock.runFor(500);
+                await expect(opPicker(p)).toBeVisible();
+                await p.locator('.op-picker__bolum[data-bolum-sec="' + no + '"]').click();
+                await expect(opOyun(p)).toHaveAttribute('data-bolum', no + '/' + OP_N);
+            }
+            const kok = opCanavar(p);
+            const sahne = { renk: await kok.getAttribute('data-renk'),
+                agac: await p.locator('.op-canavar__agac').evaluateAll((d) => d.map((g) => g.dataset.x).join(',')) };
+            const tohum = await kok.getAttribute('data-tohum');
+            const hedefler = await p.evaluate(() => {
+                const r = document.querySelector('.op-oyun');
+                const d = [];
+                for (let n = 0; n < 8; n++) { d.push(r.dataset.beklenen); window.__opBas(r.dataset.beklenen); }
+                return d;
+            });
+            return { sahne, tohum, hedefler };
+        };
+        const a = await iz(page, OP_CANAVAR);
+        const b = await iz(page, OP_CANAVAR);
+        expect(a.tohum).toBe(String(OP_CANAVAR));
+        expect(b).toEqual(a);
+        expect(a.hedefler.join('')).toBe(OP_BOLUMLER[OP_CANAVAR - 1].metin.slice(0, 8));
+        // Başka tohum: sahne değişir (oyun doğrudan, ayrı kapta kurulur ve durdurulur)
+        const c = await page.evaluate(() => {
+            const kap = document.createElement('div');
+            kap.style.cssText = 'position:fixed;width:800px;height:320px;left:0;top:0';
+            document.body.appendChild(kap);
+            const oy = window.OnParmakOyunlari.canavar;
+            oy.baslat(kap, { metin: 'fil dil', tohum: 999 }, { tus() {}, bitti() {} });
+            const x = [...kap.querySelectorAll('.op-canavar__agac')].map((g) => g.dataset.x).join(',');
+            oy.durdur();
+            kap.remove();
+            return x;
+        });
+        expect(c).not.toBe(a.sahne.agac);
+        errors.assertClean();
+    });
+});
+
+// Normal hız yolu: kar topu yay çizerek uçar, canavar ezilip geri seker, temasta yumuşak geri çekilme
+opTest.describe('OnParmak — Canavar Saldırısı, normal hareket', () => {
+    opTest.use({ reducedMotion: 'no-preference' });
+    opTest('atış: top havada uçar (canavar bekler), değince geri seker; temas → can gider, yumuşak çekilme; kazanma ≥ 1 yıldız', async ({ page, errors }) => {
+        opTest.setTimeout(120000);
+        await opAc(page, OP_CANAVAR);
+        const b = OP_BOLUMLER[OP_CANAVAR - 1];
+        const kelimeler = b.metin.split(' ');
+        expect(await page.evaluate(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(false);
+        for (let i = 0; i < 60 && (await opCanavar(page).getAttribute('data-can')) === '3'; i++) await page.clock.runFor(500);
+        await expect(opCanavar(page)).toHaveAttribute('data-can', '2');
+        expect(await opM(page)).toBeLessThan(0.95);             // çekilme sürüyor (anında değil)
+        await page.clock.runFor(900);
+        expect(await opM(page)).toBeGreaterThan(0.95);
+        await page.clock.runFor(8000);
+        for (const ch of kelimeler[0]) await page.evaluate((c) => window.__opBas(c), ch);
+        const m0 = await opM(page);
+        await page.evaluate(() => window.__opBas(' '));
+        await expect(opCanavar(page)).toHaveAttribute('data-saglik', String(kelimeler.length - 1));
+        await expect(page.locator('.op-canavar__atislar > .op-canavar__top')).toHaveCount(1);   // havada
+        await expect(page.locator('.op-canavar__cv')).not.toHaveClass(/is-vuruldu/);
+        await page.clock.runFor(200);
+        expect(await opM(page)).toBeCloseTo(m0, 2);             // top havadayken canavar bekler
+        await page.clock.runFor(200);
+        await expect(page.locator('.op-canavar__cv')).toHaveClass(/is-vuruldu/);
+        await expect(page.locator('.op-canavar__atislar > .op-canavar__top')).toHaveCount(0);
+        await page.clock.runFor(600);
+        expect(m0).toBeLessThan(0.75);
+        expect(await opM(page)).toBeCloseTo(Math.min(1, m0 + 0.5), 1);   // geri sekti (tavan 1; sekme bitti, yürüyüş sürüyor)
+        await opYaz(page, 'oyun', 250);
+        await expect(opOyun(page)).toHaveAttribute('data-mod', 'sonuc');
+        await expect(opCanavar(page)).toHaveAttribute('data-bitti', 'canli');
+        expect(Number(await opOyun(page).getAttribute('data-sonuc'))).toBeGreaterThanOrEqual(1);
+        errors.assertClean();
+    });
+});
+
 // Kapalı oyun (active:false), katalog YAMASIZ: hiçbir yoldan açılmaz, hub'da "Yakında" kartı + ikon.
 // PR3'te oyun açılınca (active:true) bu describe silinir.
 const opTestYamasiz = test.extend({
@@ -1665,7 +1985,7 @@ opTestParcali.describe('OnParmak — kısım geçişi (2 kısımlı test fikstü
         await opAc(page, OP_SON, OP_N + 1);
         const oyun = opOyun(page);
         expect(await page.evaluate(() => GameEngine.getCurrentGame().levels.length)).toBe(2);
-        await opYaz(page, 'satir', 100);
+        await opYaz(page, OP_BOLUMLER[OP_SON - 1].tur, 100);         // Kısım 1'in son bölümü (oyun ya da satır)
         await expect(oyun).toHaveAttribute('data-mod', 'sonuc');
         await page.clock.runFor(2600);                                         // şerit geçer → kısım biter → onLevelUp
         expect(await opOverlayAcik(page)).toBe(false);

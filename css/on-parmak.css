@@ -1445,3 +1445,258 @@
         font-size: 0.9rem;
     }
 }
+
+/* ── Canavar Saldırısı (js/games/on-parmak-canavar.js) ──
+   Karlı çayır; Pıt solda, tüylü canavar sağdan gelir. Can kalpleri ve "Kalan güç" çubuğu üstte cam haplarda, kelime
+   kutuları onların altında ortada. Kalp/devam stilleri Balon'la ortak (.op-balon__canlar/__can/__devam).
+   Hareket JS döngüsünde; burada yalnız renk, kutu durumları ve kısa renk geçişleri. */
+.op-canavar {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: var(--r-giris);
+    background: linear-gradient(var(--gok-ust), var(--gok-alt));
+}
+
+.op-canavar__svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.op-canavar__tepe--uzak { fill: var(--beyaz); opacity: 0.8; }
+/* Yakın kar zemini açık mavi: beyaz oyun kartında sahnenin alt kenarı kaybolmasın */
+.op-canavar__tepe--yakin { fill: var(--mavi-050); stroke: var(--beyaz); stroke-width: 3; }
+.op-canavar__agac-govde { fill: var(--kat-strateji); }
+.op-canavar__agac-yaprak { fill: var(--cim-koyu); }
+.op-canavar__agac-kar { fill: var(--beyaz); }
+.op-canavar__agaclar { opacity: 0.9; }
+.op-canavar__tane { fill: var(--beyaz); opacity: 0.9; }
+
+/* Kar topu: beyaz, ince mavi kontur (karlı zeminde de seçilir) */
+.op-canavar__top {
+    fill: var(--beyaz);
+    stroke: var(--mavi-500);
+    stroke-width: 1.6;
+}
+
+.op-canavar__eldeki { display: none; }
+.op-canavar__pit.is-hazir .op-canavar__eldeki { display: inline; }
+
+/* Karakter Pıt (kış hâli) */
+.op-canavar__pit-govde { fill: var(--kat-online); }
+.op-canavar__pit-karin { fill: var(--beyaz); opacity: 0.35; }
+.op-canavar__pit-goz { fill: var(--murekkep); }
+.op-canavar__pit-yanak { fill: var(--kat-yaratici); opacity: 0.8; }
+.op-canavar__pit-ayak { fill: var(--murekkep-orta); }
+.op-canavar__pit-atki { fill: var(--yanlis); }
+.op-canavar__pit-bere { fill: var(--kat-harf); }
+.op-canavar__pit-bere-kenar,
+.op-canavar__pit-ponpon { fill: var(--beyaz); }
+
+.op-canavar__pit-kol {
+    fill: none;
+    stroke: var(--kat-online);
+    stroke-width: 6;
+    stroke-linecap: round;
+}
+
+.op-canavar__pit-agiz,
+.op-canavar__cv-agiz {
+    fill: none;
+    stroke: var(--murekkep);
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+
+/* Canavar "Pofuduk": renk currentColor'dan (tohumla 3 renk) */
+.op-canavar__cv--0 { color: var(--kat-sayi); }
+.op-canavar__cv--1 { color: var(--kat-yaratici); }
+.op-canavar__cv--2 { color: var(--kat-bulmaca); }
+
+.op-canavar__cv-tuy {
+    fill: currentColor;
+    stroke: var(--cizgi-saydam);
+    stroke-width: 2;
+}
+
+.op-canavar__cv-golge { fill: var(--murekkep); opacity: 0.1; }
+.op-canavar__cv-ayak { fill: currentColor; stroke: var(--cizgi-saydam); stroke-width: 2; }
+.op-canavar__cv-karin { fill: var(--beyaz); opacity: 0.4; }
+.op-canavar__cv-boynuz { fill: var(--beyaz); stroke: var(--cizgi-saydam); stroke-width: 1.5; }
+
+.op-canavar__cv-kol {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 9;
+    stroke-linecap: round;
+}
+
+.op-canavar__cv-goz { fill: var(--beyaz); stroke: var(--cizgi-saydam); stroke-width: 1; }
+.op-canavar__cv-bebek { fill: var(--murekkep); }
+.op-canavar__cv-isik { fill: var(--beyaz); }
+.op-canavar__cv-yanak { fill: var(--beyaz); opacity: 0.45; }
+.op-canavar__cv-dis { fill: var(--beyaz); }
+.op-canavar__kar-leke { fill: var(--beyaz); stroke: var(--mavi-050); stroke-width: 1; }
+
+.op-canavar__cv-kapali {
+    display: none;
+    fill: none;
+    stroke: var(--murekkep);
+    stroke-width: 2.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.op-canavar__cv.is-vuruldu .op-canavar__cv-gozler { display: none; }
+.op-canavar__cv.is-vuruldu .op-canavar__cv-kapali { display: inline; }
+
+/* HUD: canlar solda, canavarın gücü sağda */
+.op-canavar__hud {
+    position: absolute;
+    inset: var(--ara-2) var(--ara-2) auto var(--ara-2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--ara-2);
+    pointer-events: none;
+}
+
+.op-canavar__guc {
+    display: flex;
+    align-items: center;
+    gap: var(--ara-2);
+    min-width: 0;
+    padding: var(--ara-1) var(--ara-3) var(--ara-1) var(--ara-2);
+    border-radius: var(--r-hap);
+    background: var(--yuzey-cam);
+    box-shadow: var(--golge-1);
+}
+
+.op-canavar__guc-yuz {
+    flex: none;
+    width: 26px;
+    height: 26px;
+}
+
+/* Güç çubuğu: kelime başına bir dilim; kalan dilim canavarın renginde + mürekkep kontur, biten dilim boş yuva */
+.op-canavar__cubuk {
+    display: flex;
+    gap: 2px;
+    width: clamp(84px, 22vw, 168px);
+    height: 14px;
+    padding: 2px;
+    border-radius: var(--r-hap);
+    background: var(--beyaz);
+    box-shadow: inset 0 0 0 1.5px var(--murekkep-orta);
+}
+
+.op-canavar__dilim {
+    flex: 1 1 0;
+    border-radius: 2px;
+    background: var(--yildiz-bos);
+    transition: background-color var(--sure-gecis) var(--egri-out);
+}
+
+.op-canavar__dilim:first-child { border-radius: var(--r-hap) 2px 2px var(--r-hap); }
+.op-canavar__dilim:last-child { border-radius: 2px var(--r-hap) var(--r-hap) 2px; }
+.op-canavar__dilim.is-dolu { background: currentColor; }
+
+.op-canavar__guc-sayi {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--murekkep);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Kelime kutuları: harf başına kutu; sıradaki kutu kalkık + kalın mavi kontur + alt çizgi, yazılanlar yeşil zeminde */
+.op-canavar__kelime {
+    --kutu: min(52px, calc((100cqi - var(--n, 6) * var(--ara-1)) / var(--n, 6)));
+    container-type: inline-size;
+    position: absolute;
+    left: 50%;
+    top: calc(var(--ara-2) + 48px);
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    gap: var(--ara-1);
+    width: min(calc(100% - 2 * var(--ara-3)), calc(var(--n, 6) * 56px));
+    pointer-events: none;
+}
+
+.op-canavar__kutu {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: var(--kutu);
+    height: calc(var(--kutu) * 1.2);
+    border-radius: 10px;
+    background: var(--beyaz);
+    box-shadow: inset 0 0 0 2px var(--cizgi), var(--golge-1);
+    font-family: var(--font-display);
+    font-size: calc(var(--kutu) * 0.66);
+    font-weight: 600;
+    line-height: 1;
+    color: var(--murekkep);
+    transition: background-color var(--sure-gecis) var(--egri-out), color var(--sure-gecis) var(--egri-out);
+}
+
+.op-canavar__kutu.is-yazildi {
+    background: var(--dogru-zemin);
+    color: var(--dogru);
+    box-shadow: inset 0 0 0 2px var(--dogru-isik);
+}
+
+.op-canavar__kutu.is-sira {
+    translate: 0 -4px;
+    box-shadow: inset 0 0 0 3px var(--mavi-800), var(--golge-2);
+}
+
+.op-canavar__kutu.is-sira::after {
+    content: '';
+    position: absolute;
+    left: 22%;
+    right: 22%;
+    bottom: -9px;
+    height: 4px;
+    border-radius: var(--r-hap);
+    background: var(--mavi-800);
+}
+
+.op-canavar__kutu.is-yanlis {
+    background: var(--yanlis-zemin);
+    box-shadow: inset 0 0 0 3px var(--yanlis), var(--golge-2);
+}
+
+.op-canavar__kutu.is-yanlis::after { background: var(--yanlis); }
+
+.op-canavar__kutu--bosluk {
+    width: calc(var(--kutu) * 1.4);
+}
+
+.op-canavar__kutu--bosluk svg {
+    width: 70%;
+    height: 70%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+@media (max-width: 599px) {
+    .op-canavar__guc-yuz {
+        width: 22px;
+        height: 22px;
+    }
+
+    .op-canavar__guc-sayi { font-size: 0.9rem; }
+
+    .op-canavar__kelime { top: calc(var(--ara-2) + 40px); }
+
+    .op-canavar__kutu { border-radius: 8px; }
+}

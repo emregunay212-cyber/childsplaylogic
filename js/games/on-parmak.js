@@ -45,7 +45,7 @@ const OnParmak = (() => {
         basparmak: 'başparmağınla',
     };
     const KARAKTER_ADI = { ' ': 'Boşluk', ',': 'virgül', '.': 'nokta' };
-    const OYUN_YONERGE = { balon: 'Oklu balonun harfine bas.' };
+    const OYUN_YONERGE = { balon: 'Oklu balonun harfine bas.', canavar: 'Kelimeyi yaz, Boşluk ile kar topunu at.' };
 
     let container = null;
     let callbacks = null;

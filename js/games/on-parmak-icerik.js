@@ -53,6 +53,8 @@ window.ON_PARMAK_ICERIK = [
               metin: 'ii ,, i, ,i ii, hi, ki, si,' },
             { tur: 'satir', ad: 'Orta sıra kelimeleri',
               metin: 'fil, dil, kil, sil, şiş, hilal, kişi, dikiş, ilgi, şifa, hadi' },
+            { tur: 'oyun',  ad: 'Canavar Saldırısı: orta sıra kelimeleri', oyun: 'canavar',
+              metin: 'dalga silgi hafif şaka halka gaga sakal kafa hilal kişi' },
         ],
     },
 ];
