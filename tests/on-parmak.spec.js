@@ -1353,3 +1353,125 @@ opTestParcali.describe('OnParmak — kısım geçişi (2 kısımlı test fikstü
         errors.assertClean();
     });
 });
+
+/* ---- OnParmakOyunOrtak — ortak oyun parçaları ---- */
+function loadOyunOrtak(ctxEkstra = {}) {
+    const window = Object.assign({}, ctxEkstra);
+    const rel = 'js/games/on-parmak-oyun-ortak.js';
+    const document = { addEventListener() {}, removeEventListener() {}, visibilityState: 'visible' };
+    vm.runInNewContext(fs.readFileSync(path.join(ROOT, rel), 'utf8'), {
+        window, Math, document, requestAnimationFrame() { return 1; }, cancelAnimationFrame() {},
+    }, { filename: rel });
+    return window.OnParmakOyunOrtak;
+}
+
+test.describe('OnParmakOyunOrtak — rng / hedefSec / uyarlanirHiz (tarayıcısız)', () => {
+    const O = loadOyunOrtak();
+
+    test('rng: mulberry32 deterministik, [0,1), tohuma bağlı', () => {
+        const dizi = (r) => Array.from({ length: 50 }, () => r());
+        const A = dizi(O.rng(42)), B = dizi(O.rng(42)), C = dizi(O.rng(43));
+        expect(A).toEqual(B);
+        expect(A).not.toEqual(C);
+        for (const x of A) { expect(x).toBeGreaterThanOrEqual(0); expect(x).toBeLessThan(1); }
+        expect(new Set(A).size).toBe(50);
+        expect(O.rng(1)()).toBeCloseTo(0.6270739405881613, 12);   // bilinen mulberry32(1) ilk değeri
+    });
+
+    test('hedefSec: ilk harfle eşleşen, tehlikeye en yakın; eşleşme yoksa null; harf büyüklüğü duyarlı', () => {
+        const a = { kelime: 'elma', tehlike: 0.2 }, b = { kelime: 'ekmek', tehlike: 0.7 },
+            c = { kelime: 'ağaç', tehlike: 0.9 }, d = { kelime: 'ışık', tehlike: 0.5 };
+        const h = [a, b, c, d];
+        expect(O.hedefSec(h, 'e')).toBe(b);
+        expect(O.hedefSec(h, 'ğ')).toBe(null);
+        expect(O.hedefSec(h, 'ı')).toBe(d);
+        expect(O.hedefSec(h, 'I')).toBe(null);
+        expect(O.hedefSec([], 'e')).toBe(null);
+        expect(O.hedefSec([{ kelime: 'ev', tehlike: 1 }, { kelime: 'el', tehlike: 1 }], 'e').kelime).toBe('ev');   // eşitte ilk
+    });
+
+    test('hedefSec: kilit kelime bitene dek korunur; başlanmış hedef yeniden seçilmez; kilit listeden çıkınca serbest', () => {
+        const a = { kelime: 'elma', tehlike: 0.2, ilerleme: 1 }, b = { kelime: 'ekmek', tehlike: 0.9 };
+        expect(O.hedefSec([a, b], 'k', a)).toBe(a);              // kilitliyken başka harf de kilidi döndürür (hata sayımı oyunda)
+        expect(O.hedefSec([a, b], 'e', a)).toBe(a);              // tehlikesi daha yüksek b'ye geçmez
+        expect(O.hedefSec([a, b], 'e')).toBe(b);                 // kilitsiz: a başlanmış, b seçilir
+        expect(O.hedefSec([b], 'e', a)).toBe(b);                 // kilit artık listede yok
+    });
+
+    test('uyarlanirHiz: taban başlangıç, başarıda artar (≤ max), can kaybında azalır (≥ min); reduced-motion tabanı düşürür', () => {
+        const ayar = { taban: 100, min: 60, max: 130, artis: 10, azalis: 25 };
+        const h = O.uyarlanirHiz({ ...ayar, azaltilmisHareket: false });
+        expect(h.deger()).toBe(100);
+        expect([h.basari(), h.basari(), h.basari(), h.basari()]).toEqual([110, 120, 130, 130]);
+        expect([h.canKaybi(), h.canKaybi(), h.canKaybi(), h.canKaybi()]).toEqual([105, 80, 60, 60]);
+        expect(O.uyarlanirHiz({ ...ayar, azaltilmisHareket: true }).deger()).toBe(60);
+        expect(O.uyarlanirHiz({ ...ayar, taban: 50, azaltilmisHareket: false }).deger()).toBe(60);   // min'e kenetlenir
+        const m = loadOyunOrtak({ matchMedia: (q) => ({ matches: /reduce/.test(q) }) });
+        expect(m.uyarlanirHiz(ayar).deger()).toBe(60);           // matchMedia'dan okur
+    });
+});
+
+test.describe('OnParmakOyunOrtak.dongu (tarayıcı, sahte saat)', () => {
+    test.beforeEach(async ({ page }) => {
+        await page.clock.install({ time: 0 });
+        await page.goto('/404.html');
+        await page.addScriptTag({ url: '/js/games/on-parmak-oyun-ortak.js' });
+        await page.evaluate(() => {
+            window.__raf = { iste: 0, iptal: 0 };
+            const r = window.requestAnimationFrame.bind(window), c = window.cancelAnimationFrame.bind(window);
+            window.requestAnimationFrame = (f) => { window.__raf.iste++; return r(f); };
+            window.cancelAnimationFrame = (i) => { window.__raf.iptal++; return c(i); };
+            window.__adim = [];
+            window.__durumlar = [];
+            window.__gorun = (v) => {
+                Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => v });
+                document.dispatchEvent(new Event('visibilitychange'));
+            };
+            window.__d = window.OnParmakOyunOrtak.dongu((dt) => window.__adim.push(dt), { durumDegisti: (d) => window.__durumlar.push(d) });
+        });
+    });
+
+    test('adım çağrılır, dt azami 100 ms; durdur() döngüyü bitirir ve tekrar çağrılabilir', async ({ page }) => {
+        await page.clock.runFor(500);
+        expect(await page.evaluate(() => window.__adim.length)).toBeGreaterThan(10);
+        expect(await page.evaluate(() => Math.max(...window.__adim))).toBeLessThanOrEqual(100);
+        expect(await page.evaluate(() => window.__d.durum())).toBe('calisiyor');
+        // saat sahte ama akıyor: sayımı durdurmayla aynı eşzamanlı blokta al
+        const n = await page.evaluate(() => { window.__d.durdur(); window.__d.durdur(); return window.__adim.length; });
+        await page.clock.runFor(500);
+        expect(await page.evaluate(() => window.__adim.length)).toBe(n);
+        expect(await page.evaluate(() => window.__d.durum())).toBe('durdu');
+        expect(await page.evaluate(() => window.__d.devamTusu())).toBe(false);
+    });
+
+    test('sekme gizlenince rAF durur; görünür olunca devam bekler; devam tuşu yutulur (true), sonraki tuş normal (false)', async ({ page }) => {
+        await page.clock.runFor(200);
+        await page.evaluate(() => window.__gorun('hidden'));
+        expect(await page.evaluate(() => window.__d.durum())).toBe('gizli');
+        const n = await page.evaluate(() => window.__adim.length);
+        await page.clock.runFor(1000);
+        expect(await page.evaluate(() => window.__adim.length)).toBe(n);
+        expect(await page.evaluate(() => window.__d.devamTusu())).toBe(true);   // gizliyken de yutulur, döngü başlamaz
+        expect(await page.evaluate(() => window.__d.durum())).toBe('gizli');
+        await page.evaluate(() => window.__gorun('visible'));
+        expect(await page.evaluate(() => window.__d.durum())).toBe('devam-bekliyor');
+        await page.clock.runFor(1000);
+        expect(await page.evaluate(() => window.__adim.length)).toBe(n);        // tuşa kadar akmaz
+        expect(await page.evaluate(() => window.__d.devamTusu())).toBe(true);   // devam tuşu: yutuldu
+        expect(await page.evaluate(() => window.__d.durum())).toBe('calisiyor');
+        expect(await page.evaluate(() => window.__d.devamTusu())).toBe(false);  // sonraki tuş normal sayılır
+        await page.clock.runFor(300);
+        expect(await page.evaluate(() => window.__adim.length)).toBeGreaterThan(n);
+        expect(await page.evaluate(() => Math.max(...window.__adim))).toBeLessThanOrEqual(100);   // bekleme süresi dt'ye sıçramaz
+        expect(await page.evaluate(() => window.__durumlar)).toEqual(['gizli', 'devam-bekliyor', 'calisiyor']);
+    });
+
+    test('durdur() sonrası visibilitychange dinleyicisi kalmaz; rAF iptal edilir ve adım gelmez', async ({ page }) => {
+        await page.evaluate(() => { window.__d.durdur(); window.__gorun('hidden'); window.__gorun('visible'); });
+        expect(await page.evaluate(() => window.__durumlar)).toEqual([]);
+        expect(await page.evaluate(() => window.__d.durum())).toBe('durdu');
+        expect(await page.evaluate(() => window.__raf.iptal)).toBeGreaterThan(0);
+        await page.clock.runFor(300);
+        expect(await page.evaluate(() => window.__adim.length)).toBe(0);
+    });
+});
