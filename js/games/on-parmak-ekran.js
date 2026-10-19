@@ -16,9 +16,10 @@
      Dokunma: tuş `<g data-code>` pointerdown → basinca(tuşun Shift'siz karakteri) — modülün press() yolu.
      Pasif `< >` (IntlBackslash), Shift ve süs tuşları (Tab, Caps, Enter, …) tepkisiz.
 
-   Katmanlar (alttan üste): tepsi → tuşlar (g[data-code], tıklanır) → eller (g.op-eller, pointer-events: none) →
-   etiketler (g.op-etiketler, pointer-events: none). Etiketler elin ÜSTÜNDE: parmak altında kalan harf de okunur.
-   Durum sınıfları hem tuşa hem etiketine yazılır (basılı tuşun yazısı da birlikte iner). Stil: css/on-parmak.css.
+   Katmanlar (alttan üste): tepsi → tuşlar (g[data-code], tıklanır) → eller (g.op-eller) → vurgular (g.op-vurgular:
+   her tuşun hedef/basış kopyası, yalnız durum sınıfı varken görünür) → etiketler (g.op-etiketler). Üst üç katman
+   pointer-events: none. Vurgu ve etiket elin ÜSTÜNDE: alt sıra hedefi ve parmak altındaki harf de görünür.
+   Durum sınıfları tuşa, vurgusuna ve etiketine birlikte yazılır (basılı tuşun yazısı da iner). Stil: css/on-parmak.css.
    Güvenlik: SVG createElementNS ile, metin textContent ile; veriyle innerHTML yok.
    ============================================ */
 
@@ -124,14 +125,15 @@
         el('rect', { class: 'op-tepsi', x: 0, y: 0, width: GEN, height: TEPSI_YUK, rx: 20 }, svg);
         const tusKatmani = el('g', { class: 'op-tuslar' }, svg);
         const elKatmani = el('g', { class: 'op-eller', 'pointer-events': 'none', 'aria-hidden': 'true' }, svg);
+        // Vurgu katmanı ELLERİN ÜSTÜNDE: alt sıra (z … ç .) hedefi/basışı parmak altında kalmasın; etiketler yine en üstte
+        const vurguKatmani = el('g', { class: 'op-vurgular', 'pointer-events': 'none', 'aria-hidden': 'true' }, svg);
         const etiketKatmani = el('g', { class: 'op-etiketler', 'pointer-events': 'none', 'aria-hidden': 'true' }, svg);
 
-        const tuslar = new Map();      // code → { g, etiket }
+        const tuslar = new Map();      // code → { g, vurgu, etiket }
         const karakterOfKod = new Map(); // code → dokunmada üretilen karakter (Shift'siz)
 
         function kapakCiz(g, b) {
             el('rect', { class: 'op-tus__taban', x: b.x, y: b.y + 4, width: b.w, height: KAPAK_YUK, rx: 9 }, g);
-            el('rect', { class: 'op-tus__hale', x: b.x - 4, y: b.y - 4, width: b.w + 8, height: KAPAK_YUK + 8, rx: 12 }, g);
             el('rect', { class: 'op-tus__kapak', x: b.x, y: b.y, width: b.w, height: KAPAK_YUK, rx: 9 }, g);
         }
 
@@ -144,6 +146,9 @@
             const b = kutu(yer);
             const g = el('g', { class: 'op-tus' + (secenek.pasif ? ' is-pasif' : ''), 'data-code': code }, tusKatmani);
             kapakCiz(g, b);
+            const vurgu = el('g', { class: 'op-vurgu', 'data-vurgu': code }, vurguKatmani);
+            el('rect', { class: 'op-vurgu__hale', x: b.x - 4, y: b.y - 4, width: b.w + 8, height: KAPAK_YUK + 8, rx: 12 }, vurgu);
+            el('rect', { class: 'op-vurgu__kapak', x: b.x, y: b.y, width: b.w, height: KAPAK_YUK, rx: 9 }, vurgu);
             const etiket = el('g', { class: 'op-etiket' + (secenek.pasif ? ' is-pasif' : ''), 'data-etiket': code }, etiketKatmani);
             const cx = b.x + b.w / 2, cy = b.y + KAPAK_YUK / 2;
             if (secenek.yazi) yazi(etiket, secenek.yazi, cx, cy, 'op-etiket__kucuk');
@@ -155,7 +160,7 @@
             if (code === 'KeyF' || code === 'KeyJ') {   // orta sıra kabartısı: gerçek klavyedeki gibi
                 el('line', { class: 'op-etiket__kabarti', x1: cx - 7, x2: cx + 7, y1: cy + 18, y2: cy + 18 }, etiket);
             }
-            tuslar.set(code, { g, etiket });
+            tuslar.set(code, { g, vurgu, etiket });
         }
 
         // Süs tuşları
@@ -189,7 +194,7 @@
         tusEkle(D.BOSLUK.code, BOSLUK_TUSU, { yazi: 'boşluk' });
         karakterOfKod.set(D.BOSLUK.code, D.BOSLUK.alt);
         // Boşluk yazısı tuşun alt yarısına, iki başparmağın arasına
-        const bosEtiket = tuslar.get('Space').etiket.querySelector('text');
+        const bosEtiket = tuslar.get(D.BOSLUK.code).etiket.querySelector('text');
         bosEtiket.setAttribute('y', String(Number(bosEtiket.getAttribute('y')) + 10));
 
         // Eller: her parmak ayrı yol; avuç parmak diplerini örter (avuç ÜSTTE çizilir)
@@ -215,6 +220,7 @@
             const t = tuslar.get(code);
             if (!t) return;
             t.g.classList.toggle(sinif, acik);
+            t.vurgu.classList.toggle(sinif, acik);
             t.etiket.classList.toggle(sinif, acik);
         }
 
@@ -231,7 +237,7 @@
             if (shift) kodlar.push(shift);
             kodlar.forEach((code) => {
                 const t = tuslar.get(code);
-                if (t) hedefler.push(t.g, t.etiket);
+                if (t) hedefler.push(t.g, t.vurgu, t.etiket);
             });
             const ids = D.parmaklarOf(ch);
             ids.forEach((id) => (parmaklar.get(id) || []).forEach((p) => hedefler.push(p)));
@@ -270,6 +276,7 @@
         }
 
         function dokun(e) {
+            if (e.button !== 0 || e.isPrimary === false) return;   // yalnız birincil düğme / ilk dokunuş
             const g = e.target && e.target.closest ? e.target.closest('[data-code]') : null;
             if (!g || !svg.contains(g)) return;
             const ch = karakterOfKod.get(g.getAttribute('data-code'));

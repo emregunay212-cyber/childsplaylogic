@@ -7,6 +7,7 @@
      karşı Shift ve karşı serçe de aynı renkte.
    - Basış klavyeden gelir, dakikada yüzlerce kez → AÇILIŞ ANINDA (geçişsiz), sönüş kısa ease-out. Tuş kapağı 3 birim iner.
    - Yanlış: kırmızı kenar + kısa yatay sallanma (200 ms). Hedefte nabız yalnız hale saydamlığında (konum oynamaz).
+   - Hedef/basış vurgusu ELLERİN ÜSTÜNDEKİ vurgu katmanında: alt sıra tuşları parmak altında da yanar.
    - prefers-reduced-motion: nabız/sallanma/iniş yok — durağan vurgu (renk + hale), spec §8.
    ============================================ */
 
@@ -24,6 +25,7 @@
     user-select: none;
     -webkit-user-select: none;
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 /* ── Tepsi ve tuşlar ── */
@@ -50,13 +52,6 @@
         transform var(--sure-bas) var(--egri-out);
 }
 
-.op-tus__hale {
-    fill: none;
-    stroke: var(--gunes);
-    stroke-width: 4;
-    opacity: 0;
-}
-
 .op-tus--sus {
     fill: none;
     stroke: var(--cizgi);
@@ -81,10 +76,6 @@
     transition: none;
 }
 
-.op-tus.is-hedef .op-tus__hale {
-    animation: op-nabiz 1.1s ease-in-out infinite alternate;
-}
-
 /* Basış — açılışta geçiş yok (anında), sönüş .op-tus__kapak geçişiyle */
 .op-tus.is-down .op-tus__kapak,
 .op-tus.is-yanlis .op-tus__kapak {
@@ -105,8 +96,67 @@
 }
 
 .op-tus.is-yanlis,
+.op-vurgu.is-yanlis,
 .op-etiket.is-yanlis {
     animation: op-salla 200ms var(--egri-out);
+}
+
+/* ── Vurgu katmanı (ellerin üstünde, etiketlerin altında; tıklanmaz) ──
+   Her tuşun kopyası; yalnız durum sınıfı varken görünür. Yarı saydam dolgu: alttaki parmak sezilir, tuş rengi okunur. */
+.op-vurgular {
+    pointer-events: none;
+}
+
+.op-vurgu {
+    display: none;
+}
+
+.op-vurgu.is-hedef,
+.op-vurgu.is-down,
+.op-vurgu.is-yanlis {
+    display: inline;
+}
+
+.op-vurgu__kapak {
+    fill: var(--gunes);
+    fill-opacity: 0.6;
+    stroke: var(--murekkep);
+    stroke-width: 3;
+}
+
+.op-vurgu__hale {
+    fill: none;
+    stroke: var(--gunes);
+    stroke-width: 4;
+    opacity: 0;
+}
+
+.op-vurgu.is-hedef .op-vurgu__hale {
+    animation: op-nabiz 1.1s ease-in-out infinite alternate;
+}
+
+/* Basış hedefin önüne geçer (aynı tuş hem hedef hem basılı olabilir) */
+.op-vurgu.is-down .op-vurgu__kapak,
+.op-vurgu.is-yanlis .op-vurgu__kapak {
+    transform: translateY(3px);
+}
+
+.op-vurgu.is-down .op-vurgu__kapak {
+    fill: var(--dogru-zemin);
+    fill-opacity: 0.75;
+    stroke: var(--dogru);
+}
+
+.op-vurgu.is-yanlis .op-vurgu__kapak {
+    fill: var(--yanlis-zemin);
+    fill-opacity: 1;
+    stroke: var(--yanlis);
+}
+
+.op-vurgu.is-down .op-vurgu__hale,
+.op-vurgu.is-yanlis .op-vurgu__hale {
+    animation: none;
+    opacity: 0;
 }
 
 /* ── Etiketler (elin üstünde; tıklanmaz) ── */
@@ -120,8 +170,17 @@
     font-weight: 600;
 }
 
+/* İnce zemin halesi: parmak çizgileri harfin içinden geçmesin (paint-order: önce kontur, sonra dolgu) */
 .op-etiket text {
+    stroke: var(--beyaz);
+    stroke-width: 4px;
+    stroke-linejoin: round;
+    paint-order: stroke fill;
     transition: transform var(--sure-bas) var(--egri-out);
+}
+
+.op-etiket.is-hedef text {
+    stroke: var(--gunes);
 }
 
 .op-etiket.is-down text,
@@ -193,6 +252,7 @@
 .op-ekran--elsiz .op-eller,
 .op-ekran--klavyesiz .op-tepsi,
 .op-ekran--klavyesiz .op-tuslar,
+.op-ekran--klavyesiz .op-vurgular,
 .op-ekran--klavyesiz .op-etiketler {
     display: none;
 }
@@ -209,18 +269,21 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .op-tus.is-hedef .op-tus__hale {
+    .op-vurgu.is-hedef .op-vurgu__hale {
         animation: none;
         opacity: 0.7;
     }
 
     .op-tus.is-yanlis,
+    .op-vurgu.is-yanlis,
     .op-etiket.is-yanlis {
         animation: none;
     }
 
     .op-tus.is-down .op-tus__kapak,
     .op-tus.is-yanlis .op-tus__kapak,
+    .op-vurgu.is-down .op-vurgu__kapak,
+    .op-vurgu.is-yanlis .op-vurgu__kapak,
     .op-etiket.is-down text,
     .op-etiket.is-yanlis text {
         transform: none;

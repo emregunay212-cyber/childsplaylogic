@@ -555,6 +555,40 @@ test.describe('OnParmakEkran — klavye + eller (tarayıcı)', () => {
         expect(await page.evaluate(() => window.__basilan)).toEqual(['a', 'j', '1', ' ']);
     });
 
+    test('alt sıra hedefi ellerin ÜSTÜNDE yanar (vurgu katmanı eller ile etiketler arasında); basış da', async ({ page }) => {
+        for (const [ch, code] of [['c', 'KeyC'], ['m', 'KeyM'], ['ç', 'Period'], ['f', 'KeyF']]) {
+            const r = await page.evaluate(([c, kod]) => {
+                window.__ekran.vurgula(c);
+                const svg = document.querySelector('#kap svg');
+                const katman = (sec) => [...svg.children].indexOf(svg.querySelector(sec));
+                const v = svg.querySelector(`.op-vurgu[data-vurgu="${kod}"]`);
+                const k = svg.querySelector(`[data-code="${kod}"] .op-tus__kapak`).getBBox();
+                const vb = v.querySelector('.op-vurgu__kapak').getBBox();
+                const kx = k.x + k.width / 2, ky = k.y + k.height / 2;
+                return {
+                    sira: [katman('.op-tuslar'), katman('.op-eller'), katman('.op-vurgular'), katman('.op-etiketler')],
+                    gorunur: getComputedStyle(v).display !== 'none' && v.getBoundingClientRect().width > 0,
+                    ortada: kx >= vb.x && kx <= vb.x + vb.width && ky >= vb.y && ky <= vb.y + vb.height,
+                    gorunenler: [...svg.querySelectorAll('.op-vurgu')].filter((x) => getComputedStyle(x).display !== 'none')
+                        .map((x) => x.dataset.vurgu),
+                };
+            }, [ch, code]);
+            expect(r.sira[0] < r.sira[1] && r.sira[1] < r.sira[2] && r.sira[2] < r.sira[3], `${ch} katman sırası ${r.sira}`).toBe(true);
+            expect(r.gorunur, ch).toBe(true);
+            expect(r.ortada, ch).toBe(true);
+            expect(r.gorunenler, ch).toEqual([code]);
+        }
+        await page.evaluate(() => { window.__ekran.vurgula(null); window.__ekran.bas('b', false); });
+        expect(await page.evaluate(() => [...document.querySelectorAll('#kap .op-vurgu')]
+            .filter((x) => getComputedStyle(x).display !== 'none').map((x) => x.dataset.vurgu))).toEqual(['KeyB']);
+    });
+
+    test('dokunma: birincil olmayan düğme (sağ tık) tepkisiz', async ({ page }) => {
+        await page.locator('#kap [data-code="KeyA"]').click({ button: 'right' });
+        await page.locator('#kap [data-code="KeyA"]').click({ button: 'middle' });
+        expect(await page.evaluate(() => window.__basilan)).toEqual([]);
+    });
+
     test('parmak uçları orta sıra tuşlarının üstünde (A S D F · J K L Ş), başparmaklar Boşlukta', async ({ page }) => {
         const r = await page.evaluate(() => {
             const kap = document.getElementById('kap');
