@@ -228,14 +228,16 @@ test.describe('KlavyeDizilim.karakterOf — fiziksel tuş = konum (tarayıcısı
         expect(D.karakterOf(undefined)).toBeNull();
     });
 
-    test('pasif `< >` tuşu basılırsa karakter döner (yanlış basış sayılır); hedef olamaz', () => {
-        expect(D.karakterOf(ev('<', 'IntlBackslash'))).toBe('<');
-        expect(D.karakterOf(ev('>', 'IntlBackslash', { shift: true }))).toBe('>');
+    test('pasif `< >` tuşu tepkisiz: karakterOf null (e.code ile de, boş e.code ile de)', () => {
+        expect(D.karakterOf(ev('<', 'IntlBackslash'))).toBeNull();
+        expect(D.karakterOf(ev('>', 'IntlBackslash', { shift: true }))).toBeNull();
+        expect(D.karakterOf(ev('<', ''))).toBeNull();
+        expect(D.karakterOf(ev('>', ''))).toBeNull();
         expect(D.yazilabilir('<')).toBe(false);
     });
 
     test('gidiş-dönüş: dizilimdeki her karakter için tusOf → basış → karakterOf aynı karakteri verir', () => {
-        const hepsi = [...D.SATIRLAR.flat(), D.BOSLUK].flatMap((t) => [t.alt, t.ust]);
+        const hepsi = [...D.SATIRLAR.flat().filter((t) => !t.pasif), D.BOSLUK].flatMap((t) => [t.alt, t.ust]);
         for (const ch of new Set(hepsi)) {
             const { code, shift } = D.tusOf(ch);
             expect(D.karakterOf(ev(ch, code, { shift })), ch).toBe(ch);

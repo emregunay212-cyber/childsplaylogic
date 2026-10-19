@@ -25,7 +25,7 @@
    diğer tuşlarda shiftKey ? ust : alt (Caps Lock rakam/noktalamayı etkilemez). e.code boşsa (bazı sanal klavyeler)
    tek karakterlik e.key dizilimde varsa o döner. e.code dolu ama haritada yoksa (Numpad, F tuşları, Shift, Enter…)
    null → çağıran basışı yok sayar ve saymaz. Ctrl/Meta/Alt süzmesi çağıranın işidir (Kâşifi gibi).
-   Pasif `< >` tuşu haritada: basılırsa '<' / '>' döner (hedef olamaz ama yanlış basış olarak sayılır).
+   Pasif `< >` tuşu tepkisizdir: e.code IntlBackslash (ya da boş e.code ile '<' / '>') → null, basış yok sayılır ve sayılmaz.
 
    Kâşifi görünümü: KlavyeDizilim.kasifi.satirlar() / kodHaritasi() — Kâşifi'nin bugünkü ROWS ve CODE_MAP sabitlerinin
    birebir türevi (tests/klavye-kasifi.spec.js derin-eşitliği denetler). Kâşifi kendi SHIFT_OF / TYPEABLE /
@@ -161,7 +161,7 @@
         if (!e) return null;
         if (typeof e.code === 'string' && e.code !== '') {
             const t = KOD.get(e.code);
-            if (!t) return null;                                        // Numpad, F tuşları, Shift, Enter, …
+            if (!t || t.pasif) return null;                             // Numpad, F tuşları, Shift, Enter, … ve pasif `< >`: tepkisiz
             const shift = !!e.shiftKey;
             if (harfTusu(t)) {
                 const caps = typeof e.getModifierState === 'function' && !!e.getModifierState('CapsLock');
@@ -169,8 +169,9 @@
             }
             return shift ? t.ust : t.alt;
         }
-        const k = e.key;                                                // e.code boş: bazı sanal klavyeler
-        return typeof k === 'string' && k.length === 1 && KARAKTER.has(k) ? k : null;
+        // e.code boş (bazı sanal klavyeler): e.key büyük/küçük harfi zaten taşır → Caps Lock/Shift'e bakılmaz (bilerek)
+        const k = e.key;
+        return typeof k === 'string' && k.length === 1 && yazilabilir(k) ? k : null;
     }
 
     // ── Klavye Kâşifi görünümü ──
