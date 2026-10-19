@@ -8,13 +8,15 @@
    imleç her basışta ilerler, canlı hız + doğruluk) ve 'oyun' (mini oyun, aşağıda). Bölüm sonu sonuç şeridi;
    doğruluk < %80 → aynı bölüm baştan.
    Oyun bölümü (tur:'oyun', spec §6.1, sapma 9): window.OnParmakOyunlari[bolum.oyun].baslat(alan, { metin, el, tohum },
-   { tus(dogruMu), bitti({ canliBitti }), hedef(ch|null) }) → tutamaç { bas(ch), devamTusu(), duraklat(acik) }. tohum = genel bölüm
+   { tus(dogruMu), bitti({ canliBitti }), hedef(ch|null), duyuru(metin) }) → tutamaç { bas(ch), devamTusu(), duraklat(acik) }.
+   Oyun adı Object.prototype.hasOwnProperty ile aranır ('constructor' gibi miras adlar oyun sayılmaz). tohum = genel bölüm
    numarası (belirleyici; tekrar aynı sahne). Tuşlar oyuna YALNIZ bu modülün keydown yolundan gelir (oyun dinleyici
    kurmaz): her tuşta (Shift/Enter/Caps dahil; Caps durmasından ve yazılabilirlikten ÖNCE) tutamaç.devamTusu() çağrılır —
    true = yutuldu (sekme dönüşü "Devam etmek için bir tuşa bas"; sayılmaz); sonra karakterOf karakteri bas(ch)'a gider.
    Caps Lock oyunu da durdurur: capsGuncelle → tutamaç.duraklat(acik) (bölüm Caps açıkken başlarsa oyunBaslat'ta);
    kapanınca hemen sürer, açıkken devam tuşu oyunu sürdürmez. Ekran tuşuna dokunma da aynı yol. tus() doğruluk sayımına (her basış ilk basıştır), hedef() klavye vurgusuna ve
-   data-beklenen'e. bitti → bolumYildizi({ dogruluk, hiz, hedefHiz: yok (oyunda hız şartı yok), canliBitti }) → aynı
+   data-beklenen'e; duyuru() (can kaybı, "Oyun durdu") kalıcı aria-live bölgesine — yalnız oyun sürerken (sonuç duyurusunu
+   ezmez). bitti → bolumYildizi({ dogruluk, hiz, hedefHiz: yok (oyunda hız şartı yok), canliBitti }) → aynı
    sonuç şeridi; öncelik: önce %80 (hiç basmadan canları bitirmek de tekrar), sonra can (en çok 1 yıldız, akış sürer).
    Oyun bölüm değişiminde, kısım sonunda ve destroy()'da durdur() edilir. Bilinmeyen oyun adı → console.error + bölüm atlanır.
    Oyun bölümünde ekran klavyesi küçülür (css .op-oyun[data-tur="oyun"]); el çizimi kısım varsayılanını izler.
@@ -46,7 +48,12 @@ const OnParmak = (() => {
     };
     const KARAKTER_ADI = { ' ': 'Boşluk', ',': 'virgül', '.': 'nokta' };
     const OYUN_YONERGE = { balon: 'Oklu balonun harfine bas.', canavar: 'Kelimeyi yaz, Boşluk ile kar topunu at.',
-        baloncuk: 'Baloncuğun ilk harfine bas, kelimeyi bitir.', elma: 'Sincabın kelimesinin ilk harfine bas, kelimeyi bitir.' };
+        baloncuk: 'Baloncuğun ilk harfine bas, kelimeyi bitir.', elma: 'Etiketin ilk harfine bas, kelimeyi bitir.' };
+    // Oyun tanımı: yalnız OnParmakOyunlari'nın KENDİ özelliği (miras adlar — constructor, toString … — oyun değildir)
+    function oyunTanimi(ad) {
+        const t = window.OnParmakOyunlari;
+        return t && Object.prototype.hasOwnProperty.call(t, ad) ? t[ad] : null;
+    }
 
     let container = null;
     let callbacks = null;
@@ -441,7 +448,7 @@ const OnParmak = (() => {
     // ── Oyun bölümü (tur:'oyun') ──
     function oyunBaslat() {
         const b = bolum();
-        const tanim = window.OnParmakOyunlari && window.OnParmakOyunlari[b.oyun];
+        const tanim = oyunTanimi(b.oyun);
         if (!tanim || typeof tanim.baslat !== 'function') {
             console.error('[OnParmak] bilinmeyen oyun "' + b.oyun + '": bölüm ' + genelNo(kisimIdx, bolumIdx) + ' atlandı');
             if (bolumIdx < kisim().bolumler.length - 1) { bolumIdx++; bolumBaslat(false); } else kisimBitti();
@@ -473,6 +480,9 @@ const OnParmak = (() => {
                 if (!etkin()) return;
                 bolumBitti(!(sonuc && sonuc.canliBitti === false));
             },
+            duyuru(m) {
+                if (etkin()) duyur(String(m));          // sonuç şeridi açıkken (mod 'sonuc') yazılmaz
+            },
         });
         if (etkin()) {
             if (capsAcik) kayit.tutamac.duraklat(true);    // bölüm Caps açıkken başladı
@@ -486,7 +496,7 @@ const OnParmak = (() => {
         const ad = oyun.ad;
         oyun = null;
         oyunHedef = null;
-        const tanim = window.OnParmakOyunlari && window.OnParmakOyunlari[ad];
+        const tanim = oyunTanimi(ad);
         if (tanim && typeof tanim.durdur === 'function') tanim.durdur();
     }
 
@@ -777,12 +787,12 @@ const OnParmak = (() => {
             AudioManager.play('star');
             const hGoster = Math.floor(h);      // doğrulukla aynı: gösterim aşağı yuvarlanır, karar ham değerle
             const sure = sureMetni(ms);
-            // Parçalar dar ekranda kendi içinde bölünmesin ("11 / sn" olmasın): parça içi bölünmez boşluk
-            const NBSP = String.fromCharCode(0xA0);
-            const parca = ['doğruluk %' + dGoster, hGoster + ' kelime/dk', sure].map((x) => x.split(' ').join(NBSP));
+            // Parçalar bölünmez gruplar (.op-serit__parca, white-space: nowrap) ve satırlar dengeli bölünür → dar ekranda
+            // "14 sn" yetim satıra düşmez
+            const parca = ['doğruluk %' + dGoster, hGoster + ' kelime/dk', sure];
             // Canlar bitti (doğruluk ≥ %80): en çok 1 yıldız, akış sürer — başlık bunu söyler
-            if (!canliBitti) parca.unshift(['canlar', 'bitti'].join(NBSP));
-            seritGoster('Bölüm ' + no + (canliBitti ? ' tamam!' : ' bitti'), parca.join(' · '), y, 'is-basari');
+            if (!canliBitti) parca.unshift('canlar bitti');
+            seritGoster('Bölüm ' + no + (canliBitti ? ' tamam!' : ' bitti'), parca, y, 'is-basari');
             seritDuyuru = (canliBitti ? 'Bölüm ' + no + ' tamam' : 'Canlar bitti. Bölüm ' + no + ' geçildi') + ': 3 üzerinden ' + y
                 + ' yıldız. Doğruluk yüzde ' + dGoster + ', hız ' + hGoster + ' kelime/dk, süre ' + sure + '.';
             duyur(seritDuyuru);
@@ -841,7 +851,15 @@ const OnParmak = (() => {
         s.className = 'op-serit ' + tur;
         s.appendChild(el('div', 'op-serit__baslik', baslik));
         if (yildiz != null) s.appendChild(yildizlar(yildiz));
-        s.appendChild(el('div', 'op-serit__alt', alt));
+        const altEl = el('div', 'op-serit__alt');
+        if (Array.isArray(alt)) {
+            // Bölünmez gruplar; ayraç önceki grubun sonuna yapışır (satır "·" ile başlamaz)
+            alt.forEach((p, i) => {
+                if (i) altEl.append(' ');
+                altEl.appendChild(el('span', 'op-serit__parca', p + (i < alt.length - 1 ? ' ·' : '')));
+            });
+        } else altEl.textContent = alt;
+        s.appendChild(altEl);
         els.root.classList.add('is-serit');
         void s.offsetWidth;   // giriş geçişi her açılışta oynasın
         s.classList.add('is-acik');

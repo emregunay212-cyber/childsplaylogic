@@ -20,8 +20,9 @@
      Sekme oluşturulurken zaten gizliyse durum 'gizli' başlar; ilk durumDegisti('gizli') bildirimi mikro görevde (dongu() döndükten sonra) gelir.
      durdur(): rAF iptal + visibilitychange dinleyicisi kaldırılır (hub'a dönüşte sızıntı yok); tekrar çağrılabilir.
 
+   azaltilmisHareket()  →  bool   prefers-reduced-motion: reduce açık mı (TEK kaynak: dört oyun + uyarlanirHiz bunu okur).
    uyarlanirHiz({ taban, min, max, artis, azalis, azaltilmisHareket? })  →  { deger(), basari(), canKaybi() }
-     Başlangıç = taban. basari: +artis (≤ max), canKaybi: −azalis (≥ min). prefers-reduced-motion (ya da
+     Başlangıç = taban. basari: +artis (≤ max), canKaybi: −azalis (≥ min). azaltilmisHareket() (ya da
      azaltilmisHareket:true) açıksa taban × 0.6 (≥ min).
 
    hedefSec(hedefler, harf, kilit?)  →  hedef | null
@@ -30,7 +31,10 @@
      (kelime bitene dek kilit sürer; kilitliyken beklenen harfi oyun kelime[ilerleme]'ye bakıp kendisi doğrular).
      Kilit yoksa: ilk harfi `harf` olan, henüz başlanmamış hedefler arasından tehlikesi en yüksek (eşitte ilk). Yoksa null
      (basış hata sayılır). Harf eşleşmesi harf büyüklüğüne duyarlıdır, BİLEREK (Shift öğretilir: 'e' "Elma"yı vurmaz);
-     çağıran KlavyeDizilim.karakterOf çıktısını olduğu gibi verir.
+     çağıran KlavyeDizilim.karakterOf çıktısını olduğu gibi verir. Harf okuma beklenenHarf ile AYNI: [...kelime][i]
+     (kod noktası; içerik NFC'dir, içerik testi denetler).
+   secilebilir(hedefler)  →  dizi   yalnız sahnede GÖRÜNEN hedefler (h.gorunur !== false). Çok hedefli oyun (Baloncuk,
+     Elma) hedefSec ve beklenenHarf'e bunu verir: görünmeyen hedefin ilk harfi kilitlemez (hata sayılır), vurgulanmaz.
 
    enAcil(hedefler)  →  hedef | null   tehlikesi en yüksek hedef (eşitte ilk).
    beklenenHarf(hedefler, kilit?)  →  harf | null   çok hedefli oyunda klavye vurgusu: kilit varsa kilitli kelimenin
@@ -47,17 +51,25 @@
      tepe başına tam bir rnd() (belirleyici).
    canlarHud(n, { ad = 'Can', yol = kalp, sinif? })  →  { el, guncelle(can) }   can hapı (.op-mini__canlar, n × .op-mini__can
      [+ sinif]); guncelle giden canları is-gitti (içi boş) yapar ve aria-label "<ad>: c / n" yazar. Elma Bekçisi elma yoluyla çağırır.
-   devamKatmani()  →  el   "Oyun durdu / Devam etmek için bir tuşa bas" (.op-mini__devam, role=status, başta hidden).
+   devamKatmani()  →  el   "Oyun durdu / Devam etmek için bir tuşa bas" (.op-mini__devam, başta hidden). Canlı bölge
+     DEĞİL: duyuru modülün kalıcı aria-live bölgesine gider (oyunKabugu duyur).
+   tikCiz(parent, attrs?)  →  g   renk dışı isabet işareti (.op-mini__tik: daire + onay çizgisi, merkezli, yarıçap 12).
 
-   oyunKabugu({ kok, svg, H, devam, adim, olcu? })  →  kabuk   — bir oyunun döngü + ölçü + durum + tutamaç kabuğu
+   oyunKabugu({ kok, svg, H, devam, adim, olcu?, duyur? })  →  kabuk   — bir oyunun döngü + ölçü + durum + tutamaç kabuğu
      kok DOM'da olmalı. Oluşturunca: ölçü okunur (kabuk.W = H × en/boy, 360–1600; ölçü yoksa 800), svg viewBox '0 0 W H',
-     olcu(W) çağrılır, ResizeObserver kurulur (boyut değişince aynısı). Oyun ilk çizimini yaptıktan sonra:
+     olcu(W) çağrılır, ResizeObserver kurulur; olcu YALNIZ W değişince yeniden çağrılır (RO'nun ilk bildirimi ilk çizimi
+     ikilemez). Oyun ilk çizimini yaptıktan sonra:
      kabuk.baslat(basFn) → tutamaç { bas(ch), devamTusu(), duraklat(acik) } — dongu(adim) başlar; durum her değişince
-       kok.dataset.durum yazılır, devam katmanı yalnız 'devam-bekliyor'da görünür; duraklat(true|false) = dongu duraklat/surdur('caps').
+       kok.dataset.durum yazılır, devam katmanı yalnız 'devam-bekliyor'da görünür ve duyur('Oyun durdu. …') çağrılır;
+       duraklat(true|false) = dongu duraklat/surdur('caps').
+     kabuk.bitir(neden): oyun bitti (kok.dataset.bitti = neden). Sonrasında devam katmanı HİÇ görünmez; sekme dönüşünde
+       döngü tuş beklemeden sürer (kutlama efekti biter); devamTusu false döner (tuş sonuç şeridine gider).
      kabuk.dongu (denetleyici), kabuk.etkin() (durdur'dan sonra false). kabuk.durdur(): döngü + ResizeObserver durur, kok
      DOM'dan çıkar; durdur'dan sonra tutamaç, ölçü ve durum geri çağrıları etkisizdir (eski oyun yeni oyuna yazamaz). Tekrar çağrılabilir.
-   Oyun dosyası kalıbı: s = {…}; s.kabuk = O.oyunKabugu({ …, olcu: (W) => { s.W = W; … } }); ilk çizim; return s.kabuk.baslat(bas);
-   durdur() { if (!s) return; const e = s; s = null; e.kabuk.durdur(); }
+   Oyun dosyası kalıbı: s = {…}; s.kabuk = O.oyunKabugu({ …, olcu: (W) => { s.W = W; … }, duyur: cbs.duyuru }); ilk çizim;
+   return s.kabuk.baslat(bas); bitişte s.kabuk.bitir(neden) ve cbs.bitti(…).
+   durdur() { if (!s) return; const e = s; s = null; e.kabuk.durdur(); }   (dört oyunda aynı 4 satır; modül tek örnek
+   durumunu (s) kendisi tuttuğu için kabuğa taşınmadı)
    ============================================ */
 (function () {
     'use strict';
@@ -143,12 +155,13 @@
         return { durdur, durum: () => durum, devamTusu, duraklat, surdur };
     }
 
-    function uyarlanirHiz({ taban, min, max, artis, azalis, azaltilmisHareket }) {
-        let azalt = azaltilmisHareket;
-        if (azalt === undefined) {
-            azalt = typeof window !== 'undefined' && typeof window.matchMedia === 'function' &&
-                window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        }
+    function azaltilmisHareket() {
+        return typeof window !== 'undefined' && typeof window.matchMedia === 'function' &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+
+    function uyarlanirHiz({ taban, min, max, artis, azalis, azaltilmisHareket: azaltOpt }) {
+        const azalt = azaltOpt === undefined ? azaltilmisHareket() : azaltOpt;
         let d = Math.min(max, Math.max(min, azalt ? taban * 0.6 : taban));
         return {
             deger: () => d,
@@ -161,11 +174,15 @@
         if (kilit && hedefler.indexOf(kilit) !== -1) return kilit;
         let en = null;
         for (const h of hedefler) {
-            if ((h.ilerleme || 0) !== 0 || h.kelime.charAt(0) !== harf) continue;
+            if ((h.ilerleme || 0) !== 0 || harfAt(h.kelime, 0) !== harf) continue;
             if (en === null || h.tehlike > en.tehlike) en = h;
         }
         return en;
     }
+
+    // Harf okuma tek yerde (hedefSec + beklenenHarf): kod noktası
+    function harfAt(kelime, i) { return [...kelime][i] || null; }
+    function secilebilir(hedefler) { return hedefler.filter((h) => h.gorunur !== false); }
 
     function enAcil(hedefler) {
         let en = null;
@@ -174,9 +191,9 @@
     }
 
     function beklenenHarf(hedefler, kilit) {
-        if (kilit) return [...kilit.kelime][kilit.ilerleme || 0] || null;
+        if (kilit) return harfAt(kilit.kelime, kilit.ilerleme || 0);
         const h = enAcil(hedefler);
-        return h ? [...h.kelime][0] || null : null;
+        return h ? harfAt(h.kelime, 0) : null;
     }
 
     function hedefBildirici(kok, cb) {
@@ -249,28 +266,48 @@
 
     function devamKatmani() {
         const el = htmlEl('div', 'op-mini__devam');
-        el.setAttribute('role', 'status');
         el.hidden = true;
         el.appendChild(htmlEl('strong', '', 'Oyun durdu'));
         el.appendChild(htmlEl('span', '', 'Devam etmek için bir tuşa bas'));
         return el;
     }
 
-    function oyunKabugu({ kok, svg, H, devam, adim, olcu }) {
+    // Onay işareti: beyaz daire + kalın onay çizgisi (renk dışı isabet işareti; glif değil, çizim)
+    function tikCiz(parent, attrs) {
+        const g = svgEl('g', Object.assign({ class: 'op-mini__tik' }, attrs || {}), parent);
+        svgEl('circle', { class: 'op-mini__tik-zemin', r: 12 }, g);
+        svgEl('path', { class: 'op-mini__tik-cizgi', d: 'M-5.5 0.5 L-1.5 4.5 L6 -4' }, g);
+        return g;
+    }
+
+    function oyunKabugu({ kok, svg, H, devam, adim, olcu, duyur }) {
         let acik = true;
+        let bitti = false;
+        let sonW = null;
         const k = { W: 800, dongu: null, ro: null, etkin: () => acik };
         function olcuGuncelle() {
             if (!acik) return;
             const w = kok.clientWidth, h = kok.clientHeight;
             k.W = w > 0 && h > 0 ? Math.max(360, Math.min(1600, Math.round(H * w / h))) : 800;
+            if (k.W === sonW) return;                    // aynı ölçü (ör. RO'nun ilk bildirimi): yeniden çizim yok
+            sonW = k.W;
             svg.setAttribute('viewBox', '0 0 ' + k.W + ' ' + H);
             if (typeof olcu === 'function') olcu(k.W);
         }
         function durumYaz(d) {
             if (!acik) return;
             kok.dataset.durum = d;
+            // Bitişten sonra kart yok: sekme dönüşünde döngü tuş beklemeden sürer (kutlama efekti biter)
+            if (d === 'devam-bekliyor' && bitti) { k.dongu.devamTusu(); return; }
             if (devam) devam.hidden = d !== 'devam-bekliyor';
+            if (d === 'devam-bekliyor' && typeof duyur === 'function') duyur('Oyun durdu. Devam etmek için bir tuşa bas.');
         }
+        k.bitir = function (neden) {
+            if (!acik) return;
+            bitti = true;
+            kok.dataset.bitti = neden;
+            if (devam) devam.hidden = true;
+        };
         olcuGuncelle();
         if (typeof ResizeObserver === 'function') { k.ro = new ResizeObserver(olcuGuncelle); k.ro.observe(kok); }
         k.baslat = function (basFn) {
@@ -278,7 +315,7 @@
             durumYaz(k.dongu.durum());
             return {
                 bas: (ch) => { if (acik) basFn(ch); },
-                devamTusu: () => (acik && k.dongu ? k.dongu.devamTusu() : false),
+                devamTusu: () => (acik && !bitti && k.dongu ? k.dongu.devamTusu() : false),
                 // Caps Lock (modül): açıkken döngü durur; kapanınca hemen sürer (devam tuşu gerekmez)
                 duraklat: (ac) => {
                     if (!acik || !k.dongu) return;
@@ -296,5 +333,6 @@
         return k;
     }
 
-    window.OnParmakOyunOrtak = { dongu, uyarlanirHiz, hedefSec, enAcil, beklenenHarf, hedefBildirici, rng, svgEl, htmlEl, easeOut, tepeYolu, canlarHud, devamKatmani, oyunKabugu };
+    window.OnParmakOyunOrtak = { dongu, azaltilmisHareket, uyarlanirHiz, hedefSec, secilebilir, enAcil, beklenenHarf, hedefBildirici, rng,
+        svgEl, htmlEl, easeOut, tepeYolu, canlarHud, devamKatmani, tikCiz, oyunKabugu };
 })();

@@ -17,7 +17,11 @@
          (açıkken canavar yürümez, can gitmez; kapanınca hemen sürer; dongu duraklat/surdur 'caps').
        - tus(dogruMu) her sayılan basışta tam bir kez, bas() içinde EŞZAMANLI; son doğru basışta bitti() de eşzamanlı.
          Can bitişi döngüden gelir. Güç çubuğu basışta (eşzamanlı) azalır; kar topunun uçuşu ve geri sekme görseldir.
-       - hedef(ch): beklenen karakter değişince (başta, doğru basışta; bitişte null).
+       - hedef(ch): beklenen karakter değişince (başta, doğru basışta; bitişte null) — ortak hedefBildirici.
+       - duyuru?(metin): can kaybı (oyun sürüyorsa) ve "Oyun durdu" — modülün kalıcı aria-live bölgesine.
+   HUD sağda "Güç" etiketli çubuk + kalan/toplam: canavarın kalan gücü (her kar topunda bir dilim azalır; kazanınca 0).
+   Diğer oyunların sayacı ilerlemeyi sayar, bu güç sayar — görünür "Güç" etiketi anlamı söyler. Yazılan kutuda onay
+   işareti (renk dışı isabet; CSS, anında).
      durdur(): döngü + ResizeObserver durur, DOM boşalır; tekrar çağrılabilir. Ölçü/döngü/durum/tutamaç/durdur
      OnParmakOyunOrtak.oyunKabugu'nda; kalpler canlarHud, devam katmanı devamKatmani (ortak, kopya yok).
    Belirleyicilik: canavar rengi, ağaçlar, kar taneleri rng(tohum) ile. Zaman yalnız döngünün dt'si (setTimeout yok).
@@ -144,13 +148,13 @@
         const metin = String(ayar.metin || '');
         const kelimeler = metin.split(' ').filter(Boolean);
         const rnd = O.rng((ayar.tohum >>> 0) || 1);
-        const azalt = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const azalt = O.azaltilmisHareket();
         const renk = Math.floor(rnd() * RENK_SAYISI);
 
-        const kok = htmlEl('div', 'op-canavar');
+        const kok = htmlEl('div', 'op-mini op-canavar');
         kok.dataset.tohum = String(ayar.tohum);
         kok.dataset.renk = String(renk);
-        const svg = svgEl('svg', { class: 'op-canavar__svg', viewBox: '0 0 800 ' + H, role: 'img', focusable: 'false',
+        const svg = svgEl('svg', { class: 'op-mini__svg op-canavar__svg', viewBox: '0 0 800 ' + H, role: 'img', focusable: 'false',
             'aria-label': 'Canavar Saldırısı: kelimeyi yaz, kar topuyla canavarı geri püskürt' });
         svg.setAttribute('preserveAspectRatio', 'xMinYMax meet');
         kok.appendChild(svg);
@@ -173,7 +177,7 @@
         const atisKat = svgEl('g', { class: 'op-canavar__atislar' }, svg);
 
         // HUD (HTML): canlar solda, canavarın gücü sağda; kelime kutuları altında ortada
-        const hud = htmlEl('div', 'op-canavar__hud');
+        const hud = htmlEl('div', 'op-mini__hud op-canavar__hud');
         const canlar = O.canlarHud(CAN);
         const guc = htmlEl('div', 'op-canavar__guc op-canavar__cv--' + renk);
         guc.setAttribute('role', 'img');
@@ -188,7 +192,9 @@
         const dilimler = kelimeler.map(() => cubuk.appendChild(htmlEl('span', 'op-canavar__dilim is-dolu')));
         const gucSayi = htmlEl('span', 'op-canavar__guc-sayi');
         gucSayi.setAttribute('aria-hidden', 'true');
-        guc.append(yuz, cubuk, gucSayi);
+        const gucAd = htmlEl('span', 'op-canavar__guc-ad', 'Güç');
+        gucAd.setAttribute('aria-hidden', 'true');      // aria-label zaten "Canavarın gücü: …"
+        guc.append(yuz, gucAd, cubuk, gucSayi);
         hud.append(canlar.el, guc);
         const kelimeKap = htmlEl('div', 'op-canavar__kelime');
         kelimeKap.setAttribute('role', 'img');
@@ -204,7 +210,8 @@
             hiz: O.uyarlanirHiz(HIZ), kabuk: null };
         const benim = s;
         // Kabuk: ölçü (viewBox), ResizeObserver, döngü, durum/devam katmanı, tutamaç, durdur
-        s.kabuk = O.oyunKabugu({ kok, svg, H, devam, adim, olcu: (W) => { benim.W = W; } });
+        s.hedefBildir = O.hedefBildirici(kok, cbs.hedef);
+        s.kabuk = O.oyunKabugu({ kok, svg, H, devam, adim, duyur: cbs.duyuru, olcu: (W) => { benim.W = W; } });
         kelimeCiz();
         hudYaz();
         hedefYaz();
@@ -277,9 +284,7 @@
     }
 
     function hedefYaz() {
-        const ch = beklenen();
-        s.kok.dataset.hedef = ch || '';
-        if (typeof s.cbs.hedef === 'function') s.cbs.hedef(ch);
+        s.hedefBildir(beklenen());               // ortak: yalnız değişince kok.dataset.hedef + cbs.hedef
     }
 
     // ── Girdi ──
@@ -361,7 +366,7 @@
     function bitir(canli) {
         s.bitti = true;
         s.kazandi = canli;
-        s.kok.dataset.bitti = canli ? 'canli' : 'canlar';
+        s.kabuk.bitir(canli ? 'canli' : 'canlar');
         kutuDurum();
         hedefYaz();
         s.cbs.bitti({ canliBitti: canli });
@@ -420,6 +425,8 @@
         if (window.AudioManager) window.AudioManager.play('whoosh');
         hudYaz();
         if (s.can <= 0) { bitir(false); return; }
+        if (typeof s.cbs.duyuru === 'function') s.cbs.duyuru('Canavar sana ulaştı. ' + s.can + ' can kaldı.');
+        if (!s) return;
         s.m = 1;
         s.anim = s.azalt ? null : { tur: 'cekil', m0: 0, m1: 1, t: 0, sure: CEKIL_MS };
     }

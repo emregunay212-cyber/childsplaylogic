@@ -15,7 +15,9 @@
          alçalmaz, can gitmez), kapanınca hemen sürer; açıkken devam tuşu oyunu sürdürmez (dongu duraklat/surdur 'caps').
        - tus(dogruMu) her sayılan basışta tam bir kez, bas() içinde EŞZAMANLI çağrılır; son doğru harfte bitti() de
          eşzamanlı gelir (sahte saatte döngü dönmese de akış ilerler). Can bitişi döngüden gelir.
-       - hedef(ch): beklenen karakter değişince (başta, doğru basışta, can kaybında; bitişte null).
+       - hedef(ch): beklenen karakter değişince (başta, doğru basışta, can kaybında; bitişte null) — ortak hedefBildirici.
+       - duyuru?(metin): can kaybı (oyun sürüyorsa) ve "Oyun durdu" — modülün kalıcı aria-live bölgesine.
+   İsabet: doğru yazılan balonun üstünde onay işareti (is-tamam; renk dışı, anında — klavye eylemi animasyonsuz).
      durdur(): döngü + ResizeObserver durur, DOM boşalır; tekrar çağrılabilir. Ölçü/döngü/durum/tutamaç/durdur
      OnParmakOyunOrtak.oyunKabugu'nda; kalpler canlarHud, devam katmanı devamKatmani (ortak, kopya yok).
    Belirleyicilik: balon yükseklikleri/renkleri/bulutlar rng(tohum) ile (modül tohum = genel bölüm numarası).
@@ -61,6 +63,8 @@
             t.textContent = b.harf;
             // Hedef işareti (renkten bağımsız): yalnız sıradaki balonda görünür
             svgEl('path', { class: 'op-balon__ok', d: 'M-9 -60 L9 -60 L0 -47 Z' }, g);
+            // İsabet işareti (renkten bağımsız): harfi doğru yazılan balonun üstünde onay (is-tamam); klavye eylemi → anında
+            O.tikCiz(g, { class: 'op-mini__tik op-balon__tik', transform: 'translate(0 -56)' });
         }
         b.g = g; b.ic = ic;
     }
@@ -92,11 +96,11 @@
         durdur();
         const metin = String(ayar.metin || '');
         const rnd = O.rng((ayar.tohum >>> 0) || 1);
-        const azalt = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const azalt = O.azaltilmisHareket();
 
-        const kok = htmlEl('div', 'op-balon');
+        const kok = htmlEl('div', 'op-mini op-balon');
         kok.dataset.tohum = String(ayar.tohum);
-        const svg = svgEl('svg', { class: 'op-balon__svg', viewBox: '0 0 800 ' + H, role: 'img', focusable: 'false',
+        const svg = svgEl('svg', { class: 'op-mini__svg op-balon__svg', viewBox: '0 0 800 ' + H, role: 'img', focusable: 'false',
             'aria-label': 'Balon Vadisi: karakter balondan balona atlar' });
         svg.setAttribute('preserveAspectRatio', 'xMinYMax meet');
         kok.appendChild(svg);
@@ -129,9 +133,9 @@
         const sicraKat = svgEl('g', { class: 'op-balon__sicrama' }, svg);
 
         // HUD (HTML): canlar + ilerleme; duraklama katmanı
-        const hud = htmlEl('div', 'op-balon__hud');
+        const hud = htmlEl('div', 'op-mini__hud op-balon__hud');
         const canlar = O.canlarHud(CAN);
-        const ilerleme = htmlEl('div', 'op-balon__ilerleme');
+        const ilerleme = htmlEl('div', 'op-mini__sayac op-balon__ilerleme');
         ilerleme.setAttribute('aria-hidden', 'true');
         hud.append(canlar.el, ilerleme);
         kok.appendChild(hud);
@@ -154,7 +158,8 @@
             zip: null, sicralar: [], hiz: O.uyarlanirHiz(HIZ), kabuk: null };
         const benim = s;
         // Kabuk: ölçü (viewBox + güneş), ResizeObserver, döngü, durum/devam katmanı, tutamaç, durdur
-        s.kabuk = O.oyunKabugu({ kok, svg, H, devam, adim, olcu: (W) => {
+        s.hedefBildir = O.hedefBildirici(kok, cbs.hedef);
+        s.kabuk = O.oyunKabugu({ kok, svg, H, devam, adim, duyur: cbs.duyuru, olcu: (W) => {
             benim.W = W;
             gunes.setAttribute('transform', 'translate(' + Math.round(W * 0.78) + ' 214)');
         } });
@@ -178,9 +183,8 @@
 
     function hedefYaz() {
         const ch = beklenen();
-        s.kok.dataset.hedef = ch || '';
         s.balonlar.forEach((b) => b.g.classList.toggle('is-hedef', b.i === s.i + 1 && !!ch));
-        if (typeof s.cbs.hedef === 'function') s.cbs.hedef(ch);
+        s.hedefBildir(ch);                       // ortak: yalnız değişince kok.dataset.hedef + cbs.hedef
     }
 
     // ── Girdi ──
@@ -195,6 +199,7 @@
         s.cbs.tus(true);
         if (!s) return;              // modül çağrı içinde durdurduysa
         s.hiz.basari();
+        if (hedef) hedef.g.classList.add('is-tamam');
         atla(s.i + 1, false);
         if (s.i >= s.metin.length) { bitir(true); return; }
         hedefYaz();
@@ -212,7 +217,7 @@
     function bitir(canli) {
         s.bitti = true;
         s.kazandi = canli;
-        s.kok.dataset.bitti = canli ? 'canli' : 'canlar';
+        s.kabuk.bitir(canli ? 'canli' : 'canlar');
         hedefYaz();
         s.cbs.bitti({ canliBitti: canli });
     }
@@ -257,6 +262,8 @@
             bitir(false);
             return;
         }
+        if (typeof s.cbs.duyuru === 'function') s.cbs.duyuru('Suya düştün. ' + s.can + ' can kaldı.');
+        if (!s) return;
         // Karakter sıradaki balona taşınır; o balonun harfi atlanır (basış sayılmaz)
         atla(s.i + 1, true);
         if (s.i >= s.metin.length) { bitir(true); return; }
