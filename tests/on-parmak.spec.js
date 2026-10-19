@@ -443,6 +443,17 @@ test.describe('ON_PARMAK_ICERIK — içerik kuralları (tarayıcısız)', () => 
         expect(yeniler).toEqual(['fj', ' ', 'dk', 'sl', 'aş', 'gh', 'i,']);
     });
 
+    test('kayıt: data/games.json levels = ON_PARMAK_ICERIK.length; kapalı; dosya sırası dizilim → ölçüm → içerik → ekran → modül', () => {
+        const kayit = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/games.json'), 'utf8')).games.find((g) => g.slug === 'on-parmak');
+        expect(kayit, 'on-parmak kaydı').toBeTruthy();
+        expect(kayit.levels).toBe(loadIcerik().length);
+        expect(kayit.active).toBe(false);
+        expect(kayit.module).toBe('OnParmak');
+        expect(kayit.files.js).toEqual(['js/games/klavye-dizilim.js', 'js/games/on-parmak-olcum.js', 'js/games/on-parmak-icerik.js',
+            'js/games/on-parmak-ekran.js', 'js/games/on-parmak.js']);
+        expect(kayit.files.css).toEqual(['css/on-parmak.css']);
+    });
+
     test('boşluk öğrenildikten sonra her satır birden çok sözcük içerir', () => {
         for (const x of bolumler().filter((y) => y.b.tur === 'satir' && y.ogrenilen.has(' '))) {
             expect(x.b.metin.split(' ').length, etiket(x)).toBeGreaterThanOrEqual(5);
@@ -646,5 +657,201 @@ test.describe('OnParmakEkran — klavye + eller (tarayıcı)', () => {
         expect(r.bos).toBe(true);
         expect(r.sinif).toContain('is-down');     // söndürme iptal edildi: kopuk düğüme dokunulmadı
         expect(r.basilan).toBe(0);
+    });
+});
+
+// ── Oyun modülü (js/games/on-parmak.js, TARAYICI) ──
+// Kapalı oyun (active:false) hiçbir yoldan açılmaz → test bağlamında js/catalog.js yanıtı yamalanır: yalnız on-parmak
+// satırında "active":false → true (üretim kodu değişmez; hash'li çıktıda ?h= de eşleşir). Derin bağlantı kilidi atlar.
+// Sahte Firebase + misafir tohumu + gstatic engeli tests/klavye-kasifi.spec.js kalıbı. Görev 6 bu fikstürü genişletir.
+const { getActiveSlugs } = require('./helpers/slugs');
+const { seedGuest } = require('./helpers/guest-seed');
+
+const OP_FIREBASE_STUB = `(() => {
+    const ref = (p) => ({
+        on(ev, cb) { if (p === 'adminConfig') setTimeout(() => cb({ val: () => ({}) }), 0); },
+        off() {}, once() { return Promise.resolve({ val: () => null }); },
+        set() { return Promise.resolve(); }, update() { return Promise.resolve(); },
+        orderByChild() { return this; }, endAt() { return this; }, limitToFirst() { return this; },
+    });
+    const auth = () => ({ onAuthStateChanged(cb) { setTimeout(() => cb(null), 0); }, signOut() { return Promise.resolve(); } });
+    auth.GoogleAuthProvider = function () {};
+    window.firebase = { initializeApp() {}, database() { return { ref }; }, auth };
+})();`;
+// Fiziksel basış taklidi: karakterin TR Q konumu (KlavyeDizilim.tusOf) → keydown { key, code, shiftKey, CapsLock }
+const OP_TYPER = `(() => {
+    window.__opBas = (ch, opt) => {
+        const o = opt || {};
+        const t = window.KlavyeDizilim.tusOf(ch);
+        document.dispatchEvent(new KeyboardEvent('keydown', {
+            key: ch, code: t ? t.code : '', shiftKey: !!(t && t.shift), modifierCapsLock: !!o.caps,
+            repeat: !!o.repeat, bubbles: true, cancelable: true,
+        }));
+    };
+    window.__opTus = (key, code, opt) => {
+        const o = opt || {};
+        document.dispatchEvent(new KeyboardEvent('keydown', { key, code, modifierCapsLock: !!o.caps, bubbles: true, cancelable: true }));
+    };
+})();`;
+const OP_SLUG = 'on-parmak';
+const opLockKeys = (() => {
+    const { solo, online } = getActiveSlugs();
+    return [...solo, OP_SLUG, ...online.map((s) => 'mp:' + s)];
+})();
+
+const opTest = test.extend({
+    context: async ({ context }, use) => {
+        await seedGuest(context, opLockKeys);
+        await context.route(/https:\/\/www\.gstatic\.com\/firebasejs\//, (route) => route.abort());
+        await context.route(/\/js\/catalog\.js(\?|$)/, async (route) => {
+            const res = await route.fetch();
+            const govde = (await res.text()).split('\n').map((satir) => (satir.includes('"slug":"on-parmak"')
+                ? satir.replace('"active":false', '"active":true') : satir)).join('\n');
+            await route.fulfill({ response: res, body: govde });
+        });
+        await context.addInitScript(OP_FIREBASE_STUB);
+        await context.addInitScript(OP_TYPER);
+        await use(context);
+    },
+    errors: async ({ page }, use) => {
+        const pageErrors = [];
+        const consoleErrors = [];
+        page.on('pageerror', (err) => pageErrors.push(err.stack || String(err)));
+        page.on('console', (msg) => {
+            if (msg.type() !== 'error') return;
+            const text = msg.text();
+            if (/Failed to load resource|Kaynak yüklenemedi|net::ERR_FAILED/.test(text)) return;
+            consoleErrors.push(text);
+        });
+        await use({
+            assertClean() {
+                expect.soft(pageErrors, 'yakalanmamış JS hatası').toEqual([]);
+                expect.soft(consoleErrors, 'console.error').toEqual([]);
+            },
+        });
+    },
+});
+
+const opOyun = (page) => page.locator('.op-oyun');
+
+// Derin bağlantı → seçici (ilk odak Kısım 1 kartı) → Enter = baştan
+async function opAc(page) {
+    await page.clock.install({ time: new Date('2026-10-19T09:00:00Z') });
+    await page.goto('/?oyun=' + OP_SLUG);
+    await expect(page.locator('#login-screen')).toBeHidden();
+    await expect(page.locator('#splash-screen')).toBeHidden();
+    await expect(page.locator('.op-picker')).toBeVisible();
+    await expect(page.locator('.op-picker__kart[data-kisim="1"] .op-picker__kisim')).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(opOyun(page)).toHaveAttribute('data-bolum', '1/14');
+    await page.clock.pauseAt(new Date('2026-10-19T09:05:00Z'));
+}
+
+// Sıradaki beklenen karakterleri (data-beklenen) yazar; her basış arasında saat `ms` ilerler (son basıştan sonra
+// ilerlemez). Dönüş: basış sayısı
+async function opYaz(page, mod, ms = 400) {
+    let n = 0;
+    for (; n < 200; n++) {
+        const d = await opOyun(page).evaluate((r) => ({ mod: r.dataset.mod, ch: r.dataset.beklenen }));
+        if (d.mod !== mod || !d.ch) break;
+        const sonra = await page.evaluate((ch) => { window.__opBas(ch); return document.querySelector('.op-oyun').dataset.mod; }, d.ch);
+        if (sonra !== mod) { n++; break; }          // bölüm bitti: saat ilerletilmez (şerit zamanlaması testte)
+        if (ms) await page.clock.runFor(ms);
+    }
+    return n;
+}
+
+opTest.describe('OnParmak — oyun modülü (tarayıcı)', () => {
+    opTest('seçici → tanıtım (yanlış tuş geçirmez) → kutu alıştırması → sonuç şeridi; konsol hatası 0', async ({ page, errors }) => {
+        opTest.setTimeout(90000);
+        await opAc(page);
+        const oyun = opOyun(page);
+
+        // Tanıtım: f, sonra j; yanlış tuş ilerletmez ve sayılmaz
+        await expect(oyun).toHaveAttribute('data-mod', 'tanitim');
+        await expect(oyun).toHaveAttribute('data-beklenen', 'f');
+        await expect(page.locator('.op-tanitim__cumle')).toContainText('sol işaret parmağınla');
+        await page.evaluate(() => window.__opBas('j'));
+        await expect(oyun).toHaveAttribute('data-beklenen', 'f');
+        await page.evaluate(() => window.__opBas('f'));
+        await expect(oyun).toHaveAttribute('data-beklenen', 'j');
+        await expect(page.locator('.op-tanitim__cumle')).toContainText('sağ işaret parmağınla');
+        await page.evaluate(() => window.__opBas('j'));
+
+        // 1,2 sn "Şimdi alıştıralım" şeridi: basışlar yok sayılır
+        await expect(oyun).toHaveAttribute('data-mod', 'serit');
+        await expect(page.locator('.op-serit')).toContainText('Şimdi alıştıralım');
+        await page.clock.runFor(1300);
+        await expect(oyun).toHaveAttribute('data-mod', 'kutu');
+        await expect(page.locator('.op-kutu')).toHaveCount(7);
+
+        // Kutu: yanlış basış bekletir, kutu kırmızı + basılan karakter; düzeltilen kutu ✓ almaz
+        await page.evaluate(() => window.__opBas('d'));
+        const ilk = page.locator('.op-kutu[data-i="0"]');
+        await expect(ilk).toHaveClass(/is-yanlis/);
+        await expect(ilk.locator('.op-kutu__harf')).toHaveText('d');
+        await page.evaluate(() => window.__opBas('f'));
+        await expect(ilk).toHaveClass(/is-duzeltildi/);
+        await expect(ilk.locator('.op-kutu__tik')).toHaveCount(0);
+
+        // Kalanı hatasız: 24 karakterde 1 yanlış → doğruluk 23/25 = %92 → 2 yıldız (kutuda hız şartı yok)
+        await opYaz(page, 'kutu');
+        await expect(oyun).toHaveAttribute('data-mod', 'sonuc');
+        await expect(page.locator('.op-serit')).toHaveClass(/is-acik/);
+        await expect(page.locator('.op-serit__baslik')).toHaveText('Bölüm 1 tamam!');
+        await expect(page.locator('.op-serit__alt')).toContainText('doğruluk %92');
+        await expect(page.locator('.op-serit .op-yildiz.is-kazanildi')).toHaveCount(2);
+        await page.clock.runFor(100);
+        await expect(page.locator('.op-canli')).toContainText('3 üzerinden 2 yıldız');
+
+        // Enter ilk 400 ms'de yok sayılır, sonra sıradaki bölüme geçirir
+        await page.keyboard.press('Enter');
+        await expect(oyun).toHaveAttribute('data-mod', 'sonuc');
+        await page.clock.runFor(400);
+        await page.keyboard.press('Enter');
+        await expect(oyun).toHaveAttribute('data-bolum', '2/14');
+        await expect(oyun).toHaveAttribute('data-mod', 'tanitim');
+        await expect(oyun).toHaveAttribute('data-beklenen', ' ');
+        errors.assertClean();
+    });
+
+    opTest('satır bölümü: canlı ölçüm, %80 altı "Bir daha deneyelim" + aynı bölüm baştan; Caps Lock açıkken basış sayılmaz', async ({ page, errors }) => {
+        opTest.setTimeout(90000);
+        await opAc(page);
+        await page.evaluate('GameEngine.startGame(OnParmak, 1)');   // dizge: test dosyasında oyun globalleri tanımsız (eslint)
+        await page.locator('.op-picker__bolum[data-bolum-sec="3"]').click();
+        const oyun = opOyun(page);
+        await expect(oyun).toHaveAttribute('data-bolum', '3/14');
+        await expect(oyun).toHaveAttribute('data-mod', 'satir');
+        await expect(page.locator('.op-olcum')).toBeHidden();
+
+        // Caps Lock: uyarı görünür, basış sayılmaz (imleç ilerlemez); kapanınca yazma sürer
+        await page.evaluate(() => window.__opBas('f', { caps: true }));
+        await expect(page.locator('.op-caps')).toBeVisible();
+        await expect(page.locator('.op-harf.is-imlec')).toHaveCount(1);
+        expect(await page.locator('.op-harf.is-dogru, .op-harf.is-yanlis').count()).toBe(0);
+        await page.evaluate(() => window.__opTus('CapsLock', 'CapsLock', { caps: false }));
+        await expect(page.locator('.op-caps')).toBeHidden();
+
+        // Hep yanlış tuş (j yerine k, f yerine d …): imleç yine ilerler, ölçüm ilk basıştan sonra görünür
+        await page.evaluate(() => window.__opBas('k'));
+        await expect(page.locator('.op-olcum')).toBeVisible();
+        await expect(page.locator('.op-harf').first()).toHaveClass(/is-yanlis/);
+        for (let i = 0; i < 80; i++) {
+            const mod = await oyun.getAttribute('data-mod');
+            if (mod !== 'satir') break;
+            await page.evaluate(() => window.__opBas('k'));
+            await page.clock.runFor(300);
+        }
+        await expect(oyun).toHaveAttribute('data-mod', 'sonuc');
+        await expect(page.locator('.op-serit__baslik')).toHaveText('Bir daha deneyelim');
+        await expect(page.locator('.op-serit__alt')).toContainText('hedef %80');
+        // ~2,5 sn sonra aynı bölüm baştan (tanıtım yok — satır bölümü), ölçüm sıfırlanır
+        await page.clock.runFor(2600);
+        await expect(oyun).toHaveAttribute('data-bolum', '3/14');
+        await expect(oyun).toHaveAttribute('data-mod', 'satir');
+        await expect(page.locator('.op-olcum')).toBeHidden();
+        expect(await page.locator('.op-harf.is-yanlis').count()).toBe(0);
+        errors.assertClean();
     });
 });
