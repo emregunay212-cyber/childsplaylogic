@@ -420,6 +420,16 @@ test.describe('ON_PARMAK_ICERIK — içerik kuralları (tarayıcısız)', () => 
         }
     });
 
+    test('çocuğa uygunsuz sözcük yok (yasak liste; metindeki her sözcük denetlenir)', () => {
+        const yasak = new Set(['silah', 'kan', 'öl', 'ölüm', 'katil', 'kavga', 'savaş', 'bomba', 'ateş', 'aşk', 'fal',
+            'sahaf', 'şarap', 'rakı', 'içki', 'sigara', 'kumar', 'bahis', 'ihanet', 'intihar', 'cinsel', 'seks', 'şiddet']);
+        for (const x of bolumler()) {
+            for (const w of x.b.metin.split(/[ ,]+/).filter(Boolean)) {
+                expect(yasak.has(w), `${etiket(x)} "${w}"`).toBe(false);
+            }
+        }
+    });
+
     test('Kısım 1 (Orta sıra): el açık, hedefHiz 8, oyun bölümü yok', () => {
         const k1 = loadIcerik()[0];
         expect(k1.ad).toBe('Orta sıra');
