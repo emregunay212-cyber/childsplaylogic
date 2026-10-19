@@ -906,8 +906,14 @@ opTest.describe('OnParmak — oyun modülü (tarayıcı)', () => {
         await expect(oyun).toHaveAttribute('data-mod', 'sonuc');
         await expect(page.locator('.op-serit__baslik')).toHaveText('Bir daha deneyelim');
         await expect(page.locator('.op-serit__alt')).toContainText('hedef %80');
+        // Tekrar şeridinde hız gösterilmez (yalnız doğruluk ve hedef): ne şeritte ne arkadaki canlı ölçümde
+        await expect(page.locator('.op-serit__alt')).not.toContainText('kelime/dk');
+        await expect(page.locator('.op-olcum__oge--hiz')).toBeHidden();
+        await expect(page.locator('.op-olcum__oge--dogruluk')).toBeVisible();
+        await page.clock.runFor(100);
+        await expect(page.locator('.op-canli')).not.toContainText('kelime');
         // ~2,5 sn sonra aynı bölüm baştan (tanıtım yok — satır bölümü), ölçüm sıfırlanır
-        await page.clock.runFor(2600);
+        await page.clock.runFor(2500);
         await expect(oyun).toHaveAttribute('data-bolum', OP_ILK_SATIR + '/' + OP_N);
         await expect(oyun).toHaveAttribute('data-mod', 'satir');
         await expect(page.locator('.op-olcum')).toBeHidden();
@@ -958,14 +964,13 @@ opTest.describe('OnParmak — oyun modülü (tarayıcı)', () => {
         await expect(page.locator('.op-olcum')).toBeVisible();
         await expect(page.locator('.op-olcum__deger').nth(1)).toHaveText('%0');
 
-        // Saat ilerler, doğru basış: doğruluk 1/2 = %50, hız > 0 (canlı)
-        await page.clock.runFor(1500);
+        // Saat ilerler, doğru basış: doğruluk 1/2 = %50; hız 2 karakter / 1,1 sn = 21,8 → ekranda 21 (Math.floor, yuvarlanmaz)
+        await page.clock.runFor(1100);
         const hedef1 = await oyun.getAttribute('data-beklenen');
         await page.evaluate((ch) => window.__opBas(ch), hedef1);
         await expect(page.locator('.op-harf').nth(1)).toHaveClass(/is-dogru/);
         await expect(page.locator('.op-olcum__deger').nth(1)).toHaveText('%50');
-        const hiz = Number(await page.locator('.op-olcum__deger').first().textContent());
-        expect(hiz).toBeGreaterThan(0);
+        await expect(page.locator('.op-olcum__deger').first()).toHaveText('21');
 
         // Yazma sırasında Backspace/Enter hâlâ sayılmaz
         await page.evaluate(() => { window.__opTus('Backspace', 'Backspace'); window.__opTus('Enter', 'Enter'); });
@@ -982,6 +987,11 @@ opTest.describe('OnParmak — oyun modülü (tarayıcı)', () => {
         await expect(oyun).toHaveAttribute('data-mod', 'sonuc');
         await expect(page.locator('.op-serit')).toHaveClass(/is-acik/);
         await expect(page.locator('.op-serit__baslik')).toHaveText('Bölüm ' + OP_ILK_SATIR + ' tamam!');
+        // Sonuç hızı Math.floor ile (ham değer kararda): n karakter, basışlar arası 100 ms → (n/5) / ((n−1)·100 ms)
+        const n = OP_BOLUMLER[OP_ILK_SATIR - 1].metin.length;
+        const hizHam = (n / 5) / (((n - 1) * 100) / 60000);
+        expect(hizHam % 1).not.toBe(0);
+        await expect(page.locator('.op-serit__alt')).toContainText(Math.floor(hizHam) + ' kelime/dk');
         await page.clock.runFor(2400);
         await expect(oyun).toHaveAttribute('data-mod', 'sonuc');             // henüz kalkmadı
         await page.clock.runFor(150);
@@ -1048,7 +1058,7 @@ opTest.describe('OnParmak — oyun modülü (tarayıcı)', () => {
         await expect(oyun).toHaveAttribute('data-mod', 'kutu');
 
         // Kutu: Comma tuşu = ö → yanlış (kutuda basılan karakter ö görünür); Numpad sayılmaz
-        await page.evaluate(() => window.__opTus('4', 'Numpad4'));
+        await page.evaluate(() => { window.__opTus('4', 'Numpad4'); window.__opTus(',', 'NumpadComma'); });
         await expect(page.locator('.op-kutu[data-i="0"]')).not.toHaveClass(/is-yanlis/);
         await page.evaluate(() => window.__opTus(',', 'Comma'));
         await expect(page.locator('.op-kutu[data-i="0"]')).toHaveClass(/is-yanlis/);
@@ -1094,6 +1104,202 @@ opTest.describe('OnParmak — oyun modülü (tarayıcı)', () => {
         await expect(page.locator('#hub')).toBeVisible();
         expect(await page.evaluate(() => window.__opKeydownSayisi())).toBe(once);
         errors.assertClean();
+    });
+
+    // Spec §8 "yazma odağı kaybolursa tıklama/tuş geri getirir": fareyle odaklanmış araç çubuğu düğmesi yazılabilir
+    // tuşu yutmaz (odak bırakılır, basış sayılır; Boşluk düğmeyi tetiklemez). Klavyeyle odaklanmış düğmede Tab/Enter tarayıcının.
+    opTest('odak kaçışı: fareyle tıklanan tam ekran düğmesinden sonra f sayılır, Boşluk düğmeyi tetiklemez', async ({ page, errors }) => {
+        await opAc(page);
+        const oyun = opOyun(page);
+        const kap = page.locator('#game-container');
+        await expect(oyun).toHaveAttribute('data-beklenen', 'f');
+        await page.locator('#game-fullscreen').click();                       // fareyle: odak düğmede, :focus-visible DEĞİL
+        await expect(kap).toHaveClass(/is-fullscreen/);
+        await expect(page.locator('#game-fullscreen')).toBeFocused();
+        await page.keyboard.press('f');                                       // gerçek basış: hedef odaktaki düğme
+        await expect(oyun).toHaveAttribute('data-beklenen', 'j');
+        await expect(page.locator('#game-fullscreen')).not.toBeFocused();
+
+        // Tekrar fareyle odakla; Boşluk (beklenen değil → tanıtımda yanlış, sayılmaz) düğmeyi tetiklememeli
+        await page.locator('#game-fullscreen').click();
+        await expect(kap).not.toHaveClass(/is-fullscreen/);
+        await page.keyboard.press('Space');
+        await expect(kap).not.toHaveClass(/is-fullscreen/);
+        await expect(oyun).toHaveAttribute('data-beklenen', 'j');
+
+        // Oyun içindeki El düğmesine fareyle tıklama da yazmayı durdurmaz
+        await page.locator('.op-dugme').first().click();
+        await page.keyboard.press('j');
+        await expect(oyun).toHaveAttribute('data-mod', 'serit');
+        errors.assertClean();
+    });
+
+    opTest('odak kaçışı: klavyeyle (Tab) odaklanan düğmede Enter düğmeyi etkinleştirir, oyun yutmaz', async ({ page, errors }) => {
+        await opAc(page);
+        const elDugme = page.locator('.op-dugme').first();
+        await expect(elDugme).toHaveAttribute('aria-pressed', 'true');
+        await elDugme.focus();
+        await page.keyboard.press('Tab');
+        await page.keyboard.press('Shift+Tab');                               // klavye etkileşimi → :focus-visible
+        await expect(elDugme).toBeFocused();
+        expect(await elDugme.evaluate((b) => b.matches(':focus-visible'))).toBe(true);
+        await page.keyboard.press('Enter');
+        await expect(elDugme).toHaveAttribute('aria-pressed', 'false');
+        await expect(elDugme).toBeFocused();
+        errors.assertClean();
+    });
+
+    // Yerleşim kararlılığı: bölüm türü (tanıtım / kutu / satır) ve Caps uyarısı klavyeyi dikeyde oynatmaz
+    for (const [ad, vp] of [['masaüstü 1366×768', { width: 1366, height: 768 }], ['telefon 375×812', { width: 375, height: 812 }]]) {
+        opTest('yerleşim: tanıtım, kutu, satır ve Caps uyarısında klavyenin üstü aynı (±2 px) — ' + ad, async ({ page, errors }) => {
+            opTest.setTimeout(60000);
+            await page.setViewportSize(vp);
+            const ust = () => page.locator('.op-ekran__svg').evaluate((s) => s.getBoundingClientRect().top);
+            await opAc(page);
+            const oyun = opOyun(page);
+            await expect(oyun).toHaveAttribute('data-mod', 'tanitim');
+            const t0 = await ust();
+            await page.evaluate(() => { window.__opBas('f'); window.__opBas('j'); });
+            await page.clock.runFor(1300);
+            await expect(oyun).toHaveAttribute('data-mod', 'kutu');
+            expect(Math.abs((await ust()) - t0)).toBeLessThanOrEqual(2);
+            await page.evaluate(() => window.__opBas('f', { caps: true }));
+            await expect(page.locator('.op-caps')).toBeVisible();
+            expect(Math.abs((await ust()) - t0)).toBeLessThanOrEqual(2);
+            await page.evaluate(() => window.__opTus('CapsLock', 'CapsLock', { caps: false }));
+
+            await page.evaluate('GameEngine.startGame(OnParmak, 1)');
+            await page.locator('.op-picker__bolum[data-bolum-sec="' + OP_ILK_SATIR + '"]').click();
+            await expect(oyun).toHaveAttribute('data-mod', 'satir');
+            expect(Math.abs((await ust()) - t0)).toBeLessThanOrEqual(2);
+            await page.evaluate(() => window.__opBas('f', { caps: true }));
+            await expect(page.locator('.op-caps')).toBeVisible();
+            expect(Math.abs((await ust()) - t0)).toBeLessThanOrEqual(2);
+
+            // Caps uyarısı açıkken de ekran (klavye + eller) görünüm alanına sığar; yatay taşma yok
+            const r = await page.locator('.op-ekran__svg').evaluate((s) => {
+                const b = s.getBoundingClientRect();
+                return { alt: b.bottom, sol: b.left, sag: b.right, gen: innerWidth, yuk: innerHeight, kaydir: document.documentElement.scrollWidth };
+            });
+            expect(r.alt).toBeLessThanOrEqual(r.yuk + 1);
+            expect(r.sol).toBeGreaterThanOrEqual(0);
+            expect(r.sag).toBeLessThanOrEqual(r.gen);
+            expect(r.kaydir).toBeLessThanOrEqual(r.gen);
+            errors.assertClean();
+        });
+    }
+
+    opTest('telefon (375 px): El/Klavye düğmeleri başlıkla aynı satırda, adları erişilebilir; klavye genişliği kullanır', async ({ page, errors }) => {
+        await page.setViewportSize({ width: 375, height: 812 });
+        await opAc(page, OP_ILK_SATIR);
+        const ilerleme = await page.locator('.op-ilerleme__no').boundingBox();
+        for (const [i, ad] of [[0, 'El'], [1, 'Klavye']]) {
+            const d = page.locator('.op-dugme').nth(i);
+            await expect(d).toHaveAccessibleName(ad);
+            const b = await d.boundingBox();
+            expect(b.width).toBeGreaterThanOrEqual(44);                       // dokunma hedefi
+            expect(b.height).toBeGreaterThanOrEqual(44);
+            // aynı satır: düğmenin dikey ortası ilerleme hapının dikey aralığında
+            const orta = b.y + b.height / 2;
+            expect(orta).toBeGreaterThan(ilerleme.y);
+            expect(orta).toBeLessThan(ilerleme.y + ilerleme.height);
+        }
+        const svg = await page.locator('.op-ekran__svg').boundingBox();
+        expect(svg.width).toBeGreaterThanOrEqual(375 - 16);                   // kenar boşluğu en çok 8 px
+        expect(svg.x).toBeGreaterThanOrEqual(0);
+        expect(svg.x + svg.width).toBeLessThanOrEqual(375);
+        errors.assertClean();
+    });
+
+    opTest('Caps duyurusu sonuç duyurusunu ezmez: sonuç metni korunur, Caps bilgisi eklenir', async ({ page, errors }) => {
+        opTest.setTimeout(60000);
+        await opAc(page, OP_ILK_SATIR);
+        const oyun = opOyun(page);
+        await opYaz(page, 'satir', 100);
+        await expect(oyun).toHaveAttribute('data-mod', 'sonuc');
+        await page.clock.runFor(100);
+        await expect(page.locator('.op-canli')).toContainText('Bölüm ' + OP_ILK_SATIR + ' tamam');
+        await page.evaluate(() => window.__opTus('CapsLock', 'CapsLock', { caps: true }));
+        await page.clock.runFor(100);
+        await expect(page.locator('.op-canli')).toContainText('Bölüm ' + OP_ILK_SATIR + ' tamam');
+        await expect(page.locator('.op-canli')).toContainText('Büyük harf kilidi açık');
+        errors.assertClean();
+    });
+
+    // Bölüm 1 → son bölüm tek akış: metinler içerikten (ekrandaki kutu/satır metni = içerik metni), her bölüm sonu
+    // "Bölüm N tamam!", son bölümde kutlama katmanı. Hız 0 (sahte saat durur) → satırda 2, kutuda 3 yıldız.
+    opTest('Bölüm 1 → ' + OP_N + ' tek akış: tanıtım, kutu ve satır içerikten; son bölümde kutlama katmanı', async ({ page, errors }) => {
+        opTest.setTimeout(180000);
+        await opAc(page);
+        const oyun = opOyun(page);
+        for (let i = 0; i < OP_N; i++) {
+            const b = OP_BOLUMLER[i];
+            await expect(oyun).toHaveAttribute('data-bolum', (i + 1) + '/' + OP_N);
+            await expect(page.locator('.op-ilerleme__ad')).toHaveText(b.ad);
+            if (b.tur === 'kutu') {
+                // Tanıtım: yeni tuşlar sırayla, içerikteki sırada (yeni yoksa tanıtım da yok)
+                for (const ch of b.yeni || []) {
+                    await expect(oyun).toHaveAttribute('data-mod', 'tanitim');
+                    await expect(oyun).toHaveAttribute('data-beklenen', ch);
+                    await page.evaluate((c) => window.__opBas(c), ch);
+                }
+                if ((b.yeni || []).length) {
+                    await expect(oyun).toHaveAttribute('data-mod', 'serit');
+                    await page.clock.runFor(1300);
+                }
+                await expect(oyun).toHaveAttribute('data-mod', 'kutu');
+                const ilkSayfa = await page.locator('.op-kutu .op-kutu__harf').allTextContents();
+                expect(ilkSayfa.join('')).toBe(b.metin.slice(0, 7).split(' ').join('␣'));
+            } else {
+                await expect(oyun).toHaveAttribute('data-mod', 'satir');
+                const yazi = await page.locator('.op-satirlar .op-harf').allTextContents();
+                expect(yazi.join('')).toBe(b.metin);
+            }
+            // Hatasız yaz (tek evaluate: hızlı)
+            await page.evaluate((m) => {
+                const r = document.querySelector('.op-oyun');
+                for (let n = 0; n < 400 && r.dataset.mod === m && r.dataset.beklenen; n++) window.__opBas(r.dataset.beklenen);
+            }, b.tur);
+            await expect(oyun).toHaveAttribute('data-mod', 'sonuc');
+            await expect(page.locator('.op-serit__baslik')).toHaveText('Bölüm ' + (i + 1) + ' tamam!');
+            await expect(page.locator('.op-serit .op-yildiz.is-kazanildi')).toHaveCount(b.tur === 'kutu' ? 3 : 2);
+            await page.clock.runFor(2600);
+        }
+        await expect(oyun).toHaveAttribute('data-mod', 'bitti');
+        await page.clock.runFor(500);
+        await expect.poll(() => opOverlayAcik(page)).toBe(true);
+        expect(await page.evaluate(() => Progress.getLevelStars('on-parmak', 1))).toBeGreaterThan(0);
+        errors.assertClean();
+    });
+});
+
+// Kapalı oyun (active:false), katalog YAMASIZ: hiçbir yoldan açılmaz, hub'da "Yakında" kartı + ikon.
+// PR3'te oyun açılınca (active:true) bu describe silinir.
+const opTestYamasiz = test.extend({
+    context: async ({ context }, use) => {
+        await seedGuest(context, opLockKeys);
+        await context.route(/https:\/\/www\.gstatic\.com\/firebasejs\//, (route) => route.abort());
+        await context.addInitScript(OP_FIREBASE_STUB);
+        await use(context);
+    },
+});
+opTestYamasiz.describe('OnParmak — kapalı oyun (katalog yamasız; PR3\'te oyun açılınca silinir)', () => {
+    opTestYamasiz('/?oyun=on-parmak oyunu açmaz; hub kartı "Yakında" ve ikonu yüklü', async ({ page }) => {
+        const hatalar = [];
+        page.on('pageerror', (e) => hatalar.push(String(e)));
+        await page.goto('/?oyun=' + OP_SLUG);
+        await expect(page.locator('#hub')).toBeVisible();
+        await page.waitForTimeout(500);
+        await expect(page.locator('.op-picker')).toHaveCount(0);
+        await expect(page.locator('.op-oyun')).toHaveCount(0);
+        expect(await page.evaluate(() => document.body.hasAttribute('data-active-game'))).toBe(false);
+        const kart = page.locator('.game-card[data-game="' + OP_SLUG + '"]').first();
+        await expect(kart).toHaveClass(/coming-soon/);
+        await kart.scrollIntoViewIfNeeded();
+        const img = kart.locator('.card-icon img');
+        await expect(img).toHaveAttribute('src', /assets\/images\/hub\/on-parmak\.svg/);
+        await expect.poll(() => img.evaluate((i) => i.complete && i.naturalWidth)).toBeGreaterThan(0);
+        expect(hatalar).toEqual([]);
     });
 });
 
