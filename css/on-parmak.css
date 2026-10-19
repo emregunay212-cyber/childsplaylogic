@@ -1203,3 +1203,245 @@
         transform: translateY(-10px);
     }
 }
+
+/* ============================================
+   Bölüm 3: mini oyunlar (js/games/on-parmak-<oyun>.js). Sahne renkleri yalnız token'larla.
+   - Oyun bölümünde sahne büyür, ekran klavyesi küçülür (spec §3.4): göz sahnede, klavye ipucu olarak altta.
+   - Hareket JS döngüsünde (transform özniteliği); burada yalnız renk/vurgu. Azaltılmış hareket JS'te (salınım, yay,
+     sallanma yok; atlayış ve kamera anında).
+   ============================================ */
+.op-oyun[data-tur="oyun"] {
+    --op-sahne-yuk: clamp(250px, 44dvh, 430px);
+}
+
+.op-oyun[data-tur="oyun"] .op-sahne {
+    gap: var(--ara-2);
+    padding: var(--ara-3);
+}
+
+.op-oyun[data-tur="oyun"] .op-olcum {
+    display: none;
+}
+
+.op-oyun[data-tur="oyun"] .op-ekran-kap .op-ekran {
+    max-width: min(600px, calc((100dvh - var(--op-ekran-pay)) * 924 / 400));
+}
+
+.op-alan--oyun {
+    flex: 1 1 auto;
+    min-height: 0;
+    align-self: stretch;
+    gap: 0;
+}
+
+/* ── Balon Vadisi ── */
+.op-balon {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: var(--r-giris);
+    background: linear-gradient(var(--gok-ust), var(--gok-alt));
+}
+
+.op-balon__svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.op-balon__gunes-ic { fill: var(--gunes); }
+.op-balon__gunes-hale { fill: var(--gunes-isik); }
+.op-balon__bulut { fill: var(--yuzey-cam); }
+.op-balon__tepe--uzak { fill: var(--cim); opacity: 0.5; }
+.op-balon__tepe--yakin { fill: var(--cim-koyu); }
+.op-balon__su-govde { fill: var(--mavi-700); }
+
+.op-balon__dalga {
+    fill: none;
+    stroke: var(--mavi-050);
+    stroke-width: 3;
+    stroke-linecap: round;
+    opacity: 0.7;
+}
+
+.op-balon__halka {
+    fill: none;
+    stroke: var(--beyaz);
+    stroke-width: 3;
+}
+
+.op-balon__damla { fill: var(--beyaz); }
+
+/* Balon: renk currentColor'dan (gövde + düğüm); yazı her renkte mürekkep (en düşük ~5,6:1, pembe) */
+.op-balon__b--0 { color: var(--kat-yaratici); }
+.op-balon__b--1 { color: var(--gunes); }
+.op-balon__b--2 { color: var(--kat-bulmaca); }
+.op-balon__b--3 { color: var(--kat-sayi); }
+.op-balon__b--4 { color: var(--cim); }
+.op-balon__b--bos { color: var(--beyaz); }
+
+.op-balon__govde {
+    fill: currentColor;
+    stroke: var(--cizgi-saydam);
+    stroke-width: 2;
+}
+
+.op-balon__dugum { fill: currentColor; }
+
+.op-balon__ip {
+    fill: none;
+    stroke: var(--murekkep-orta);
+    stroke-width: 1.6;
+}
+
+.op-balon__parilti {
+    fill: var(--beyaz);
+    opacity: 0.5;
+}
+
+.op-balon__harf {
+    font-family: var(--font-display);
+    font-size: 42px;
+    font-weight: 600;
+    fill: var(--murekkep);
+    text-anchor: middle;
+    dominant-baseline: central;
+}
+
+/* Sıradaki balon: kalın mürekkep kontur + üstte ok; diğer harfler soluk (önizleme, hedefle karışmaz) */
+.op-balon__ok {
+    display: none;
+    fill: var(--murekkep);
+}
+
+.op-balon__b.is-hedef .op-balon__ok { display: inline; }
+
+.op-balon__b.is-hedef .op-balon__govde {
+    stroke: var(--murekkep);
+    stroke-width: 4;
+}
+
+.op-balon__b:not(.is-hedef) .op-balon__harf { opacity: 0.5; }
+
+/* Yanlış tuş: kırmızı kontur (azaltılmış harekette sallanmanın yerine tek işaret) */
+.op-balon__b.is-yanlis .op-balon__govde {
+    stroke: var(--yanlis);
+    stroke-width: 5;
+}
+
+/* Karakter "Pıt" */
+.op-balon__pit-govde,
+.op-balon__pit-el { fill: var(--kat-online); }
+.op-balon__pit-karin { fill: var(--beyaz); opacity: 0.35; }
+.op-balon__pit-goz { fill: var(--murekkep); }
+.op-balon__pit-yanak { fill: var(--kat-yaratici); opacity: 0.8; }
+.op-balon__pit-ayak { fill: var(--murekkep-orta); }
+
+.op-balon__pit-kol,
+.op-balon__pit-tepe {
+    fill: none;
+    stroke: var(--kat-online);
+    stroke-width: 5;
+    stroke-linecap: round;
+}
+
+.op-balon__pit-tepe { stroke-width: 3; }
+
+.op-balon__pit-agiz {
+    fill: none;
+    stroke: var(--murekkep);
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+
+/* HUD: canlar solda, ilerleme sağda — gökyüzü üstünde cam hap */
+.op-balon__hud {
+    position: absolute;
+    inset: var(--ara-2) var(--ara-2) auto var(--ara-2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+}
+
+.op-balon__canlar,
+.op-balon__ilerleme {
+    display: flex;
+    align-items: center;
+    gap: var(--ara-1);
+    padding: var(--ara-1) var(--ara-3);
+    border-radius: var(--r-hap);
+    background: var(--yuzey-cam);
+    box-shadow: var(--golge-1);
+}
+
+.op-balon__can {
+    width: 24px;
+    height: 24px;
+    fill: var(--yanlis);
+    stroke: var(--yanlis);
+    stroke-width: 1.5;
+}
+
+/* Giden can: içi boş (renk dışında biçim de değişir) */
+.op-balon__can.is-gitti {
+    fill: none;
+    stroke: var(--murekkep-orta);
+}
+
+.op-balon__ilerleme {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--murekkep);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Sekme dönüşü: oyun durdu, bir tuş bekler */
+.op-balon__devam {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ara-1);
+    max-width: calc(100% - 2 * var(--ara-4));
+    padding: var(--ara-4) var(--ara-6);
+    border-radius: var(--r-kart);
+    background: var(--beyaz);
+    box-shadow: var(--golge-3);
+    text-align: center;
+}
+
+.op-balon__devam[hidden] { display: none; }
+.op-balon__devam strong { font-size: 1.3rem; }
+
+.op-balon__devam span {
+    font-family: var(--font-body);
+    font-weight: 700;
+    color: var(--murekkep-orta);
+}
+
+@media (max-width: 599px) {
+    .op-oyun[data-tur="oyun"] {
+        --op-sahne-yuk: clamp(240px, 50dvh, 400px);
+    }
+
+    .op-oyun[data-tur="oyun"] .op-sahne {
+        padding: var(--ara-2);
+    }
+
+    .op-balon__can {
+        width: 20px;
+        height: 20px;
+    }
+
+    .op-balon__ilerleme {
+        font-size: 0.9rem;
+    }
+}

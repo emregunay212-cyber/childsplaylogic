@@ -363,7 +363,10 @@ test.describe('ON_PARMAK_ICERIK — içerik kuralları (tarayıcısız)', () => 
     }
     const etiket = (x) => `bölüm ${x.no} (${x.b.ad})`;
 
-    test('şema: kısım alanları, tur kutu|satir, metin dolu', () => {
+    const OYUNLAR = ['balon', 'canavar', 'baloncuk', 'elma'];
+    const HARF_OYUNLARI = ['balon'];        // diğerleri kelime oyunu
+
+    test('şema: kısım alanları, tur kutu|satir|oyun, oyun adı 4 oyundan biri, metin dolu', () => {
         const icerik = loadIcerik();
         expect(Array.isArray(icerik)).toBe(true);
         expect(icerik.length).toBeGreaterThan(0);
@@ -375,7 +378,9 @@ test.describe('ON_PARMAK_ICERIK — içerik kuralları (tarayıcısız)', () => 
             expect(k.bolumler.length).toBeGreaterThan(0);
         }
         for (const x of bolumler()) {
-            expect(['kutu', 'satir'], etiket(x)).toContain(x.b.tur);
+            expect(['kutu', 'satir', 'oyun'], etiket(x)).toContain(x.b.tur);
+            if (x.b.tur === 'oyun') expect(OYUNLAR, etiket(x)).toContain(x.b.oyun);
+            else expect(x.b.oyun, etiket(x)).toBeUndefined();
             expect(typeof x.b.ad, etiket(x)).toBe('string');
             expect(x.b.metin.length, etiket(x)).toBeGreaterThan(0);
             if (x.b.tur === 'kutu') expect(Array.isArray(x.b.yeni) && x.b.yeni.length > 0, etiket(x)).toBe(true);
@@ -394,15 +399,28 @@ test.describe('ON_PARMAK_ICERIK — içerik kuralları (tarayıcısız)', () => 
         }
     });
 
-    test('kutu 21–35 karakter; satır ≥ 50 ve ≤ hedefHiz × 10 (kutuda hedef 8)', () => {
+    test('kutu 21–35 karakter; satır ≥ 50 ve ≤ hedefHiz × 10 (kutuda hedef 8); oyun ≤ hedefHiz × 10', () => {
         for (const x of bolumler()) {
             const n = [...x.b.metin].length;
             if (x.b.tur === 'kutu') {
                 expect(n, etiket(x)).toBeGreaterThanOrEqual(21);
                 expect(n, etiket(x)).toBeLessThanOrEqual(35);
-            } else {
+            } else if (x.b.tur === 'satir') {
                 expect(n, etiket(x)).toBeGreaterThanOrEqual(50);
                 expect(n, etiket(x)).toBeLessThanOrEqual(x.hedefHiz * 10);
+            } else {
+                expect(n, etiket(x)).toBeLessThanOrEqual(x.hedefHiz * 10);
+            }
+        }
+    });
+
+    test('oyun metni: harf oyununda boşluksuz ≥ 20 harf; kelime oyununda ≥ 8 kelime', () => {
+        for (const x of bolumler().filter((y) => y.b.tur === 'oyun')) {
+            if (HARF_OYUNLARI.includes(x.b.oyun)) {
+                expect(x.b.metin.includes(' '), etiket(x)).toBe(false);
+                expect([...x.b.metin].length, etiket(x)).toBeGreaterThanOrEqual(20);
+            } else {
+                expect(x.b.metin.split(' ').length, etiket(x)).toBeGreaterThanOrEqual(8);
             }
         }
     });
@@ -430,12 +448,16 @@ test.describe('ON_PARMAK_ICERIK — içerik kuralları (tarayıcısız)', () => 
         }
     });
 
-    test('Kısım 1 (Orta sıra): el açık, hedefHiz 8, oyun bölümü yok', () => {
+    test('Kısım 1 (Orta sıra): el açık, hedefHiz 8; Balon Vadisi "D K tekrar" ve "İlk kelimeler"den hemen sonra', () => {
         const k1 = loadIcerik()[0];
         expect(k1.ad).toBe('Orta sıra');
         expect(k1.hedefHiz).toBe(8);
         expect(k1.el).toBe(true);
-        expect(k1.bolumler.some((b) => b.tur === 'oyun')).toBe(false);
+        const oyunlar = k1.bolumler.map((b, i) => ({ b, onceki: k1.bolumler[i - 1] })).filter((x) => x.b.tur === 'oyun');
+        expect(oyunlar.map((x) => [x.onceki.ad, x.b.oyun, x.b.ad])).toEqual([
+            ['D K tekrar', 'balon', 'Balon Vadisi: F J D K'],
+            ['İlk kelimeler', 'balon', 'Balon Vadisi: ilk sekiz tuş'],
+        ]);
     });
 
     test('Kısım 1 yeni tuş sırası: f j, boşluk, d k, s l, a ş, g h, i ,', () => {
@@ -443,14 +465,14 @@ test.describe('ON_PARMAK_ICERIK — içerik kuralları (tarayıcısız)', () => 
         expect(yeniler).toEqual(['fj', ' ', 'dk', 'sl', 'aş', 'gh', 'i,']);
     });
 
-    test('kayıt: data/games.json levels = ON_PARMAK_ICERIK.length; kapalı; dosya sırası dizilim → ölçüm → içerik → ekran → modül', () => {
+    test('kayıt: data/games.json levels = ON_PARMAK_ICERIK.length; kapalı; dosya sırası dizilim → ölçüm → içerik → ekran → oyun ortak → oyunlar → modül', () => {
         const kayit = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/games.json'), 'utf8')).games.find((g) => g.slug === 'on-parmak');
         expect(kayit, 'on-parmak kaydı').toBeTruthy();
         expect(kayit.levels).toBe(loadIcerik().length);
         expect(kayit.active).toBe(false);
         expect(kayit.module).toBe('OnParmak');
         expect(kayit.files.js).toEqual(['js/games/klavye-dizilim.js', 'js/games/on-parmak-olcum.js', 'js/games/on-parmak-icerik.js',
-            'js/games/on-parmak-ekran.js', 'js/games/on-parmak.js']);
+            'js/games/on-parmak-ekran.js', 'js/games/on-parmak-oyun-ortak.js', 'js/games/on-parmak-balon.js', 'js/games/on-parmak.js']);
         expect(kayit.files.css).toEqual(['css/on-parmak.css']);
     });
 
@@ -1227,7 +1249,7 @@ opTest.describe('OnParmak — oyun modülü (tarayıcı)', () => {
     });
 
     // Bölüm 1 → son bölüm tek akış: metinler içerikten (ekrandaki kutu/satır metni = içerik metni), her bölüm sonu
-    // "Bölüm N tamam!", son bölümde kutlama katmanı. Hız 0 (sahte saat durur) → satırda 2, kutuda 3 yıldız.
+    // "Bölüm N tamam!", son bölümde kutlama katmanı. Hız 0 (sahte saat durur) → satırda 2, kutu ve oyunda 3 yıldız.
     opTest('Bölüm 1 → ' + OP_N + ' tek akış: tanıtım, kutu ve satır içerikten; son bölümde kutlama katmanı', async ({ page, errors }) => {
         opTest.setTimeout(180000);
         await opAc(page);
@@ -1250,6 +1272,12 @@ opTest.describe('OnParmak — oyun modülü (tarayıcı)', () => {
                 await expect(oyun).toHaveAttribute('data-mod', 'kutu');
                 const ilkSayfa = await page.locator('.op-kutu .op-kutu__harf').allTextContents();
                 expect(ilkSayfa.join('')).toBe(b.metin.slice(0, 7).split(' ').join('␣'));
+            } else if (b.tur === 'oyun') {
+                // Oyun bölümü: balonların harfleri içerikten, sıra korunur; ilk hedef ilk harf
+                await expect(oyun).toHaveAttribute('data-mod', 'oyun');
+                const harfler = await page.locator('.op-balon__b[data-harf]').evaluateAll((d) => d.map((g) => g.dataset.harf));
+                expect(harfler.join('')).toBe(b.metin);
+                await expect(oyun).toHaveAttribute('data-beklenen', b.metin[0]);
             } else {
                 await expect(oyun).toHaveAttribute('data-mod', 'satir');
                 const yazi = await page.locator('.op-satirlar .op-harf').allTextContents();
@@ -1262,7 +1290,8 @@ opTest.describe('OnParmak — oyun modülü (tarayıcı)', () => {
             }, b.tur);
             await expect(oyun).toHaveAttribute('data-mod', 'sonuc');
             await expect(page.locator('.op-serit__baslik')).toHaveText('Bölüm ' + (i + 1) + ' tamam!');
-            await expect(page.locator('.op-serit .op-yildiz.is-kazanildi')).toHaveCount(b.tur === 'kutu' ? 3 : 2);
+            // satırda hız şartı (sahte saat → hız 0) 3. yıldızı tutar; kutu ve oyunda hız şartı yok
+            await expect(page.locator('.op-serit .op-yildiz.is-kazanildi')).toHaveCount(b.tur === 'satir' ? 2 : 3);
             await page.clock.runFor(2600);
         }
         await expect(oyun).toHaveAttribute('data-mod', 'bitti');
