@@ -11,6 +11,8 @@
          durumundaysa döngüyü yeniden başlatır (devam tuşu sayılmaz). 'gizli' durumunda da true döner.
        Oyun, durum 'devam-bekliyor' olunca "Devam etmek için bir tuşa bas" yazısını durum() ile çizer
        (opts.durumDegisti(durum) çağrılır).
+     adimFn fırlatırsa: console.error + döngü durur (durum 'durdu').
+     Sekme oluşturulurken zaten gizliyse durum 'gizli' başlar; ilk durumDegisti('gizli') bildirimi mikro görevde (dongu() döndükten sonra) gelir.
      durdur(): rAF iptal + visibilitychange dinleyicisi kaldırılır (hub'a dönüşte sızıntı yok); tekrar çağrılabilir.
 
    uyarlanirHiz({ taban, min, max, artis, azalis, azaltilmisHareket? })  →  { deger(), basari(), canKaybi() }
@@ -22,7 +24,8 @@
      ilerleme: yazılmış harf sayısı (vars. 0). kilit: hedefler içindeki mevcut kilitli hedef → olduğu gibi döner
      (kelime bitene dek kilit sürer; kilitliyken beklenen harfi oyun kelime[ilerleme]'ye bakıp kendisi doğrular).
      Kilit yoksa: ilk harfi `harf` olan, henüz başlanmamış hedefler arasından tehlikesi en yüksek (eşitte ilk). Yoksa null
-     (basış hata sayılır).
+     (basış hata sayılır). Harf eşleşmesi harf büyüklüğüne duyarlıdır, BİLEREK (Shift öğretilir: 'e' "Elma"yı vurmaz);
+     çağıran KlavyeDizilim.karakterOf çıktısını olduğu gibi verir.
 
    rng(tohum)  →  () => [0,1)   mulberry32; aynı tohum = aynı dizi.
    ============================================ */
@@ -44,7 +47,11 @@
             if (durum !== 'calisiyor') return;
             const dt = onceki == null ? 0 : Math.min(azami, Math.max(0, t - onceki));
             onceki = t;
-            adimFn(dt, t);
+            try { adimFn(dt, t); } catch (err) {
+                console.error('[OnParmakOyunOrtak] adimFn hatası, döngü durduruldu', err);
+                durdur();
+                return;
+            }
             if (durum === 'calisiyor') rafId = requestAnimationFrame(kare);
         }
         function baslat() {
@@ -79,7 +86,11 @@
         }
 
         document.addEventListener('visibilitychange', gorunurluk);
-        if (gizliMi()) { durum = 'gizli'; bildir(); } else baslat();
+        if (gizliMi()) {
+            durum = 'gizli';
+            // dongu() dönmeden bildirim çağıran henüz denetleyiciyi tutmaz → bir mikro görev ertelenir
+            Promise.resolve().then(() => { if (durum === 'gizli') bildir(); });
+        } else baslat();
         return { durdur, durum: () => durum, devamTusu };
     }
 

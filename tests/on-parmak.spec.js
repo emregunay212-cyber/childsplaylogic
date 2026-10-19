@@ -1416,6 +1416,7 @@ test.describe('OnParmakOyunOrtak.dongu (tarayıcı, sahte saat)', () => {
         await page.clock.install({ time: 0 });
         await page.goto('/404.html');
         await page.addScriptTag({ url: '/js/games/on-parmak-oyun-ortak.js' });
+        await page.clock.pauseAt(1000);                                         // saat yalnız runFor ile akar: kare sayıları belirleyici
         await page.evaluate(() => {
             window.__raf = { iste: 0, iptal: 0 };
             const r = window.requestAnimationFrame.bind(window), c = window.cancelAnimationFrame.bind(window);
@@ -1467,11 +1468,46 @@ test.describe('OnParmakOyunOrtak.dongu (tarayıcı, sahte saat)', () => {
     });
 
     test('durdur() sonrası visibilitychange dinleyicisi kalmaz; rAF iptal edilir ve adım gelmez', async ({ page }) => {
-        await page.evaluate(() => { window.__d.durdur(); window.__gorun('hidden'); window.__gorun('visible'); });
+        const n0 = await page.evaluate(() => { window.__d.durdur(); window.__gorun('hidden'); window.__gorun('visible'); return window.__adim.length; });
         expect(await page.evaluate(() => window.__durumlar)).toEqual([]);
         expect(await page.evaluate(() => window.__d.durum())).toBe('durdu');
         expect(await page.evaluate(() => window.__raf.iptal)).toBeGreaterThan(0);
         await page.clock.runFor(300);
-        expect(await page.evaluate(() => window.__adim.length)).toBe(0);
+        expect(await page.evaluate(() => window.__adim.length)).toBe(n0);       // durdurma anındaki sayı = son sayı
+    });
+
+    test('adimFn fırlatırsa console.error + döngü durur (durum durdu)', async ({ page }) => {
+        const r = await page.evaluate(async () => {
+            const hata = [];
+            const eski = console.error;
+            console.error = (...a) => hata.push(a.map(String).join(' '));
+            let n = 0;
+            const d = window.OnParmakOyunOrtak.dongu(() => { n++; throw new Error('patladi'); });
+            window.__t = { d, say: () => n, hata, geri: () => { console.error = eski; } };
+            return null;
+        });
+        expect(r).toBe(null);
+        await page.clock.runFor(500);
+        const s = await page.evaluate(() => { window.__t.geri(); return { n: window.__t.say(), durum: window.__t.d.durum(), hata: window.__t.hata }; });
+        expect(s.n).toBe(1);
+        expect(s.durum).toBe('durdu');
+        expect(s.hata.length).toBe(1);
+        expect(s.hata[0]).toContain('patladi');
+    });
+
+    test('başta gizli sekme: durumDegisti(gizli) dongu() döndükten sonra gelir (eşzamanlı değil)', async ({ page }) => {
+        const r = await page.evaluate(async () => {
+            Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' });
+            const olaylar = [];
+            let donduktenSonra = false;
+            const d = window.OnParmakOyunOrtak.dongu(() => {}, { durumDegisti: (x) => olaylar.push([x, donduktenSonra]) });
+            donduktenSonra = true;
+            const eszamanli = olaylar.length;
+            await Promise.resolve(); await Promise.resolve();
+            d.durdur();
+            return { eszamanli, olaylar, durum: d.durum() };
+        });
+        expect(r.eszamanli).toBe(0);
+        expect(r.olaylar).toEqual([['gizli', true]]);
     });
 });
