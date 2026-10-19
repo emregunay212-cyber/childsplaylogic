@@ -86,7 +86,7 @@
       "active": true,
       "stars": 0,
       "files": {
-        "js": ["js/games/klavye-kasifi-icerik.js", "js/games/klavye-kasifi.js"],
+        "js": ["js/games/klavye-dizilim.js", "js/games/klavye-kasifi-icerik.js", "js/games/klavye-kasifi.js"],
         "css": ["css/klavye-kasifi.css"]
       }
     },
