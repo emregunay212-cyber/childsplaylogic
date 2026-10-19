@@ -244,3 +244,87 @@ test.describe('KlavyeDizilim.karakterOf — fiziksel tuş = konum (tarayıcısı
         }
     });
 });
+
+/* ---------- OnParmakOlcum (saf ölçüm, tarayıcısız) ---------- */
+function loadOlcum() {
+    const window = {};
+    const rel = 'js/games/on-parmak-olcum.js';
+    vm.runInNewContext(fs.readFileSync(path.join(ROOT, rel), 'utf8'), { window }, { filename: rel });
+    return window.OnParmakOlcum;
+}
+
+test.describe('OnParmakOlcum — ölçüm (tarayıcısız)', () => {
+    test('dogruluk: yüzde; 0/0 → 0; tam isabet 100', () => {
+        const O = loadOlcum();
+        expect(O.dogruluk(0, 0)).toBe(0);
+        expect(O.dogruluk(10, 10)).toBe(100);
+        expect(O.dogruluk(8, 10)).toBe(80);
+        expect(O.dogruluk(0, 5)).toBe(0);
+        expect(O.dogruluk(19, 20)).toBe(95);
+    });
+
+    test('hiz: karakter/5/dakika; ms < 1000 → 0', () => {
+        const O = loadOlcum();
+        expect(O.hiz(100, 60000)).toBe(20);
+        expect(O.hiz(50, 30000)).toBe(20);
+        expect(O.hiz(100, 1000)).toBe(1200);
+        expect(O.hiz(100, 999)).toBe(0);
+        expect(O.hiz(100, 0)).toBe(0);
+        expect(O.hiz(100, -5)).toBe(0);
+    });
+
+    test('bolumYildizi: doğruluk sınırları 79,9 / 80 / 90 / 95', () => {
+        const O = loadOlcum();
+        const y = (d, h = 100, hedefHiz = 8) => O.bolumYildizi({ dogruluk: d, hiz: h, hedefHiz });
+        expect(y(79.9)).toBe(0);
+        expect(y(80)).toBe(1);
+        expect(y(89.9)).toBe(1);
+        expect(y(90)).toBe(2);
+        expect(y(94.9)).toBe(2);
+        expect(y(95)).toBe(3);
+        expect(y(100)).toBe(3);
+        expect(y(0)).toBe(0);
+    });
+
+    test('bolumYildizi: 3. yıldız hız şartı — tam hedefte verilir, altında 2', () => {
+        const O = loadOlcum();
+        expect(O.bolumYildizi({ dogruluk: 96, hiz: 8, hedefHiz: 8 })).toBe(3);
+        expect(O.bolumYildizi({ dogruluk: 96, hiz: 7.9, hedefHiz: 8 })).toBe(2);
+        expect(O.bolumYildizi({ dogruluk: 96, hiz: 0, hedefHiz: 8 })).toBe(2);
+        expect(O.bolumYildizi({ dogruluk: 92, hiz: 50, hedefHiz: 8 })).toBe(2);
+    });
+
+    test('bolumYildizi: hedefHiz yoksa 3. yıldız yalnız doğruluk ≥ 95', () => {
+        const O = loadOlcum();
+        expect(O.bolumYildizi({ dogruluk: 95, hiz: 0 })).toBe(3);
+        expect(O.bolumYildizi({ dogruluk: 94.9, hiz: 99 })).toBe(2);
+        expect(O.bolumYildizi({ dogruluk: 85, hiz: 99 })).toBe(1);
+    });
+
+    test('bolumYildizi: canliBitti:false → en çok 1; %80 kuralı önce', () => {
+        const O = loadOlcum();
+        expect(O.bolumYildizi({ dogruluk: 70, hiz: 99, hedefHiz: 8, canliBitti: false })).toBe(0);
+        expect(O.bolumYildizi({ dogruluk: 98, hiz: 99, hedefHiz: 8, canliBitti: false })).toBe(1);
+        expect(O.bolumYildizi({ dogruluk: 80, hiz: 99, canliBitti: false })).toBe(1);
+        expect(O.bolumYildizi({ dogruluk: 98, hiz: 99, hedefHiz: 8, canliBitti: true })).toBe(3);
+    });
+
+    test('kisimYildizi: ortalama, en yakın tama; boş → 0', () => {
+        const O = loadOlcum();
+        expect(O.kisimYildizi([])).toBe(0);
+        expect(O.kisimYildizi([3, 3, 3])).toBe(3);
+        expect(O.kisimYildizi([1, 2])).toBe(2);       // 1,5 → 2
+        expect(O.kisimYildizi([1, 1, 2])).toBe(1);    // 1,33 → 1
+        expect(O.kisimYildizi([2, 2, 3])).toBe(2);    // 2,33 → 2
+        expect(O.kisimYildizi([2, 3, 3])).toBe(3);    // 2,67 → 3
+        expect(O.kisimYildizi([0, 0, 1])).toBe(0);
+    });
+
+    test('saf: yalnız window.OnParmakOlcum yayımlanır, başka global yok', () => {
+        const ctx = { window: {} };
+        const rel = 'js/games/on-parmak-olcum.js';
+        vm.runInNewContext(fs.readFileSync(path.join(ROOT, rel), 'utf8'), ctx, { filename: rel });
+        expect(Object.keys(ctx.window)).toEqual(['OnParmakOlcum']);
+        expect(Object.keys(ctx)).toEqual(['window']);
+    });
+});
