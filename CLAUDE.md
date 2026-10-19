@@ -130,10 +130,10 @@ const ModulAdi = (() => {
 
 ### On Parmak (on parmak klavye, Türkçe Q — `js/games/on-parmak*.js` + `klavye-dizilim.js`, **`active:false`**, 15 Eki 2026)
 
-- Durum: PR2 (Adım 2) sürüyor — yalnız Kısım 1 "Orta sıra" (`levels: 1`, 16 bölüm; iki oyun bölümü: Balon Vadisi ×2), hub'da "Yakında" kartı; diğer üç mini oyun Adım 2'nin sonraki görevlerinde, kısım 2–7 ve açılış sonraki adımlarda.
+- Durum: PR2 (Adım 2) sürüyor — yalnız Kısım 1 "Orta sıra" (`levels: 1`, 17 bölüm; üç oyun bölümü: Balon Vadisi ×2, kısım sonunda Canavar Saldırısı), hub'da "Yakında" kartı; Uçan Baloncuklar ve Elma Bekçisi Adım 2'nin sonraki görevlerinde, kısım 2–7 ve açılış sonraki adımlarda.
   Spec `docs/on-parmak-tasarim-2026-10-15.md`, plan `plans/on-parmak-2026-10-15.md`. TypingClub metni/görseli/sesi kullanılmaz (yalnız işleyiş örnek).
 - **Dosya sırası** (`data/games.json files.js` = yükleme sırası): `klavye-dizilim.js` → `on-parmak-olcum.js` → `on-parmak-icerik.js` →
-  `on-parmak-ekran.js` → `on-parmak-oyun-ortak.js` → oyunlar (`on-parmak-balon.js`; Adım 2'de diğer üçü) → `on-parmak.js`; css `css/on-parmak.css` (sahne renkleri yalnız burada). Yardımcılar `window.X` yayımlar, modül `window.X` ile okur
+  `on-parmak-ekran.js` → `on-parmak-oyun-ortak.js` → oyunlar (`on-parmak-balon.js`, `on-parmak-canavar.js`; Adım 2'de diğer ikisi) → `on-parmak.js`; css `css/on-parmak.css` (sahne renkleri yalnız burada). Yardımcılar `window.X` yayımlar, modül `window.X` ile okur
   (modül yalnız `{ id, levels, init, destroy }`; `levels = window.ON_PARMAK_ICERIK`, uzunluk = JSON `levels`). Kapalı oyun: motor `?oyun=` dahil açmaz.
 - **`KlavyeDizilim`** (`klavye-dizilim.js`, saf, `window.KlavyeDizilim`): `SATIRLAR` (4 satır; tuş `{ code, alt, ust, parmak }`, okul klavyesinin `< >` =
   `IntlBackslash` **pasif**), `PARMAKLAR`, `BOSLUK`, `SHIFT`; `tusOf(ch) → {code, shift}|null`, `parmaklarOf(ch)` (Shift'liyse ÖNCE karşı serçe),
@@ -164,7 +164,7 @@ const ModulAdi = (() => {
 - **Ekran (`on-parmak-ekran.js`, `window.OnParmakEkran`):** klavye + iki el TEK SVG (`createElementNS`; parmak uçları tuşlarla her ölçekte hizalı). `olustur(kap, { el = true, klavye = true, basinca })` →
   `{ vurgula(ch), bas(ch, dogruMu), goster({el, klavye}), yokEt() }`. `vurgula` tuşu + parmak(lar)ı + gerekiyorsa karşı Shift'i `is-hedef` yapar (null/'' temizler); `bas` kısa süre `is-down` / `is-yanlis`.
   Tuş `<g data-code>` pointerdown → `basinca(Shift'siz karakter)`; el/vurgu/etiket katmanları `pointer-events: none`; pasif `< >`, Shift, süs tuşları tepkisiz; birincil olmayan düğme yok sayılır.
-- **Test:** `npm run test:on-parmak` (97 test; CI `ci.yml` adımı, hash'li çıktıda `SITE_ROOT=.build-check PORT=8766 npm run test:on-parmak`): tarayıcısız (`vm`) dizilim + `karakterOf` + ölçüm + içerik kuralları,
+- **Test:** `npm run test:on-parmak` (107 test; CI `ci.yml` adımı, hash'li çıktıda `SITE_ROOT=.build-check PORT=8766 npm run test:on-parmak`): tarayıcısız (`vm`) dizilim + `karakterOf` + ölçüm + içerik kuralları,
   tarayıcıda ekran ve oyun akışı. **Kapalı oyun test yolu:** `tests/on-parmak.spec.js` bağlamında `js/catalog.js` isteği (`/\/js\/catalog\.js(\?|$)/`) yakalanır, gövdede `"slug":"on-parmak"` satırındaki
   `"active":false` → `true` yapılır (hash'li çıktıda `?h=` de eşleşir); kısım geçişi için ayrıca 2 kısımlı içerik + `levels:2` katalog yaması fikstürü. Üretim kodu değişmez; oyun
   açılınca (`active:true`) yama gereksizleşir ve **kaldırılır** (yamasız "kapalı oyun" describe'ı da silinir) (duman testi `data/games.json`'dan kendiliğinden kapsar). Açılışta `seo/test_build_seo.py` kapalı listesinden `on-parmak` de çıkar.
@@ -176,7 +176,7 @@ const ModulAdi = (() => {
   Modül oyunu bölüm değişiminde, kısım sonunda ve `destroy()`'da `durdur()` eder; bilinmeyen oyun adı → `console.error` + bölüm atlanır. Oyunda ekran klavyesi
   küçük (`.op-oyun[data-tur="oyun"]`, ≤ 600 px). Zaman yalnız döngünün `dt`'si (oyunda `setTimeout` yok). **Balon Vadisi** (`on-parmak-balon.js`, harf oyunu):
   doğru harf → karakter oklu balona atlar; tutunulan balon alçalır (`uyarlanirHiz`), suya değince can gider ve karakter sıradaki balona taşınır (o harf atlanır,
-  basış sayılmaz); 3 can. İçerik kuralı: `oyun` ∈ balon|canavar|baloncuk|elma; harf oyununda boşluksuz ≥ 20 harf, kelime oyununda ≥ 8 kelime; ≤ hedefHiz × 10.
+  basış sayılmaz); 3 can. **Canavar Saldırısı** (`on-parmak-canavar.js`, kelime oyunu, tek hedef — `hedefSec` kullanmaz): kelime üstte harf kutularında, **Boşluk da yazılır** (kelimenin son kutusu Boşluk = kar topunu atar; son kelimede son harf) → beklenen dizi = metin; güç çubuğu = kelime sayısı, atışta EŞZAMANLI azalır (son atışta `bitti`); top havadayken ve geri sekerken canavar yürümez (uçuş/sekme yalnız görsel). Yaklaşma `m` ∈ [0,1] (`data-m`, sahne genişliğinden bağımsız; `uyarlanirHiz` taban 0,05/sn, geri itme 0,5); `m ≤ 0` → can gider, canavar başa çekilir, kelime ve ilerleme korunur; 3 can. Yanlış basış ilerletmez, sıradaki kutu kırmızı. Kalp/devam katmanı stilleri Balon'la ortak. İçerik kuralı: `oyun` ∈ balon|canavar|baloncuk|elma; harf oyununda boşluksuz ≥ 20 harf, kelime oyununda ≥ 8 kelime; ≤ hedefHiz × 10.
 - Yeni kısım/bölüm eklerken: içerik kuralları testi koşar (`npm run test:on-parmak`); `levels` = `ON_PARMAK_ICERIK.length` (JSON'u + `npm run catalog` güncelle); bu bölümü o PR'ın eklediği sözleşmeyle güncelle.
 
 ### Altın Avı (online, kendi lobisi — `js/games/altin-avi.js`, `rooms/altin-avi/<KOD>`)
