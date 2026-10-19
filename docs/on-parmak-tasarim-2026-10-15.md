@@ -1,7 +1,7 @@
 # On Parmak — on parmak klavye oyunu tasarımı
 
-> Durum: **tasarım onaylandı, yazılı belge incelemede** (2026-10-15, dal `feat/on-parmak`). Sonraki adım: `blueprint` ile
-> 3 PR'lık uygulama planı (`plans/on-parmak-2026-10-15.md`).
+> Durum: **uygulamada** (tasarım 2026-10-15'te onaylandı; dal `feat/on-parmak`). Uygulama planı:
+> `plans/on-parmak-2026-10-15.md` (3 PR). Plan kararları bu belgeden saptığında burası da güncellenir.
 > Slug `on-parmak` · kategori Harfler & Kelimeler (`section: harf`, `cat: Klavye`) · yaş 6–12 · hub-içi modül (iframe değil) ·
 > 7 kısım (motor seviyesi) × ~100 bölüm · Türkçe Q.
 
@@ -96,6 +96,9 @@ Tekrar, kelime, cümle, tek el ve paragraf bölümleri bu motordadır.
 ### 3.5 Bölüm sonu: sonuç şeridi
 
 Düğmesiz, ~2,5 sn; Enter hemen geçirir. İçerik: 3 yıldız, doğruluk %, hız (kelime/dk), süre.
+**Enter Boşluk değildir** (Klavye Kâşifi'nin tersine): yazma sırasında Enter ve Backspace yok sayılır ve sayılmaz; Enter yalnız
+seçicide (düğme) ve şeridi geçmekte işler. Şerit açıldıktan sonraki **400 ms** içinde Enter yok sayılır (refleks basış şeridi
+atlatmasın).
 Doğruluk < %80 → şerit "Bir daha deneyelim — doğruluk %72, hedef %80" der ve **aynı bölüm baştan** başlar (tanıtım
 ekranları tekrar gösterilmez). Takılan öğrenciyi öğretmen seçiciden ileri alır.
 
@@ -114,7 +117,10 @@ başlanırsa yalnız oynananlar).
   (Shift'li karakterde iki parmak).
 - **Göster/gizle düğmeleri:** "El" ve "Klavye". El çizimi Kısım 1–3'te varsayılan açık, 4–7'de kapalı. Tercih oturum içi,
   kaydedilmez.
-- **Caps Lock uyarısı:** `getModifierState('CapsLock')` açıksa "Büyük harf kilidi açık" uyarısı; kapanınca kaybolur.
+- **Caps Lock açıkken yazma duraklar:** `getModifierState('CapsLock')` açıksa belirgin uyarı ("Büyük harf kilidi açık —
+  kapatmak için Caps Lock tuşuna bas") ve basışlar **yok sayılır, sayılmaz**. Caps Lock tuşunun kendi basışı uyarı durumunu
+  günceller: kapanınca uyarı gider, yazma sürer. Hoşgörü yok: Kısım 4'te Shift'siz büyük harf kabul edilmez (Shift kuralı
+  öğretilir).
 - **Dokunmatik:** fiziksel klavye birincil giriş. Dokunmatik cihazda (`MobileUtils.isTouchDevice()`) bilgi notu
   ("On Parmak fiziksel klavyeyle oynanır"); ekran tuşlarına dokunmak yine aynı `press()` yoluna girer.
 - **Ses:** her doğru basışta `AudioManager.play('tap')`, yanlışta `'error'`, bölüm sonu `'star'`. Ses dosyası eklenmez.
@@ -133,6 +139,10 @@ başlanırsa yalnız oynananlar).
   Kutulu bölümlerde hız hedefi yok (3. yıldız yalnız doğrulukla).
 - **Oyun bölümü:** doğruluk aynı formül; %80 altı → tekrar. Oyun canlı bittiyse yıldız doğruluk eşiklerinden (hız şartı yok);
   canlar bittiyse en çok ⭐.
+- **Sınır durumları:** `dogruluk(0, 0) = 0` (hiç basmadan bitmez → tekrar). Süre < 1 sn ise hız 0 (3. yıldız verilmez; sahte
+  saatte sonsuz hız olmaz).
+- **Oyunlarda öncelik:** önce %80 kuralı (doğruluk < 80 → tekrar; hiç basmadan canları bitirmek de buna girer), sonra can
+  kuralı (canlar bitti + doğruluk ≥ 80 → en çok ⭐, akış sürer).
 
 ## 5. İçerik
 
@@ -226,7 +236,8 @@ Her oyun ayrı dosyada `window.OnParmakOyunlari[ad] = { baslat(alan, { metin, el
 
 | Dosya | Görevi |
 |---|---|
-| `js/games/klavye-dizilim.js` (yeni, ortak) | `window.KlavyeDizilim`: Türkçe Q satırları (taban/Shift karakteri, büyük-küçük harf: `I`↔`ı`, `İ`↔`i`), `e.code` → Türkçe kapak eşlemesi (İngilizce dizilimli PC; aday seçimi beklenenle uyuşana göre), parmak haritası (§5.1), `gerekenShift(karakter)`. Klavye Kâşifi'nin `ROWS`/`SHIFT_OF`/`CODE_MAP`'i buraya taşınır; Kâşifi davranışı değişmez (`test:klavye` yeşil). |
+| `js/games/klavye-dizilim.js` (yeni, ortak) | `window.KlavyeDizilim` (DOM'suz, saf): Türkçe Q satırları (taban/Shift karakteri, büyük-küçük harf: `I`↔`ı`, `İ`↔`i`), parmak haritası (§5.1), `tusOf(ch).shift` + `shiftTusuOf(ch)` (Shift gereken karakterde karşı elin Shift tuşu), `parmaklarOf`, `elOf`, `yazilabilir`. **Fiziksel tuş = konum:** `karakterOf(e)` — `e.code` haritada varsa karakter yalnız koddan türer (harfte büyük/küçük = `shiftKey` XOR Caps Lock; diğerlerinde `shiftKey ? ust : alt`), böylece İngilizce dizilimli PC'de de doğru tuş sayılır (`KeyI`→ı, `Quote`→i, `Comma`→ö …) ve Windows TR Q'daki ölü tuş `^` (`e.key` `'Dead'`) de doğru çıkar; `e.key` yalnız `e.code` boşken (bazı sanal klavyeler) kullanılır; `e.code` dolu ama haritada yoksa (Numpad, F tuşları) `null` → basış yok sayılır ve sayılmaz. Klavye Kâşifi `ROWS`/`CODE_MAP` sabitlerini `KlavyeDizilim.kasifi` görünümünden alır; Kâşifi kendi `SHIFT_OF`/`TYPEABLE`/`resolveKey` kalıbını korur, davranışı değişmez (`test:klavye` yeşil). |
+| `js/games/on-parmak-olcum.js` (yeni, saf) | Doğruluk, hız (kelime/dk), bölüm ve kısım yıldızı fonksiyonları (§4); DOM'suz, Node'da (`vm`) test edilir. |
 | `js/games/on-parmak-icerik.js` | §5.4 verisi |
 | `js/games/on-parmak-ekran.js` | `window.OnParmakEkran`: ekran klavyesi + el SVG'si; `vurgula(karakter)`, `bas(karakter, dogruMu)`, `goster({ el, klavye })` |
 | `js/games/on-parmak-balon.js` · `-canavar.js` · `-baloncuk.js` · `-elma.js` | §6 oyunları |
