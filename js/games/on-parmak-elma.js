@@ -18,8 +18,9 @@
        tutamaç = { bas(ch), devamTusu() → bool, duraklat(acik) } (OnParmakOyunOrtak.oyunKabugu verir).
        - keydown dinleyicisi KURULMAZ. tus() her sayılan basışta tam bir kez, bas() içinde EŞZAMANLI; son kelimenin
          bittiği basışta bitti() de eşzamanlı. Elmalar bitince bitiş döngüden gelir.
-       - hedef(ch): OnParmakOyunOrtak.beklenenHarf(görünen sincaplar, kilit) — kilit varsa sıradaki harf, yoksa ağaca en
-         yakın görünen sincabın ilk harfi; bitişte null. Değişince bildirilir (basışta ve döngüde).
+       - hedef(ch): OnParmakOyunOrtak.beklenenHarf(secilebilir(sincaplar), kilit) — kilit varsa sıradaki harf, yoksa ağaca
+         en yakın görünen sincabın ilk harfi; bitişte null. Değişince bildirilir (basışta ve döngüde).
+       - duyuru?(metin): elma kaybı (oyun sürüyorsa) ve "Oyun durdu" — modülün kalıcı aria-live bölgesine.
      durdur(): kabuk durdurur (döngü + ResizeObserver, DOM boşalır); tekrar çağrılabilir.
    Doğuş planı baslat'ta BİR KEZ ve kare zamanlamasından bağımsız kurulur (rng(tohum)): kelimeler ikişerli öbeklenir,
    öbekte biri solda biri sağda (sırası çift başına tam bir rnd()), her kelimeye tam bir rnd() (tüy rengi); her yanda
@@ -29,6 +30,12 @@
    varsa doğuş bekler (etiketler üst üste binmesin) — konum yine plandan.
    Zaman yalnız döngünün dt'si (setTimeout yok). prefers-reduced-motion: sekme, kaçışta zıplama/koşu, elma uçuşu ve
    kazanma zıplaması yok — kaçan sincap yerinde solar, elma doğrudan sincabın elinde belirir; temel hız düşük (× 0,6).
+   Etiketler sincapların ÜSTÜNDE ayrı bir bantta: yakın şeridin etiketi uzak şeridin sincap başlarının üstünde, uzak
+   şeridin etiketi onun da üstünde; etiket sincaba ince bir sapla bağlanır → etiket sincaba ya da öbür şeridin etiketine
+   binmez. Giriş sırasında etiket saydamlığı döngüden (CSS geçişi kapalı: is-giris).
+   Sayaç (sağ üst): ele alınan kelime = biten + elma alan / toplam — bitişte hep toplam/toplam.
+   Ölçü değişince (ResizeObserver) ağaç ve yuvalar yeniden kurulur; kutlama efekti yuvaları sıra numarasıyla izler
+   (yeniden kurulan elmalarla sürer).
    ============================================ */
 (function () {
     'use strict';
@@ -39,7 +46,9 @@
     const YER_Y = 262;              // çimenin üst kenarı
     const AGAC_TABAN = 304;         // gövdenin çimene oturduğu yer (iki şeridin arası)
     const TAC_Y = 122;              // ağaç tacının merkezi
-    const SERITLER = [{ y: 292, k: 0.84 }, { y: 338, k: 1 }];   // 0 = uzak (küçük), 1 = yakın
+    // 0 = uzak (küçük), 1 = yakın; et = etiket merkezi (yakın etiketin altı uzak sincabın başının üstünde, uzak etiket onun üstünde)
+    // (etiket yüksekliği 36: yakın 198–234 < uzak sincabın başı 245; uzak 158–194 < yakın etiketin üstü)
+    const SERITLER = [{ y: 292, k: 0.84, et: 176 }, { y: 338, k: 1, et: 216 }];
     const ELMA_SAYI = 5;
     const ESZ_MIN = 2, ESZ_MAX = 4;
     const GOVDE_YARI = 30;          // sincap gövdesinin yarı genişliği (kuyruk ucu–burun), ölçek 1
@@ -57,6 +66,7 @@
     const SOL_MS = 420;             // azaltılmış harekette kaçan sincabın solması
     const ELMA_UC_MS = 420;         // elmanın daldan sincabın eline uçuşu
     const YANLIS_MS = 260;
+    const POP_MS = 320;             // kelime bitince etiketin "tamam" sönüşü (onay işaretiyle)
     const KUTLA_MS = 360, KUTLA_ARA = 80;   // kazanınca kalan elmaların sırayla zıplaması
 
     // Taçtaki elma yuvaları (taç merkezine göre); soldaki sincap en soldakini alır, sağdaki en sağdakini
@@ -93,7 +103,9 @@
     }
     const gorunur = (b) => b.giris >= 1;
     function etiketGenislik(kelime) { return [...kelime].length * ETIKET_BOY * 0.6 + 26; }
-    function etiketY(b) { return SERITLER[b.serit].y - 60 * olcek(b) - 26; }
+    function etiketY(b) { return SERITLER[b.serit].et; }
+    // Sap: etiketin alt kenarından sincabın başının hemen üstüne (sekme payı 6)
+    function sapBoy(b) { return SERITLER[b.serit].y - 58 * olcek(b) - 6 - etiketY(b); }
     function etiketX(b, x) {
         const y = b.etiketYari + 6;
         return Math.max(y, Math.min(s.W - y, x));
@@ -149,7 +161,7 @@
 
     function sincapOlustur(p, m0, giris0) {
         const b = { kelime: p.kelime, sira: p.sira, taraf: p.taraf, serit: p.serit, renk: p.renk, m: m0, giris: giris0,
-            ilerleme: 0, tehlike: m0, yanlis: 0, faz: p.sira * 1.7, g: null, govde: null, sekme: null, etiket: null,
+            ilerleme: 0, tehlike: m0, yanlis: 0, faz: p.sira * 1.7, gorunur: giris0 >= 1, g: null, govde: null, sekme: null, etiket: null,
             etiketIc: null, harfler: [], etiketYari: etiketGenislik(p.kelime) / 2 };
         const g = svgEl('g', { class: 'op-elma__s' }, s.seritKat[p.serit]);
         g.dataset.kelime = b.kelime;
@@ -165,6 +177,8 @@
         b.etiket.dataset.sira = String(b.sira);
         b.etiketIc = svgEl('g', { class: 'op-elma__etiket-ic' }, b.etiket);
         const gen = b.etiketYari * 2, yuk = ETIKET_BOY + 14;
+        // Sap: etiketi sincaba bağlar (etiket bantta, sincap şeritte); kilitte mavi
+        svgEl('path', { class: 'op-elma__etiket-sap', d: 'M0 ' + (yuk / 2) + ' L0 ' + sapBoy(b).toFixed(1) }, b.etiket);
         svgEl('rect', { class: 'op-elma__etiket-halka', x: -gen / 2 - 5, y: -yuk / 2 - 5, width: gen + 10, height: yuk + 10, rx: yuk / 2 + 5 }, b.etiketIc);
         svgEl('path', { class: 'op-elma__etiket-uc', d: 'M-7 ' + (yuk / 2 - 1) + ' L0 ' + (yuk / 2 + 8) + ' L7 ' + (yuk / 2 - 1) + ' Z' }, b.etiketIc);
         svgEl('rect', { class: 'op-elma__etiket-zemin', x: -gen / 2, y: -yuk / 2, width: gen, height: yuk, rx: yuk / 2 }, b.etiketIc);
@@ -177,12 +191,12 @@
         durdur();
         const kelimeler = String(ayar.metin || '').split(' ').filter(Boolean);
         const rnd = O.rng((ayar.tohum >>> 0) || 1);
-        const azalt = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const azalt = O.azaltilmisHareket();
         const plan = planKur(kelimeler, rnd);
 
-        const kok = htmlEl('div', 'op-elma');
+        const kok = htmlEl('div', 'op-mini op-elma');
         kok.dataset.tohum = String(ayar.tohum);
-        const svg = svgEl('svg', { class: 'op-elma__svg', viewBox: '0 0 800 ' + H, role: 'img', focusable: 'false',
+        const svg = svgEl('svg', { class: 'op-mini__svg op-elma__svg', viewBox: '0 0 800 ' + H, role: 'img', focusable: 'false',
             'aria-label': 'Elma Bekçisi: sincabın kelimesinin ilk harfine bas, kelimeyi yaz, sincap kaçsın' });
         svg.setAttribute('preserveAspectRatio', 'xMidYMax meet');
         kok.appendChild(svg);
@@ -203,9 +217,9 @@
         const efekt = svgEl('g', { class: 'op-elma__efektler' }, svg);
 
         // HUD: elmalar solda (can), bitirilen kelime sağda
-        const hud = htmlEl('div', 'op-elma__hud');
+        const hud = htmlEl('div', 'op-mini__hud op-elma__hud');
         const elmaHud = O.canlarHud(ELMA_SAYI, { ad: 'Elma', yol: ELMA_YOL, sinif: 'op-elma__hud-elma' });
-        const sayac = htmlEl('div', 'op-elma__ilerleme');
+        const sayac = htmlEl('div', 'op-mini__sayac op-elma__ilerleme');
         sayac.setAttribute('role', 'img');
         const ik = svgEl('svg', { viewBox: '0 0 24 24', class: 'op-elma__ilerleme-ik', 'aria-hidden': 'true', focusable: 'false' }, sayac);
         svgEl('rect', { x: 2.5, y: 6, width: 19, height: 10, rx: 5 }, ik);
@@ -223,7 +237,7 @@
             dogus: 0, efektler: [], hedefBildir: O.hedefBildirici(kok, cbs.hedef), elmaHud, sayac, sayi,
             hiz: O.uyarlanirHiz(HIZ), kabuk: null };
         const benim = s;
-        s.kabuk = O.oyunKabugu({ kok, svg, H, devam, adim, olcu: (W) => { benim.W = W; sahneKur(); } });
+        s.kabuk = O.oyunKabugu({ kok, svg, H, devam, adim, duyur: cbs.duyuru, olcu: (W) => { benim.W = W; sahneKur(); } });
         for (let i = 0; i < BASLANGIC.length && s.sonraki < plan.length; i++) dogur(BASLANGIC[i], i === 0 ? 1 : 0);
         hudYaz();
         hedefYaz();
@@ -250,8 +264,12 @@
     }
 
     // ── Doğuş: metin sırasıyla; taraf/şerit plandan ──
+    // Aynı yan + şeritteki sincap hem yolun SERIT_BOS'unu almış hem de yeni gelenin etiketine yer açmış olmalı (dar
+    // sahnede — telefonda — 0,3 yol yalnız ~27 birim: etiketler üst üste binerdi)
     function seritBos(p) {
-        return !s.aktif.some((b) => b.taraf === p.taraf && b.serit === p.serit && (b.giris < 1 || b.m < SERIT_BOS));
+        const yeniYari = etiketGenislik(p.kelime) / 2;
+        return !s.aktif.some((b) => b.taraf === p.taraf && b.serit === p.serit && (b.giris < 1 || b.m < SERIT_BOS
+            || Math.abs(sincapX(b) - xKenar(b)) < b.etiketYari + yeniYari + 8));
     }
     function dogur(m0, giris0) {
         const b = sincapOlustur(s.plan[s.sonraki], m0, giris0);
@@ -280,10 +298,12 @@
         s.kok.dataset.kilit = s.kilit ? String(s.kilit.sira) : '';
         s.kok.classList.toggle('is-kilitli', !!s.kilit);
         s.elmaHud.guncelle(s.elma);
-        s.sayi.textContent = s.biten + '/' + s.kelimeler.length;
-        s.sayac.setAttribute('aria-label', 'Bitirilen kelime: ' + s.biten + ' / ' + s.kelimeler.length);
+        const n = s.kelimeler.length, islenen = s.biten + s.alinan;
+        s.sayi.textContent = islenen + '/' + n;
+        s.sayac.setAttribute('aria-label', 'Kelime: ' + islenen + ' / ' + n + ', bitirilen: ' + s.biten);
     }
-    const secilebilir = () => s.aktif.filter(gorunur);
+    // Ortak seçim kuralı: b.gorunur (girişi bitti) — döngü ve doğuş günceller
+    const secilebilir = () => O.secilebilir(s.aktif);
     function hedefYaz() { s.hedefBildir(s.bitti ? null : O.beklenenHarf(secilebilir(), s.kilit)); }
 
     // ── Girdi ──
@@ -339,7 +359,8 @@
         // Etiketin "tamam" sönüşü (yerinde büyüyüp solar)
         const pop = svgEl('g', { class: 'op-elma__etiket op-elma__etiket--pop is-kilitli', transform: b.etiket.getAttribute('transform') || '' }, s.efekt);
         pop.appendChild(b.etiketIc.cloneNode(true));
-        s.efektler.push({ tur: 'pop', g: pop, x: etiketX(b, x), y: etiketY(b), t: 0, sure: 240 });
+        O.tikCiz(pop, { transform: 'translate(' + (b.etiketYari + 2).toFixed(1) + ' ' + (-(ETIKET_BOY + 14) / 2 + 2) + ')' });   // renk dışı onay
+        s.efektler.push({ tur: 'pop', g: pop, x: etiketX(b, x), y: etiketY(b), t: 0, sure: POP_MS });
         cikar(b, null);
         s.biten += 1;
         s.hiz.basari();
@@ -382,6 +403,8 @@
         }
         hudYaz();
         if (s.elma <= 0) { bitir(false); return; }
+        if (typeof s.cbs.duyuru === 'function') s.cbs.duyuru('Sincap bir elma aldı. ' + s.elma + ' elma kaldı.');
+        if (!s) return;
         if (bittiMi()) { bitir(true); return; }
         eksikseDogur();
     }
@@ -392,12 +415,13 @@
         s.bitti = true;
         s.kazandi = canli;
         if (s.kilit) { const k = s.kilit; s.kilit = null; harfDurum(k); }
-        s.kok.dataset.bitti = canli ? 'canli' : 'elmalar';
+        s.kabuk.bitir(canli ? 'canli' : 'elmalar');
         hudYaz();
         hedefYaz();
         if (canli && !s.azalt) {
-            // Kazanınca daldaki elmalar sırayla zıplar (tek kutlama anı)
-            const kalan = s.yuvalar.filter((y) => !y.alindi);
+            // Kazanınca daldaki elmalar sırayla zıplar (tek kutlama anı). Yuva SIRA NUMARASIYLA izlenir: ölçü değişip
+            // sahne yeniden kurulursa efekt yeni elmalarla sürer
+            const kalan = s.yuvalar.map((y, i) => (y.alindi ? -1 : i)).filter((i) => i >= 0);
             s.efektler.push({ tur: 'kutla', kalan, t: 0, sure: KUTLA_MS + KUTLA_ARA * kalan.length });
         }
         s.cbs.bitti({ canliBitti: canli });
@@ -410,7 +434,7 @@
             const v = s.hiz.deger() * dt / 1000;
             const varan = [];
             for (const b of s.aktif) {
-                if (b.giris < 1) { b.giris = Math.min(1, b.giris + dt / GIRIS_MS); continue; }
+                if (b.giris < 1) { b.giris = Math.min(1, b.giris + dt / GIRIS_MS); b.gorunur = gorunur(b); continue; }
                 b.m += v;
                 b.tehlike = b.m;
                 if (b.m >= 1) varan.push(b);
@@ -480,6 +504,7 @@
         const ex = etiketX(b, x), ey = etiketY(b);
         b.etiket.setAttribute('transform', 'translate(' + ex.toFixed(1) + ' ' + ey.toFixed(1) + ')');
         b.etiket.style.opacity = gorunur(b) ? '' : String((b.giris * b.giris).toFixed(2));
+        b.etiket.classList.toggle('is-giris', !gorunur(b));     // girişte saydamlık döngüden: CSS geçişi kapalı
         let tf = b === s.kilit ? 'scale(1.1)' : '';
         if (b.yanlis > 0 && !s.azalt) {
             const q = b.yanlis / YANLIS_MS;
@@ -515,11 +540,11 @@
                 e.tasinan.setAttribute('transform', 'translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ') scale(' + (1 - 0.2 * k * u).toFixed(2) + ')');
             } else if (e.tur === 'pop') {
                 e.g.setAttribute('transform', 'translate(' + e.x.toFixed(1) + ' ' + e.y.toFixed(1) + ') scale(' + (s.azalt ? 1 : 1 + 0.15 * u).toFixed(3) + ')');
-                e.g.style.opacity = String(1 - q);
+                e.g.style.opacity = String(Math.min(1, 2 * (1 - q)));   // yarı süre tam görünür (onay okunur), sonra söner
             } else if (e.tur === 'kutla') {
-                e.kalan.forEach((yv, i) => {
+                e.kalan.forEach((yi, i) => {
                     const kk = Math.max(0, Math.min(1, (e.t - i * KUTLA_ARA) / KUTLA_MS));
-                    yv.elma.setAttribute('transform', 'translate(0 ' + (-Math.sin(Math.PI * kk) * 10).toFixed(2) + ')');
+                    s.yuvalar[yi].elma.setAttribute('transform', 'translate(0 ' + (-Math.sin(Math.PI * kk) * 10).toFixed(2) + ')');
                 });
             }
         }

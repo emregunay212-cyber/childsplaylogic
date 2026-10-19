@@ -9,22 +9,33 @@
 
    Yazım (denetçi kararı): BOŞLUK YAZILMAZ — her kelime kendi baloncuğunda; metin boşlukla ayrılmış kelime listesidir,
    baloncuklar metin sırasıyla doğar. Kilitliyken yanlış harf = hata (kilit sürer; başka baloncuğun ilk harfi de
-   yanlıştır). Kilitsizken hiçbir baloncuğun ilk harfine uymayan harf = hata.
+   yanlıştır). Kilitsizken hiçbir GÖRÜNÜR baloncuğun ilk harfine uymayan harf = hata.
+   Yalnız sahnede GÖRÜNEN baloncuk seçilebilir (OnParmakOyunOrtak.secilebilir): merkezi çayırın üst kenarının üstüne
+   çıkana dek (data-gorunur="0") kilitlenmez ve klavye vurgusu onu göstermez.
 
    Sözleşme (spec §6.1 + modül başlığı js/games/on-parmak.js; Balon/Canavar ile aynı):
      baslat(alan, { metin, el, tohum }, { tus(dogruMu), bitti({ canliBitti }), hedef?(ch|null) }) → tutamaç
        tutamaç = { bas(ch), devamTusu() → bool, duraklat(acik) } (OnParmakOyunOrtak.oyunKabugu verir).
        - keydown dinleyicisi KURULMAZ. tus() her sayılan basışta tam bir kez, bas() içinde EŞZAMANLI; son kelimenin
          patladığı basışta bitti() de eşzamanlı. Kaçışla bitiş döngüden gelir.
-       - hedef(ch): kilit varsa kilitli kelimenin sıradaki harfi; kilit yoksa EN ACİL baloncuğun (tepeye en yakın)
-         ilk harfi — ekran klavyesi parmağı oraya yönlendirir (o harf basılırsa hedefSec de aynı baloncuğu seçer);
-         baloncuk yoksa ya da bitişte null. Değişince bildirilir (basışta ve döngüde: kaçış/doğuş en acili değiştirir).
+       - hedef(ch): kilit varsa kilitli kelimenin sıradaki harfi; kilit yoksa EN ACİL GÖRÜNÜR baloncuğun (tepeye en
+         yakın) ilk harfi — ekran klavyesi parmağı oraya yönlendirir (o harf basılırsa hedefSec de aynı baloncuğu seçer);
+         görünür baloncuk yoksa ya da bitişte null. Değişince bildirilir (basışta ve döngüde).
+       - duyuru?(metin): can kaybı (oyun sürüyorsa) ve "Oyun durdu" — modülün kalıcı aria-live bölgesine.
      durdur(): kabuk durdurur (döngü + ResizeObserver, DOM boşalır); tekrar çağrılabilir.
-   Doğuş: başta iki baloncuk (biri yarı yolda); sonra her DOGUS_P / hız saniyede bir (en çok 4 eşzamanlı, boş şerit
-   varsa); eşzamanlı sayı 2'nin altına düşünce (patlama/kaçış) sıradaki kelime hemen doğar. Şerit seçimi rng(tohum):
-   aynı tohum + aynı basışlar = aynı baloncuk sırası ve konumları (data-sira, data-serit).
+   Doğuş planı baslat'ta BİR KEZ, kare zamanlamasından bağımsız kurulur (rng(tohum), sahne çiziminden ÖNCE): kelime
+   başına sırayla üç rnd() — u (şerit), kay (şerit içi kayma), faz (salınım). Şerit = floor(u × n) (n = şerit sayısı,
+   sahne genişliğinden, data-seritler); bir önceki kelimenin şeridine düşerse (+1) mod n. Aynı tohum + aynı genişlik =
+   gerçek oturumda da aynı şerit dizisi (data-sira, data-serit), basış zamanlamasına bağlı değil. Zamanlama: başta iki
+   baloncuk (yolun %36'sı ve %24'ü — ikisi de görünür başlar); sonra her DOGUS_P / hız saniyede bir (en çok
+   min(4, n + 1) eşzamanlı); 2'nin altına düşünce sıradaki hemen doğar. Sıradakinin şeridinde alçakta (p < SERBEST_P) baloncuk varsa doğuş bekler (üst üste
+   binmesin) — şerit yine plandan.
+   Geometri: şerit en az 2 (telefonda 2), ideal 170 birim; yarıçap ≤ 0,9 × şerit yarısı − 13 → komşu şeritteki
+   baloncuklar ve kilit halkası (1,08 büyümüş) birbirine ve sahne kenarına değmez.
    Zaman yalnız döngünün dt'si (setTimeout yok). prefers-reduced-motion: salınım, patlama damlaları ve kaçış pufu yok
    (patlama yerinde solar), temel hız düşük (uyarlanirHiz × 0,6 → doğuş aralığı da uzar).
+   Sayaç (sağ üst): ele alınan kelime = patlayan + kaçan / toplam — bitişte hep toplam/toplam (Balon Vadisi'nin harf
+   sayacıyla aynı anlam); patlatılan ayrıca data-patlayan + aria-label.
    ============================================ */
 (function () {
     'use strict';
@@ -36,13 +47,14 @@
     const CAN = 3;
     const ESZ_MIN = 2, ESZ_MAX = 4;
     const KENAR = 14;           // şerit dizisinin yan payı
-    const SERIT_IDEAL = 150;    // geniş sahnede şerit genişliği (en az 3 şerit)
+    const SERIT_IDEAL = 170;    // şerit genişliği (en az 2 şerit; telefonda 2)
+    const GORUNUR_PAY = 4;      // merkez çayırın üst kenarından bu kadar yukarıdaysa baloncuk görünür (seçilebilir)
     // Hız: p/sn (p = 0 çayırın altında, 1 = tepeden tamamen çıktı). Taban 0,045 → tırmanış ~22 sn
     // (azaltılmış harekette ×0,6 → ~37 sn). Hedef hızda (8 kelime/dk ≈ 6–7 sn/kelime) iki baloncuk rahat yetişir.
     const HIZ = { taban: 0.045, min: 0.028, max: 0.08, artis: 0.0015, azalis: 0.006 };
     const DOGUS_P = 0.3;        // zamanlı doğuş aralığı = 0,3 p yol (taban hızda ~6,7 sn)
     const SERBEST_P = 0.45;     // bu yüksekliğin altındaki baloncuk şeridini tutar (üst üste doğmasın)
-    const BASLANGIC = [0.32, 0.12];
+    const BASLANGIC = [0.36, 0.24];   // ikisi de çayırın üstünde (seçilebilir) başlar
     const YEDEK_P = 0.1;        // eksilince doğan baloncuk: çayırın hemen arkasından
     const PATLA_MS = 280;
     const PUF_MS = 420;
@@ -53,13 +65,16 @@
 
     // ── Geometri ──
     function seritler() {
-        const n = Math.max(3, Math.floor((s.W - 2 * KENAR) / SERIT_IDEAL));
+        const n = Math.max(2, Math.floor((s.W - 2 * KENAR) / SERIT_IDEAL));
         return { n, en: (s.W - 2 * KENAR) / n };
     }
+    const eszMax = () => Math.min(ESZ_MAX, seritler().n + 1);
+    // Komşu şeritte aynı yükseklikteki iki baloncuk (biri kilitli, 1,08 × halka) ve kenardaki halka sahneye sığar
     function yaricap(kelime) {
         const { en } = seritler();
-        return Math.min(34 + [...kelime].length * 8, en / 2 - 3);
+        return Math.min(34 + [...kelime].length * 8, 0.9 * (en / 2) - 13);
     }
+    const gorunurMu = (b) => by(b.p, b.r) <= CAYIR_Y - GORUNUR_PAY;
     function bx(b) {
         const { n, en } = seritler();
         const serit = Math.min(b.serit, n - 1);
@@ -105,11 +120,12 @@
         durdur();
         const kelimeler = String(ayar.metin || '').split(' ').filter(Boolean);
         const rnd = O.rng((ayar.tohum >>> 0) || 1);
-        const azalt = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const azalt = O.azaltilmisHareket();
+        const plan = planKur(kelimeler, rnd);      // önce plan: sahne çizimi rng'yi plandan SONRA tüketir
 
-        const kok = htmlEl('div', 'op-baloncuk');
+        const kok = htmlEl('div', 'op-mini op-baloncuk');
         kok.dataset.tohum = String(ayar.tohum);
-        const svg = svgEl('svg', { class: 'op-baloncuk__svg', viewBox: '0 0 800 ' + H, role: 'img', focusable: 'false',
+        const svg = svgEl('svg', { class: 'op-mini__svg op-baloncuk__svg', viewBox: '0 0 800 ' + H, role: 'img', focusable: 'false',
             'aria-label': 'Uçan Baloncuklar: baloncuğun ilk harfine bas, kelimeyi yaz, baloncuğu patlat' });
         svg.setAttribute('preserveAspectRatio', 'xMidYMax meet');
         kok.appendChild(svg);
@@ -123,9 +139,9 @@
         const efekt = svgEl('g', { class: 'op-baloncuk__efektler' }, svg);
 
         // HUD: canlar solda, patlatılan sayısı sağda
-        const hud = htmlEl('div', 'op-baloncuk__hud');
+        const hud = htmlEl('div', 'op-mini__hud op-baloncuk__hud');
         const canlar = O.canlarHud(CAN);
-        const sayac = htmlEl('div', 'op-baloncuk__ilerleme');
+        const sayac = htmlEl('div', 'op-mini__sayac op-baloncuk__ilerleme');
         sayac.setAttribute('role', 'img');
         const ik = svgEl('svg', { viewBox: '0 0 24 24', class: 'op-baloncuk__ilerleme-ik', 'aria-hidden': 'true', focusable: 'false' }, sayac);
         svgEl('circle', { cx: 12, cy: 12, r: 9 }, ik);
@@ -138,36 +154,52 @@
         kok.appendChild(devam);
         alan.appendChild(kok);
 
-        s = { kok, svg, kat, efekt, cbs, azalt, rnd, kelimeler, sonraki: 0, aktif: [], kilit: null, can: CAN, patlayan: 0,
-            kacan: 0, bitti: false, kazandi: false, zaman: 0, W: 800, dogus: 0, efektler: [], yanlis: 0,
+        s = { kok, svg, kat, efekt, cbs, azalt, rnd, kelimeler, plan, sonraki: 0, sonSerit: -1, aktif: [], kilit: null, can: CAN,
+            patlayan: 0, kacan: 0, bitti: false, kazandi: false, zaman: 0, W: 800, dogus: 0, efektler: [], yanlis: 0,
             hedefBildir: O.hedefBildirici(kok, cbs.hedef), canlar, sayac, sayi, hiz: O.uyarlanirHiz(HIZ), kabuk: null };
         const benim = s;
-        s.kabuk = O.oyunKabugu({ kok, svg, H, devam, adim, olcu: (W) => { benim.W = W; if (benim.aktif.length) ciz(); } });
-        for (const p of BASLANGIC) if (s.sonraki < kelimeler.length) dogur(p, true);
+        s.kabuk = O.oyunKabugu({ kok, svg, H, devam, adim, duyur: cbs.duyuru, olcu: (W) => {
+            benim.W = W;
+            benim.kok.dataset.seritler = String(Math.max(2, Math.floor((W - 2 * KENAR) / SERIT_IDEAL)));
+            if (benim.aktif.length) ciz();
+        } });
+        for (const p of BASLANGIC) if (s.sonraki < kelimeler.length) dogur(p);   // başlangıç şeritleri planda farklı
         hudYaz();
         hedefYaz();
         ciz();
         return s.kabuk.baslat(bas);
     }
 
-    // ── Doğuş: metin sırasıyla; şerit rng ile, alçaktaki baloncukların şeritleri dolu ──
-    function dogur(p0, zorunlu) {
+    // ── Plan: kelime başına sabit sayıda rnd() (u, kay, faz) — zamanlamadan ve doluluktan bağımsız ──
+    function planKur(kelimeler, rnd) {
+        return kelimeler.map((kelime, sira) => {
+            const u = rnd();
+            const kay = (rnd() - 0.5) * 0.6;
+            return { kelime, sira, u, kay, faz: rnd() * 6.3 };
+        });
+    }
+    // Plandaki sıradaki kelimenin şeridi (yalnız u + önceki şerit + n'den)
+    function siradakiSerit() {
         const { n } = seritler();
-        const dolu = new Set(s.aktif.filter((b) => b.p < SERBEST_P).map((b) => Math.min(b.serit, n - 1)));
-        const bos = [];
-        for (let i = 0; i < n; i++) if (!dolu.has(i)) bos.push(i);
-        let serit;
-        if (bos.length) serit = bos[Math.floor(s.rnd() * bos.length)];
-        else if (zorunlu) {
-            // Hepsi dolu (dar sahne): en alçaktaki baloncuğu en yüksek olan şerit
-            const alt = new Array(n).fill(2);
-            for (const b of s.aktif) { const i = Math.min(b.serit, n - 1); alt[i] = Math.min(alt[i], b.p); }
-            serit = alt.indexOf(Math.max(...alt));
-        } else return false;
-        const kelime = s.kelimeler[s.sonraki];
-        const b = { kelime, sira: s.sonraki, serit, p: p0, ilerleme: 0, tehlike: p0, kay: (s.rnd() - 0.5) * 0.6,
-            faz: s.rnd() * 6.3, r: 0, g: null, ic: null, harfler: [], yanlis: 0 };
-        b.r = yaricap(kelime);
+        let serit = Math.min(n - 1, Math.floor(s.plan[s.sonraki].u * n));
+        if (serit === s.sonSerit) serit = (serit + 1) % n;
+        return serit;
+    }
+    // ── Doğuş: metin sırasıyla; şerit plandan; şeridinde alçakta baloncuk varsa bekler ──
+    function siradakiDogabilir() {
+        if (s.sonraki >= s.plan.length) return false;
+        const { n } = seritler();
+        const serit = siradakiSerit();
+        return !s.aktif.some((b) => Math.min(b.serit, n - 1) === serit && b.p < SERBEST_P);
+    }
+    function dogur(p0) {
+        const pl = s.plan[s.sonraki];
+        const serit = siradakiSerit();
+        s.sonSerit = serit;
+        const b = { kelime: pl.kelime, sira: pl.sira, serit, p: p0, ilerleme: 0, tehlike: p0, kay: pl.kay, faz: pl.faz, r: 0,
+            g: null, ic: null, harfler: [], yanlis: 0, gorunur: false };
+        b.r = yaricap(pl.kelime);
+        b.gorunur = gorunurMu(b);
         s.sonraki += 1;
         s.aktif.push(b);
         baloncukCiz(b);
@@ -175,7 +207,7 @@
         return true;
     }
     function eksikseDogur() {
-        while (!s.bitti && s.aktif.length < ESZ_MIN && s.sonraki < s.kelimeler.length) dogur(YEDEK_P, true);
+        while (!s.bitti && s.aktif.length < ESZ_MIN && siradakiDogabilir()) dogur(YEDEK_P);
     }
 
     // ── Durum yazımı ──
@@ -191,11 +223,12 @@
         s.kok.dataset.kilit = s.kilit ? String(s.kilit.sira) : '';
         s.kok.classList.toggle('is-kilitli', !!s.kilit);
         s.canlar.guncelle(s.can);
-        s.sayi.textContent = s.patlayan + '/' + s.kelimeler.length;
-        s.sayac.setAttribute('aria-label', 'Patlatılan baloncuk: ' + s.patlayan + ' / ' + s.kelimeler.length);
+        const n = s.kelimeler.length, islenen = s.patlayan + s.kacan;
+        s.sayi.textContent = islenen + '/' + n;
+        s.sayac.setAttribute('aria-label', 'Kelime: ' + islenen + ' / ' + n + ', patlatılan baloncuk: ' + s.patlayan);
     }
-    // Klavye vurgusu: kilitli kelimenin sıradaki harfi ya da en acil baloncuğun ilk harfi (ortak, tehlike = p)
-    function hedefYaz() { s.hedefBildir(s.bitti ? null : O.beklenenHarf(s.aktif, s.kilit)); }
+    // Klavye vurgusu: kilitli kelimenin sıradaki harfi ya da en acil GÖRÜNÜR baloncuğun ilk harfi (ortak, tehlike = p)
+    function hedefYaz() { s.hedefBildir(s.bitti ? null : O.beklenenHarf(O.secilebilir(s.aktif), s.kilit)); }
 
     // ── Girdi ──
     function bas(ch) {
@@ -215,7 +248,7 @@
             ilerle(b);
             return;
         }
-        const h = O.hedefSec(s.aktif, ch, null);
+        const h = O.hedefSec(O.secilebilir(s.aktif), ch, null);
         if (!h) { s.cbs.tus(false); return; }
         s.cbs.tus(true);
         if (!s) return;
@@ -241,6 +274,7 @@
         b.g.remove();
         const g = svgEl('g', { class: 'op-baloncuk__pop', transform: 'translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ')' }, s.efekt);
         const halka = svgEl('circle', { class: 'op-baloncuk__pop-halka', r: b.r.toFixed(1) }, g);
+        const tik = O.tikCiz(g);                         // renk dışı isabet işareti: patlayan yerde onay
         const damla = [];
         if (!s.azalt) {
             for (let i = 0; i < 8; i++) {
@@ -248,7 +282,7 @@
                 damla.push({ c: svgEl('circle', { class: 'op-baloncuk__damla', r: i % 2 ? 3 : 4.5 }, g), dx: Math.cos(a), dy: Math.sin(a) });
             }
         }
-        s.efektler.push({ tur: 'pop', g, halka, damla, r: b.r, t: 0, sure: PATLA_MS });
+        s.efektler.push({ tur: 'pop', g, halka, tik, damla, r: b.r, t: 0, sure: PATLA_MS });
         if (window.AudioManager) window.AudioManager.play('pop');
         hudYaz();
         if (bittiMi()) { bitir(true); return; }
@@ -261,7 +295,7 @@
         s.bitti = true;
         s.kazandi = canli;
         if (s.kilit) { const k = s.kilit; s.kilit = null; harfDurum(k); }
-        s.kok.dataset.bitti = canli ? 'canli' : 'canlar';
+        s.kabuk.bitir(canli ? 'canli' : 'canlar');
         hudYaz();
         hedefYaz();
         if (canli && !s.azalt) {
@@ -287,6 +321,7 @@
             for (const b of s.aktif) {
                 b.p += v;
                 b.tehlike = b.p;
+                b.gorunur = gorunurMu(b);
                 if (b.p >= 1) kacanlar.push(b);
             }
             for (const b of kacanlar) {
@@ -297,9 +332,10 @@
             if (!s.bitti) {
                 s.dogus += v;
                 if (s.dogus >= DOGUS_P && s.sonraki < s.kelimeler.length) {
-                    if (s.aktif.length >= ESZ_MAX) s.dogus = DOGUS_P;          // yer açılınca hemen
-                    else if (dogur(0, false)) s.dogus = 0;
+                    if (s.aktif.length >= eszMax() || !siradakiDogabilir()) s.dogus = DOGUS_P;   // yer açılınca hemen
+                    else { dogur(0); s.dogus = 0; }
                 }
+                eksikseDogur();
                 hedefYaz();
             }
         }
@@ -326,6 +362,8 @@
         s.efektler.push({ tur: 'puf', g, parca, t: 0, sure: PUF_MS });
         hudYaz();
         if (s.can <= 0) { bitir(false); return; }
+        if (typeof s.cbs.duyuru === 'function') s.cbs.duyuru('Bir baloncuk kaçtı. ' + s.can + ' can kaldı.');
+        if (!s) return;
         if (bittiMi()) { bitir(true); return; }
         eksikseDogur();
     }
@@ -335,6 +373,7 @@
             const x = bx(b), y = by(b.p, b.r);
             b.g.setAttribute('transform', 'translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ')');
             b.g.dataset.p = b.p.toFixed(3);
+            b.g.dataset.gorunur = b.gorunur ? '1' : '0';
             let tf = b === s.kilit ? 'scale(1.08)' : '';
             if (b.yanlis > 0 && !s.azalt) {
                 const k = b.yanlis / YANLIS_MS;
@@ -345,7 +384,10 @@
         for (const e of s.efektler) {
             const k = Math.min(1, e.t / e.sure), u = easeOut(k);
             if (e.tur === 'pop') {
-                if (s.azalt) { e.g.style.opacity = String(1 - k); continue; }
+                // Onay: hemen tam görünür, son üçte birde söner (azaltılmış harekette ölçek yok)
+                e.tik.style.opacity = String(Math.min(1, 3 * (1 - k)));
+                if (s.azalt) { e.halka.style.opacity = String(1 - k); continue; }
+                e.tik.setAttribute('transform', 'scale(' + (0.9 + 0.1 * u).toFixed(3) + ')');
                 e.halka.setAttribute('r', (e.r * (1 + 0.35 * u)).toFixed(1));
                 e.halka.style.opacity = String(1 - u);
                 for (const d of e.damla) {
