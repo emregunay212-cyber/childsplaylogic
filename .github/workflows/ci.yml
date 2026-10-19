@@ -125,6 +125,14 @@ jobs:
           CI: true
           SITE_ROOT: .build-check
 
+      # On Parmak: dizilim/ölçüm/içerik kuralları (tarayıcısız), ekran SVG'si; oyun akışı (katalog yamalı kapalı oyun),
+      # kısım geçişi fikstürü, TR Q / İngilizce dizilim, Caps Lock, sonuç şeridi, dinleyici sızıntısı.
+      - name: On Parmak testi — hash'li çıktı üzerinde
+        run: npm run test:on-parmak
+        env:
+          CI: true
+          SITE_ROOT: .build-check
+
       # Kırmızı koşuda adli kayıt: trace (ilk retry), ekran görüntüsü, video, error-context.md
       - name: Hata artefaktları
         if: failure()
