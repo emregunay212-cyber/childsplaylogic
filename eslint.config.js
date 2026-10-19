@@ -53,7 +53,7 @@ const hubCoreGlobals = {
 // KodMacerasiCore) bunlara adıyla başvurur.
 const gameModuleGlobals = Object.fromEntries([
     // Tek oyunculu (hub sırasıyla)
-    'HarfTanima', 'KlavyeKasifi', 'HeceBirlestirme', 'KelimeMadeni3D', 'KelimeBalonu', 'KelimeCanavarlari',
+    'HarfTanima', 'KlavyeKasifi', 'OnParmak', 'HeceBirlestirme', 'KelimeMadeni3D', 'KelimeBalonu', 'KelimeCanavarlari',
     'KelimeKurtarma', 'GunlukKelime',
     'SayiSayma', 'Matematik', 'Desen', 'BilgiMadencisi', 'MatematikPatlatma', 'MatematikKafe',
     'BilgiYilani', 'RitimSorulari', 'Kesir2048', 'SayiNinja',
