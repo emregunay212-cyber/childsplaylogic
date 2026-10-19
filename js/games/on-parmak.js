@@ -125,8 +125,9 @@ const OnParmak = (() => {
         const root = el('div', 'op-picker');
         root.appendChild(el('h2', 'op-picker__title', 'Nereden başlamak istersin?'));
         const ipucu = el('p', 'op-picker__ipucu');
-        ipucu.append('Sol işaret parmağın ', el('strong', '', 'F'), '’de, sağ işaret parmağın ', el('strong', '', 'J'),
-            '’de — bu tuşlarda küçük tümsek var.');
+        // Tuş kapağı + ek tek parça: "F’de" satır sonunda bölünmesin
+        const tusEk = (harf) => { const s = el('span', 'op-picker__tus'); s.append(el('strong', '', harf), '’de'); return s; };
+        ipucu.append('Sol işaret parmağın ', tusEk('F'), ', sağ işaret parmağın ', tusEk('J'), ' — bu tuşlarda küçük tümsek var.');
         root.appendChild(ipucu);
         const grid = el('div', 'op-picker__grid');
         let first = null;
@@ -646,7 +647,10 @@ const OnParmak = (() => {
             AudioManager.play('star');
             const hGoster = Math.round(h);
             const sure = sureMetni(ms);
-            seritGoster('Bölüm ' + no + ' tamam!', 'doğruluk %' + dGoster + ' · ' + hGoster + ' kelime/dk · ' + sure, y, 'is-basari');
+            // Parçalar dar ekranda kendi içinde bölünmesin ("11 / sn" olmasın): parça içi bölünmez boşluk
+            const NBSP = String.fromCharCode(0xA0);
+            const parca = ['doğruluk %' + dGoster, hGoster + ' kelime/dk', sure].map((x) => x.split(' ').join(NBSP));
+            seritGoster('Bölüm ' + no + ' tamam!', parca.join(' · '), y, 'is-basari');
             duyur('Bölüm ' + no + ' tamam: 3 üzerinden ' + y + ' yıldız. Doğruluk yüzde ' + dGoster + ', hız ' + hGoster
                 + ' kelime/dk, süre ' + sure + '.');
         }
