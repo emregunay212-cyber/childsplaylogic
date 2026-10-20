@@ -95,6 +95,8 @@ const OnParmak = (() => {
     let satirlar = [];        // satır motoru: [{ dugum, bas, son }]
     let harfDugumleri = [];   // satır motoru: karakter → <span>
     let etkinSatir = -1;
+    let satirGenislik = -1;   // satır motoru: son dizimin pencere genişliği (değişmediyse yeniden dizilmez)
+    let satirBoyutDinliyor = false;   // satır motoru: window 'resize' dinleyicisi kurulu mu
     let oyun = null;          // oyun bölümü: { ad, tutamac } (etkin mini oyun)
     let oyunHedef = null;     // oyunun beklediği karakter (hedef() geri çağrısı)
     let oyunDogru = 0;        // oyunda doğru basış (hız için yazılan karakter)
@@ -423,6 +425,7 @@ const OnParmak = (() => {
     function bolumBaslat(tekrar) {
         clearTimers();
         oyunDurdur();
+        satirIzlemeyiBirak();
         seritDuyuru = '';
         const b = bolum();
         metin = b.metin;
@@ -511,6 +514,7 @@ const OnParmak = (() => {
         const kapakEl = el('div', 'op-tanitim__tus');
         const cumle = el('p', 'op-tanitim__cumle');
         let duyuru;
+        let kapaklar = kapakEl;
         if (a.shift) {
             const shiftEl = a.shift === 'sol' ? 'sol' : 'sağ';
             const harfEl = a.shift === 'sol' ? 'Sağ' : 'Sol';
@@ -518,20 +522,46 @@ const OnParmak = (() => {
             kapakEl.textContent = 'Shift';
             kapakEl.classList.add('op-tanitim__tus--genis');
             cumle.append(harfEl + ' el harfleri için ', el('strong', '', shiftEl), ' Shift’e ', el('strong', '', parmak), ' bas.');
-            duyuru = harfEl + ' el harfleri için ' + shiftEl + ' Shift tuşuna ' + parmak + ' bas.';
-            ekran.vurgula(null);
+            // Örnek büyük harf: ekran klavyesinde tuşu + bu Shift + iki parmak birlikte yanar (basılacak olan yine Shift)
+            const ornek = shiftOrnegi(a.shift);
+            kapaklar = el('div', 'op-tanitim__tuslar');
+            const arti = el('span', 'op-tanitim__arti', '+');
+            arti.setAttribute('aria-hidden', 'true');
+            kapaklar.append(kapakEl, arti, el('div', 'op-tanitim__tus op-tanitim__tus--ornek', ornek));
+            duyuru = harfEl + ' el harfleri için ' + shiftEl + ' Shift tuşuna ' + parmak + ' bas. Örneğin büyük ' + ornek
+                + ': ' + shiftEl + ' Shift basılıyken ' + ornek + ' tuşu.';
+            ekran.vurgula(ornek);
         } else {
+            const D = window.KlavyeDizilim;
             const ad = kapak(a.ch);
-            const parmak = PARMAK_ILE[window.KlavyeDizilim.parmaklarOf(a.ch)[0]] || '';
+            const ids = D.parmaklarOf(a.ch);
+            const parmak = PARMAK_ILE[ids[ids.length - 1]] || '';      // Shift'liyse ilk eleman karşı serçedir; tuşun parmağı sonda
             kapakEl.textContent = ad;
             if (a.ch === ' ') kapakEl.classList.add('op-tanitim__tus--genis');
-            cumle.append(el('strong', 'op-tanitim__harf', ad), ' tuşuna ', el('strong', '', parmak), ' bas.');
-            duyuru = (KARAKTER_ADI[a.ch] || ad) + ' tuşuna ' + parmak + ' bas.';
+            cumle.append(el('strong', 'op-tanitim__harf', ad), ' tuşuna ', el('strong', '', parmak), ' bas');
+            duyuru = (KARAKTER_ADI[a.ch] || ad) + ' tuşuna ' + parmak + ' bas';
+            const shiftKod = D.shiftTusuOf(a.ch);
+            if (shiftKod) {
+                const yan = shiftKod === 'ShiftLeft' ? 'sol' : 'sağ';
+                const serce = PARMAK_ILE[ids[0]];
+                cumle.append('; ', el('strong', '', yan + ' Shift’i'), ' ', serce, ' basılı tut');
+                duyuru += '; ' + yan + ' Shift tuşunu ' + serce + ' basılı tut';
+            }
+            cumle.append('.');
+            duyuru += '.';
             ekran.vurgula(a.ch);
         }
-        alan.append(kapakEl, cumle);
+        alan.append(kapaklar, cumle);
         duyur(duyuru);
         durumYaz();
+    }
+
+    // Shift tanıtımının örnek büyük harfi: bölüm metninde bu Shift'le yazılan ilk büyük harf; yoksa ev sırası (J / F)
+    function shiftOrnegi(yan) {
+        const D = window.KlavyeDizilim;
+        const kod = yan === 'sol' ? 'ShiftLeft' : 'ShiftRight';
+        const bulunan = [...metin].find((c) => c !== c.toLocaleLowerCase('tr-TR') && D.shiftTusuOf(c) === kod);
+        return bulunan || (yan === 'sol' ? 'J' : 'F');
     }
 
     function tanitimBasis(ch) {
@@ -567,7 +597,9 @@ const OnParmak = (() => {
         // "Şimdi alıştıralım: F J" — basışlar bu sırada yok sayılır
         mod = 'serit';
         ekran.vurgula(null);
-        const yeniler = (bolum().yeni || []).map(kapak).join(' ');
+        const b = bolum();
+        const yeniler = (b.yeni || []).map(kapak)
+            .concat(b.yeniShift ? [(b.yeniShift === 'sol' ? 'Sol' : 'Sağ') + ' Shift'] : []).join(' ');
         seritGoster('Şimdi alıştıralım', yeniler, null, 'is-bilgi');
         duyur('Şimdi alıştıralım: ' + yeniler);
         durumYaz();
@@ -657,6 +689,9 @@ const OnParmak = (() => {
     }
 
     // ── Satır motoru: 3 görünür satır, sözcük bölünmez, imleç her basışta ilerler ──
+    // Satırlar ÖLÇÜLÜ bölünür: harf <span>'ları bir kez kurulur, gerçek genişlikleri okunur ve satırlara dizilir
+    // (geniş glifler — M W Ğ Ş, büyük harf, işaret — tahminle değil ölçüyle). Pencere genişliği değişince
+    // (ResizeObserver) ya da yazı tipi geç yüklenince aynı span'lar yeniden dizilir: yazılanlar ve imleç korunur.
     function satirBaslat() {
         mod = 'satir';
         els.yonerge.textContent = 'Metni yaz. Yanlış harfte durma, devam et.';
@@ -667,38 +702,116 @@ const OnParmak = (() => {
         const kayan = el('div', 'op-satirlar__ic');
         pencere.appendChild(kayan);
         alan.appendChild(pencere);
-        // Satır başına sığan karakter: gerçek yazı tipinde ölçülür
-        // (harf başına ayrı span — oyundaki gibi; ortalama Türkçe harf genişliği)
-        const olcu = el('div', 'op-satir');
-        olcu.style.visibility = 'hidden';
-        for (const c of 'kasılmşedf') olcu.appendChild(el('span', 'op-harf', c));
-        kayan.appendChild(olcu);
-        const harfGen = olcu.firstChild ? (olcu.lastChild.getBoundingClientRect().right - olcu.firstChild.getBoundingClientRect().left) / 10 : 0;
-        olcu.remove();
-        const genislik = pencere.clientWidth || 600;
-        const sigan = Math.max(12, Math.floor(genislik / (harfGen || 18)) - 1);
-
-        satirlar = [];
-        harfDugumleri = [];
-        satirBol(metin, sigan).forEach((s) => {
-            const dugum = el('div', 'op-satir');
-            for (let i = s.bas; i < s.son; i++) {
-                const h = el('span', 'op-harf' + (metin[i] === ' ' ? ' op-harf--bosluk' : ''), metin[i]);
-                harfDugumleri.push(h);
-                dugum.appendChild(h);
-            }
-            kayan.appendChild(dugum);
-            satirlar.push({ dugum, bas: s.bas, son: s.son });
-        });
+        els.pencere = pencere;
         els.kayan = kayan;
-        etkinSatir = -1;
-        satirImlec();
+        harfDugumleri = [...metin].map((c) => el('span', 'op-harf' + (c === ' ' ? ' op-harf--bosluk' : ''), c));
+        satirlar = [];
+        satirGenislik = -1;
+        satirDiz();
+        satirIzle(pencere);
         ekran.vurgula(metin[poz]);
         olcumYaz();
         durumYaz();
     }
 
-    // Sözcük bölünmez: boşluk önceki satırın sonunda kalır (yazılacak karakterdir)
+    // Harf span'larını pencere genişliğine göre satırlara dizer (genişlik değişmediyse bir şey yapmaz)
+    function satirDiz() {
+        const pencere = els.pencere;
+        const kayan = els.kayan;
+        if (!pencere || !kayan || !pencere.isConnected) return;
+        const W = pencere.clientWidth;
+        if (W === satirGenislik && satirlar.length) return;
+        satirGenislik = W;
+        // Ölçü: tüm harfler tek görünmez satırda (inline-block → genişlik satırdan bağımsız). Boşluk, yanlış basılınca
+        // görünen ␣ ile ölçülür (daha geniş olanı) → yanlış boşluk satırı taşırmaz.
+        kayan.textContent = '';
+        const olcu = el('div', 'op-satir');
+        olcu.style.visibility = 'hidden';
+        kayan.appendChild(olcu);
+        harfDugumleri.forEach((h) => olcu.appendChild(h));
+        const genislik = harfDugumleri.map((h) => {
+            if (!h.classList.contains('op-harf--bosluk')) return h.getBoundingClientRect().width;
+            const asil = h.textContent;
+            const a = h.getBoundingClientRect().width;
+            h.textContent = '␣';
+            const b = h.getBoundingClientRect().width;
+            h.textContent = asil;
+            return Math.max(a, b);
+        });
+        olcu.remove();
+        let parcalar = W > 0 && genislik.some((g) => g > 0) ? satirBolOlcu(genislik, W) : satirBol(metin, 40);
+        satirlariKur(parcalar);
+        // Güvenlik: alt piksel yuvarlaması bir satırı yine taşırırsa o kadar dar yeniden böl (en çok 3 kez)
+        for (let deneme = 0; deneme < 3 && W > 0; deneme++) {
+            const tasma = Math.max(...satirlar.map((x) => x.dugum.scrollWidth - x.dugum.clientWidth));
+            if (tasma <= 0) break;
+            parcalar = satirBolOlcu(genislik, W - tasma - 1 - deneme * 2);
+            satirlariKur(parcalar);
+        }
+        etkinSatir = -1;
+        satirImlec();
+    }
+
+    function satirlariKur(parcalar) {
+        const kayan = els.kayan;
+        kayan.textContent = '';
+        satirlar = parcalar.map((p) => {
+            const dugum = el('div', 'op-satir');
+            for (let i = p.bas; i < p.son; i++) dugum.appendChild(harfDugumleri[i]);
+            kayan.appendChild(dugum);
+            return { dugum, bas: p.bas, son: p.son };
+        });
+    }
+
+    // Pencere genişliği görünüm genişliğini izler → pencere 'resize'ında yeniden diz (genişlik değişmediyse satirDiz
+    // bir şey yapmaz); yazı tipi geç yüklenirse (font-display: swap) bir kez daha. ResizeObserver yok: oyun
+    // sahnelerinin RO sayacı (testler) yalnız oyunu ölçer.
+    function satirIzle(pencere) {
+        satirIzlemeyiBirak();
+        window.addEventListener('resize', satirBoyut);
+        satirBoyutDinliyor = true;
+        if (document.fonts && document.fonts.status !== 'loaded') {
+            document.fonts.ready.then(() => {
+                if (els.pencere !== pencere) return;
+                satirGenislik = -1;
+                satirDiz();
+            });
+        }
+    }
+
+    function satirBoyut() { satirDiz(); }
+
+    function satirIzlemeyiBirak() {
+        if (satirBoyutDinliyor) { window.removeEventListener('resize', satirBoyut); satirBoyutDinliyor = false; }
+    }
+
+    // Ölçülü bölme (saf): genislik[i] = i. karakterin piksel genişliği, W = satır genişliği.
+    // Sözcük bölünmez, boşluk önceki satırın sonunda kalır (yazılacak karakterdir); satırdan uzun sözcük harf harf bölünür.
+    function satirBolOlcu(genislik, W) {
+        const sinir = W - 0.5;
+        const n = genislik.length;
+        const sonuc = [];
+        let bas = 0;
+        while (bas < n) {
+            let w = 0;
+            let son = bas;
+            let sonBosluk = -1;
+            while (son < n && w + genislik[son] <= sinir) {
+                w += genislik[son];
+                if (metin[son] === ' ') sonBosluk = son;
+                son++;
+            }
+            if (son < n) {
+                if (sonBosluk >= bas) son = sonBosluk + 1;
+                else if (son === bas) son = bas + 1;   // tek karakter bile sığmıyor: yine de ilerle
+            }
+            sonuc.push({ bas, son });
+            bas = son;
+        }
+        return sonuc;
+    }
+
+    // Yedek (pencere ölçülemezse — gizli/0 genişlik): karakter sayısıyla bölme
     function satirBol(m, sigan) {
         const sonuc = [];
         let bas = 0;
@@ -890,6 +1003,7 @@ const OnParmak = (() => {
         clearTimers();
         mod = 'yok';
         oyunDurdur();
+        satirIzlemeyiBirak();
         if (keydownHandler) { document.removeEventListener('keydown', keydownHandler); keydownHandler = null; }
         document.removeEventListener('pointerdown', isaretGirdisi, true);
         document.removeEventListener('focusin', odakGirdi, true);

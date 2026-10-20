@@ -10,7 +10,11 @@
    Kurallar (tests/on-parmak.spec.js denetler):
      - Bir bölüm yalnız o ana kadar ÖĞRENİLMİŞ tuşları kullanır (kutu `yeni`'leri sırayla birikir; boşluk 2. bölümden sonra).
      - kutu 21–35 karakter; satır 50–80 ve en çok hedefHiz × 10 karakter (hedef hızda ≤ 2 dk); oyun da ≤ hedefHiz × 10.
-     - Kutu bölümünün `yeni` tuşları kendi metninde geçer.
+     - Kutu bölümünün `yeni` tuşları kendi metninde geçer. Yalnız Shift tanıtan kutu: `yeni: []` + `yeniShift: 'sol'|'sag'`
+       (metninde o Shift'le yazılan büyük harf olur; sol Shift → sağ el harflerinin büyükleri).
+     - Sıkı kurallar: Q/W/X yalnız adı o harfi anan tanıtım/tekrar bölümünde; büyük harf ve Shift'li işaret yalnız gerektirdiği
+       Shift tanıtıldıktan sonra; adında "sol el"/"sağ el" olan bölümde harf ve rakam yalnız o elde; yasak sözcük (çekimli
+       biçimler dahil); levels 7 olunca 90–110 bölüm ve dört oyunun her biri ≥ 2.
    Genel bölüm numarası dizinin sırasından türer, elle yazılmaz.
    ============================================ */
 

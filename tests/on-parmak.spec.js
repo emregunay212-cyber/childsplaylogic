@@ -339,29 +339,192 @@ function loadIcerik() {
     return window.ON_PARMAK_ICERIK;
 }
 
-test.describe('ON_PARMAK_ICERIK — içerik kuralları (tarayıcısız)', () => {
-    // Bölümleri genel numarasıyla (diziden türer, sabit numara yok) düzleştirir; öğrenilmiş küme birikimlidir.
-    function bolumler() {
-        const kume = new Set();
-        const sonuc = [];
-        let no = 0;
-        loadIcerik().forEach((kisim, ki) => {
-            for (const b of kisim.bolumler) {
-                no += 1;
-                (b.yeni || []).forEach((k) => kume.add(k));
-                if (b.yeniShift) {
-                    // Karşı elin Shift'i: 'sol' Shift → sağ el harfleri büyük (sapma 11)
-                    const hedefEl = b.yeniShift === 'sol' ? 'sag' : 'sol';
-                    for (const k of [...kume]) {
-                        if (D.elOf(k) === hedefEl && k.toLocaleUpperCase('tr-TR') !== k) kume.add(k.toLocaleUpperCase('tr-TR'));
-                    }
+// ── Sıkı içerik kuralları (Adım 3 görev 1): saf denetçiler. Her biri düzleştirilmiş bölüm listesini alır, ihlal
+// iletilerini döndürür (boş = uygun). Gerçek içerikte boş olmalı; kural bozan sahte içerikle de sınanırlar ki
+// kural "hep yeşil" olmasın. Kısım 2–7 içerik görevleri bunlarla korunur.
+const tr = (x) => x.toLocaleLowerCase('tr-TR');
+const harfMi = (c) => /\p{L}/u.test(c);
+const sozcukler = (metin) => metin.split(/[^\p{L}]+/u).filter(Boolean);   // ' ? ! ( ) " … ayırıcı: "Ali'nin" → Ali, nin
+const elAdi = (ad) => {
+    const m = tr(ad).match(/(?:^|[^\p{L}])(sol|sağ) el(?:[^\p{L}]|$)/u);
+    return m ? (m[1] === 'sol' ? 'sol' : 'sag') : null;
+};
+const SHIFT_YAN = { ShiftLeft: 'sol', ShiftRight: 'sag' };
+
+// Yasak sözcükler. KÖK: çekimli biçimler de yakalanır (sözcük bu kökle BAŞLARSA: 'silahlar', 'savaşı', 'şarabı').
+// TAM: başka masum sözcüklerin başı olan kısa kökler yalnız sayılan biçimleriyle ('kan' → kanat/kanal serbest;
+// 'seks' → seksen; 'rakı' → rakım; 'fal' → falan; 'öl' → ölçü; 'bahis' çekimi 'bahsi' → bahsetmek serbest).
+const YASAK_KOK = ['silah', 'ölüm', 'ölü', 'öldü', 'katil', 'kavga', 'savaş', 'bomba', 'ateş', 'aşk', 'sahaf', 'şarap', 'şarab',
+    'içki', 'sigara', 'kumar', 'bahis', 'ihanet', 'intihar', 'cinsel', 'şiddet'];
+const YASAK_TAM = new Set(['kan', 'kanı', 'kana', 'kanda', 'kandan', 'kanın', 'kanlı', 'kanlar', 'öl', 'ölmek', 'ölür', 'ölen', 'ölsün',
+    'fal', 'falı', 'fala', 'falcı', 'rakı', 'rakıyı', 'rakının', 'seks', 'seksi', 'bahsi', 'bahse']);
+function yasakSozcukMu(w) {
+    const k = tr(w);
+    return YASAK_TAM.has(k) || YASAK_KOK.some((kok) => k.startsWith(kok));
+}
+
+// Bölümleri genel numarasıyla (diziden türer, sabit numara yok) düzleştirir; öğrenilmiş küme birikimlidir;
+// shiftler = o bölüm dahil tanıtılmış Shift'ler ('sol' | 'sag').
+function icerikBolumleri(icerik) {
+    const kume = new Set();
+    const shiftler = new Set();
+    const sonuc = [];
+    let no = 0;
+    icerik.forEach((kisim, ki) => {
+        for (const b of kisim.bolumler) {
+            no += 1;
+            (b.yeni || []).forEach((k) => kume.add(k));
+            if (b.yeniShift) {
+                shiftler.add(b.yeniShift);
+                // Karşı elin Shift'i: 'sol' Shift → sağ el harfleri büyük (sapma 11)
+                const hedefEl = b.yeniShift === 'sol' ? 'sag' : 'sol';
+                for (const k of [...kume]) {
+                    if (D.elOf(k) === hedefEl && k.toLocaleUpperCase('tr-TR') !== k) kume.add(k.toLocaleUpperCase('tr-TR'));
                 }
-                sonuc.push({ no, kisim: ki, kisimAd: kisim.ad, hedefHiz: kisim.hedefHiz, b, ogrenilen: new Set(kume) });
             }
-        });
-        return sonuc;
-    }
-    const etiket = (x) => `bölüm ${x.no} (${x.b.ad})`;
+            sonuc.push({ no, kisim: ki, kisimAd: kisim.ad, hedefHiz: kisim.hedefHiz, b, ogrenilen: new Set(kume), shiftler: new Set(shiftler) });
+        }
+    });
+    return sonuc;
+}
+const bolumEtiketi = (x) => `bölüm ${x.no} (${x.b.ad})`;
+const OYUN_ADLARI = ['balon', 'canavar', 'baloncuk', 'elma'];
+
+const ICERIK_DENETCI = {
+    // Q, W, X yalnız adı o harfi (tek başına: "Q ve W", "X tekrar") anan tanıtım/tekrar bölümünde (kutu | satir)
+    qwx(bs) {
+        const ihlal = [];
+        for (const x of bs) {
+            const adHarfleri = new Set(tr(x.b.ad).split(/[^\p{L}]+/u).filter((t) => t.length === 1));
+            for (const h of ['q', 'w', 'x']) {
+                if (!tr(x.b.metin).includes(h)) continue;
+                if (!['kutu', 'satir'].includes(x.b.tur) || !adHarfleri.has(h)) {
+                    ihlal.push(`${bolumEtiketi(x)}: "${h}" yalnız adı onu anan tanıtım/tekrar bölümünde`);
+                }
+            }
+        }
+        return ihlal;
+    },
+    // Shift'li her karakter (büyük harf, ? ! : ; ' ( ) …) ancak gerektirdiği Shift tanıtıldıktan SONRA (o bölüm dahil);
+    // yeniShift yalnız kutuda ve metninde o Shift'le yazılan en az bir büyük harf var (tanıtımın örneği oradan gelir)
+    shiftSirasi(bs) {
+        const ihlal = [];
+        for (const x of bs) {
+            for (const ch of new Set(x.b.metin)) {
+                const kod = D.shiftTusuOf(ch);
+                if (kod && !x.shiftler.has(SHIFT_YAN[kod])) ihlal.push(`${bolumEtiketi(x)}: "${ch}" ${SHIFT_YAN[kod] === 'sol' ? 'sol' : 'sağ'} Shift tanıtılmadan`);
+            }
+            if (x.b.yeniShift !== undefined) {
+                if (!['sol', 'sag'].includes(x.b.yeniShift) || x.b.tur !== 'kutu') ihlal.push(`${bolumEtiketi(x)}: yeniShift 'sol'|'sag' ve yalnız kutuda`);
+                const kod = x.b.yeniShift === 'sol' ? 'ShiftLeft' : 'ShiftRight';
+                if (![...x.b.metin].some((c) => harfMi(c) && c !== tr(c) && D.shiftTusuOf(c) === kod)) {
+                    ihlal.push(`${bolumEtiketi(x)}: ${x.b.yeniShift} Shift bölümünde o Shift'le yazılan büyük harf yok`);
+                }
+            }
+        }
+        return ihlal;
+    },
+    // Tek el bölümü (adında "sol el" / "sağ el"): harf ve rakamlar yalnız o elde; boşluk (başparmak) ve noktalama serbest
+    tekEl(bs) {
+        const ihlal = [];
+        for (const x of bs) {
+            const el = elAdi(x.b.ad);
+            if (!el) continue;
+            for (const ch of new Set(x.b.metin)) {
+                if (!/[\p{L}\p{N}]/u.test(ch)) continue;
+                if (D.elOf(ch) !== el) ihlal.push(`${bolumEtiketi(x)}: "${ch}" ${el === 'sol' ? 'sol' : 'sağ'} elde değil`);
+            }
+        }
+        return ihlal;
+    },
+    // Yasak sözcük (çekimli biçimler dahil): metin ve bölüm adı
+    yasak(bs) {
+        const ihlal = [];
+        for (const x of bs) {
+            for (const w of sozcukler(x.b.metin + ' ' + x.b.ad)) if (yasakSozcukMu(w)) ihlal.push(`${bolumEtiketi(x)}: "${w}"`);
+        }
+        return ihlal;
+    },
+    // Tam kurs (levels === 7) kuralları: 7 kısım, 90–110 bölüm, dört oyunun her biri en az iki kez
+    tamKurs(bs, kisimSayisi) {
+        const ihlal = [];
+        if (kisimSayisi !== 7) ihlal.push(`kısım sayısı ${kisimSayisi} ≠ 7`);
+        if (bs.length < 90 || bs.length > 110) ihlal.push(`bölüm sayısı ${bs.length} ∉ [90, 110]`);
+        for (const oyun of OYUN_ADLARI) {
+            const n = bs.filter((x) => x.b.tur === 'oyun' && x.b.oyun === oyun).length;
+            if (n < 2) ihlal.push(`${oyun} ${n} kez (en az 2)`);
+        }
+        return ihlal;
+    },
+};
+
+test.describe('ON_PARMAK_ICERIK — sıkı kural denetçileri kendini sınar (sahte içerik, tarayıcısız)', () => {
+    const k = (bolumler) => ({ ad: 'Sahte', ornek: 'F J', hedefHiz: 10, el: false, bolumler });
+    const kutu = (ad, yeni, metin, ek = {}) => ({ tur: 'kutu', ad, yeni, metin, ...ek });
+    const satir = (ad, metin) => ({ tur: 'satir', ad, metin });
+    const oyun = (o) => ({ tur: 'oyun', ad: o, oyun: o, metin: 'fj' });
+    const bs = (...kisimlar) => icerikBolumleri(kisimlar);
+
+    test('yasak sözcük: çekimli biçim yakalanır (kökle başlayan), masum benzer sözcük serbest; büyük harfte de', () => {
+        for (const w of ['silah', 'silahlar', 'Silahı', 'SAVAŞ', 'savaşçı', 'kanlı', 'Kan', 'öldürdü', 'ölümü', 'şarabı', 'kumarbaz', 'falcı', 'rakı', 'aşkım', 'Ateşi']) {
+            expect(yasakSozcukMu(w), w).toBe(true);
+        }
+        for (const w of ['kanat', 'kanal', 'kalem', 'seksen', 'rakım', 'falan', 'ölçü', 'ölçmek', 'bahsetti', 'sahil', 'kandil', 'sakal']) {
+            expect(yasakSozcukMu(w), w).toBe(false);
+        }
+        expect(ICERIK_DENETCI.yasak(bs(k([satir('Deneme', 'Ali\'nin silahları yok. (Savaşı) sevmez!')])))).toEqual([
+            'bölüm 1 (Deneme): "silahları"', 'bölüm 1 (Deneme): "Savaşı"']);
+    });
+
+    test('Q/W/X: yalnız adı o harfi anan kutu/satır bölümünde; adın sözcük içindeki harfi sayılmaz', () => {
+        expect(ICERIK_DENETCI.qwx(bs(k([kutu('Q ve W', ['q', 'w'], 'qqww qwqw'), satir('X tekrar', 'xx xa ax'), satir('Kelimeler', 'kale sal')])))).toEqual([]);
+        expect(ICERIK_DENETCI.qwx(bs(k([kutu('Q ve W', ['q', 'w'], 'qqww'), satir('Kelimeler', 'wifi xa'),
+            { tur: 'oyun', ad: 'Balon: Q', oyun: 'balon', metin: 'qqqq' }, satir('Quiz sözcükleri', 'quiz')])))).toEqual([
+            'bölüm 2 (Kelimeler): "w" yalnız adı onu anan tanıtım/tekrar bölümünde',
+            'bölüm 2 (Kelimeler): "x" yalnız adı onu anan tanıtım/tekrar bölümünde',
+            'bölüm 3 (Balon: Q): "q" yalnız adı onu anan tanıtım/tekrar bölümünde',
+            'bölüm 4 (Quiz sözcükleri): "q" yalnız adı onu anan tanıtım/tekrar bölümünde',
+        ]);
+    });
+
+    test('Shift sırası: büyük harf / Shift\'li işaret ancak gerektirdiği Shift tanıtıldıktan sonra (sol Shift → sağ el büyükleri)', () => {
+        expect(ICERIK_DENETCI.shiftSirasi(bs(k([kutu('Sol Shift', [], 'Jj Kk', { yeniShift: 'sol' }), satir('Cümle', 'Kale? Jale.'),
+            kutu('Sağ Shift', [], 'Ff Dd', { yeniShift: 'sag' }), satir('Adlar', 'Defne ile Kaan; (Ada)')])))).toEqual([]);
+        expect(ICERIK_DENETCI.shiftSirasi(bs(k([satir('Erken', 'Ali gel'), kutu('Sol Shift', [], 'Jj Kk', { yeniShift: 'sol' }),
+            satir('Sol el büyüğü', 'Fa Da'), kutu('Shift örneksiz', [], 'jj kk', { yeniShift: 'sag' }),
+            satir('Yanlış yer', 'Ff')])).map((x, i) => (i === 4 ? { ...x, b: { ...x.b, yeniShift: 'orta' } } : x)))).toEqual([
+            'bölüm 1 (Erken): "A" sağ Shift tanıtılmadan',
+            'bölüm 3 (Sol el büyüğü): "F" sağ Shift tanıtılmadan',
+            'bölüm 3 (Sol el büyüğü): "D" sağ Shift tanıtılmadan',
+            'bölüm 4 (Shift örneksiz): sag Shift bölümünde o Shift\'le yazılan büyük harf yok',
+            'bölüm 5 (Yanlış yer): yeniShift \'sol\'|\'sag\' ve yalnız kutuda',
+        ]);
+    });
+
+    test('tek el: adında "sol el"/"sağ el" olan bölümde harf ve rakam yalnız o elde; boşluk ve noktalama serbest', () => {
+        expect(ICERIK_DENETCI.tekEl(bs(k([satir('Sol el kelimeleri', 'sade fes, sert? 12345'), satir('Sağ el kelimeleri', 'ılık ilim, ön. 7890')])))).toEqual([]);
+        expect(ICERIK_DENETCI.tekEl(bs(k([satir('Sol el kelimeleri', 'sert kale 6'), satir('Sağ El: kelimeler', 'ılık sal'), satir('Solelli', 'kale')])))).toEqual([
+            'bölüm 1 (Sol el kelimeleri): "k" sol elde değil',
+            'bölüm 1 (Sol el kelimeleri): "l" sol elde değil',
+            'bölüm 1 (Sol el kelimeleri): "6" sol elde değil',
+            'bölüm 2 (Sağ El: kelimeler): "s" sağ elde değil',
+            'bölüm 2 (Sağ El: kelimeler): "a" sağ elde değil',
+        ]);
+    });
+
+    test('tam kurs: 7 kısım, 90–110 bölüm, dört oyun ≥ 2', () => {
+        const govde = Array.from({ length: 84 }, (_, i) => satir('S' + i, 'fj'));
+        const iyi = [...govde, ...OYUN_ADLARI.flatMap((o) => [oyun(o), oyun(o)])];          // 92 bölüm
+        expect(ICERIK_DENETCI.tamKurs(bs(...Array.from({ length: 7 }, (_, i) => k(iyi.slice(i * 13, i === 6 ? undefined : (i + 1) * 13)))), 7)).toEqual([]);
+        expect(ICERIK_DENETCI.tamKurs(bs(k([...govde.slice(0, 80), oyun('balon'), oyun('elma')])), 6)).toEqual([
+            'kısım sayısı 6 ≠ 7', 'bölüm sayısı 82 ∉ [90, 110]', 'balon 1 kez (en az 2)', 'canavar 0 kez (en az 2)', 'baloncuk 0 kez (en az 2)', 'elma 1 kez (en az 2)',
+        ]);
+    });
+});
+
+test.describe('ON_PARMAK_ICERIK — içerik kuralları (tarayıcısız)', () => {
+    const bolumler = () => icerikBolumleri(loadIcerik());
+    const etiket = bolumEtiketi;
 
     const OYUNLAR = ['balon', 'canavar', 'baloncuk', 'elma'];
     const HARF_OYUNLARI = ['balon'];        // diğerleri kelime oyunu
@@ -383,7 +546,8 @@ test.describe('ON_PARMAK_ICERIK — içerik kuralları (tarayıcısız)', () => 
             else expect(x.b.oyun, etiket(x)).toBeUndefined();
             expect(typeof x.b.ad, etiket(x)).toBe('string');
             expect(x.b.metin.length, etiket(x)).toBeGreaterThan(0);
-            if (x.b.tur === 'kutu') expect(Array.isArray(x.b.yeni) && x.b.yeni.length > 0, etiket(x)).toBe(true);
+            // Kutu: yeni tuş(lar) ya da yalnız Shift tanıtımı (yeni: [] + yeniShift; sapma 11)
+            if (x.b.tur === 'kutu') expect(Array.isArray(x.b.yeni) && (x.b.yeni.length > 0 || !!x.b.yeniShift), etiket(x)).toBe(true);
         }
     });
 
@@ -445,14 +609,26 @@ test.describe('ON_PARMAK_ICERIK — içerik kuralları (tarayıcısız)', () => 
         }
     });
 
-    test('çocuğa uygunsuz sözcük yok (yasak liste; metindeki her sözcük denetlenir)', () => {
-        const yasak = new Set(['silah', 'kan', 'öl', 'ölüm', 'katil', 'kavga', 'savaş', 'bomba', 'ateş', 'aşk', 'fal',
-            'sahaf', 'şarap', 'rakı', 'içki', 'sigara', 'kumar', 'bahis', 'ihanet', 'intihar', 'cinsel', 'seks', 'şiddet']);
-        for (const x of bolumler()) {
-            for (const w of x.b.metin.split(/[ ,]+/).filter(Boolean)) {
-                expect(yasak.has(w), `${etiket(x)} "${w}"`).toBe(false);
-            }
-        }
+    test('çocuğa uygunsuz sözcük yok (yasak kök/tam liste, çekimli biçimler dahil; metin ve bölüm adındaki her sözcük)', () => {
+        expect(ICERIK_DENETCI.yasak(bolumler())).toEqual([]);
+    });
+
+    test('Q, W, X yalnız adı o harfi anan tanıtım/tekrar bölümünde', () => {
+        expect(ICERIK_DENETCI.qwx(bolumler())).toEqual([]);
+    });
+
+    test('büyük harf ve Shift\'li işaret yalnız gerektirdiği Shift tanıtıldıktan sonra; yeniShift bölümü kutu + örnek büyük harf', () => {
+        expect(ICERIK_DENETCI.shiftSirasi(bolumler())).toEqual([]);
+    });
+
+    test('tek el bölümlerinde ("sol el" / "sağ el") harf ve rakam yalnız o elde (boşluk, noktalama serbest)', () => {
+        expect(ICERIK_DENETCI.tekEl(bolumler())).toEqual([]);
+    });
+
+    test('tam kurs (YALNIZ data/games.json levels === 7): 7 kısım, 90–110 bölüm, dört oyunun her biri ≥ 2', () => {
+        const levels = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/games.json'), 'utf8')).games.find((g) => g.slug === 'on-parmak').levels;
+        test.skip(levels !== 7, `levels ${levels}: kurs henüz tamamlanmadı (Kısım 2–7 içerik görevleri)`);
+        expect(ICERIK_DENETCI.tamKurs(bolumler(), loadIcerik().length)).toEqual([]);
     });
 
     test('Kısım 1 (Orta sıra): el açık, hedefHiz 8; Balon Vadisi "D K tekrar" ve "İlk kelimeler"den, Uçan Baloncuklar "G H tekrar ve kelimeler"den sonra, Canavar Saldırısı kısım sonunda', () => {
@@ -796,7 +972,19 @@ const OP_TEST_ELMA = "window.ON_PARMAK_ICERIK.push({ ad: 'Deneme: Elma', ornek: 
 const OP_TEST_BILINMEZ = "window.ON_PARMAK_ICERIK.push({ ad: 'Deneme: bilinmez', ornek: 'F J', hedefHiz: 8, el: true, bolumler: "
     + "[ { tur: 'oyun', ad: 'Miras ad', oyun: 'constructor', metin: 'fj jf' }, { tur: 'oyun', ad: 'Olmayan oyun', oyun: 'yok', metin: 'fj jf' }, "
     + "{ tur: 'satir', ad: 'Deneme satırı', metin: 'fj jf fj jf fj jf fj jf fj jf' } ] });\n";
-function opTestKur({ parcali = false, elma = false, bilinmez = false } = {}) {
+// Shift ve geniş glif (Adım 3 görev 1): içerikte henüz büyük harf/işaret yok → 2. test kısmı. Sırayla: sol Shift tanıtımı,
+// sağ Shift tanıtımı, Shift'li işaretler kutusu ('?' tanıtımı + büyük harf, rakam satırının Shift'lileri, : ; ' " - ),
+// geniş glifli + Shift'li uzun satır (375 px'te taşma; tek sözcük satırdan uzun: harf harf bölünür).
+const OP_SHIFT_KUTU = "A? Jk! (8) Ğ: Ş; 'İ' \"ö\" -I";
+const OP_SHIFT_SATIR = 'MMMMMM WWWWWW ĞĞĞĞĞĞ ŞŞŞŞŞŞ mmmmmmm wwwwwww ğğğğğğ şşşşşş MĞŞW? (ŞMW) "Ğm" Ş: Ww; '
+    + "M'ğ! WWWWWWWWWWWWWWWWWWWWWWWWWWWW ĞŞMW ŞŞMM - WMĞŞ WMĞŞ WMĞŞ WMĞŞ Mm Ww Ğğ Şş";
+const OP_TEST_SHIFT = 'window.ON_PARMAK_ICERIK.push(' + JSON.stringify({ ad: 'Deneme: Shift', ornek: 'J K', hedefHiz: 10, el: false, bolumler: [
+    { tur: 'kutu', ad: 'Sol Shift', yeni: [], yeniShift: 'sol', metin: 'Jj Kk Ll Jk Kl Lj Jj Kk Ll' },
+    { tur: 'kutu', ad: 'Sağ Shift', yeni: [], yeniShift: 'sag', metin: 'Ff Dd Ss Fd Ds Sf Ff Dd Ss' },
+    { tur: 'kutu', ad: 'Shift işaretleri', yeni: ['?'], metin: OP_SHIFT_KUTU },
+    { tur: 'satir', ad: 'Geniş harfler', metin: OP_SHIFT_SATIR },
+] }) + ');\n';
+function opTestKur({ parcali = false, elma = false, bilinmez = false, shift = false } = {}) {
     return test.extend({
         context: async ({ context }, use) => {
             await seedGuest(context, opLockKeys);
@@ -806,12 +994,13 @@ function opTestKur({ parcali = false, elma = false, bilinmez = false } = {}) {
                 const govde = (await res.text()).split('\n').map((satir) => {
                     if (!satir.includes('"slug":"on-parmak"')) return satir;
                     const yamali = satir.replace('"active":false', '"active":true');
-                    return parcali || elma || bilinmez ? yamali.replace('"levels":1', '"levels":2') : yamali;
+                    // Fikstür bir kısım ekler → levels N → N + 1 (içerik kısım kazandıkça yama kendiliğinden uyar)
+                    return parcali || elma || bilinmez || shift ? yamali.replace(/"levels":(\d+)/, (m, n) => '"levels":' + (Number(n) + 1)) : yamali;
                 }).join('\n');
                 await route.fulfill({ response: res, body: govde });
             });
-            if (parcali || elma || bilinmez) {
-                const ek = elma ? OP_TEST_ELMA : bilinmez ? OP_TEST_BILINMEZ : OP_TEST_KISIM;
+            if (parcali || elma || bilinmez || shift) {
+                const ek = elma ? OP_TEST_ELMA : bilinmez ? OP_TEST_BILINMEZ : shift ? OP_TEST_SHIFT : OP_TEST_KISIM;
                 await context.route(/\/js\/games\/on-parmak-icerik\.js(\?|$)/, async (route) => {
                     const res = await route.fetch();
                     await route.fulfill({ response: res, body: (await res.text()) + '\n' + ek });
@@ -845,6 +1034,7 @@ const opTest = opTestKur();
 const opTestParcali = opTestKur({ parcali: true });
 const opTestElma = opTestKur({ elma: true });
 const opTestBilinmez = opTestKur({ bilinmez: true });
+const opTestShift = opTestKur({ shift: true });
 
 // Bölüm numaraları ve metinleri içerik dosyasından türer (sabit numara yok)
 const OP_ICERIK = loadIcerik();
@@ -3655,5 +3845,169 @@ test.describe('OnParmakOyunOrtak — canlarHud / devamKatmani / oyunKabugu (tara
         await page.evaluate(() => { window.__kok.style.width = '900px'; });
         await expect.poll(async () => { await page.clock.runFor(50); return page.evaluate(() => window.__kayit.olcu); }).toBe(2);
         await page.evaluate(() => window.__k.durdur());
+    });
+});
+
+// ── Shift ve geniş glifler (Adım 3 görev 1; fikstür: OP_TEST_SHIFT, içerikte henüz büyük harf/işaret yok) ──
+const OP_SH_SOL = OP_N + 1;
+const OP_SH_SAG = OP_N + 2;
+const OP_SH_KUTU = OP_N + 3;
+const OP_SH_SATIR = OP_N + 4;
+const OP_SH_TOPLAM = OP_N + 4;
+// Oyun ekranında yanan tuş kodları ve parmaklar (tekil, sıralı)
+const opYanan = (page) => page.evaluate(() => ({
+    tuslar: [...new Set([...document.querySelectorAll('.op-oyun [data-code].is-hedef')].map((g) => g.dataset.code))].sort(),
+    parmaklar: [...new Set([...document.querySelectorAll('.op-oyun [data-parmak].is-hedef')].map((p) => p.dataset.parmak))].sort(),
+}));
+// Karakter için beklenen yanma: tuş + (Shift'liyse) karşı Shift; parmaklar parmaklarOf
+const opBeklenenYanma = (ch) => ({
+    tuslar: [D.tusOf(ch).code, D.shiftTusuOf(ch)].filter(Boolean).sort(),
+    parmaklar: [...new Set(D.parmaklarOf(ch))].sort(),
+});
+// Satırlar: taşma (scrollWidth > clientWidth) ve satırın karakterleri (yanlış boşluk ␣ görünse de metindeki karakter)
+const opSatirlar = (page) => page.locator('.op-satirlar__ic > .op-satir').evaluateAll((d) => d.map((e) => ({
+    sw: e.scrollWidth, cw: e.clientWidth,
+    metin: [...e.querySelectorAll('.op-harf')].map((h) => (h.classList.contains('op-harf--bosluk') ? ' ' : h.textContent)).join(''),
+})));
+async function opSatirTasmasiz(page, etiket) {
+    const satirlar = await opSatirlar(page);
+    expect(satirlar.length, etiket).toBeGreaterThan(1);
+    for (const [i, s] of satirlar.entries()) expect(s.sw, `${etiket}: satır ${i + 1} "${s.metin}" taşmaz`).toBeLessThanOrEqual(s.cw);
+    return satirlar;
+}
+
+opTestShift.describe('OnParmak — Shift tanıtımı ve Shift\'li karakterler (fikstür)', () => {
+    opTestShift('yeniShift sol: tanıtımda örnek büyük harf yanar (J + sol Shift + sağ işaret + sol serçe); yalnız sol Shift geçirir', async ({ page, errors }) => {
+        opTestShift.setTimeout(90000);
+        await opAc(page, OP_SH_SOL, OP_SH_TOPLAM);
+        const oyun = opOyun(page);
+        await expect(oyun).toHaveAttribute('data-mod', 'tanitim');
+        await expect(oyun).toHaveAttribute('data-beklenen', 'Shift');
+        await expect(page.locator('.op-tanitim__tus')).toHaveText(['Shift', 'J']);
+        await expect(page.locator('.op-tanitim__cumle')).toContainText('Sağ el harfleri için sol Shift’e sol serçe parmağınla bas.');
+        expect(await opYanan(page)).toEqual({ tuslar: ['KeyJ', 'ShiftLeft'], parmaklar: ['sag-isaret', 'sol-serce'] });
+        await page.clock.runFor(100);
+        await expect(page.locator('.op-canli')).toContainText('Örneğin büyük J');
+        // Örnek harfe ya da yanlış Shift'e basmak geçirmez
+        await page.evaluate(() => window.__opBas('J'));
+        await page.evaluate(() => window.__opTus('Shift', 'ShiftRight'));
+        await expect(oyun).toHaveAttribute('data-mod', 'tanitim');
+        await page.evaluate(() => window.__opTus('Shift', 'ShiftLeft'));
+        await expect(oyun).toHaveAttribute('data-mod', 'serit');
+        await expect(page.locator('.op-serit')).toContainText('Sol Shift');
+        await page.clock.runFor(1300);
+        await expect(oyun).toHaveAttribute('data-mod', 'kutu');
+        await expect(oyun).toHaveAttribute('data-beklenen', 'J');
+        expect(await opYanan(page)).toEqual(opBeklenenYanma('J'));
+        // Shift'siz küçük harf büyük harfin yerine geçmez
+        await page.evaluate(() => window.__opBas('j'));
+        await expect(page.locator('.op-kutu[data-i="0"]')).toHaveClass(/is-yanlis/);
+        await expect(oyun).toHaveAttribute('data-beklenen', 'J');
+        await opYaz(page, 'kutu');
+        await expect(oyun).toHaveAttribute('data-mod', 'sonuc');
+        errors.assertClean();
+    });
+
+    opTestShift('yeniShift sağ: örnek F + sağ Shift + sol işaret + sağ serçe; yalnız sağ Shift geçirir', async ({ page, errors }) => {
+        await opAc(page, OP_SH_SAG, OP_SH_TOPLAM);
+        const oyun = opOyun(page);
+        await expect(page.locator('.op-tanitim__tus')).toHaveText(['Shift', 'F']);
+        await expect(page.locator('.op-tanitim__cumle')).toContainText('Sol el harfleri için sağ Shift’e sağ serçe parmağınla bas.');
+        expect(await opYanan(page)).toEqual({ tuslar: ['KeyF', 'ShiftRight'], parmaklar: ['sag-serce', 'sol-isaret'] });
+        await page.evaluate(() => window.__opTus('Shift', 'ShiftLeft'));
+        await expect(oyun).toHaveAttribute('data-mod', 'tanitim');
+        await page.evaluate(() => window.__opTus('Shift', 'ShiftRight'));
+        await expect(page.locator('.op-serit')).toContainText('Sağ Shift');
+        errors.assertClean();
+    });
+
+    opTestShift('Shift\'li yeni tuş tanıtımı (?): tuşun kendi parmağı + karşı Shift söylenir; kutuda büyük harf, rakam satırı Shift\'lileri ve : ; \' " - doğru beklenir, karşı Shift yanar', async ({ page, errors }) => {
+        opTestShift.setTimeout(90000);
+        await opAc(page, OP_SH_KUTU, OP_SH_TOPLAM);
+        const oyun = opOyun(page);
+        await expect(oyun).toHaveAttribute('data-beklenen', '?');
+        await expect(page.locator('.op-tanitim__cumle')).toHaveText('? tuşuna sağ serçe parmağınla bas; sol Shift’i sol serçe parmağınla basılı tut.');
+        expect(await opYanan(page)).toEqual(opBeklenenYanma('?'));
+        await page.evaluate(() => window.__opBas('?'));
+        await page.clock.runFor(1300);
+        await expect(oyun).toHaveAttribute('data-mod', 'kutu');
+        const metin = [...OP_SHIFT_KUTU];
+        for (const [i, ch] of metin.entries()) {
+            await expect(oyun, `kutu ${i}`).toHaveAttribute('data-beklenen', ch);
+            if (ch !== ' ') expect(await opYanan(page), `kutu ${i} "${ch}"`).toEqual(opBeklenenYanma(ch));
+            // Büyük harfte Shift'siz küçüğü, Shift'li işarette aynı tuşun Shift'siz karakteri yanlış sayılır
+            const t = D.tusOf(ch);
+            if (t && t.shift) {
+                const alt = D.SATIRLAR.flat().find((k) => k.code === t.code).alt;
+                await page.evaluate((c) => window.__opBas(c), alt);
+                await expect(page.locator('.op-kutu[data-i="' + i + '"]'), `kutu ${i} "${ch}" ← "${alt}"`).toHaveClass(/is-yanlis/);
+            }
+            await page.evaluate((c) => window.__opBas(c), ch);
+        }
+        await expect(oyun).toHaveAttribute('data-mod', 'sonuc');
+        errors.assertClean();
+    });
+});
+
+for (const [ad, vp] of [['masaüstü 1366×768', { width: 1366, height: 768 }], ['telefon 375×812', { width: 375, height: 812 }]]) {
+    opTestShift.describe('OnParmak — satır motoru ölçülü bölme, ' + ad, () => {
+        opTestShift('geniş glifli + Shift\'li satır: hiçbir satır taşmaz, sözcük bölünmez (satırdan uzun sözcük hariç), metin tam; Shift\'li karakterde karşı Shift yanar; yanlış boşluk (␣) taşırmaz', async ({ page, errors }) => {
+            opTestShift.setTimeout(120000);
+            await page.setViewportSize(vp);
+            await opAc(page, OP_SH_SATIR, OP_SH_TOPLAM);
+            const oyun = opOyun(page);
+            await expect(oyun).toHaveAttribute('data-mod', 'satir');
+            const satirlar = await opSatirTasmasiz(page, ad);
+            expect(satirlar.map((s) => s.metin).join('')).toBe(OP_SHIFT_SATIR);
+            // Sözcük bölünmez: satır sonu boşluk ya da metnin sonu — yalnız satıra sığmayan uzun sözcük (W×28) harf harf bölünür
+            satirlar.slice(0, -1).forEach((s, i) => {
+                if (s.metin.endsWith(' ')) return;
+                expect(/^W+$/.test(s.metin.split(' ').pop()), `satır ${i + 1} "${s.metin}" sözcük ortasında bitiyor`).toBe(true);
+            });
+            // Her karakterde: beklenen + yanan tuşlar (Shift'liyse karşı Shift); boşluklar yanlış yazılır (␣ görünür)
+            const sorun = await page.evaluate(() => {
+                const D2 = window.KlavyeDizilim;
+                const r = document.querySelector('.op-oyun');
+                const hatalar = [];
+                const tasma = () => Math.max(...[...document.querySelectorAll('.op-satirlar__ic > .op-satir')].map((e) => e.scrollWidth - e.clientWidth));
+                let enCokTasma = -Infinity;
+                for (let n = 0; n < 400 && r.dataset.mod === 'satir'; n++) {
+                    const ch = r.dataset.beklenen;
+                    if (ch !== ' ') {
+                        const yanan = [...new Set([...r.querySelectorAll('[data-code].is-hedef')].map((g) => g.dataset.code))].sort().join(',');
+                        const beklenen = [D2.tusOf(ch).code, D2.shiftTusuOf(ch)].filter(Boolean).sort().join(',');
+                        if (yanan !== beklenen) hatalar.push(ch + ': ' + yanan + ' ≠ ' + beklenen);
+                    }
+                    window.__opBas(ch === ' ' ? 'j' : ch);
+                    if (r.dataset.mod === 'satir') enCokTasma = Math.max(enCokTasma, tasma());
+                }
+                return { hatalar, enCokTasma };
+            });
+            expect(sorun.hatalar).toEqual([]);
+            expect(sorun.enCokTasma, 'yazarken (␣ dahil) taşma').toBeLessThanOrEqual(0);
+            await expect(page.locator('.op-harf.is-yanlis').first()).toHaveText('␣');
+            await expect(oyun).toHaveAttribute('data-mod', 'sonuc');
+            await opSatirTasmasiz(page, ad + ' (bitişte)');
+            errors.assertClean();
+        });
+    });
+}
+
+opTestShift.describe('OnParmak — satır motoru yeniden boyutlandırmada', () => {
+    opTestShift('masaüstü → 375 px: satırlar yeniden bölünür (taşma yok), yazılanlar ve imleç korunur', async ({ page, errors }) => {
+        opTestShift.setTimeout(90000);
+        await page.setViewportSize({ width: 1366, height: 768 });
+        await opAc(page, OP_SH_SATIR, OP_SH_TOPLAM);
+        await expect(opOyun(page)).toHaveAttribute('data-mod', 'satir');
+        const once = (await opSatirlar(page)).length;
+        for (const ch of [...OP_SHIFT_SATIR].slice(0, 30)) await page.evaluate((c) => window.__opBas(c), ch);
+        await page.setViewportSize({ width: 375, height: 812 });
+        await expect.poll(async () => (await opSatirlar(page)).length).toBeGreaterThan(once);
+        await opSatirTasmasiz(page, '375 sonrası');
+        expect(await page.locator('.op-harf.is-dogru').count()).toBe(30);
+        const imlec = await page.locator('.op-harf').evaluateAll((h) => h.findIndex((e) => e.classList.contains('is-imlec')));
+        expect(imlec).toBe(30);
+        await expect(page.locator('.op-satir.is-etkin .op-harf.is-imlec')).toHaveCount(1);
+        errors.assertClean();
     });
 });

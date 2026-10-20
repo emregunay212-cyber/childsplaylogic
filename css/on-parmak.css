@@ -587,6 +587,24 @@
     font-size: 1.8rem;
 }
 
+/* Shift tanıtımı: basılacak Shift (güneş) + örnek büyük harf (beyaz, ikincil — basılan tuş değil, birlikte kullanımı) */
+.op-tanitim__tuslar {
+    display: flex;
+    align-items: center;
+    gap: var(--ara-3);
+}
+
+.op-tanitim__arti {
+    color: var(--murekkep-orta);
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.op-tanitim__tus--ornek {
+    background: var(--beyaz);
+}
+
 .op-tanitim__tus.is-yanlis {
     animation: op-salla var(--op-salla-sure) var(--egri-out);
 }
