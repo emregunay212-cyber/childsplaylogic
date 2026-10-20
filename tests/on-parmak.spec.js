@@ -1404,6 +1404,13 @@ opTest.describe('OnParmak — oyun modülü (tarayıcı)', () => {
                     const k = b.metin.split(' ');
                     await expect(page.locator('.op-baloncuk__b')).toHaveCount(2);
                     expect(await page.locator('.op-baloncuk__b').evaluateAll((d) => d.map((g) => g.dataset.kelime))).toEqual(k.slice(0, 2));
+                } else if (b.oyun === 'elma') {
+                    // Elma Bekçisi: başta iki sincap, metnin ilk iki kelimesi (doğuş sırasıyla); ilki görünür, ikincisi girişte
+                    const k = b.metin.split(' ');
+                    const s = page.locator('.op-elma__s[data-sira]');
+                    await expect(s).toHaveCount(2);
+                    const kelimeler = await s.evaluateAll((d) => d.sort((a, c) => a.dataset.sira - c.dataset.sira).map((g) => g.dataset.kelime));
+                    expect(kelimeler).toEqual(k.slice(0, 2));
                 } else {
                     // Canavar: ilk kelime kutularda (+ Boşluk kutusu), güç çubuğu = kelime sayısı
                     const ilk = b.metin.split(' ')[0];
