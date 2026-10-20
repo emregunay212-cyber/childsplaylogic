@@ -691,7 +691,7 @@ const OnParmak = (() => {
     // ── Satır motoru: 3 görünür satır, sözcük bölünmez, imleç her basışta ilerler ──
     // Satırlar ÖLÇÜLÜ bölünür: harf <span>'ları bir kez kurulur, gerçek genişlikleri okunur ve satırlara dizilir
     // (geniş glifler — M W Ğ Ş, büyük harf, işaret — tahminle değil ölçüyle). Pencere genişliği değişince
-    // (ResizeObserver) ya da yazı tipi geç yüklenince aynı span'lar yeniden dizilir: yazılanlar ve imleç korunur.
+    // (window 'resize') ya da yazı tipi geç yüklenince aynı span'lar yeniden dizilir: yazılanlar ve imleç korunur.
     function satirBaslat() {
         mod = 'satir';
         els.yonerge.textContent = 'Metni yaz. Yanlış harfte durma, devam et.';
@@ -739,17 +739,34 @@ const OnParmak = (() => {
             return Math.max(a, b);
         });
         olcu.remove();
-        let parcalar = W > 0 && genislik.some((g) => g > 0) ? satirBolOlcu(genislik, W) : satirBol(metin, 40);
+        const parcalar = W > 0 && genislik.some((g) => g > 0) ? satirBolOlcu(genislik, W) : satirBol(metin, 40);
         satirlariKur(parcalar);
-        // Güvenlik: alt piksel yuvarlaması bir satırı yine taşırırsa o kadar dar yeniden böl (en çok 3 kez)
-        for (let deneme = 0; deneme < 3 && W > 0; deneme++) {
-            const tasma = Math.max(...satirlar.map((x) => x.dugum.scrollWidth - x.dugum.clientWidth));
-            if (tasma <= 0) break;
-            parcalar = satirBolOlcu(genislik, W - tasma - 1 - deneme * 2);
-            satirlariKur(parcalar);
+        // Güvenlik 1: ölçü ile çizim ayrışırsa (alt piksel, beklenmedik stil) taşma kadar daha dar yeniden böl; hedef
+        // genişlik her turda yalnız AZALIR ve W'nin yarısının altına inmez (en çok 3 tur)
+        if (W > 0) {
+            let hedefW = W;
+            for (let deneme = 0; deneme < 3; deneme++) {
+                const tasma = satirTasmasi();
+                if (tasma <= 0) break;
+                hedefW = Math.max(W / 2, Math.min(hedefW - 1, W - tasma - 1));
+                satirlariKur(satirBolOlcu(genislik, hedefW));
+            }
+            // Güvenlik 2 (son çare): taşma sürüyorsa karakter sayısıyla, gerçek taşma oranına göre küçülterek böl
+            let sigan = Math.max(1, ...satirlar.map((x) => x.son - x.bas));
+            for (let deneme = 0; deneme < 30 && sigan > 1; deneme++) {
+                const oran = satirlar.reduce((o, x) => (x.dugum.scrollWidth > x.dugum.clientWidth
+                    ? Math.min(o, x.dugum.clientWidth / x.dugum.scrollWidth) : o), 1);
+                if (oran >= 1) break;
+                sigan = Math.max(1, Math.min(sigan - 1, Math.floor(sigan * oran)));
+                satirlariKur(satirBol(metin, sigan));
+            }
         }
         etkinSatir = -1;
         satirImlec();
+    }
+
+    function satirTasmasi() {
+        return Math.max(-Infinity, ...satirlar.map((x) => x.dugum.scrollWidth - x.dugum.clientWidth));
     }
 
     function satirlariKur(parcalar) {
@@ -884,7 +901,7 @@ const OnParmak = (() => {
         const ms = baslangic ? bitis - baslangic : 0;     // oyunda hiç basmadan bitebilir
         // Oyunda yazılan karakter = doğru basış (canla atlanan harf yazılmadı); oyunda hız şartı yok (spec §4)
         const h = O.hiz(b.tur === 'oyun' ? oyunDogru : metin.length, ms);
-        const y = O.bolumYildizi({ dogruluk: d, hiz: h, hedefHiz: b.tur === 'satir' ? kisim().hedefHiz : undefined, canliBitti });
+        const y = O.bolumYildizi({ dogruluk: d, hiz: h, hedefHiz: b.tur === 'satir' ? (b.hedefHiz ?? kisim().hedefHiz) : undefined, canliBitti });   // bölüm hedefi kısmınkini ezer (K7 15→25)
         const dGoster = Math.floor(d);          // %79,6 asla "%80" görünmesin (karar ham değerle)
         const no = genelNo(kisimIdx, bolumIdx);
         if (b.tur === 'satir') olcumYaz();
