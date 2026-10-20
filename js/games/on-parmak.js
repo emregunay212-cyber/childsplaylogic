@@ -433,11 +433,12 @@ const OnParmak = (() => {
         els.ilerlemeNo.textContent = 'Bölüm ' + no + '/' + TOPLAM_BOLUM;
         els.ilerlemeAd.textContent = b.ad;
         els.root.dataset.tur = b.tur;
-        // Tanıtım: yalnız kutu bölümünün yeni tuşları (+ yeniShift tek ekran); tekrarda gösterilmez
+        // Tanıtım: yalnız kutu bölümünün yeni tuşları; yeniShift varsa ÖNCE tek Shift ekranı (örnek büyük harfle vurgu);
+        // tekrarda gösterilmez
         tanitimAdimlari = [];
         if (b.tur === 'kutu' && !tekrar) {
+            if (b.yeniShift) tanitimAdimlari.push({ shift: b.yeniShift, ornek: (b.yeni || [])[0] });
             (b.yeni || []).forEach((ch) => tanitimAdimlari.push({ ch }));
-            if (b.yeniShift) tanitimAdimlari.push({ shift: b.yeniShift });
         }
         tanitimIdx = 0;
         if (b.tur === 'oyun') { oyunBaslat(); return; }
@@ -519,7 +520,8 @@ const OnParmak = (() => {
             kapakEl.classList.add('op-tanitim__tus--genis');
             cumle.append(harfEl + ' el harfleri için ', el('strong', '', shiftEl), ' Shift’e ', el('strong', '', parmak), ' bas.');
             duyuru = harfEl + ' el harfleri için ' + shiftEl + ' Shift tuşuna ' + parmak + ' bas.';
-            ekran.vurgula(null);
+            // Örnek büyük harf: Shift tuşu + serçe parmağı (ve harf) yanar
+            ekran.vurgula(a.ornek || null);
         } else {
             const ad = kapak(a.ch);
             const parmak = PARMAK_ILE[window.KlavyeDizilim.parmaklarOf(a.ch)[0]] || '';
@@ -667,20 +669,22 @@ const OnParmak = (() => {
         const kayan = el('div', 'op-satirlar__ic');
         pencere.appendChild(kayan);
         alan.appendChild(pencere);
-        // Satır başına sığan karakter: gerçek yazı tipinde ölçülür
-        // (harf başına ayrı span — oyundaki gibi; ortalama Türkçe harf genişliği)
+        // Satır genişliği gerçek yazı tipinde ÖLÇÜLÜR: metindeki her farklı karakter kendi span'inde bir kez ölçülür
+        // (büyük harf, rakam, noktalama ortalama harften geniş — tahminle bölmek satırı taşırırdı)
         const olcu = el('div', 'op-satir');
         olcu.style.visibility = 'hidden';
-        for (const c of 'kasılmşedf') olcu.appendChild(el('span', 'op-harf', c));
+        const farkli = [...new Set(metin)];
+        farkli.forEach((c) => olcu.appendChild(el('span', 'op-harf' + (c === ' ' ? ' op-harf--bosluk' : ''), c)));
         kayan.appendChild(olcu);
-        const harfGen = olcu.firstChild ? (olcu.lastChild.getBoundingClientRect().right - olcu.firstChild.getBoundingClientRect().left) / 10 : 0;
+        const gen = new Map();
+        farkli.forEach((c, i) => gen.set(c, olcu.children[i].getBoundingClientRect().width || 18));
         olcu.remove();
-        const genislik = pencere.clientWidth || 600;
-        const sigan = Math.max(12, Math.floor(genislik / (harfGen || 18)) - 1);
+        // Pay: imleç/yanlış işareti (␣) genişliği kaydırmasın
+        const genislik = (pencere.clientWidth || 600) - 24;
 
         satirlar = [];
         harfDugumleri = [];
-        satirBol(metin, sigan).forEach((s) => {
+        satirBol(metin, genislik, (c) => gen.get(c) || 18).forEach((s) => {
             const dugum = el('div', 'op-satir');
             for (let i = s.bas; i < s.son; i++) {
                 const h = el('span', 'op-harf' + (metin[i] === ' ' ? ' op-harf--bosluk' : ''), metin[i]);
@@ -698,13 +702,20 @@ const OnParmak = (() => {
         durumYaz();
     }
 
-    // Sözcük bölünmez: boşluk önceki satırın sonunda kalır (yazılacak karakterdir)
-    function satirBol(m, sigan) {
+    // Sözcük bölünmez: boşluk önceki satırın sonunda kalır (yazılacak karakterdir). Satıra sığan = ölçülü genişlik
+    // toplamı ≤ genislik (satır sonundaki boşluk sayılmaz); tek sözcük satırdan uzunsa harften bölünür.
+    function satirBol(m, genislik, harfGen) {
         const sonuc = [];
         let bas = 0;
         while (bas < m.length) {
-            let son = Math.min(bas + sigan, m.length);
-            if (son < m.length) {
+            let son = bas, w = 0;
+            // Boşluk her zaman satıra girer (taşsa da: satır sonunda kalır); taşan ilk harfte dur
+            while (son < m.length && (m[son] === ' ' || w + harfGen(m[son]) <= genislik)) {
+                w += harfGen(m[son]);
+                son++;
+            }
+            if (son === bas) son = bas + 1;
+            if (son < m.length && m[son - 1] !== ' ') {
                 const kes = m.lastIndexOf(' ', son - 1);
                 if (kes >= bas) son = kes + 1;
             }
@@ -771,7 +782,7 @@ const OnParmak = (() => {
         const ms = baslangic ? bitis - baslangic : 0;     // oyunda hiç basmadan bitebilir
         // Oyunda yazılan karakter = doğru basış (canla atlanan harf yazılmadı); oyunda hız şartı yok (spec §4)
         const h = O.hiz(b.tur === 'oyun' ? oyunDogru : metin.length, ms);
-        const y = O.bolumYildizi({ dogruluk: d, hiz: h, hedefHiz: b.tur === 'satir' ? kisim().hedefHiz : undefined, canliBitti });
+        const y = O.bolumYildizi({ dogruluk: d, hiz: h, hedefHiz: b.tur === 'satir' ? (b.hedefHiz || kisim().hedefHiz) : undefined, canliBitti });
         const dGoster = Math.floor(d);          // %79,6 asla "%80" görünmesin (karar ham değerle)
         const no = genelNo(kisimIdx, bolumIdx);
         if (b.tur === 'satir') olcumYaz();

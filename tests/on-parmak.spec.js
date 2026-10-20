@@ -356,7 +356,8 @@ test.describe('ON_PARMAK_ICERIK — içerik kuralları (tarayıcısız)', () => 
                         if (D.elOf(k) === hedefEl && k.toLocaleUpperCase('tr-TR') !== k) kume.add(k.toLocaleUpperCase('tr-TR'));
                     }
                 }
-                sonuc.push({ no, kisim: ki, kisimAd: kisim.ad, hedefHiz: kisim.hedefHiz, b, ogrenilen: new Set(kume) });
+                // Bölümün hedefHiz'i kısmınkini geçersiz kılar (Kısım 7)
+                sonuc.push({ no, kisim: ki, kisimAd: kisim.ad, hedefHiz: b.hedefHiz || kisim.hedefHiz, b, ogrenilen: new Set(kume) });
             }
         });
         return sonuc;
@@ -489,11 +490,12 @@ test.describe('ON_PARMAK_ICERIK — içerik kuralları (tarayıcısız)', () => 
         }
     });
 
-    test('kayıt: data/games.json levels = ON_PARMAK_ICERIK.length; kapalı; dosya sırası dizilim → ölçüm → içerik → ekran → oyun ortak → oyunlar → modül', () => {
+    test('kayıt: data/games.json levels = ON_PARMAK_ICERIK.length (7); açık; dosya sırası dizilim → ölçüm → içerik → ekran → oyun ortak → oyunlar → modül', () => {
         const kayit = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/games.json'), 'utf8')).games.find((g) => g.slug === 'on-parmak');
         expect(kayit, 'on-parmak kaydı').toBeTruthy();
         expect(kayit.levels).toBe(loadIcerik().length);
-        expect(kayit.active).toBe(false);
+        expect(kayit.levels).toBe(7);
+        expect(kayit.active).toBe(true);
         expect(kayit.module).toBe('OnParmak');
         expect(kayit.files.js).toEqual(['js/games/klavye-dizilim.js', 'js/games/on-parmak-olcum.js', 'js/games/on-parmak-icerik.js',
             'js/games/on-parmak-ekran.js', 'js/games/on-parmak-oyun-ortak.js', 'js/games/on-parmak-balon.js', 'js/games/on-parmak-canavar.js',
@@ -504,6 +506,65 @@ test.describe('ON_PARMAK_ICERIK — içerik kuralları (tarayıcısız)', () => 
     test('boşluk öğrenildikten sonra her satır birden çok sözcük içerir', () => {
         for (const x of bolumler().filter((y) => y.b.tur === 'satir' && y.ogrenilen.has(' '))) {
             expect(x.b.metin.split(' ').length, etiket(x)).toBeGreaterThanOrEqual(5);
+        }
+    });
+
+    // ── Adım 3: tam içerik (7 kısım) sıkı kuralları ──
+    test('7 kısım (spec §5.2 sırası, hedefHiz, el çizimi); toplam 90–110 bölüm', () => {
+        const icerik = loadIcerik();
+        expect(icerik.map((k) => k.ad)).toEqual(['Orta sıra', 'Üst sıra', 'Alt sıra', 'Büyük harf', 'Rakamlar', 'Noktalama', 'Akıcı yazma']);
+        expect(icerik.map((k) => k.hedefHiz)).toEqual([8, 10, 12, 12, 10, 10, 15]);
+        expect(icerik.map((k) => k.el)).toEqual([true, true, true, false, false, false, false]);
+        const n = bolumler().length;
+        expect(n).toBeGreaterThanOrEqual(90);
+        expect(n).toBeLessThanOrEqual(110);
+    });
+
+    test('dört oyunun her biri akışta en az iki kez; Elma Bekçisi ilk kez Kısım 2\'de', () => {
+        const oyunlar = bolumler().filter((x) => x.b.tur === 'oyun');
+        for (const ad of OYUNLAR) expect(oyunlar.filter((x) => x.b.oyun === ad).length, ad).toBeGreaterThanOrEqual(2);
+        expect(oyunlar.find((x) => x.b.oyun === 'elma').kisim).toBe(1);
+    });
+
+    test('Kısım 7: bölüm hedefHiz 15 → 25 (azalmaz, son bölüm 25); satır 150 – hedefHiz × 10 karakter', () => {
+        const k7 = bolumler().filter((x) => x.kisim === 6);
+        const hizlar = k7.filter((x) => x.b.tur === 'satir').map((x) => x.hedefHiz);
+        for (let i = 1; i < hizlar.length; i++) expect(hizlar[i]).toBeGreaterThanOrEqual(hizlar[i - 1]);
+        expect(hizlar[0]).toBeGreaterThanOrEqual(15);
+        expect(hizlar[hizlar.length - 1]).toBe(25);
+        for (const x of k7.filter((y) => y.b.tur === 'satir')) expect([...x.b.metin].length, etiket(x)).toBeGreaterThanOrEqual(150);
+        // Bölüm hedefHiz'i yalnız Kısım 7'de
+        for (const x of bolumler().filter((y) => y.kisim !== 6)) expect(x.b.hedefHiz, etiket(x)).toBeUndefined();
+    });
+
+    test('Q, W, X yalnız adında o harfi anan tanıtım/tekrar bölümünde (Türkçe kelime ve cümlede yok)', () => {
+        for (const x of bolumler()) {
+            for (const h of ['q', 'w', 'x']) {
+                if (!x.b.metin.toLocaleLowerCase('tr-TR').includes(h)) continue;
+                expect(new RegExp('(^| )' + h.toUpperCase() + '( |$)').test(x.b.ad), `${etiket(x)} "${h}"`).toBe(true);
+                expect(['kutu', 'satir'], etiket(x)).toContain(x.b.tur);
+            }
+        }
+    });
+
+    test('Kısım 4: iki Shift kutu bölümü (sol, sağ); ondan önce büyük harf yok; özel adlar yalnız Kısım 4+', () => {
+        const hepsi = bolumler();
+        const shiftler = hepsi.filter((x) => x.b.yeniShift);
+        expect(shiftler.map((x) => [x.kisim, x.b.tur, x.b.yeniShift])).toEqual([[3, 'kutu', 'sol'], [3, 'kutu', 'sag']]);
+        // yeni büyük harfler o Shift'in karşı elinde
+        for (const x of shiftler) {
+            for (const k of x.b.yeni) expect(D.elOf(k), `${etiket(x)} "${k}"`).toBe(x.b.yeniShift === 'sol' ? 'sag' : 'sol');
+        }
+        const buyuk = (s) => [...s].some((c) => c.toLocaleLowerCase('tr-TR') !== c);
+        for (const x of hepsi.filter((y) => y.no < shiftler[0].no)) expect(buyuk(x.b.metin), etiket(x)).toBe(false);
+    });
+
+    test('tek el bölümleri ("Sol el kelimeleri" / "Sağ el kelimeleri"): harfler yalnız o elde, boşluk istisna', () => {
+        const tek = bolumler().filter((x) => /^(Sol|Sağ) el kelimeleri$/.test(x.b.ad));
+        expect(tek.map((x) => x.b.ad)).toEqual(['Sol el kelimeleri', 'Sağ el kelimeleri']);
+        for (const x of tek) {
+            const el = x.b.ad.startsWith('Sol') ? 'sol' : 'sag';
+            for (const c of x.b.metin) if (c !== ' ') expect(D.elOf(c), `${etiket(x)} "${c}"`).toBe(el);
         }
     });
 });
@@ -708,8 +769,7 @@ test.describe('OnParmakEkran — klavye + eller (tarayıcı)', () => {
 });
 
 // ── Oyun modülü (js/games/on-parmak.js, TARAYICI) ──
-// Kapalı oyun (active:false) hiçbir yoldan açılmaz → test bağlamında js/catalog.js yanıtı yamalanır: yalnız on-parmak
-// satırında "active":false → true (üretim kodu değişmez; hash'li çıktıda ?h= de eşleşir). Derin bağlantı kilidi atlar.
+// Oyun açık (Adım 3, active:true): katalog yamasız. Derin bağlantı (`/?oyun=on-parmak`) kilidi atlar.
 // Sahte Firebase + misafir tohumu + gstatic engeli tests/klavye-kasifi.spec.js kalıbı. Görev 6 bu fikstürü genişletir.
 const { getActiveSlugs } = require('./helpers/slugs');
 const { seedGuest } = require('./helpers/guest-seed');
@@ -780,12 +840,12 @@ const opLockKeys = (() => {
     return [...solo, OP_SLUG, ...online.map((s) => 'mp:' + s)];
 })();
 
-// Fikstür fabrikası. parcali: ikinci test kısmı eklenir (içerik dosyası yanıtına) ve katalogda levels 2 olur —
-// kısım geçişi (onLevelUp) üretimde tek kısım varken sınanamaz (sapma 6).
-const OP_TEST_KISIM = "window.ON_PARMAK_ICERIK.push({ ad: 'Deneme kısmı', ornek: 'F J', hedefHiz: 8, el: true, bolumler: "
-    + "[ { tur: 'satir', ad: 'Deneme satırı', metin: 'fj jf fj jf fj jf fj jf fj jf' } ] });\n";
-// Elma Bekçisi Kısım 1'de yok (Adım 3'te Kısım 2'de ilk kez) → oyun bu fikstürle sınanır: ikinci test kısmı = Elma bölümü
-// + ardından bir satır (kaybedince akışın sürdüğü görülsün). Kelimeler orta sıradan; f/j hiçbir kelimenin ilk harfi değil.
+// Fikstür fabrikası (elma, bilinmez): içerik dosyası yanıtı Kısım 1'e KISALTILIR ve ikinci test kısmı eklenir, katalogda
+// levels 7 → 2 olur. Böylece fikstür bölümleri Kısım 1'in hemen ardından (genel no OP_SON + 1) gelir: Elma'nın tohumu
+// (= bölüm numarası) gerçek içerik büyüse de değişmez (sahne ve doğuş planı testleri bu tohuma göre seçildi).
+const OP_KISALT = 'window.ON_PARMAK_ICERIK.length = 1;\n';
+// Elma Bekçisi'nin tüm davranış testleri bu fikstürle (gerçek içerikte Kısım 2+'da ama kelimeleri testlere göre seçilmedi):
+// ikinci test kısmı = Elma bölümü + ardından bir satır (kaybedince akışın sürdüğü görülsün). Kelimeler orta sıradan; f/j hiçbir kelimenin ilk harfi değil.
 // Sıra testlere göre seçildi: 0 "hala" görünür başlar, 1 "dal" kenardan girer (ilk harfi farklı → giriş bitmeden seçilemez),
 // 2 "kasa" ve 3 "kaş" aynı ilk harf (ağaca en yakın olan kilitlenmeli).
 const OP_ELMA_METIN = 'hala dal kasa kaş saha gaga şal ada sakal lala';
@@ -796,22 +856,20 @@ const OP_TEST_ELMA = "window.ON_PARMAK_ICERIK.push({ ad: 'Deneme: Elma', ornek: 
 const OP_TEST_BILINMEZ = "window.ON_PARMAK_ICERIK.push({ ad: 'Deneme: bilinmez', ornek: 'F J', hedefHiz: 8, el: true, bolumler: "
     + "[ { tur: 'oyun', ad: 'Miras ad', oyun: 'constructor', metin: 'fj jf' }, { tur: 'oyun', ad: 'Olmayan oyun', oyun: 'yok', metin: 'fj jf' }, "
     + "{ tur: 'satir', ad: 'Deneme satırı', metin: 'fj jf fj jf fj jf fj jf fj jf' } ] });\n";
-function opTestKur({ parcali = false, elma = false, bilinmez = false } = {}) {
+function opTestKur({ elma = false, bilinmez = false } = {}) {
     return test.extend({
         context: async ({ context }, use) => {
             await seedGuest(context, opLockKeys);
             await context.route(/https:\/\/www\.gstatic\.com\/firebasejs\//, (route) => route.abort());
-            await context.route(/\/js\/catalog\.js(\?|$)/, async (route) => {
-                const res = await route.fetch();
-                const govde = (await res.text()).split('\n').map((satir) => {
-                    if (!satir.includes('"slug":"on-parmak"')) return satir;
-                    const yamali = satir.replace('"active":false', '"active":true');
-                    return parcali || elma || bilinmez ? yamali.replace('"levels":1', '"levels":2') : yamali;
-                }).join('\n');
-                await route.fulfill({ response: res, body: govde });
-            });
-            if (parcali || elma || bilinmez) {
-                const ek = elma ? OP_TEST_ELMA : bilinmez ? OP_TEST_BILINMEZ : OP_TEST_KISIM;
+            if (elma || bilinmez) {
+                // Hash'li çıktıda (SITE_ROOT=.build-check) URL ?h= alır → desen (\?|$)
+                await context.route(/\/js\/catalog\.js(\?|$)/, async (route) => {
+                    const res = await route.fetch();
+                    const govde = (await res.text()).split('\n').map((satir) => (satir.includes('"slug":"on-parmak"')
+                        ? satir.replace('"levels":7', '"levels":2') : satir)).join('\n');
+                    await route.fulfill({ response: res, body: govde });
+                });
+                const ek = OP_KISALT + (elma ? OP_TEST_ELMA : OP_TEST_BILINMEZ);
                 await context.route(/\/js\/games\/on-parmak-icerik\.js(\?|$)/, async (route) => {
                     const res = await route.fetch();
                     await route.fulfill({ response: res, body: (await res.text()) + '\n' + ek });
@@ -842,7 +900,6 @@ function opTestKur({ parcali = false, elma = false, bilinmez = false } = {}) {
     });
 }
 const opTest = opTestKur();
-const opTestParcali = opTestKur({ parcali: true });
 const opTestElma = opTestKur({ elma: true });
 const opTestBilinmez = opTestKur({ bilinmez: true });
 
@@ -1080,8 +1137,9 @@ opTest.describe('OnParmak — oyun modülü (tarayıcı)', () => {
         await expect(oyun).toHaveAttribute('data-mod', 'bitti');
         await page.clock.runFor(500);                                         // motor 400 ms sonra katmanı açar
         await expect.poll(() => opOverlayAcik(page)).toBe(true);
-        expect(await page.evaluate(() => Progress.getLevelStars('on-parmak', 1))).toBeGreaterThan(0);
-        await expect(page.locator('#btn-next')).toBeHidden();                 // son (tek) seviye: "Sonraki Seviye" yok
+        expect(await page.evaluate(() => GameEngine.getCurrentLevel())).toBe(OP_ICERIK.length);
+        expect(await page.evaluate((n) => Progress.getLevelStars('on-parmak', n), OP_ICERIK.length)).toBeGreaterThan(0);
+        await expect(page.locator('#btn-next')).toBeHidden();                 // son seviye: "Sonraki Seviye" yok
         await page.locator('#btn-replay').click();
         await expect(opPicker(page)).toBeVisible();
         expect(await opOverlayAcik(page)).toBe(false);
@@ -1294,17 +1352,34 @@ opTest.describe('OnParmak — oyun modülü (tarayıcı)', () => {
         errors.assertClean();
     });
 
-    // Bölüm 1 → son bölüm tek akış: metinler içerikten (ekrandaki kutu/satır metni = içerik metni), her bölüm sonu
-    // "Bölüm N tamam!", son bölümde kutlama katmanı. Hız 0 (sahte saat durur) → satırda 2, kutu ve oyunda 3 yıldız.
-    opTest('Bölüm 1 → ' + OP_N + ' tek akış: tanıtım, kutu ve satır içerikten; son bölümde kutlama katmanı', async ({ page, errors }) => {
+    // Her kısım tek akış (kısım başına bir test → paralel): seçicide kısmın ilk bölümü, sonra kısmın son bölümüne dek;
+    // metinler içerikten (ekrandaki kutu/satır metni = içerik metni), her bölüm sonu "Bölüm N tamam!", son kısımda kutlama
+    // katmanı, diğerlerinde sıradaki kısmın ilk bölümü. Hız 0 (sahte saat durur) → satırda 2, kutu ve oyunda 3 yıldız.
+    OP_ICERIK.forEach((kisim, ki) => {
+    const ilk = OP_BOLUMLER.findIndex((b) => b.kisim === ki);
+    const son = ilk + kisim.bolumler.length;      // dışlayan
+    opTest('Kısım ' + (ki + 1) + ' (' + kisim.ad + ') tek akış: bölüm ' + (ilk + 1) + ' → ' + son + '; tanıtım, kutu, satır ve oyun içerikten', async ({ page, errors }) => {
         opTest.setTimeout(180000);
-        await opAc(page);
+        await opAc(page, ilk + 1);
         const oyun = opOyun(page);
-        for (let i = 0; i < OP_N; i++) {
+        expect(await page.evaluate(() => GameEngine.getCurrentLevel())).toBe(ki + 1);
+        for (let i = ilk; i < son; i++) {
             const b = OP_BOLUMLER[i];
             await expect(oyun).toHaveAttribute('data-bolum', (i + 1) + '/' + OP_N);
             await expect(page.locator('.op-ilerleme__ad')).toHaveText(b.ad);
             if (b.tur === 'kutu') {
+                // Shift tanıtımı (Kısım 4): ÖNCE tek Shift ekranı; örnek büyük harfle Shift tuşu ve karşı serçe yanar
+                if (b.yeniShift) {
+                    const kod = b.yeniShift === 'sol' ? 'ShiftLeft' : 'ShiftRight';
+                    await expect(oyun).toHaveAttribute('data-mod', 'tanitim');
+                    await expect(oyun).toHaveAttribute('data-beklenen', 'Shift');
+                    await expect(page.locator('.op-tanitim__tus')).toHaveText('Shift');
+                    await expect(page.locator('[data-code="' + kod + '"].is-hedef')).toHaveCount(1);
+                    // Yanlış Shift ilerletmez
+                    await page.evaluate((k) => window.__opTus('Shift', k), b.yeniShift === 'sol' ? 'ShiftRight' : 'ShiftLeft');
+                    await expect(oyun).toHaveAttribute('data-beklenen', 'Shift');
+                    await page.evaluate((k) => window.__opTus('Shift', k), kod);
+                }
                 // Tanıtım: yeni tuşlar sırayla, içerikteki sırada (yeni yoksa tanıtım da yok)
                 for (const ch of b.yeni || []) {
                     await expect(oyun).toHaveAttribute('data-mod', 'tanitim');
@@ -1351,13 +1426,25 @@ opTest.describe('OnParmak — oyun modülü (tarayıcı)', () => {
             await expect(page.locator('.op-serit__baslik')).toHaveText('Bölüm ' + (i + 1) + ' tamam!');
             // satırda hız şartı (sahte saat → hız 0) 3. yıldızı tutar; kutu ve oyunda hız şartı yok
             await expect(page.locator('.op-serit .op-yildiz.is-kazanildi')).toHaveCount(b.tur === 'satir' ? 2 : 3);
-            await page.clock.runFor(2600);
+            if (i < son - 1) await page.clock.runFor(2600);
         }
-        await expect(oyun).toHaveAttribute('data-mod', 'bitti');
-        await page.clock.runFor(500);
-        await expect.poll(() => opOverlayAcik(page)).toBe(true);
-        expect(await page.evaluate(() => Progress.getLevelStars('on-parmak', 1))).toBeGreaterThan(0);
+        expect(await opOverlayAcik(page)).toBe(false);
+        if (ki === OP_ICERIK.length - 1) {
+            await page.clock.runFor(2600);
+            await expect(oyun).toHaveAttribute('data-mod', 'bitti');
+            await page.clock.runFor(500);
+            await expect.poll(() => opOverlayAcik(page)).toBe(true);
+        } else {
+            // Kısım şeridi → sıradaki kısmın ilk bölümü (katman açılmaz)
+            await page.clock.runFor(2600);
+            await page.clock.runFor(2900);
+            await expect(oyun).toHaveAttribute('data-kisim', String(ki + 2));
+            await expect(oyun).toHaveAttribute('data-bolum', (son + 1) + '/' + OP_N);
+            expect(await opOverlayAcik(page)).toBe(false);
+        }
+        expect(await page.evaluate((n) => Progress.getLevelStars('on-parmak', n), ki + 1)).toBeGreaterThan(0);
         errors.assertClean();
+    });
     });
 });
 
@@ -2449,10 +2536,10 @@ opTest.describe('OnParmak — Uçan Baloncuklar, normal hareket', () => {
 
 // ── Mini oyun: Elma Bekçisi (tur:'oyun', js/games/on-parmak-elma.js) ──
 // Kelime oyunu, çok hedef: ilk harf GÖRÜNEN sincaplardan ağaca en yakını seçer (hedefSec), kilit kelime bitene dek sürer;
-// BOŞLUK yazılmaz. Ağaca varan sincap bir elma alır (5 elma = can). Kısım 1'de yok → opTestElma fikstürü (2. kısım:
-// Elma bölümü + satır). Öncelik (sapma 9): önce %80, sonra elmalar.
-const OP_ELMA = OP_N + 1;                 // fikstürdeki Elma bölümünün genel numarası (= tohum)
-const OP_ELMA_N = OP_N + 2;               // fikstürle toplam bölüm
+// BOŞLUK yazılmaz. Ağaca varan sincap bir elma alır (5 elma = can). opTestElma fikstürü (Kısım 1 + 2. kısım: Elma
+// bölümü + satır). Öncelik (sapma 9): önce %80, sonra elmalar.
+const OP_ELMA = OP_SON + 1;               // fikstürdeki Elma bölümünün genel numarası (= tohum)
+const OP_ELMA_N = OP_SON + 2;             // fikstürle toplam bölüm
 const OP_ELMA_K = OP_ELMA_METIN.split(' ');
 const opElma = (page) => page.locator('.op-elma');
 // Sahnedeki seçilebilir/yürüyen sincaplar (kaçanlar data-sira taşımaz): kelime, sıra, taraf, şerit, yol m, görünür, kilit, x
@@ -3095,11 +3182,11 @@ opTestBilinmez.describe('OnParmak — bilinmeyen oyun adı (güvenlik notu)', ()
         const hatalar = [], sayfa = [];
         page.on('console', (m) => { if (m.type() === 'error') hatalar.push(m.text()); });
         page.on('pageerror', (e) => sayfa.push(String(e)));
-        const N = OP_N + 3;
+        const N = OP_SON + 3;
         await page.clock.install({ time: new Date('2026-10-19T09:00:00Z') });
         await page.goto('/?oyun=' + OP_SLUG);
         await expect(opPicker(page)).toBeVisible();
-        await page.locator('.op-picker__bolum[data-bolum-sec="' + (OP_N + 1) + '"]').click();
+        await page.locator('.op-picker__bolum[data-bolum-sec="' + (OP_SON + 1) + '"]').click();
         await expect(opOyun(page)).toHaveAttribute('data-bolum', N + '/' + N);
         await expect(opOyun(page)).toHaveAttribute('data-mod', 'satir');
         await expect(page.locator('.op-mini')).toHaveCount(0);
@@ -3141,41 +3228,14 @@ opTestElma.describe('OnParmak — Elma Bekçisi telefonda ve yeniden boyutlandı
         errors.assertClean();
     });
 });
-// PR3'te oyun açılınca (active:true) bu describe silinir.
-const opTestYamasiz = test.extend({
-    context: async ({ context }, use) => {
-        await seedGuest(context, opLockKeys);
-        await context.route(/https:\/\/www\.gstatic\.com\/firebasejs\//, (route) => route.abort());
-        await context.addInitScript(OP_FIREBASE_STUB);
-        await use(context);
-    },
-});
-opTestYamasiz.describe('OnParmak — kapalı oyun (katalog yamasız; PR3\'te oyun açılınca silinir)', () => {
-    opTestYamasiz('/?oyun=on-parmak oyunu açmaz; hub kartı "Yakında" ve ikonu yüklü', async ({ page }) => {
-        const hatalar = [];
-        page.on('pageerror', (e) => hatalar.push(String(e)));
-        await page.goto('/?oyun=' + OP_SLUG);
-        await expect(page.locator('#hub')).toBeVisible();
-        await page.waitForTimeout(500);
-        await expect(page.locator('.op-picker')).toHaveCount(0);
-        await expect(page.locator('.op-oyun')).toHaveCount(0);
-        expect(await page.evaluate(() => document.body.hasAttribute('data-active-game'))).toBe(false);
-        const kart = page.locator('.game-card[data-game="' + OP_SLUG + '"]').first();
-        await expect(kart).toHaveClass(/coming-soon/);
-        await kart.scrollIntoViewIfNeeded();
-        const img = kart.locator('.card-icon img');
-        await expect(img).toHaveAttribute('src', /assets\/images\/hub\/on-parmak\.svg/);
-        await expect.poll(() => img.evaluate((i) => i.complete && i.naturalWidth)).toBeGreaterThan(0);
-        expect(hatalar).toEqual([]);
-    });
-});
-
-opTestParcali.describe('OnParmak — kısım geçişi (2 kısımlı test fikstürü)', () => {
-    opTestParcali('Kısım 1 bitince katman AÇILMAZ: araç çubuğu 2. seviye, yıldız kaydı, Kısım 2 başlar; seçici 2. kart → seviye 2', async ({ page, errors }) => {
-        opTestParcali.setTimeout(90000);
-        await opAc(page, OP_SON, OP_N + 1);
+// Kısım geçişi GERÇEK veriyle (Adım 3; yamasız): Kısım 1'in son bölümü bitince katman açılmaz, araç çubuğu 2. seviye,
+// Kısım 2'nin ilk bölümü başlar; seçicide son kısım kartı → motor son seviye.
+opTest.describe('OnParmak — kısım geçişi (gerçek içerik)', () => {
+    opTest('Kısım 1 bitince katman AÇILMAZ: araç çubuğu 2. seviye, yıldız kaydı, Kısım 2 başlar; seçici Kısım 7 kartı → seviye 7', async ({ page, errors }) => {
+        opTest.setTimeout(90000);
+        await opAc(page, OP_SON);
         const oyun = opOyun(page);
-        expect(await page.evaluate(() => GameEngine.getCurrentGame().levels.length)).toBe(2);
+        expect(await page.evaluate(() => GameEngine.getCurrentGame().levels.length)).toBe(OP_ICERIK.length);
         await opYaz(page, OP_BOLUMLER[OP_SON - 1].tur, 100);         // Kısım 1'in son bölümü (oyun ya da satır)
         await expect(oyun).toHaveAttribute('data-mod', 'sonuc');
         await page.clock.runFor(2600);                                         // şerit geçer → kısım biter → onLevelUp
@@ -3187,39 +3247,60 @@ opTestParcali.describe('OnParmak — kısım geçişi (2 kısımlı test fikstü
         await expect(page.locator('.op-serit__baslik')).toContainText('tamam');
         await page.clock.runFor(2900);                                         // geçiş şeridi → Kısım 2'nin ilk bölümü
         await expect(oyun).toHaveAttribute('data-kisim', '2');
-        await expect(oyun).toHaveAttribute('data-bolum', (OP_N + 1) + '/' + (OP_N + 1));
-        await expect(oyun).toHaveAttribute('data-mod', 'satir');
+        await expect(oyun).toHaveAttribute('data-bolum', (OP_SON + 1) + '/' + OP_N);
+        await expect(page.locator('.op-ilerleme__ad')).toHaveText(OP_ICERIK[1].bolumler[0].ad);
         expect(await opOverlayAcik(page)).toBe(false);
 
-        // Seçici: 2. kısım kartı → motor seviyesi 2, ilk bölümü
+        // Seçici: son kısım kartı → motor seviyesi 7, kısmın ilk bölümü
+        const k7 = OP_ICERIK.length;
+        const k7Ilk = OP_BOLUMLER.findIndex((b) => b.kisim === k7 - 1) + 1;
         await page.evaluate('GameEngine.startGame(OnParmak, 1)');
         await expect(opPicker(page)).toBeVisible();
-        await expect(page.locator('.op-picker__kart')).toHaveCount(2);
-        await page.locator('.op-picker__kart[data-kisim="2"] .op-picker__kisim').click();
-        await expect(oyun).toHaveAttribute('data-kisim', '2');
-        await expect(oyun).toHaveAttribute('data-bolum', (OP_N + 1) + '/' + (OP_N + 1));
-        expect(await page.evaluate(() => GameEngine.getCurrentLevel())).toBe(2);
-        await expect(page.locator('#toolbar-level .level-dot').nth(1)).toHaveClass(/active/);
-        errors.assertClean();
-    });
-
-    opTestParcali('son kısım (2) bitince kutlama katmanı açılır; "Tekrar Oyna" seçiciye döner', async ({ page, errors }) => {
-        opTestParcali.setTimeout(90000);
-        await opAc(page, OP_N + 1, OP_N + 1);
-        expect(await page.evaluate(() => GameEngine.getCurrentLevel())).toBe(2);
-        await opYaz(page, 'satir', 100);
-        await expect(opOyun(page)).toHaveAttribute('data-mod', 'sonuc');
-        expect(await opOverlayAcik(page)).toBe(false);
-        await page.clock.runFor(2600);
-        await page.clock.runFor(500);
-        await expect.poll(() => opOverlayAcik(page)).toBe(true);
-        expect(await page.evaluate(() => Progress.getLevelStars('on-parmak', 2))).toBeGreaterThan(0);
-        await page.locator('#btn-replay').click();
-        await expect(opPicker(page)).toBeVisible();
-        expect(await opOverlayAcik(page)).toBe(false);
+        await expect(page.locator('.op-picker__kart')).toHaveCount(k7);
+        await page.locator('.op-picker__kart[data-kisim="' + k7 + '"] .op-picker__kisim').click();
+        await expect(oyun).toHaveAttribute('data-kisim', String(k7));
+        await expect(oyun).toHaveAttribute('data-bolum', k7Ilk + '/' + OP_N);
+        expect(await page.evaluate(() => GameEngine.getCurrentLevel())).toBe(k7);
+        await expect(page.locator('#toolbar-level .level-dot').nth(k7 - 1)).toHaveClass(/active/);
         errors.assertClean();
     });
 });
+
+// Satır taşması (Adım 3): satır genişliği her karakter ölçülerek bölünür → büyük harf, rakam ve noktalama içeren uzun
+// satırlar (Kısım 4, 6, 7) telefonda ve masaüstünde satırdan taşmaz; sözcük ortadan bölünmez.
+for (const [ad, boyut] of [['masaüstü', { width: 1280, height: 800 }], ['telefon 375 px', { width: 375, height: 740 }]]) {
+    opTest.describe('OnParmak — satır taşması, ' + ad, () => {
+        opTest.use({ viewport: boyut });
+        // Kısım 4, 6 ve 7'nin en uzun satırı
+        const ornekler = [3, 5, 6].map((ki) => OP_BOLUMLER.map((b, i) => ({ b, no: i + 1 }))
+            .filter((x) => x.b.kisim === ki && x.b.tur === 'satir')
+            .sort((a, c) => c.b.metin.length - a.b.metin.length)[0]);
+        for (const x of ornekler) {
+            opTest('bölüm ' + x.no + ' (' + x.b.ad + '): hiçbir satır kabından taşmaz, sözcük bölünmez, metin tam', async ({ page, errors }) => {
+                opTest.setTimeout(60000);
+                await opAc(page, x.no);
+                await expect(opOyun(page)).toHaveAttribute('data-mod', 'satir');
+                const r = await page.evaluate(() => {
+                    const pencere = document.querySelector('.op-satirlar');
+                    const pk = pencere.getBoundingClientRect();
+                    return [...document.querySelectorAll('.op-satirlar__ic > .op-satir')].map((s) => {
+                        const harfler = [...s.querySelectorAll('.op-harf')];
+                        const sag = Math.max(...harfler.map((h) => h.getBoundingClientRect().right));
+                        return { metin: harfler.map((h) => h.textContent).join(''), tasma: sag - pk.right, tek: new Set(harfler.map((h) => Math.round(h.getBoundingClientRect().top))).size };
+                    });
+                });
+                expect(r.map((s) => s.metin).join('')).toBe(x.b.metin);
+                for (const s of r) {
+                    expect(s.tasma, s.metin).toBeLessThanOrEqual(0.5);
+                    expect(s.tek, 'satır tek görsel satır: ' + s.metin).toBe(1);
+                }
+                // Satır sonu: ya metnin sonu ya da boşluk (sözcük bölünmez; tek sözcük satırdan uzun değil)
+                r.slice(0, -1).forEach((s) => expect(s.metin.endsWith(' '), s.metin).toBe(true));
+                errors.assertClean();
+            });
+        }
+    });
+}
 
 /* ---- OnParmakOyunOrtak — ortak oyun parçaları ---- */
 function loadOyunOrtak(ctxEkstra = {}) {
