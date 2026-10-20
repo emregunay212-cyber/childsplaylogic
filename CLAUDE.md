@@ -128,13 +128,18 @@ const ModulAdi = (() => {
 - **Süre bütçesi** ("35 dk'lık derste usta olmayan bitiremez"): içerik değişince `npm run test:klavye`; hatasız alt sınırla 30 kelime/dk
   bitirmemeli, 48 kelime/dk bitirmeli. İçerik kısaltılırsa test kırılır.
 
-### On Parmak (on parmak klavye, Türkçe Q — `js/games/on-parmak*.js` + `klavye-dizilim.js`, **`active:false`**, 15 Eki 2026)
+### On Parmak (on parmak klavye, Türkçe Q — `js/games/on-parmak*.js` + `klavye-dizilim.js`, **açık**, 15 Eki 2026)
 
-- Durum: PR2 (Adım 2) — dört mini oyun hazır (Balon Vadisi, Canavar Saldırısı, Uçan Baloncuklar, Elma Bekçisi). İçerik yalnız Kısım 1 "Orta sıra" (`levels: 1`, 18 bölüm, üç oyun türü / dört oyun bölümü: Balon Vadisi ×2, "G H tekrar ve kelimeler"den sonra Uçan Baloncuklar, kısım sonunda Canavar Saldırısı); **Elma Bekçisi Kısım 1'de yok, ilk kez Kısım 2'de (Adım 3)** — o zamana dek yalnız test fikstürüyle sınanır. Hub'da "Yakında" kartı; kısım 2–7 ve açılış sonraki adımlarda.
+- Durum: Adım 3 (PR3) — oyun açık (`active: true`, `levels: 7`). **7 kısım × 102 bölüm:** Orta sıra 18 (hedefHiz 8) · Üst sıra 19 (10) ·
+  Alt sıra 17 (12) · Büyük harf 12 (12) · Rakamlar 12 (10) · Noktalama 10 (10) · Akıcı yazma 14 (kısım 15; satır bölümleri kendi `hedefHiz`'iyle 16 → 25);
+  el çizimi K1–3 açık, K4–7 kapalı. 18 oyun bölümü: Balon ×5, Canavar ×5, Baloncuk ×4, Elma ×4 (Elma ilk kez Kısım 2'de). Büyük harf
+  Kısım 4'ün iki Shift kutusuyla (`yeniShift: 'sol'` → sağ el harfleri, sonra `'sag'`); tanıtımda ÖNCE tek Shift ekranı (örnek büyük harf
+  `vurgula` edilir → Shift tuşu + karşı serçe yanar), sonra yeni büyük harfler. Q/W/X yalnız kendi tanıtım/tekrar bölümünde. K7'de "Sol el
+  kelimeleri" / "Sağ el kelimeleri" tek el bölümleri (boşluk istisna) ve kısa bilgi paragrafları (kendi yazımımız, olgu denetimli).
   Spec `docs/on-parmak-tasarim-2026-10-15.md`, plan `plans/on-parmak-2026-10-15.md`. TypingClub metni/görseli/sesi kullanılmaz (yalnız işleyiş örnek).
 - **Dosya sırası** (`data/games.json files.js` = yükleme sırası): `klavye-dizilim.js` → `on-parmak-olcum.js` → `on-parmak-icerik.js` →
   `on-parmak-ekran.js` → `on-parmak-oyun-ortak.js` → oyunlar (`on-parmak-balon.js`, `on-parmak-canavar.js`, `on-parmak-baloncuk.js`, `on-parmak-elma.js`) → `on-parmak.js`; css `css/on-parmak.css` (sahne renkleri yalnız burada). Yardımcılar `window.X` yayımlar, modül `window.X` ile okur
-  (modül yalnız `{ id, levels, init, destroy }`; `levels = window.ON_PARMAK_ICERIK`, uzunluk = JSON `levels`). Kapalı oyun: motor `?oyun=` dahil açmaz.
+  (modül yalnız `{ id, levels, init, destroy }`; `levels = window.ON_PARMAK_ICERIK`, uzunluk = JSON `levels`).
 - **`KlavyeDizilim`** (`klavye-dizilim.js`, saf, `window.KlavyeDizilim`): `SATIRLAR` (4 satır; tuş `{ code, alt, ust, parmak }`, okul klavyesinin `< >` =
   `IntlBackslash` **pasif**), `PARMAKLAR`, `BOSLUK`, `SHIFT`; `tusOf(ch) → {code, shift}|null`, `parmaklarOf(ch)` (Shift'liyse ÖNCE karşı serçe),
   `shiftTusuOf(ch)`, `elOf(ch)`, `yazilabilir(ch)` (dizilimde var ve pasif değil — içerik yalnız bunları kullanır), `kasifi` görünümü (Kâşifi bölümü).
@@ -156,7 +161,10 @@ const ModulAdi = (() => {
   **ms < 1000 → 0** (sahte saatte sonsuz hız yok). `bolumYildizi({dogruluk, hiz, hedefHiz, canliBitti = true})`: doğruluk < 80 → **0 = bölüm baştan (tekrar)**;
   `canliBitti:false` → en çok 1; ≥ 95 ve hız ≥ hedefHiz (hedefHiz yoksa yalnız ≥ 95) → 3; ≥ 90 → 2; değilse 1. `kisimYildizi(dizi)` = ortalama, en yakın tam sayı, boş → 0.
   Kutu bölümünde hız şartı yok (`hedefHiz` verilmez). **Oyunlarda öncelik (sapma 9):** önce %80 kuralı (hiç basmadan canları/elmaları bitirmek de tekrar), sonra can kuralı (`canliBitti:false` → en çok 1, akış sürer). Ham değerle karar, ekranda `Math.floor` — doğruluk VE hız, canlı ve sonuçta (%79,6 asla "%80" görünmez). Tekrar şeridinde (yıldız 0) hız gösterilmez (yalnız doğruluk + hedef).
-- **İçerik (`on-parmak-icerik.js`, `window.ON_PARMAK_ICERIK`):** kısım `{ ad, ornek, hedefHiz, el, bolumler: [ { tur: 'kutu'|'satir', ad, yeni?: [...], yeniShift?: 'sol'|'sag', metin } ] }`.
+- **İçerik (`on-parmak-icerik.js`, `window.ON_PARMAK_ICERIK`):** kısım `{ ad, ornek, hedefHiz, el, bolumler: [ { tur: 'kutu'|'satir'|'oyun', ad, yeni?: [...], yeniShift?: 'sol'|'sag', oyun?, hedefHiz?, metin } ] }`;
+  bölümün `hedefHiz`'i kısmınkini geçersiz kılar (yalnız Kısım 7; 3. yıldız ve uzunluk tavanı buna göre). Sıkı kurallar (Adım 3): 7 kısım (ad/hedefHiz/el sabit), 90–110 bölüm,
+  dört oyun ≥ 2'şer, K7 satırları ≥ 150 karakter ve hedefHiz azalmaz (son 25), Q/W/X yalnız adı o harfi anan bölümde, ilk Shift bölümünden önce büyük harf yok,
+  tek el bölümlerinde harfler yalnız o elde.
   Kurallar (spec §5, `tests/on-parmak.spec.js` denetler): bölüm yalnız o ana kadar **öğrenilmiş** tuşları kullanır (kutu `yeni`'leri sırayla BİRİKİR; boşluk kendi kutu bölümüyle gelir; `yeniShift`
   verilen bölümden sonra, küçüğü öğrenilmiş ve karşı elde olan harflerin büyükleri öğrenilmiş sayılır); her karakter `yazilabilir`; kutu 21–35 karakter, satır ≥ 50 ve **≤ hedefHiz × 10**
   (hedef hızda ≤ 2 dk; kutuda hedef 8); `yeni` tuşları kendi metninde geçer; baştaki/sondaki/çift boşluk yok; boşluk öğrenildikten sonra her satırda birden çok sözcük;
@@ -164,10 +172,13 @@ const ModulAdi = (() => {
 - **Ekran (`on-parmak-ekran.js`, `window.OnParmakEkran`):** klavye + iki el TEK SVG (`createElementNS`; parmak uçları tuşlarla her ölçekte hizalı). `olustur(kap, { el = true, klavye = true, basinca })` →
   `{ vurgula(ch), bas(ch, dogruMu), goster({el, klavye}), yokEt() }`. `vurgula` tuşu + parmak(lar)ı + gerekiyorsa karşı Shift'i `is-hedef` yapar (null/'' temizler); `bas` kısa süre `is-down` / `is-yanlis`.
   Tuş `<g data-code>` pointerdown → `basinca(Shift'siz karakter)`; el/vurgu/etiket katmanları `pointer-events: none`; pasif `< >`, Shift, süs tuşları tepkisiz; birincil olmayan düğme yok sayılır.
-- **Test:** `npm run test:on-parmak` (153 test; CI `ci.yml` adımı, hash'li çıktıda `SITE_ROOT=.build-check PORT=8766 npm run test:on-parmak`): tarayıcısız (`vm`) dizilim + `karakterOf` + ölçüm + içerik kuralları,
-  tarayıcıda ekran ve oyun akışı. **Kapalı oyun test yolu:** `tests/on-parmak.spec.js` bağlamında `js/catalog.js` isteği (`/\/js\/catalog\.js(\?|$)/`) yakalanır, gövdede `"slug":"on-parmak"` satırındaki
-  `"active":false` → `true` yapılır (hash'li çıktıda `?h=` de eşleşir); kısım geçişi için ayrıca 2 kısımlı içerik + `levels:2` katalog yaması fikstürü (`opTestParcali`); Elma Bekçisi için aynı kalıpla `opTestElma` (2. kısım = Elma bölümü + satır; kelime sırası testlere göre seçili — `OP_ELMA_METIN`; dört oyunu birlikte sınayan yerleşim testleri de bu fikstürde); bilinmeyen oyun adı için `opTestBilinmez` (`constructor` + `yok`). Elma içeriğe girince (Adım 3) testler gerçek bölüme taşınabilir. Üretim kodu değişmez; oyun
-  açılınca (`active:true`) yama gereksizleşir ve **kaldırılır** (yamasız "kapalı oyun" describe'ı da silinir) (duman testi `data/games.json`'dan kendiliğinden kapsar). Açılışta `seo/test_build_seo.py` kapalı listesinden `on-parmak` de çıkar.
+- **Test:** `npm run test:on-parmak` (CI `ci.yml` adımı, hash'li çıktıda `SITE_ROOT=.build-check PORT=8766 npm run test:on-parmak`): tarayıcısız (`vm`) dizilim + `karakterOf` + ölçüm + içerik kuralları,
+  tarayıcıda ekran ve oyun akışı. Oyun açık → katalog yaması YOK; duman testi `/?oyun=on-parmak`'ı `data/games.json`'dan kapsar. **Her kısım tek akış** (kısım başına bir test, paralel; Shift tanıtımı dahil),
+  **kısım geçişi gerçek veriyle** (K1 son bölüm → K2, seçicide K7 kartı → seviye 7), **satır taşması** (K4/K6/K7'nin en uzun satırı, masaüstü + 375 px: satır kabından taşmaz, sözcük bölünmez).
+  **Fikstürler** (`opTestElma`, `opTestBilinmez`): içerik yanıtı Kısım 1'e kısaltılır (`ON_PARMAK_ICERIK.length = 1`) + test kısmı eklenir, katalogda `"levels":7` → `2` (desen `/\/js\/catalog\.js(\?|$)/`, hash'li çıktıda `?h=`);
+  böylece fikstür bölümü genel no 19'da kalır → Elma tohumu sabit (`OP_ELMA_METIN` kelime sırası ve doğuş planı testleri buna göre). Dört oyunu birlikte sınayan yerleşim testleri de Elma fikstüründe. Üretim kodu değişmez.
+- **Satır motoru:** satır genişliği ÖLÇÜLÜR — metindeki her farklı karakter gerçek yazı tipinde bir kez ölçülür, satır = ölçülü genişlik toplamı ≤ kap − 24 px (boşluk satır sonunda kalır,
+  sözcük bölünmez; tek sözcük satırdan uzunsa harften bölünür). Ortalama harf tahmini kullanılmaz (büyük harf/rakam/noktalama satırı taşırırdı).
 - **Oyun bölümü (`tur: 'oyun'`, Adım 2):** `window.OnParmakOyunlari[ad] = { baslat(alan, { metin, el, tohum }, { tus(dogruMu), bitti({ canliBitti }), hedef(ch|null), duyuru(metin) }), durdur() }`
   (ad `Object.prototype.hasOwnProperty` ile aranır: `constructor` gibi miras ad oyun sayılmaz); `duyuru` = can/elma kaybı (oyun sürüyorsa) ve "Oyun durdu" → modülün kalıcı `aria-live` bölgesi (yalnız mod `oyun` iken; sonuç duyurusunu ezmez);
   `baslat` → tutamaç `{ bas(ch), devamTusu(), duraklat(acik) }` (Caps Lock açıkken modül oyunu durdurur — balon alçalmaz, can gitmez; kapanınca hemen sürer; açıkken devam tuşu sürdürmez; `dongu.duraklat/surdur(neden)`). Oyun keydown dinleyicisi KURMAZ: modül her tuşta önce `devamTusu()` (true = yutuldu, sayılmaz — sekme dönüşü
