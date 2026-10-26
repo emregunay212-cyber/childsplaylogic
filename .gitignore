@@ -4,3 +4,4 @@ logs/
 *.log
 .firebase/
 __pycache__/
+.vercel
