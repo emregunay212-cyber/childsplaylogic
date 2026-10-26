@@ -2,14 +2,14 @@
    On Parmak — içerik (sabit veri; her açılışta aynı, rastgelelik yok)
    --------------------------------------------
    Yayımlar: window.ON_PARMAK_ICERIK. Şema: docs/on-parmak-tasarim-2026-10-15.md §5.4.
-   Bu dosyada yalnız Kısım 1 "Orta sıra" var; sonraki kısımlar sonraki adımlarda eklenir.
+   Bu dosyada Kısım 1 "Orta sıra" ve Kısım 2 "Üst sıra" var; sonraki kısımlar sonraki adımlarda eklenir.
 
    Kısım: { ad, ornek, hedefHiz, el, bolumler: [ { tur: 'kutu'|'satir'|'oyun', ad, yeni?: [...], oyun?: ad, metin } ] }
    Oyun bölümü: oyun ∈ balon | canavar | baloncuk | elma (js/games/on-parmak-<ad>.js). Harf oyununda (balon) metin
    boşluksuz harf dizisi, en az 20 harf; kelime oyununda boşlukla ayrılmış en az 8 kelime. Uzunluk ≤ hedefHiz × 10.
    Kurallar (tests/on-parmak.spec.js denetler):
      - Bir bölüm yalnız o ana kadar ÖĞRENİLMİŞ tuşları kullanır (kutu `yeni`'leri sırayla birikir; boşluk 2. bölümden sonra).
-     - kutu 21–35 karakter; satır 50–80 ve en çok hedefHiz × 10 karakter (hedef hızda ≤ 2 dk); oyun da ≤ hedefHiz × 10.
+     - kutu 21–35 karakter; satır en az 50 ve en çok hedefHiz × 10 karakter (hedef hızda ≤ 2 dk); oyun da ≤ hedefHiz × 10.
      - Kutu bölümünün `yeni` tuşları kendi metninde geçer. Yalnız Shift tanıtan kutu: `yeni: []` + `yeniShift: 'sol'|'sag'`
        (metninde o Shift'le yazılan büyük harf olur; sol Shift → sağ el harflerinin büyükleri).
      - Sıkı kurallar: Q/W/X yalnız adı o harfi anan tanıtım/tekrar bölümünde; büyük harf ve Shift'li işaret yalnız gerektirdiği
@@ -61,6 +61,52 @@ window.ON_PARMAK_ICERIK = [
               metin: 'fil, dil, kil, sil, şiş, hilal, kişi, dikiş, ilgi, şifa, hadi' },
             { tur: 'oyun',  ad: 'Canavar Saldırısı: orta sıra kelimeleri', oyun: 'canavar',
               metin: 'dalga silgi hafif şaka halka gaga sakal kafa hilal kişi' },
+        ],
+    },
+    {
+        ad: 'Üst sıra',
+        ornek: 'R U E I',
+        hedefHiz: 10,
+        el: true,
+        bolumler: [
+            { tur: 'kutu',  ad: 'R ve U', yeni: ['r', 'u'],
+              metin: 'rr uu ru ur rur uru fr ju' },
+            { tur: 'satir', ad: 'R U tekrar',
+              metin: 'rr uu ru ur frf juj fru jur rur uru frj jur ruf urf rad kur sur' },
+            { tur: 'satir', ad: 'R U kelimeleri',
+              metin: 'kar kuş su dur kuru sulu uslu kulak durak kural giriş şiir kuşlar iri' },
+            { tur: 'kutu',  ad: 'E ve I', yeni: ['e', 'ı'],
+              metin: 'ee ıı eı ıe eıe ıeı de kı' },
+            { tur: 'satir', ad: 'E I tekrar',
+              metin: 'ee ıı eı ıe ded kık ede ıkı fe jı der kır eşi ılı sere kırı eı ıe' },
+            { tur: 'satir', ad: 'E I kelimeleri',
+              metin: 'ses kedi kek dere şeker sıra kısa ılık ıslak kaşık kırık erik fikir aile' },
+            { tur: 'oyun',  ad: 'Elma Bekçisi: R U E I', oyun: 'elma',
+              metin: 'kedi kale şeker şiir ses sıra arı ara dere dal ılık ıslak' },
+            { tur: 'kutu',  ad: 'T ve Y', yeni: ['t', 'y'],
+              metin: 'tt yy ty yt tyt yty ft jy' },
+            { tur: 'satir', ad: 'T Y tekrar ve kelimeler',
+              metin: 'tt yy ty yt tat yat et at tek yıl tuş kaya yatak tırtıl tatlı yeşil tahta' },
+            { tur: 'kutu',  ad: 'O ve W', yeni: ['o', 'w'],
+              metin: 'oo ww ow wo owo wow lo sw' },
+            { tur: 'satir', ad: 'O W tekrar',
+              metin: 'oo ww ow wo lol sws owo wsw lo sw ol ws olo wsw oo ww wo ow' },
+            { tur: 'satir', ad: 'O kelimeleri',
+              metin: 'okul oda yol kol sol soru dost koşu tost toka kolay sokak yokuş otel dolu' },
+            { tur: 'oyun',  ad: 'Uçan Baloncuklar: O T Y', oyun: 'baloncuk',
+              metin: 'okul oda kol koşu soru sokak yol yokuş dost dolu tost toka' },
+            { tur: 'kutu',  ad: 'P ve Q', yeni: ['p', 'q'],
+              metin: 'pp qq pq qp pqp qpq şp aq' },
+            { tur: 'satir', ad: 'P Q tekrar',
+              metin: 'pp qq pq qp şpş aqa pqp qpq şp aq pa qa ps aq pqa qpş pp qq' },
+            { tur: 'satir', ad: 'P kelimeleri',
+              metin: 'top kapı kitap sepet paket pasta pide şapka papatya yaprak toprak park ipek' },
+            { tur: 'kutu',  ad: 'Ğ ve Ü', yeni: ['ğ', 'ü'],
+              metin: 'ğğ üü ğü üğ ğüğ üğü şğ şü' },
+            { tur: 'satir', ad: 'Ğ Ü tekrar ve kelimeler',
+              metin: 'ğğ üü ğü üğ şğş şüş dağ yağ doğru ağır süt gül tüy yük üst ütü sürü yürü' },
+            { tur: 'oyun',  ad: 'Canavar Saldırısı: üst sıra kelimeleri', oyun: 'canavar',
+              metin: 'dağ yağış doğru süt sürü gül tüy ütü kürek yürüyüş kapı okul' },
         ],
     },
 ];
