@@ -1,6 +1,6 @@
 # On Parmak — on parmak klavye oyunu tasarımı
 
-> Durum: **uygulamada** (tasarım 2026-10-15'te onaylandı; dal `feat/on-parmak`). Uygulama planı:
+> Durum: **canlıda** (tasarım 2026-10-15'te onaylandı; Adım 3 dalı `feat/on-parmak-icerik`, 7 kısım × 102 bölüm). Uygulama planı:
 > `plans/on-parmak-2026-10-15.md` (3 PR). Plan kararları bu belgeden saptığında burası da güncellenir.
 > Slug `on-parmak` · kategori Harfler & Kelimeler (`section: harf`, `cat: Klavye`) · yaş 6–12 · hub-içi modül (iframe değil) ·
 > 7 kısım (motor seviyesi) × ~100 bölüm · Türkçe Q.
