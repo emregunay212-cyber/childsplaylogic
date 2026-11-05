@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><defs><linearGradient id="ng" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFB86B"></stop><stop offset="100%" stop-color="#E8713A"></stop></linearGradient><clipPath id="c"><rect width="128" height="128" rx="28"></rect></clipPath></defs><g clip-path="url(#c)"><rect width="128" height="128" fill="url(#ng)"></rect>
+  <ellipse cx="64" cy="110" rx="46" ry="8" fill="#9A3F14" opacity=".3"></ellipse>
+  <path d="M64 18l9 22 24 2-18 16 6 23-21-12-21 12 6-23-18-16 24-2z" fill="#FFF4C2" stroke="#C45A1E" stroke-width="3" stroke-linejoin="round"></path>
+  <path d="M100 20l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" fill="#fff" opacity=".9"></path>
+  <path d="M24 70l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#fff" opacity=".9"></path>
+  <rect x="26" y="86" width="76" height="24" rx="12" fill="#fff" stroke="#C45A1E" stroke-width="2.5"></rect>
+  <text x="64" y="103" text-anchor="middle" font-family="Fredoka, Verdana, sans-serif" font-weight="700" font-size="15" fill="#C45A1E">YENİ</text></g></svg>

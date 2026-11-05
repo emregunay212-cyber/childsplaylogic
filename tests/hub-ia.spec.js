@@ -30,6 +30,14 @@ const allLockKeys = [...solo, ...online.map((id) => 'mp:' + id)].filter((k) => k
 
 // ── Beklentiler doğrudan data/games.json'dan (js/hub-ia.js ile aynı kural; test bağımsız hesaplar) ──
 function shelvesOf(age) { return DATA.shelves.filter((s) => age[0] <= s.ages[1] && age[1] >= s.ages[0]).map((s) => s.id); }
+// "Yeni Oyunlar": aktif + added olanlar, en yeniden eskiye (eşit tarihte hub sırası), ilk 5 — tools/build-catalog.js newestOf
+// ve seo/games_data.py newest_of ile AYNI kural (üçü birlikte değişir)
+const NEW_LIMIT = 5;
+function newestOf() {
+    return DATA.games.map((g, i) => ({ g, i })).filter(({ g }) => g.active && g.added)
+        .sort((a, b) => (a.g.added < b.g.added ? 1 : a.g.added > b.g.added ? -1 : a.i - b.i))
+        .slice(0, NEW_LIMIT).map(({ g }) => g.slug);
+}
 function cardsOf(shelfId) {
     const out = [];
     for (const g of DATA.games) {
@@ -176,6 +184,68 @@ test.describe('1) Yaş rafı', () => {
         await expect(page.locator('#hub-grid .game-card[data-game="matematik"]').first()).toBeVisible();
         await catChip(page, 'all').click();
         await expect(page.locator('#hub-grid .raf[data-shelf="anaokulu"] .raf-sayi')).toHaveText(`${cardsOf('anaokulu').length} oyun`);
+        errors.assertClean();
+    });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+test.describe('1b) Yeni Oyunlar (GAME_NEW: added tarihine göre en yeni 5)', () => {
+    test('Hepsi görünümünde en üstte "Yeni Oyunlar" rayı: sıra ve sayı JSON ile aynı, raf sayısı değişmez, oyun kendi rafında da var', async ({ page, errors }) => {
+        await openHub(page);
+        const expected = newestOf();
+        expect(expected.length).toBe(NEW_LIMIT);
+        expect(expected[0]).toBe('lingo');                                   // 5 Kas 2026'da eklendi
+        const yeni = page.locator('#hub-grid .raf[data-yeni]');
+        await expect(yeni).toHaveCount(1);
+        await expect(page.locator('#hub-grid > section').first()).toHaveAttribute('data-yeni', '');
+        await expect(yeni.locator('.raf-baslik')).toContainText('Yeni Oyunlar');
+        await expect(yeni.locator('.raf-sayi')).toHaveText(`${expected.length} oyun`);
+        const shown = await yeni.locator('.raf-ray .game-card').evaluateAll((els) => els.map((e) => e.getAttribute('data-game')));
+        expect(shown).toEqual(expected);
+        await expect(yeni.locator('.game-card:not([data-yeni])')).toHaveCount(0);
+        await expect(page.locator('#hub-grid .raf[data-shelf]')).toHaveCount(DATA.shelves.length);
+        // Lingo kendi kategorisinde (harf) ve yaş raflarında da durur: 5 yeni oyun gelince yalnız yeni rafından düşer
+        const lingo = DATA.games.find((g) => g.slug === 'lingo');
+        for (const s of shelvesOf(lingo.age)) await expect(page.locator(`#hub-grid .raf[data-shelf="${s}"] .game-card[data-game="lingo"]`)).toHaveCount(1);
+        errors.assertClean();
+    });
+
+    test('"Yeni Oyunlar" çipi (Tümü\'den sonra ilk): tek ızgara, yalnız yeni kartlar; yaş rafı süzer; "Harfler" çipinde Lingo yine var', async ({ page, errors }) => {
+        await openHub(page);
+        const chips = await page.locator('#hub-nav-scroll [role="radio"]').evaluateAll((els) => els.map((e) => e.dataset.value));
+        expect(chips.slice(0, 2)).toEqual(['all', 'yeni']);
+        await catChip(page, 'yeni').click();
+        await expect(catChip(page, 'yeni')).toHaveAttribute('aria-checked', 'true');
+        await expect(page.locator('#hub-grid')).toHaveClass(/hub-grid--izgara/);
+        await expect(page.locator('#hub-grid .raf')).toHaveCount(1);
+        await expect(page.locator('#hub-grid .raf[data-shelf]')).toHaveCount(0);
+        const expected = newestOf();
+        const shown = await page.locator('#hub-grid .raf-izgara .game-card').evaluateAll((els) => els.map((e) => e.getAttribute('data-game')));
+        expect(shown).toEqual(expected);
+        // Yaş rafı ikincil süzgeç olarak çalışır
+        await shelfChip(page, 'anaokulu').click();
+        const inShelf = expected.filter((slug) => shelvesOf(DATA.games.find((g) => g.slug === slug).age).includes('anaokulu'));
+        await expect(page.locator('#hub-grid .raf-izgara .game-card')).toHaveCount(inShelf.length);
+        await shelfChip(page, 'hepsi').click();
+        // Kendi kategorisi
+        await catChip(page, 'harf').click();
+        await expect(page.locator('#hub-grid .game-card[data-game="lingo"][data-section="harf"]').first()).toBeVisible();
+        await expect(page.locator('#hub-grid .raf[data-yeni]')).toHaveCount(0);
+        await catChip(page, 'all').click();
+        await expect(page.locator('#hub-grid .raf[data-yeni]')).toHaveCount(1);
+        errors.assertClean();
+    });
+
+    test('Lingo kartı açılır: iframe games/lingo/ yüklenir, hata yok', async ({ page, errors }) => {
+        await openHub(page);
+        await page.locator('#hub-grid .raf[data-yeni] .game-card[data-game="lingo"]').click();
+        await expect(page.locator('#game-container')).toBeVisible();
+        await expect(page.locator('#game-area iframe.lingo-iframe')).toBeAttached();
+        await expect.poll(() => page.frames().some((f) => f.url().includes('/games/lingo/'))).toBe(true);
+        const frame = page.frames().find((f) => f.url().includes('/games/lingo/'));
+        await expect(frame.locator('#board .tile.lock')).toHaveCount(1);     // ilk harf açık
+        await expect(frame.locator('#board .row:visible')).toHaveCount(5);
+        await backToHub(page);
         errors.assertClean();
     });
 });
@@ -432,6 +502,19 @@ test.describe('5) Statik hub /oyunlar/ (sözleşme §3.11) + kopya', () => {
         await page.locator('label[for="kat-hepsi"]').click();
         await expect(page.locator('.bos')).toBeHidden();
         expect(await page.locator('.grid .g').evaluateAll((els) => els.filter((e) => getComputedStyle(e).display !== 'none').length)).toBeGreaterThan(0);
+        errors.assertClean();
+    });
+
+    test('"Yeni Oyunlar" süzgeci: yalnız data-yeni kartlar (newest_of), sıra ve sayı JSON ile aynı', async ({ page, errors }) => {
+        await page.goto('/oyunlar/');
+        const expected = newestOf();
+        expect(expected.length).toBe(NEW_LIMIT);
+        await expect(page.locator('.grid .g[data-yeni]')).toHaveCount(expected.length);
+        await page.locator('label[for="kat-yeni"]').click();
+        await expect(page.locator('#kat-yeni')).toBeChecked();
+        const visible = await page.locator('.grid .g').evaluateAll((els) => els.filter((e) => getComputedStyle(e).display !== 'none').map((e) => e.getAttribute('href')));
+        expect(visible.sort()).toEqual(expected.map((s) => `/oyunlar/${s}/`).sort());
+        await expect(page.locator('.bos')).toBeHidden();
         errors.assertClean();
     });
 

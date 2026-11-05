@@ -2,11 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://bilnetoyun.com/</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-20</lastmod>
   </url>
   <url>
     <loc>https://bilnetoyun.com/oyunlar/</loc>
-    <lastmod>2026-10-20</lastmod>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://bilnetoyun.com/gizlilik/</loc>
@@ -14,7 +14,7 @@
   </url>
   <url>
     <loc>https://bilnetoyun.com/hakkinda/</loc>
-    <lastmod>2026-10-20</lastmod>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://bilnetoyun.com/iletisim/</loc>
@@ -51,6 +51,10 @@
   <url>
     <loc>https://bilnetoyun.com/oyunlar/gunluk-kelime/</loc>
     <lastmod>2026-09-16</lastmod>
+  </url>
+  <url>
+    <loc>https://bilnetoyun.com/oyunlar/lingo/</loc>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://bilnetoyun.com/oyunlar/sayi-sayma/</loc>

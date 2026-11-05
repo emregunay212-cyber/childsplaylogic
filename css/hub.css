@@ -310,6 +310,8 @@
 .hub-continue[hidden] { display: none; }
 .continue-ray { padding-bottom: var(--ara-2); }
 .raf-baslik--devam { background: var(--dugme-dolgu); }
+/* "Yeni Oyunlar" rafı (GAME_NEW): güneş sarısı başlık çipi, mürekkep metin (≥ 7:1) — raf değil, en üstte tek ray */
+.raf-baslik--yeni { background: var(--gunes); color: var(--murekkep); }
 
 /* ── Oyun Kartı: beyaz yüzey, beyaz çıkartma konturu, üstte 8 px kategori şeridi (sözleşme §2/§3.03).
       Anatomi: [rozet] · ikon · ad (2 satır yuvası) · yıldız yuvaları (solo) · yaş [+ süre] · [kazanım]

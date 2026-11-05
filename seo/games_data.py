@@ -234,3 +234,17 @@ def shelves_of(g):
   if not isinstance(age, (list, tuple)) or len(age) != 2:
     return []
   return [s["id"] for s in SHELVES if age[0] <= s["ages"][1] and age[1] >= s["ages"][0]]
+
+
+# "Yeni Oyunlar" (hub cipi + /oyunlar/ suzgeci): en yeni bu kadar oyun. tools/build-catalog.js NEW_LIMIT ile ayni.
+NEW_LIMIT = 5
+
+
+def newest_of(games=None, limit=NEW_LIMIT):
+  """"Yeni Oyunlar" slug listesi: aktif + `added` (YYYY-AA-GG) olan oyunlar, en yeniden eskiye (esit tarihte hub
+  sirasi), ilk `limit`. Kural tools/build-catalog.js newestOf (-> js/catalog.js GAME_NEW) ve tests/hub-ia.spec.js
+  newestOf ile AYNI; degisecekse ucu birlikte degisir. `added` olmayan oyun yeni sayilmaz."""
+  src = GAMES if games is None else games
+  ranked = [(g, i) for i, g in enumerate(src) if g.get("active", True) and g.get("added")]
+  ranked.sort(key=lambda t: (t[0]["added"], -t[1]), reverse=True)
+  return [g["slug"] for g, _ in ranked[:limit]]
