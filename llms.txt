@@ -58,7 +58,7 @@
 - [Bilgi Savunması](https://bilnetoyun.com/oyunlar/bilgi-savunmasi/): Soru çöz, enerji üret, kuleler dik — Soru Canavarlarından bahçeni koru!
 - [Fizik Fırlatma](https://bilnetoyun.com/oyunlar/fizik-firlatma/): Sapanı çek, AÇI ve KUVVETİ sayılarla gör, 12 bölümde yıldızları vur!
 - [Balon Labirenti](https://bilnetoyun.com/oyunlar/balon-labirenti/): Dikenli topu geri çek, bırak: sekerek 30 labirentteki tüm balonları tek atışta patlat!
-- [Yerçekimi Yolculuğu](https://bilnetoyun.com/oyunlar/yercekimi-yolculugu/): Gezegenlerin çekimine kapılmadan roketi sağa-sola yönlendir, benzin topla, uzay istasyonuna ulaş!
+- [Yerçekimi Yolculuğu](https://bilnetoyun.com/oyunlar/yercekimi-yolculugu/): Gezegenlerin çekimine kapılmadan roketi sağa-sola yönlendir, enerji şimşeklerini topla, uzay istasyonuna ulaş!
 - [Kelime Tahmin](https://bilnetoyun.com/oyunlar/kelime-tahmin/): Wordle tarzı: gizli kelimeyi arkadaşınla yarışarak bul.
 - [Harf Tahmin](https://bilnetoyun.com/oyunlar/harf-tahmin/): Adam asmaca tarzı: harf tahmin ederek kelimeyi çöz.
 - [Penaltı Online](https://bilnetoyun.com/oyunlar/penalti-mp/): Arkadaşınla online penaltı düellosu: at ve kurtar.
