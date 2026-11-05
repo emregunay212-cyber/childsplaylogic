@@ -100,8 +100,11 @@ const ModulAdi = (() => {
 - Kaynak Unity projesi depoda DEĞİL (sahibin makinesinde `Documents/YercekimiYolculugu`, Unity 6000.6.0f1, Web Build Support modülü).
   Güncelleme: Unity'de **Yerçekimi Yolculuğu → WebGL Derle (childsplaylogic)** → `Builds/WebGL/yercekimi-yolculugu/Build/*` buraya kopyalanır (dosya adları sabit: `yercekimi-yolculugu.*`).
 - Oynanış (GCompris "Gravity" etkinliğinin yapısı, kendi görsellerimiz + benzin): roket ortada yalnız sağa-sola (← → ya da ekranın sol/sağ yarısına dokunma),
-  gezegenler sol/sağ kenardan iner ve yatay çeker (∝ r²/d²), roketin altındaki ok çekimin yönü/gücü; itiş benzin harcar, orta şeritten bidon iner;
-  tüm gezegenler geçince istasyon iner. 6 seviye oyunun İÇİNDE (1-6 tuşları); hub'a `levels: 1` (modülün `levels` uzunluğu).
+  gezegenler sol/sağ kenardan iner; her gezegenin görünür **çekim halkası** (yarıçap 3.4r) var, yalnız halka içinde yatay çeker (G·r²/(d²+(0.6r)²), kenarda yumuşak sönüm);
+  roketin altındaki ok çekimin yönü/gücü; itiş benzin harcar, orta şeritten bidon iner; tüm gezegenler geçince istasyon iner.
+  6 seviye oyunun İÇİNDE (1-6 tuşları, M ses); hub'a `levels: 1` (modülün `levels` uzunluğu). Seviye değerleri basit oto-pilot simülasyonuyla dengelendi.
+- Görünüm: Unity eklentisi `unity:craft-game-floors` art bible'ı — çizgi film uzay resim kitabı, kalın mürdüm kontur, yüzlü gezegenler (gözler roketi izler),
+  palet `Palette.cs` (görseller `Tools/make_kid_sprites.py` ile kodla çizilir, dış görsel yok), yazı tipi Nunito ExtraBold (OFL), sesler kodla sentezlenir.
 
 ### Ateş & Buz fizik sözleşmesi (`games/ates-buz/js/`, 30 Eyl 2026 düzeltmesi — `docs/ates-buz-fizik-2026-09-30.md`)
 
