@@ -138,6 +138,45 @@ test.describe('seri akışı (/games/lingo/)', () => {
         await page.locator('#nextBtn').click();
         await expect(curLevel(page)).toHaveText('3');
         await expect(tilesInRow(page, 0)).toHaveCount(3);
+
+        // Düğmeye tıklandıktan sonra Enter/Boşluk düğmeye "tık" olmaz (odak bırakılır): tahmin pes etmeye dönüşmez
+        expect(await page.evaluate(() => document.activeElement === document.getElementById('nextBtn')), 'odak düğmede kalmamalı').toBe(false);
+        await page.keyboard.press('Enter');
+        await page.keyboard.press(' ');
+        await expect(page.locator('#nextBtn')).toHaveText('Pes et');
+        await expect(page.locator('#msg .ans')).toHaveCount(0);
+        await expect(curLevel(page)).toHaveText('3');
+        // Odak zorla düğmeye verilse bile Enter oyun akışına gider: eksik tahmin → "Boş kutuları doldur", pes YOK
+        await page.locator('#nextBtn').focus();
+        await page.keyboard.type('A');
+        await expect(page.locator('#board .tile.filled'), 'harf kutuya girer (odak düğmedeyken de)').toHaveCount(1);
+        await page.keyboard.press('Enter');
+        await expect(page.locator('#msg')).toContainText('Boş kutuları doldur');
+        await expect(page.locator('#nextBtn')).toHaveText('Pes et');
+        await expect(page.locator('#msg .ans')).toHaveCount(0);
+        expect(page.errorsSeen, 'JS hatası / console.error').toEqual([]);
+    });
+
+    test('tur bittikten hemen sonra ikinci Enter sonucu atlamaz (700 ms kilit); sonra Enter sonraki kelimeye geçer', async ({ page }) => {
+        await page.addInitScript(() => {
+            Object.defineProperty(window, 'LINGO_KELIMELER', {
+                configurable: true,
+                set(v) { v[2] = ['AT']; Object.defineProperty(window, 'LINGO_KELIMELER', { value: v, writable: true, configurable: true }); },
+                get() { return undefined; },
+            });
+        });
+        await page.goto('/games/lingo/');
+        await expect(tilesInRow(page, 0)).toHaveCount(2);
+        await page.locator('#board').click();
+        await page.keyboard.type('T');
+        await page.keyboard.press('Enter');
+        await expect(page.locator('#msg')).toContainText('+20 puan');
+        await page.keyboard.press('Enter');                 // kilit içinde: bölüm değişmez
+        await expect(curLevel(page)).toHaveText('2');
+        await expect(page.locator('#msg')).toContainText('+20 puan');
+        await page.waitForTimeout(800);
+        await page.keyboard.press('Enter');                 // kilit bitti: sonraki kelime
+        await expect(curLevel(page)).toHaveText('3');
         expect(page.errorsSeen, 'JS hatası / console.error').toEqual([]);
     });
 });
