@@ -284,7 +284,16 @@
     if (level < ROUNDS - 1) { level++; newRound(); if (isTouch && !kbOn) kin.focus(); }
     else showSummary();
   }
-  function enter() { if (busy) return; if (over) next(); else submit(); }
+  // Enter: tur sürüyorsa tahmini gönderir; tur bittiyse sonraki kelimeye geçer — ama tur bittikten hemen
+  // sonraki ENTER_LOCK_MS içinde değil (son tahmini gönderen ikinci Enter sonucu okutmadan atlamasın).
+  const ENTER_LOCK_MS = 700;
+  let overAt = 0;
+  function enter() {
+    if (busy) return;
+    if (!over) return submit();
+    if (Date.now() - overAt < ENTER_LOCK_MS) return;
+    next();
+  }
 
   function shake() {
     const row = rows[hist.length];
@@ -334,7 +343,7 @@
 
   function finishRound(result) {
     results[level] = result;
-    over = true; stopTimer();
+    over = true; overAt = Date.now(); stopTimer();
   }
 
   function win() {
@@ -401,7 +410,10 @@
   }
 
   // ---------- Kontroller ----------
+  // Düğme tıklandıktan sonra odak düğmede KALMAZ: kalırsa klavyeden yazılan tahminin Enter'ı düğmeye
+  // "tık" sayılır ve oyuncu istemeden pes eder / sonraki kelimeye geçer (sahip bildirimi, 5 Kas 2026).
   nextBtn.addEventListener('click', () => {
+    nextBtn.blur();
     if (busy) return;
     if (episodeDone) { startEpisode(); return; }
     if (over) next(); else endRound(true);
@@ -439,11 +451,16 @@
 
   $('timerChk').addEventListener('change', e => { timerOn = e.target.checked; if (!over && !busy) startTimer(); });
 
+  // Fiziksel klavye. Enter HER ZAMAN oyun akışına gider (tahmin gönder / sonraki kelime); yalnız ayarlar
+  // paneli (details.settings) ve seri özeti düğmesi kendi Enter'ını alır. Odaktaki "Pes et" düğmesine
+  // tarayıcının Enter → tık çevirisi yapılmaz (preventDefault): yazılan tahmin pes etmeye dönüşmez.
+  const inSettings = t => !!(t && t.closest && t.closest('.settings, #summary'));
   document.addEventListener('keydown', e => {
     if (e.target === kin || e.ctrlKey || e.metaKey || e.altKey) return;
-    if (e.target && /^(INPUT|BUTTON|SUMMARY)$/.test(e.target.tagName) && (e.key === 'Enter' || e.key === ' ')) return;
-    if (episodeDone) return;
+    if (inSettings(e.target)) return;
+    if (episodeDone) { if (e.key === 'Enter') { e.preventDefault(); startEpisode(); } return; }
     if (e.key === 'Enter') { e.preventDefault(); enter(); return; }
+    if (e.key === ' ' && e.target && e.target.tagName === 'BUTTON') { e.preventDefault(); return; }   // Boşluk da düğmeye tık olmasın
     if (e.key === 'Backspace') { e.preventDefault(); press('SİL'); return; }
     if (e.key.length === 1) press(up(e.key));
   });
@@ -458,7 +475,7 @@
   });
   $('dictChk').addEventListener('change', e => { dictCheck = e.target.checked; });
 
-  $('sndBtn').addEventListener('click', () => { sndOn = !sndOn; $('sndBtn').textContent = sndOn ? '🔊' : '🔇'; });
+  $('sndBtn').addEventListener('click', () => { $('sndBtn').blur(); sndOn = !sndOn; $('sndBtn').textContent = sndOn ? '🔊' : '🔇'; });
 
   updKb();
   (async () => {
