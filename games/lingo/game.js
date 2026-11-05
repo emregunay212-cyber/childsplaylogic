@@ -1,28 +1,21 @@
 "use strict";
-/* ================= LINGO — ilk harfi verilen 5 harfli kelimeyi 5 denemede bul =================
+/* ================= LINGO — 9 bölümlük seri: 2 harften 10 harfe =================
    Bağımsız iframe oyunu (games/lingo/index.html); hub modülü js/games/lingo.js gömer.
-   EduKit (games/_shared/edu-kit.js): ses (tek AudioContext), gizlenince süreyi duraklatma.
-   Sözlük: window.TDK5 ({ KELİME: "anlam" }) isteğe bağlı — index.html'deki nota bak; yokken kolay liste. */
+   Seri (bölüm): 9 tur, tur başına kelime uzunluğu 2,3,…,10. Her turda ilk harf verilir, 5 deneme hakkı
+   (2 takımda bilemeyen takımın rakibine bir harf daha + tek hak). 10 harf bitince özet (toplam puan,
+   bulunan/9, en iyi puan) sunulur, "Yeni seri" 2 harften başlar.
+   Puan: tur = (6 − deneme) × harf × 2 (10 harfi ilk denemede bulan 100, 2 harfi 10); çalma turu = harf × 2.
+   Kelimeler: kelimeler.js (LINGO_KELIMELER[uzunluk]); kullanılanlar cihazda tutulur (lingo_used), kova
+   bitince o kova sıfırlanır → art arda aynı kelime çıkmaz. En iyi puan / seri sayısı: lingo_stats.
+   EduKit: ses (tek AudioContext), gizlenince süre durur, storage köprüsü (js/auth.js GAME_SAVE_KEYS). */
 (function () {
-  // ---------- Kelime listesi (5 harfli, çocuklara uygun) ----------
-  const RAW = `KALEM KİTAP SINIF TAHTA SİLGİ ÇANTA MASAL ORMAN DENİZ BULUT GÜNEŞ ARMUT KİRAZ ÇİLEK
-  KAVUN LİMON HAVUÇ BİBER SOĞAN AYRAN BÖREK SİMİT TAVUK HOROZ KOYUN ÖRDEK ASLAN ZEBRA KOALA
-  PANDA YUNUS ARABA EKRAN MODEM ROBOT DÖNGÜ BİLGİ HESAP CEVAP RESİM MÜZİK KAZAK ÇORAP ŞAPKA
-  BAHÇE ÇİÇEK DALGA NEHİR ŞEKER PASTA TABAK KAŞIK ÇATAL DOLAP YATAK LAMBA RADYO VİDEO DÜNYA
-  ROKET FENER ÇADIR KUZEN BEBEK ÇOCUK PRENS SARAY KÖPRÜ SOKAK CADDE ŞEHİR YOLCU BİLET TAKSİ
-  METRO POLİS FIRIN EKMEK BALIK ÇORBA PİLAV TATLI HELVA LOKUM KAHVE BEYAZ SİYAH YEŞİL PEMBE
-  ALTIN GÜMÜŞ DEMİR KAĞIT MAKAS SAYFA ŞARKI GİTAR DAVUL KEMAN BALON KUKLA TOPAÇ HIZLI YAVAŞ
-  BÜYÜK KÜÇÜK DERİN GENİŞ SICAK SOĞUK TEMİZ HAFİF OKUMA YAZMA ÇİZİM KEŞİF KANAT KARGA SERÇE
-  KUMRU ŞAHİN MARTI BÖCEK TİLKİ KİRPİ YILAN FİDAN TOHUM MEYVE SEBZE İNCİR VİŞNE CEVİZ BADEM
-  MISIR KABAK MARUL SALÇA TEYZE MUTLU SEVGİ DOLMA KÖFTE MANTI BURUN KULAK`;
-
+  const WORDS = window.LINGO_KELIMELER || {};
+  const MIN_LEN = 2, MAX_LEN = 10, ROUNDS = MAX_LEN - MIN_LEN + 1;   // 9 bölüm
+  const TRIES = 5, TIME = 20, REVEAL = 220;
   const up = s => s.toLocaleUpperCase('tr-TR');
-  const WORDS = [...new Set(RAW.split(/\s+/).filter(Boolean).map(up))].filter(w => Array.from(w).length === 5);
   const LETTERS = new Set(Array.from('ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ'));
-  const TIME = 20, REVEAL = 260;
-  const DICT = window.TDK5 || null;               // { KELİME: "ilk anlamı" }
-  const TDK_WORDS = DICT ? Object.keys(DICT) : [];
-  const EASY = new Set(WORDS);
+  const DICT = window.TDK5 || null;               // { KELİME: "ilk anlamı" } — isteğe bağlı
+  const EASY = new Set(Object.values(WORDS).flat());
   let pool = 'easy', dictCheck = !!DICT;
   const isWord = w => EASY.has(w) || (DICT && w in DICT);
   function meaningEl(w) {
@@ -31,22 +24,54 @@
     return d;
   }
 
+  // ---------- Kayıt (EduKit.storage: Promise API, localStorage köprüsü) ----------
+  const USED_KEY = 'lingo_used', STATS_KEY = 'lingo_stats';
+  let usedByLen = {};                              // { "5": ["KALEM", …] }
+  let stats = { best: 0, episodes: 0 };
+  const store = (window.EduKit && EduKit.storage) || null;
+  async function load(key, fallback) {
+    try { const r = store && await store.get(key); if (r && r.value) return JSON.parse(r.value); } catch (e) {}
+    return fallback;
+  }
+  function save(key, value) { try { if (store) store.set(key, JSON.stringify(value)); } catch (e) {} }
+
   // ---------- Durum ----------
   let mode = 'solo', timerOn = false;
+  let level = 0, L = MIN_LEN;                       // bölüm (0..8), kelime uzunluğu
+  let results = [];                                 // bölüm sonuçları: 'ok' | 'no'
   let scores = [0, 0], soloScore = 0, streak = 0, startTeam = 0, active = 0;
   let target = [], hist = [], cur = [], known = [];
-  let steal = false, over = false, busy = false;
-  let used = new Set(), timeLeft = TIME, timerId = null;
+  let steal = false, over = false, busy = false, episodeDone = false;
+  let timeLeft = TIME, timerId = null;
   const keyState = {};
 
   // ---------- DOM ----------
   const $ = id => document.getElementById(id);
   const boardEl = $('board'), msgEl = $('msg'), kbEl = $('kb'), nextBtn = $('nextBtn'), kin = $('kinput');
+  const levelsEl = $('levels'), summaryEl = $('summary');
   const rows = [];
-  for (let r = 0; r < 6; r++) {
+  for (let r = 0; r < TRIES + 1; r++) {
     const row = document.createElement('div'); row.className = 'row';
-    for (let i = 0; i < 5; i++) { const t = document.createElement('div'); t.className = 'tile'; row.appendChild(t); }
     boardEl.appendChild(row); rows.push(row);
+  }
+  function buildBoard(n) {
+    boardEl.style.setProperty('--n', n);
+    boardEl.classList.toggle('dar', n > 7);
+    rows.forEach(row => {
+      row.textContent = '';
+      for (let i = 0; i < n; i++) { const t = document.createElement('div'); t.className = 'tile'; row.appendChild(t); }
+    });
+  }
+  // Bölüm şeridi: 9 hap (harf sayısı); geçmiş turlar yeşil/gri, aktif tur vurgulu
+  const levelEls = [];
+  for (let i = 0; i < ROUNDS; i++) {
+    const s = document.createElement('span'); s.className = 'lv'; s.textContent = String(MIN_LEN + i);
+    s.title = (MIN_LEN + i) + ' harf'; levelsEl.appendChild(s); levelEls.push(s);
+  }
+  function renderLevels() {
+    levelEls.forEach((s, i) => {
+      s.className = 'lv' + (results[i] ? ' ' + results[i] : '') + (i === level && !episodeDone ? ' cur' : '');
+    });
   }
 
   const KB = [
@@ -80,9 +105,11 @@
     if (mood) { void mascot.offsetWidth; mascot.classList.add(mood); }
     mascot.textContent = mood === 'happy' ? '🤩' : mood === 'sad' ? '🥺' : '🦉';
   }
-  function bold(text) { const b = document.createElement('b'); b.textContent = text; return b; }
+  function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  const bold = text => el('b', null, text);
   const CHEERS = ['Neredeyse! 💪', 'Devam et! 🌟', 'Bir daha dene! 🍀', 'Yaklaşıyorsun! ✨', 'Sen yaparsın! 🚀'];
   const cheer = () => CHEERS[Math.floor(Math.random() * CHEERS.length)];
+  const roundLabel = () => `Bölüm ${level + 1}/${ROUNDS} · ${L} harf`;
 
   // ---- Sesler (EduKit: tek AudioContext, dosya gerekmez) ----
   let sndOn = true;
@@ -92,14 +119,14 @@
   }
   const sWin = () => [523, 659, 784, 1047].forEach((f, i) => tone(f, .18, 'triangle', i * .12));
   const sLose = () => [392, 330, 262].forEach((f, i) => tone(f, .22, 'triangle', i * .15));
-  // İlk kullanıcı jestinde ses bağlamını kur (tarayıcı otomatik oynatma kuralı)
+  const sFinal = () => [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, .25, 'triangle', i * .14));
   ['pointerdown', 'keydown', 'touchstart'].forEach(ev =>
     document.addEventListener(ev, () => { try { EduKit.audio.init(); } catch (e) {} }, { capture: true, passive: true }));
 
   // ---- Konfeti ----
-  function confetti() {
+  function confetti(n = 70) {
     const colors = ['#ff5d73', '#ff9f43', '#ffd23f', '#3ccf6e', '#8f6bff', '#ff7eb6', '#4fc3f7'];
-    for (let i = 0; i < 70; i++) {
+    for (let i = 0; i < n; i++) {
       const c = document.createElement('div'); c.className = 'confetti';
       c.style.left = Math.random() * 100 + 'vw';
       c.style.background = colors[i % colors.length];
@@ -110,36 +137,41 @@
     }
   }
 
-  function pickWord() {
-    const list = pool === 'tdk' && TDK_WORDS.length ? TDK_WORDS : WORDS;
-    if (used.size >= list.length) used.clear();
-    let w;
-    do { w = list[Math.floor(Math.random() * list.length)]; } while (used.has(w));
+  // ---- Kelime seçimi: kullanılmayanlardan rastgele; kova bitince sıfırlanır (aynı kelime art arda gelmez) ----
+  function pickWord(n) {
+    let list = WORDS[n] || [];
+    if (pool === 'tdk' && DICT) { const t = Object.keys(DICT).filter(w => Array.from(w).length === n); if (t.length) list = t; }
+    if (!list.length) list = [Array(n).fill('A').join('')];   // veri eksikse oyun kilitlenmesin
+    const key = String(n);
+    let used = new Set(usedByLen[key] || []);
+    let fresh = list.filter(w => !used.has(w));
+    if (!fresh.length) { used = new Set(); fresh = list.slice(); }
+    const w = fresh[Math.floor(Math.random() * fresh.length)];
     used.add(w);
+    usedByLen[key] = [...used];
+    save(USED_KEY, usedByLen);
     return Array.from(w);
   }
 
   // Bilinen (yeşil) harfler kilitli; kullanıcı yalnızca boş kutuları doldurur
-  const freeSlots = () => [0, 1, 2, 3, 4].filter(i => !known[i]);
+  const freeSlots = () => Array.from({ length: L }, (_, i) => i).filter(i => !known[i]);
   function guessArr() {
     const g = []; let k = 0;
-    for (let i = 0; i < 5; i++) g.push(known[i] || cur[k++] || '');
+    for (let i = 0; i < L; i++) g.push(known[i] || cur[k++] || '');
     return g;
   }
 
   function evaluate(g, t) {
-    const res = Array(5).fill('no'), cnt = {};
-    for (let i = 0; i < 5; i++) { if (g[i] === t[i]) res[i] = 'ok'; else cnt[t[i]] = (cnt[t[i]] || 0) + 1; }
-    for (let i = 0; i < 5; i++) { if (res[i] !== 'ok' && cnt[g[i]] > 0) { res[i] = 'near'; cnt[g[i]]--; } }
+    const res = Array(L).fill('no'), cnt = {};
+    for (let i = 0; i < L; i++) { if (g[i] === t[i]) res[i] = 'ok'; else cnt[t[i]] = (cnt[t[i]] || 0) + 1; }
+    for (let i = 0; i < L; i++) { if (res[i] !== 'ok' && cnt[g[i]] > 0) { res[i] = 'near'; cnt[g[i]]--; } }
     return res;
   }
 
   // ---------- Çizim ----------
   function scoreBox(label, value, on) {
-    const d = document.createElement('div'); d.className = 'sc' + (on ? ' on' : '');
-    const s = document.createElement('small'); s.textContent = label;
-    const b = document.createElement('b'); b.textContent = String(value);
-    d.appendChild(s); d.appendChild(b);
+    const d = el('div', 'sc' + (on ? ' on' : ''));
+    d.appendChild(el('small', null, label)); d.appendChild(el('b', null, String(value)));
     return d;
   }
   function renderScores() {
@@ -150,16 +182,17 @@
     } else {
       s.appendChild(scoreBox('Puan', soloScore));
       s.appendChild(scoreBox('Seri', streak));
+      s.appendChild(scoreBox('En iyi', stats.best));
     }
   }
 
   function render() {
-    const shown = steal ? 6 : 5, free = freeSlots();
+    const shown = steal ? TRIES + 1 : TRIES, free = freeSlots();
     if (kin.value !== cur.join('')) kin.value = cur.join('');
     rows.forEach((row, r) => {
       row.style.display = r < shown ? '' : 'none';
-      row.classList.toggle('steal', r === 5);
-      for (let i = 0; i < 5; i++) {
+      row.classList.toggle('steal', r === TRIES);
+      for (let i = 0; i < L; i++) {
         const t = row.children[i];
         let ch = '', cls = 'tile';
         if (r < hist.length) { ch = hist[r].g[i]; cls += ' ' + hist[r].res[i]; }
@@ -178,9 +211,9 @@
       keyEls[k].classList.remove('ok', 'near', 'no');
       if (keyState[k]) keyEls[k].classList.add(keyState[k]);
     }
-    nextBtn.textContent = over ? 'Yeni kelime ▶' : 'Pes et';
+    nextBtn.textContent = !over ? 'Pes et' : (level < ROUNDS - 1 ? 'Sonraki kelime ▶' : 'Sonucu gör 🏁');
     nextBtn.classList.toggle('giveup', !over);
-    renderScores();
+    renderScores(); renderLevels();
   }
 
   // ---------- Süre ----------
@@ -205,12 +238,11 @@
   }
   function timeout() {
     if (busy || over) return;
-    hist.push({ g: Array(5).fill(''), res: Array(5).fill('no') });
+    hist.push({ g: Array(L).fill(''), res: Array(L).fill('no') });
     cur = [];
     msg('⏰ Süre doldu!');
     afterMiss();
   }
-  // Sekme gizlenince süre durur, görünür olunca kaldığı yerden sürer (EduKit.onHidden)
   let pausedByHide = false;
   try {
     EduKit.onHidden(
@@ -219,14 +251,24 @@
     );
   } catch (e) {}
 
-  // ---------- Oyun akışı ----------
+  // ---------- Seri / tur akışı ----------
+  function startEpisode() {
+    level = 0; results = []; episodeDone = false;
+    soloScore = 0; scores = [0, 0]; startTeam = 0;
+    summaryEl.hidden = true;
+    newRound();
+  }
+
   function newRound() {
-    target = pickWord();
+    L = MIN_LEN + level;
+    target = pickWord(L);
+    buildBoard(L);
     hist = []; cur = []; steal = false; over = false; busy = false;
-    known = [target[0], null, null, null, null];
+    known = Array(L).fill(null); known[0] = target[0];
     for (const k in keyState) delete keyState[k];
     if (mode === 'team') { active = startTeam; startTeam = 1 - startTeam; }
-    msg(mode === 'team' ? ['Sıra sizde: ', bold(teamName(active))] : 'Hadi kelimeyi bulalım! 🔍');
+    msg(mode === 'team' ? [bold(roundLabel()), ' · Sıra sizde: ', bold(teamName(active))]
+                        : [bold(roundLabel()), level === 0 ? ' · Hadi başlayalım! 🔍' : ' · Devam! 🔍']);
     render(); startTimer();
   }
 
@@ -236,7 +278,13 @@
     if (k === 'SİL') { cur.pop(); return render(); }
     if (cur.length < freeSlots().length && LETTERS.has(k)) { cur.push(k); tone(700, .05); render(); }
   }
-  function enter() { if (busy) return; if (over) newRound(); else submit(); }
+  function next() {
+    if (busy) return;
+    if (!over) return submit();
+    if (level < ROUNDS - 1) { level++; newRound(); if (isTouch && !kbOn) kin.focus(); }
+    else showSummary();
+  }
+  function enter() { if (busy) return; if (over) next(); else submit(); }
 
   function shake() {
     const row = rows[hist.length];
@@ -250,12 +298,13 @@
     busy = true; stopTimer();
     const res = evaluate(g, target);
     const row = rows[hist.length];
-    for (let i = 0; i < 5; i++) {
+    const step = Math.min(REVEAL, Math.round(1300 / L));     // uzun kelimede açılış hızlanır
+    for (let i = 0; i < L; i++) {
       setTimeout(() => {
         const t = row.children[i];
         t.classList.add('flip');
-        setTimeout(() => { t.className = 'tile flip ' + res[i]; tone(res[i] === 'ok' ? 880 : res[i] === 'near' ? 620 : 300, .1, 'triangle'); }, 200);
-      }, i * REVEAL);
+        setTimeout(() => { t.className = 'tile flip ' + res[i]; tone(res[i] === 'ok' ? 880 : res[i] === 'near' ? 620 : 300, .1, 'triangle'); }, 180);
+      }, i * step);
     }
     setTimeout(() => {
       hist.push({ g, res }); cur = [];
@@ -267,14 +316,14 @@
       busy = false;
       if (res.every(x => x === 'ok')) win();
       else { msg(cheer()); afterMiss(); }
-    }, 5 * REVEAL + 250);
+    }, L * step + 250);
   }
 
   function afterMiss() {
-    const limit = steal ? 6 : 5;
+    const limit = steal ? TRIES + 1 : TRIES;
     if (hist.length >= limit) {
       if (mode === 'team' && !steal) {
-        const unk = [0, 1, 2, 3, 4].filter(i => !known[i]);
+        const unk = Array.from({ length: L }, (_, i) => i).filter(i => !known[i]);
         if (unk.length > 1) { const p = unk[Math.floor(Math.random() * unk.length)]; known[p] = target[p]; }
         steal = true; active = 1 - active;
         msg([bold(teamName(active)), ': size bir harf hediye! 🎁 Tek hakkınız var!']);
@@ -283,30 +332,79 @@
     render(); startTimer();
   }
 
+  function finishRound(result) {
+    results[level] = result;
+    over = true; stopTimer();
+  }
+
   function win() {
-    const pts = steal ? 10 : (5 - (hist.length - 1)) * 10;
+    const pts = steal ? L * 2 : (TRIES + 1 - hist.length) * L * 2;
     const m = meaningEl(target.join(''));
-    if (mode === 'team') { scores[active] += pts; msg(['🎉 ', bold(teamName(active)), ` bildi! +${pts} puan`, m], 'happy'); }
-    else { soloScore += pts; streak++; msg([`Süpersin! 🎉 +${pts} puan`, m], 'happy'); }
+    const last = level === ROUNDS - 1 ? ' Seri tamam, sonucu gör! 🏁' : '';
+    if (mode === 'team') { scores[active] += pts; msg(['🎉 ', bold(teamName(active)), ` bildi! +${pts} puan.${last}`, m], 'happy'); }
+    else { soloScore += pts; streak++; msg([`Süpersin! 🎉 +${pts} puan.${last}`, m], 'happy'); }
     confetti(); sWin();
-    over = true; stopTimer(); render();
+    finishRound('ok'); render();
     const row = rows[hist.length - 1];
     [...row.children].forEach((t, i) => setTimeout(() => t.classList.add('win'), i * 90));
   }
 
   function endRound(gaveUp) {
-    over = true; stopTimer();
+    finishRound('no');
     if (mode === 'solo') streak = 0;
     sLose();
-    const ans = document.createElement('span'); ans.className = 'ans'; ans.textContent = target.join('');
-    msg([gaveUp ? 'Kelime: ' : 'Bu sefer olmadı 🙈 Kelime: ', ans, meaningEl(target.join(''))], 'sad');
+    const ans = el('span', 'ans', target.join(''));
+    const last = level === ROUNDS - 1 ? ' Seri tamam, sonucu gör! 🏁' : '';
+    msg([gaveUp ? 'Kelime: ' : 'Bu sefer olmadı 🙈 Kelime: ', ans, last, meaningEl(target.join(''))], 'sad');
     render();
+  }
+
+  // ---------- Seri özeti ----------
+  function showSummary() {
+    episodeDone = true; stopTimer();
+    const solved = results.filter(r => r === 'ok').length;
+    const total = mode === 'team' ? Math.max(scores[0], scores[1]) : soloScore;
+    stats.episodes += 1;
+    const record = mode === 'solo' && soloScore > stats.best;
+    if (record) stats.best = soloScore;
+    save(STATS_KEY, stats);
+
+    summaryEl.textContent = '';
+    const card = el('div', 'sumCard');
+    card.appendChild(el('div', 'sumTitle', record ? '🏆 Yeni rekor!' : '🏁 Seri tamamlandı!'));
+    if (mode === 'team') {
+      const row = el('div', 'sumTeams');
+      [0, 1].forEach(t => { const b = el('div', 'sumTeam' + (scores[t] >= scores[1 - t] ? ' win' : '')); b.appendChild(el('small', null, teamName(t))); b.appendChild(el('b', null, String(scores[t]))); row.appendChild(b); });
+      card.appendChild(row);
+      card.appendChild(el('div', 'sumLine', scores[0] === scores[1] ? 'Berabere! 🤝' : `${teamName(scores[0] > scores[1] ? 0 : 1)} kazandı! 🎉`));
+    } else {
+      card.appendChild(el('div', 'sumScore', String(soloScore)));
+      card.appendChild(el('div', 'sumLine', 'toplam puan'));
+    }
+    const grid = el('div', 'sumGrid');
+    [[`${solved} / ${ROUNDS}`, 'kelime bulundu'], [String(stats.best), 'en iyi puan'], [String(stats.episodes), 'tamamlanan seri']]
+      .forEach(([v, l]) => { const b = el('div', 'sumStat'); b.appendChild(el('b', null, v)); b.appendChild(el('small', null, l)); grid.appendChild(b); });
+    card.appendChild(grid);
+    const strip = el('div', 'sumStrip');
+    results.forEach((r, i) => strip.appendChild(el('span', 'lv ' + (r || 'no'), String(MIN_LEN + i))));
+    card.appendChild(strip);
+    const btn = el('button', 'next', 'Yeni seri ▶'); btn.type = 'button'; btn.id = 'againBtn';
+    btn.addEventListener('click', () => { startEpisode(); if (isTouch && !kbOn) kin.focus(); });
+    card.appendChild(btn);
+    summaryEl.appendChild(card);
+    summaryEl.hidden = false;
+    btn.focus();
+    confetti(solved >= ROUNDS - 2 ? 120 : 50); sFinal();
+    msg(['Seri bitti! Toplam ', bold(String(total)), ' puan. Yeni seri 2 harften başlar.'], 'happy');
+    nextBtn.textContent = 'Yeni seri ▶';
+    renderScores(); renderLevels();          // "En iyi" kutusu rekor sonrası hemen güncellensin
   }
 
   // ---------- Kontroller ----------
   nextBtn.addEventListener('click', () => {
     if (busy) return;
-    if (over) { newRound(); if (isTouch && !kbOn) kin.focus(); } else endRound(true);
+    if (episodeDone) { startEpisode(); return; }
+    if (over) next(); else endRound(true);
   });
 
   // ---- Telefon / bilgisayar klavyesi (gizli input) ----
@@ -334,9 +432,9 @@
 
   $('modeSeg').addEventListener('click', e => {
     const m = e.target.dataset.mode; if (!m || m === mode || busy) return;
-    mode = m; scores = [0, 0]; soloScore = 0; streak = 0; startTeam = 0;
+    mode = m; streak = 0;
     [...$('modeSeg').children].forEach(b => b.classList.toggle('on', b.dataset.mode === mode));
-    newRound();
+    startEpisode();
   });
 
   $('timerChk').addEventListener('change', e => { timerOn = e.target.checked; if (!over && !busy) startTimer(); });
@@ -344,6 +442,7 @@
   document.addEventListener('keydown', e => {
     if (e.target === kin || e.ctrlKey || e.metaKey || e.altKey) return;
     if (e.target && /^(INPUT|BUTTON|SUMMARY)$/.test(e.target.tagName) && (e.key === 'Enter' || e.key === ' ')) return;
+    if (episodeDone) return;
     if (e.key === 'Enter') { e.preventDefault(); enter(); return; }
     if (e.key === 'Backspace') { e.preventDefault(); press('SİL'); return; }
     if (e.key.length === 1) press(up(e.key));
@@ -353,14 +452,19 @@
   if (!DICT) $('dictControls').style.display = 'none';
   $('poolSeg').addEventListener('click', e => {
     const p = e.target.dataset.pool; if (!p || p === pool || busy) return;
-    pool = p; used.clear();
+    pool = p;
     [...$('poolSeg').children].forEach(b => b.classList.toggle('on', b.dataset.pool === pool));
-    newRound();
+    startEpisode();
   });
   $('dictChk').addEventListener('change', e => { dictCheck = e.target.checked; });
 
   $('sndBtn').addEventListener('click', () => { sndOn = !sndOn; $('sndBtn').textContent = sndOn ? '🔊' : '🔇'; });
 
   updKb();
-  newRound();
+  (async () => {
+    usedByLen = await load(USED_KEY, {});
+    const s = await load(STATS_KEY, null);
+    if (s && typeof s === 'object') stats = { best: s.best | 0, episodes: s.episodes | 0 };
+    startEpisode();
+  })();
 })();

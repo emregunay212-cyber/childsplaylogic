@@ -16,7 +16,7 @@
 - [Kelime Canavarları](https://bilnetoyun.com/oyunlar/kelime-canavarlari/): İngilizce kelimelerle canavarını besle, evrimleştir, FUSION ile melez yarat!
 - [Kelime Kurtarma](https://bilnetoyun.com/oyunlar/kelime-kurtarma/): Her yanlış harf bir balon patlatır — kelimeyi bul, karakteri uçur!
 - [Günlük Kelime](https://bilnetoyun.com/oyunlar/gunluk-kelime/): Her gün TEK kelime — tüm okul aynı kelimeyi çözüyor! 6 deneme, yeşil-sarı ipuçları.
-- [Lingo](https://bilnetoyun.com/oyunlar/lingo/): İlk harfi verilen 5 harfli kelimeyi 5 denemede bul: yeşil yerinde, sarı kelimede var. Tek ya da 2 takım!
+- [Lingo](https://bilnetoyun.com/oyunlar/lingo/): 2 harfle başla, 10 harfe çık: ilk harfi verilen kelimeyi 5 denemede bul. 9 bölüm biter, puanın sunulur!
 - [Sayı Sayma](https://bilnetoyun.com/oyunlar/sayi-sayma/): Nesneleri say, sayıları eğlenerek öğren.
 - [Matematik](https://bilnetoyun.com/oyunlar/matematik/): Toplama-çıkarma alıştırmalarıyla dört işlemi eğlenerek öğren.
 - [Desen Tamamlama](https://bilnetoyun.com/oyunlar/desen/): Eksik deseni bul, örüntüyü tamamla.

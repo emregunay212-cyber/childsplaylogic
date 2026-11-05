@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="robots" content="noindex, follow">
     <link rel="canonical" href="https://bilnetoyun.com/oyunlar/lingo/">
-<title>Lingo — 5 Harfli Kelimeyi Bul!</title>
-<!-- Portal standardı: tek dosya, harici bağımlılık YOK (yazı tipi self-host: assets/fonts/fredoka).
-     Lingo (TV yarışması biçimi): ilk harf verilir, 5 harfli kelime 5 denemede bulunur; bulunan harfler
-     kilitlenir, yalnız boş kutular yazılır. Tek oyuncu ya da 2 takım (aynı cihaz, sıra değişir; takım
-     bilemezse karşı takıma bir harf daha açılır ve tek hak verilir). Oyun kodu: game.js (satır içi script yok). -->
+<title>Lingo — 2 Harften 10 Harfe Kelimeyi Bul!</title>
+<!-- Portal standardı: harici bağımlılık YOK (yazı tipi self-host: assets/fonts/fredoka).
+     Lingo (TV yarışması biçimi), 9 bölümlük seri: kelime uzunluğu 2'den 10'a bölüm bölüm artar. Her turda ilk
+     harf verilir, 5 deneme; bulunan harfler kilitlenir, yalnız boş kutular yazılır. 10 harf bitince toplam puan
+     özeti, "Yeni seri" 2 harften başlar; kullanılan kelimeler cihazda tutulur (tekrar etmez). Tek oyuncu ya da
+     2 takım (aynı cihaz; takım bilemezse karşı takıma bir harf daha + tek hak). Kod: kelimeler.js + game.js. -->
 <link rel="stylesheet" href="../_shared/edu-kit.css">
 <style>
   @font-face {
@@ -87,11 +88,44 @@
   .timer.show{visibility:visible}
   .timer div{height:100%;width:100%;background:var(--green);border-radius:999px;transition:width 1s linear}
   .timer div.low{background:var(--red)}
-  /* tahta */
-  .board{display:grid;gap:7px;width:min(100%,350px);cursor:text}
-  .row{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+  /* bölüm şeridi: 9 hap (2…10 harf) */
+  .levels{display:flex;gap:4px;flex-wrap:wrap;justify-content:center}
+  .lv{display:grid;place-items:center;min-width:30px;height:30px;padding:0 6px;border-radius:999px;background:rgba(255,255,255,.75);color:var(--muted);font-weight:700;font-size:.9rem;box-shadow:0 3px 0 var(--tile-b)}
+  .lv.cur{background:var(--purple);color:#fff;box-shadow:0 3px 0 #6a49d6;transform:scale(1.1)}
+  .lv.ok{background:var(--green);color:#fff;box-shadow:0 3px 0 var(--green-d)}
+  .lv.no{background:#ebe7f7;color:#a79cc8;box-shadow:0 3px 0 #d3cdea}
+  /* tahta: --n = harf sayısı (2…10); uzun kelimede kutular ve yazı küçülür */
+  .board{--n:5;--gap:7px;display:grid;gap:var(--gap);width:min(100%,calc(var(--n) * 70px));cursor:text}
+  .board.dar{--gap:4px}
+  .row{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:var(--gap)}
   .row.steal .tile{border-color:var(--orange)}
-  .tile{aspect-ratio:1;display:grid;place-items:center;font-weight:700;font-size:clamp(1.6rem,8.5vw,2.4rem);background:var(--tile);border:3px solid var(--tile-b);border-radius:16px;box-shadow:0 5px 0 var(--tile-b);color:var(--ink);transition:transform .1s}
+  .tile{aspect-ratio:1;display:grid;place-items:center;font-weight:700;font-size:clamp(.95rem,calc((min(100vw - 32px, 440px) - (var(--n) - 1) * var(--gap)) / var(--n) * .55),2.4rem);background:var(--tile);border:3px solid var(--tile-b);border-radius:16px;box-shadow:0 5px 0 var(--tile-b);color:var(--ink);transition:transform .1s}
+  .board.dar .tile{border-width:2px;border-radius:9px;box-shadow:0 3px 0 var(--tile-b)}
+  .board.dar .tile.filled{box-shadow:0 3px 0 #6a49d6}
+  .board.dar .tile.cursor{box-shadow:0 3px 0 #e35d99}
+  .board.dar .tile.lock,.board.dar .tile.ok{box-shadow:0 3px 0 var(--green-d)}
+  .board.dar .tile.near{box-shadow:0 3px 0 var(--yel-d)}
+  .board.dar .tile.no{box-shadow:0 3px 0 #d3cdea}
+  /* seri özeti */
+  .overlay{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(59,42,107,.45)}
+  .overlay[hidden]{display:none}
+  .sumCard{width:min(100%,380px);background:#fff;border-radius:24px;padding:18px 18px 20px;text-align:center;box-shadow:0 10px 0 var(--tile-b),0 20px 40px rgba(0,0,0,.2);display:flex;flex-direction:column;align-items:center;gap:8px;animation:popIn .35s ease}
+  @keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+  .sumTitle{font-size:1.5rem;font-weight:700}
+  .sumScore{font-size:3.2rem;font-weight:700;line-height:1;color:var(--purple)}
+  .sumLine{color:var(--muted);font-weight:600}
+  .sumTeams{display:flex;gap:10px;width:100%}
+  .sumTeam{flex:1;background:#f4f1ff;border-radius:16px;padding:6px;border:3px solid transparent}
+  .sumTeam.win{border-color:var(--yel)}
+  .sumTeam small{display:block;color:var(--muted);font-weight:600}
+  .sumTeam b{font-size:1.8rem}
+  .sumGrid{display:flex;gap:8px;width:100%;margin-top:4px}
+  .sumStat{flex:1;background:#f4f1ff;border-radius:14px;padding:6px 4px}
+  .sumStat b{display:block;font-size:1.2rem}
+  .sumStat small{color:var(--muted);font-weight:600;font-size:.8rem}
+  .sumStrip{display:flex;gap:4px;flex-wrap:wrap;justify-content:center}
+  .sumStrip .lv{min-width:26px;height:26px;font-size:.8rem}
+  .sumCard .next{margin-top:6px}
   .tile.filled{border-color:var(--purple);box-shadow:0 5px 0 #6a49d6;transform:scale(1.04)}
   .tile.cursor{border-color:var(--pink);box-shadow:0 5px 0 #e35d99;animation:pulse 1s ease-in-out infinite}
   @keyframes pulse{50%{transform:scale(1.06)}}
@@ -165,6 +199,7 @@
            autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" lang="tr">
   </form>
 
+  <div class="levels" id="levels" aria-label="Seri ilerlemesi: harf sayısı"></div>
   <div class="scores" id="scores"></div>
   <div class="timer" id="timer"><div id="timerBar"></div></div>
 
@@ -182,18 +217,22 @@
   <div class="kb" id="kb"></div>
 
   <p class="help">
-    İlk harf verilir. 5 harfli kelimeyi 5 denemede bul!<br>
-    Bulunan harfler kendiliğinden yerleşir, sadece boş kutuları doldur.<br>
+    Seri 9 bölüm: 2 harfle başla, her bölümde bir harf artsın, 10 harfte bitir!<br>
+    İlk harf verilir, kelimeyi 5 denemede bul. Bulunan harfler kendiliğinden yerleşir, sadece boş kutuları doldur.<br>
     <span class="dot r"></span>Doğru yer &nbsp; <span class="dot y"></span>Kelimede var, yeri yanlış<br>
+    Az denemede bulan ve uzun kelime bilen daha çok puan alır; 10 harf bitince toplam puanın sunulur.<br>
     <b>2 Takım:</b> Takım bilemezse diğer takıma 1 harf daha açılır ve tek hak verilir.
   </p>
 </div>
+<div class="overlay" id="summary" role="dialog" aria-label="Seri sonucu" hidden></div>
 
-<!-- Eğitsel kit (B5): tek AudioContext, gizlenince duraklatma; satır içi script yok (CSP). Oyun kodu: game.js.
+<!-- Eğitsel kit (B5): tek AudioContext, gizlenince duraklatma, storage köprüsü; satır içi script yok (CSP).
+     kelimeler.js: 2–10 harf kelime havuzu (window.LINGO_KELIMELER). Oyun kodu: game.js.
      İsteğe bağlı TDK sözlüğü: aynı klasöre tdk-kelimeler.js (window.TDK5 = { KELİME: "anlam" }) konulup
      game.js'ten ÖNCE <script src="tdk-kelimeler.js"></script> ile yüklenirse "Tüm TDK" havuzu ve anlamlar açılır;
-     dosya yokken oyun kolay listeyle çalışır (sözlük ayarları gizlenir). -->
+     dosya yokken oyun kendi listesiyle çalışır (sözlük ayarları gizlenir). -->
 <script src="../_shared/edu-kit.js"></script>
+<script src="kelimeler.js"></script>
 <script src="game.js"></script>
 </body>
 </html>
