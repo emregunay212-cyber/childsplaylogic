@@ -101,11 +101,17 @@ const ModulAdi = (() => {
   Güncelleme: Unity'de **Yerçekimi Yolculuğu → WebGL Derle (childsplaylogic)** → `Builds/WebGL/yercekimi-yolculugu/Build/*` buraya kopyalanır (dosya adları sabit: `yercekimi-yolculugu.*`).
 - Oynanış (GCompris "Gravity" etkinliğinin yapısı + enerji): roket ortada yalnız sağa-sola (← → ya da ekranın sol/sağ yarısına dokunma),
   gezegenler sol/sağ kenardan iner; her gezegenin görünür **çekim halkası** (yarıçap 3.4r) var, yalnız halka içinde yatay çeker (G·r²/(d²+(0.6r)²), kenarda yumuşak sönüm);
-  roketin altındaki ok çekimin yönü/gücü; itiş enerji harcar, orta şeritten enerji şimşeği iner; tüm gezegenler geçince istasyon iner.
+  roketin üstündeki kırmızı uyarı oku sıradaki gezegenin hangi yanda olduğunu gösterir (gezegen gelmeden çıkar; yakınlaştıkça uzar, çok uzakta kaybolur); itiş enerji harcar, orta şeritten enerji şimşeği iner; tüm gezegenler geçince istasyon iner.
   6 seviye oyunun İÇİNDE (1-6 tuşları, M ses); hub'a `levels: 1` (modülün `levels` uzunluğu). Seviye değerleri basit oto-pilot simülasyonuyla dengelendi.
-- Görünüm: webden lisansı uygun hazır çizimler — roket Leonardo007 (itch.io, ticari kullanım serbest), gezegenler Maribell (itch.io, ücretsiz, ad anılır),
-  istasyon/efektler Kenney (CC0), dikişsiz bulutsu arka plan Screaming Brain Studios (CC0), enerji şimşeği Microsoft Fluent Emoji (MIT); arayüz Nunito ExtraBold (OFL),
-  sesler kodla sentezlenir. Liste: Unity projesinde `Assets/Game/CREDITS.md`.
+- Görünüm: Moon Sweepers paletinden esinlenme (o oyunun görseli yok) — beyaz-gri-turuncu low-poly; roket ve istasyon Kenney Space Kit (CC0)
+  parçalarından, low-poly gezegenler ve lacivert-mor gök kodla çizildi (Unity projesi `Tools/make_moon_style.py`), enerji şimşeği Microsoft Fluent Emoji (MIT);
+  arayüz Nunito ExtraBold (OFL), sesler kodla sentezlenir. Kamera yakın: oyun alanı 11 x 6.2 birim = kameranın gördüğü alan (gezegenler ekranda tam görünür).
+- Anaokulu düzeni (yaş 4-7): okuma gerektirmeyen arayüz — seviye = yıldız sırası, ilerleme = gezegen simgeleri, enerji = şimşek + çubuk,
+  ses = hoparlör simgesi; altta büyük sol/sağ ok düğmeleri (ekranın alt %80'inde sol/sağ yarıya dokunmak da yönlendirir); mesajlar tek-iki kelime.
+- Çekim her uzaklıkta çalışır (halka yalnız güçlü bölgeyi gösterir) ve sıradaki gezegen roketin bulunduğu yandan gelir: hiç yönlendirmeyen oyuncu kesin çarpar
+  (simülasyon 60/60), yönlendiren geçer. Oyun alanı ekran oranına uyar: yatay 11 x 6.2, dikey (telefon/tablet) dar ve uzun; yatay boyutlar `GameManager.WorldScale` ile ölçeklenir.
+  Site çerçevesi (`css/yercekimi-yolculugu.css`) dikey ekranda iframe'i 78dvh yapar.
+  Liste: Unity projesinde `Assets/Game/CREDITS.md`.
 
 ### Ateş & Buz fizik sözleşmesi (`games/ates-buz/js/`, 30 Eyl 2026 düzeltmesi — `docs/ates-buz-fizik-2026-09-30.md`)
 
