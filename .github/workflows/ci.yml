@@ -133,6 +133,13 @@ jobs:
           CI: true
           SITE_ROOT: .build-check
 
+      # Lingo: kelime havuzu (2–10 harf kovaları, tarayıcısız) + 9 bölümlük seri akışı, özet, tekrar etmeyen kelimeler.
+      - name: Lingo testi — hash'li çıktı üzerinde
+        run: npm run test:lingo
+        env:
+          CI: true
+          SITE_ROOT: .build-check
+
       # Kırmızı koşuda adli kayıt: trace (ilk retry), ekran görüntüsü, video, error-context.md
       - name: Hata artefaktları
         if: failure()

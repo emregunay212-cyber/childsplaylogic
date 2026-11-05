@@ -124,7 +124,7 @@ const TR = {
         'ritim-sorulari': 'Düşen karolardan doğru cevaba bas, melodini kur!',
         'kesir-2048': 'Kaydır ve birleştir: 1/8+1/8=1/4 → hedef 1 TAM!',
         'gunluk-kelime': 'Bugünün kelimesini 6 denemede bul — tüm okul aynı kelimeyi çözüyor!',
-        'lingo': 'İlk harf verildi: 5 harfli kelimeyi 5 denemede bul! Yeşil yerinde, sarı kelimede var.',
+        'lingo': 'İlk harf verildi, kelimeyi 5 denemede bul! 2 harfle başla, her bölümde bir harf artsın, 10 harfte puanını gör.',
         'sayi-ninja': 'Havadaki sayılardan kurala uyanları kes, combo yap!',
         'bilgi-kulesi': '12 soruluk kuleyi tırman — jokerler ve güvenli katlar seninle!',
         'labirent-avcisi': 'Labirentteki harfleri sırayla topla, buluttan kaç!',
