@@ -131,6 +131,7 @@ const TR = {
         'cevap-kosusu': 'Koş, engellerden kaç, yol ayrımında doğru tabelaya gir!',
         'bilgi-savunmasi': 'Soru çözerek enerji üret, kulelerini dik, bahçeni koru!',
         'fizik-firlatma': 'Açıyı ve kuvveti ayarla, sapanla yıldız kutularını vur!',
+        'yercekimi-yolculugu': '← → ile roketi yönlendir, gezegenlerin çekimine kapılma, benzin bidonlarını topla!',
         'balon-labirenti': 'Topu geri çek, bırak: sekerek tüm balonları tek atışta patlat!',
     },
 

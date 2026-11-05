@@ -63,7 +63,7 @@ const gameModuleGlobals = Object.fromEntries([
     'RenkEslestirme', 'Boyama', 'Tuval', 'SayilarlaBoyama', 'EmojiYapici',
     'KodMacerasi', 'LegoMacerasi', 'LegoWorld', 'Satranc', 'ZiplaTopla', 'SpaceWaves', 'Egim',
     'BuzKulesi', 'Penalti', 'ZindanOkcusu', 'BilVeFethet', 'BilgiTakimi', 'BilgiCiftligi',
-    'BilgiKulesi', 'CevapKosusu', 'BilgiSavunmasi', 'FizikFirlatma', 'BalonLabirenti',
+    'BilgiKulesi', 'CevapKosusu', 'BilgiSavunmasi', 'FizikFirlatma', 'BalonLabirenti', 'YercekimiYolculugu',
     // Online (online.order sırasıyla)
     'KelimeTahmin', 'HarfTahmin', 'KodMacerasiMP', 'SatrancMP', 'PenaltiMP', 'AtesBuz',
     'ZiplaToplaCoop', 'HavaHokeyi', 'AltinAvi', 'Kelimelik', 'SonKart',
@@ -92,6 +92,7 @@ module.exports = [
             'fabrika/**',                          // üretim araçları/kaynak — siteye çıkmaz
             'server/**',                           // eski WS sunucusu — siteye çıkmaz (A11: silinecek)
             'seo/**',                              // python üretici
+            'games/yercekimi-yolculugu/Build/**',  // Unity WebGL derleme çıktısı (üretilmiş, minified)
         ],
     },
 

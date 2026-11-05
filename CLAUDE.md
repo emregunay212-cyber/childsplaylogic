@@ -93,6 +93,16 @@ const ModulAdi = (() => {
   Oyun deseni: `const Audio2 = (() => { const { init, tone } = EduKit.audio; return { init, ok: () => tone(660, 0.1, 'triangle', 0.07), … }; })();` — ses adları/frekanslar oyunda kalır, zarf kit'te.
 - Kit CSS token'ları `css/tokens.css`'in KOPYASIdır (iframe'e tokens.css ulaşmaz); yeni token gerekirse tokens.css'ten kopyalanır, test (`edu-kit.spec.js`) ad+değer eşitliğini denetler. Kit sürümü `EduKit.version` (semver; API kırılırsa majör).
 
+### Yerçekimi Yolculuğu (Unity WebGL iframe oyunu — `games/yercekimi-yolculugu/`, 5 Kas 2026)
+
+- Sitedeki tek Unity oyunu. `index.html` + `boot.js` (satır içi script yok) + `style.css` elle yazıldı; `Build/` **Unity derleme çıktısıdır**, elle düzenlenmez (eslint `ignores`'ta).
+  Gzip + `decompressionFallback` (`*.unityweb`): Vercel'de `Content-Encoding` başlığı gerekmez. Ücretsiz Unity lisansında "Made with Unity" açılışı zorunlu.
+- Kaynak Unity projesi depoda DEĞİL (sahibin makinesinde `Documents/YercekimiYolculugu`, Unity 6000.6.0f1, Web Build Support modülü).
+  Güncelleme: Unity'de **Yerçekimi Yolculuğu → WebGL Derle (childsplaylogic)** → `Builds/WebGL/yercekimi-yolculugu/Build/*` buraya kopyalanır (dosya adları sabit: `yercekimi-yolculugu.*`).
+- Oynanış (GCompris "Gravity" etkinliğinin yapısı, kendi görsellerimiz + benzin): roket ortada yalnız sağa-sola (← → ya da ekranın sol/sağ yarısına dokunma),
+  gezegenler sol/sağ kenardan iner ve yatay çeker (∝ r²/d²), roketin altındaki ok çekimin yönü/gücü; itiş benzin harcar, orta şeritten bidon iner;
+  tüm gezegenler geçince istasyon iner. 6 seviye oyunun İÇİNDE (1-6 tuşları); hub'a `levels: 1` (modülün `levels` uzunluğu).
+
 ### Ateş & Buz fizik sözleşmesi (`games/ates-buz/js/`, 30 Eyl 2026 düzeltmesi — `docs/ates-buz-fizik-2026-09-30.md`)
 
 - Elle yazılmış dikdörtgen çarpışma (`player.js`/`ingameAssets/cube.js`/`ball.js`) **hıza ve veriye duyarlıdır**:

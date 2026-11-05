@@ -1238,6 +1238,29 @@
       }
     },
     {
+      "slug": "yercekimi-yolculugu",
+      "name": "Yerçekimi Yolculuğu",
+      "module": "YercekimiYolculugu",
+      "section": "strateji",
+      "cat": "Fen / Fizik",
+      "subject": "fen",
+      "age": [7, 12],
+      "minutes": 6,
+      "levels": 1,
+      "teaches": "Yerçekimi: kütle büyüdükçe çekim artar, mesafe arttıkça azalır",
+      "short": "Gezegenlerin çekimine kapılmadan roketi sağa-sola yönlendir, benzin topla, uzay istasyonuna ulaş!",
+      "about": "Yerçekimi Yolculuğu'nda roketin uzayda ilerlerken gezegenler sağdan ve soldan yaklaşır ve roketi kendine çeker. Büyük ve yakın gezegen daha güçlü çeker; roketin altındaki ok, çekimin yönünü ve gücünü gösterir. Sağ ve sol ok tuşlarıyla roketi yönlendirir, gezegenlere çarpmadan geçersin. İtiş benzin harcar, ortadan gelen benzin bidonlarını yakalarsın. Tüm gezegenleri geçince uzay istasyonu iner. 6 seviye: her seviyede gezegenler çoğalır, hızlanır ve büyür. Newton'un çekim yasasını oynayarak sezdirir. Ücretsiz, üyeliksiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "added": "2026-11-05",
+      "files": {
+        "js": ["js/games/yercekimi-yolculugu.js"],
+        "css": ["css/yercekimi-yolculugu.css"]
+      }
+    },
+    {
       "slug": "kelime-tahmin",
       "name": "Kelime Tahmin",
       "module": null,
