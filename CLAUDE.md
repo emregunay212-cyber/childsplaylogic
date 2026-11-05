@@ -71,6 +71,11 @@ const ModulAdi = (() => {
   birinci eksen **yaş rafı** (`data/games.json shelves`, `ages` kapalı tam yaş aralığı; oyun `age` kesişirse o rafa girer, birden çok raf olabilir;
   `localStorage bo_shelf` = `'hepsi'` | raf id, ilk ziyaret Hepsi = raflar alt alta + raf başına yatay ray `.raf-ray`; tek raf = `.raf-izgara`),
   ikinci eksen kategori çipi (`data-cat`/`data-value` = bölüm id, `'all'`; online oyunlar ayrı bölüm DEĞİL, raflara dağılır + `data-online` kart + "2 Oyuncu" rozeti).
+  **"Yeni Oyunlar"** (5 Kas 2026, sahip kararı): bölüm DEĞİL, `data/games.json` `added` (YYYY-AA-GG) tarihine göre en yeni 5 aktif oyun
+  (`tools/build-catalog.js newestOf` → `js/catalog.js GAME_NEW`; aynı kural `seo/games_data.py newest_of` ve `tests/hub-ia.spec.js newestOf`, üçü birlikte değişir).
+  Hepsi × Tümü görünümünde en üstte `section.raf.raf--yeni[data-yeni]` rayı (başlık `.raf-baslik--yeni`, `--gunes` zemin); çip `data-value="yeni"` Tümü'den hemen sonra →
+  tek ızgara (yaş rafları çizilmez, raf çipi süzer); yeni kartlarda `data-yeni`. Oyun kendi `section`'ında da kalır; 5 yeni oyun gelince yalnız bu raftan düşer.
+  Statik `/oyunlar/`: `#kat-yeni` çipi + `.g[data-yeni]` (`css/landing.css`). Yeni oyun eklerken `added` yazılır; alanı olmayan oyun yeni sayılmaz.
   "Devam et" ilk satır: `Progress` v2 `lastPlayed { <kilit anahtarı>: ts }` (`touchLastPlayed` `startGame`/`startMultiplayerGame`'de; boşsa maskotlu boş durum).
   Öğretmen görünümü `localStorage bo_teacher` = `'1'` (`#btn-teacher role=switch`, `#hub.ogretmen`): kartlarda kazanım + süre, ders çipleri (`#hub-subject-nav`), arama (`#hub-search`, ad/kazanım/ders/bölüm, aksan + İ/ı duyarsız sözcük başlangıcı; sonuç `.raf--arama`). Çip grupları `role=radiogroup` (ok tuşları seçer), kartlarda roving tabindex (`HubIA.bindRoving`).
   Kart tek yol `createGameCard(entry, { wide, shelf })` (DOM API, innerHTML yok): `data-section` → kategori şeridi (`css/hub.css`, yeni oyun için CSS satırı GEREKMEZ), yıldız satırı oyun düzeyi 3 yuva (`cardStarCount`), yaş rozeti; `applyLockedState`/`applyOfflineState`/yakında aynen.
@@ -204,7 +209,7 @@ const ModulAdi = (() => {
 
 README "Yeni oyun ekleme" (B2a sonrası) güncel; kısa sıra:
 1. `js/games/<slug>.js` (+ `css/<slug>.css`) — yukarıdaki sözleşme; modül adı `eslint.config.js gameModuleGlobals`'a. Modül birden çok dosyaysa (örn. Balon Labirenti: `balon-labirenti-fizik.js` → `balon-labirenti-levels.js` → `balon-labirenti.js`) yardımcı dosyalar `window.X` yayımlar (eslint globali gerekmez) ve `files.js` sırası yükleme sırasıdır.
-2. `data/games.json` kaydı (hub sırasında; `stars` 0 = kilitsiz; `online` varsa `order`) → `npm run catalog`.
+2. `data/games.json` kaydı (hub sırasında; `stars` 0 = kilitsiz; `online` varsa `order`; **`added`** = eklendiği gün, "Yeni Oyunlar" rafı buna bakar) → `npm run catalog`.
 3. Kategori şeridi otomatik (`data-section` → `var(--kat-<bölüm>)`, B2b; `css/hub.css`'e satır eklenmez, yeni renk adı AÇILMAZ) · `js/i18n.js` `TR.instructions` (yönerge varsa). Yaş rafı `age`'den türer (raf listesi `data/games.json shelves`).
 4. `assets/images/hub/<slug>.svg` (128×128, `rx=28` yuvarlatılmış gradyan zemin kalıbı; v2 sahne dili, emoji yok).
 5. `python seo/build_seo.py` (üretilenler elle düzenlenmez).

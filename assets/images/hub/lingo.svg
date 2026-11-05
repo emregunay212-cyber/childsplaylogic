@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7FD3FF"></stop><stop offset="100%" stop-color="#3F9FC9"></stop></linearGradient><clipPath id="c"><rect width="128" height="128" rx="28"></rect></clipPath></defs><g clip-path="url(#c)"><rect width="128" height="128" fill="url(#lg)"></rect>
+  <ellipse cx="34" cy="26" rx="18" ry="7" fill="#fff" opacity=".8"></ellipse><ellipse cx="96" cy="40" rx="14" ry="6" fill="#fff" opacity=".7"></ellipse>
+  <ellipse cx="64" cy="112" rx="50" ry="8" fill="#1F6E95" opacity=".3"></ellipse>
+  <rect x="12" y="46" width="20" height="22" rx="6" fill="#3CCF6E" stroke="#23A752" stroke-width="2.5"></rect>
+  <rect x="33" y="46" width="20" height="22" rx="6" fill="#FFD23F" stroke="#E6AE00" stroke-width="2.5"></rect>
+  <rect x="54" y="46" width="20" height="22" rx="6" fill="#fff" stroke="#D9D2F5" stroke-width="2.5"></rect>
+  <rect x="75" y="46" width="20" height="22" rx="6" fill="#fff" stroke="#D9D2F5" stroke-width="2.5"></rect>
+  <rect x="96" y="46" width="20" height="22" rx="6" fill="#fff" stroke="#D9D2F5" stroke-width="2.5"></rect>
+  <g font-family="Fredoka, Verdana, sans-serif" font-weight="700" font-size="17" text-anchor="middle">
+    <text x="22" y="63" fill="#fff">L</text><text x="43" y="63" fill="#3B2A6B">İ</text><text x="64" y="63" fill="#3B2A6B">N</text><text x="85" y="63" fill="#3B2A6B">G</text><text x="106" y="63" fill="#3B2A6B">O</text>
+  </g>
+  <rect x="12" y="74" width="20" height="22" rx="6" fill="#3CCF6E" stroke="#23A752" stroke-width="2.5"></rect>
+  <rect x="33" y="74" width="20" height="22" rx="6" fill="#fff" stroke="#FF7EB6" stroke-width="2.5"></rect>
+  <rect x="54" y="74" width="20" height="22" rx="6" fill="#fff" stroke="#D9D2F5" stroke-width="2.5"></rect>
+  <rect x="75" y="74" width="20" height="22" rx="6" fill="#fff" stroke="#D9D2F5" stroke-width="2.5"></rect>
+  <rect x="96" y="74" width="20" height="22" rx="6" fill="#fff" stroke="#D9D2F5" stroke-width="2.5"></rect>
+  <text x="22" y="91" font-family="Fredoka, Verdana, sans-serif" font-weight="700" font-size="17" text-anchor="middle" fill="#fff">L</text>
+  <rect x="38" y="79" width="10" height="12" rx="2" fill="#FF7EB6" opacity=".6"></rect></g></svg>

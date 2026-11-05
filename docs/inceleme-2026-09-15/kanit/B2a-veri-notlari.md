@@ -18,6 +18,7 @@ Plan 58'i kart sayısından türetmişti (47 solo kart + 11 online kart). `kod-m
 | `cat`, `age`, `teaches`, `short`, `about`, `players`, `active` | `seo/games_data.py GAMES` (age `"4-7"` → `[4, 7]`; `active=False` ↔ eski `comingSoon:true`) |
 | `players_range` | Python `build_seo.players_range()` türetimi sabitlendi (`[2, null]` = "en az 2") — çıktı aynı |
 | `subject`, `minutes` | **yeni**; aşağıdaki tablo |
+| `added` | (5 Kas 2026) oyunun siteye eklendiği gün `YYYY-AA-GG`; mevcut kayıtlar için `git log --diff-filter=A` ilk commit tarihi (zipla-topla-coop: `ZiplaToplaCoop` modülünün geldiği commit). "Yeni Oyunlar" rafı = aktif + `added` olanlardan en yeni 5 (`GAME_NEW`, `newest_of`); isteğe bağlı, olmayan oyun yeni sayılmaz |
 | `sections[]` | hub bölümleri: başlık, `categoryIcons` anahtarı, mevcut başlık rengi (B1 `--kat-*` token'ı gelene kadar `var(--kat-<id>, #hex)` yedeği) |
 
 ## Kararlar (SEO çıktısında farka yol açanlar)

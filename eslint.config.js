@@ -35,6 +35,7 @@ const hubCoreGlobals = {
     GAME_SECTIONS: 'readonly',      // js/catalog.js (ÜRETİLMİŞ: data/games.json, B2a)
     GAME_CATALOG: 'readonly',       // js/catalog.js
     GAME_MODULES: 'readonly',       // js/catalog.js — modül adı → thunk tablosu
+    GAME_NEW: 'readonly',           // js/catalog.js — "Yeni Oyunlar" slug listesi (added tarihine göre en yeni 5)
     LOCK_CATALOG: 'readonly',       // js/lock-catalog.js
     LOCK_STARS_BY_KEY: 'readonly',  // js/lock-catalog.js
     MobileUtils: 'readonly',        // js/mobile-utils.js
@@ -54,7 +55,7 @@ const hubCoreGlobals = {
 const gameModuleGlobals = Object.fromEntries([
     // Tek oyunculu (hub sırasıyla)
     'HarfTanima', 'KlavyeKasifi', 'OnParmak', 'HeceBirlestirme', 'KelimeMadeni3D', 'KelimeBalonu', 'KelimeCanavarlari',
-    'KelimeKurtarma', 'GunlukKelime',
+    'KelimeKurtarma', 'GunlukKelime', 'Lingo',
     'SayiSayma', 'Matematik', 'Desen', 'BilgiMadencisi', 'MatematikPatlatma', 'MatematikKafe',
     'BilgiYilani', 'RitimSorulari', 'Kesir2048', 'SayiNinja',
     'HafizaKartlari', 'SekilBulmaca', 'Siralama', 'Jigsaw', 'Tetris', 'BilimDedektifi',

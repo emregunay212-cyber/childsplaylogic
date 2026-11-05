@@ -26,7 +26,7 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from games_data import GAMES, STATIC_PAGES, SCHOOL_NAME, SCHOOL_URL, SCHOOL_SOCIAL, SHELVES, SECTIONS, shelves_of  # noqa: E402
+from games_data import GAMES, STATIC_PAGES, SCHOOL_NAME, SCHOOL_URL, SCHOOL_SOCIAL, SHELVES, SECTIONS, shelves_of, newest_of  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = "https://bilnetoyun.com"
@@ -545,7 +545,9 @@ def hub_filters():
         return (f'<input class="suzgec-radio" type="radio" name="{name}" id="{cid}" value="{esc(value)}"{" checked" if checked else ""}>'
                 f'<label class="cip" for="{cid}">{ico}{esc(label)}{small}</label>')
     yas = [chip("yas", "hepsi", "Hepsi", True)] + [chip("yas", s["id"], s["label"], sub=f'{s["yas"]} yaş') for s in SHELVES]
-    kat = [chip("kat", "hepsi", "Tümü", True)] + [chip("kat", s["id"], s["title"].replace(" & ", " ve "), icon=category_icon(s)) for s in SECTIONS]
+    # "Yeni Oyunlar" bolum degil (sections'ta yok): data-yeni kartlari suzer (css/landing.css #kat-yeni kurallari)
+    yeni = [chip("kat", "yeni", "Yeni Oyunlar", icon="/assets/images/categories/new.svg")] if newest_of() else []
+    kat = [chip("kat", "hepsi", "Tümü", True)] + yeni + [chip("kat", s["id"], s["title"].replace(" & ", " ve "), icon=category_icon(s)) for s in SECTIONS]
     return "\n".join([
         '<fieldset class="suzgec-grup"><legend>Yaş rafı</legend><div class="suzgec-cipler">', *yas, '</div></fieldset>',
         '<fieldset class="suzgec-grup"><legend>Kategori</legend><div class="suzgec-cipler">', *kat, '</div></fieldset>',
@@ -558,6 +560,8 @@ def hub_card(g):
     section = "online" if not g.get("module") else g.get("section", "")
     rafs = " ".join(shelves_of(g))
     online_attr = ' data-online=""' if (g.get("also_online") or section == "online") else ""
+    if g["slug"] in newest_of():
+        online_attr += ' data-yeni=""'      # "Yeni Oyunlar" suzgeci (hub kartiyla ayni ad)
     badge = ""
     if section == "online":
         badge = '<span class="g-rozet">2 Oyuncu</span>'

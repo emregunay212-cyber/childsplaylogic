@@ -63,6 +63,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-03-31",
       "files": {
         "js": ["js/games/harf-tanima.js"],
         "css": []
@@ -85,6 +86,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-09-16",
       "files": {
         "js": ["js/games/klavye-dizilim.js", "js/games/klavye-kasifi-icerik.js", "js/games/klavye-kasifi.js"],
         "css": ["css/klavye-kasifi.css"]
@@ -107,6 +109,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-10-19",
       "files": {
         "js": ["js/games/klavye-dizilim.js", "js/games/on-parmak-olcum.js", "js/games/on-parmak-icerik.js", "js/games/on-parmak-ekran.js", "js/games/on-parmak-oyun-ortak.js", "js/games/on-parmak-balon.js", "js/games/on-parmak-canavar.js", "js/games/on-parmak-baloncuk.js", "js/games/on-parmak-elma.js", "js/games/on-parmak.js"],
         "css": ["css/on-parmak.css"]
@@ -129,6 +132,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-04-01",
       "files": {
         "js": ["js/games/hece-birlestirme.js"],
         "css": []
@@ -151,6 +155,7 @@
       "players_range": [1, 1],
       "active": false,
       "stars": 0,
+      "added": "2026-06-03",
       "files": {
         "js": ["js/games/kelime-madeni-3d.js"],
         "css": ["css/kelime-madeni-3d.css"]
@@ -173,6 +178,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-06-03",
       "files": {
         "js": ["js/games/kelime-balonu.js"],
         "css": ["css/kelime-balonu.css"]
@@ -195,6 +201,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-06-13",
       "files": {
         "js": ["js/games/kelime-canavarlari.js"],
         "css": ["css/kelime-canavarlari.css"]
@@ -217,6 +224,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-06-13",
       "files": {
         "js": ["js/games/kelime-kurtarma.js"],
         "css": ["css/kelime-kurtarma.css"]
@@ -239,9 +247,33 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-06-13",
       "files": {
         "js": ["js/games/gunluk-kelime.js"],
         "css": ["css/gunluk-kelime.css"]
+      }
+    },
+    {
+      "slug": "lingo",
+      "name": "Lingo",
+      "module": "Lingo",
+      "section": "harf",
+      "cat": "Kelime",
+      "subject": "turkce",
+      "age": [7, 12],
+      "minutes": 5,
+      "levels": 1,
+      "teaches": "Türkçe kelime dağarcığı ve yazım; harf ipuçlarından çıkarım yapma",
+      "short": "İlk harfi verilen 5 harfli kelimeyi 5 denemede bul: yeşil yerinde, sarı kelimede var. Tek ya da 2 takım!",
+      "about": "Lingo, televizyon yarışmasından tanıdık kelime oyununun çocuklar için hazırlanmış sürümüdür. Her turda 5 harfli bir Türkçe kelimenin ilk harfi verilir; 5 denemede kelimeyi bulmaya çalışırsın. Her denemeden sonra harfler renklenir: yeşil harf doğru yerde, sarı harf kelimede var ama başka yerde. Doğru bulunan harfler kendiliğinden yerleşir, yalnız boş kutuları doldurursun. Erken bulan daha çok puan alır. 2 Takım modunda sıra takımlar arasında döner; bir takım bilemezse karşı takıma bir harf daha açılır ve tek deneme hakkı verilir. İsteğe bağlı 20 saniyelik süre ve ekran klavyesi vardır; fiziksel klavyeyle de oynanır. Kelime dağarcığını, yazımı ve ipuçlarından çıkarım yapmayı geliştirir. Ücretsiz, üyeliksiz.",
+      "players": "Tek kişilik ya da 2 takım (aynı cihazda)",
+      "players_range": [1, 2],
+      "active": true,
+      "stars": 0,
+      "added": "2026-11-05",
+      "files": {
+        "js": ["js/games/lingo.js"],
+        "css": ["css/lingo.css"]
       }
     },
     {
@@ -261,6 +293,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-03-31",
       "files": {
         "js": ["js/games/sayi-sayma.js"],
         "css": []
@@ -283,6 +316,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-04-01",
       "files": {
         "js": ["js/games/matematik.js"],
         "css": []
@@ -305,6 +339,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-04-01",
       "files": {
         "js": ["js/games/desen.js"],
         "css": []
@@ -327,6 +362,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-06-03",
       "files": {
         "js": ["js/games/bilgi-madencisi.js"],
         "css": ["css/bilgi-madencisi.css"]
@@ -349,6 +385,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-06-03",
       "files": {
         "js": ["js/games/matematik-patlatma.js"],
         "css": ["css/matematik-patlatma.css"]
@@ -371,6 +408,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-06-03",
       "files": {
         "js": ["js/games/matematik-kafe.js"],
         "css": ["css/matematik-kafe.css"]
@@ -393,6 +431,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-06-13",
       "files": {
         "js": ["js/games/bilgi-yilani.js"],
         "css": ["css/bilgi-yilani.css"]
@@ -415,6 +454,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-06-13",
       "files": {
         "js": ["js/games/ritim-sorulari.js"],
         "css": ["css/ritim-sorulari.css"]
@@ -437,6 +477,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-06-13",
       "files": {
         "js": ["js/games/kesir-2048.js"],
         "css": ["css/kesir-2048.css"]
@@ -459,6 +500,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-06-13",
       "files": {
         "js": ["js/games/sayi-ninja.js"],
         "css": ["css/sayi-ninja.css"]
@@ -481,6 +523,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-03-31",
       "files": {
         "js": ["js/games/hafiza-kartlari.js"],
         "css": []
@@ -503,6 +546,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-03-31",
       "files": {
         "js": ["js/games/sekil-bulmaca.js"],
         "css": []
@@ -525,6 +569,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-03-31",
       "files": {
         "js": ["js/games/siralama.js"],
         "css": []
@@ -547,6 +592,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-04-01",
       "files": {
         "js": ["js/games/jigsaw.js"],
         "css": []
@@ -569,6 +615,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 10,
+      "added": "2026-05-22",
       "files": {
         "js": ["js/games/tetris.js"],
         "css": ["css/tetris.css"]
@@ -591,6 +638,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-06-13",
       "files": {
         "js": ["js/games/bilim-dedektifi.js"],
         "css": ["css/bilim-dedektifi.css"]
@@ -613,6 +661,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-06-13",
       "files": {
         "js": ["js/games/eslestirme-ustasi.js"],
         "css": ["css/eslestirme-ustasi.css"]
@@ -635,6 +684,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-06-13",
       "files": {
         "js": ["js/games/labirent-avcisi.js"],
         "css": ["css/labirent-avcisi.css"]
@@ -657,6 +707,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-03-31",
       "files": {
         "js": ["js/games/renk-eslestirme.js"],
         "css": []
@@ -679,6 +730,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-03-31",
       "files": {
         "js": ["js/games/boyama.js"],
         "css": []
@@ -701,6 +753,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-03-31",
       "files": {
         "js": ["js/games/tuval.js"],
         "css": ["css/tuval.css"]
@@ -723,6 +776,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-05-20",
       "files": {
         "js": ["js/games/sayilarla-boyama.js"],
         "css": ["css/sayilarla-boyama.css"]
@@ -745,6 +799,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-05-22",
       "files": {
         "js": ["js/games/emoji-yapici.js"],
         "css": ["css/emoji-yapici.css"]
@@ -767,6 +822,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-03-31",
       "online": {
         "module": "KodMacerasiMP",
         "order": 3,
@@ -798,6 +854,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-04-01",
       "files": {
         "js": ["js/games/lego-macerasi.js"],
         "css": ["css/kod-macerasi.css"]
@@ -820,6 +877,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-04-01",
       "files": {
         "js": ["https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js", "js/lib/GLTFLoader.r128.js", "js/games/lego-world.js"],
         "css": ["css/lego-world.css"]
@@ -842,6 +900,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-03-31",
       "online": {
         "module": "SatrancMP",
         "order": 4,
@@ -873,6 +932,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 15,
+      "added": "2026-04-07",
       "files": {
         "js": ["js/games/zipla-topla-levels.js", "js/games/zipla-topla.js"],
         "css": ["css/zipla-topla.css"]
@@ -895,6 +955,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 20,
+      "added": "2026-04-20",
       "files": {
         "js": ["js/games/space-waves-questions.js", "js/games/space-waves.js"],
         "css": ["css/space-waves.css"]
@@ -917,6 +978,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 25,
+      "added": "2026-04-20",
       "files": {
         "js": ["js/games/egim.js"],
         "css": ["css/egim.css"]
@@ -939,6 +1001,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 30,
+      "added": "2026-05-18",
       "files": {
         "js": ["js/games/buz-kulesi.js"],
         "css": ["css/buz-kulesi.css"]
@@ -961,6 +1024,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 35,
+      "added": "2026-03-31",
       "files": {
         "js": ["js/games/penalti.js"],
         "css": ["css/penalti.css"]
@@ -983,6 +1047,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 40,
+      "added": "2026-06-03",
       "files": {
         "js": ["js/games/zindan-okcusu.js"],
         "css": ["css/zindan-okcusu.css"]
@@ -1005,6 +1070,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-06-03",
       "files": {
         "js": ["js/games/bil-ve-fethet.js"],
         "css": ["css/bil-ve-fethet.css"]
@@ -1027,6 +1093,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-06-03",
       "files": {
         "js": ["js/games/bilgi-takimi.js"],
         "css": ["css/bilgi-takimi.css"]
@@ -1049,6 +1116,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-06-13",
       "files": {
         "js": ["js/games/bilgi-ciftligi.js"],
         "css": ["css/bilgi-ciftligi.css"]
@@ -1071,6 +1139,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-06-13",
       "files": {
         "js": ["js/games/bilgi-kulesi.js"],
         "css": ["css/bilgi-kulesi.css"]
@@ -1093,6 +1162,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-06-13",
       "files": {
         "js": ["js/games/cevap-kosusu.js"],
         "css": ["css/cevap-kosusu.css"]
@@ -1115,6 +1185,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-06-13",
       "files": {
         "js": ["js/games/bilgi-savunmasi.js"],
         "css": ["css/bilgi-savunmasi.css"]
@@ -1137,6 +1208,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-06-13",
       "files": {
         "js": ["js/games/fizik-firlatma.js"],
         "css": ["css/fizik-firlatma.css"]
@@ -1159,6 +1231,7 @@
       "players_range": [1, 1],
       "active": true,
       "stars": 0,
+      "added": "2026-09-17",
       "files": {
         "js": ["js/games/balon-labirenti-fizik.js", "js/games/balon-labirenti-levels.js", "js/games/balon-labirenti.js"],
         "css": ["css/balon-labirenti.css"]
@@ -1180,6 +1253,7 @@
       "players_range": [2, null],
       "active": true,
       "stars": 0,
+      "added": "2026-03-31",
       "online": {
         "module": "KelimeTahmin",
         "order": 1,
@@ -1206,6 +1280,7 @@
       "players_range": [2, null],
       "active": true,
       "stars": 0,
+      "added": "2026-03-31",
       "online": {
         "module": "HarfTahmin",
         "order": 2,
@@ -1232,6 +1307,7 @@
       "players_range": [2, 2],
       "active": true,
       "stars": 0,
+      "added": "2026-04-01",
       "online": {
         "module": "PenaltiMP",
         "order": 5,
@@ -1258,6 +1334,7 @@
       "players_range": [2, 2],
       "active": true,
       "stars": 0,
+      "added": "2026-04-07",
       "online": {
         "module": "AtesBuz",
         "order": 6,
@@ -1284,6 +1361,7 @@
       "players_range": [2, 2],
       "active": true,
       "stars": 0,
+      "added": "2026-06-10",
       "online": {
         "module": "ZiplaToplaCoop",
         "order": 7,
@@ -1310,6 +1388,7 @@
       "players_range": [2, 2],
       "active": true,
       "stars": 0,
+      "added": "2026-06-10",
       "online": {
         "module": "HavaHokeyi",
         "order": 8,
@@ -1336,6 +1415,7 @@
       "players_range": [5, 30],
       "active": true,
       "stars": 0,
+      "added": "2026-05-15",
       "online": {
         "module": "AltinAvi",
         "order": 9,
@@ -1362,6 +1442,7 @@
       "players_range": [2, 2],
       "active": true,
       "stars": 0,
+      "added": "2026-06-07",
       "online": {
         "module": "Kelimelik",
         "order": 10,
@@ -1388,6 +1469,7 @@
       "players_range": [1, 4],
       "active": true,
       "stars": 0,
+      "added": "2026-06-07",
       "online": {
         "module": "SonKart",
         "order": 11,

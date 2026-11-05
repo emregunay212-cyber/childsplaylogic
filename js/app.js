@@ -23,6 +23,7 @@ const App = (() => {
         creativity: 'assets/images/categories/creativity.svg',
         strategy: 'assets/images/categories/strategy.svg',
         online: 'assets/images/categories/online.svg',
+        yeni: 'assets/images/categories/new.svg',        // "Yeni Oyunlar" çipi (bölüm değil; GAME_NEW)
     };
     // Ders (subject) çipleri — yalnız öğretmen görünümünde; sıra sabit, adlar HubIA.SUBJECT_LABELS
     const SUBJECT_ORDER = ['turkce', 'ingilizce', 'matematik', 'fen', 'kodlama', 'strateji', 'sanat', 'spor', 'genel'];
@@ -564,10 +565,25 @@ const App = (() => {
     // Arama dizini kart başına bir kez (HubIA.indexOf: ad + kazanım + ders + bölüm)
     const searchIndex = new Map(allCards.map(e => [e, HubIA.indexOf(e)]));
 
+    // "Yeni Oyunlar" (GAME_NEW, js/catalog.js: data/games.json `added` tarihine göre en yeni 5 aktif oyun, yeniden
+    // eskiye). Slug başına tek kart: solo kart, yalnız-online oyunda online kart. Oyun kendi kategorisinde de
+    // kalır; 5 yeni oyun daha gelince yalnız bu raftan düşer. Çip bölüm DEĞİL (data/games.json sections'ta yok).
+    const YENI = 'yeni';
+    const newCards = (typeof GAME_NEW !== 'undefined' ? GAME_NEW : [])
+        .map(slug => allCards.find(e => e.id === slug && !e.online) || allCards.find(e => e.id === slug))
+        .filter(Boolean);
+    const newSet = new Set(newCards);
+
     function cardPassesFilters(entry) {
-        if (activeCategory !== 'all' && entry.section !== activeCategory) return false;
+        if (activeCategory === YENI) { if (!newSet.has(entry)) return false; }
+        else if (activeCategory !== 'all' && entry.section !== activeCategory) return false;
         if (activeSubject !== 'all' && entry.subject !== activeSubject) return false;
         return true;
+    }
+    // Yeni rafı kartları: seçili yaş rafı (Hepsi → hepsi) + ders süzgeci; sıra GAME_NEW (yeniden eskiye)
+    function yeniCards() {
+        const shelf = activeShelf === HubIA.ALL ? null : HubIA.shelves().find(s => s.id === activeShelf);
+        return newCards.filter(e => (!shelf || HubIA.inShelf(e.age, shelf)) && (activeSubject === 'all' || e.subject === activeSubject));
     }
     function shelfCards(shelf) {
         return allCards.filter(e => HubIA.inShelf(e.age, shelf) && cardPassesFilters(e));
@@ -624,6 +640,7 @@ const App = (() => {
 
             catNav.textContent = '';
             catNav.appendChild(makeChip('all', 'Tümü', { dataCat: true }));
+            if (newCards.length) catNav.appendChild(makeChip(YENI, 'Yeni Oyunlar', { dataCat: true, icon: categoryIcons.yeni }));
             GAME_SECTIONS.forEach(s => {
                 catNav.appendChild(makeChip(s.id, s.title.replace(' & ', ' ve '), { dataCat: true, icon: categoryIcons[s.icon] }));
             });
@@ -783,6 +800,7 @@ const App = (() => {
         card.dataset.game = id;
         card.dataset.section = entry.section || '';
         if (entry.online) card.dataset.online = '';
+        if (newSet.has(entry)) card.dataset.yeni = '';        // "Yeni Oyunlar" rafındaki oyun (statik /oyunlar/ ile aynı ad)
         if (opts && opts.shelf) card.dataset.shelf = opts.shelf;
         card.setAttribute('role', 'button');
         card.setAttribute('tabindex', '0');
@@ -925,6 +943,39 @@ const App = (() => {
         head.appendChild(n);
         return head;
     }
+    // ── "Yeni Oyunlar" rafı: başlık + "n oyun" rozeti + ray (Hepsi görünümünde en üstte) ya da ızgara (çip seçili) ──
+    function yeniSection(cards, grid, startIndex) {
+        const sec = document.createElement('section');
+        sec.className = 'raf raf--yeni';
+        sec.dataset.yeni = '';
+        sec.setAttribute('aria-labelledby', 'raf-yeni-baslik');
+        const head = document.createElement('div');
+        head.className = 'raf-bas';
+        const h2 = document.createElement('h2');
+        h2.className = 'raf-baslik raf-baslik--yeni';
+        h2.id = 'raf-yeni-baslik';
+        h2.appendChild(document.createTextNode('Yeni Oyunlar '));
+        const alt = document.createElement('span');
+        alt.className = 'raf-yas';
+        alt.textContent = 'son eklenenler';
+        h2.appendChild(alt);
+        head.appendChild(h2);
+        const n = document.createElement('span');
+        n.className = 'raf-sayi';
+        n.textContent = cards.length + ' oyun';
+        head.appendChild(n);
+        sec.appendChild(head);
+        if (!cards.length) {
+            sec.appendChild(emptyNote('Burada bir oyun yok', 'Bu yaş ve ders birleşiminde yeni oyun yok. Başka bir raf dene.'));
+            return sec;
+        }
+        const holder = document.createElement('div');
+        holder.className = grid ? 'raf-izgara' : 'raf-ray';
+        cards.forEach((e, i) => holder.appendChild(createGameCard(e, { index: startIndex + i })));
+        sec.appendChild(holder);
+        HubIA.bindRoving(holder, '.game-card', { grid }).refresh();
+        return sec;
+    }
     function emptyNote(title, text) {
         const box = document.createElement('div');
         box.className = 'hub-empty';
@@ -984,9 +1035,22 @@ const App = (() => {
         const out = document.getElementById('hub-search-count');
         if (out) out.textContent = '';
 
+        // "Yeni Oyunlar" çipi: tek bölüm, ızgara, yaş rafları çizilmez (5 oyun; raf başına yinelenmesin)
+        if (activeCategory === YENI) {
+            grid.classList.add('hub-grid--izgara');
+            grid.appendChild(yeniSection(yeniCards(), true, 0));
+            return;
+        }
+
         const shelves = HubIA.shelves().filter(s => activeShelf === HubIA.ALL || s.id === activeShelf);
         const single = activeShelf !== HubIA.ALL;
         grid.classList.add(single ? 'hub-grid--izgara' : 'hub-grid--raflar');
+
+        // Hepsi × Tümü: en üstte "Yeni Oyunlar" rayı (sahip kararı, 5 Kas 2026); ders çipi süzer
+        if (!single && activeCategory === 'all') {
+            const cards = yeniCards();
+            if (cards.length) { grid.appendChild(yeniSection(cards, false, cardIndex)); cardIndex += cards.length; }
+        }
 
         shelves.forEach(shelf => {
             const cards = shelfCards(shelf);

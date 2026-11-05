@@ -28,6 +28,8 @@
                  players_range [min, max|null], active (false = "Yakında": hub'da kapalı kart, landing noindex,
                  sitemap/llms/altbilgi dışı; eski comingSoon), stars (solo yıldız eşiği, 0 = açık), badge?,
                  online? { module, order (Online bölümü sırası 1..N, benzersiz), stars, badge?, files? },
+                 added? (YYYY-AA-GG, oyunun siteye eklendiği gün — "Yeni Oyunlar" rafı: aktif + added olanlar
+                 en yeniden eskiye, eşitlikte hub sırası, ilk NEW_LIMIT = 5 → GAME_NEW; alanı olmayan oyun yeni sayılmaz),
                  files { js[], css[] } (tembel yükleme; sıra = çalışma sırası; yerel yol ya da https URL).
      Kural: module ya da online'dan en az biri; section 'online' ⇔ module null.
    ============================================ */
@@ -56,7 +58,10 @@ const MINUTES_MIN = 1;
 const MINUTES_MAX = 30;
 // Hub'a giden alanlar (js/catalog.js). about/cat yalnız SEO üreticide (seo/build_seo.py) okunur.
 const HUB_FIELDS = ['slug', 'name', 'module', 'section', 'subject', 'age', 'minutes', 'levels', 'teaches',
-    'players', 'players_range', 'active', 'stars', 'badge', 'online', 'files'];
+    'players', 'players_range', 'active', 'stars', 'badge', 'online', 'added', 'files'];
+// "Yeni Oyunlar" rafı: en yeni bu kadar oyun (js/app.js GAME_NEW; seo/games_data.py NEW_LIMIT ile aynı)
+const NEW_LIMIT = 5;
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 // ── Yardımcılar ──
 
@@ -233,6 +238,12 @@ function validate(data) {
         if (!isInt(g.stars) || g.stars < 0) err(`${at}.stars: ≥ 0 tam sayı olmalı`);
         if (g.badge !== undefined && (!isStr(g.badge) || hasAngle(g.badge))) err(`${at}.badge: boş olamaz, < > içeremez`);
         if (g.comingSoon !== undefined) err(`${at}.comingSoon: kullanılmaz — active:false yaz`);
+        if (g.added !== undefined) {
+            const d = new Date(String(g.added) + 'T00:00:00Z');
+            if (!DATE_RE.test(String(g.added)) || Number.isNaN(d.getTime()) || d.toISOString().slice(0, 10) !== g.added) {
+                err(`${at}.added: YYYY-AA-GG biçiminde geçerli tarih olmalı (${g.added})`);
+            }
+        }
 
         const o = g.online;
         if (o !== undefined) {
@@ -285,9 +296,10 @@ function buildCatalogJs(data) {
         '                   SEO üreticide (seo/build_seo.py) kullanılan alanlar burada yok.',
         '   GAME_MODULES  : modül adı → tembel referans. Üst düzey const modüller window\'a bağlanmaz',
         '                   (window[ad] çalışmaz), eval CSP\'yi kırar — tek güvenli yol bu thunk tablosudur.',
+        `   GAME_NEW      : "Yeni Oyunlar" rafı — added tarihine göre en yeni ${NEW_LIMIT} aktif oyunun slug'ı (yeniden eskiye).`,
         '   Sıra: index.html bu dosyayı js/errors.js\'ten hemen sonra, i18n/lock-catalog/app.js\'ten önce yükler.',
         '   ============================================ */',
-        '/* exported GAME_SHELVES */',
+        '/* exported GAME_SHELVES, GAME_NEW */',
         'const GAME_SHELVES = [',
         ...data.shelves.map((s) => `    ${JSON.stringify(s)},`),
         '];',
@@ -300,6 +312,7 @@ function buildCatalogJs(data) {
         'const GAME_MODULES = {',
         ...moduleNames.map((m) => `    ${m}: () => ${m},`),
         '};',
+        `const GAME_NEW = ${JSON.stringify(newestOf(games))};`,
         '',
     ];
     return lines.join('\n');
@@ -307,6 +320,17 @@ function buildCatalogJs(data) {
 
 function onlineOrdered(games) {
     return games.filter((g) => g.online).sort((a, b) => a.online.order - b.online.order);
+}
+
+// "Yeni Oyunlar": aktif + `added` olan oyunlar, en yeniden eskiye (eşit tarihte hub sırası), ilk NEW_LIMIT slug.
+// seo/games_data.py newest_of ve tests/hub-ia.spec.js newestOf ile AYNI kural; değişecekse üçü birlikte değişir.
+function newestOf(games, limit = NEW_LIMIT) {
+    return games
+        .map((g, i) => ({ g, i }))
+        .filter(({ g }) => g.active && g.added)
+        .sort((a, b) => (a.g.added < b.g.added ? 1 : a.g.added > b.g.added ? -1 : a.i - b.i))
+        .slice(0, limit)
+        .map(({ g }) => g.slug);
 }
 
 // index.html altbilgi grupları — biçim A5a ile birebir (24/28/32 boşluk girinti)

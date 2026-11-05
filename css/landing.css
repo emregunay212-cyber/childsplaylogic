@@ -252,6 +252,13 @@ h1 {
 .hub-duzen:has(#kat-yaratici:checked) .g:not([data-section="yaratici"]) { display: none; }
 .hub-duzen:has(#kat-strateji:checked) .g:not([data-section="strateji"]) { display: none; }
 .hub-duzen:has(#kat-online:checked) .g:not([data-section="online"]):not([data-online]) { display: none; }
+/* "Yeni Oyunlar" çipi (bölüm değil): yalnız data-yeni kartlar (build_seo.py hub_card ← games_data.newest_of) */
+.hub-duzen:has(#kat-yeni:checked) .g:not([data-yeni]) { display: none; }
+.hub-duzen:has(#yas-hepsi:checked):has(#kat-yeni:checked):not(:has(.g[data-yeni])) .bos { display: block; }
+.hub-duzen:has(#yas-anaokulu:checked):has(#kat-yeni:checked):not(:has(.g[data-raf~="anaokulu"][data-yeni])) .bos { display: block; }
+.hub-duzen:has(#yas-sinif-1-2:checked):has(#kat-yeni:checked):not(:has(.g[data-raf~="sinif-1-2"][data-yeni])) .bos { display: block; }
+.hub-duzen:has(#yas-sinif-3-4:checked):has(#kat-yeni:checked):not(:has(.g[data-raf~="sinif-3-4"][data-yeni])) .bos { display: block; }
+.hub-duzen:has(#yas-sinif-5-6:checked):has(#kat-yeni:checked):not(:has(.g[data-raf~="sinif-5-6"][data-yeni])) .bos { display: block; }
 /* Boş durum: seçili yaş × kategori birleşimine hiç kart düşmüyorsa (veriden bağımsız, 34 birleşim) */
 .hub-duzen:has(#yas-hepsi:checked):has(#kat-harf:checked):not(:has(.g[data-section="harf"])) .bos { display: block; }
 .hub-duzen:has(#yas-hepsi:checked):has(#kat-sayi:checked):not(:has(.g[data-section="sayi"])) .bos { display: block; }
