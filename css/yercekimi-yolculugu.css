@@ -1,0 +1,10 @@
+/* yercekimi-yolculugu - Unity WebGL oyununun iframe ile gömülmesi.
+   Oyun ekran oranına uyar: yatay ekranda 16:9, dikey telefon/tablette uzun alan (oyun alanını kendisi ayarlar). */
+.yy-iframe { width: 100%; max-width: 100%; aspect-ratio: 16 / 9; height: auto; max-height: 88vh; min-height: 320px;
+    border: none; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,.35); background: #05050f; display: block; }
+.is-fullscreen .yy-iframe { height: 100%; max-height: none; aspect-ratio: auto; min-height: 0; max-width: none; border-radius: 0; }
+@media (max-width: 768px) { .yy-iframe { min-height: 0; border-radius: 8px; } }
+/* Dikey ekran (telefon/tablet): iframe ekranın çoğunu kaplasın, oyun dikey düzenine geçer */
+@media (orientation: portrait) {
+    .yy-iframe { aspect-ratio: auto; height: 78vh; height: 78dvh; max-height: none; }
+}

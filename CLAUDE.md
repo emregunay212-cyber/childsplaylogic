@@ -93,6 +93,33 @@ const ModulAdi = (() => {
   Oyun deseni: `const Audio2 = (() => { const { init, tone } = EduKit.audio; return { init, ok: () => tone(660, 0.1, 'triangle', 0.07), … }; })();` — ses adları/frekanslar oyunda kalır, zarf kit'te.
 - Kit CSS token'ları `css/tokens.css`'in KOPYASIdır (iframe'e tokens.css ulaşmaz); yeni token gerekirse tokens.css'ten kopyalanır, test (`edu-kit.spec.js`) ad+değer eşitliğini denetler. Kit sürümü `EduKit.version` (semver; API kırılırsa majör).
 
+### Yerçekimi Yolculuğu (Unity WebGL iframe oyunu — `games/yercekimi-yolculugu/`, 5 Kas 2026)
+
+- Sitedeki tek Unity oyunu. `index.html` + `boot.js` (satır içi script yok) + `style.css` elle yazıldı; `Build/` **Unity derleme çıktısıdır**, elle düzenlenmez (eslint `ignores`'ta).
+  Gzip + `decompressionFallback` (`*.unityweb`): Vercel'de `Content-Encoding` başlığı gerekmez. Ücretsiz Unity lisansında "Made with Unity" açılışı zorunlu.
+- Kaynak Unity projesi depoda DEĞİL (sahibin makinesinde `Documents/YercekimiYolculugu`, Unity 6000.6.0f1, Web Build Support modülü).
+  Güncelleme: Unity'de **Yerçekimi Yolculuğu → WebGL Derle (childsplaylogic)** → `Builds/WebGL/yercekimi-yolculugu/Build/*` buraya kopyalanır (dosya adları sabit: `yercekimi-yolculugu.*`).
+- Oynanış (GCompris "Gravity" etkinliğinin yapısı + enerji): roket ortada yalnız sağa-sola (← → ya da ekranın sol/sağ yarısına dokunma),
+  gezegenler sol/sağ kenardan iner; her gezegenin görünür **çekim halkası** (yarıçap 3.4r) var, yalnız halka içinde yatay çeker (G·r²/(d²+(0.6r)²), kenarda yumuşak sönüm);
+  roketin üstündeki kırmızı uyarı oku sıradaki gezegenin hangi yanda olduğunu gösterir (gezegen gelmeden çıkar; yakınlaştıkça uzar, çok uzakta kaybolur); itiş enerji harcar, orta şeritten enerji şimşeği iner; tüm gezegenler geçince istasyon iner.
+  6 seviye oyunun İÇİNDE (1-6 tuşları, M ses); hub'a `levels: 1` (modülün `levels` uzunluğu). Seviye değerleri basit oto-pilot simülasyonuyla dengelendi.
+- Görünüm (6 Kas 2026, sahibin isteği "çocuk oyunu ama gerçekçi"): gezegenler gerçek dokulu ve ışıklandırılmış Güneş Sistemi cisimleri
+  (Solar System Scope dokuları, CC BY 4.0 — oyunun kaynak satırında yazılı; Unity projesi `Tools/make_real_planets.py`), roket ve ISS benzeri üs
+  Blender'da modellenip Cycles ile render edildi (`Tools/uzay_araclari.blend`), gerçekçi yıldız alanı + soluk bulutsu (`Tools/make_real_space.py`). Çarpma: gerçekçi ateş topu dizisi + ateş/duman/metal kıymık parçacıkları (`Tools/make_explosion.py`).
+  Arayüz kokpit göstergesi tarzında (sahibin isteği: "çok çocuksu" bulundu): koyu cam paneller, ince camgöbeği çerçeve, rütbe şeridi seviye
+  simgeleri, dilimli enerji çubuğu, cam daire yön düğmeleri (`Tools/make_hud.py` → `HUD_*.png`); yazısız düzen ve büyük düğmeler korunur. Gezegene çarpınca bilgi kartı (resim, ad, iki kısa bilgi) açılır ve
+  tarayıcının Web Speech API'si ile Türkçe okunur (`Plugins/WebGL/Speech.jslib`, ses kapalıysa okumaz); gezegen boyutu gerçek sıraya göre (Jüpiter en büyük, en güçlü çeker).
+- Anaokulu düzeni (yaş 4-7): okuma gerektirmeyen arayüz — seviye = yıldız sırası, ilerleme = gezegen simgeleri, enerji = şimşek + çubuk,
+  ses = hoparlör simgesi; altta büyük sol/sağ ok düğmeleri (ekranın alt %80'inde sol/sağ yarıya dokunmak da yönlendirir); mesajlar tek-iki kelime.
+- Çekim her uzaklıkta çalışır (halka yalnız güçlü bölgeyi gösterir) ve sıradaki gezegen roketin bulunduğu yandan gelir: hiç yönlendirmeyen oyuncu kesin çarpar
+  (simülasyon 60/60; Unity'de 2-3 sn içinde), yönlendiren geçer. Çekim 6 Kas'ta ~2,5 kat güçlendi (seviye 1: çekim 43.8, itki 11.7; roket hız sınırı 7) — çekim belirgin hissedilmeli. Oyun alanı ekran oranına uyar: yatay 11 x 6.2, dikey (telefon/tablet) dar ve uzun; yatay boyutlar `GameManager.WorldScale` ile ölçeklenir.
+  Site çerçevesi (`css/yercekimi-yolculugu.css`) dikey ekranda iframe'i 78dvh yapar.
+  Mobil yerleşim (6 Kas): dikeyde gezegenler %18 (`WorldScale` ×1.18), roket görselde dikeyde %30 / yatayda %10, istasyon dikeyde %15 büyük (`VisualBoost`/`StationBoost`, çarpışma yarıçapı aynı); başlangıçta "SEVİYE n" rozeti;
+  dikeyde üst gösterge tek tam genişlik şerit (solda seviye + gezegen ilerlemesi, sağda enerji + ses; `TopBarHeight`); yatayda iki ayrı panel;
+  roket alt düğme bandının üstünde durur (`UiScale`/`ButtonSize` OnGUI ile ortak), kaynak satırı en altta tam genişlik, bilgi kartı açıkken yön düğmeleri gizli.
+  Doğrulama: Unity'de oto-pilot testi (`Tools/test/pilot.cs`, Unity projesinde) — dokunmayan 0/8, pilot 8/8 (seviye 1, 3, 6; oran 0.56 ve 0.46).
+  Liste: Unity projesinde `Assets/Game/CREDITS.md`.
+
 ### Ateş & Buz fizik sözleşmesi (`games/ates-buz/js/`, 30 Eyl 2026 düzeltmesi — `docs/ates-buz-fizik-2026-09-30.md`)
 
 - Elle yazılmış dikdörtgen çarpışma (`player.js`/`ingameAssets/cube.js`/`ball.js`) **hıza ve veriye duyarlıdır**:

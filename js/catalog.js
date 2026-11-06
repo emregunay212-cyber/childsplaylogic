@@ -7,7 +7,7 @@
                    yas = görünen etiket. Oyun age aralığı ages ile kesişiyorsa o rafa girer (js/hub-ia.js).
    GAME_SECTIONS : hub bölümleri, görünüm sırasıyla; icon = js/app.js categoryIcons anahtarı,
                    color = css/tokens.css --kat-<id> gelene kadar yedek renk.
-   GAME_CATALOG  : 60 kayıt (51 solo + 11 online), hub sırası; about/cat gibi yalnız
+   GAME_CATALOG  : 61 kayıt (52 solo + 11 online), hub sırası; about/cat gibi yalnız
                    SEO üreticide (seo/build_seo.py) kullanılan alanlar burada yok.
    GAME_MODULES  : modül adı → tembel referans. Üst düzey const modüller window'a bağlanmaz
                    (window[ad] çalışmaz), eval CSP'yi kırar — tek güvenli yol bu thunk tablosudur.
@@ -81,6 +81,7 @@ const GAME_CATALOG = [
     {"slug":"bilgi-savunmasi","name":"Bilgi Savunması","module":"BilgiSavunmasi","section":"strateji","subject":"matematik","age":[8,12],"minutes":5,"levels":1,"teaches":"İşlem akıcılığı + kaynak yönetimi ve strateji","players":"Tek kişilik","players_range":[1,1],"active":true,"stars":0,"added":"2026-06-13","files":{"js":["js/games/bilgi-savunmasi.js"],"css":["css/bilgi-savunmasi.css"]}},
     {"slug":"fizik-firlatma","name":"Fizik Fırlatma","module":"FizikFirlatma","section":"strateji","subject":"fen","age":[8,12],"minutes":5,"levels":1,"teaches":"Açı, kuvvet ve yerçekimi: kinestetik fizik öğrenimi","players":"Tek kişilik","players_range":[1,1],"active":true,"stars":0,"added":"2026-06-13","files":{"js":["js/games/fizik-firlatma.js"],"css":["css/fizik-firlatma.css"]}},
     {"slug":"balon-labirenti","name":"Balon Labirenti","module":"BalonLabirenti","section":"strateji","subject":"fen","age":[7,12],"minutes":4,"levels":6,"teaches":"Açı-kuvvet tahmini, yansıma ve tek atışta sonuç öngörme","players":"Tek kişilik","players_range":[1,1],"active":true,"stars":0,"added":"2026-09-17","files":{"js":["js/games/balon-labirenti-fizik.js","js/games/balon-labirenti-levels.js","js/games/balon-labirenti.js"],"css":["css/balon-labirenti.css"]}},
+    {"slug":"yercekimi-yolculugu","name":"Yerçekimi Yolculuğu","module":"YercekimiYolculugu","section":"strateji","subject":"fen","age":[4,7],"minutes":6,"levels":1,"teaches":"Yerçekimi: kütle büyüdükçe çekim artar, mesafe arttıkça azalır","players":"Tek kişilik","players_range":[1,1],"active":true,"stars":0,"added":"2026-11-05","files":{"js":["js/games/yercekimi-yolculugu.js"],"css":["css/yercekimi-yolculugu.css"]}},
     {"slug":"kelime-tahmin","name":"Kelime Tahmin","module":null,"section":"online","subject":"turkce","age":[7,10],"minutes":5,"teaches":"Kelime bilgisi ve tümdengelim","players":"Online çok oyunculu","players_range":[2,null],"active":true,"stars":0,"online":{"module":"KelimeTahmin","order":1,"stars":40},"added":"2026-03-31","files":{"js":["js/games/kelime-tahmin.js"],"css":[]}},
     {"slug":"harf-tahmin","name":"Harf Tahmin","module":null,"section":"online","subject":"turkce","age":[7,10],"minutes":5,"teaches":"Kelime bilgisi ve tahmin","players":"Online çok oyunculu","players_range":[2,null],"active":true,"stars":0,"online":{"module":"HarfTahmin","order":2,"stars":45},"added":"2026-03-31","files":{"js":["js/games/harf-tahmin.js"],"css":[]}},
     {"slug":"penalti-mp","name":"Penaltı Online","module":null,"section":"online","subject":"spor","age":[6,10],"minutes":3,"teaches":"Zamanlama, refleks ve rekabet","players":"Online 2 kişilik","players_range":[2,2],"active":true,"stars":0,"online":{"module":"PenaltiMP","order":5,"stars":60},"added":"2026-04-01","files":{"js":["js/games/penalti-mp.js"],"css":["css/penalti.css"]}},
@@ -143,6 +144,7 @@ const GAME_MODULES = {
     BilgiSavunmasi: () => BilgiSavunmasi,
     FizikFirlatma: () => FizikFirlatma,
     BalonLabirenti: () => BalonLabirenti,
+    YercekimiYolculugu: () => YercekimiYolculugu,
     KelimeTahmin: () => KelimeTahmin,
     HarfTahmin: () => HarfTahmin,
     KodMacerasiMP: () => KodMacerasiMP,
@@ -155,4 +157,4 @@ const GAME_MODULES = {
     Kelimelik: () => Kelimelik,
     SonKart: () => SonKart,
 };
-const GAME_NEW = ["lingo","on-parmak","balon-labirenti","klavye-kasifi","kelime-canavarlari"];
+const GAME_NEW = ["lingo","yercekimi-yolculugu","on-parmak","balon-labirenti","klavye-kasifi"];

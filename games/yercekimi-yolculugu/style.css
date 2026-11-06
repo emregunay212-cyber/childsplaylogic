@@ -1,0 +1,10 @@
+html, body { margin: 0; height: 100%; background: #05050f; overflow: hidden; }
+#yy-kap { position: relative; width: 100%; height: 100%; }
+#unity-canvas { display: block; width: 100%; height: 100%; background: #05050f; outline: none; }
+#yy-yukleme { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; background: #05050f; color: #fff; font-family: system-ui, "Segoe UI", sans-serif; }
+#yy-yukleme.gizli { display: none; }
+.yy-baslik { font-size: clamp(20px, 4vw, 34px); font-weight: 700; }
+.yy-cubuk { width: min(70%, 360px); height: 12px; border-radius: 6px; background: rgba(255,255,255,.15); overflow: hidden; }
+#yy-dolu { width: 0; height: 100%; background: #4cd964; transition: width .2s; }
+#yy-mesaj { font-size: 15px; opacity: .85; text-align: center; padding: 0 16px; }

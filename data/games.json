@@ -1238,6 +1238,29 @@
       }
     },
     {
+      "slug": "yercekimi-yolculugu",
+      "name": "Yerçekimi Yolculuğu",
+      "module": "YercekimiYolculugu",
+      "section": "strateji",
+      "cat": "Fen / Fizik",
+      "subject": "fen",
+      "age": [4, 7],
+      "minutes": 6,
+      "levels": 1,
+      "teaches": "Yerçekimi: kütle büyüdükçe çekim artar, mesafe arttıkça azalır",
+      "short": "Roketi büyük oklarla sağa-sola yönlendir, gezegenlerin çekiminden kaç, şimşekleri topla!",
+      "about": "Yerçekimi Yolculuğu anaokulu ve ilkokulun ilk yılları için okuma gerektirmeyen bir uzay oyunudur. Roket uzayda ilerlerken gezegenler sağdan ve soldan yaklaşır; her gezegenin çevresindeki renkli halka çekim alanını gösterir. Roket halkaya girince gezegen onu kendine çeker; büyük ve yakın gezegen daha güçlü çeker. Ekrandaki büyük sol ve sağ ok düğmeleriyle (ya da klavyedeki ok tuşlarıyla) roketi yönlendirir, gezegenlere çarpmadan geçersin. İtiş enerji harcar, ortadan gelen şimşekleri yakalayarak enerjini doldurursun. Gezegenler gerçek Güneş Sistemi cisimleridir (Merkür'den Neptün'e ve Ay); bir gezegene çarpınca adı ve iki kısa bilgisi resimli bir kartta gösterilir ve tarayıcı destekliyorsa sesli okunur. Seviyeler yıldızlarla gösterilir; 6 seviye. Yerçekimi kavramını oynayarak sezdirir. Ücretsiz, üyeliksiz.",
+      "players": "Tek kişilik",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "added": "2026-11-05",
+      "files": {
+        "js": ["js/games/yercekimi-yolculugu.js"],
+        "css": ["css/yercekimi-yolculugu.css"]
+      }
+    },
+    {
       "slug": "kelime-tahmin",
       "name": "Kelime Tahmin",
       "module": null,
