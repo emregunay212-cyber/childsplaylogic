@@ -103,9 +103,11 @@ const ModulAdi = (() => {
   gezegenler sol/sağ kenardan iner; her gezegenin görünür **çekim halkası** (yarıçap 3.4r) var, yalnız halka içinde yatay çeker (G·r²/(d²+(0.6r)²), kenarda yumuşak sönüm);
   roketin üstündeki kırmızı uyarı oku sıradaki gezegenin hangi yanda olduğunu gösterir (gezegen gelmeden çıkar; yakınlaştıkça uzar, çok uzakta kaybolur); itiş enerji harcar, orta şeritten enerji şimşeği iner; tüm gezegenler geçince istasyon iner.
   6 seviye oyunun İÇİNDE (1-6 tuşları, M ses); hub'a `levels: 1` (modülün `levels` uzunluğu). Seviye değerleri basit oto-pilot simülasyonuyla dengelendi.
-- Görünüm: Moon Sweepers paletinden esinlenme (o oyunun görseli yok) — beyaz-gri-turuncu low-poly; tombul roket ve güneş panelli üs (6 Kas, sahibin seçimi: roket C, üs 2b — turkuaz şerit)
-  kodla çizildi (Unity projesi `Tools/make_ships.py`), low-poly gezegenler ve lacivert-mor gök kodla çizildi (Unity projesi `Tools/make_moon_style.py`), enerji şimşeği Microsoft Fluent Emoji (MIT);
-  arayüz Nunito ExtraBold (OFL), sesler kodla sentezlenir. Kamera yakın: oyun alanı 11 x 6.2 birim = kameranın gördüğü alan (gezegenler ekranda tam görünür).
+- Görünüm (6 Kas 2026, sahibin isteği "çocuk oyunu ama gerçekçi"): gezegenler gerçek dokulu ve ışıklandırılmış Güneş Sistemi cisimleri
+  (Solar System Scope dokuları, CC BY 4.0 — oyunun kaynak satırında yazılı; Unity projesi `Tools/make_real_planets.py`), roket ve ISS benzeri üs
+  Blender'da modellenip Cycles ile render edildi (`Tools/uzay_araclari.blend`), gerçekçi yıldız alanı + soluk bulutsu (`Tools/make_real_space.py`).
+  Arayüz çocuk dostu kalır (beyaz paneller, turuncu vurgu, Nunito ExtraBold). Gezegene çarpınca bilgi kartı (resim, ad, iki kısa bilgi) açılır ve
+  tarayıcının Web Speech API'si ile Türkçe okunur (`Plugins/WebGL/Speech.jslib`, ses kapalıysa okumaz); gezegen boyutu gerçek sıraya göre (Jüpiter en büyük, en güçlü çeker).
 - Anaokulu düzeni (yaş 4-7): okuma gerektirmeyen arayüz — seviye = yıldız sırası, ilerleme = gezegen simgeleri, enerji = şimşek + çubuk,
   ses = hoparlör simgesi; altta büyük sol/sağ ok düğmeleri (ekranın alt %80'inde sol/sağ yarıya dokunmak da yönlendirir); mesajlar tek-iki kelime.
 - Çekim her uzaklıkta çalışır (halka yalnız güçlü bölgeyi gösterir) ve sıradaki gezegen roketin bulunduğu yandan gelir: hiç yönlendirmeyen oyuncu kesin çarpar
