@@ -109,7 +109,7 @@ const ModulAdi = (() => {
 - Anaokulu düzeni (yaş 4-7): okuma gerektirmeyen arayüz — seviye = yıldız sırası, ilerleme = gezegen simgeleri, enerji = şimşek + çubuk,
   ses = hoparlör simgesi; altta büyük sol/sağ ok düğmeleri (ekranın alt %80'inde sol/sağ yarıya dokunmak da yönlendirir); mesajlar tek-iki kelime.
 - Çekim her uzaklıkta çalışır (halka yalnız güçlü bölgeyi gösterir) ve sıradaki gezegen roketin bulunduğu yandan gelir: hiç yönlendirmeyen oyuncu kesin çarpar
-  (simülasyon 60/60), yönlendiren geçer. Oyun alanı ekran oranına uyar: yatay 11 x 6.2, dikey (telefon/tablet) dar ve uzun; yatay boyutlar `GameManager.WorldScale` ile ölçeklenir.
+  (simülasyon 60/60; Unity'de 2-3 sn içinde), yönlendiren geçer. Çekim 6 Kas'ta ~2,5 kat güçlendi (seviye 1: çekim 43.8, itki 11.7; roket hız sınırı 7) — çekim belirgin hissedilmeli. Oyun alanı ekran oranına uyar: yatay 11 x 6.2, dikey (telefon/tablet) dar ve uzun; yatay boyutlar `GameManager.WorldScale` ile ölçeklenir.
   Site çerçevesi (`css/yercekimi-yolculugu.css`) dikey ekranda iframe'i 78dvh yapar.
   Liste: Unity projesinde `Assets/Game/CREDITS.md`.
 
