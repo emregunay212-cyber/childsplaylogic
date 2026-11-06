@@ -97,7 +97,7 @@ const ModulAdi = (() => {
 
 - Sitedeki tek Unity oyunu. `index.html` + `boot.js` (satır içi script yok) + `style.css` elle yazıldı; `Build/` **Unity derleme çıktısıdır**, elle düzenlenmez (eslint `ignores`'ta).
   Gzip + `decompressionFallback` (`*.unityweb`): Vercel'de `Content-Encoding` başlığı gerekmez. Ücretsiz Unity lisansında "Made with Unity" açılışı zorunlu.
-- Kaynak Unity projesi depoda DEĞİL (sahibin makinesinde `Documents/YercekimiYolculugu`, Unity 6000.6.0f1, Web Build Support modülü).
+- Kaynak Unity projesi AYRI özel depoda: `emregunay212-cyber/yercekimi-yolculugu` (yerelde `Documents/YercekimiYolculugu`, Unity 6000.6.0f1, Web Build Support modülü).
   Güncelleme: Unity'de **Yerçekimi Yolculuğu → WebGL Derle (childsplaylogic)** → `Builds/WebGL/yercekimi-yolculugu/Build/*` buraya kopyalanır (dosya adları sabit: `yercekimi-yolculugu.*`).
 - Oynanış (GCompris "Gravity" etkinliğinin yapısı + enerji): roket ortada yalnız sağa-sola (← → ya da ekranın sol/sağ yarısına dokunma),
   gezegenler sol/sağ kenardan iner; her gezegenin görünür **çekim halkası** (yarıçap 3.4r) var, yalnız halka içinde yatay çeker (G·r²/(d²+(0.6r)²), kenarda yumuşak sönüm);
@@ -106,6 +106,7 @@ const ModulAdi = (() => {
 - Görünüm (6 Kas 2026, sahibin isteği "çocuk oyunu ama gerçekçi"): gezegenler gerçek dokulu ve ışıklandırılmış Güneş Sistemi cisimleri
   (Solar System Scope dokuları, CC BY 4.0 — oyunun kaynak satırında yazılı; Unity projesi `Tools/make_real_planets.py`), roket ve ISS benzeri üs
   Blender'da modellenip Cycles ile render edildi (`Tools/uzay_araclari.blend`), gerçekçi yıldız alanı + soluk bulutsu (`Tools/make_real_space.py`). Çarpma: gerçekçi ateş topu dizisi + ateş/duman/metal kıymık parçacıkları (`Tools/make_explosion.py`).
+  Arka plan müziği "Yıldız Ninnisi": kodla bestelenmiş sakin pentatonik müzik kutusu + pad döngüsü (50 sn, `Tools/make_music.py`); hoparlör düğmesi müziği de kapatır, bilgi kartı okunurken müzik kısılır.
   Arayüz kokpit göstergesi tarzında (sahibin isteği: "çok çocuksu" bulundu): koyu cam paneller, ince camgöbeği çerçeve, rütbe şeridi seviye
   simgeleri, dilimli enerji çubuğu, cam daire yön düğmeleri (`Tools/make_hud.py` → `HUD_*.png`); yazısız düzen ve büyük düğmeler korunur. Gezegene çarpınca bilgi kartı (resim, ad, iki kısa bilgi) açılır ve
   tarayıcının Web Speech API'si ile Türkçe okunur (`Plugins/WebGL/Speech.jslib`, ses kapalıysa okumaz); gezegen boyutu gerçek sıraya göre (Jüpiter en büyük, en güçlü çeker).
