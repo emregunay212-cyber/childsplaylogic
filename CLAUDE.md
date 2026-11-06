@@ -114,7 +114,7 @@ const ModulAdi = (() => {
 - Çekim her uzaklıkta çalışır (halka yalnız güçlü bölgeyi gösterir) ve sıradaki gezegen roketin bulunduğu yandan gelir: hiç yönlendirmeyen oyuncu kesin çarpar
   (simülasyon 60/60; Unity'de 2-3 sn içinde), yönlendiren geçer. Çekim 6 Kas'ta ~2,5 kat güçlendi (seviye 1: çekim 43.8, itki 11.7; roket hız sınırı 7) — çekim belirgin hissedilmeli. Oyun alanı ekran oranına uyar: yatay 11 x 6.2, dikey (telefon/tablet) dar ve uzun; yatay boyutlar `GameManager.WorldScale` ile ölçeklenir.
   Site çerçevesi (`css/yercekimi-yolculugu.css`) dikey ekranda iframe'i 78dvh yapar.
-  Mobil yerleşim (6 Kas): dikeyde gezegenler %18 (`WorldScale` ×1.18), roket/istasyon görselde ek %15 büyük (`VisualBoost`, çarpışma yarıçapı aynı);
+  Mobil yerleşim (6 Kas): dikeyde gezegenler %18 (`WorldScale` ×1.18), roket görselde dikeyde %30 / yatayda %10, istasyon dikeyde %15 büyük (`VisualBoost`/`StationBoost`, çarpışma yarıçapı aynı); başlangıçta "SEVİYE n" rozeti;
   dikeyde üst gösterge tek tam genişlik şerit (solda seviye + gezegen ilerlemesi, sağda enerji + ses; `TopBarHeight`); yatayda iki ayrı panel;
   roket alt düğme bandının üstünde durur (`UiScale`/`ButtonSize` OnGUI ile ortak), kaynak satırı en altta tam genişlik, bilgi kartı açıkken yön düğmeleri gizli.
   Doğrulama: Unity'de oto-pilot testi (`Tools/test/pilot.cs`, Unity projesinde) — dokunmayan 0/8, pilot 8/8 (seviye 1, 3, 6; oran 0.56 ve 0.46).
