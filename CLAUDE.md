@@ -105,7 +105,7 @@ const ModulAdi = (() => {
   6 seviye oyunun İÇİNDE (1-6 tuşları, M ses); hub'a `levels: 1` (modülün `levels` uzunluğu). Seviye değerleri basit oto-pilot simülasyonuyla dengelendi.
 - Görünüm (6 Kas 2026, sahibin isteği "çocuk oyunu ama gerçekçi"): gezegenler gerçek dokulu ve ışıklandırılmış Güneş Sistemi cisimleri
   (Solar System Scope dokuları, CC BY 4.0 — oyunun kaynak satırında yazılı; Unity projesi `Tools/make_real_planets.py`), roket ve ISS benzeri üs
-  Blender'da modellenip Cycles ile render edildi (`Tools/uzay_araclari.blend`), gerçekçi yıldız alanı + soluk bulutsu (`Tools/make_real_space.py`).
+  Blender'da modellenip Cycles ile render edildi (`Tools/uzay_araclari.blend`), gerçekçi yıldız alanı + soluk bulutsu (`Tools/make_real_space.py`). Çarpma: gerçekçi ateş topu dizisi + ateş/duman/metal kıymık parçacıkları (`Tools/make_explosion.py`).
   Arayüz kokpit göstergesi tarzında (sahibin isteği: "çok çocuksu" bulundu): koyu cam paneller, ince camgöbeği çerçeve, rütbe şeridi seviye
   simgeleri, dilimli enerji çubuğu, cam daire yön düğmeleri (`Tools/make_hud.py` → `HUD_*.png`); yazısız düzen ve büyük düğmeler korunur. Gezegene çarpınca bilgi kartı (resim, ad, iki kısa bilgi) açılır ve
   tarayıcının Web Speech API'si ile Türkçe okunur (`Plugins/WebGL/Speech.jslib`, ses kapalıysa okumaz); gezegen boyutu gerçek sıraya göre (Jüpiter en büyük, en güçlü çeker).
