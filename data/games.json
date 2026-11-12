@@ -1261,6 +1261,29 @@
       }
     },
     {
+      "slug": "ritim-kosusu",
+      "name": "Ritim Koşusu",
+      "module": "RitimKosusu",
+      "section": "strateji",
+      "cat": "Platform",
+      "subject": "spor",
+      "age": [7, 12],
+      "minutes": 10,
+      "levels": 1,
+      "teaches": "Ritim ve zamanlama duygusu, refleks, sabır ve denemeden öğrenme; desenleri tanıma",
+      "short": "Tek tuşla müziğin ritmine zıpla, uç, yerçekimini çevir! 7 bölüm, pratik modu ve arkadaşınla online yarış.",
+      "about": "Ritim Koşusu, tek tuşla oynanan müzikli bir engel koşusudur. Karakterin kendiliğinden sağa koşar; sen yalnız doğru anda basarsın. Küp zıplar, gemi basılı tuttukça yükselir, top yerçekimini tavana çevirir. Sarı pedler yükseğe fırlatır, havadaki halkalara dokunup basınca ikinci kez zıplarsın, portallar modu, hızı ve yerçekimini değiştirir. Engeller müziğin vuruşlarına göre dizilmiştir; ritmi dinlemek zamanlamayı kolaylaştırır. 7 bölüm ve 3 yarış pisti vardır; her bölümde 3 gizli coin saklıdır. Pratik modunda düştüğün yerdeki son checkpoint'ten devam edersin. 2 Kişilik modda oyunun içinden oda kurup kodu arkadaşına söylersin, o da kodu girip katılır ve aynı pistte yarışırsınız: herkes kendi ekranında oynar, rakip yarı saydam hayalet olarak görünür, önce bitiren kazanır. Tüm bölümler, görseller ve müzikler bu oyun için özgün olarak hazırlanmıştır. Boşluk, yukarı ok ya da ekrana dokunarak oynanır. Ritim ve zamanlama duygusunu, refleksi ve vazgeçmeden denemeyi geliştirir. Ücretsiz, üyeliksiz.",
+      "players": "Tek kişilik ya da 2 kişilik online yarış (oyun içinden oda kodu ile)",
+      "players_range": [1, 2],
+      "active": true,
+      "stars": 0,
+      "added": "2026-11-12",
+      "files": {
+        "js": ["js/games/ritim-kosusu.js"],
+        "css": ["css/ritim-kosusu.css"]
+      }
+    },
+    {
       "slug": "kelime-tahmin",
       "name": "Kelime Tahmin",
       "module": null,

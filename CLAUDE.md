@@ -121,6 +121,24 @@ const ModulAdi = (() => {
   Doğrulama: Unity'de oto-pilot testi (`Tools/test/pilot.cs`, Unity projesinde) — dokunmayan 0/8, pilot 8/8 (seviye 1, 3, 6; oran 0.56 ve 0.46).
   Liste: Unity projesinde `Assets/Game/CREDITS.md`.
 
+### Ritim Koşusu (tek tuşlu müzikli engel koşusu — `games/ritim-kosusu/`, 12 Kas 2026)
+
+- Plan: kullanıcının `RITIM-KOSUSU-PLAN.md` belgesi (depoda değil). Bu PR = Aşama 1 + Aşama 2'nin çekirdeği: 7 bölüm (Dünya 1'in 6'sı + "Yuvarlan"), 3 yarış pisti, pratik modu, online 2 kişilik yarış.
+  Mekanik tür olarak serbest; ad, görsel, müzik, bölüm dizilimleri ÖZGÜN. Başka bir oyunun adı/logosu/müziği/bölümü (sayfa başlığı, meta, SEO dahil) KULLANILMAZ.
+- Dosyalar: `core.js` (RKCore — SAF fizik: DOM/zaman/rastgelelik yok, 240 Hz sabit adım; Node'da `require` edilir), `levels.js` (RKLevels — `yap()` kurucusu → plan §4 JSON biçimi),
+  `game.js` (Canvas çizim, Web Audio ile kodla bestelenen müzik — bölüm id'sinden tohumlu, menü, kayıt `rk_ilerleme`, online), `index.html`/`style.css`. Hub sarmalayıcı `js/games/ritim-kosusu.js`: `RitimKosusu` (tek modül; 2 kişilik mod oyunun içinde).
+- **Bölüm değişince `npm run test:ritim`** (CI adımı): her bölüm baştan + her checkpoint'ten + her coin alınarak botla (`RKCore.solve`, 8 adımda bir bas/bırak kararı, derinlik öncelikli + durum belleği) geçilebilir,
+  girdi kaydı tekrar oynatılınca biter, hiç basmayan bitiremez. Tek bölüm: `RK_BOLUM=d1-04 npm run test:ritim`. Fizik sabitleri (core.js üstü) değişince TÜM bölümler yeniden doğrulanır.
+  Ölçüler: küp zıplaması 2,04 blok yükseklik / 3,43 blok uzunluk, sarı ped 4,95 / 5,4, halka zinciri aralığı ≈ 3,5 blok (aynı yükseklik). 1x'te üçlü diken bot sınırında — çocuk bölümlerinde kullanılmaz.
+- 2 kişilik yarış OYUNUN İÇİNDEN (sahip kararı 12 Kas 2026: ayrı online kart YOK, `data/games.json`'da `online` alanı yok, `js/lobby.js`/`js/multiplayer.js`'e dokunulmaz):
+  menü "2 Kişilik" → takma ad (harf/rakam, ≤ 12) → **Oda Kur** (5 harfli kod, hub alfabesi `ABCDEFGHJKLMNPRSTUVYZ`) ya da **koda katıl**. Kayıt `lobbies/<KOD>`
+  `{ id, gameType: 'ritim-kosusu', state, hostName, guestName, createdAt }` (mevcut `lobbies` kuralları + Janitor 24 sa temizliği; kural değişikliği gerekmez), iframe `window.parent.firebase` kullanır
+  (oyun bağımsız açılırsa 2 kişilik mod "bilnetoyun.com içinden aç" der). Alt dal `rk/`: `var/<rol>` varlık, `yaris {pist, t0 (sunucu saati + 3,8 sn), tur}` (yalnız kurucu yazar),
+  `oyuncu/<rol> {tur,x,y,m,g,o,d,b}` 10 Hz. Çıkış (`Odadan çık`, menüye dönüş, sayfa kapanışı, hub sarmalayıcısı `__rkLeave`): kurucu odayı SİLER, misafir `guestName`'i boşaltır;
+  kurucu odayı silince misafir menüye döner ve HİÇBİR ŞEY yazmaz (yarım kayıt geri doğmasın). Herkes kendi ekranında oynar, rakip 120 ms gecikmeli
+  interpolasyonlu hayalet; yarışta ölüm → son checkpoint. Süre = oyun zamanı (fizik adımı + ölüm beklemesi). Sunucuda girdi tekrar oynatma (hile koruması) YOK — plan §7.7, sonraki aşama.
+- Test kancası `window.__rk` (`play(id, pratik)`, `bot(true)` = botun girdi kaydını oynat) yalnız geliştirme/duman içindir.
+
 ### Ateş & Buz fizik sözleşmesi (`games/ates-buz/js/`, 30 Eyl 2026 düzeltmesi — `docs/ates-buz-fizik-2026-09-30.md`)
 
 - Elle yazılmış dikdörtgen çarpışma (`player.js`/`ingameAssets/cube.js`/`ball.js`) **hıza ve veriye duyarlıdır**:

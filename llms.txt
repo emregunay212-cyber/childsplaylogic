@@ -1,12 +1,12 @@
 # Bilnet Oyun
 
-> Bilnet Okulları'nın 4-12 yaş çocuklar için ücretsiz, üyeliksiz eğitici oyun platformu. 62 oyun doğrudan tarayıcıda çalışır; kurulum, indirme ve hesap gerekmez. Türkçe arayüz; telefon, tablet ve bilgisayarda oynanır. Dersler: matematik, Türkçe, İngilizce, fen, kodlama, strateji, hafıza ve sanat; tek kişilik ve online çok oyunculu modlar.
+> Bilnet Okulları'nın 4-12 yaş çocuklar için ücretsiz, üyeliksiz eğitici oyun platformu. 63 oyun doğrudan tarayıcıda çalışır; kurulum, indirme ve hesap gerekmez. Türkçe arayüz; telefon, tablet ve bilgisayarda oynanır. Dersler: matematik, Türkçe, İngilizce, fen, kodlama, strateji, hafıza ve sanat; tek kişilik ve online çok oyunculu modlar.
 
 - Ana sayfa: https://bilnetoyun.com/
 - Tüm oyunlar: https://bilnetoyun.com/oyunlar/
 - Site haritası: https://bilnetoyun.com/sitemap.xml
 
-## Oyunlar (60 sayfa; Kod Macerası ve Satranç için 2 kişilik online sürüm de var, ayrı sayfası yok)
+## Oyunlar (61 sayfa; Kod Macerası ve Satranç için 2 kişilik online sürüm de var, ayrı sayfası yok)
 
 - [Harf Tanıma](https://bilnetoyun.com/oyunlar/harf-tanima/): Harfleri tanı, okumaya ilk adımı at.
 - [Klavye Kâşifi](https://bilnetoyun.com/oyunlar/klavye-kasifi/): Harften cümleye, rakamdan noktalamaya: 39 bölümde klavyede ustalaş.
@@ -59,6 +59,7 @@
 - [Fizik Fırlatma](https://bilnetoyun.com/oyunlar/fizik-firlatma/): Sapanı çek, AÇI ve KUVVETİ sayılarla gör, 12 bölümde yıldızları vur!
 - [Balon Labirenti](https://bilnetoyun.com/oyunlar/balon-labirenti/): Dikenli topu geri çek, bırak: sekerek 30 labirentteki tüm balonları tek atışta patlat!
 - [Yerçekimi Yolculuğu](https://bilnetoyun.com/oyunlar/yercekimi-yolculugu/): Roketi büyük oklarla sağa-sola yönlendir, gezegenlerin çekiminden kaç, şimşekleri topla!
+- [Ritim Koşusu](https://bilnetoyun.com/oyunlar/ritim-kosusu/): Tek tuşla müziğin ritmine zıpla, uç, yerçekimini çevir! 7 bölüm, pratik modu ve arkadaşınla online yarış.
 - [Kelime Tahmin](https://bilnetoyun.com/oyunlar/kelime-tahmin/): Wordle tarzı: gizli kelimeyi arkadaşınla yarışarak bul.
 - [Harf Tahmin](https://bilnetoyun.com/oyunlar/harf-tahmin/): Adam asmaca tarzı: harf tahmin ederek kelimeyi çöz.
 - [Penaltı Online](https://bilnetoyun.com/oyunlar/penalti-mp/): Arkadaşınla online penaltı düellosu: at ve kurtar.
