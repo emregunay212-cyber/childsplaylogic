@@ -1,6 +1,7 @@
 /* Ritim Koşusu — iframe oyun sayfası */
 * { box-sizing: border-box; }
-html, body { margin: 0; height: 100%; background: #070a1c; color: #fff; overflow: hidden;
+html, body { margin: 0; height: 100%; background: #070a1c; color: #fff; overflow: hidden; -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent; overscroll-behavior: none;
     font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
 #sahne { position: fixed; inset: 0; touch-action: none; }
 #oyun { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
@@ -110,3 +111,23 @@ html, body { margin: 0; height: 100%; background: #070a1c; color: #fff; overflow
 .oda-kod small { display: block; font-size: 13px; font-weight: 600; color: #d6e2ff; }
 .oda-kod[hidden] { display: none; }
 @media (max-width: 520px) { .iki-sec { grid-template-columns: 1fr; } }
+
+/* ── Mobil ── */
+.ikon-dugme[hidden] { display: none; }
+.hud-sag { top: max(8px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right)); }
+.hud-sol { left: max(10px, env(safe-area-inset-left)); }
+@media (max-height: 460px) {           /* yatay telefon: menü sıkı */
+    .ekran { align-items: flex-start; padding: 8px; }
+    .kart { padding: 12px 14px; border-radius: 16px; }
+    .logo { font-size: 28px; } .alt { margin: 6px auto 8px; font-size: 13px; }
+    .bolum-kart { min-height: 78px; padding: 8px 10px; } .bk-ad { font-size: 15px; }
+    .izgara { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+    .hud-ust { top: 8px; }
+}
+@media (max-width: 420px) {
+    .izgara { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .secenek { padding: 8px 10px; font-size: 14px; } .secenek small { display: none; }
+    .kart { padding: 14px 12px; }
+}
+
+.dunya-baslik { grid-column: 1 / -1; margin: 6px 0 -2px; font-size: 14px; font-weight: 800; color: #ffd23f; text-align: left; letter-spacing: .3px; }
