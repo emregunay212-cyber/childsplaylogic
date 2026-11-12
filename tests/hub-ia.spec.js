@@ -194,7 +194,8 @@ test.describe('1b) Yeni Oyunlar (GAME_NEW: added tarihine göre en yeni 5)', () 
         await openHub(page);
         const expected = newestOf();
         expect(expected.length).toBe(NEW_LIMIT);
-        expect(expected[0]).toBe('lingo');                                   // 5 Kas 2026'da eklendi
+        expect(expected[0]).toBe('ritim-kosusu');                            // 12 Kas 2026'da eklendi (en yeni)
+        expect(expected).toContain('lingo');                                 // 5 Kas 2026: hâlâ en yeni 5'te
         const yeni = page.locator('#hub-grid .raf[data-yeni]');
         await expect(yeni).toHaveCount(1);
         await expect(page.locator('#hub-grid > section').first()).toHaveAttribute('data-yeni', '');
