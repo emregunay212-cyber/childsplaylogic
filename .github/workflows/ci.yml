@@ -37,6 +37,10 @@ jobs:
       - name: Lint (no-undef = hata, no-unused-vars = uyarı)
         run: npm run lint
 
+      # Ritim Koşusu: her bölüm baştan, her checkpoint'ten ve her coin'le botla geçilebilir mi (tarayıcısız, ~10 sn)
+      - name: Ritim Koşusu bölüm doğrulama botu
+        run: npm run test:ritim
+
       # data/games.json TEK KAYNAK (B2a): üretilmişler commit'lenmiş hâliyle aynı olmalı.
       # 1) js/catalog.js + index.html altbilgisi (tools/build-catalog.js --check: şema + fark)
       # 2) oyunlar/, sitemap.xml, llms.txt (seo/build_seo.py). lastmod/dateModified satırları git tarihine

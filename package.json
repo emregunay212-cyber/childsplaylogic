@@ -22,7 +22,8 @@
     "test:altin-avi": "playwright test tests/altin-avi.spec.js",
     "test:klavye": "playwright test tests/klavye-kasifi.spec.js",
     "test:on-parmak": "playwright test tests/on-parmak.spec.js",
-    "test:lingo": "playwright test tests/lingo.spec.js"
+    "test:lingo": "playwright test tests/lingo.spec.js",
+    "test:ritim": "node tests/ritim-kosusu-bot.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",

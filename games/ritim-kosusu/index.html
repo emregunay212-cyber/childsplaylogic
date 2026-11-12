@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ritim Koşusu</title>
+<meta name="description" content="Ritim Koşusu — tek tuşla müzikli engel koşusu: zıpla, uç, yerçekimini çevir; arkadaşınla online yarış.">
+<link rel="stylesheet" href="../_shared/edu-kit.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="sahne">
+    <canvas id="oyun" aria-label="Ritim Koşusu oyun alanı. Boşluk tuşu, yukarı ok ya da ekrana dokunma: zıpla / yüksel."></canvas>
+
+    <div id="hud" hidden>
+        <div class="hud-ust">
+            <div class="ilerleme" aria-hidden="true"><div class="ilerleme-dolu" id="ilerleme-ben"></div><div class="ilerleme-rakip" id="ilerleme-rakip" hidden></div></div>
+            <span class="yuzde" id="yuzde">0%</span>
+        </div>
+        <div class="hud-sol">
+            <span class="hap" id="deneme">Deneme 1</span>
+            <span class="hap hap-pratik" id="pratik-rozet" hidden>Pratik</span>
+            <span class="hap" id="coin-hud" aria-label="Toplanan coin"></span>
+        </div>
+        <div class="hud-sag">
+            <button type="button" class="ikon-dugme" id="btn-ses" aria-label="Sesi kapat" aria-pressed="false">♪</button>
+            <button type="button" class="ikon-dugme" id="btn-duraklat" aria-label="Duraklat">❚❚</button>
+        </div>
+    </div>
+
+    <section id="menu" class="ekran" aria-labelledby="menu-baslik">
+        <div class="kart kart-genis">
+            <h1 id="menu-baslik" class="logo">Ritim <span>Koşusu</span></h1>
+            <p class="alt">Tek tuşla müzikli engel koşusu. <b>Boşluk</b>, <b>↑</b> ya da <b>dokun</b>: zıpla, uç, yerçekimini çevir!</p>
+            <div class="secenek-satir" role="radiogroup" aria-label="Oyun türü">
+                <button type="button" class="secenek" role="radio" aria-checked="true" data-tur="normal">Normal</button>
+                <button type="button" class="secenek" role="radio" aria-checked="false" data-tur="pratik">Pratik <small>(checkpoint'ten devam)</small></button>
+            </div>
+            <h2 class="bolum-baslik">Bölümler</h2>
+            <div id="bolumler" class="izgara"></div>
+            <h2 class="bolum-baslik">Yarış Pistleri <small>— tek başına antrenman</small></h2>
+            <div id="pistler" class="izgara izgara-pist"></div>
+            <p class="kaynak">Tüm bölümler, görseller ve müzikler bu oyun için özgün olarak hazırlanmıştır.</p>
+        </div>
+    </section>
+
+    <section id="duraklat" class="ekran" hidden aria-labelledby="duraklat-baslik">
+        <div class="kart">
+            <h2 id="duraklat-baslik">Duraklatıldı</h2>
+            <div class="dugmeler">
+                <button type="button" class="dugme dugme-ana" id="btn-devam">Devam</button>
+                <button type="button" class="dugme" id="btn-yeniden">Baştan</button>
+                <button type="button" class="dugme" id="btn-menu">Bölümler</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="sonuc" class="ekran" hidden aria-labelledby="sonuc-baslik" aria-live="polite">
+        <div class="kart">
+            <h2 id="sonuc-baslik">Bölüm tamam!</h2>
+            <div id="sonuc-govde" class="sonuc-govde"></div>
+            <div class="dugmeler" id="sonuc-dugmeler"></div>
+        </div>
+    </section>
+
+    <section id="online" class="ekran" hidden aria-labelledby="online-baslik">
+        <div class="kart kart-genis">
+            <h2 id="online-baslik">Arkadaşınla Yarış</h2>
+            <div class="oyuncular">
+                <div class="oyuncu oyuncu-ben"><span class="nokta acik"></span><span>Sen</span></div>
+                <div class="vs">VS</div>
+                <div class="oyuncu oyuncu-rakip"><span class="nokta" id="rakip-nokta"></span><span id="rakip-ad">Rakip</span></div>
+            </div>
+            <p class="alt" id="online-mesaj">Herkes kendi ekranında oynar; rakibin yarı saydam hayalet olarak görünür. Ölürsen son checkpoint'ten devam edersin.</p>
+            <div id="online-pistler" class="izgara izgara-pist"></div>
+            <div class="dugmeler">
+                <button type="button" class="dugme dugme-ana" id="btn-baslat" disabled>Başlat</button>
+            </div>
+        </div>
+    </section>
+
+    <div id="geri-sayim" class="geri-sayim" hidden aria-live="assertive"></div>
+    <div id="dondur" class="dondur" aria-hidden="true">Daha rahat oynamak için cihazını yan çevir ↻</div>
+    <div id="toast" class="toast" role="status"></div>
+</div>
+<script src="../_shared/edu-kit.js"></script>
+<script src="core.js"></script>
+<script src="levels.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

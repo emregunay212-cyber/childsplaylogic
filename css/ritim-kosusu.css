@@ -1,0 +1,8 @@
+/* ritim-kosusu — iframe ile gömülü Canvas oyunu. Yatay ekranda 16:9; dikey telefonda uzun alan (oyun yan çevirmeyi önerir). */
+.rk-iframe { width: 100%; max-width: 100%; aspect-ratio: 16 / 9; height: auto; max-height: 86vh; min-height: 320px;
+    border: none; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,.35); background: #070a1c; display: block; }
+.is-fullscreen .rk-iframe { height: 100%; max-height: none; aspect-ratio: auto; min-height: 0; max-width: none; border-radius: 0; }
+@media (max-width: 768px) { .rk-iframe { min-height: 0; border-radius: 8px; } }
+@media (orientation: portrait) {
+    .rk-iframe { aspect-ratio: auto; height: 70vh; height: 70dvh; max-height: none; }
+}

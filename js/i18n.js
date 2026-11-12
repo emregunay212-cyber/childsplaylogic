@@ -108,6 +108,7 @@ const TR = {
         'son-kart': 'Renk ve sayıları eşleştir, elini ilk bitiren kazanır! Bota karşı ya da 2-4 kişi online.',
         'zindan-okcusu': 'Ok at, düşmanları yen, ekipman topla, zindanı temizle!',
         'hava-hokeyi': 'Tokmağı kaydır, diski rakibin kalesine sok — ilk 7 golü atan kazanır!',
+        'ritim-kosusu': 'Tek tuşla müziğin ritmine zıpla, uç, yerçekimini çevir — bitişe ilk sen ulaş!',
         'bil-ve-fethet': 'Soruları cevapla, komşu ülkeleri fethet, tüm dünyayı ele geçir!',
         'kelime-madeni-3d': 'Kaz, üret, derine in — cevherler İngilizce soru sorar!',
         'bilgi-madencisi': 'Soruyu çöz, kancayı doğru taşa bırak, altını topla!',

@@ -179,7 +179,7 @@ const Multiplayer = (() => {
         buttons: {},
         createdAt: firebase.database.ServerValue.TIMESTAMP
       };
-    } else if (gameType === 'hava-hokeyi') {
+    } else if (gameType === 'hava-hokeyi' || gameType === 'ritim-kosusu') {
       lobbyData = {
         id: lobbyId, gameType,
         hostId: playerId, hostName: playerName, guestId: null, guestName: null,
@@ -322,13 +322,13 @@ const Multiplayer = (() => {
         yourRole: 'guest', opponentName: lobby.hostName,
         gameType: 'ates-buz', lobbyId, level: lobby.level || 1
       });
-    } else if (lobby.gameType === 'hava-hokeyi') {
+    } else if (lobby.gameType === 'hava-hokeyi' || lobby.gameType === 'ritim-kosusu') {
       await ref.update({ guestId: playerId, guestName: playerName, state: 'PLAYING' });
       listenToLobby(lobbyId);
       emit('PLAYER_JOINED', { opponentName: lobby.hostName, role: 'guest' });
       emit('GAME_START', {
         yourRole: 'guest', opponentName: lobby.hostName,
-        gameType: 'hava-hokeyi', lobbyId
+        gameType: lobby.gameType, lobbyId
       });
     } else if (lobby.gameType === 'zipla-topla-coop') {
       await ref.update({ guestId: playerId, guestName: playerName, state: 'PLAYING' });
@@ -389,7 +389,7 @@ const Multiplayer = (() => {
         ? { gameType }
         : gameType === 'ates-buz'
         ? { gameType }
-        : gameType === 'hava-hokeyi'
+        : gameType === 'hava-hokeyi' || gameType === 'ritim-kosusu'
         ? { gameType }
         : gameType === 'zipla-topla-coop'
         ? { gameType }
@@ -864,10 +864,10 @@ const Multiplayer = (() => {
             yourRole: 'host', opponentName: lobby.guestName,
             gameType: 'ates-buz', lobbyId: currentLobbyId, level: lobby.level || 1
           });
-        } else if (lobby.gameType === 'hava-hokeyi') {
+        } else if (lobby.gameType === 'hava-hokeyi' || lobby.gameType === 'ritim-kosusu') {
           emit('GAME_START', {
             yourRole: 'host', opponentName: lobby.guestName,
-            gameType: 'hava-hokeyi', lobbyId: currentLobbyId
+            gameType: lobby.gameType, lobbyId: currentLobbyId
           });
         } else if (lobby.gameType === 'zipla-topla-coop') {
           emit('GAME_START', {
