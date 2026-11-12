@@ -92,3 +92,21 @@ html, body { margin: 0; height: 100%; background: #070a1c; color: #fff; overflow
     background: rgba(0,0,0,.75); padding: 8px 16px; border-radius: 12px; font-weight: 700; transition: opacity .2s, transform .2s; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 @media (prefers-reduced-motion: reduce) { .bolum-kart { transition: none; } }
+
+/* ── 2 kişilik: oda kur / katıl ── */
+.dugme-iki { background: #6ec8ff; color: #04223a; border-color: #6ec8ff; font-size: 17px; }
+.alan { display: flex; flex-direction: column; gap: 6px; text-align: left; font-weight: 800; font-size: 14px; color: #a9c4ff; margin: 8px 0; }
+.alan input { min-height: 48px; border-radius: 12px; border: 2px solid rgba(255,255,255,.4); background: rgba(0,0,0,.35); color: #fff;
+    font: inherit; font-size: 18px; font-weight: 800; padding: 8px 12px; width: 100%; min-width: 0; -webkit-user-select: text; user-select: text; }
+.alan input:focus-visible { outline: 3px solid #ffd23f; outline-offset: 1px; }
+#iki-kod { text-transform: uppercase; letter-spacing: 6px; text-align: center; font-size: 24px; }
+.gizli { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.iki-sec { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 6px; }
+.iki-kutu { background: rgba(0,0,0,.28); border: 1px solid rgba(255,255,255,.15); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 6px; justify-content: space-between; }
+.iki-kutu h3 { margin: 0; font-size: 17px; } .iki-kutu p { margin: 0; font-size: 13px; color: #c7d4f5; }
+.hata { min-height: 20px; margin: 10px 0 0; color: #ff9a8a; font-weight: 800; }
+.oda-kod { margin: 4px auto 12px; padding: 10px 14px; border-radius: 14px; background: rgba(255,210,63,.12); border: 2px dashed #ffd23f; font-size: 18px; font-weight: 800; }
+.oda-kod b { font-size: 34px; letter-spacing: 8px; color: #ffd23f; margin-left: 6px; }
+.oda-kod small { display: block; font-size: 13px; font-weight: 600; color: #d6e2ff; }
+.oda-kod[hidden] { display: none; }
+@media (max-width: 520px) { .iki-sec { grid-template-columns: 1fr; } }

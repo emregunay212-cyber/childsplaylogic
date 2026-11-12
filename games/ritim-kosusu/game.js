@@ -9,12 +9,8 @@
     const CEIL = RK.CEIL;
     const $ = (s) => document.querySelector(s);
 
-    const qs = new URLSearchParams(location.search);
-    const LOBBY = qs.get('lobbyId');
-    const ONLINE = qs.get('mod') === 'yaris' && /^[A-Z]{5}$/.test(LOBBY || '');
-    const ROLE = qs.get('role') === 'guest' ? 'guest' : 'host';
-    const OPP_ROLE = ROLE === 'host' ? 'guest' : 'host';
-    const OPP_NAME = (qs.get('name') || 'Rakip').slice(0, 24);
+    // 2 kişilik oda (oyun içinden kurulur / katılınır): lobbies/<KOD>
+    let LOBBY = null, ROLE = 'host', OPP_ROLE = 'guest', OPP_NAME = 'Rakip';
 
     // ════════════ Kayıt ════════════
     const SAVE_KEY = 'rk_ilerleme';
@@ -652,7 +648,7 @@
     }
 
     // ════════════ Ekranlar ════════════
-    function hideAll() { ['#menu', '#duraklat', '#sonuc', '#online'].forEach(s => { $(s).hidden = true; }); }
+    function hideAll() { ['#menu', '#duraklat', '#sonuc', '#online', '#iki'].forEach(s => { $(s).hidden = true; }); }
     function isUnlocked(i) {
         const d = LV.bolumler[i];
         if (d.dunya === 1) return true;
@@ -693,6 +689,7 @@
         return b;
     }
     function showMenu() {
+        if (LOBBY) Net.leave(false);   // menüye dönen odadan çıkar
         Music.stop();
         G = null;
         hideAll();
@@ -774,6 +771,7 @@
     window.addEventListener('blur', release);
     const JUMP_KEYS = ['Space', 'ArrowUp', 'KeyW'];
     document.addEventListener('keydown', (e) => {
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;   // takma ad / oda kodu yazılıyor
         if (JUMP_KEYS.indexOf(e.code) >= 0) {
             if (G && (G.phase === 'play' || G.phase === 'dead' || G.phase === 'count') && !isUi(document.activeElement)) {
                 e.preventDefault(); hold = true;
@@ -804,28 +802,49 @@
     });
     EduKit.onHidden(() => { hold = false; if (G && !G.race) pause(); });
 
-    // ════════════ Online yarış (hub lobisi) ════════════
+    // ════════════ 2 kişilik online yarış (oyun içi oda: lobbies/<KOD>, alt dal rk/) ════════════
     const Net = (() => {
-        let ref = null, pdb = null, offset = 0, presence = null;
+        let ref = null, pdb = null, fb = null, offset = 0, presence = null, lobbyRef = null;
+        const offs = [];                // [ref, olay, fn] — odadan çıkınca dinleyiciler sökülür
         let tur = 0, oppSeen = false, oppHere = false, oppGoneTimer = null;
         let opp = null;                 // son durum
         const buf = [];                 // interpolasyon tamponu [{t, x, y, m, g}]
         let lastSend = 0, selected = LV.pistler[0].id, raceTimeout = 0, resultShown = false;
         const serverNow = () => Date.now() + offset;
 
-        function init() {
-            const pwin = window.parent;
-            if (!pwin || pwin === window || !pwin.firebase) return false;
+        const CODE_CHARS = 'ABCDEFGHJKLMNPRSTUVYZ';   // hub lobi kodlarıyla aynı alfabe (I/O/Q/W/X yok)
+        function on(r, ev, fn) { r.on(ev, fn); offs.push([r, ev, fn]); }
+        function connect() {
+            if (pdb) return true;
             try {
-                pdb = pwin.firebase.database();
-                ref = pdb.ref('lobbies/' + LOBBY + '/rk');
+                const pwin = window.parent;
+                if (!pwin || pwin === window || !pwin.firebase) return false;
+                fb = pwin.firebase; pdb = fb.database();
             } catch (e) { return false; }
             pdb.ref('.info/serverTimeOffset').on('value', s => { offset = s.val() || 0; });
+            return true;
+        }
+        function resetState() {
+            tur = 0; oppSeen = false; oppHere = false; opp = null; buf.length = 0; resultShown = false;
+            if (oppGoneTimer) { clearTimeout(oppGoneTimer); oppGoneTimer = null; }
+        }
+        function enter(code, role, oppName) {
+            LOBBY = code; ROLE = role; OPP_ROLE = role === 'host' ? 'guest' : 'host';
+            OPP_NAME = oppName || 'Rakip';
+            resetState();
+            lobbyRef = pdb.ref('lobbies/' + LOBBY);
+            ref = lobbyRef.child('rk');
             presence = ref.child('var/' + ROLE);
-            pdb.ref('.info/connected').on('value', s => {
+            on(pdb.ref('.info/connected'), 'value', s => {
                 if (s.val() === true && presence) { presence.onDisconnect().remove(); presence.set(true); }
             });
-            ref.child('var/' + OPP_ROLE).on('value', s => {
+            if (ROLE === 'host') {
+                on(lobbyRef.child('guestName'), 'value', s => { const v = s.val(); if (v) { OPP_NAME = String(v).slice(0, 24); lobbyUi(); } });
+            } else {
+                // kurucu odayı kapattıysa (kayıt silindi) menüye dön
+                on(lobbyRef.child('hostName'), 'value', s => { if (!s.val() && LOBBY) { leave(true, true); EduKit.toast('Oda kapandı.', 4000); } });
+            }
+            on(ref.child('var/' + OPP_ROLE), 'value', s => {
                 if (s.val()) {
                     oppSeen = true; oppHere = true;
                     if (oppGoneTimer) { clearTimeout(oppGoneTimer); oppGoneTimer = null; }
@@ -834,17 +853,18 @@
                         oppGoneTimer = null; oppHere = false;
                         EduKit.toast(OPP_NAME + ' ayrıldı.');
                         if (G && G.race && G.phase === 'done') showRaceResult();
+                        lobbyUi();
                     }, 6000);
                 }
                 lobbyUi();
             });
-            ref.child('yaris').on('value', s => {
+            on(ref.child('yaris'), 'value', s => {
                 const v = s.val();
                 if (!v || !v.tur || v.tur === tur) { if (v && v.pist) { selected = v.pist; lobbyUi(); } return; }
                 tur = v.tur; selected = v.pist;
                 beginRace(v);
             });
-            ref.child('oyuncu/' + OPP_ROLE).on('value', s => {
+            on(ref.child('oyuncu/' + OPP_ROLE), 'value', s => {
                 const v = s.val();
                 if (!v || v.tur !== tur) return;
                 opp = v;
@@ -852,14 +872,58 @@
                 if (buf.length > 30) buf.shift();
                 if (G && G.race && G.phase === 'done' && v.b) showRaceResult();
             });
-            window.addEventListener('pagehide', cleanup);
-            return true;
+            showLobby();
         }
-        function cleanup() {
-            try { if (presence) presence.remove(); } catch (e) { /* yok */ }
+        function genCode() { let c = ''; for (let i = 0; i < 5; i++) c += CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]; return c; }
+        async function create(name) {
+            if (!connect()) throw new Error('baglanti');
+            for (let k = 0; k < 6; k++) {
+                const code = genCode();
+                const r = pdb.ref('lobbies/' + code);
+                const snap = await r.once('value');
+                if (snap.val()) continue;
+                await r.set({
+                    id: code, gameType: 'ritim-kosusu', state: 'WAITING', hostName: name,
+                    createdAt: fb.database.ServerValue.TIMESTAMP,
+                });
+                enter(code, 'host', 'Rakip');
+                return code;
+            }
+            throw new Error('kod');
         }
+        async function join(code, name) {
+            if (!connect()) throw new Error('baglanti');
+            if (!/^[A-Z]{5}$/.test(code)) throw new Error('bicim');
+            const r = pdb.ref('lobbies/' + code);
+            const v = (await r.once('value')).val();
+            if (!v || v.gameType !== 'ritim-kosusu') throw new Error('yok');
+            if (v.guestName) throw new Error('dolu');
+            await r.update({ guestName: name, state: 'PLAYING' });
+            enter(code, 'guest', String(v.hostName || 'Kurucu').slice(0, 24));
+        }
+        // Odadan çık: dinleyicileri sök, varlığı sil; kurucu odayı tümden siler, misafir yerini boşaltır
+        // closed = oda zaten silindi (kurucu kapattı): hiçbir şey yazılmaz, yoksa yarım kayıt geri doğar
+        function leave(toMenu, closed) {
+            if (!LOBBY) { if (toMenu) showMenu(); return; }
+            const wasHost = ROLE === 'host', lr = lobbyRef;
+            offs.splice(0).forEach(([r, ev, fn]) => { try { r.off(ev, fn); } catch (e) { /* yok */ } });
+            try { if (presence) { presence.onDisconnect().cancel(); if (!closed) presence.remove(); } } catch (e) { /* yok */ }
+            try {
+                if (closed) { /* yazma yok */ }
+                else if (wasHost) lr.remove();
+                else lr.update({ guestName: null, state: 'WAITING' });
+            } catch (e) { /* yok */ }
+            LOBBY = null; ref = null; presence = null; lobbyRef = null;
+            resetState();
+            if (toMenu) showMenu();
+        }
+        window.addEventListener('pagehide', () => leave(false));
+        window.__rkLeave = () => leave(false);   // hub sarmalayıcısı oyundan çıkarken çağırır
         function lobbyUi() {
+            if (!LOBBY) return;
             $('#rakip-ad').textContent = OPP_NAME;
+            $('#oda-kod-kutu').hidden = ROLE !== 'host';
+            $('#oda-kod').textContent = LOBBY;
             $('#rakip-nokta').classList.toggle('acik', oppHere);
             const startBtn = $('#btn-baslat');
             startBtn.hidden = ROLE !== 'host';
@@ -883,7 +947,7 @@
             });
             $('#online-mesaj').textContent = ROLE === 'host'
                 ? (oppHere ? 'Pisti seç ve Başlat\'a bas. Rakibin yarı saydam hayalet olarak görünür; ölürsen son checkpoint\'ten devam edersin.' : OPP_NAME + ' bekleniyor…')
-                : 'Kurucu pisti seçiyor… Yarış başlayınca geri sayım çıkar.';
+                : 'Kurucu (' + OPP_NAME + ') pisti seçiyor… Yarış başlayınca geri sayım çıkar.';
         }
         function showLobby() {
             Music.stop();
@@ -894,7 +958,7 @@
             lobbyUi();
         }
         function hostStart() {
-            if (ROLE !== 'host' || !oppHere) return;
+            if (!LOBBY || ROLE !== 'host' || !oppHere) return;
             EduKit.audio.init();
             ref.child('oyuncu').remove();
             ref.child('yaris').set({ pist: selected, t0: serverNow() + 3800, tur: tur + 1 });
@@ -1009,18 +1073,53 @@
             }
             $('#sonuc').hidden = false;
         }
-        return { init, showLobby, hostStart, tick, finished, drawGhost };
+        return { connect, create, join, leave, showLobby, hostStart, tick, finished, drawGhost };
     })();
 
     $('#btn-baslat').addEventListener('click', () => Net.hostStart());
+    $('#btn-oda-cik').addEventListener('click', () => Net.leave(true));
+
+    // ── 2 Kişilik ekranı: takma ad + oda kur / koda katıl ──
+    function showIki() {
+        Music.stop(); G = null; hideAll(); $('#hud').hidden = true;
+        $('#iki-ad').value = save.ad || '';
+        $('#iki-hata').textContent = '';
+        $('#iki').hidden = false;
+        $(save.ad ? '#btn-oda-kur' : '#iki-ad').focus();
+    }
+    function ikiAd() {
+        // yalnız harf, rakam ve boşluk; en çok 12 karakter (sohbet yok, yalnız takma ad)
+        const ad = $('#iki-ad').value.replace(/[^0-9A-Za-zÇĞİÖŞÜçğıöşü ]/g, '').replace(/\s+/g, ' ').trim().slice(0, 12);
+        if (!ad) { $('#iki-hata').textContent = 'Önce bir takma ad yaz.'; $('#iki-ad').focus(); return null; }
+        save.ad = ad; writeSave();
+        return ad;
+    }
+    const IKI_HATA = {
+        baglanti: '2 kişilik mod için oyunu bilnetoyun.com içinden aç (internet gerekli).',
+        bicim: 'Oda kodu 5 harftir.', yok: 'Bu kodla bir oda bulunamadı.', dolu: 'Bu oda dolu.', kod: 'Oda kurulamadı, tekrar dene.',
+    };
+    async function ikiIs(fn) {
+        const btns = [$('#btn-oda-kur'), $('#btn-oda-katil')];
+        btns.forEach(b => { b.disabled = true; });
+        $('#iki-hata').textContent = '';
+        try { EduKit.audio.init(); await fn(); }
+        catch (e) { $('#iki-hata').textContent = IKI_HATA[e && e.message] || 'Bağlantı hatası, tekrar dene.'; }
+        finally { btns.forEach(b => { b.disabled = false; }); }
+    }
+    $('#btn-iki').addEventListener('click', showIki);
+    $('#btn-iki-geri').addEventListener('click', showMenu);
+    $('#btn-oda-kur').addEventListener('click', () => { const ad = ikiAd(); if (ad) ikiIs(() => Net.create(ad)); });
+    $('#btn-oda-katil').addEventListener('click', () => {
+        const ad = ikiAd(); if (!ad) return;
+        const kod = $('#iki-kod').value.toLocaleUpperCase('tr-TR').replace(/İ/g, 'I').replace(/[^A-Z]/g, '');
+        ikiIs(() => Net.join(kod, ad));
+    });
+    $('#iki-kod').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#btn-oda-katil').click(); });
 
     // ════════════ Başlat ════════════
     loadSave();
     $('#btn-ses').setAttribute('aria-pressed', String(!save.ses));
-    if (ONLINE) {
-        if (Net.init()) Net.showLobby();
-        else { showMenu(); EduKit.toast('Online bağlantı kurulamadı — tek kişilik oynayabilirsin.', 5000); }
-    } else showMenu();
+    showMenu();
     requestAnimationFrame(frame);
 
     // test/hata ayıklama kancası (yalnız okuma)

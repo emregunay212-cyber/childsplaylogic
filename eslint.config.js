@@ -66,7 +66,7 @@ const gameModuleGlobals = Object.fromEntries([
     'BilgiKulesi', 'CevapKosusu', 'BilgiSavunmasi', 'FizikFirlatma', 'BalonLabirenti', 'YercekimiYolculugu', 'RitimKosusu',
     // Online (online.order sırasıyla)
     'KelimeTahmin', 'HarfTahmin', 'KodMacerasiMP', 'SatrancMP', 'PenaltiMP', 'AtesBuz',
-    'ZiplaToplaCoop', 'HavaHokeyi', 'AltinAvi', 'Kelimelik', 'SonKart', 'RitimKosusuMP',
+    'ZiplaToplaCoop', 'HavaHokeyi', 'AltinAvi', 'Kelimelik', 'SonKart',
     // Paylaşılan motorlar
     'ChessEngine',      // js/games/satranc-engine.js
     'KodMacerasiCore',  // js/games/kod-macerasi-shared.js
