@@ -30,7 +30,9 @@
     const MAXV = 42;
     const BUF_STEPS = 24;        // 0,1 sn: erken basış affı (top/UFO/halka)
     const LAND_TOL = 0.32;       // bloğun üstüne "biraz aşağıdan" gelişte yine de bas
-    const MODES = ['kup', 'gemi', 'top', 'ufo', 'dalga'];
+    const ROBOT_V = 18, ROBOT_BOOST = 90, ROBOT_T = 72;   // robot: kısa basış ≈1,1 blok, 0,3 sn tutma ≈2,8 blok
+    const MINI = 0.6, MINI_K = 0.85;                     // mini boyut ve zıplama hızı çarpanı
+    const MODES = ['kup', 'gemi', 'top', 'ufo', 'dalga', 'robot'];
 
     // ── Hazırlık: seviye verisini çarpışma kutularıyla sıralı listeye çevir ──
     function prepare(data) {
@@ -61,11 +63,12 @@
                 case 'halka_sari': case 'halka_pembe': case 'halka_mavi': case 'halka_yesil': case 'halka_siyah':
                     n.x0 = o.x - 1.2; n.x1 = o.x + 1.2; n.cy = y;
                     break;
-                case 'portal_mod': case 'portal_yercekimi': case 'portal_hiz': case 'checkpoint':
+                case 'portal_mod': case 'portal_yercekimi': case 'portal_hiz': case 'portal_boyut': case 'portal_ayna':
+                case 'tetik_hareket': case 'checkpoint':
                     n.x0 = o.x - 0.5; n.x1 = o.x + 0.5;
                     // y verilmişse yalnız [y-1.6, y+1.6] arasından geçen tetikler (yol ayrımı); yoksa tam boy kapı
-                    n.ylo = (o.y === undefined) ? -99 : o.y - 1.6;
-                    n.yhi = (o.y === undefined) ? 99 : o.y + 1.6;
+                    n.ylo = (o.y === undefined || o.t === 'tetik_hareket') ? -99 : o.y - 1.6;
+                    n.yhi = (o.y === undefined || o.t === 'tetik_hareket') ? 99 : o.y + 1.6;
                     break;
                 case 'coin':
                     n.x0 = o.x - 0.5; n.x1 = o.x + 0.5; n.cy = y;
@@ -88,16 +91,19 @@
                 mode: b.mod || 'kup',
                 speed: String(b.hiz || 1),
                 grav: b.yercekimi === 'ters' ? -1 : 1,
+                mini: b.boyut === 'mini',
             },
             coinCount: objs.filter(o => o.t === 'coin').length,
         };
     }
 
+    function b0(L) { return L.start; }
     function createState(L) {
         return {
             x: 0, y: L.start.grav === 1 ? 0 : CEIL - 1, vy: 0,
             mode: L.start.mode, grav: L.start.grav, speed: L.start.speed,
-            s: 1, onGround: true, prevHold: false, buf: 0,
+            s: b0(L).mini ? MINI : 1, mirror: false, boost: 0, mv: {},
+            onGround: true, prevHold: false, buf: 0,
             dead: false, done: false, step: 0, cp: -1, i0: 0,
             used: {}, coins: [], ev: [],
         };
@@ -107,6 +113,7 @@
         const c = Object.assign({}, st);
         c.used = Object.assign({}, st.used);
         c.coins = st.coins.slice();
+        c.mv = Object.assign({}, st.mv);
         c.ev = [];
         return c;
     }
@@ -125,6 +132,18 @@
 
     function die(st) { st.dead = true; st.ev.push('dead'); }
 
+    // Hareket tetikleyicisi: grup dikey kaydırması (yumuşak giriş-çıkış). st.mv[grup] = [başlangıç adımı, dy, süre adımı, önceki ofset]
+    function groupOffset(st, grup) { return offsetAt(st, grup, st.step); }
+    function offsetAt(st, grup, stepNo) {
+        const m = st.mv[grup];
+        if (!m) return 0;
+        let k = (stepNo - m[0]) / m[2];
+        if (k >= 1) return m[3] + m[1];
+        if (k <= 0) return m[3];
+        k = k * k * (3 - 2 * k);
+        return m[3] + m[1] * k;
+    }
+
     function step(st, L, hold) {
         if (st.dead || st.done) return;
         const press = hold && !st.prevHold;
@@ -134,12 +153,22 @@
         const spd = SPEEDS[st.speed];
         let g = st.grav;
         const s = st.s;
+        const jk = s < 1 ? MINI_K : 1;
 
         // ── Moda göre dikey hız ──
         switch (st.mode) {
             case 'kup':
                 if (st.onGround && (hold || st.buf > 0)) {
-                    st.vy = JUMP * g; st.onGround = false; st.buf = 0; st.ev.push('jump');
+                    st.vy = JUMP * jk * g; st.onGround = false; st.buf = 0; st.ev.push('jump');
+                }
+                st.vy -= G * g * dt;
+                break;
+            case 'robot':
+                if (st.onGround && (hold || st.buf > 0)) {
+                    st.vy = ROBOT_V * jk * g; st.onGround = false; st.buf = 0; st.boost = ROBOT_T; st.ev.push('jump');
+                }
+                if (st.boost > 0) {
+                    if (hold) { st.vy += ROBOT_BOOST * jk * g * dt; st.boost--; } else st.boost = 0;
                 }
                 st.vy -= G * g * dt;
                 break;
@@ -155,12 +184,12 @@
                 st.vy -= BALL_G * g * dt;
                 break;
             case 'ufo':
-                if (st.buf > 0) { st.vy = UFO_FLAP * g; st.buf = 0; st.onGround = false; st.ev.push('jump'); }
+                if (st.buf > 0) { st.vy = UFO_FLAP * jk * g; st.buf = 0; st.onGround = false; st.ev.push('jump'); }
                 st.vy -= UFO_G * g * dt;
                 if (st.vy * g < -UFO_MAXFALL) st.vy = -UFO_MAXFALL * g;
                 break;
             case 'dalga':
-                st.vy = (hold ? 1 : -1) * spd * g;
+                st.vy = (hold ? 1 : -1) * spd * (s < 1 ? 2 : 1) * g;
                 break;
         }
         if (st.vy > MAXV) st.vy = MAXV;
@@ -191,66 +220,83 @@
         // ── Nesneler ──
         const px0 = st.x - s / 2, px1 = st.x + s / 2;
         // iç kutu (ölüm için, kenara sürtmek affedilir)
-        const ix0 = px0 + 0.15, ix1 = px1 - 0.15;
+        const ix0 = px0 + 0.15 * s, ix1 = px1 - 0.15 * s;
+        const iy0 = st.y + 0.12 * s, iy1 = st.y + s - 0.12 * s;
         const objs = L.objs;
         while (st.i0 < objs.length && objs[st.i0].x1 < px0 - 3) st.i0++;
         for (let i = st.i0; i < objs.length; i++) {
             const o = objs[i];
             if (o.x0 > px1 + 1.5) break;
+            const oy = o.grup === undefined ? 0 : groupOffset(st, o.grup);
             switch (o.t) {
                 case 'blok': {
                     if (!(px0 < o.x1 && px1 > o.x0)) break;
-                    if (!(st.y < o.y1 && st.y + s > o.y0)) break;
-                    if (prevY >= o.y1 - LAND_TOL && st.vy <= 0) {
-                        st.y = o.y1; st.vy = 0; if (g === 1) st.onGround = true;
-                    } else if (prevY + s <= o.y0 + LAND_TOL && st.vy >= 0) {
-                        st.y = o.y0 - s; st.vy = 0; if (g === -1) st.onGround = true;
-                    } else if (rectHit(ix0, st.y + 0.12, ix1, st.y + s - 0.12, o.x0, o.y0, o.x1, o.y1)) {
+                    const y0 = o.y0 + oy, y1 = o.y1 + oy;
+                    if (!(st.y < y1 && st.y + s > y0)) break;
+                    // hareketli blokta bir önceki adımın konumuna göre karar ver (platform oyuncuyu taşır)
+                    const poy = o.grup === undefined ? 0 : offsetAt(st, o.grup, st.step - 1);
+                    if (prevY >= o.y1 + poy - LAND_TOL && st.vy <= 0.001 + Math.max(0, oy - poy) * 240) {
+                        st.y = y1; if (st.vy < 0) st.vy = 0; if (g === 1) st.onGround = true;
+                    } else if (prevY + s <= y0 + LAND_TOL && st.vy >= 0) {
+                        st.y = y0 - s; st.vy = 0; if (g === -1) st.onGround = true;
+                    } else if (rectHit(ix0, iy0, ix1, iy1, o.x0, y0, o.x1, y1)) {
                         die(st); return;
                     }
                     break;
                 }
                 case 'diken': case 'yarim_diken':
-                    if (rectHit(ix0, st.y + 0.12, ix1, st.y + s - 0.12, o.hb[0], o.hb[1], o.hb[2], o.hb[3])) { die(st); return; }
+                    if (rectHit(ix0, iy0, ix1, iy1, o.hb[0], o.hb[1] + oy, o.hb[2], o.hb[3] + oy)) { die(st); return; }
                     break;
                 case 'testere': {
                     const cx = Math.max(ix0, Math.min(o.x, ix1));
-                    const cy = Math.max(st.y + 0.12, Math.min(o.cy, st.y + s - 0.12));
-                    const dx = cx - o.x, dy = cy - o.cy;
+                    const cy = Math.max(iy0, Math.min(o.cy + oy, iy1));
+                    const dx = cx - o.x, dy = cy - (o.cy + oy);
                     if (dx * dx + dy * dy < (o.r * 0.82) * (o.r * 0.82)) { die(st); return; }
                     break;
                 }
                 case 'pad_sari': case 'pad_pembe': case 'pad_mavi':
                     if (st.used[o.id]) break;
-                    if (!rectHit(px0, st.y, px1, st.y + s, o.hb[0], o.hb[1], o.hb[2], o.hb[3])) break;
+                    if (!rectHit(px0, st.y, px1, st.y + s, o.hb[0], o.hb[1] + oy, o.hb[2], o.hb[3] + oy)) break;
                     st.used[o.id] = 1; st.ev.push('pad');
                     if (o.t === 'pad_mavi') { st.grav = g = -g; st.vy = -12 * g; }
-                    else st.vy = JUMP * PAD * (o.t === 'pad_pembe' ? 0.7 : 1) * g;
+                    else st.vy = JUMP * PAD * jk * (o.t === 'pad_pembe' ? 0.7 : 1) * g;
+                    st.boost = 0;
                     st.onGround = false;
                     break;
                 case 'halka_sari': case 'halka_pembe': case 'halka_mavi': case 'halka_yesil': case 'halka_siyah': {
                     if (st.used[o.id]) break;
-                    const dx = st.x - o.x, dy = (st.y + s / 2) - o.cy;
+                    const dx = st.x - o.x, dy = (st.y + s / 2) - (o.cy + oy);
                     if (dx * dx + dy * dy > 1.25 * 1.25) break;
-                    if (!(st.buf > 0 || (hold && st.mode === 'kup'))) break;
-                    st.used[o.id] = 1; st.buf = 0; st.ev.push('orb');
-                    const k = st.mode === 'kup' ? 1 : 0.8;
+                    if (!(st.buf > 0 || (hold && (st.mode === 'kup' || st.mode === 'robot')))) break;
+                    st.used[o.id] = 1; st.buf = 0; st.boost = 0; st.ev.push('orb');
+                    const k = (st.mode === 'kup' || st.mode === 'robot' ? 1 : 0.8) * jk;
                     if (o.t === 'halka_sari') st.vy = JUMP * k * g;
                     else if (o.t === 'halka_pembe') st.vy = JUMP * 0.7 * k * g;
                     else if (o.t === 'halka_mavi') { st.grav = g = -g; st.vy = -12 * g; }
-                    else if (o.t === 'halka_yesil') { st.grav = g = -g; st.vy = JUMP * k * g; }
+                    else if (o.t === 'halka_yesil') { st.grav = g = -g; st.vy = -JUMP * 0.75 * k * g; }   // çevir + yeni yöne hızlı fırlat
                     else if (o.t === 'halka_siyah') st.vy = -30 * g;
                     st.onGround = false;
                     break;
                 }
-                case 'portal_mod': case 'portal_yercekimi': case 'portal_hiz': case 'checkpoint': {
+                case 'portal_mod': case 'portal_yercekimi': case 'portal_hiz': case 'portal_boyut': case 'portal_ayna':
+                case 'tetik_hareket': case 'checkpoint': {
                     if (!(prevX < o.x && st.x >= o.x)) break;
                     const cy = st.y + s / 2;
                     if (cy < o.ylo || cy > o.yhi) break;
                     if (o.t === 'checkpoint') { st.cp = o.x; st.ev.push('cp'); break; }
+                    if (o.t === 'tetik_hareket') {
+                        st.mv[o.grup] = [st.step, o.dy || 0, Math.max(1, Math.round((o.sure || 0.4) * 240)), groupOffset(st, o.grup)];
+                        break;
+                    }
+                    if (o.t === 'portal_boyut') {
+                        const ns = o.deger === 'mini' ? MINI : 1;
+                        if (ns !== st.s) { st.s = ns; st.ev.push('portal'); if (g === -1 && st.y + ns > CEIL) st.y = CEIL - ns; }
+                        break;
+                    }
+                    if (o.t === 'portal_ayna') { st.mirror = o.deger === 'acik'; st.ev.push('portal'); break; }
                     st.ev.push('portal');
                     if (o.t === 'portal_mod' && MODES.indexOf(o.deger) >= 0 && st.mode !== o.deger) {
-                        st.mode = o.deger; st.vy *= 0.5; st.buf = 0;
+                        st.mode = o.deger; st.vy *= 0.5; st.buf = 0; st.boost = 0;
                     } else if (o.t === 'portal_yercekimi') {
                         const ng = o.deger === 'ters' ? -1 : 1;
                         if (ng !== g) { st.grav = g = ng; st.vy *= 0.5; }
@@ -261,7 +307,7 @@
                 }
                 case 'coin': {
                     if (st.coins.indexOf(o.no) >= 0) break;
-                    const dx = st.x - o.x, dy = (st.y + s / 2) - o.cy;
+                    const dx = st.x - o.x, dy = (st.y + s / 2) - (o.cy + oy);
                     if (dx * dx + dy * dy < 0.95 * 0.95) { st.coins.push(o.no); st.ev.push('coin'); }
                     break;
                 }
@@ -289,7 +335,7 @@
         const stack = [{ st: start, next: 0 }];
         function key(st) {
             return st.step + '|' + Math.round(st.x * 4) + '|' + Math.round(st.y * 5) + '|' + Math.round(st.vy / 1.5) + '|' + st.grav + st.mode + st.speed +
-                (st.onGround ? 'g' : 'a') + (st.prevHold ? 'h' : 'r') + (st.buf > 0 ? 'b' : '') + '|' + Object.keys(st.used).length +
+                (st.onGround ? 'g' : 'a') + (st.prevHold ? 'h' : 'r') + (st.buf > 0 ? 'b' : '') + (st.boost > 0 ? 'B' : '') + st.s + '|' + Object.keys(st.used).length +
                 (need !== undefined && st.coins.indexOf(need) >= 0 ? 'c' : '');
         }
         while (stack.length) {
@@ -351,7 +397,7 @@
     }
 
     const RKCore = {
-        STEP, SPEEDS, CEIL, MODES,
+        STEP, SPEEDS, CEIL, MODES, MINI, groupOffset,
         prepare, createState, clone, step, progress, solve, replay, checkpointStates,
     };
     if (typeof module !== 'undefined' && module.exports) module.exports = RKCore;

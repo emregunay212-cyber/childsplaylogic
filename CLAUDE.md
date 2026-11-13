@@ -123,10 +123,14 @@ const ModulAdi = (() => {
 
 ### Ritim Koşusu (tek tuşlu müzikli engel koşusu — `games/ritim-kosusu/`, 12 Kas 2026)
 
-- Plan: kullanıcının `RITIM-KOSUSU-PLAN.md` belgesi (depoda değil). Bu PR = Aşama 1 + Aşama 2'nin çekirdeği: 7 bölüm (Dünya 1'in 6'sı + "Yuvarlan"), 3 yarış pisti, pratik modu, online 2 kişilik yarış.
+- Plan: kullanıcının `RITIM-KOSUSU-PLAN.md` belgesi (depoda değil). Plan §5'in tamamı: 4 dünya × 6 = 24 bölüm (`d1-01` … `d4-24`) + 4 yarış pisti, pratik modu, oyun içi 2 kişilik yarış.
+  Mekanikler: modlar küp/gemi/top/UFO/dalga/robot, mini (`portal_boyut`), ayna (`portal_ayna`; yalnız çizim yönü, fizik aynı), hareket tetikleyicisi (`tetik_hareket` → `grup` alanlı nesneler
+  YALNIZ dikey kayar, yumuşak giriş-çıkış; platform oyuncuyu taşır), renk tetikleyicisi (`tetik_renk`; yalnız çizim, konuma bağlı). Yeşil halka = yerçekimini çevir + yeni yöne hızlı fırlat.
+  Ölçüler: robot kısa basış 1,1 / tutma 2,75 blok; mini küp 1,47 / 2,9; 1x'te üçlü diken bot sınırında → yalnız 2x+ hızda.
   Mekanik tür olarak serbest; ad, görsel, müzik, bölüm dizilimleri ÖZGÜN. Başka bir oyunun adı/logosu/müziği/bölümü (sayfa başlığı, meta, SEO dahil) KULLANILMAZ.
 - Dosyalar: `core.js` (RKCore — SAF fizik: DOM/zaman/rastgelelik yok, 240 Hz sabit adım; Node'da `require` edilir), `levels.js` (RKLevels — `yap()` kurucusu → plan §4 JSON biçimi),
   `game.js` (Canvas çizim, Web Audio ile kodla bestelenen müzik — bölüm id'sinden tohumlu, menü, kayıt `rk_ilerleme`, online), `index.html`/`style.css`. Hub sarmalayıcı `js/games/ritim-kosusu.js`: `RitimKosusu` (tek modül; 2 kişilik mod oyunun içinde).
+  Mobil: görünür genişlik en az 13 blok (dik telefonda ölçek küçülür, oyun dikeyde ortalanır), dokunmatikte gölge yok + DPR ≤ 1,5, çoklu parmak izlenir, tam ekran düğmesi (yatay kilit denenir).
 - **Bölüm değişince `npm run test:ritim`** (CI adımı): her bölüm baştan + her checkpoint'ten + her coin alınarak botla (`RKCore.solve`, 8 adımda bir bas/bırak kararı, derinlik öncelikli + durum belleği) geçilebilir,
   girdi kaydı tekrar oynatılınca biter, hiç basmayan bitiremez. Tek bölüm: `RK_BOLUM=d1-04 npm run test:ritim`. Fizik sabitleri (core.js üstü) değişince TÜM bölümler yeniden doğrulanır.
   Ölçüler: küp zıplaması 2,04 blok yükseklik / 3,43 blok uzunluk, sarı ped 4,95 / 5,4, halka zinciri aralığı ≈ 3,5 blok (aynı yükseklik). 1x'te üçlü diken bot sınırında — çocuk bölümlerinde kullanılmaz.
