@@ -384,9 +384,28 @@
         const k = n + '|' + Math.floor(G.time * 10);
         if (!force && k === hudKey) return;
         hudKey = k;
-        $('#hud-bolum').textContent = G.data.sira + '. ' + G.data.ad;
-        $('#hud-yildiz').textContent = '★'.repeat(n) + '☆'.repeat(Math.max(0, G.L.stars.length - n));
-        $('#hud-sure').textContent = G.time.toFixed(1).replace('.', ',') + ' sn';
+        $('#hud-no').textContent = G.data.sira;
+        $('#hud-ad').textContent = G.data.ad;
+        // yıldız yuvaları: boş yuva soluk; yeni alınan yıldız küçük bir zıplamayla dolar
+        const box = $('#hud-yildiz'), total = G.L.stars.length;
+        if (box.childElementCount !== total) {
+            box.textContent = '';
+            for (let i = 0; i < total; i++) {
+                const sv = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                sv.setAttribute('viewBox', '0 0 24 24'); sv.setAttribute('class', 'yuva');
+                const pa = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                pa.setAttribute('d', 'M12 2.8l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 16.8l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z');
+                sv.appendChild(pa); box.appendChild(sv);
+            }
+        }
+        const before = G.hudN === undefined ? n : G.hudN;
+        Array.from(box.children).forEach((sv, i) => {
+            sv.classList.toggle('dolu', i < n);
+            if (i < n && i >= before) { sv.classList.remove('pop'); void sv.getBoundingClientRect(); sv.classList.add('pop'); }
+        });
+        G.hudN = n;
+        box.setAttribute('aria-label', 'Toplanan yıldız: ' + n + ' / ' + total);
+        $('#hud-sure').textContent = G.time.toFixed(1).replace('.', ',');
     }
 
     // ════════════ Ekranlar ════════════

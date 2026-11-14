@@ -7,7 +7,7 @@
 <meta name="description" content="Pıtır — yuvarlanan küçük topun yıldız toplama macerası. Yuvarlan, zıpla, kutuları it, tehlikelerden kaç.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,700;0,800;1,800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,700;0,800;1,800&family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../_shared/edu-kit.css">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -17,14 +17,14 @@
 
     <div id="hud" hidden>
         <div class="hud-sol">
-            <span class="hap" id="hud-bolum">1</span>
-            <span class="hap" id="hud-yildiz" aria-label="Toplanan yıldız">☆☆☆</span>
-            <span class="hap" id="hud-sure">0,0</span>
+            <span class="rozet"><b id="hud-no">1</b><span id="hud-ad">İlk Tur</span></span>
+            <span class="hap yildizlar" id="hud-yildiz" role="img" aria-label="Toplanan yıldız: 0 / 3"></span>
+            <span class="hap saat"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M10 2.5h4"/></svg><span id="hud-sure">0,0</span></span>
         </div>
         <div class="hud-sag">
-            <button type="button" class="ikon-dugme" id="btn-tam" aria-label="Tam ekran"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
-            <button type="button" class="ikon-dugme" id="btn-ses" aria-label="Sesi kapat" aria-pressed="false"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>
-            <button type="button" class="ikon-dugme" id="btn-duraklat" aria-label="Duraklat"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg></button>
+            <button type="button" class="ikon-dugme renk-camgobegi" id="btn-tam" aria-label="Tam ekran"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+            <button type="button" class="ikon-dugme renk-mor" id="btn-ses" aria-label="Sesi kapat" aria-pressed="false"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>
+            <button type="button" class="ikon-dugme renk-turuncu" id="btn-duraklat" aria-label="Duraklat"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg></button>
         </div>
     </div>
 
