@@ -127,6 +127,15 @@ svg.ik { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-wid
 .dugme-ana:active { background: var(--turuncu-koyu); }
 .sonuc-yildiz { font-size: 54px; color: var(--altin); letter-spacing: 6px; line-height: 1.1; }
 .sonuc-yildiz .bos { color: #d6dde8; }
+/* sonuç kartı: kart yumuşakça gelir, yıldızlar tek tek "pıt" diye düşer (gecikme game.js'te) */
+#sonuc:not([hidden]) .kart { animation: kartGir 320ms cubic-bezier(.23, 1, .32, 1) both; }
+@keyframes kartGir { from { opacity: 0; transform: translateY(14px) scale(.96); } }
+@keyframes sonucSol { from { opacity: 0; } }
+.sonuc-yildiz span { display: inline-block; }
+.sonuc-yildiz .gir { animation: sonucYildiz 560ms cubic-bezier(.23, 1, .32, 1) both; }
+.sonuc-yildiz .bos.gir { animation-name: sonucBos; animation-duration: 300ms; }
+@keyframes sonucYildiz { 0% { opacity: 0; transform: scale(.4) rotate(-35deg); } 55% { opacity: 1; transform: scale(1.3) rotate(10deg); } 100% { opacity: 1; transform: none; } }
+@keyframes sonucBos { from { opacity: 0; transform: scale(.8); } }
 .sonuc-govde { font-size: 16px; line-height: 1.6; color: var(--murekkep-2); font-variant-numeric: tabular-nums; }
 .dondur { display: none; position: absolute; left: 50%; top: calc(max(10px, env(safe-area-inset-top)) + 106px); transform: translateX(-50%); background: rgba(27,42,61,.88); color: #fff;
     padding: 6px 14px; border-radius: 10px; font-size: 13px; pointer-events: none; white-space: nowrap; }
@@ -135,4 +144,4 @@ svg.ik { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-wid
 .toast { position: absolute; left: 50%; bottom: 120px; transform: translateX(-50%) translateY(20px); opacity: 0; pointer-events: none;
     background: rgba(27,42,61,.92); color: #fff; padding: 8px 16px; border-radius: 12px; font-weight: 800; transition: opacity .2s, transform .2s; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-@media (prefers-reduced-motion: reduce) { .yuva.pop { animation: none; } .toast, .tus, .dugme, .bolum, .ikon-dugme { transition: none; } .tus.basili { box-shadow: none; } .bolum:active, .dugme:active { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .yuva.pop { animation: none; } #sonuc:not([hidden]) .kart, .sonuc-yildiz .gir, .sonuc-yildiz .bos.gir { animation: sonucSol 200ms ease-out both; } .toast, .tus, .dugme, .bolum, .ikon-dugme { transition: none; } .tus.basili { box-shadow: none; } .bolum:active, .dugme:active { transform: none; } }

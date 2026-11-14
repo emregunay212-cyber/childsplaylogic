@@ -23,6 +23,8 @@
         bayrak: () => { tone(523, 0.1); tone(784, 0.16, 'triangle', 0.06, 0.08); },
         pof: () => { tone(330, 0.12, 'sine', 0.08); tone(220, 0.18, 'sine', 0.07, 0.06); },
         bitis: () => [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, 0.2, 'triangle', 0.07, i * 0.09)),
+        isin: () => { [330, 392, 494, 587, 698, 831].forEach((f, i) => tone(f, 0.12, 'sine', 0.045, i * 0.12)); },
+        yildizSay: (i) => { tone(1047 * Math.pow(1.19, i), 0.14, 'triangle', 0.07); tone(1568 * Math.pow(1.19, i), 0.18, 'sine', 0.04, 0.05); },
         yay: () => { tone(392, 0.06, 'square', 0.04); tone(784, 0.14, 'triangle', 0.05, 0.03); },
     };
 
@@ -111,17 +113,39 @@
         st.ev.length = 0;
     }
 
+    // Bitiş: top ışınlanma kapısının merkezine çekilir, dönerek küçülür (0–0,9 sn); kapı parlar ve yıldız
+    // tozuyla patlar (0,9 sn); ardından sonuç kartı gelir. Azaltılmış harekette çekilme yok, kısa bir soluş var.
+    const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+    const W_CEK = REDUCE ? 0.35 : 0.9, W_SONUC = REDUCE ? 0.7 : 1.7;
+    const easeInOut = (p) => p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+    function portalCenter() { const f = G.L.finish; return { x: f[0] + 0.5, y: f[1] + 1.35 }; }
+    function warpPos() {
+        const w = G.warp, c = portalCenter();
+        const p = easeInOut(Math.min(1, w.t / W_CEK));
+        if (REDUCE) return { x: w.x0, y: w.y0, s: 1, a: 1 - Math.min(1, w.t / W_CEK), p };
+        return { x: w.x0 + (c.x - w.x0) * p, y: w.y0 + (c.y - w.y0) * p + Math.sin(Math.PI * p) * 0.5, s: Math.max(0, 1 - 0.92 * p * p), a: 1, p };
+    }
+    function stepWarp(dt) {
+        const w = G.warp; if (!w) return;
+        w.t += dt;
+        if (!w.flash && w.t >= W_CEK) {
+            w.flash = true;
+            const c = portalCenter();
+            Sfx.bitis();
+            if (!REDUCE) { burst(c.x, c.y, '#1fb6d8', 28, 8); burst(c.x, c.y, '#ffc83d', 22, 6); burst(c.x, c.y, '#ffffff', 14, 4); }
+        }
+        if (!w.shown && w.t >= W_SONUC) { w.shown = true; showResult(); }
+    }
     function finish() {
         G.phase = 'done';
-        Sfx.bitis();
-        burst(G.st.x, G.st.y + 1, '#1fb6d8', 30, 7);
+        G.warp = { t: 0, x0: G.st.x, y0: G.st.y, flash: false, shown: false };
+        Sfx.isin();
         const r = rec(G.data.id);
         r.bitti = 1;
         G.st.stars.forEach(n => { if (r.yildiz.indexOf(n) < 0) r.yildiz.push(n); });
         const t = Math.round(G.time * 10) / 10;
         if (!r.sure || t < r.sure) r.sure = t;
         writeSave();
-        setTimeout(showResult, 900);
     }
 
     // ════════════ Döngü ════════════
@@ -141,6 +165,8 @@
                     handleEvents();
                     acc -= STEP;
                 }
+            } else if (G.phase === 'done') {
+                stepWarp(dt);
             } else if (G.phase === 'dead') {
                 G.deadT -= dt;
                 if (G.deadT <= 0) respawn(false);
@@ -173,13 +199,14 @@
         g.fillStyle = sky; g.fillRect(0, 0, W, H);
         if (!G) return;
         const st = G.st;
-        const bx = G.prev.x + (st.x - G.prev.x) * alpha, by = G.prev.y + (st.y - G.prev.y) * alpha;
+        const wp = G.phase === 'done' && G.warp ? warpPos() : null;
+        const bx = wp ? wp.x : G.prev.x + (st.x - G.prev.x) * alpha, by = wp ? wp.y : G.prev.y + (st.y - G.prev.y) * alpha;
 
         // yakınlaşma: hız ve havada kalma süresi uzaklaştırır; uzaklaşma hızlı, yakınlaşma yavaş (pompalama olmasın)
         G.air = st.ground ? 0 : (G.air || 0) + dt;
         const hiz = Math.min(1, Math.hypot(st.vx, st.vy) / K.MAX_RUN);
         const f = Math.min(1, 0.45 * hiz + 0.5 * Math.min(1, Math.max(0, G.air - 0.12) / 0.35));   // kısa sekmeler sayılmaz
-        const zt = ZOOM_YAKIN - (ZOOM_YAKIN - 1) * f;
+        const zt = wp && !REDUCE ? 1.8 : ZOOM_YAKIN - (ZOOM_YAKIN - 1) * f;   // ışınlanırken kapıya yaklaş
         ZOOM += (zt - ZOOM) * Math.min(1, dt * (zt < ZOOM ? 3 : 1.2));
         const scOld = SC; SC = SC0 * ZOOM;
         camX = bx - (bx - camX) * scOld / SC; camY = by - (by - camY) * scOld / SC;   // top ekranda yerinde kalsın
@@ -202,7 +229,8 @@
 
         drawTiles(tema);
         drawItems(tema);
-        if (G.phase !== 'dead') drawBall(bx, by, dt, tema);
+        if (wp) drawWarp(bx, by, wp, dt, tema);
+        else if (G.phase !== 'dead') drawBall(bx, by, dt, tema);
         for (const p of particles) {
             g.globalAlpha = Math.max(0, Math.min(1, p.life * 1.6));
             g.fillStyle = p.col;
@@ -346,12 +374,47 @@
         // bitiş: ışınlanma kapısı
         const f = L.finish;
         const fx = sx(f[0] + 0.5), fy = sy(f[1]), cyy = fy - SC * 1.35;
-        glow(fx, cyy, SC * 1.9, '31,182,216', 0.3);
+        const wv = G.warp && G.phase === 'done' ? Math.min(1, G.warp.t / 0.9) : 0;   // ışınlanırken kapı parlar
+        glow(fx, cyy, SC * (1.9 + wv * 1.2), '31,182,216', 0.3 + wv * 0.4);
         g.fillStyle = 'rgba(196,243,255,0.55)'; g.beginPath(); g.ellipse(fx, cyy, SC * 0.62, SC * 1.15, 0, 0, 7); g.fill();
         g.lineWidth = SC * 0.22; g.strokeStyle = tema.serit; g.stroke();
         g.lineWidth = SC * 0.07; g.strokeStyle = '#ffffff';
         g.setLineDash([SC * 0.3, SC * 0.25]); g.lineDashOffset = -t * SC * 1.2; g.stroke(); g.setLineDash([]);
         g.fillStyle = tema.kenar; rr(fx - SC * 0.8, fy - SC * 0.16, SC * 1.6, SC * 0.2, SC * 0.08); g.fill();
+    }
+    function drawWarp(x, y, wp, dt, tema) {
+        const w = G.warp, c = portalCenter(), CX = sx(c.x), CY = sy(c.y);
+        // çekim çizgileri: kapıya doğru dönerek akan ışık
+        if (!REDUCE && w.t < W_CEK + 0.2) {
+            const k = Math.min(1, w.t / 0.25) * Math.max(0, 1 - Math.max(0, w.t - W_CEK) / 0.2);
+            g.lineCap = 'round'; g.lineWidth = SC * 0.07;
+            for (let i = 0; i < 12; i++) {
+                const a = i / 12 * Math.PI * 2 + w.t * 3, ph = (w.t * 1.6 + i * 0.37) % 1, rad = SC * (2.6 - 2.2 * ph);
+                g.strokeStyle = i % 3 ? `rgba(31,182,216,${0.7 * k * ph})` : `rgba(255,200,61,${0.8 * k * ph})`;
+                g.beginPath(); g.arc(CX, CY, rad, a, a + 0.5); g.stroke();
+            }
+            g.lineCap = 'butt';
+        }
+        // top: dönerek küçülür (azaltılmış harekette yerinde solar)
+        if (w.t < W_CEK) {
+            if (!REDUCE) G.spin = (G.spin || 0) + dt * 40;
+            const X = sx(x), Y = sy(y);
+            g.save(); g.globalAlpha = wp.a;
+            g.translate(X, Y); g.scale(wp.s, wp.s); g.translate(-X, -Y);
+            drawBall(x, y, dt, tema);
+            g.restore();
+        }
+        // kapı patlaması: genişleyen halkalar + beyaz parlama
+        if (w.flash && !REDUCE) {
+            const e = w.t - W_CEK;
+            for (const [d, col, wdt] of [[0, '255,255,255', 0.22], [0.12, '31,182,216', 0.16], [0.24, '255,200,61', 0.12]]) {
+                const q = (e - d) / 0.6; if (q <= 0 || q >= 1) continue;
+                const ease = 1 - Math.pow(1 - q, 3);
+                g.lineWidth = SC * wdt * (1 - q); g.strokeStyle = `rgba(${col},${1 - q})`;
+                g.beginPath(); g.ellipse(CX, CY, SC * (0.6 + 3.2 * ease), SC * (1.1 + 2.6 * ease), 0, 0, 7); g.stroke();
+            }
+            if (e < 0.35) glow(CX, CY, SC * 3.5, '255,255,255', 0.9 * (1 - e / 0.35));
+        }
     }
     function drawBall(x, y, dt, tema) {
         const st = G.st, r = K.R * 1.08 * SC;
@@ -383,7 +446,6 @@
             g.fillStyle = '#ff8a2a'; g.beginPath(); g.arc(0, s * r * 0.7, r * 0.13, 0, 7); g.fill();
             g.fillStyle = '#fff3e0'; g.beginPath(); g.arc(0, s * r * 0.7, r * 0.055, 0, 7); g.fill();
         }
-        g.setTransform(1, 0, 0, 1, 0, 0);
         g.restore();
         g.lineWidth = Math.max(1.5, r * 0.07); g.strokeStyle = '#5f708a';
         g.beginPath(); g.arc(X, Y, r, 0, 7); g.stroke();
@@ -481,7 +543,12 @@
         hideAll(); $('#dokunmatik').hidden = true; measureBand();
         const d = G.data, n = G.st.stars.length, total = G.L.stars.length;
         const ys = $('#sonuc-yildiz'); ys.textContent = '';
-        for (let i = 0; i < total; i++) { const s = document.createElement('span'); s.textContent = '★'; if (i >= n) s.className = 'bos'; ys.appendChild(s); }
+        for (let i = 0; i < total; i++) {
+            const s = document.createElement('span'); s.textContent = '★'; s.className = i < n ? 'gir' : 'bos gir';
+            const gec = REDUCE ? 0 : 280 + i * 220;
+            s.style.animationDelay = gec + 'ms'; ys.appendChild(s);
+            if (i < n) setTimeout(() => { if (!$('#sonuc').hidden) Sfx.yildizSay(i); }, gec);
+        }
         const t = G.time;
         const medal = t <= d.par && n === total ? 'Altın' : n === total ? 'Gümüş' : 'Bronz';
         $('#sonuc-govde').textContent = `${d.ad} · ${t.toFixed(1).replace('.', ',')} sn · ${G.attempts}. deneme · ${medal} madalya`;
