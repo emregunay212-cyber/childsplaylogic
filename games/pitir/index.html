@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Pıtır</title>
+<meta name="description" content="Pıtır — yuvarlanan küçük topun yıldız toplama macerası. Yuvarlan, zıpla, kutuları it, tehlikelerden kaç.">
+<link rel="stylesheet" href="../_shared/edu-kit.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="sahne">
+    <canvas id="oyun" aria-label="Pıtır oyun alanı. Ok tuşları ya da A, D ile yuvarlan; yukarı ok, W ya da Boşluk ile zıpla."></canvas>
+
+    <div id="hud" hidden>
+        <div class="hud-sol">
+            <span class="hap" id="hud-bolum">1</span>
+            <span class="hap" id="hud-yildiz" aria-label="Toplanan yıldız">☆☆☆</span>
+            <span class="hap" id="hud-sure">0,0</span>
+        </div>
+        <div class="hud-sag">
+            <button type="button" class="ikon-dugme" id="btn-tam" aria-label="Tam ekran">⛶</button>
+            <button type="button" class="ikon-dugme" id="btn-ses" aria-label="Sesi kapat" aria-pressed="false">♪</button>
+            <button type="button" class="ikon-dugme" id="btn-duraklat" aria-label="Duraklat">❚❚</button>
+        </div>
+    </div>
+
+    <div id="dokunmatik" hidden>
+        <button type="button" class="tus tus-sol" data-tus="l" aria-label="Sola yuvarlan">◀</button>
+        <button type="button" class="tus tus-sag" data-tus="r" aria-label="Sağa yuvarlan">▶</button>
+        <button type="button" class="tus tus-zipla" data-tus="j" aria-label="Zıpla">▲</button>
+    </div>
+
+    <section id="menu" class="ekran" aria-labelledby="menu-baslik">
+        <div class="kart kart-genis">
+            <h1 id="menu-baslik" class="logo">Pıtır</h1>
+            <p class="alt">Rüzgâr Pıtır'ın yıldızlarını savurdu! Yuvarlan, zıpla, yıldızları topla, eve dön.</p>
+            <div id="dunyalar"></div>
+            <p class="kaynak">Karakter, bölümler, görseller ve sesler bu oyun için özgün olarak hazırlanmıştır.</p>
+        </div>
+    </section>
+
+    <section id="duraklat" class="ekran" hidden aria-labelledby="duraklat-baslik">
+        <div class="kart">
+            <h2 id="duraklat-baslik">Mola</h2>
+            <div class="dugmeler">
+                <button type="button" class="dugme dugme-ana" id="btn-devam">Devam</button>
+                <button type="button" class="dugme" id="btn-cp">Son bayraktan</button>
+                <button type="button" class="dugme" id="btn-bastan">Baştan</button>
+                <button type="button" class="dugme" id="btn-menu">Bölümler</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="sonuc" class="ekran" hidden aria-labelledby="sonuc-baslik" aria-live="polite">
+        <div class="kart">
+            <h2 id="sonuc-baslik">Bölüm tamam!</h2>
+            <div id="sonuc-yildiz" class="sonuc-yildiz" aria-hidden="true"></div>
+            <div id="sonuc-govde" class="sonuc-govde"></div>
+            <div class="dugmeler" id="sonuc-dugmeler"></div>
+        </div>
+    </section>
+
+    <div id="dondur" class="dondur" aria-hidden="true">Daha rahat oynamak için cihazını yan çevir ↻</div>
+    <div id="toast" class="toast" role="status"></div>
+</div>
+<script src="../_shared/edu-kit.js"></script>
+<script src="core.js"></script>
+<script src="levels.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
