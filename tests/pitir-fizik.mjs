@@ -207,5 +207,92 @@ console.log('Değişmezler (plan §9.1)');
     ok(JSON.stringify(c) === snap, 'F10 kopya üzerinde oynamak asıl durumu bozmaz');
 }
 
+
+console.log('\nDinamik nesneler (plan §3.3, §3.4)');
+const lvlN = (rows, nesneler) => P.prepare({ id: 'test', harita: rows, nesneler });
+const ROW = (n, s) => (s + ' '.repeat(n)).slice(0, n);
+{
+    // N1 kutu: itilir, itilirken top yavaşlar, duvarda durur, üstüne çıkılır
+    const W3 = [ROW(40, ''), ROW(40, ''), ROW(40, '                    ###'), ROW(40, '                    ###')];
+    const L = lvlN(W3.concat([ROW(40, '                    ###'), ROW(40, ' S      B           ###              F'), '#'.repeat(40)]).filter((r, i) => i !== 3));
+    const st = run(L, 30, () => ({}));
+    const bx0 = st.o.box[0].x;
+    let maxPushV = 0;
+    run(L, 600, (s) => { if (s.o.box[0].x > bx0 + 0.5 && s.o.box[0].x < 17) maxPushV = Math.max(maxPushV, s.vx); return { r: true }; }, st);
+    ok(st.o.box[0].x > 15, 'N1 kutu itilince ilerler', 'x ' + st.o.box[0].x.toFixed(2));
+    ok(maxPushV <= 3.05, 'N1 iterken top hızı ≤ 3', maxPushV.toFixed(2));
+    ok(Math.abs(st.o.box[0].x + 0.9 - 20) < 0.02, 'N1 kutu duvarda durur', (st.o.box[0].x + 0.9).toFixed(3));
+    ok(st.x < 20 - K.R + 0.01, 'N1 top kutunun içinden geçmez', st.x.toFixed(2));
+    // 3 karo duvar yalnız kutu üstünden aşılır
+    const yakin = P.prepare({ id: 't', harita: L.level.harita.map(r => r.replace(' S      B       ', ' S             B')) });
+    ok(!!P.solve(yakin, {}), 'N1 kutunun üstünden 3 karoluk duvar aşılır');
+    const noBox = P.prepare({ id: 't', harita: L.level.harita.map(r => r.replace('B', ' ')) });
+    ok(!P.solve(noBox, { maxNodes: 400000 }), 'N1 kutusuz 3 karo duvar aşılamaz');
+}
+{
+    // N2 kutu 1 karo çukura düşer ve köprü olur
+    const L = lvlN([ROW(30, ''), ROW(30, ' S   B                F'), '##########' + ' ' + '###################', '#'.repeat(30)]);
+    const st = run(L, 400, () => ({ r: true }));
+    const b = st.o.box[0];
+    ok(Math.abs(b.y - 1) < 0.02 && b.x > 10 && b.x < 10.11, 'N2 kutu çukura oturur', b.x.toFixed(2) + ',' + b.y.toFixed(2));
+    ok(st.x > 13, 'N2 top kutunun üstünden geçer', st.x.toFixed(2));
+}
+{
+    // N3 düğme → kapı ('bir'): top basınca açılır, kapı kapanmaz
+    const L = lvlN([ROW(30, ''), ROW(30, '            #'), ROW(30, ''), ROW(30, ''), ROW(30, ' S                        F'), '#'.repeat(30)],
+        [{ t: 'dugme', x: 6, y: 1, kapi: 'k' }, { t: 'kapi', id: 'k', x: 12, y: 1, h: 3 }]);
+    const shut = run(L, 300, (s) => ({ r: s.x < 3 }));
+    ok(shut.o.door[0] === 0, 'N3 düğmeye basmadan kapı kapalı');
+    const st = run(L, 600, () => ({ r: true }));
+    ok(st.x > 14, 'N3 düğmeye basınca kapı açılır, geçilir', st.x.toFixed(2));
+    const blk = run(lvlN([ROW(30, ''), ROW(30, '            #'), ROW(30, ''), ROW(30, ''), ROW(30, ' S                        F'), '#'.repeat(30)],
+        [{ t: 'dugme', x: 20, y: 1, kapi: 'k' }, { t: 'kapi', id: 'k', x: 12, y: 1, h: 3 }]), 600, () => ({ r: true }));
+    ok(blk.x < 12, 'N3 kapalı kapı geçilmez', blk.x.toFixed(2));
+}
+{
+    // N4 'tut' düğmesi: kutu düğmede durdukça kapı açık; kutu yoksa kapanır
+    const rows = [ROW(30, ''), ROW(30, '             #'), ROW(30, ''), ROW(30, ''), ROW(30, ' S   B                     F'), '#'.repeat(30)];
+    const L = lvlN(rows, [{ t: 'dugme', x: 9, y: 1, kapi: 'k', tur: 'tut' }, { t: 'kapi', id: 'k', x: 13, y: 1, h: 3 }]);
+    // kutuyu düğmenin üstüne kadar it, sonra geri çekil
+    const st = run(L, 900, (s) => ({ r: s.o.box[0].x < 9.05 }));
+    ok(st.o.door[0] > 40, 'N4 kutu düğmede → kapı açık', st.o.door[0]);
+    const L2 = lvlN(rows.map(r => r.replace('B', ' ')), [{ t: 'dugme', x: 9, y: 1, kapi: 'k', tur: 'tut' }, { t: 'kapi', id: 'k', x: 13, y: 1, h: 3 }]);
+    const s2 = run(L2, 200, (s) => ({ r: s.x < 8.6 })); const open = s2.o.door[0];
+    run(L2, 200, (s) => ({ r: s.x < 11.5 }), s2);
+    ok(open > 40 && s2.o.door[0] === 0, 'N4 top düğmeden inince kapı kapanır', open + '→' + s2.o.door[0]);
+}
+{
+    // N5 hareketli platform topu taşır
+    const L = lvlN([ROW(30, ''), ROW(30, ''), ROW(30, '   S                       F'), '#' + ' '.repeat(27) + '##'], [{ t: 'platform', x: 2, y: 1, w: 3, dx: 20, per: 960 }]);
+    const st = run(L, 30, () => ({}));
+    const x0 = st.x; run(L, 400, () => ({}), st);
+    ok(!st.dead && st.x - x0 > 8, 'N5 platform üstündeki top taşınır', (st.x - x0).toFixed(2));
+}
+{
+    // N6 düşen platform: basınca bir süre durur, sonra düşer
+    const L = lvlN([ROW(30, ''), ROW(30, ''), ROW(30, ' S                         F'), '###' + ' '.repeat(24) + '###'], [{ t: 'duser', x: 3, y: 1, w: 2 }]);
+    const st = run(L, 320, (s) => ({ r: s.x < 4 }));
+    ok(st.dead || st.y < 0, 'N6 düşen platform üstünde beklenirse düşülür', 'y ' + st.y.toFixed(2));
+    const s2 = run(L, 60, (s) => ({ r: s.x < 4 }));
+    ok(!s2.dead && s2.y > 1, 'N6 ilk 0,5 sn platform taşır', 'y ' + s2.y.toFixed(2));
+}
+{
+    // N7 kirpi: dokunmak ölüm, üstünden atlanır
+    const L = lvlN([ROW(30, ''), ROW(30, ''), ROW(30, ''), ROW(30, ' S                         F'), '#'.repeat(30)], [{ t: 'kirpi', x0: 8, x1: 12, y: 1, per: 480 }]);
+    const st = run(L, 600, () => ({ r: true }));
+    ok(st.dead, 'N7 kirpiye çarpan top ölür');
+    const s3 = P.solve(L, {});
+    ok(!!s3, 'N7 kirpinin üstünden atlanarak geçilir');
+}
+{
+    // N8 checkpoint: kutular checkpoint anındaki hâline döner; kopya bağımsız
+    const L = lvlN([ROW(40, ''), ROW(40, ' S      C    B                  F'), '#'.repeat(25) + '   ' + '#'.repeat(12)]);
+    const st = run(L, 900, () => ({ r: true }));
+    const sp = P.spawnAt(L, st);
+    ok(st.cp === 0 && Math.abs(sp.o.box[0].x - 13.05) < 1e-6 && sp.o.box[0].y === 1, 'N8 yeniden doğunca kutu checkpoint anındaki yerinde', sp.o.box[0].x.toFixed(2));
+    const c = P.clone(sp); run(L, 300, () => ({ r: true }), c);
+    ok(sp.o.box[0].x === 13.05, 'N8 kopyada itilen kutu asıl durumu değiştirmez');
+}
+
 console.log(fail ? `\n✗ ${fail} hata` : '\n✓ fizik testleri geçti');
 process.exit(fail ? 1 : 0);

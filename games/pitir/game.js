@@ -25,6 +25,7 @@
         bitis: () => [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, 0.2, 'triangle', 0.07, i * 0.09)),
         isin: () => { [330, 392, 494, 587, 698, 831].forEach((f, i) => tone(f, 0.12, 'sine', 0.045, i * 0.12)); },
         yildizSay: (i) => { tone(1047 * Math.pow(1.19, i), 0.14, 'triangle', 0.07); tone(1568 * Math.pow(1.19, i), 0.18, 'sine', 0.04, 0.05); },
+        dugme: () => { tone(660, 0.07, 'square', 0.04); tone(990, 0.12, 'triangle', 0.05, 0.06); },
         yay: () => { tone(392, 0.06, 'square', 0.04); tone(784, 0.14, 'triangle', 0.05, 0.03); },
     };
 
@@ -111,6 +112,7 @@
         for (const e of st.ev) {
             if (e === 'jump') Sfx.zipla();
             else if (e === 'spring') Sfx.yay();
+            else if (e === 'btn') Sfx.dugme();
             else if (e === 'star') { Sfx.yildiz(); burst(st.x, st.y, '#ffc83d', 16, 5); updateHud(true); }
             else if (e === 'cp') { Sfx.bayrak(); burst(st.x, st.y + 0.5, '#20c997', 10, 4); }
             else if (e === 'dead') { G.phase = 'dead'; G.deadT = 0.6; Sfx.pof(); burst(st.x, st.y, '#ffb020', 18, 6); burst(st.x, st.y, '#ffe680', 10, 3); }
@@ -235,6 +237,7 @@
 
         drawTiles(tema);
         drawItems(tema);
+        drawDyn(tema, performance.now() / 1000);
         if (wp) drawWarp(bx, by, wp, dt, tema);
         else if (G.phase !== 'dead') drawBall(bx, by, dt, tema);
         for (const p of particles) {
@@ -348,6 +351,86 @@
         const gr = g.createRadialGradient(x, y, 0, x, y, r);
         gr.addColorStop(0, 'rgba(' + rgb + ',' + a + ')'); gr.addColorStop(1, 'rgba(' + rgb + ',0)');
         g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
+    }
+    // Dinamik nesneler: kargo kutusu, yüzen platform, uyarı şeritli düşen panel, basınç düğmesi, enerji kapısı, dikenli temizlik robotu ("kirpi")
+    function drawDyn(tema, t) {
+        if (!G.L.dyn.any) return;
+        const v = P.dynView(G.L, G.st);
+        const R = (r) => [sx(r[0]), sy(r[3]), (r[2] - r[0]) * SC, (r[3] - r[1]) * SC];
+        // kapılar: tavandaki yuva + kayan enerji paneli
+        v.kapi.forEach(k => {
+            const [x, y, w, h] = R(k.r);
+            const hx = sx(k.x + 0.05), hy = sy(k.y + k.h + 0.25);
+            g.fillStyle = tema.kenar; rr(hx, hy, SC * 0.9, SC * 0.3, SC * 0.08); g.fill();
+            if (k.acik < 1) {
+                g.save(); g.beginPath(); g.rect(sx(k.x - 1), sy(k.y + k.h), SC * 3, k.h * SC); g.clip();
+                glow(x + w / 2, y + h / 2, Math.max(w, h) * 0.7, '31,182,216', 0.25 * (1 - k.acik));
+                g.fillStyle = '#7fd8ec'; rr(x, y, w, h, SC * 0.12); g.fill();
+                g.lineWidth = SC * 0.06; g.strokeStyle = tema.serit; g.stroke();
+                g.strokeStyle = 'rgba(255,255,255,0.7)'; g.lineWidth = SC * 0.05;
+                for (let i = 1; i < k.h * 2; i++) { const yy = y + (i / (k.h * 2)) * h; g.beginPath(); g.moveTo(x + w * 0.2, yy); g.lineTo(x + w * 0.8, yy); g.stroke(); }
+                g.restore();
+            }
+        });
+        // düğmeler: yuvarlak basınç plakası; basılınca yeşil yanar, "tut" türünde ortada nokta
+        v.dugme.forEach(b => {
+            const cx = sx(b.x + 0.5), by = sy(b.y), h = b.on ? SC * 0.08 : SC * 0.2;
+            g.fillStyle = tema.kenar; rr(cx - SC * 0.46, by - SC * 0.1, SC * 0.92, SC * 0.12, SC * 0.04); g.fill();
+            if (b.on) glow(cx, by - SC * 0.1, SC * 0.8, '32,201,151', 0.5);
+            g.fillStyle = b.on ? '#20c997' : '#ff7a1a'; rr(cx - SC * 0.36, by - SC * 0.1 - h, SC * 0.72, h + SC * 0.02, SC * 0.06); g.fill();
+            if (b.tur === 'tut') { g.fillStyle = '#fff'; g.beginPath(); g.arc(cx, by - SC * 0.1 - h / 2, SC * 0.05, 0, 7); g.fill(); }
+        });
+        // hareketli platformlar: yüzen panel, altında camgöbeği iticiler
+        v.platform.forEach(r => {
+            const [x, y, w, h] = R(r);
+            for (let i = 0; i < 2; i++) {
+                const tx = x + w * (i ? 0.75 : 0.25);
+                glow(tx, y + h + SC * 0.1, SC * 0.45, '31,182,216', 0.55 + Math.sin(t * 12 + i) * 0.15);
+            }
+            g.fillStyle = tema.panel; rr(x, y, w, h, SC * 0.14); g.fill();
+            g.lineWidth = SC * 0.05; g.strokeStyle = tema.kenar; g.stroke();
+            g.fillStyle = tema.serit; rr(x + SC * 0.06, y, w - SC * 0.12, SC * 0.1, SC * 0.05); g.fill();
+        });
+        // düşen paneller: sarı-lacivert uyarı şeridi; basınca titrer
+        v.duser.forEach(f => {
+            if (f.gitti) return;
+            let [x, y, w, h] = R(f.r);
+            if (f.titre) x += Math.sin(t * 70) * SC * 0.05;
+            g.save(); rr(x, y, w, h, SC * 0.1); g.clip();
+            g.fillStyle = '#ffc83d'; g.fillRect(x, y, w, h);
+            g.fillStyle = tema.murekkep;
+            for (let i = -2; i < w / (SC * 0.5) + 2; i++) { const xx = x + i * SC * 0.5; g.beginPath(); g.moveTo(xx, y + h); g.lineTo(xx + SC * 0.25, y + h); g.lineTo(xx + SC * 0.25 + h, y); g.lineTo(xx + h, y); g.fill(); }
+            g.restore();
+            g.lineWidth = SC * 0.05; g.strokeStyle = tema.murekkep; rr(x, y, w, h, SC * 0.1); g.stroke();
+        });
+        // kargo kutuları
+        v.kutu.forEach(r => {
+            const [x, y, w, h] = R(r), c = SC * 0.12;
+            g.fillStyle = '#e9eef5'; rr(x, y, w, h, c); g.fill();
+            g.fillStyle = '#ff8a2a'; g.fillRect(x + w * 0.08, y + h * 0.4, w * 0.84, h * 0.2);
+            g.lineWidth = SC * 0.06; g.strokeStyle = '#5f708a'; rr(x, y, w, h, c); g.stroke();
+            g.strokeStyle = '#9fb0c6'; g.lineWidth = SC * 0.04;
+            g.beginPath(); g.moveTo(x + w * 0.2, y + h * 0.18); g.lineTo(x + w * 0.8, y + h * 0.18); g.moveTo(x + w * 0.2, y + h * 0.82); g.lineTo(x + w * 0.8, y + h * 0.82); g.stroke();
+        });
+        // kirpi: dikenli küçük temizlik robotu (dikenler turuncu-kırmızı = tehlike rengi), yürüdüğü yöne bakar
+        v.kirpi.forEach(k => {
+            const cx = sx(k.x), cy = sy(k.y + 0.42), r = SC * 0.42;
+            g.fillStyle = '#e8503a';
+            for (let i = 0; i < 9; i++) {
+                const a = Math.PI * (0.05 + 0.9 * i / 8) + Math.PI, wob = Math.sin(t * 10 + i) * 0.05;
+                const ax = cx + Math.cos(a) * r * 0.8, ay = cy + Math.sin(a) * r * 0.8;
+                const tx = cx + Math.cos(a + wob) * r * 1.45, ty = cy + Math.sin(a + wob) * r * 1.45;
+                const px = -Math.sin(a) * r * 0.22, py = Math.cos(a) * r * 0.22;
+                g.beginPath(); g.moveTo(ax + px, ay + py); g.lineTo(tx, ty); g.lineTo(ax - px, ay - py); g.fill();
+            }
+            g.fillStyle = '#ff9a3d'; g.beginPath(); g.arc(cx, cy, r, 0, 7); g.fill();
+            g.lineWidth = SC * 0.05; g.strokeStyle = '#a8321f'; g.stroke();
+            g.fillStyle = tema.murekkep; rr(cx + k.yon * r * 0.1 - r * 0.55, cy - r * 0.35, r * 1.1, r * 0.5, r * 0.25); g.fill();
+            g.fillStyle = '#7ee8ff';
+            for (const s of [-1, 1]) { g.beginPath(); g.arc(cx + k.yon * r * 0.25 + s * r * 0.22, cy - r * 0.1, r * 0.1, 0, 7); g.fill(); }
+            g.fillStyle = tema.murekkep;
+            for (const s of [-1, 1]) { g.beginPath(); g.arc(cx + s * r * 0.5, cy + r * 0.92, r * 0.18, 0, 7); g.fill(); }
+        });
     }
     function drawItems(tema) {
         const L = G.L, t = performance.now() / 1000, old = (save.b[G.data.id] || {}).yildiz || [];
