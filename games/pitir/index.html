@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Pıtır</title>
 <meta name="description" content="Pıtır — yuvarlanan küçük topun yıldız toplama macerası. Yuvarlan, zıpla, kutuları it, tehlikelerden kaç.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,700;0,800;1,800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../_shared/edu-kit.css">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -19,22 +22,22 @@
             <span class="hap" id="hud-sure">0,0</span>
         </div>
         <div class="hud-sag">
-            <button type="button" class="ikon-dugme" id="btn-tam" aria-label="Tam ekran">⛶</button>
-            <button type="button" class="ikon-dugme" id="btn-ses" aria-label="Sesi kapat" aria-pressed="false">♪</button>
-            <button type="button" class="ikon-dugme" id="btn-duraklat" aria-label="Duraklat">❚❚</button>
+            <button type="button" class="ikon-dugme" id="btn-tam" aria-label="Tam ekran"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+            <button type="button" class="ikon-dugme" id="btn-ses" aria-label="Sesi kapat" aria-pressed="false"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>
+            <button type="button" class="ikon-dugme" id="btn-duraklat" aria-label="Duraklat"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg></button>
         </div>
     </div>
 
     <div id="dokunmatik" hidden>
-        <button type="button" class="tus tus-sol" data-tus="l" aria-label="Sola yuvarlan">◀</button>
-        <button type="button" class="tus tus-sag" data-tus="r" aria-label="Sağa yuvarlan">▶</button>
-        <button type="button" class="tus tus-zipla" data-tus="j" aria-label="Zıpla">▲</button>
+        <button type="button" class="tus tus-sol" data-tus="l" aria-label="Sola yuvarlan"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <button type="button" class="tus tus-sag" data-tus="r" aria-label="Sağa yuvarlan"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+        <button type="button" class="tus tus-zipla" data-tus="j" aria-label="Zıpla"><svg class="ik" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15l7-7 7 7"/></svg></button>
     </div>
 
     <section id="menu" class="ekran" aria-labelledby="menu-baslik">
         <div class="kart kart-genis">
-            <h1 id="menu-baslik" class="logo">Pıtır</h1>
-            <p class="alt">Rüzgâr Pıtır'ın yıldızlarını savurdu! Yuvarlan, zıpla, yıldızları topla, eve dön.</p>
+            <h1 id="menu-baslik" class="logo"><span class="logo-top" aria-hidden="true"></span>Pıtır</h1>
+            <p class="alt">Bir enerji fırtınası Pıtır'ın yıldızlarını istasyonun dört bir yanına saçtı. Yuvarlan, zıpla, yıldızları topla, ışınlanma kapısına ulaş.</p>
             <div id="dunyalar"></div>
             <p class="kaynak">Karakter, bölümler, görseller ve sesler bu oyun için özgün olarak hazırlanmıştır.</p>
         </div>

@@ -98,8 +98,8 @@
         for (const e of st.ev) {
             if (e === 'jump') Sfx.zipla();
             else if (e === 'spring') Sfx.yay();
-            else if (e === 'star') { Sfx.yildiz(); burst(st.x, st.y, '#ffd23f', 16, 5); updateHud(true); }
-            else if (e === 'cp') { Sfx.bayrak(); burst(st.x, st.y + 0.5, '#7cfc9a', 10, 4); }
+            else if (e === 'star') { Sfx.yildiz(); burst(st.x, st.y, '#ffc83d', 16, 5); updateHud(true); }
+            else if (e === 'cp') { Sfx.bayrak(); burst(st.x, st.y + 0.5, '#20c997', 10, 4); }
             else if (e === 'dead') { G.phase = 'dead'; G.deadT = 0.6; Sfx.pof(); burst(st.x, st.y, '#ffb020', 18, 6); burst(st.x, st.y, '#ffe680', 10, 3); }
             else if (e === 'done') finish();
         }
@@ -109,7 +109,7 @@
     function finish() {
         G.phase = 'done';
         Sfx.bitis();
-        burst(G.st.x, G.st.y + 1, '#ff8a1e', 30, 7);
+        burst(G.st.x, G.st.y + 1, '#1fb6d8', 30, 7);
         const r = rec(G.data.id);
         r.bitti = 1;
         G.st.stars.forEach(n => { if (r.yildiz.indexOf(n) < 0) r.yildiz.push(n); });
@@ -147,12 +147,22 @@
         draw(G && G.phase === 'play' ? acc / STEP : 1, dt);
     }
 
-    // ════════════ Çizim ════════════
+    // ════════════ Çizim — "Aydınlık uzay istasyonu" ════════════
+    // Gündüz yörüngesi: açık gök, büyük şeftali gezegen, uzakta istasyon modülleri. Zemin beyaz-gümüş paneller,
+    // üst yüzeyler camgöbeği ışık şeridi. Tehlike = turuncu-kırmızı, toplanacak = altın, ilerleme = camgöbeği/yeşil.
     const TEMA = {
-        cayir: { gok1: '#8fd3ff', gok2: '#dff4ff', tepe1: '#a8e07a', tepe2: '#7cc85a', toprak: '#b07a45', toprakKoyu: '#8a5a30', cim: '#4caf50', cimAcik: '#7ed957' },
+        istasyon: {
+            gok1: '#c9d7f0', gok2: '#eef3fa',
+            gezegen1: '#ffe2c4', gezegen2: '#f2a774', halka: 'rgba(255,255,255,0.75)',
+            modulUzak: '#d5deee', modulYakin: '#c2cee2', pencere: '#ffffff', isik: '#ff8a2a',
+            panel: '#f5f8fc', panelDikis: '#d9e1ec', menfez: '#c7d2e2',
+            serit: '#1fb6d8', seritAcik: '#c4f3ff', kenar: '#9fb0c6',
+            murekkep: '#1b2a3d',
+        },
     };
+    TEMA.cayir = TEMA.istasyon;          // Dünya 1 bölümleri bu temayı kullanır
     function draw(alpha, dt) {
-        const tema = TEMA[(G && G.data.tema) || 'cayir'];
+        const tema = TEMA[(G && G.data.tema) || 'istasyon'] || TEMA.istasyon;
         const sky = g.createLinearGradient(0, 0, 0, H);
         sky.addColorStop(0, tema.gok1); sky.addColorStop(1, tema.gok2);
         g.fillStyle = sky; g.fillRect(0, 0, W, H);
@@ -171,54 +181,86 @@
         camX = Math.max(-0.5, Math.min(G.L.W - vw + 0.5, camX));
         camY = Math.max(0, Math.min(Math.max(0, G.L.H - vh + 1), camY));   // en alt satır ekranın altına oturur
 
-        // paralaks tepeler + bulutlar
-        hills(camX * 0.25, tema.tepe1, 0.55, 7);
-        hills(camX * 0.5, tema.tepe2, 0.35, 4.5);
-        clouds();
+        // arka plan: gezegen (çok yavaş), toz parıltıları, iki kat istasyon modülü
+        planet(tema);
+        motes();
+        modules(camX * 0.2, tema.modulUzak, 0.55, 9, tema);
+        modules(camX * 0.45, tema.modulYakin, 0.32, 6, tema);
 
         drawTiles(tema);
-        drawItems();
-        if (G.phase !== 'dead') drawBall(bx, by, dt);
+        drawItems(tema);
+        if (G.phase !== 'dead') drawBall(bx, by, dt, tema);
         for (const p of particles) {
             g.globalAlpha = Math.max(0, Math.min(1, p.life * 1.6));
             g.fillStyle = p.col;
             g.beginPath(); g.arc(sx(p.x), sy(p.y), p.s * SC, 0, 7); g.fill();
         }
         g.globalAlpha = 1;
-        if (BAND) drawBand();
+        if (BAND) drawBand(tema);
     }
-    // Dokunmatik şerit: dünyanın alt devamı soluk görünür (çukurlar okunur) ama dikkat oyun alanında kalır.
-    function drawBand() {
+    // Dokunmatik şerit: kontrol konsolu. Dünyanın alt devamı soluk görünür (çukurlar okunur).
+    function drawBand(tema) {
         const y = H - BAND;
-        const grad = g.createLinearGradient(0, y, 0, H);
-        grad.addColorStop(0, 'rgba(31,58,77,0.55)'); grad.addColorStop(1, 'rgba(31,58,77,0.78)');
-        g.fillStyle = grad; g.fillRect(0, y, W, BAND);
-        g.fillStyle = 'rgba(255,255,255,0.35)'; g.fillRect(0, y, W, Math.max(1, DPR));
+        g.globalAlpha = 0.82; g.fillStyle = tema.murekkep; g.fillRect(0, y, W, BAND); g.globalAlpha = 1;
+        g.fillStyle = tema.serit; g.fillRect(0, y, W, Math.max(1, DPR * 1.5));
     }
-    function hills(off, col, amp, per) {
-        g.fillStyle = col;
-        g.beginPath(); g.moveTo(0, H);
-        for (let i = 0; i <= 48; i++) {
-            const xs = (i / 48) * W, wx = xs / SC + off;
-            const h = (Math.sin(wx / per) * 0.5 + 0.5) * amp * 6 + 1.5 + Math.sin(wx / (per * 0.37)) * 0.4;
-            g.lineTo(xs, H - (h + 0.5) * SC * 0.9);
-        }
-        g.lineTo(W, H); g.closePath(); g.fill();
+    function planet(tema) {
+        const r = Math.min(W, H) * 0.42;
+        const X = W * 0.8 - camX * 0.04 * SC, Y = H * 0.24;
+        const grd = g.createRadialGradient(X - r * 0.35, Y - r * 0.35, r * 0.1, X, Y, r);
+        grd.addColorStop(0, tema.gezegen1); grd.addColorStop(1, tema.gezegen2);
+        g.globalAlpha = 0.85;
+        g.fillStyle = grd; g.beginPath(); g.arc(X, Y, r, 0, 7); g.fill();
+        g.save(); g.beginPath(); g.arc(X, Y, r, 0, 7); g.clip();          // bulut kuşakları
+        g.fillStyle = 'rgba(255,255,255,0.22)';
+        for (let i = 0; i < 3; i++) { g.beginPath(); g.ellipse(X, Y - r * 0.45 + i * r * 0.42, r * 1.1, r * 0.07, -0.18, 0, 7); g.fill(); }
+        g.restore();
+        g.strokeStyle = tema.halka; g.lineWidth = r * 0.05;                  // halka (önden geçen yarı)
+        g.beginPath(); g.ellipse(X, Y, r * 1.45, r * 0.32, -0.18, 0.15, Math.PI - 0.15); g.stroke();
+        g.globalAlpha = 1;
     }
-    function clouds() {
+    function motes() {
+        const t = performance.now() / 1000, span = W + 40;
         g.fillStyle = 'rgba(255,255,255,0.85)';
-        for (let i = -1; i < 6; i++) {
-            const base = Math.floor(camX * 0.15 / 12) + i;
-            const x = (base * 12 - camX * 0.15) * SC, y = H * (0.12 + ((base * 37) % 5) * 0.04);
-            const r = SC * 0.7;
-            g.beginPath(); g.arc(x, y, r, 0, 7); g.arc(x + r, y - r * 0.4, r * 0.9, 0, 7); g.arc(x + r * 2, y, r * 0.8, 0, 7); g.fill();
+        for (let i = 0; i < 26; i++) {
+            const px = (((i * 197.3 - camX * SC * 0.1 + t * 6 * (1 + i % 3) * DPR) % span) + span) % span - 20;
+            const py = H * 0.7 * ((i * 0.6180339) % 1);
+            g.beginPath(); g.arc(px, py, (1 + (i % 3) * 0.6) * DPR, 0, 7); g.fill();
         }
+    }
+    // istasyon modülleri: yuvarlatılmış gövdeler + bağlantı boruları + pencere ışıkları (konumdan türetilir, rastgele değil)
+    function modules(off, col, hk, per, tema) {
+        const unit = SC, base = H - BAND, deck = hk * unit * 2.2;
+        const i0 = Math.floor(off / per) - 1, n = Math.ceil(W / (per * unit)) + 3;
+        g.fillStyle = col;
+        g.fillRect(0, base - deck, W, deck + BAND);                         // alt güverte
+        for (let i = i0; i < i0 + n; i++) {
+            const h = (2.5 + (Math.abs(i * 7919) % 5) * 0.9) * hk * 2.4 * unit;
+            const w = (2.2 + (Math.abs(i * 104729) % 3) * 0.8) * unit;
+            const x = (i * per - off) * unit;
+            const y = base - deck - h;
+            g.fillStyle = col;
+            rr(x, y, w, h + 2, Math.min(w, h) * 0.35); g.fill();
+            g.fillRect(x + w - 1, y + h * 0.55, per * unit - w + 2, unit * 0.28);   // boru
+            const rows = Math.max(1, Math.floor((h - unit * 0.5) / (unit * 0.9)));
+            for (let j = 0; j < rows; j++) {
+                const lit = (Math.abs(i * 31 + j * 17) % 6) === 0;
+                g.fillStyle = lit ? tema.isik : tema.pencere;
+                g.globalAlpha = lit ? 0.55 : 0.45;
+                rr(x + w * 0.25, y + unit * 0.45 + j * unit * 0.9, w * 0.5, unit * 0.22, unit * 0.11); g.fill();
+            }
+            g.globalAlpha = 1;
+        }
+    }
+    function rr(x, y, w, h, r) {
+        g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
+        g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
     }
     function drawTiles(tema) {
         const L = G.L, rows = L.level.harita, Hh = rows.length;
         const x0 = Math.max(0, Math.floor(camX) - 1), x1 = Math.min(L.W, Math.ceil(camX + W / SC) + 1);
         const y0 = Math.max(0, Math.floor(camY - BAND / SC) - 1), y1 = Math.min(Hh, Math.ceil(camY + H / SC) + 1);
-        g.fillStyle = tema.toprak;
+        g.lineWidth = Math.max(1, DPR);
         for (let cy = y0; cy < y1; cy++) {
             const row = rows[Hh - 1 - cy] || '';
             for (let cx = x0; cx < x1; cx++) {
@@ -226,36 +268,49 @@
                 if (!sh) continue;
                 g.beginPath();
                 sh.forEach(([px, py], i) => { const X = sx(cx + px), Y = sy(cy + py); if (i) g.lineTo(X, Y); else g.moveTo(X, Y); });
-                g.closePath(); g.fill();
-                g.strokeStyle = tema.toprak; g.lineWidth = 1.2; g.stroke();     // karo dikişlerinde ince boşluk kalmasın
-                // toprak dokusu: küçük taşlar
-                if (((cx * 73 + cy * 37) % 7) === 0) { g.fillStyle = tema.toprakKoyu; g.beginPath(); g.arc(sx(cx + 0.35), sy(cy + 0.35), SC * 0.08, 0, 7); g.fill(); g.fillStyle = tema.toprak; }
+                g.closePath();
+                g.fillStyle = tema.panel; g.fill();
+                g.strokeStyle = tema.panelDikis; g.stroke();          // panel dikişleri (aynı zamanda karo arası boşlukları kapatır)
+                const hsh = (cx * 73 + cy * 37) % 13;
+                if (sh.length === 4 && hsh === 0) {                    // menfez
+                    g.fillStyle = tema.menfez;
+                    for (let v = 0; v < 3; v++) { rr(sx(cx + 0.22), sy(cy + 0.72 - v * 0.2), SC * 0.56, SC * 0.08, SC * 0.04); g.fill(); }
+                } else if (sh.length === 4 && hsh === 6) {             // küçük durum ışığı
+                    g.fillStyle = tema.isik; g.beginPath(); g.arc(sx(cx + 0.5), sy(cy + 0.5), SC * 0.07, 0, 7); g.fill();
+                }
             }
         }
-        // dış kenarlar: üst yüzeyler çim, diğerleri koyu çizgi
+        // dış kenarlar: üst yüzeyler ışık şeridi, diğerleri çelik çizgi
+        g.lineCap = 'round';
         for (const s of L.segs) {
             if (Math.max(s.ax, s.bx) < x0 || Math.min(s.ax, s.bx) > x1) continue;
             g.beginPath(); g.moveTo(sx(s.ax), sy(s.ay)); g.lineTo(sx(s.bx), sy(s.by));
             if (s.ny > 0.5) {
-                g.strokeStyle = tema.cim; g.lineWidth = SC * 0.26; g.lineCap = 'round'; g.stroke();
-                g.strokeStyle = tema.cimAcik; g.lineWidth = SC * 0.08; g.stroke();
-            } else { g.strokeStyle = tema.toprakKoyu; g.lineWidth = Math.max(1, SC * 0.05); g.lineCap = 'butt'; g.stroke(); }
+                g.strokeStyle = tema.serit; g.lineWidth = SC * 0.2; g.stroke();
+                g.strokeStyle = tema.seritAcik; g.lineWidth = SC * 0.06; g.stroke();
+            } else { g.strokeStyle = tema.kenar; g.lineWidth = Math.max(1, SC * 0.06); g.stroke(); }
         }
         g.lineCap = 'butt';
     }
     function star(x, y, r, rot) {
         g.beginPath();
-        for (let i = 0; i < 10; i++) { const a = rot + i * Math.PI / 5 - Math.PI / 2, rr = i % 2 ? r * 0.45 : r; g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); }
+        for (let i = 0; i < 10; i++) { const a = rot + i * Math.PI / 5 - Math.PI / 2, rad = i % 2 ? r * 0.45 : r; g.lineTo(x + Math.cos(a) * rad, y + Math.sin(a) * rad); }
         g.closePath();
     }
-    function drawItems() {
+    function glow(x, y, r, rgb, a) {
+        const gr = g.createRadialGradient(x, y, 0, x, y, r);
+        gr.addColorStop(0, 'rgba(' + rgb + ',' + a + ')'); gr.addColorStop(1, 'rgba(' + rgb + ',0)');
+        g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
+    }
+    function drawItems(tema) {
         const L = G.L, t = performance.now() / 1000, old = (save.b[G.data.id] || {}).yildiz || [];
         for (const s of L.stars) {
             if (G.st.stars.indexOf(s.no) >= 0) continue;
             const X = sx(s.x), Y = sy(s.y + Math.sin(t * 2 + s.x) * 0.08);
+            glow(X, Y, SC * 0.85, '255,200,61', 0.35 + Math.sin(t * 3 + s.no) * 0.1);
             star(X, Y, SC * 0.38, Math.sin(t * 1.5 + s.no) * 0.25);
-            g.fillStyle = old.indexOf(s.no) >= 0 ? '#ffe9a6' : '#ffd23f'; g.fill();
-            g.lineWidth = SC * 0.06; g.strokeStyle = '#b37400'; g.stroke();
+            g.fillStyle = old.indexOf(s.no) >= 0 ? '#ffe7a3' : '#ffc83d'; g.fill();
+            g.lineWidth = SC * 0.06; g.strokeStyle = '#c98200'; g.stroke();
         }
         for (const s of L.spikes) {
             g.beginPath();
@@ -263,41 +318,52 @@
             const cx0 = Math.floor(s[0]);
             if (up) { g.moveTo(sx(cx0 + 0.05), sy(s[1])); g.lineTo(sx(cx0 + 0.5), sy(s[1] + 0.85)); g.lineTo(sx(cx0 + 0.95), sy(s[1])); }
             else { const top = Math.floor(s[1]) + 1; g.moveTo(sx(cx0 + 0.05), sy(top)); g.lineTo(sx(cx0 + 0.5), sy(top - 0.85)); g.lineTo(sx(cx0 + 0.95), sy(top)); }
-            g.closePath(); g.fillStyle = '#e8edf2'; g.fill(); g.lineWidth = SC * 0.06; g.strokeStyle = '#c0392b'; g.stroke();
+            g.closePath(); g.fillStyle = '#ff6b3d'; g.fill(); g.lineWidth = SC * 0.06; g.strokeStyle = '#b8340f'; g.stroke();
         }
+        // checkpoint: işaret kulesi — sönük gri, alınınca yeşil yanar
         L.cps.forEach((c, i) => {
             const on = G.st.cp >= i;
             const X = sx(c.x), Y = sy(c.y);
-            g.strokeStyle = '#5a4a3a'; g.lineWidth = SC * 0.08; g.beginPath(); g.moveTo(X, Y); g.lineTo(X, Y - SC * 1.6); g.stroke();
-            g.fillStyle = on ? '#4caf50' : '#d6dde3';
-            g.beginPath(); g.moveTo(X, Y - SC * 1.6); g.lineTo(X + SC * 0.8, Y - SC * 1.35); g.lineTo(X, Y - SC * 1.1); g.closePath(); g.fill();
+            g.fillStyle = tema.kenar; rr(X - SC * 0.06, Y - SC * 1.5, SC * 0.12, SC * 1.5, SC * 0.05); g.fill();
+            if (on) glow(X, Y - SC * 1.6, SC * 0.9, '32,201,151', 0.45 + Math.sin(t * 4) * 0.1);
+            g.fillStyle = on ? '#20c997' : '#c8d2e0';
+            g.beginPath(); g.arc(X, Y - SC * 1.6, SC * 0.22, 0, 7); g.fill();
+            g.lineWidth = SC * 0.05; g.strokeStyle = tema.murekkep; g.stroke();
         });
+        // bitiş: ışınlanma kapısı
         const f = L.finish;
-        const fx = sx(f[0] + 0.5), fy = sy(f[1]);
-        g.strokeStyle = '#5a4a3a'; g.lineWidth = SC * 0.1; g.beginPath(); g.moveTo(fx, fy); g.lineTo(fx, fy - SC * 2.6); g.stroke();
-        const wave = Math.sin(t * 4) * SC * 0.06;
-        for (let i = 0; i < 3; i++) for (let j = 0; j < 2; j++) {
-            g.fillStyle = (i + j) % 2 ? '#1f3a4d' : '#ffffff';
-            g.fillRect(fx + i * SC * 0.33, fy - SC * 2.6 + j * SC * 0.33 + wave * (i / 2), SC * 0.34, SC * 0.34);
-        }
+        const fx = sx(f[0] + 0.5), fy = sy(f[1]), cyy = fy - SC * 1.35;
+        glow(fx, cyy, SC * 1.9, '31,182,216', 0.3);
+        g.fillStyle = 'rgba(196,243,255,0.55)'; g.beginPath(); g.ellipse(fx, cyy, SC * 0.62, SC * 1.15, 0, 0, 7); g.fill();
+        g.lineWidth = SC * 0.22; g.strokeStyle = tema.serit; g.stroke();
+        g.lineWidth = SC * 0.07; g.strokeStyle = '#ffffff';
+        g.setLineDash([SC * 0.3, SC * 0.25]); g.lineDashOffset = -t * SC * 1.2; g.stroke(); g.setLineDash([]);
+        g.fillStyle = tema.kenar; rr(fx - SC * 0.8, fy - SC * 0.16, SC * 1.6, SC * 0.2, SC * 0.08); g.fill();
     }
-    function drawBall(x, y, dt) {
+    function drawBall(x, y, dt, tema) {
         const st = G.st, r = K.R * 1.08 * SC;
         G.roll -= st.vx * dt / K.R;
         G.blink -= dt; if (G.blink < -3.2) G.blink = 0.15;
         const X = sx(x), Y = sy(y);
-        // gölge
-        g.fillStyle = 'rgba(0,0,0,0.12)';
+        // gölge + enerji parıltısı
+        g.fillStyle = 'rgba(27,42,61,0.14)';
         g.beginPath(); g.ellipse(X, Y + r * 0.95, r * 0.8, r * 0.18, 0, 0, 7); g.fill();
+        glow(X, Y, r * 1.9, '255,138,42', 0.28);
         // gövde
         const grd = g.createRadialGradient(X - r * 0.35, Y - r * 0.4, r * 0.1, X, Y, r);
-        grd.addColorStop(0, '#ffe08a'); grd.addColorStop(0.55, '#ffa62b'); grd.addColorStop(1, '#e8730c');
+        grd.addColorStop(0, '#ffe3a1'); grd.addColorStop(0.55, '#ff9a2e'); grd.addColorStop(1, '#ea6a0a');
         g.fillStyle = grd; g.beginPath(); g.arc(X, Y, r, 0, 7); g.fill();
-        g.lineWidth = Math.max(2, SC * 0.06); g.strokeStyle = '#a84f00'; g.stroke();
-        // dönen desen (yuvarlanma hissi)
+        g.lineWidth = Math.max(2, SC * 0.06); g.strokeStyle = '#a84a00'; g.stroke();
+        // dönen ekvator ışıkları (yuvarlanma hissi)
         g.save(); g.beginPath(); g.arc(X, Y, r * 0.96, 0, 7); g.clip();
-        g.strokeStyle = 'rgba(255,255,255,0.35)'; g.lineWidth = r * 0.16;
-        for (let i = 0; i < 3; i++) { const a = G.roll + i * 2.09; g.beginPath(); g.arc(X + Math.cos(a) * r * 0.62, Y + Math.sin(a) * r * 0.62, r * 0.14, 0, 7); g.stroke(); }
+        for (let i = 0; i < 5; i++) {
+            const a = G.roll + i * Math.PI * 2 / 5, front = Math.sin(a);
+            if (front < 0) continue;                                       // arka yüzdekiler görünmez
+            g.fillStyle = tema.seritAcik; g.globalAlpha = 0.35 + front * 0.65;
+            g.beginPath(); g.arc(X + Math.cos(a) * r * 0.8, Y + r * 0.45, r * 0.09, 0, 7); g.fill();
+        }
+        g.globalAlpha = 1;
+        g.fillStyle = 'rgba(255,255,255,0.55)'; g.beginPath(); g.ellipse(X - r * 0.4, Y - r * 0.52, r * 0.2, r * 0.11, -0.6, 0, 7); g.fill();
         g.restore();
         // gözler: yöne bakar, zıplarken büyür
         const look = Math.max(-1, Math.min(1, st.vx / 4));
@@ -306,7 +372,7 @@
         for (const side of [-1, 1]) {
             const ox = ex + side * r * 0.3;
             g.fillStyle = '#fff'; g.beginPath(); g.ellipse(ox, ey, r * 0.2 * big, r * (G.blink > 0 ? 0.04 : 0.26) * big, 0, 0, 7); g.fill();
-            if (G.blink <= 0) { g.fillStyle = '#1f3a4d'; g.beginPath(); g.arc(ox + look * r * 0.07, ey + r * 0.04, r * 0.11 * big, 0, 7); g.fill(); }
+            if (G.blink <= 0) { g.fillStyle = tema.murekkep; g.beginPath(); g.arc(ox + look * r * 0.07, ey + r * 0.04, r * 0.11 * big, 0, 7); g.fill(); }
         }
     }
 
@@ -325,7 +391,7 @@
 
     // ════════════ Ekranlar ════════════
     function hideAll() { ['#menu', '#duraklat', '#sonuc'].forEach(s => { $(s).hidden = true; }); }
-    const DUNYA = { 1: 'Dünya 1 · Çayır Tepeleri', 2: 'Dünya 2 · Oyuncak Fabrikası', 3: 'Dünya 3 · Büyük Orman' };
+    const DUNYA = { 1: 'Dünya 1 · Yörünge İstasyonu', 2: 'Dünya 2 · Robot Atölyesi', 3: 'Dünya 3 · Sera Kubbesi' };
     function worldOpen(w) {
         if (w === 1) return true;
         const lastPrev = LV.bolumler.filter(b => b.dunya === w - 1).slice(-1)[0];
