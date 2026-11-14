@@ -42,12 +42,17 @@
     // Dokunmatik düzen: düğmeler ekranın altında kendi şeritlerinde durur; oyun dünyası bu şeridin ÜSTÜNE
     // yerleştirilir (kamera tabanı şeridin üst kenarı). Böylece top, zemin ve ileride gelenler düğmelerin altında kalmaz.
     let BAND = 0;                             // alt şerit yüksekliği (canvas pikseli); klavye düzeninde 0
+    // dokunmatik düğme durumu (algılama kodu aşağıda, 'Dokunmatik düğmeler')
+    const TUSLAR = [...document.querySelectorAll('.tus')].map(el => ({ el, k: el.dataset.tus, r: null }));
+    const parmak = new Map();                 // pointerId → düğme anahtarı ('l' | 'r' | 'j' | null)
+    const mandal = { l: false, r: false, j: false };
     function resize() {
         DPR = Math.min(window.devicePixelRatio || 1, LOW ? 1.5 : 2);
         W = Math.max(1, Math.floor(cv.clientWidth * DPR));
         H = Math.max(1, Math.floor(cv.clientHeight * DPR));
         cv.width = W; cv.height = H;
         measureBand();
+        if (TUSLAR.length) olcTuslar();
     }
     function measureBand() {
         const pad = $('#dokunmatik');
@@ -55,6 +60,7 @@
         else {
             let top = Infinity;
             pad.querySelectorAll('.tus').forEach(b => { top = Math.min(top, b.getBoundingClientRect().top); });
+            if (TUSLAR.length) olcTuslar();
             BAND = isFinite(top) ? Math.max(0, Math.min(H * 0.4, H - Math.floor((top - 8) * DPR))) : 0;
         }
         SC0 = Math.min(W / VIEW_W, (H - BAND) / (BAND ? VIEW_H_DOKUN : VIEW_H));
@@ -160,7 +166,7 @@
                 acc += dt;
                 while (acc >= STEP && G.phase === 'play') {
                     G.prev = { x: G.st.x, y: G.st.y };
-                    P.step(G.st, G.L, bot ? botInput() : input);
+                    P.step(G.st, G.L, bot ? botInput() : adimGirdisi());
                     G.time += STEP;
                     handleEvents();
                     acc -= STEP;
@@ -564,7 +570,7 @@
     function pause() {
         if (!G || G.phase === 'done' || G.phase === 'paused') return;
         G.before = G.phase; G.phase = 'paused';
-        input.l = input.r = input.j = false;
+        input.l = input.r = input.j = false; tuslariBirak();
         $('#duraklat').hidden = false; $('#btn-devam').focus();
     }
     function resume() { if (!G || G.phase !== 'paused') return; $('#duraklat').hidden = true; G.phase = G.before || 'play'; acc = 0; }
@@ -580,19 +586,62 @@
         else if (e.code === 'KeyM') toggleSound();
     });
     document.addEventListener('keyup', (e) => { const k = KEYS[e.code]; if (k) input[k] = false; });
-    window.addEventListener('blur', () => { input.l = input.r = input.j = false; });
+    window.addEventListener('blur', () => { input.l = input.r = input.j = false; tuslariBirak(); });
 
-    // dokunmatik düğmeler: her düğme kendi parmaklarını izler (çoklu dokunma; düğmeden kayan parmak bırakılmış sayılır)
+    // Dokunmatik düğmeler — konuma göre algılama. Her parmağın ekrandaki yeri, düğmelerin DURGUN dikdörtgenleriyle
+    // (basılınca yapılan 5 px'lik görsel çökme hariç) karşılaştırılır:
+    //  • dikdörtgenler 14 px payla genişletilir (küçük parmak tam ortaya basamasa da sayılır);
+    //  • basılı tutan parmak düğmeden biraz kayarsa bırakmaz (28 px'e kadar tolerans), titreme zıplamayı kesmez;
+    //  • parmak sol düğmeden sağa kaydırılınca yön hemen değişir, kaldırmaya gerek yok.
+    // Çok kısa dokunuşlar da kaçmasın diye her basış bir sonraki fizik adımına kadar "mandallanır".
     const showTouch = LOW || ('ontouchstart' in window);
-    const held = { l: new Set(), r: new Set(), j: new Set() };
-    document.querySelectorAll('.tus').forEach(b => {
-        const k = b.dataset.tus;
-        const down = (e) => { e.preventDefault(); EduKit.audio.unlock(); held[k].add(e.pointerId); input[k] = true; b.classList.add('basili'); try { b.releasePointerCapture(e.pointerId); } catch (x) { /* yok */ } };
-        const up = (e) => { held[k].delete(e.pointerId); if (!held[k].size) { input[k] = false; b.classList.remove('basili'); } };
-        b.addEventListener('pointerdown', down);
-        b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up); b.addEventListener('pointerleave', up);
-        b.addEventListener('contextmenu', (e) => e.preventDefault());
-    });
+    function olcTuslar() {
+        TUSLAR.forEach(t => {
+            const el = t.el, par = el.offsetParent; if (!par) { t.r = null; return; }
+            const pr = par.getBoundingClientRect();
+            t.r = { x: pr.left + el.offsetLeft, y: pr.top + el.offsetTop, w: el.offsetWidth, h: el.offsetHeight };
+        });
+    }
+    function tusBul(x, y, onceki) {
+        let en = null, enD = Infinity;
+        for (const t of TUSLAR) {
+            if (!t.r) continue;
+            const pay = t.k === onceki ? 28 : 14;
+            const dx = Math.max(t.r.x - x, 0, x - (t.r.x + t.r.w)), dy = Math.max(t.r.y - y, 0, y - (t.r.y + t.r.h));
+            const d = Math.hypot(dx, dy);
+            if (d <= pay && (d < enD || (d === enD && t.k === onceki))) { en = t.k; enD = d; }
+        }
+        return en;
+    }
+    function tusGuncelle() {
+        const on = { l: false, r: false, j: false };
+        parmak.forEach(k => { if (k) on[k] = true; });
+        for (const t of TUSLAR) {
+            if (on[t.k] && !input[t.k]) mandal[t.k] = true;
+            input[t.k] = on[t.k];
+            t.el.classList.toggle('basili', on[t.k]);
+        }
+    }
+    const padAcik = () => !$('#dokunmatik').hidden && G && (G.phase === 'play' || G.phase === 'dead');
+    function pDown(e) {
+        if (!padAcik() || (e.target.closest && e.target.closest('.ikon-dugme, .ekran'))) return;
+        if (!TUSLAR[0].r) olcTuslar();
+        const k = tusBul(e.clientX, e.clientY, null);
+        if (!k) return;
+        e.preventDefault(); EduKit.audio.unlock();
+        parmak.set(e.pointerId, k); tusGuncelle();
+    }
+    function pMove(e) {
+        if (!parmak.has(e.pointerId)) return;
+        const once = parmak.get(e.pointerId), k = tusBul(e.clientX, e.clientY, once);
+        if (k !== once) { parmak.set(e.pointerId, k); tusGuncelle(); }
+    }
+    function pUp(e) { if (parmak.delete(e.pointerId)) tusGuncelle(); }
+    document.addEventListener('pointerdown', pDown, { passive: false });
+    document.addEventListener('pointermove', pMove, { passive: true });
+    document.addEventListener('pointerup', pUp); document.addEventListener('pointercancel', pUp);
+    TUSLAR.forEach(t => t.el.addEventListener('contextmenu', (e) => e.preventDefault()));
+    function tuslariBirak() { parmak.clear(); mandal.l = mandal.r = mandal.j = false; tusGuncelle(); }
     document.addEventListener('contextmenu', (e) => { if (!(e.target.closest && e.target.closest('.ekran'))) e.preventDefault(); });
 
     function toggleSound() {
@@ -617,10 +666,17 @@
     $('#btn-cp').addEventListener('click', () => { if (!G) return; $('#duraklat').hidden = true; respawn(false); });
     $('#btn-bastan').addEventListener('click', () => { if (G) startLevel(G.data); });
     $('#btn-menu').addEventListener('click', showMenu);
-    EduKit.onHidden(() => { input.l = input.r = input.j = false; pause(); });
+    EduKit.onHidden(() => { input.l = input.r = input.j = false; tuslariBirak(); pause(); });
 
     // test kancası: botun girdi kaydını oynat (geliştirme / duman testi)
     let bot = null;
+    // fizik adımının gördüğü girdi: basılı olanlar + son adımdan beri basılıp çoktan bırakılmış kısa dokunuşlar
+    const adimG = { l: false, r: false, j: false };
+    function adimGirdisi() {
+        adimG.l = input.l || mandal.l; adimG.r = input.r || mandal.r; adimG.j = input.j || mandal.j;
+        mandal.l = mandal.r = mandal.j = false;
+        return adimG;
+    }
     function botInput() { const a = bot.path[Math.floor(G.st.step / bot.D)]; return P.ACTIONS[a === undefined ? 2 : a]; }
     window.__pitir = {
         get G() { return G; },
