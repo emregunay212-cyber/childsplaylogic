@@ -32,18 +32,32 @@
     const LOW = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
     let W = 0, H = 0, DPR = 1, SC = 40;
     const VIEW_W = 19, VIEW_H = 11;          // en az bu kadar karo görünür
+    const VIEW_H_DOKUN = 9;                   // dokunmatik düzende alt şerit yer kapladığı için biraz daha yakın kamera
+    // Dokunmatik düzen: düğmeler ekranın altında kendi şeritlerinde durur; oyun dünyası bu şeridin ÜSTÜNE
+    // yerleştirilir (kamera tabanı şeridin üst kenarı). Böylece top, zemin ve ileride gelenler düğmelerin altında kalmaz.
+    let BAND = 0;                             // alt şerit yüksekliği (canvas pikseli); klavye düzeninde 0
     function resize() {
         DPR = Math.min(window.devicePixelRatio || 1, LOW ? 1.5 : 2);
         W = Math.max(1, Math.floor(cv.clientWidth * DPR));
         H = Math.max(1, Math.floor(cv.clientHeight * DPR));
         cv.width = W; cv.height = H;
-        SC = Math.min(W / VIEW_W, H / VIEW_H);
+        measureBand();
+    }
+    function measureBand() {
+        const pad = $('#dokunmatik');
+        if (!pad || pad.hidden) BAND = 0;
+        else {
+            let top = Infinity;
+            pad.querySelectorAll('.tus').forEach(b => { top = Math.min(top, b.getBoundingClientRect().top); });
+            BAND = isFinite(top) ? Math.max(0, Math.min(H * 0.4, H - Math.floor((top - 8) * DPR))) : 0;
+        }
+        SC = Math.min(W / VIEW_W, (H - BAND) / (BAND ? VIEW_H_DOKUN : VIEW_H));
     }
     window.addEventListener('resize', resize);
     resize();
-    let camX = 0, camY = 0;              // ekranın sol-alt köşesinin dünya koordinatı
+    let camX = 0, camY = 0;              // görünen oyun alanının sol-alt köşesinin dünya koordinatı
     const sx = (x) => (x - camX) * SC;
-    const sy = (y) => H - (y - camY) * SC;
+    const sy = (y) => H - BAND - (y - camY) * SC;
 
     // ════════════ Oyun durumu ════════════
     let G = null;
@@ -59,7 +73,8 @@
         hideAll();
         $('#hud').hidden = false;
         $('#dokunmatik').hidden = !showTouch;
-        camX = G.st.x - (W / SC) * 0.4; camY = Math.max(-1, G.st.y - (H / SC) * 0.35);
+        measureBand();
+        camX = G.st.x - (W / SC) * 0.4; camY = Math.max(0, G.st.y - ((H - BAND) / SC) * 0.35);
         updateHud(true);
         void fromSave;
     }
@@ -146,7 +161,7 @@
         const bx = G.prev.x + (st.x - G.prev.x) * alpha, by = G.prev.y + (st.y - G.prev.y) * alpha;
 
         // kamera: yatayda topu %40'ta tut, dikeyde ölü bölge; dünya sınırlarında dur
-        const vw = W / SC, vh = H / SC;
+        const vw = W / SC, vh = (H - BAND) / SC;
         const tx = bx - vw * 0.4;
         let ty = camY;
         if (by - camY > vh * 0.62) ty = by - vh * 0.62;
@@ -170,6 +185,15 @@
             g.beginPath(); g.arc(sx(p.x), sy(p.y), p.s * SC, 0, 7); g.fill();
         }
         g.globalAlpha = 1;
+        if (BAND) drawBand();
+    }
+    // Dokunmatik şerit: dünyanın alt devamı soluk görünür (çukurlar okunur) ama dikkat oyun alanında kalır.
+    function drawBand() {
+        const y = H - BAND;
+        const grad = g.createLinearGradient(0, y, 0, H);
+        grad.addColorStop(0, 'rgba(31,58,77,0.55)'); grad.addColorStop(1, 'rgba(31,58,77,0.78)');
+        g.fillStyle = grad; g.fillRect(0, y, W, BAND);
+        g.fillStyle = 'rgba(255,255,255,0.35)'; g.fillRect(0, y, W, Math.max(1, DPR));
     }
     function hills(off, col, amp, per) {
         g.fillStyle = col;
@@ -193,7 +217,7 @@
     function drawTiles(tema) {
         const L = G.L, rows = L.level.harita, Hh = rows.length;
         const x0 = Math.max(0, Math.floor(camX) - 1), x1 = Math.min(L.W, Math.ceil(camX + W / SC) + 1);
-        const y0 = Math.max(0, Math.floor(camY) - 1), y1 = Math.min(Hh, Math.ceil(camY + H / SC) + 1);
+        const y0 = Math.max(0, Math.floor(camY - BAND / SC) - 1), y1 = Math.min(Hh, Math.ceil(camY + H / SC) + 1);
         g.fillStyle = tema.toprak;
         for (let cy = y0; cy < y1; cy++) {
             const row = rows[Hh - 1 - cy] || '';
@@ -341,7 +365,7 @@
     }
     function showResult() {
         if (!G) return;
-        hideAll(); $('#dokunmatik').hidden = true;
+        hideAll(); $('#dokunmatik').hidden = true; measureBand();
         const d = G.data, n = G.st.stars.length, total = G.L.stars.length;
         const ys = $('#sonuc-yildiz'); ys.textContent = '';
         for (let i = 0; i < total; i++) { const s = document.createElement('span'); s.textContent = '★'; if (i >= n) s.className = 'bos'; ys.appendChild(s); }
