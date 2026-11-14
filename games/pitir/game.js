@@ -31,6 +31,10 @@
     const g = cv.getContext('2d');
     const LOW = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
     let W = 0, H = 0, DPR = 1, SC = 40;
+    // Kamera yakınlaşması: SC0 en geniş görüş (VIEW_W × VIEW_H karo), ZOOM çarpanı 1 (geniş) … ZOOM_YAKIN (yakın).
+    // Top yavaşken yakın; hızlandıkça ve havada kaldıkça uzaklaşır, böylece önü ve iniş yeri görünür.
+    let SC0 = 40, ZOOM = 1.5;
+    const ZOOM_YAKIN = 1.5;
     const VIEW_W = 19, VIEW_H = 11;          // en az bu kadar karo görünür
     const VIEW_H_DOKUN = 9;                   // dokunmatik düzende alt şerit yer kapladığı için biraz daha yakın kamera
     // Dokunmatik düzen: düğmeler ekranın altında kendi şeritlerinde durur; oyun dünyası bu şeridin ÜSTÜNE
@@ -51,7 +55,8 @@
             pad.querySelectorAll('.tus').forEach(b => { top = Math.min(top, b.getBoundingClientRect().top); });
             BAND = isFinite(top) ? Math.max(0, Math.min(H * 0.4, H - Math.floor((top - 8) * DPR))) : 0;
         }
-        SC = Math.min(W / VIEW_W, (H - BAND) / (BAND ? VIEW_H_DOKUN : VIEW_H));
+        SC0 = Math.min(W / VIEW_W, (H - BAND) / (BAND ? VIEW_H_DOKUN : VIEW_H));
+        SC = SC0 * ZOOM;
     }
     window.addEventListener('resize', resize);
     resize();
@@ -73,7 +78,7 @@
         hideAll();
         $('#hud').hidden = false;
         $('#dokunmatik').hidden = !showTouch;
-        measureBand();
+        ZOOM = ZOOM_YAKIN; G.air = 0; measureBand();
         camX = G.st.x - (W / SC) * 0.4; camY = Math.max(0, G.st.y - ((H - BAND) / SC) * 0.35);
         updateHud(true);
         void fromSave;
@@ -170,6 +175,14 @@
         const st = G.st;
         const bx = G.prev.x + (st.x - G.prev.x) * alpha, by = G.prev.y + (st.y - G.prev.y) * alpha;
 
+        // yakınlaşma: hız ve havada kalma süresi uzaklaştırır; uzaklaşma hızlı, yakınlaşma yavaş (pompalama olmasın)
+        G.air = st.ground ? 0 : (G.air || 0) + dt;
+        const hiz = Math.min(1, Math.hypot(st.vx, st.vy) / K.MAX_RUN);
+        const f = Math.min(1, 0.45 * hiz + 0.5 * Math.min(1, Math.max(0, G.air - 0.12) / 0.35));   // kısa sekmeler sayılmaz
+        const zt = ZOOM_YAKIN - (ZOOM_YAKIN - 1) * f;
+        ZOOM += (zt - ZOOM) * Math.min(1, dt * (zt < ZOOM ? 3 : 1.2));
+        const scOld = SC; SC = SC0 * ZOOM;
+        camX = bx - (bx - camX) * scOld / SC; camY = by - (by - camY) * scOld / SC;   // top ekranda yerinde kalsın
         // kamera: yatayda topu %40'ta tut, dikeyde ölü bölge; dünya sınırlarında dur
         const vw = W / SC, vh = (H - BAND) / SC;
         const tx = bx - vw * 0.4;
@@ -342,38 +355,53 @@
     }
     function drawBall(x, y, dt, tema) {
         const st = G.st, r = K.R * 1.08 * SC;
-        G.roll -= st.vx * dt / K.R;
+        // dönüş: yerdeyken yüzey boyunca hız / yarıçap (kaymadan yuvarlanma); havada son dönüş hızı korunur, yavaşça söner.
+        // Ekranda pozitif açı saat yönü → sağa giderken saat yönünde döner.
+        if (st.ground) G.spin = (st.vx * st.gny - st.vy * st.gnx) / K.R;
+        else G.spin = (G.spin || 0) * Math.max(0, 1 - dt * 0.4);
+        G.roll += (G.spin || 0) * dt;
         G.blink -= dt; if (G.blink < -3.2) G.blink = 0.15;
         const X = sx(x), Y = sy(y);
-        // gölge + enerji parıltısı
-        g.fillStyle = 'rgba(27,42,61,0.14)';
-        g.beginPath(); g.ellipse(X, Y + r * 0.95, r * 0.8, r * 0.18, 0, 0, 7); g.fill();
-        glow(X, Y, r * 1.9, '255,138,42', 0.28);
-        // gövde
-        const grd = g.createRadialGradient(X - r * 0.35, Y - r * 0.4, r * 0.1, X, Y, r);
-        grd.addColorStop(0, '#ffe3a1'); grd.addColorStop(0.55, '#ff9a2e'); grd.addColorStop(1, '#ea6a0a');
+        // Pıtır: inci beyazı robot küre. Dönen parçalar (turuncu enerji bandı, lambalar, panel dikişi) yuvarlanmayı
+        // gösterir; vizör, LED gözler ve parlama sabittir (ışık kaynağı ve yüz dönmez).
+        g.fillStyle = 'rgba(27,42,61,0.16)';
+        g.beginPath(); g.ellipse(X, Y + r * 0.97, r * 0.8, r * 0.17, 0, 0, 7); g.fill();
+        glow(X, Y, r * 2, '255,138,42', 0.32 + Math.min(0.15, Math.abs(G.spin || 0) * 0.01));
+        // kabuk
+        const grd = g.createRadialGradient(X - r * 0.38, Y - r * 0.42, r * 0.05, X, Y, r);
+        grd.addColorStop(0, '#ffffff'); grd.addColorStop(0.5, '#e6edf6'); grd.addColorStop(1, '#a7b6cb');
         g.fillStyle = grd; g.beginPath(); g.arc(X, Y, r, 0, 7); g.fill();
-        g.lineWidth = Math.max(2, SC * 0.06); g.strokeStyle = '#a84a00'; g.stroke();
-        // dönen ekvator ışıkları (yuvarlanma hissi)
-        g.save(); g.beginPath(); g.arc(X, Y, r * 0.96, 0, 7); g.clip();
-        for (let i = 0; i < 5; i++) {
-            const a = G.roll + i * Math.PI * 2 / 5, front = Math.sin(a);
-            if (front < 0) continue;                                       // arka yüzdekiler görünmez
-            g.fillStyle = tema.seritAcik; g.globalAlpha = 0.35 + front * 0.65;
-            g.beginPath(); g.arc(X + Math.cos(a) * r * 0.8, Y + r * 0.45, r * 0.09, 0, 7); g.fill();
+        // dönen parçalar
+        g.save(); g.beginPath(); g.arc(X, Y, r * 0.97, 0, 7); g.clip();
+        g.translate(X, Y); g.rotate(G.roll);
+        g.strokeStyle = 'rgba(95,112,138,0.55)'; g.lineWidth = Math.max(1, r * 0.04);    // panel dikişi (küre üzerinde eğri)
+        g.beginPath(); g.ellipse(0, 0, r * 0.42, r, 0, 0, 7); g.stroke();
+        g.fillStyle = '#ff8a2a';                                                           // enerji bandı
+        g.fillRect(-r, -r * 0.12, r * 2, r * 0.24);
+        g.fillStyle = '#ffd7a8'; g.fillRect(-r, -r * 0.035, r * 2, r * 0.07);
+        for (const s of [-1, 1]) {                                                         // lambalar
+            g.fillStyle = '#ff8a2a'; g.beginPath(); g.arc(0, s * r * 0.7, r * 0.13, 0, 7); g.fill();
+            g.fillStyle = '#fff3e0'; g.beginPath(); g.arc(0, s * r * 0.7, r * 0.055, 0, 7); g.fill();
         }
-        g.globalAlpha = 1;
-        g.fillStyle = 'rgba(255,255,255,0.55)'; g.beginPath(); g.ellipse(X - r * 0.4, Y - r * 0.52, r * 0.2, r * 0.11, -0.6, 0, 7); g.fill();
+        g.setTransform(1, 0, 0, 1, 0, 0);
         g.restore();
-        // gözler: yöne bakar, zıplarken büyür
+        g.lineWidth = Math.max(1.5, r * 0.07); g.strokeStyle = '#5f708a';
+        g.beginPath(); g.arc(X, Y, r, 0, 7); g.stroke();
+        // vizör: yöne doğru kayar
         const look = Math.max(-1, Math.min(1, st.vx / 4));
-        const big = st.ground ? 1 : 1.15;
-        const ex = X + look * r * 0.22, ey = Y - r * 0.18;
+        const big = st.ground ? 1 : 1.18;
+        const vx0 = X + look * r * 0.16, vy0 = Y - r * 0.22, vw = r * 1.3, vh = r * 0.62;
+        g.fillStyle = tema.murekkep; rr(vx0 - vw / 2, vy0 - vh / 2, vw, vh, vh / 2); g.fill();
+        g.lineWidth = Math.max(1, r * 0.05); g.strokeStyle = '#5f708a'; g.stroke();
+        g.fillStyle = 'rgba(255,255,255,0.16)'; rr(vx0 - vw / 2 + r * 0.1, vy0 - vh / 2 + r * 0.06, vw * 0.55, vh * 0.28, vh * 0.14); g.fill();
+        // LED gözler: camgöbeği; göz kırpınca ince çizgi, havadayken büyür
         for (const side of [-1, 1]) {
-            const ox = ex + side * r * 0.3;
-            g.fillStyle = '#fff'; g.beginPath(); g.ellipse(ox, ey, r * 0.2 * big, r * (G.blink > 0 ? 0.04 : 0.26) * big, 0, 0, 7); g.fill();
-            if (G.blink <= 0) { g.fillStyle = tema.murekkep; g.beginPath(); g.arc(ox + look * r * 0.07, ey + r * 0.04, r * 0.11 * big, 0, 7); g.fill(); }
+            const ox = vx0 + side * r * 0.28 + look * r * 0.06, ew = r * 0.17 * big, eh = (G.blink > 0 ? r * 0.05 : r * 0.3) * big;
+            glow(ox, vy0, r * 0.38, '31,182,216', 0.55);
+            g.fillStyle = '#7ee8ff'; rr(ox - ew / 2, vy0 - eh / 2, ew, eh, Math.min(ew, eh) / 2); g.fill();
         }
+        // parlama (sabit ışık)
+        g.fillStyle = 'rgba(255,255,255,0.75)'; g.beginPath(); g.ellipse(X - r * 0.48, Y + r * 0.3, r * 0.1, r * 0.2, 0.5, 0, 7); g.fill();
     }
 
     // ════════════ HUD ════════════
@@ -529,6 +557,7 @@
     function botInput() { const a = bot.path[Math.floor(G.st.step / bot.D)]; return P.ACTIONS[a === undefined ? 2 : a]; }
     window.__pitir = {
         get G() { return G; },
+        get zoom() { return ZOOM; },
         play: (id) => { const d = LV.bolumler.find(b => b.id === id); if (d) startLevel(d); },
         bot: (on) => { bot = on && G ? P.solve(G.L) : null; if (bot) { G.st = P.createState(G.L); G.time = 0; } return !!bot; },
     };

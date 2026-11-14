@@ -87,8 +87,11 @@ svg.ik { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-wid
 .kart h2 { margin: 0 0 12px; font-family: var(--f-baslik); font-weight: 800; font-size: 26px; letter-spacing: -.01em; text-wrap: balance; }
 .logo { margin: 0; font-family: var(--f-baslik); font-size: clamp(44px, 9vw, 68px); font-weight: 800; font-style: italic; color: var(--murekkep);
     letter-spacing: -.02em; line-height: 1; display: flex; align-items: center; gap: 12px; }
-.logo-top { width: .62em; height: .62em; border-radius: 50%; flex: none;
-    background: radial-gradient(circle at 35% 30%, #ffe3a1, #ff9a2e 55%, #ea6a0a); box-shadow: 0 0 0 4px rgba(255,138,42,.18), 0 6px 18px rgba(234,106,10,.35); }
+.logo-top { width: .62em; height: .62em; border-radius: 50%; flex: none; position: relative; overflow: hidden;
+    background: linear-gradient(transparent 44%, #ff8a2a 44%, #ff8a2a 56%, transparent 56%), radial-gradient(circle at 35% 30%, #fff, #e6edf6 50%, #a7b6cb);
+    box-shadow: 0 0 0 3px #5f708a, 0 0 22px rgba(255,138,42,.45); }
+.logo-top::after { content: ''; position: absolute; left: 18%; right: 18%; top: 18%; height: 30%; border-radius: 99px;
+    background: radial-gradient(circle at 30% 50%, #7ee8ff 0 10%, transparent 12%), radial-gradient(circle at 70% 50%, #7ee8ff 0 10%, transparent 12%), var(--murekkep); }
 .alt { margin: 10px 0 18px; max-width: 60ch; font-size: 16px; line-height: 1.5; color: var(--murekkep-2); }
 .kaynak { margin: 18px 0 0; font-size: 12px; color: var(--murekkep-2); }
 .dunya { margin-top: 14px; }
