@@ -147,7 +147,7 @@ const ModulAdi = (() => {
 
 - Tür mekaniği (kendinden küçüğü yutup büyüyen delik) serbest; ad, karakter (gözlü mor girdaplı delik), görseller, bölümler ve sesler ÖZGÜN. Başka bir oyunun adı/görseli (sayfa başlığı, meta, SEO dahil) KULLANILMAZ.
   Savaş yok: delikler birbirini YUTMAZ (yalnız yumuşak itişme), canlı yutulmaz (yalnız eşya, araç, bina).
-- Dosyalar: `core.js` (ObCore — SAF: DOM/zaman/`Math.random` yok, tohumlu harita, 60 Hz sabit adım; Node'da `require`), `game.js` (three.js r128 3D — cdnjs, LEGO World ile aynı dosya; girdi: fare zemin noktasına / dokunmatik kol / ok-WASD,
+- Dosyalar: `core.js` (ObCore — SAF: DOM/zaman/`Math.random` yok, tohumlu harita, 60 Hz sabit adım; Node'da `require`), `game.js` (three.js r128 3D — oyun klasöründe yerel `three.min.js` (kelime-madeni-3d ile aynı dosya; cdnjs DEĞİL: CI CSP provası `script-src 'self'` dış betiği engeller); girdi: fare deliğin ekran konumuna göre / dokunmatik kol / ok-WASD,
   menü, ses, kayıt `obur_ilerleme` → `js/auth.js GAME_SAVE_KEYS`), `index.html`/`style.css`. Hub sarmalayıcı `js/games/obur-delik.js` (`OburDelik`, iframe, `levels: 1`; 6 bölüm oyunun içinde, bir önceki bölümden 1 yıldız sonrakini açar).
 - 3D çizim: delik gerçek kesik — delik diski (`MASKE_MAT`, renderOrder −10) stencil'e 1 yazar, tüm zemin malzemeleri `stencilli()` ile stencil ≠ 1'e çizilir; iç duvar (BackSide silindir) + dip + girdap zeminin altında, yalnız delikten görünür.
   Nesneler (tür, değişke) başına `InstancedMesh` (opak + cam; parçalar köşe renkli tek geometride, zemine yakın köşeler koyu = sahte AO); düşen nesneye `dusmeBasla` kenardan devrilme + yer çekimi uygular (core'un kaldırmasından bağımsız).
