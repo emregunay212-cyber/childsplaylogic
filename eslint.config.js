@@ -63,7 +63,7 @@ const gameModuleGlobals = Object.fromEntries([
     'RenkEslestirme', 'Boyama', 'Tuval', 'SayilarlaBoyama', 'EmojiYapici',
     'KodMacerasi', 'LegoMacerasi', 'LegoWorld', 'Satranc', 'ZiplaTopla', 'SpaceWaves', 'Egim',
     'BuzKulesi', 'Penalti', 'ZindanOkcusu', 'BilVeFethet', 'BilgiTakimi', 'BilgiCiftligi',
-    'BilgiKulesi', 'CevapKosusu', 'BilgiSavunmasi', 'FizikFirlatma', 'BalonLabirenti', 'YercekimiYolculugu', 'RitimKosusu',
+    'BilgiKulesi', 'CevapKosusu', 'BilgiSavunmasi', 'FizikFirlatma', 'BalonLabirenti', 'YercekimiYolculugu', 'RitimKosusu', 'OburDelik',
     // Online (online.order sırasıyla)
     'KelimeTahmin', 'HarfTahmin', 'KodMacerasiMP', 'SatrancMP', 'PenaltiMP', 'AtesBuz',
     'ZiplaToplaCoop', 'HavaHokeyi', 'AltinAvi', 'Kelimelik', 'SonKart',
@@ -89,6 +89,7 @@ module.exports = [
             '.build-check/**',                    // tools/build.js --out çıktısı (A10b)
             'js/lib/**',                          // vendor: stockfish.js, chess.0.10.3.min.js, GLTFLoader.r128.js (js/lib/README.md)
             'games/kelime-madeni-3d/three.min.js', // vendor, minified
+            'games/obur-delik/three.min.js',       // vendor, minified (CSP: script-src 'self')
             'fabrika/**',                          // üretim araçları/kaynak — siteye çıkmaz
             'server/**',                           // eski WS sunucusu — siteye çıkmaz (A11: silinecek)
             'seo/**',                              // python üretici
