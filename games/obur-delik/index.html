@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Obur Delik</title>
+<meta name="description" content="Obur Delik — şehirde gezen aç bir delik ol: küçük eşyaları yut, büyü, sonunda gökdelenleri bile yut!">
+<link rel="stylesheet" href="../_shared/edu-kit.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="sahne">
+    <canvas id="oyun" aria-label="Obur Delik oyun alanı. Fareyi, parmağını ya da ok tuşlarını kullanarak deliği gezdir."></canvas>
+    <div id="vinyet" aria-hidden="true"></div>
+    <div id="etiketler" aria-hidden="true"></div>
+    <div id="efektler" aria-hidden="true"></div>
+    <div id="flas" aria-hidden="true"></div>
+    <div id="afis" role="status" aria-live="polite"></div>
+    <div id="kombo" aria-hidden="true"></div>
+
+    <div id="hud" hidden>
+        <div class="hud-ust">
+            <span class="hap hap-sure" id="sure" aria-label="Kalan süre">1:30</span>
+            <div class="ilerleme" aria-hidden="true">
+                <div class="ilerleme-dolu" id="ilerleme"></div>
+                <span class="esik" id="esik1"></span><span class="esik" id="esik2"></span><span class="esik" id="esik3"></span>
+            </div>
+            <span class="yuzde" id="yuzde">0%</span>
+        </div>
+        <ol class="siralama" id="siralama" aria-label="Sıralama"></ol>
+        <div class="hud-sag">
+            <button type="button" class="ikon-dugme" id="btn-ses" aria-label="Sesi kapat" aria-pressed="false">♪</button>
+            <button type="button" class="ikon-dugme" id="btn-duraklat" aria-label="Duraklat">❚❚</button>
+        </div>
+        <div class="yetenekler">
+            <button type="button" class="yt" id="btn-atil" aria-label="Hızlı atıl (Boşluk tuşu)"><span aria-hidden="true">⚡</span><small aria-hidden="true">Boşluk</small></button>
+            <button type="button" class="yt yt-biber" id="btn-biber" aria-label="Acı biber fırlat (E tuşu)"><span aria-hidden="true">🌶️</span><small aria-hidden="true">E</small></button>
+        </div>
+    </div>
+
+    <section id="menu" class="ekran" aria-labelledby="menu-baslik">
+        <div class="kart kart-genis">
+            <h1 id="menu-baslik" class="logo">Obur <span>Delik</span></h1>
+            <p class="alt">Şehirde gezen aç bir deliksin! Kendinden <b>küçük</b> her şeyi yut, yuttukça büyü.
+                Çiçeklerle başla, arabalara, evlere, sonunda gökdelenlere ulaş. Süre bitmeden şehrin ne kadarını yutabilirsin?</p>
+            <p class="ipucu"><b>Fare:</b> deliği imleç yönüne sürer · <b>Dokunmatik:</b> parmağını kaydır · <b>Klavye:</b> ok tuşları / WASD</p>
+            <p class="ipucu"><b>⚡ Atıl</b> (Boşluk): kısa süre hızlanırsın · <b>🌶️ Acı biber</b> (E): biraz küçülürsün ama biberi fırlatırsın; değen rakip hapşırır, yuttuklarının bir kısmını geri püskürtür!</p>
+            <div id="bolumler" class="izgara" role="list"></div>
+            <p class="kaynak">Tüm görseller, bölümler ve sesler bu oyun için özgün olarak hazırlanmıştır.</p>
+        </div>
+    </section>
+
+    <section id="duraklat" class="ekran" hidden aria-labelledby="duraklat-baslik">
+        <div class="kart">
+            <h2 id="duraklat-baslik">Mola</h2>
+            <div class="dugmeler">
+                <button type="button" class="dugme dugme-ana" id="btn-devam">Devam</button>
+                <button type="button" class="dugme" id="btn-yeniden">Baştan</button>
+                <button type="button" class="dugme" id="btn-menu1">Bölümler</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="sonuc" class="ekran" hidden aria-labelledby="sonuc-baslik">
+        <div class="kart">
+            <h2 id="sonuc-baslik">Süre doldu!</h2>
+            <div class="yildizlar" id="sonuc-yildiz" aria-label="Yıldız"></div>
+            <p class="sonuc-satir" id="sonuc-metin"></p>
+            <ol class="sonuc-liste" id="sonuc-liste"></ol>
+            <div class="dugmeler">
+                <button type="button" class="dugme dugme-ana" id="btn-sonraki">Sonraki Bölüm</button>
+                <button type="button" class="dugme" id="btn-tekrar">Tekrar</button>
+                <button type="button" class="dugme" id="btn-menu2">Bölümler</button>
+            </div>
+        </div>
+    </section>
+
+    <div id="kol" class="kol" hidden aria-hidden="true"><div class="kol-top" id="kol-top"></div></div>
+    <div id="geri-sayim" class="geri-sayim" hidden aria-live="assertive"></div>
+    <div id="toast" class="toast" role="status"></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../_shared/edu-kit.js"></script>
+<script src="core.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

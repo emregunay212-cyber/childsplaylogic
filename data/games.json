@@ -1284,6 +1284,29 @@
       }
     },
     {
+      "slug": "obur-delik",
+      "name": "Obur Delik",
+      "module": "OburDelik",
+      "section": "strateji",
+      "cat": "Arcade",
+      "subject": "spor",
+      "age": [6, 12],
+      "minutes": 10,
+      "levels": 1,
+      "teaches": "Büyüklük karşılaştırma, strateji ve plan yapma, el-göz koordinasyonu, zamanı iyi kullanma",
+      "short": "Aç bir delik ol: kendinden küçük her şeyi yut, büyü! Çiçeklerden gökdelenlere 6 şehir bölümü.",
+      "about": "Obur Delik'te şehirde gezen gözlü, aç bir deliksin. Kendinden küçük her şeyi yutabilirsin: önce çiçekler, koniler ve toplar, büyüdükçe banklar, arabalar, ağaçlar, evler, otobüsler, apartmanlar ve sonunda gökdelenler. Senden büyük nesneler deliğin üstünde sallanır ama düşmez; önce büyümen gerekir. Süre bitmeden şehrin ne kadarını yuttuğun yıldızlarını belirler. 6 bölümde park, mahalle, çarşı, liman, şehir merkezi ve gökdelenler seni bekler; sonraki bölümlerde rakip delikler de aynı şehirde yemek arar. Delikler birbirini yutmaz; kim daha çok yutarsa birinci olur. Fareyle imlecin yönüne, dokunmatik ekranda parmağını kaydırarak ya da ok tuşlarıyla oynanır. Büyüklük karşılaştırmayı, plan yapmayı ve zamanı iyi kullanmayı geliştirir. Tüm görseller, bölümler ve sesler bu oyun için özgün olarak hazırlanmıştır. Ücretsiz, üyeliksiz.",
+      "players": "Tek kişilik (bilgisayar rakiplere karşı)",
+      "players_range": [1, 1],
+      "active": true,
+      "stars": 0,
+      "added": "2026-11-26",
+      "files": {
+        "js": ["js/games/obur-delik.js"],
+        "css": ["css/obur-delik.css"]
+      }
+    },
+    {
       "slug": "kelime-tahmin",
       "name": "Kelime Tahmin",
       "module": null,
